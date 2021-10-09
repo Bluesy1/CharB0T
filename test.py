@@ -23,3 +23,7 @@ async def ping(ctx):
     await ctx.send('pong')
 
 bot.run('ODk2NDQ3NTgxNDM2MTI5MzIx.YWHP3g.VRn9KHBv5p8-yH2vFNEOzMNiAG0')
+
+#Bot stuff
+
+
