@@ -227,15 +227,19 @@ class MyClient(discord.Client):
                         return
                     elif str(userid) in pd.read_csv(UserListURL)['userID'].astype(str).to_list():
                         Investmentsdf = pd.read_csv(InvestorsURL, index_col=0).dropna(axis=1, how='all')
-                        """try:
-                            await message.channel.send(Investmentsdf[pd.read_csv(UserListURL, index_col=0)[userid]])
+                        await message.channel.send("Investing for: " + pd.read_csv(UserListURL, index_col=0).loc[userid,'RPO'])
+                        try:
+                            print(Investmentsdf[pd.read_csv(UserListURL, index_col=0).loc[userid,'RPO']])
+                            await message.channel.send('Test1')
                         except:
-                            samplesheet = pyg.open_as_json(pd.read_csv(SSaccessURL, index_col=0).iloc[1,1])
-                            await message.channel.send(samplesheet)
+                            await message.channel.send('Test2')
+                            samplesheet = pyg.open_as_json(pd.read_csv(SSaccessURL, index_col=0).iloc[0,0])
+                            pyg.create(Investmentsdf[pd.read_csv(UserListURL, index_col=0).loc[userid,'RPO']] + " Investment Portfolio", template= samplesheet)
+                            newSheet = c.open(Investmentsdf[pd.read_csv(UserListURL, index_col=0).loc[userid,'RPO']] + " Investment Portfolio")
+                            await message.channel.send(newSheet)
                         finally:
-                            return"""
-                        samplesheet = pyg.open_as_json(pd.read_csv(SSaccessURL, index_col=0).iloc[0,0])
-                        await message.channel.send(samplesheet)
+                            await message.channel.send('Test3')
+                            return
    
 
 
