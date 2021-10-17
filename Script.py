@@ -14,6 +14,7 @@ import json
 import discord
 from discord.ext import commands
 import logging
+import re
 #imports all needed packages
 logger = logging.getLogger('discord')
 logger.setLevel(logging.INFO)
@@ -187,41 +188,36 @@ class MyClient(discord.Client):
                             amount = content.split()[-2]
                             amount = int(''.join(filter(str.isdigit, amount)))
                             await message.channel.send(amount)
+                print(message.content)
                 if message.content.startswith('$joinRPO'):
                     author = message.author
                     userid = author.id
-                    newUser = {'userID':[str(userid)], 'RPO':[message.content.split()[-1]], 'Author':[author]}
-                    df = pd.DataFrame(newUser).set_index('userID')
-                    df2 = pd.DataFrame(newUser)
-                    userList = pd.read_csv(UserListURL, index_col=0).append(pd.DataFrame(newUser))
-                    userListOutput = pd.read_csv(UserListURL).append(df2)
-                    gc = gspread.service_account(filename='service_account.json') #gets credentials
-                    sh = gc.open_by_key(data['UserListID']) #gets sheetinfo
-                    worksheet = sh.get_worksheet(8) #-> 0 - first sheet, 1 - second sheet etc. 
-                    # APPEND DATA TO SHEET
-                    #your_dataframe = pd.DataFrame(data=newrpoDict) #creates DF to export new sheet info to persisten storage 
-                    set_with_dataframe(worksheet, userListOutput) #-> THIS EXPORTS YOUR DATAFRAME TO THE GOOGLE SHEET
-                    await message.channel.send(df2.head())
+                    if str(userid) not in pd.read_csv(UserListURL)['userID'].astype(str).to_list():
+                        RPO  = message.content.split()[-1].upper()
+                        if (RPO.len() <3) or (RPO.len > 4):
+                            await message.channel.send('<:KSplodes:896043440872235028> Error: Invalid RPO')
+                            return
+                        elif not re.match(([A-Z]){4}, RPO):
+                            await message.channel.send('<:KSplodes:896043440872235028> Error: Invalid RPO')
+                            return
+                        newUser = {'userID':[str(userid)], 'RPO':[message.content.split()[-1]].upper(), 'Author':[author]}
+                        df = pd.DataFrame(newUser).set_index('userID')
+                        df2 = pd.DataFrame(newUser)
+                        userList = pd.read_csv(UserListURL, index_col=0).append(pd.DataFrame(newUser))
+                        userListOutput = pd.read_csv(UserListURL).append(df2)
+                        userListOutput['userID'] = userListOutput['userID'].astype(str)
+                        gc = gspread.service_account(filename='service_account.json') #gets credentials
+                        sh = gc.open_by_key(data['UserListID']) #gets sheetinfo
+                        worksheet = sh.get_worksheet(8) #-> 0 - first sheet, 1 - second sheet etc. 
+                        # APPEND DATA TO SHEET
+                        #your_dataframe = pd.DataFrame(data=newrpoDict) #creates DF to export new sheet info to persisten storage 
+                        set_with_dataframe(worksheet, userListOutput) #-> THIS EXPORTS YOUR DATAFRAME TO THE GOOGLE SHEET
+                        await message.channel.send(df2.head())
+                    elif str(userid) in pd.read_csv(UserListURL)['userID'].astype(str).to_list():
+                        await message.channel.send("<:KSplodes:896043440872235028> Error: You are already in an RPO: " + pd.read_csv(UserListURL, index_col=0).loc[userid, 'RPO'])
 
    
-"""
-@bot.command()
-async def joinRPO(ctx, arg):
-    author = ctx.author
-    userid = author.id
-    newUser = {'userID':[userid], 'RPO':[arg], 'Author':[author]}
-    df = pd.DataFrame(newUser).set_index('userID')
-    df2 = pd.DataFrame(newUser)
-    userList = pd.read_csv(UserListURL, index_col=0).append(pd.DataFrame(newUser))
-    userListOutput = pd.read_csv(UserListURL).append(df2)
-    gc = gspread.service_account(filename='service_account.json') #gets credentials
-    sh = gc.open_by_key(data['UserListID']) #gets sheetinfo
-    worksheet = sh.get_worksheet(8) #-> 0 - first sheet, 1 - second sheet etc. 
-    # APPEND DATA TO SHEET
-    #your_dataframe = pd.DataFrame(data=newrpoDict) #creates DF to export new sheet info to persisten storage 
-    set_with_dataframe(worksheet, userListOutput) #-> THIS EXPORTS YOUR DATAFRAME TO THE GOOGLE SHEET
-    await ctx.send(df2.head())
-"""
+
 
 with open('bottoken.json') as t:
     token = json.load(t)['Token']
