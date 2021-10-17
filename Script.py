@@ -187,11 +187,24 @@ class MyClient(discord.Client):
                             amount = content.split()[-2]
                             amount = int(''.join(filter(str.isdigit, amount)))
                             await message.channel.send(amount)
-                #else:
-                    #await message.channel.send('Message from {0.author}: {0.content}'.format(message))
+                if message.content.startswith('$joinRPO'):
+                    author = message.author
+                    userid = author.id
+                    newUser = {'userID':[str(userid)], 'RPO':[message.content.split()[-1]], 'Author':[author]}
+                    df = pd.DataFrame(newUser).set_index('userID')
+                    df2 = pd.DataFrame(newUser)
+                    userList = pd.read_csv(UserListURL, index_col=0).append(pd.DataFrame(newUser))
+                    userListOutput = pd.read_csv(UserListURL).append(df2)
+                    gc = gspread.service_account(filename='service_account.json') #gets credentials
+                    sh = gc.open_by_key(data['UserListID']) #gets sheetinfo
+                    worksheet = sh.get_worksheet(8) #-> 0 - first sheet, 1 - second sheet etc. 
+                    # APPEND DATA TO SHEET
+                    #your_dataframe = pd.DataFrame(data=newrpoDict) #creates DF to export new sheet info to persisten storage 
+                    set_with_dataframe(worksheet, userListOutput) #-> THIS EXPORTS YOUR DATAFRAME TO THE GOOGLE SHEET
+                    await message.channel.send(df2.head())
 
    
-
+"""
 @bot.command()
 async def joinRPO(ctx, arg):
     author = ctx.author
@@ -208,7 +221,7 @@ async def joinRPO(ctx, arg):
     #your_dataframe = pd.DataFrame(data=newrpoDict) #creates DF to export new sheet info to persisten storage 
     set_with_dataframe(worksheet, userListOutput) #-> THIS EXPORTS YOUR DATAFRAME TO THE GOOGLE SHEET
     await ctx.send(df2.head())
-
+"""
 
 with open('bottoken.json') as t:
     token = json.load(t)['Token']
@@ -216,7 +229,7 @@ with open('bottoken.json') as t:
 client = MyClient()
 client.run(token)
 
-bot.run(token)
+#bot.run(token)
 """
 if __name__ == '__main__':
     RPOlist = updateInvestors()
