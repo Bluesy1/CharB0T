@@ -10,7 +10,16 @@ from google.oauth2.credentials import Credentials
 import pandas as pd
 import numpy as np
 import json
+import discord
+from discord.ext import commands
+import logging
 #imports all needed packages
+logger = logging.getLogger('discord')
+logger.setLevel(logging.DEBUG)
+handler = logging.FileHandler(filename='discord.log', encoding='utf-8', mode='w')
+handler.setFormatter(logging.Formatter('%(asctime)s:%(levelname)s:%(name)s: %(message)s'))
+logger.addHandler(handler)
+#Creates a log for the discord bot, good for debugging
 # If modifying these scopes, delete the file token.json. (The end user (In this case You charlie, shouldn't have to do that because i'm not changing the scope unless i have to later))
 SCOPES = ['https://www.googleapis.com/auth/spreadsheets']
 # The ID and range of a sample spreadsheet.
@@ -26,8 +35,12 @@ InvestorsURL = 'https://docs.google.com/spreadsheets/d/{0}/gviz/tq?tqx=out:csv&g
     data['Investorssheetgid']
 )
 SSaccessURL = 'https://docs.google.com/spreadsheets/d/{0}/gviz/tq?tqx=out:csv&gid={1}'.format(
-    data['InvestersID'],
+    data['SSaccessID'],
     data['SSaccessgid']
+)
+UserListURL = 'https://docs.google.com/spreadsheets/d/{0}/gviz/tq?tqx=out:csv&gid={1}'.format(
+    data['UserListID'],
+    data['UserListgid']
 ) #these make the URLS needed for pandas to read the needed CSVs, in combination with the details.json file
 creds = None
 # The file token.json stores the user's access and refresh tokens, and is
@@ -59,8 +72,8 @@ def updateInvestors():
     result = sheet.values().get(spreadsheetId=data['Master_SPREADSHEET_ID'],
                             range=data['Master_RANGE_NAME']).execute()
     values = result.get('values', [])
-    Marketdf = pd.read_csv(URL, index_col=0, usecols=['Symbol', 'Market Price', 'Day change']).dropna(axis=0) #Creates the dataframe (think spreadsheet, but in a more manipulatable manner) for stock prices
-    Investmentsdf = pd.read_csv(InvestorsURL, index_col=0).dropna(axis=1, how='all') #Creates the data fram for investors
+    #Marketdf = pd.read_csv(URL, index_col=0, usecols=['Symbol', 'Market Price', 'Day change']).dropna(axis=0) #Creates the dataframe (think spreadsheet, but in a more manipulatable manner) for stock prices
+    Investmentsdf = pd.read_csv(InvestorsURL, index_col=0).dropna(axis=1, how='all') #Creates the data frame for investors
     RPOlist = list() #initializes empty list for list of RPOs with investments
     spreadoutsdf = pd.read_csv(SSaccessURL, index_col=0)
     spreadoutsdf2 = pd.read_csv(SSaccessURL)
@@ -145,8 +158,23 @@ def portfolio(rpo):
     }
     request = service.spreadsheets().values().batchUpdate(spreadsheetId=spreadoutsdf.loc[rpo, 'sheetID'], body=batch_update_values_request_body)
     response = request.execute() #updates spreadsheet
-    
 
+userList = pd.read_csv(UserListURL, index_col=0) 
+print(userList.head())
+#bot stuff here:
+bot = commands.Bot(command_prefix='$') #this sets the prefix, needed to tell the bot what messages to look at, for now its set to `$`, this can change later
+
+@bot.command()
+async def test(ctx, arg):
+    await ctx.send(arg)
+
+@bot.command()
+async def joinRPO(ctx, arg):
+    author = ctx.author
+    userid = author.id
+
+
+"""
 if __name__ == '__main__':
     RPOlist = updateInvestors()
 
@@ -155,3 +183,4 @@ if __name__ == '__main__':
 if __name__ == '__main__':
     for i in RPOlist:
        portfolio(i)
+"""
