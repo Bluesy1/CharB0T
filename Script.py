@@ -16,7 +16,7 @@ from discord.ext import commands
 import logging
 import pygsheets
 #imports all needed packages
-pyg = pygsheets.authorize() #Inits the pygsheets api
+pyg = pygsheets.authorize(client_secret='credentials.json') #Inits the pygsheets api
 logger = logging.getLogger('discord')
 logger.setLevel(logging.INFO)
 handler = logging.FileHandler(filename='discord.log', encoding='utf-8', mode='w')
@@ -227,13 +227,15 @@ class MyClient(discord.Client):
                         return
                     elif str(userid) in pd.read_csv(UserListURL)['userID'].astype(str).to_list():
                         Investmentsdf = pd.read_csv(InvestorsURL, index_col=0).dropna(axis=1, how='all')
-                        try:
-                            Investmentsdf[pd.read_csv(UserListURL, index_col=0)[userid]]
+                        """try:
+                            await message.channel.send(Investmentsdf[pd.read_csv(UserListURL, index_col=0)[userid]])
                         except:
-                            samplesheet = pyg.sheet.get(pd.read_csv(SSaccessURL, index_col=0).iloc[1,1])
-                            print(samplesheet)
+                            samplesheet = pyg.open_as_json(pd.read_csv(SSaccessURL, index_col=0).iloc[1,1])
+                            await message.channel.send(samplesheet)
                         finally:
-                            return
+                            return"""
+                        samplesheet = pyg.open_as_json(pd.read_csv(SSaccessURL, index_col=0).iloc[0,0])
+                        await message.channel.send(samplesheet)
    
 
 

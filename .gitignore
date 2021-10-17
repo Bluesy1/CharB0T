@@ -7,3 +7,4 @@ service_account.json
 discord.log
 mods.json
 bottoken.json
+sheets.googleapis.com-python.json
