@@ -4,3 +4,4 @@ credentials.json
 token.json
 authorized_user.json
 service_account.json
+discord.log
