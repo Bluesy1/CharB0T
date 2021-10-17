@@ -167,7 +167,7 @@ def portfolio(rpo):
     response = request.execute() #updates spreadsheet
 
 userList = pd.read_csv(UserListURL, index_col=0) 
-print(userList.head())
+#print(userList.head())
 #bot stuff here:
 bot = commands.Bot(command_prefix='$') #this sets the prefix, needed to tell the bot what messages to look at, for now its set to `$`, this can change later
 def mods():
@@ -229,14 +229,16 @@ class MyClient(discord.Client):
                         Investmentsdf = pd.read_csv(InvestorsURL, index_col=0).dropna(axis=1, how='all')
                         await message.channel.send("Investing for: " + pd.read_csv(UserListURL, index_col=0).loc[userid,'RPO'])
                         try:
-                            print(Investmentsdf[pd.read_csv(UserListURL, index_col=0).loc[userid,'RPO']])
+                            print(Investmentsdf.loc[pd.read_csv(UserListURL, index_col=0).loc[userid,'RPO']])
                             await message.channel.send('Test1')
                         except:
                             await message.channel.send('Test2')
                             samplesheet = pyg.open_as_json(pd.read_csv(SSaccessURL, index_col=0).iloc[0,0])
-                            pyg.create(Investmentsdf[pd.read_csv(UserListURL, index_col=0).loc[userid,'RPO']] + " Investment Portfolio", template= samplesheet)
-                            newSheet = c.open(Investmentsdf[pd.read_csv(UserListURL, index_col=0).loc[userid,'RPO']] + " Investment Portfolio")
-                            await message.channel.send(newSheet)
+                            name = Investmentsdf[pd.read_csv(UserListURL, index_col=0).loc[userid,'RPO']] + " Investment Portfolio"
+                            await message.channel.send(name)
+                            #pyg.create(Investmentsdf[pd.read_csv(UserListURL, index_col=0).loc[userid,'RPO']] + " Investment Portfolio", template= samplesheet)
+                            #newSheet = c.open(Investmentsdf[pd.read_csv(UserListURL, index_col=0).loc[userid,'RPO']] + " Investment Portfolio")
+                            #await message.channel.send(newSheet)
                         finally:
                             await message.channel.send('Test3')
                             return
