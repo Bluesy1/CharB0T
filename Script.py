@@ -14,8 +14,9 @@ import json
 import discord
 from discord.ext import commands
 import logging
-import re
+import pygsheets
 #imports all needed packages
+pyg = pygsheets.authorize() #Inits the pygsheets api
 logger = logging.getLogger('discord')
 logger.setLevel(logging.INFO)
 handler = logging.FileHandler(filename='discord.log', encoding='utf-8', mode='w')
@@ -192,7 +193,7 @@ class MyClient(discord.Client):
                             amount = content.split()[-2]
                             amount = int(''.join(filter(str.isdigit, amount)))
                             await message.channel.send(amount)
-                print(message.content)
+                #print(message.content)
                 if message.content.startswith('$joinRPO'):
                     author = message.author
                     userid = author.id
@@ -202,6 +203,7 @@ class MyClient(discord.Client):
                         return
                     elif str(userid) in pd.read_csv(UserListURL)['userID'].astype(str).to_list():
                         await message.channel.send("<:KSplodes:896043440872235028> Error: You are already in an RPO: " + pd.read_csv(UserListURL, index_col=0).loc[userid, 'RPO'])
+                        return
                     elif str(userid) not in pd.read_csv(UserListURL)['userID'].astype(str).to_list():
                         newUser = {'userID':[str(userid)], 'RPO':[message.content.split()[-1].upper()], 'Author':[author]}
                         df = pd.DataFrame(newUser).set_index('userID')
@@ -216,7 +218,22 @@ class MyClient(discord.Client):
                         #your_dataframe = pd.DataFrame(data=newrpoDict) #creates DF to export new sheet info to persisten storage 
                         set_with_dataframe(worksheet, userListOutput) #-> THIS EXPORTS YOUR DATAFRAME TO THE GOOGLE SHEET
                         await message.channel.send(df2.head())
-
+                elif message.content.startswith('$buyShares'):
+                    author = message.author
+                    userid = author.id
+                    args = message.content.split()
+                    if str(userid) not in pd.read_csv(UserListURL)['userID'].astype(str).to_list():
+                        await message.channel.send("<:KSplodes:896043440872235028> Error: Not registered in an RPO for the bot. Please register with the bot through $joinRPO <RPO_Tag>")
+                        return
+                    elif str(userid) in pd.read_csv(UserListURL)['userID'].astype(str).to_list():
+                        Investmentsdf = pd.read_csv(InvestorsURL, index_col=0).dropna(axis=1, how='all')
+                        try:
+                            Investmentsdf[pd.read_csv(UserListURL, index_col=0)[userid]]
+                        except:
+                            samplesheet = pyg.sheet.get(pd.read_csv(SSaccessURL, index_col=0).iloc[1,1])
+                            print(samplesheet)
+                        finally:
+                            return
    
 
 
