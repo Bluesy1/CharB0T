@@ -43,7 +43,11 @@ SSaccessURL = 'https://docs.google.com/spreadsheets/d/{0}/gviz/tq?tqx=out:csv&gi
 UserListURL = 'https://docs.google.com/spreadsheets/d/{0}/gviz/tq?tqx=out:csv&gid={1}'.format(
     data['UserListID'],
     data['UserListgid']
-) #these make the URLS needed for pandas to read the needed CSVs, in combination with the details.json file
+)
+RPOInfoURL = 'https://docs.google.com/spreadsheets/d/{0}/gviz/tq?tqx=out:csv&gid={1}'.format(
+    data['RPOinfoID'],
+    data['RPOinfogid']
+)  #these make the URLS needed for pandas to read the needed CSVs, in combination with the details.json file
 creds = None
 # The file token.json stores the user's access and refresh tokens, and is
 # created automatically when the authorization flow completes for the first
@@ -192,15 +196,14 @@ class MyClient(discord.Client):
                 if message.content.startswith('$joinRPO'):
                     author = message.author
                     userid = author.id
-                    if str(userid) not in pd.read_csv(UserListURL)['userID'].astype(str).to_list():
-                        RPO  = message.content.split()[-1].upper()
-                        if (RPO.len() <3) or (RPO.len > 4):
-                            await message.channel.send('<:KSplodes:896043440872235028> Error: Invalid RPO')
-                            return
-                        elif not re.match(([A-Z]){4}, RPO):
-                            await message.channel.send('<:KSplodes:896043440872235028> Error: Invalid RPO')
-                            return
-                        newUser = {'userID':[str(userid)], 'RPO':[message.content.split()[-1]].upper(), 'Author':[author]}
+                    RPO  = message.content.split()[-1].upper()
+                    if RPO not in pd.read_csv(RPOInfoURL, index_col=0, usecols=['FULL NAME', 'TAG', 'Account Balance'])['TAG'].astype(str).to_list():
+                        await message.channel.send("<:KSplodes:896043440872235028> Error: RPO " +RPO + " is not a registered RPO")
+                        return
+                    elif str(userid) in pd.read_csv(UserListURL)['userID'].astype(str).to_list():
+                        await message.channel.send("<:KSplodes:896043440872235028> Error: You are already in an RPO: " + pd.read_csv(UserListURL, index_col=0).loc[userid, 'RPO'])
+                    elif str(userid) not in pd.read_csv(UserListURL)['userID'].astype(str).to_list():
+                        newUser = {'userID':[str(userid)], 'RPO':[message.content.split()[-1].upper()], 'Author':[author]}
                         df = pd.DataFrame(newUser).set_index('userID')
                         df2 = pd.DataFrame(newUser)
                         userList = pd.read_csv(UserListURL, index_col=0).append(pd.DataFrame(newUser))
@@ -213,8 +216,6 @@ class MyClient(discord.Client):
                         #your_dataframe = pd.DataFrame(data=newrpoDict) #creates DF to export new sheet info to persisten storage 
                         set_with_dataframe(worksheet, userListOutput) #-> THIS EXPORTS YOUR DATAFRAME TO THE GOOGLE SHEET
                         await message.channel.send(df2.head())
-                    elif str(userid) in pd.read_csv(UserListURL)['userID'].astype(str).to_list():
-                        await message.channel.send("<:KSplodes:896043440872235028> Error: You are already in an RPO: " + pd.read_csv(UserListURL, index_col=0).loc[userid, 'RPO'])
 
    
 
