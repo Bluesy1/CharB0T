@@ -234,11 +234,11 @@ class MyClient(discord.Client):
                         except:
                             await message.channel.send('Test2')
                             samplesheet = pyg.open_as_json(pd.read_csv(SSaccessURL, index_col=0).iloc[0,0])
-                            name = Investmentsdf.loc[pd.read_csv(UserListURL, index_col=0).loc[userid,'RPO']] + " Investment Portfolio"
-                            await message.channel.send(name)
-                            #pyg.create(Investmentsdf[pd.read_csv(UserListURL, index_col=0).loc[userid,'RPO']] + " Investment Portfolio", template= samplesheet)
-                            #newSheet = c.open(Investmentsdf[pd.read_csv(UserListURL, index_col=0).loc[userid,'RPO']] + " Investment Portfolio")
-                            #await message.channel.send(newSheet)
+                            name = pd.read_csv(UserListURL, index_col=0).loc[userid,'RPO'] + " Investment Portfolio"
+                            await message.channel.send("Creating sheet called: " + name)
+                            pyg.create(name, template= samplesheet)
+                            newSheet = pyg.open(name)
+                            await message.channel.send(newSheet)
                         finally:
                             await message.channel.send('Test3')
                             return
