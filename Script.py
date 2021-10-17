@@ -1,6 +1,7 @@
 from __future__ import print_function
 import enum
 import os.path
+from discord import client
 from googleapiclient.discovery import build
 import gspread
 from gspread_dataframe import set_with_dataframe
@@ -15,7 +16,7 @@ from discord.ext import commands
 import logging
 #imports all needed packages
 logger = logging.getLogger('discord')
-logger.setLevel(logging.DEBUG)
+logger.setLevel(logging.INFO)
 handler = logging.FileHandler(filename='discord.log', encoding='utf-8', mode='w')
 handler.setFormatter(logging.Formatter('%(asctime)s:%(levelname)s:%(name)s: %(message)s'))
 logger.addHandler(handler)
@@ -98,7 +99,7 @@ def updateInvestors():
             # ACCES GOOGLE SHEET
             gc = gspread.service_account(filename='service_account.json') #gets credentials
             sh = gc.open_by_key(data['SSaccessID']) #gets sheetinfo
-            worksheet = sh.get_wor1E9FCcHQc7fge049ToQIuRWZ57goXdlcXsNgrtOBwDSMksheet(7) #-> 0 - first sheet, 1 - second sheet etc. 
+            worksheet = sh.get_worksheet(7) #-> 0 - first sheet, 1 - second sheet etc. 
             # APPEND DATA TO SHEET
             #your_dataframe = pd.DataFrame(data=newrpoDict) #creates DF to export new sheet info to persisten storage 
             set_with_dataframe(worksheet, spreadoutsdf2) #-> THIS EXPORTS YOUR DATAFRAME TO THE GOOGLE SHEET
@@ -163,17 +164,59 @@ userList = pd.read_csv(UserListURL, index_col=0)
 print(userList.head())
 #bot stuff here:
 bot = commands.Bot(command_prefix='$') #this sets the prefix, needed to tell the bot what messages to look at, for now its set to `$`, this can change later
+def mods():
+    with open('mods.json') as m: #the mods.json file contains the userIDs of the mods helping manage the project, and charlie
+        modList = json.load(m)['Mods']
+    return modList
 
-@bot.command()
-async def test(ctx, arg):
-    await ctx.send(arg)
+class MyClient(discord.Client):
+    async def on_ready(self):
+        print('Logged on as {0}!'.format(self.user))
+
+    async def on_message(self, message):
+        """if message.author.id == 406885177281871902:
+            if message.channel == 687817008355737606:
+                await message.channel.send('Message from {0.author}: {0.content}'.format(message))
+        else:"""
+        if message.channel.id == 687817008355737606:
+            if message.embeds != None:
+                if message.author.id == 406885177281871902:
+                        embeds = message.embeds # return list of embeds
+                        for embed in embeds:
+                            content = embed.to_dict()['description'] # Pulls out message content of embed
+                            amount = content.split()[-2]
+                            amount = int(''.join(filter(str.isdigit, amount)))
+                            await message.channel.send(amount)
+                #else:
+                    #await message.channel.send('Message from {0.author}: {0.content}'.format(message))
+
+   
 
 @bot.command()
 async def joinRPO(ctx, arg):
     author = ctx.author
     userid = author.id
+    newUser = {'userID':[userid], 'RPO':[arg], 'Author':[author]}
+    df = pd.DataFrame(newUser).set_index('userID')
+    df2 = pd.DataFrame(newUser)
+    userList = pd.read_csv(UserListURL, index_col=0).append(pd.DataFrame(newUser))
+    userListOutput = pd.read_csv(UserListURL).append(df2)
+    gc = gspread.service_account(filename='service_account.json') #gets credentials
+    sh = gc.open_by_key(data['UserListID']) #gets sheetinfo
+    worksheet = sh.get_worksheet(8) #-> 0 - first sheet, 1 - second sheet etc. 
+    # APPEND DATA TO SHEET
+    #your_dataframe = pd.DataFrame(data=newrpoDict) #creates DF to export new sheet info to persisten storage 
+    set_with_dataframe(worksheet, userListOutput) #-> THIS EXPORTS YOUR DATAFRAME TO THE GOOGLE SHEET
+    await ctx.send(df2.head())
 
 
+with open('bottoken.json') as t:
+    token = json.load(t)['Token']
+
+client = MyClient()
+client.run(token)
+
+bot.run(token)
 """
 if __name__ == '__main__':
     RPOlist = updateInvestors()
