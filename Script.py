@@ -29,7 +29,7 @@ InvestorsURL = 'https://docs.google.com/spreadsheets/d/{0}/gviz/tq?tqx=out:csv&g
 SSaccessURL = 'https://docs.google.com/spreadsheets/d/{0}/gviz/tq?tqx=out:csv&gid={1}'.format(
     data['InvestersID'],
     data['SSaccessgid']
-)
+) #these make the URLS needed for pandas to read the needed CSVs, in combination with the details.json file
 creds = None
 # The file token.json stores the user's access and refresh tokens, and is
 # created automatically when the authorization flow completes for the first
@@ -115,7 +115,7 @@ def portfolio(rpo):
     history = history.astype(float)
     minimum = min(history)*0.8
     maximum = max(history)*1.2
-    minmax = [minimum, maximum]
+    minmax = [minimum, maximum] #these lines do stuff to get the min and max values for the line graph
     history = [str(round(x,2)) for x in history]
     history = list(history)
     print(history)
