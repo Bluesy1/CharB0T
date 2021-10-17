@@ -11,12 +11,11 @@ import pandas as pd
 import numpy as np
 import json
 #imports all needed packages
-
-# If modifying these scopes, delete the file token.json.
+# If modifying these scopes, delete the file token.json. (The end user (In this case You charlie, shouldn't have to do that because i'm not changing the scope unless i have to later))
 SCOPES = ['https://www.googleapis.com/auth/spreadsheets']
 # The ID and range of a sample spreadsheet.
 with open('details.json') as f:
-  data = json.load(f)
+    data = json.load(f) 
 
 URL = 'https://docs.google.com/spreadsheets/d/{0}/gviz/tq?tqx=out:csv&gid={1}'.format(
     data['googleSheetId'],
@@ -86,7 +85,7 @@ def updateInvestors():
             # ACCES GOOGLE SHEET
             gc = gspread.service_account(filename='service_account.json') #gets credentials
             sh = gc.open_by_key(data['SSaccessID']) #gets sheetinfo
-            worksheet = sh.get_worksheet(7) #-> 0 - first sheet, 1 - second sheet etc. 
+            worksheet = sh.get_wor1E9FCcHQc7fge049ToQIuRWZ57goXdlcXsNgrtOBwDSMksheet(7) #-> 0 - first sheet, 1 - second sheet etc. 
             # APPEND DATA TO SHEET
             #your_dataframe = pd.DataFrame(data=newrpoDict) #creates DF to export new sheet info to persisten storage 
             set_with_dataframe(worksheet, spreadoutsdf2) #-> THIS EXPORTS YOUR DATAFRAME TO THE GOOGLE SHEET
