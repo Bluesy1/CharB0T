@@ -244,7 +244,7 @@ class MyClient(discord.Client):
                         set_with_dataframe(worksheet, userListOutput) #-> THIS EXPORTS YOUR DATAFRAME TO THE GOOGLE SHEET
                         print("<@!"+str(message.author.id) + "> you are now in RPO " + str(newUser['RPO'][0]))
                         await message.channel.send("<@!"+str(message.author.id) + "> you are now in RPO " + str(newUser['RPO'][0]))
-                elif message.content.startswith('$updatePortfolios') and False:
+                elif message.content.startswith('$updatePortfolios'):
                     sheet = service.spreadsheets()
                     result = sheet.values().get(spreadsheetId=data['Master_SPREADSHEET_ID'],
                         range=data['Master_RANGE_NAME']).execute()
@@ -260,7 +260,7 @@ class MyClient(discord.Client):
                     for i in RPOlist:
                         portfolio(i)
                     await message.channel.send("Portfolio's updated!")
-                elif message.content.startswith('$updateInvestors') and False:
+                elif message.content.startswith('$updateInvestors'):
                     await message.channel.send("Investors's updated!")
                     updateInvestors()
                 elif message.content.startswith('$buyShares') and False: #args: <Coins/Funds>, <Symbol>, <Amount> 
