@@ -4,10 +4,12 @@ import os.path
 from discord import client
 from googleapiclient.discovery import build
 import gspread
+from gspread.models import Spreadsheet
 from gspread_dataframe import set_with_dataframe
 from google_auth_oauthlib.flow import InstalledAppFlow
 from google.auth.transport.requests import Request
 from google.oauth2.credentials import Credentials
+from httplib2 import Response
 import pandas as pd
 import numpy as np
 import json
@@ -112,59 +114,62 @@ def updateInvestors():
     return RPOlist
 
 def portfolio(rpo):
-    Marketdf = pd.read_csv(URL, index_col=0, usecols=['Symbol', 'Market Price', 'Day change']) #Creates the dataframe (think spreadsheet, but in a more manipulatable manner) for stock prices
-    Investmentsdf = pd.read_csv(InvestorsURL, index_col=0) #Creates the data frame for investors
-    spreadoutsdf = pd.read_csv(SSaccessURL, index_col=0) #creates the data frame that we reference to get the info needed to push stuff to spreadsheets
-    df = pd.DataFrame(Investmentsdf.loc[rpo]) #creates the data frame with the specific investments with just one rpo
-    df = df.reset_index() #fixes the data frame so it can be concatenated with with the market value data frame
-    Marketdf = Marketdf.reset_index() #fixes the data frame so it can be concatenated with the specific investments data frame
-    df = pd.concat([df, Marketdf], axis = 1).dropna(axis=0).rename(columns={rpo:'Shares'}) #concatenates the two dataframes, removes private companies, and fixes a column title
-    df['Market Value'] = df['Shares'] * df['Market Price']  #does the math to make the market value column
-    sum = df['Market Value'].sum() #Gets the sum of the stock prices
+    if rpo == 'EXMPL':
+        return
+    else:
+        Marketdf = pd.read_csv(URL, index_col=0, usecols=['Symbol', 'Market Price', 'Day change']) #Creates the dataframe (think spreadsheet, but in a more manipulatable manner) for stock prices
+        Investmentsdf = pd.read_csv(InvestorsURL, index_col=0) #Creates the data frame for investors
+        spreadoutsdf = pd.read_csv(SSaccessURL, index_col=0) #creates the data frame that we reference to get the info needed to push stuff to spreadsheets
+        df = pd.DataFrame(Investmentsdf.loc[rpo]) #creates the data frame with the specific investments with just one rpo
+        df = df.reset_index() #fixes the data frame so it can be concatenated with with the market value data frame
+        Marketdf = Marketdf.reset_index() #fixes the data frame so it can be concatenated with the specific investments data frame
+        df = pd.concat([df, Marketdf], axis = 1).dropna(axis=0).rename(columns={rpo:'Shares'}) #concatenates the two dataframes, removes private companies, and fixes a column title
+        df['Market Value'] = df['Shares'] * df['Market Price']  #does the math to make the market value column
+        sum = df['Market Value'].sum() #Gets the sum of the stock prices
 
 
 
-    request = service.spreadsheets().values().get(spreadsheetId=spreadoutsdf.loc[rpo, 'sheetID'], range='Visuals!C32:C40', majorDimension = 'COLUMNS', valueRenderOption = 'UNFORMATTED_VALUE')
-    response = request.execute()
-    history = response['values']
-    history = [ item for elem in history for item in elem]
-    history.append(sum)
-    history.insert(0, sum)
-    history = np.array(history)
-    history = history.astype(float)
-    minimum = min(history)*0.8
-    maximum = max(history)*1.2
-    minmax = [minimum, maximum] #these lines do stuff to get the min and max values for the line graph
-    history = [str(round(x,2)) for x in history]
-    history = list(history)
-    print(history)
-    batch_update_values_request_body = {
-        "value_input_option" : 'USER_ENTERED',  # How the input data should be interpreted.
-        "data": [
-            {"range": 'A11:E44',
-            "majorDimension":'COLUMNS',
-            "values": [
-                df['Shares'].tolist(),
-                df['Symbol'].tolist(),
-                df['Market Price'].tolist(),
-                df['Day change'].tolist(),
-                df['Market Value'].tolist()]},#Converts dataframe into the form needed to send to google sheets
-            {"range": 'E4',
-            "majorDimension":'COLUMNS',
-            "values":[[sum]]
-            },
-            {"range": 'Visuals!C30:C40',
-            "majorDimension":'COLUMNS',
-            "values":[history]
-            },
-            {"range": 'Visuals!A14:A15',
-            "majorDimension":'COLUMNS',
-            "values":[minmax]
-            }
-            ]#Prepares full list of values that need to be sent to the spreadsheet 
-    }
-    request = service.spreadsheets().values().batchUpdate(spreadsheetId=spreadoutsdf.loc[rpo, 'sheetID'], body=batch_update_values_request_body)
-    response = request.execute() #updates spreadsheet
+        request = service.spreadsheets().values().get(spreadsheetId=spreadoutsdf.loc[rpo, 'sheetID'], range='Visuals!C32:C40', majorDimension = 'COLUMNS', valueRenderOption = 'UNFORMATTED_VALUE')
+        response = request.execute()
+        history = response['values']
+        history = [ item for elem in history for item in elem]
+        history.append(sum)
+        history.insert(0, sum)
+        history = np.array(history)
+        history = history.astype(float)
+        minimum = min(history)*0.8
+        maximum = max(history)*1.2
+        minmax = [minimum, maximum] #these lines do stuff to get the min and max values for the line graph
+        history = [str(round(x,2)) for x in history]
+        history = list(history)
+        print(history)
+        batch_update_values_request_body = {
+            "value_input_option" : 'USER_ENTERED',  # How the input data should be interpreted.
+            "data": [
+                {"range": 'A11:E44',
+                "majorDimension":'COLUMNS',
+                "values": [
+                    df['Shares'].tolist(),
+                    df['Symbol'].tolist(),
+                    df['Market Price'].tolist(),
+                    df['Day change'].tolist(),
+                    df['Market Value'].tolist()]},#Converts dataframe into the form needed to send to google sheets
+                {"range": 'E4',
+                "majorDimension":'COLUMNS',
+                "values":[[sum]]
+                },
+                {"range": 'Visuals!C30:C40',
+                "majorDimension":'COLUMNS',
+                "values":[history]
+                },
+                {"range": 'Visuals!A14:A15',
+                "majorDimension":'COLUMNS',
+                "values":[minmax]
+                }
+                ]#Prepares full list of values that need to be sent to the spreadsheet 
+        }
+        request = service.spreadsheets().values().batchUpdate(spreadsheetId=spreadoutsdf.loc[rpo, 'sheetID'], body=batch_update_values_request_body)
+        response = request.execute() #updates spreadsheet
 
 userList = pd.read_csv(UserListURL, index_col=0) 
 #print(userList.head())
@@ -184,24 +189,27 @@ class MyClient(discord.Client):
             if message.channel == 687817008355737606:
                 await message.channel.send('Message from {0.author}: {0.content}'.format(message))
         else:"""
-        if message.channel.id == 687817008355737606:
+        if message.channel.id == 687817008355737606 or message.channel.id == 893867549589131314:
             if message.embeds != None:
                 if message.author.id == 406885177281871902:
                         embeds = message.embeds # return list of embeds
                         for embed in embeds:
                             content = embed.to_dict()['description'] # Pulls out message content of embed
                             amount = content.split()[-2]
-                            amount = int(''.join(filter(str.isdigit, amount)))
-                            await message.channel.send(amount)
+                            try:
+                                amount = int(''.join(filter(str.isdigit, amount)))
+                                await message.channel.send(amount)
+                            except:
+                                return
                 #print(message.content)
                 if message.content.startswith('$joinRPO'):
                     author = message.author
                     userid = author.id
                     RPO  = message.content.split()[-1].upper()
-                    if RPO not in pd.read_csv(RPOInfoURL, index_col=0, usecols=['FULL NAME', 'TAG', 'Account Balance'])['TAG'].astype(str).to_list():
+                    if RPO not in pd.read_csv(RPOInfoURL, index_col=0, usecols=['FULL NAME', 'TAG', 'Account Balance'])['TAG'].astype(str).to_list(): #makes sure RPO trying to be joined exists
                         await message.channel.send("<:KSplodes:896043440872235028> Error: RPO " +RPO + " is not a registered RPO")
                         return
-                    elif str(userid) in pd.read_csv(UserListURL)['userID'].astype(str).to_list():
+                    elif str(userid) in pd.read_csv(UserListURL)['userID'].astype(str).to_list(): #makes sure user isn't already in an RPO
                         await message.channel.send("<:KSplodes:896043440872235028> Error: You are already in an RPO: " + pd.read_csv(UserListURL, index_col=0).loc[userid, 'RPO'])
                         return
                     elif str(userid) not in pd.read_csv(UserListURL)['userID'].astype(str).to_list():
@@ -217,7 +225,8 @@ class MyClient(discord.Client):
                         # APPEND DATA TO SHEET
                         #your_dataframe = pd.DataFrame(data=newrpoDict) #creates DF to export new sheet info to persisten storage 
                         set_with_dataframe(worksheet, userListOutput) #-> THIS EXPORTS YOUR DATAFRAME TO THE GOOGLE SHEET
-                        await message.channel.send(df2.head())
+                        print("<@!"+str(message.author.id) + "> you are now in RPO " + str(newUser['RPO'][0]))
+                        await message.channel.send("<@!"+str(message.author.id) + "> you are now in RPO " + str(newUser['RPO'][0]))
                 elif message.content.startswith('$buyShares'):
                     author = message.author
                     userid = author.id
@@ -232,19 +241,10 @@ class MyClient(discord.Client):
                             print(Investmentsdf.loc[pd.read_csv(UserListURL, index_col=0).loc[userid,'RPO']])
                             await message.channel.send('Test1')
                         except:
-                            await message.channel.send('Test2')
-                            samplesheet = pyg.open_as_json(pd.read_csv(SSaccessURL, index_col=0).iloc[0,0])
-                            name = pd.read_csv(UserListURL, index_col=0).loc[userid,'RPO'] + " Investment Portfolio"
-                            await message.channel.send("Creating sheet called: " + name)
-                            pyg.create(name, template= samplesheet)
-                            newSheet = pyg.open(name)
-                            await message.channel.send(newSheet)
+                            return
                         finally:
                             await message.channel.send('Test3')
                             return
-   
-
-
 with open('bottoken.json') as t:
     token = json.load(t)['Token']
 
