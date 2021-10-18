@@ -232,7 +232,8 @@ class MyClient(discord.Client):
                         await message.channel.send("<:KSplodes:896043440872235028> Error: You are already in an RPO: " + pd.read_csv(UserListURL, index_col=0).loc[userid, 'RPO'])
                         return
                     elif str(userid) not in pd.read_csv(UserListURL)['userID'].astype(str).to_list():
-                        newUser = {'userID':[str(userid)], 'RPO':[message.content.split()[-1].upper()], 'Author':[author], 'Coins Spent': [0]}
+                        rpo = RPO
+                        newUser = {'userID':[str(userid)], 'RPO':RPO, 'Author':[author], 'Coins Spent': [0]}
                         df = pd.DataFrame(newUser).set_index('userID')
                         df2 = pd.DataFrame(newUser)
                         userList = pd.read_csv(UserListURL, index_col=0).append(pd.DataFrame(newUser))
@@ -246,8 +247,8 @@ class MyClient(discord.Client):
                         set_with_dataframe(worksheet, userListOutput) #-> THIS EXPORTS YOUR DATAFRAME TO THE GOOGLE SHEET
                         print("<@!"+str(message.author.id) + "> you are now in RPO " + str(newUser['RPO'][0]))
                         name = message.author.display_name
-                        message.author.edit(nick=name+"["+message.content.split()[-1].upper()+"]")
-                        await message.channel.send("<@!"+str(message.author.id) + "> you are now in RPO " + str(newUser['RPO'][0]))
+                        await message.author.edit(nick=name+" ["+str(rpo)+"]")
+                        await message.channel.send("<@!"+str(message.author.id) + "> you are now in RPO " + rpo)
                 elif message.content.startswith('$updatePortfolios'):
                     if message.author not in mods():
                         return
