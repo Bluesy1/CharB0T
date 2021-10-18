@@ -272,6 +272,35 @@ class MyClient(discord.Client):
                         return
                     updateInvestors()
                     await message.channel.send("Investors's updated!")
+                elif message.content.startswith('$work'):
+                    if message.author.id == 406885177281871902:
+                        return
+                    await message.channel.send(message.content)
+                    isAllowed = False
+                    allowedids = ['837812373451702303','837812586997219372','837812662116417566','837812728801525781','837812793914425455','400445639210827786','685331877057658888','337743478190637077','837813262417788988','725377514414932030','253752685357039617']
+                    for id in allowedids:
+                        if discord.utils.get(message.guild.roles, id=int(id)) in message.author.roles:
+                            isAllowed = True
+                        else:
+                            print()
+                    if isAllowed:
+                        await message.channel.send('Allowed to use command')
+                    elif isAllowed == False:
+                            await message.channel.send('Not allowed to use command')
+                elif message.content.startswith('$daily'):
+                    if message.author.id == 406885177281871902:
+                        return
+                    await message.channel.send(message.content)
+                    isAllowed = False
+                    for role in ['225414319938994186','225414600101724170','225414953820094465','377254753907769355','725377514414932030','253752685357039617']:
+                        if discord.utils.get(message.guild.roles, id=int(role)) in message.author.roles:
+                            isAllowed = True
+                        else:
+                            print()
+                    if isAllowed:
+                        await message.channel.send('Allowed to use command')
+                    elif isAllowed == False:
+                        await message.channel.send('Not allowed to use command')
                 elif message.content.startswith('$buyShares'): #args: <Coins/Funds>, <Symbol>, <Amount> 
                     if message.channel.id != 687817008355737606:
                         return
