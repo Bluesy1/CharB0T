@@ -20,7 +20,7 @@ import pygsheets
 #imports all needed packages
 pyg = pygsheets.authorize(client_secret='credentials.json') #Inits the pygsheets api
 logger = logging.getLogger('discord')
-logger.setLevel(logging.INFO)
+logger.setLevel(logging.DEBUG)
 handler = logging.FileHandler(filename='discord.log', encoding='utf-8', mode='w')
 handler.setFormatter(logging.Formatter('%(asctime)s:%(levelname)s:%(name)s: %(message)s'))
 logger.addHandler(handler)
@@ -142,7 +142,7 @@ def portfolio(rpo):
         minmax = [minimum, maximum] #these lines do stuff to get the min and max values for the line graph
         history = [str(round(x,2)) for x in history]
         history = list(history)
-        print(history)
+        print(rpo)
         batch_update_values_request_body = {
             "value_input_option" : 'USER_ENTERED',  # How the input data should be interpreted.
             "data": [
@@ -244,6 +244,25 @@ class MyClient(discord.Client):
                         set_with_dataframe(worksheet, userListOutput) #-> THIS EXPORTS YOUR DATAFRAME TO THE GOOGLE SHEET
                         print("<@!"+str(message.author.id) + "> you are now in RPO " + str(newUser['RPO'][0]))
                         await message.channel.send("<@!"+str(message.author.id) + "> you are now in RPO " + str(newUser['RPO'][0]))
+                elif message.content.startswith('$updatePortfolios'):
+                    sheet = service.spreadsheets()
+                    result = sheet.values().get(spreadsheetId=data['Master_SPREADSHEET_ID'],
+                        range=data['Master_RANGE_NAME']).execute()
+                    values = result.get('values', [])
+                    #Marketdf = pd.read_csv(URL, index_col=0, usecols=['Symbol', 'Market Price', 'Day change']).dropna(axis=0) #Creates the dataframe (think spreadsheet, but in a more manipulatable manner) for stock prices
+                    Investmentsdf = pd.read_csv(InvestorsURL, index_col=0).dropna(axis=1, how='all') #Creates the data frame for investors
+                    RPOlist = list() #initializes empty list for list of RPOs with investments
+                    spreadoutsdf = pd.read_csv(SSaccessURL, index_col=0)
+                    spreadoutsdf2 = pd.read_csv(SSaccessURL)
+                    for row in values:
+                        RPOlist.append(row[0]) #Adds all RPOs with investments to a list
+                    #print(RPOlist)
+                    for i in RPOlist:
+                        portfolio(i)
+                    await message.channel.send("Portfolio's updated!")
+                elif message.content.startswith('$updateInvestors'):
+                    await message.channel.send("Investors's updated!")
+                    updateInvestors()
                 elif message.content.startswith('$buyShares'):
                     author = message.author
                     userid = author.id
@@ -269,13 +288,3 @@ client = MyClient()
 client.run(token)
 
 #bot.run(token)
-"""
-if __name__ == '__main__':
-    RPOlist = updateInvestors()
-
-
-
-if __name__ == '__main__':
-    for i in RPOlist:
-       portfolio(i)
-"""
