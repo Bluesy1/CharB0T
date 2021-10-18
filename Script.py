@@ -230,7 +230,7 @@ class MyClient(discord.Client):
                         await message.channel.send("<:KSplodes:896043440872235028> Error: You are already in an RPO: " + pd.read_csv(UserListURL, index_col=0).loc[userid, 'RPO'])
                         return
                     elif str(userid) not in pd.read_csv(UserListURL)['userID'].astype(str).to_list():
-                        newUser = {'userID':[str(userid)], 'RPO':[message.content.split()[-1].upper()], 'Author':[author]}
+                        newUser = {'userID':[str(userid)], 'RPO':[message.content.split()[-1].upper()], 'Author':[author], 'Coins Spent': [0]}
                         df = pd.DataFrame(newUser).set_index('userID')
                         df2 = pd.DataFrame(newUser)
                         userList = pd.read_csv(UserListURL, index_col=0).append(pd.DataFrame(newUser))
@@ -244,7 +244,7 @@ class MyClient(discord.Client):
                         set_with_dataframe(worksheet, userListOutput) #-> THIS EXPORTS YOUR DATAFRAME TO THE GOOGLE SHEET
                         print("<@!"+str(message.author.id) + "> you are now in RPO " + str(newUser['RPO'][0]))
                         await message.channel.send("<@!"+str(message.author.id) + "> you are now in RPO " + str(newUser['RPO'][0]))
-                elif message.content.startswith('$updatePortfolios'):
+                elif message.content.startswith('$updatePortfolios') and False:
                     sheet = service.spreadsheets()
                     result = sheet.values().get(spreadsheetId=data['Master_SPREADSHEET_ID'],
                         range=data['Master_RANGE_NAME']).execute()
@@ -260,10 +260,10 @@ class MyClient(discord.Client):
                     for i in RPOlist:
                         portfolio(i)
                     await message.channel.send("Portfolio's updated!")
-                elif message.content.startswith('$updateInvestors'):
+                elif message.content.startswith('$updateInvestors') and False:
                     await message.channel.send("Investors's updated!")
                     updateInvestors()
-                elif message.content.startswith('$buyShares'):
+                elif message.content.startswith('$buyShares') and False: #args: <Coins/Funds>, <Symbol>, <Amount> 
                     author = message.author
                     userid = author.id
                     args = message.content.split()
@@ -273,14 +273,29 @@ class MyClient(discord.Client):
                     elif str(userid) in pd.read_csv(UserListURL)['userID'].astype(str).to_list():
                         Investmentsdf = pd.read_csv(InvestorsURL, index_col=0).dropna(axis=1, how='all')
                         await message.channel.send("Investing for: " + pd.read_csv(UserListURL, index_col=0).loc[userid,'RPO'])
-                        try:
-                            print(Investmentsdf.loc[pd.read_csv(UserListURL, index_col=0).loc[userid,'RPO']])
-                            await message.channel.send('Test1')
-                        except:
-                            return
-                        finally:
-                            await message.channel.send('Test3')
-                            return
+                        if not pd.read_csv(SSaccessURL, index_col=0).loc[pd.read_csv(UserListURL, index_col=0).loc[message.author.id, 'RPO'], 'hasInvested']:
+                            sheet = pyg.open_by_key(pd.read_csv(SSaccessURL, index_col=0).loc[pd.read_csv(UserListURL, index_col=0).loc[message.author.id, 'RPO'], 'sheetID'])
+                            sheet.share("", role='reader', type='anyone')
+                            SSaccess = pd.read_csv(SSaccessURL)
+                            SSaccess['new'] = SSaccess['rpo']
+                            SSaccess = SSaccess.set_index('new')
+                            SSaccess.loc[pd.read_csv(UserListURL, index_col=0).loc[message.author.id, 'RPO'], 'hasInvested'] = True
+                            gc = gspread.service_account(filename='service_account.json') #gets credentials
+                            sh = gc.open_by_key(data['SSaccessID']) #gets sheetinfo
+                            worksheet = sh.get_worksheet(7) #-> 0 - first sheet, 1 - second sheet etc. 
+                            # APPEND DATA TO SHEET
+                            #your_dataframe = pd.DataFrame(data=newrpoDict) #creates DF to export new sheet info to persisten storage 
+                            set_with_dataframe(worksheet, SSaccess) #-> THIS EXPORTS YOUR DATAFRAME TO THE GOOGLE SHEET
+                        await message.author.send('Link to Investment sheet: https://docs.google.com/spreadsheets/d/{0}'.format(pd.read_csv(SSaccessURL, index_col=0).loc[pd.read_csv(UserListURL, index_col=0).loc[message.author.id, 'RPO'], 'sheetID']))
+                        userList = pd.read_csv(UserListURL)
+                        userList["new"] = userList['UserID']
+                        userList = userList.set_index("new")
+
+                        
+
+
+
+
 with open('bottoken.json') as t:
     token = json.load(t)['Token']
 
