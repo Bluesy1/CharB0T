@@ -198,7 +198,24 @@ class MyClient(discord.Client):
                             amount = content.split()[-2]
                             try:
                                 amount = int(''.join(filter(str.isdigit, amount)))
-                                await message.channel.send(amount)
+                                user = content[:(content.find('#')+5)].strip()
+                                print(content, user, user in pd.read_csv(UserListURL)['Author'].astype(str).to_list())
+                                if user in pd.read_csv(UserListURL)['Author'].astype(str).to_list():
+                                    df3 = pd.read_csv(UserListURL)
+                                    df3['new'] = df3['Author']
+                                    df3 = df3.set_index('new')
+                                    df3.loc[user, 'Coin Amount'] = str(amount)
+                                    df3['userID'] = df3['userID'].astype(str)
+                                    #print(df3.head())
+                                    #df3.drop(columns=['new'])
+                                    gc = gspread.service_account(filename='service_account.json') #gets credentials
+                                    sh = gc.open_by_key(data['UserListID']) #gets sheetinfo
+                                    worksheet = sh.get_worksheet(8) #-> 0 - first sheet, 1 - second sheet etc. 
+                                    # APPEND DATA TO SHEET
+                                    #your_dataframe = pd.DataFrame(data=newrpoDict) #creates DF to export new sheet info to persisten storage 
+                                    set_with_dataframe(worksheet, df3) #-> THIS EXPORTS YOUR DATAFRAME TO THE GOOGLE SHEET
+                                else:
+                                    print()
                             except:
                                 return
                 #print(message.content)
