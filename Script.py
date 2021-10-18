@@ -192,7 +192,7 @@ class MyClient(discord.Client):
                 await message.channel.send('Message from {0.author}: {0.content}'.format(message))
         else:"""
         if message.channel.id == 687817008355737606 or message.channel.id == 893867549589131314:
-            #print(time.mktime(message.created_at.timetuple()))
+            #print(time.mktime(message.created_at.timetuple())) str(datetime.timedelta(seconds=duration))
             #print(message.author.roles)
             if message.embeds != None:
                 if message.author.id == 406885177281871902:
@@ -247,8 +247,12 @@ class MyClient(discord.Client):
                         #your_dataframe = pd.DataFrame(data=newrpoDict) #creates DF to export new sheet info to persisten storage 
                         set_with_dataframe(worksheet, userListOutput) #-> THIS EXPORTS YOUR DATAFRAME TO THE GOOGLE SHEET
                         print("<@!"+str(message.author.id) + "> you are now in RPO " + str(newUser['RPO'][0]))
+                        name = message.author.display_name
+                        message.author.edit(nick=name+"["+message.content.split()[-1].upper()+"]")
                         await message.channel.send("<@!"+str(message.author.id) + "> you are now in RPO " + str(newUser['RPO'][0]))
                 elif message.content.startswith('$updatePortfolios'):
+                    if message.author not in mods():
+                        return
                     sheet = service.spreadsheets()
                     result = sheet.values().get(spreadsheetId=data['Master_SPREADSHEET_ID'],
                         range=data['Master_RANGE_NAME']).execute()
@@ -265,8 +269,10 @@ class MyClient(discord.Client):
                         portfolio(i)
                     await message.channel.send("Portfolio's updated!")
                 elif message.content.startswith('$updateInvestors'):
-                    await message.channel.send("Investors's updated!")
+                    if message.author not in mods():
+                        return
                     updateInvestors()
+                    await message.channel.send("Investors's updated!")
                 elif message.content.startswith('$buyShares') and False: #args: <Coins/Funds>, <Symbol>, <Amount> 
                     author = message.author
                     userid = author.id
@@ -296,9 +302,6 @@ class MyClient(discord.Client):
                         userList = userList.set_index("new")
 
                         
-
-
-
 
 with open('bottoken.json') as t:
     token = json.load(t)['Token']
