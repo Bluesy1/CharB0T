@@ -272,7 +272,9 @@ class MyClient(discord.Client):
                         return
                     updateInvestors()
                     await message.channel.send("Investors's updated!")
-                elif message.content.startswith('$buyShares') and False: #args: <Coins/Funds>, <Symbol>, <Amount> 
+                elif message.content.startswith('$buyShares'): #args: <Coins/Funds>, <Symbol>, <Amount> 
+                    if message.channel.id != 687817008355737606:
+                        return
                     author = message.author
                     userid = author.id
                     args = message.content.split()
