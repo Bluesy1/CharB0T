@@ -192,8 +192,6 @@ class MyClient(discord.Client):
                 await message.channel.send('Message from {0.author}: {0.content}'.format(message))
         else:"""
         if message.channel.id == 687817008355737606 or message.channel.id == 893867549589131314:
-            #print(time.mktime(message.created_at.timetuple())) str(datetime.timedelta(seconds=duration))
-            #print(message.author.roles)
             if message.embeds != None:
                 if message.author.id == 406885177281871902:
                         embeds = message.embeds # return list of embeds
