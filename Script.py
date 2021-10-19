@@ -1,6 +1,7 @@
 from __future__ import print_function
 import enum
 import os.path
+from random import randrange
 from discord import client
 from googleapiclient.discovery import build
 import gspread
@@ -19,10 +20,11 @@ import logging
 import pygsheets
 import time
 import datetime
+import random
 #imports all needed packages
 pyg = pygsheets.authorize(client_secret='credentials.json') #Inits the pygsheets api
 logger = logging.getLogger('discord')
-logger.setLevel(logging.DEBUG)
+logger.setLevel(logging.INFO)
 handler = logging.FileHandler(filename='discord.log', encoding='utf-8', mode='w')
 handler.setFormatter(logging.Formatter('%(asctime)s:%(levelname)s:%(name)s: %(message)s'))
 logger.addHandler(handler)
@@ -196,8 +198,12 @@ class MyClient(discord.Client):
                 if message.author.id == 406885177281871902:
                         embeds = message.embeds # return list of embeds
                         for embed in embeds:
-                            content = embed.to_dict()['description'] # Pulls out message content of embed
-                            amount = content.split()[-2]
+                            try:
+                                content = embed.to_dict()['description'] # Pulls out message content of embed
+                                amount = content.split()[-2]
+                            except: 
+                                print(embed.to_dict())
+                                return
                             try:
                                 amount = int(''.join(filter(str.isdigit, amount)))
                                 user = content[:(content.find('#')+5)].strip()
@@ -206,7 +212,7 @@ class MyClient(discord.Client):
                                     df3 = pd.read_csv(UserListURL)
                                     df3['new'] = df3['Author']
                                     df3 = df3.set_index('new')
-                                    df3.loc[user, 'Coin Amount'] = str(amount)
+                                    df3.loc[user, 'Coin Amount'] = str(amount*5)
                                     df3['userID'] = df3['userID'].astype(str)
                                     #print(df3.head())
                                     #df3.drop(columns=['new'])
@@ -233,7 +239,7 @@ class MyClient(discord.Client):
                         return
                     elif str(userid) not in pd.read_csv(UserListURL)['userID'].astype(str).to_list():
                         rpo = RPO
-                        newUser = {'userID':[str(userid)], 'RPO':RPO, 'Author':[author], 'Coins Spent': [0]}
+                        newUser = {'userID':[str(userid)], 'RPO':RPO, 'Author':[author], 'Coin Amount': [0], 'lastWorkAmount': [0], 'lastWork': [0], 'lastDaily': [0]}
                         df = pd.DataFrame(newUser).set_index('userID')
                         df2 = pd.DataFrame(newUser)
                         userList = pd.read_csv(UserListURL, index_col=0).append(pd.DataFrame(newUser))
@@ -273,34 +279,118 @@ class MyClient(discord.Client):
                     updateInvestors()
                     await message.channel.send("Investors's updated!")
                 elif message.content.startswith('$work'):
-                    if message.author.id == 406885177281871902:
-                        return
-                    await message.channel.send(message.content)
                     isAllowed = False
                     allowedids = ['837812373451702303','837812586997219372','837812662116417566','837812728801525781','837812793914425455','400445639210827786','685331877057658888','337743478190637077','837813262417788988','725377514414932030','253752685357039617']
                     for id in allowedids:
                         if discord.utils.get(message.guild.roles, id=int(id)) in message.author.roles:
                             isAllowed = True
                         else:
-                            print()
+                            isAllowed
                     if isAllowed:
-                        await message.channel.send('Allowed to use command')
+                        df = pd.read_csv(UserListURL)
+                        df['userID'] = df['userID'].astype(str)
+                        df['new'] = df['userID']
+                        df = df.set_index('new')
+                        lastWork = df.loc[str(message.author.id), 'lastWork']
+                        currentUse = time.mktime(message.created_at.timetuple())
+                        timeDifference = currentUse - lastWork
+                        if timeDifference < 43200:
+                            await message.channel.send("<:KSplodes:896043440872235028> Error: **" + message.author.display_name + "** You need to wait " + str(datetime.timedelta(seconds=43200-timeDifference)) + " more to use this command.")
+                        elif timeDifference > 43200:
+                            df.loc[str(message.author.id), 'lastWork'] = currentUse
+                            amount = random.randrange(250, 600, 5) #generates random number from 250 to 600, in incrememnts of 5 (same as generating a radom number between 40 and 120, and multiplying it by 5)
+                            lastamount = int(df.loc[str(message.author.id), 'lastWorkAmount'])
+                            df.loc[str(message.author.id), 'Coin Amount'] += lastamount
+                            df.loc[str(message.author.id), 'lastWorkAmount'] = amount
+                            embeddict = {'color': 6345206, 'type': 'rich', 'description': message.author.display_name + ', you started working again. You gain '+ str(lastamount) +' <:HotTips2:465535606739697664> from your last work. Come back in **12 hours** to claim your paycheck of '+ str(amount) + ' <:HotTips2:465535606739697664> and start working again with `$work`'}
+                            gc = gspread.service_account(filename='service_account.json') #gets credentials
+                            sh = gc.open_by_key(data['UserListID']) #gets sheetinfo
+                            worksheet = sh.get_worksheet(8) #-> 0 - first sheet, 1 - second sheet etc. 
+                            # APPEND DATA TO SHEET
+                            #your_dataframe = pd.DataFrame(data=newrpoDict) #creates DF to export new sheet info to persisten storage 
+                            set_with_dataframe(worksheet, df) #-> THIS EXPORTS YOUR DATAFRAME TO THE GOOGLE SHEET
+                            await message.channel.send(embed=discord.Embed.from_dict(embeddict))
                     elif isAllowed == False:
-                            await message.channel.send('Not allowed to use command')
-                elif message.content.startswith('$daily'):
-                    if message.author.id == 406885177281871902:
                         return
-                    await message.channel.send(message.content)
+                elif message.content.startswith('$daily'):
                     isAllowed = False
                     for role in ['225414319938994186','225414600101724170','225414953820094465','377254753907769355','725377514414932030','253752685357039617']:
                         if discord.utils.get(message.guild.roles, id=int(role)) in message.author.roles:
                             isAllowed = True
                         else:
-                            print()
+                            isAllowed
                     if isAllowed:
-                        await message.channel.send('Allowed to use command')
+                        df = pd.read_csv(UserListURL)
+                        df['userID'] = df['userID'].astype(str)
+                        df['new'] = df['userID']
+                        df = df.set_index('new')
+                        lastWork = df.loc[str(message.author.id), 'lastDaily']
+                        currentUse = time.mktime(message.created_at.timetuple())
+                        timeDifference = currentUse - lastWork
+                        if timeDifference < 86400:
+                            await message.author.send("<:KSplodes:896043440872235028> Error: **" + message.author.display_name + "** You need to wait " + str(datetime.timedelta(seconds=86400-timeDifference)) + " more to use this command.")
+                        elif timeDifference > 86400:
+                            df.loc[str(message.author.id), 'lastDaily'] = currentUse
+                            amount = 1500 #assigned number for daily
+                            df.loc[str(message.author.id), 'Coin Amount'] += amount
+                            embeddict = {'color': 6345206, 'type': 'rich', 'description': '<@!'+str(message.author.id) +'>, here is your daily reward: 1500 <:HotTips2:465535606739697664>'}
+                            gc = gspread.service_account(filename='service_account.json') #gets credentials
+                            sh = gc.open_by_key(data['UserListID']) #gets sheetinfo
+                            worksheet = sh.get_worksheet(8) #-> 0 - first sheet, 1 - second sheet etc. 
+                            # APPEND DATA TO SHEET
+                            #your_dataframe = pd.DataFrame(data=newrpoDict) #creates DF to export new sheet info to persisten storage 
+                            set_with_dataframe(worksheet, df) #-> THIS EXPORTS YOUR DATAFRAME TO THE GOOGLE SHEET
+                            await message.author.send(embed=discord.Embed.from_dict(embeddict))
                     elif isAllowed == False:
-                        await message.channel.send('Not allowed to use command')
+                        return
+                elif message.content.startswith('$editCoins'): #takes two args: <userID>, the user and an signed integer <int>, positive, or negative. if negative, and the value is larger than the value of funds attached to the user, sets the funds amount to 0 
+                    isAllowed = False
+                    for role in [338173415527677954,725377514414932030,253752685357039617,225413350874546176]:
+                        if discord.utils.get(message.guild.roles, id=int(role)) in message.author.roles:
+                            isAllowed = True
+                        else:
+                            isAllowed
+                    if isAllowed:
+                        args = message.content.split()
+                        if int(args[-1]) == 0:
+                            embeddict = {'color': 6345206, 'type': 'rich', 'description': '<:KSplodes:896043440872235028> Error: Cannot Add or Remove 0 funds.'}
+                            await message.channel.send(embed=discord.Embed.from_dict(embeddict))
+                        elif int(args[-1]) > 0:
+                            df = pd.read_csv(UserListURL)
+                            df['userID'] = df['userID'].astype(str)
+                            df['new'] = df['userID']
+                            df = df.set_index('new')
+                            df.loc[str(message.mentions[0].id), 'Coin Amount'] += abs(int(args[-1]))
+                            embeddict = {'color': 6345206, 'type': 'rich', 'description': '✅' + str(abs(int(args[-1]))) +'<:HotTips2:465535606739697664> has been given to <@!' + str(message.mentions[0].id) + '>'}
+                            await message.channel.send(embed=discord.Embed.from_dict(embeddict))
+                        elif int(args[-1]) < 0:
+                            df = pd.read_csv(UserListURL)
+                            df['userID'] = df['userID'].astype(str)
+                            df['new'] = df['userID']
+                            df = df.set_index('new')
+                            df.loc[str(message.mentions[0].id), 'Coin Amount'] -= min(df.loc[str(message.mentions[0].id), 'Coin Amount'], abs(int(args[-1])))
+                            embeddict = {'color': 6345206, 'type': 'rich', 'description': '✅' + str(min(df.loc[str(message.mentions[0].id), 'Coin Amount'], abs(int(args[-1])))) +'<:HotTips2:465535606739697664> has been removed from <@!' + str(message.mentions[0].id) + '>'}
+                            await message.channel.send(embed=discord.Embed.from_dict(embeddict))
+                        else:
+                            await message.channel.send('<:KSplodes:896043440872235028> Error: unrecognized or missing arguments.')
+                            return
+                        gc = gspread.service_account(filename='service_account.json') #gets credentials
+                        sh = gc.open_by_key(data['UserListID']) #gets sheetinfo
+                        worksheet = sh.get_worksheet(8) #-> 0 - first sheet, 1 - second sheet etc. 
+                        # APPEND DATA TO SHEET
+                        #your_dataframe = pd.DataFrame(data=newrpoDict) #creates DF to export new sheet info to persisten storage 
+                        set_with_dataframe(worksheet, df) #-> THIS EXPORTS YOUR DATAFRAME TO THE GOOGLE SHEET
+                elif message.content.startswith('$coins'):
+                    if message.mentions == []:
+                        df = pd.read_csv(UserListURL, index_col=0)
+                        funds = df.loc[message.author.id, 'Coin Amount']
+                        embeddict = {'color': 6345206, 'type': 'rich', 'description': '<@!'+ str(message.author.id) + '> has ' + str(funds) + '<:HotTips2:465535606739697664>'}
+                        await message.author.send(embed=discord.Embed.from_dict(embeddict))
+                    elif message.mentions != []:
+                        df = pd.read_csv(UserListURL, index_col=0)
+                        funds = df.loc[message.mentions[0].id, 'Coin Amount']
+                        embeddict = {'color': 6345206, 'type': 'rich', 'description': '<@!'+ str(message.mentions[0].id) + '> has ' + str(funds) + '<:HotTips2:465535606739697664>'}
+                        await message.author.send(embed=discord.Embed.from_dict(embeddict))
                 elif message.content.startswith('$buyShares'): #args: <Coins/Funds>, <Symbol>, <Amount> 
                     if message.channel.id != 687817008355737606:
                         return
@@ -338,5 +428,3 @@ with open('bottoken.json') as t:
 
 client = MyClient()
 client.run(token)
-
-#bot.run(token)
