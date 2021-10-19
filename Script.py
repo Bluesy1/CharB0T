@@ -174,7 +174,23 @@ def portfolio(rpo):
         }
         request = service.spreadsheets().values().batchUpdate(spreadsheetId=spreadoutsdf.loc[rpo, 'sheetID'], body=batch_update_values_request_body)
         response = request.execute() #updates spreadsheet
-
+def undeclared(message):
+        author = message.author
+        userid = author.id
+        RPO  = message.content.split()[-1].upper()
+        newUser = {'userID':[str(userid)], 'RPO':RPO, 'Author':[author], 'Coin Amount': [0], 'lastWorkAmount': [0], 'lastWork': [0], 'lastDaily': [0]}
+        df = pd.DataFrame(newUser).set_index('userID')
+        df2 = pd.DataFrame(newUser)
+        userList = pd.read_csv(UserListURL, index_col=0).append(pd.DataFrame(newUser))
+        userListOutput = pd.read_csv(UserListURL).append(df2)
+        userListOutput['userID'] = userListOutput['userID'].astype(str)
+        gc = gspread.service_account(filename='service_account.json') #gets credentials
+        sh = gc.open_by_key(data['UserListID']) #gets sheetinfo
+        worksheet = sh.get_worksheet(8) #-> 0 - first sheet, 1 - second sheet etc. 
+        # APPEND DATA TO SHEET
+        #your_dataframe = pd.DataFrame(data=newrpoDict) #creates DF to export new sheet info to persisten storage 
+        set_with_dataframe(worksheet, userListOutput) #-> THIS EXPORTS YOUR DATAFRAME TO THE GOOGLE SHEET
+        print("<@!"+str(message.author.id) + "> you are now in RPO " + str(newUser['RPO'][0]))
 userList = pd.read_csv(UserListURL, index_col=0) 
 #print(userList.head())
 #bot stuff here:
@@ -232,8 +248,25 @@ class MyClient(discord.Client):
                     userid = author.id
                     RPO  = message.content.split()[-1].upper()
                     if RPO not in pd.read_csv(RPOInfoURL, index_col=0, usecols=['FULL NAME', 'TAG', 'Account Balance'])['TAG'].astype(str).to_list(): #makes sure RPO trying to be joined exists
-                        await message.channel.send("<:KSplodes:896043440872235028> Error: RPO " +RPO + " is not a registered RPO")
-                        return
+                        if RPO == 'A':
+                                rpo = RPO
+                                newUser = {'userID':[str(userid)], 'RPO':RPO, 'Author':[author], 'Coin Amount': [0], 'lastWorkAmount': [0], 'lastWork': [0], 'lastDaily': [0]}
+                                df = pd.DataFrame(newUser).set_index('userID')
+                                df2 = pd.DataFrame(newUser)
+                                userList = pd.read_csv(UserListURL, index_col=0).append(pd.DataFrame(newUser))
+                                userListOutput = pd.read_csv(UserListURL).append(df2)
+                                userListOutput['userID'] = userListOutput['userID'].astype(str)
+                                gc = gspread.service_account(filename='service_account.json') #gets credentials
+                                sh = gc.open_by_key(data['UserListID']) #gets sheetinfo
+                                worksheet = sh.get_worksheet(8) #-> 0 - first sheet, 1 - second sheet etc. 
+                                # APPEND DATA TO SHEET
+                                #your_dataframe = pd.DataFrame(data=newrpoDict) #creates DF to export new sheet info to persisten storage 
+                                set_with_dataframe(worksheet, userListOutput) #-> THIS EXPORTS YOUR DATAFRAME TO THE GOOGLE SHEET
+                                print("<@!"+str(message.author.id) + "> you are now in RPO " + str(newUser['RPO'][0]))
+                                await message.channel.send("<@!"+str(message.author.id) + "> you are registered with the bot.")
+                        else:
+                            await message.channel.send("<:KSplodes:896043440872235028> Error: RPO " +RPO + " is not a registered RPO")
+                            return
                     elif str(userid) in pd.read_csv(UserListURL)['userID'].astype(str).to_list(): #makes sure user isn't already in an RPO
                         await message.channel.send("<:KSplodes:896043440872235028> Error: You are already in an RPO: " + pd.read_csv(UserListURL, index_col=0).loc[userid, 'RPO'])
                         return
@@ -279,6 +312,8 @@ class MyClient(discord.Client):
                     updateInvestors()
                     await message.channel.send("Investors's updated!")
                 elif message.content.startswith('$work'):
+                    if str(message.author.id) not in pd.read_csv(UserListURL)['userID'].astype(str).to_list(): #makes sure user isn't already in an RPO
+                        undeclared(message)
                     isAllowed = False
                     allowedids = ['837812373451702303','837812586997219372','837812662116417566','837812728801525781','837812793914425455','400445639210827786','685331877057658888','337743478190637077','837813262417788988','338173415527677954','253752685357039617']
                     for id in allowedids:
@@ -311,8 +346,12 @@ class MyClient(discord.Client):
                             set_with_dataframe(worksheet, df) #-> THIS EXPORTS YOUR DATAFRAME TO THE GOOGLE SHEET
                             await message.channel.send(embed=discord.Embed.from_dict(embeddict))
                     elif isAllowed == False:
-                        return
+                        await message.channel.send("<:KSplodes:896043440872235028> Error: You are not allowed to use that command.")
                 elif message.content.startswith('$daily'):
+                    message = message
+                    await message.delete()
+                    if str(message.author.id) not in pd.read_csv(UserListURL)['userID'].astype(str).to_list(): #makes sure user isn't already in an RPO
+                        undeclared(message)
                     isAllowed = False
                     for role in ['225414319938994186','225414600101724170','225414953820094465','377254753907769355','338173415527677954','253752685357039617']:
                         if discord.utils.get(message.guild.roles, id=int(role)) in message.author.roles:
@@ -327,9 +366,9 @@ class MyClient(discord.Client):
                         lastWork = df.loc[str(message.author.id), 'lastDaily']
                         currentUse = time.mktime(message.created_at.timetuple())
                         timeDifference = currentUse - lastWork
-                        if timeDifference < 86400:
-                            await message.author.send("<:KSplodes:896043440872235028> Error: **" + message.author.display_name + "** You need to wait " + str(datetime.timedelta(seconds=86400-timeDifference)) + " more to use this command.")
-                        elif timeDifference > 86400:
+                        if timeDifference < 71700:
+                            await message.author.send("<:KSplodes:896043440872235028> Error: **" + message.author.display_name + "** You need to wait " + str(datetime.timedelta(seconds=71700-timeDifference)) + " more to use this command.")
+                        elif timeDifference > 71700:
                             df.loc[str(message.author.id), 'lastDaily'] = currentUse
                             amount = 1500 #assigned number for daily
                             df.loc[str(message.author.id), 'Coin Amount'] += amount
@@ -342,7 +381,7 @@ class MyClient(discord.Client):
                             set_with_dataframe(worksheet, df) #-> THIS EXPORTS YOUR DATAFRAME TO THE GOOGLE SHEET
                             await message.author.send(embed=discord.Embed.from_dict(embeddict))
                     elif isAllowed == False:
-                        return
+                        await message.author.send("<:KSplodes:896043440872235028> Error: You are not allowed to use that command.")
                 elif message.content.startswith('$editCoins'): #takes two args: <userID>, the user and an signed integer <int>, positive, or negative. if negative, and the value is larger than the value of funds attached to the user, sets the funds amount to 0 
                     isAllowed = False
                     for role in [338173415527677954,253752685357039617,225413350874546176]:
@@ -381,7 +420,10 @@ class MyClient(discord.Client):
                         #your_dataframe = pd.DataFrame(data=newrpoDict) #creates DF to export new sheet info to persisten storage 
                         set_with_dataframe(worksheet, df) #-> THIS EXPORTS YOUR DATAFRAME TO THE GOOGLE SHEET
                 elif message.content.startswith('$coins'):
-                    if message.mentions == []:
+                    if str(message.author.id) not in pd.read_csv(UserListURL)['userID'].astype(str).to_list(): #makes sure user isn't already in an RPO
+                        await message.channel.send("<:KSplodes:896043440872235028> Error: You are not registered in an RPO to me.")
+                        return
+                    elif message.mentions == []:
                         df = pd.read_csv(UserListURL, index_col=0)
                         funds = df.loc[message.author.id, 'Coin Amount']
                         embeddict = {'color': 6345206, 'type': 'rich', 'description': '<@!'+ str(message.author.id) + '> has ' + str(funds) + '<:HotTips2:465535606739697664>'}
@@ -391,6 +433,36 @@ class MyClient(discord.Client):
                         funds = df.loc[message.mentions[0].id, 'Coin Amount']
                         embeddict = {'color': 6345206, 'type': 'rich', 'description': '<@!'+ str(message.mentions[0].id) + '> has ' + str(funds) + '<:HotTips2:465535606739697664>'}
                         await message.author.send(embed=discord.Embed.from_dict(embeddict))
+                    await message.delete()
+                elif message.content.startswith('$changeRPO'):
+                    author = message.author
+                    userid = author.id
+                    RPO  = message.content.split()[-1].upper()
+                    if RPO not in pd.read_csv(RPOInfoURL, index_col=0, usecols=['FULL NAME', 'TAG', 'Account Balance'])['TAG'].astype(str).to_list():
+                        await message.channel.send("<:KSplodes:896043440872235028> Error: RPO " +RPO + " is not a registered RPO")
+                        return
+                    else:
+                        df = pd.read_csv(UserListURL)
+                        df['userID'] = df['userID'].astype(str)
+                        df['new'] = df['userID']
+                        df = df.set_index('new')
+                        df.loc[str(message.author.id), 'RPO'] = RPO
+                        gc = gspread.service_account(filename='service_account.json') #gets credentials
+                        sh = gc.open_by_key(data['UserListID']) #gets sheetinfo
+                        worksheet = sh.get_worksheet(8) #-> 0 - first sheet, 1 - second sheet etc. 
+                        # APPEND DATA TO SHEET
+                        #your_dataframe = pd.DataFrame(data=newrpoDict) #creates DF to export new sheet info to persisten storage 
+                        set_with_dataframe(worksheet, df) #-> THIS EXPORTS YOUR DATAFRAME TO THE GOOGLE SHEET
+                        print("<@!"+str(message.author.id) + "> you are now in RPO " + str(RPO))
+                        name = message.author.display_name
+                        try:
+                            await message.author.edit(nick=name+" ["+str(RPO)+"]")
+                        finally:
+                            try:
+                                user = client.get_user(id=363095569515806722)
+                                await user.send('hello')
+                            finally:
+                                await message.channel.send("<@!"+str(message.author.id) + "> you are now in RPO " + RPO)
                 elif message.content.startswith('$buyShares'): #args: <Coins/Funds>, <Symbol>, <Amount> 
                     if message.channel.id != 687817008355737606:
                         return
@@ -399,6 +471,9 @@ class MyClient(discord.Client):
                     args = message.content.split()
                     if str(userid) not in pd.read_csv(UserListURL)['userID'].astype(str).to_list():
                         await message.channel.send("<:KSplodes:896043440872235028> Error: Not registered in an RPO for the bot. Please register with the bot through $joinRPO <RPO_Tag>")
+                        return
+                    elif pd.read_csv(UserListURL, index_col=0).loc[userid,'RPO'] == 'A':
+                        await message.channel.send("<:KSplodes:896043440872235028> Error: Invalid in an RPO for the investing. Please change your RPO $changeRPO <New_RPO_Tag>")
                         return
                     elif str(userid) in pd.read_csv(UserListURL)['userID'].astype(str).to_list():
                         Investmentsdf = pd.read_csv(InvestorsURL, index_col=0).dropna(axis=1, how='all')
