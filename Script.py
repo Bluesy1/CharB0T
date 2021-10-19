@@ -280,7 +280,7 @@ class MyClient(discord.Client):
                     await message.channel.send("Investors's updated!")
                 elif message.content.startswith('$work'):
                     isAllowed = False
-                    allowedids = ['837812373451702303','837812586997219372','837812662116417566','837812728801525781','837812793914425455','400445639210827786','685331877057658888','337743478190637077','837813262417788988','725377514414932030','253752685357039617']
+                    allowedids = ['837812373451702303','837812586997219372','837812662116417566','837812728801525781','837812793914425455','400445639210827786','685331877057658888','337743478190637077','837813262417788988','338173415527677954','253752685357039617']
                     for id in allowedids:
                         if discord.utils.get(message.guild.roles, id=int(id)) in message.author.roles:
                             isAllowed = True
@@ -314,7 +314,7 @@ class MyClient(discord.Client):
                         return
                 elif message.content.startswith('$daily'):
                     isAllowed = False
-                    for role in ['225414319938994186','225414600101724170','225414953820094465','377254753907769355','725377514414932030','253752685357039617']:
+                    for role in ['225414319938994186','225414600101724170','225414953820094465','377254753907769355','338173415527677954','253752685357039617']:
                         if discord.utils.get(message.guild.roles, id=int(role)) in message.author.roles:
                             isAllowed = True
                         else:
@@ -345,7 +345,7 @@ class MyClient(discord.Client):
                         return
                 elif message.content.startswith('$editCoins'): #takes two args: <userID>, the user and an signed integer <int>, positive, or negative. if negative, and the value is larger than the value of funds attached to the user, sets the funds amount to 0 
                     isAllowed = False
-                    for role in [338173415527677954,725377514414932030,253752685357039617,225413350874546176]:
+                    for role in [338173415527677954,253752685357039617,225413350874546176]:
                         if discord.utils.get(message.guild.roles, id=int(role)) in message.author.roles:
                             isAllowed = True
                         else:
