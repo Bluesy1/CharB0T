@@ -21,6 +21,7 @@ import pygsheets
 import time
 import datetime
 import random
+import re
 #imports all needed packages
 pyg = pygsheets.authorize(client_secret='credentials.json') #Inits the pygsheets api
 logger = logging.getLogger('discord')
@@ -129,10 +130,41 @@ def portfolio(rpo):
         Marketdf = Marketdf.reset_index() #fixes the data frame so it can be concatenated with the specific investments data frame
         df = pd.concat([df, Marketdf], axis = 1).dropna(axis=0).rename(columns={rpo:'Shares'}) #concatenates the two dataframes, removes private companies, and fixes a column title
         df['Market Value'] = df['Shares'] * df['Market Price']  #does the math to make the market value column
+        df['new'] = df['Symbol']
+        df = df.set_index('new')
         sum = df['Market Value'].sum() #Gets the sum of the stock prices
-
-
-
+        df['Total Invested (includes fees) '] = 0
+        df['Cost Basis '] = 0
+        print('https://docs.google.com/spreadsheets/d/{0}'.format(spreadoutsdf.loc[rpo, 'sheetID']))
+        #portfolio = pd.read_csv('https://docs.google.com/spreadsheets/d/{0}/gviz/tq?tqx=out:csv&gid={1}'.format(spreadoutsdf.loc[rpo, 'sheetID'],spreadoutsdf.loc[rpo, 'gid1']), dtype={'Market Value':str, 'Total Invested (includes fees) ': str}, skiprows=0).dropna(axis=1,how='all').dropna(axis=0,thresh=6)
+        sheet = service.spreadsheets()
+        result = sheet.values().get(spreadsheetId=spreadoutsdf.loc[rpo, 'sheetID'],
+                                range='A11:H44', majorDimension='COLUMNS').execute()
+        values = result.get('values', [])
+        #print(type(values), values)
+        portfoliodict = {'Shares': values[0],'Symbol ': values[1],'Price': values[2],'Day Change': values[3],'Market Value': values[4],'Total Invested (includes fees) ': values[5],'Cost Basis ': values[6],'Profit / Loss ': values[7]}
+        portfolio = pd.DataFrame(data=portfoliodict).dropna(axis=1,how='all').dropna(axis=0,thresh=6)
+        df['Market Value'] = df['Market Value'].apply(lambda x: x.replace('$', '').replace(',', '')
+                                if isinstance(x, str) else x).astype(float)
+        #print(portfolio.columns)
+        for i in portfolio['Total Invested (includes fees) '].to_list():
+            portfolio2 = portfolio
+            portfolio2['new'] = portfolio2['Total Invested (includes fees) ']
+            portfolio2 = portfolio2.set_index('new')
+            df.loc[portfolio2.loc[i,'Symbol '], 'Total Invested (includes fees) '] = i
+        #print(df.loc[portfolio2.loc[i,'Symbol '], 'Total Invested (includes fees) '])
+        for i in portfolio['Cost Basis '].to_list():
+            portfolio2 = portfolio
+            portfolio2['new'] = portfolio2['Cost Basis ']
+            portfolio2 = portfolio2.set_index('new')
+        #print(portfolio2.head(30))
+        #return
+            df.loc[portfolio2.loc[i,'Symbol '], 'Cost Basis '] = i
+            #print(i)
+        #print(df.loc[portfolio2.loc[i,'Symbol '], 'Cost Basis '])
+        df['Total Invested (includes fees) '] = df['Total Invested (includes fees) '].apply(lambda x: x.replace('$', '').replace(',', '')
+                        if isinstance(x, str) else x).astype(float)
+        df['Profit / Loss '] = df['Market Value'].astype(float) - df['Total Invested (includes fees) '].astype(float)
         request = service.spreadsheets().values().get(spreadsheetId=spreadoutsdf.loc[rpo, 'sheetID'], range='Visuals!C32:C40', majorDimension = 'COLUMNS', valueRenderOption = 'UNFORMATTED_VALUE')
         response = request.execute()
         history = response['values']
@@ -146,21 +178,25 @@ def portfolio(rpo):
         minmax = [minimum, maximum] #these lines do stuff to get the min and max values for the line graph
         history = [str(round(x,2)) for x in history]
         history = list(history)
+        totalInvested = df['Total Invested (includes fees) '].sum()*1.02
         print(rpo)
         batch_update_values_request_body = {
             "value_input_option" : 'USER_ENTERED',  # How the input data should be interpreted.
             "data": [
-                {"range": 'A11:E44',
+                {"range": 'A11:H44',
                 "majorDimension":'COLUMNS',
                 "values": [
                     df['Shares'].tolist(),
                     df['Symbol'].tolist(),
                     df['Market Price'].tolist(),
                     df['Day change'].tolist(),
-                    df['Market Value'].tolist()]},#Converts dataframe into the form needed to send to google sheets
-                {"range": 'E4',
-                "majorDimension":'COLUMNS',
-                "values":[[sum]]
+                    df['Market Value'].tolist(),
+                    df['Total Invested (includes fees) '].tolist(),
+                    df['Cost Basis '].tolist(),
+                    df['Profit / Loss '].tolist()]},#Converts dataframe into the form needed to send to google sheets
+                {"range": 'E4:H4',
+                "majorDimension":'ROWS',
+                "values":[[sum, totalInvested, "", sum - totalInvested]]
                 },
                 {"range": 'Visuals!C30:C40',
                 "majorDimension":'COLUMNS',
@@ -177,7 +213,7 @@ def portfolio(rpo):
 def undeclared(message):
         author = message.author
         userid = author.id
-        RPO  = message.content.split()[-1].upper()
+        RPO  = 'A'
         newUser = {'userID':[str(userid)], 'RPO':RPO, 'Author':[author], 'Coin Amount': [0], 'lastWorkAmount': [0], 'lastWork': [0], 'lastDaily': [0]}
         df = pd.DataFrame(newUser).set_index('userID')
         df2 = pd.DataFrame(newUser)
@@ -270,6 +306,8 @@ class MyClient(discord.Client):
                     elif str(userid) in pd.read_csv(UserListURL)['userID'].astype(str).to_list(): #makes sure user isn't already in an RPO
                         await message.channel.send("<:KSplodes:896043440872235028> Error: You are already in an RPO: " + pd.read_csv(UserListURL, index_col=0).loc[userid, 'RPO'])
                         return
+                    elif RPO == 'CP':
+                        await message.channel.send("<:KSplodes:896043440872235028> Error: You cannot join the RPO CP")
                     elif str(userid) not in pd.read_csv(UserListURL)['userID'].astype(str).to_list():
                         rpo = RPO
                         newUser = {'userID':[str(userid)], 'RPO':RPO, 'Author':[author], 'Coin Amount': [0], 'lastWorkAmount': [0], 'lastWork': [0], 'lastDaily': [0]}
@@ -286,26 +324,43 @@ class MyClient(discord.Client):
                         set_with_dataframe(worksheet, userListOutput) #-> THIS EXPORTS YOUR DATAFRAME TO THE GOOGLE SHEET
                         print("<@!"+str(message.author.id) + "> you are now in RPO " + str(newUser['RPO'][0]))
                         name = message.author.display_name
-                        await message.author.edit(nick=name+" ["+str(rpo)+"]")
+                        try:
+                            newname, count = re.subn("(?<=\[)[^\[\]]{2,4}(?=\])",RPO,name)
+                            if (count == 0):
+                                newname = name + "[" + RPO + "]"
+                            await message.author.edit(nick=newname)
+                        except:
+                            RPO
                         await message.channel.send("<@!"+str(message.author.id) + "> you are now in RPO " + rpo)
                 elif message.content.startswith('$updatePortfolios'):
-                    if message.author not in mods():
+                    isAllowed = False
+                    for role in [338173415527677954,253752685357039617,225413350874546176]:
+                        if discord.utils.get(message.guild.roles, id=int(role)) in message.author.roles:
+                            isAllowed = True
+                        else:
+                            isAllowed
+                    if isAllowed:
+                        sheet = service.spreadsheets()
+                        result = sheet.values().get(spreadsheetId=data['Master_SPREADSHEET_ID'],
+                            range=data['Master_RANGE_NAME']).execute()
+                        values = result.get('values', [])
+                        #Marketdf = pd.read_csv(URL, index_col=0, usecols=['Symbol', 'Market Price', 'Day change']).dropna(axis=0) #Creates the dataframe (think spreadsheet, but in a more manipulatable manner) for stock prices
+                        Investmentsdf = pd.read_csv(InvestorsURL, index_col=0).dropna(axis=1, how='all') #Creates the data frame for investors
+                        RPOlist = list() #initializes empty list for list of RPOs with investments
+                        spreadoutsdf = pd.read_csv(SSaccessURL, index_col=0)
+                        spreadoutsdf2 = pd.read_csv(SSaccessURL)
+                        for row in values:
+                            RPOlist.append(row[0]) #Adds all RPOs with investments to a list
+                        #print(RPOlist)
+                        for i in RPOlist:
+                            #if not pd.read_csv(SSaccessURL, index_col=0).loc[i, 'hasInvested']:
+                            #    i
+                            #else:
+                            portfolio(i)
+                        await message.channel.send("Portfolio's updated!")
+                    else:
+                        await message.channel.send("<:KSplodes:896043440872235028> Error: You are not authorized to use this command")
                         return
-                    sheet = service.spreadsheets()
-                    result = sheet.values().get(spreadsheetId=data['Master_SPREADSHEET_ID'],
-                        range=data['Master_RANGE_NAME']).execute()
-                    values = result.get('values', [])
-                    #Marketdf = pd.read_csv(URL, index_col=0, usecols=['Symbol', 'Market Price', 'Day change']).dropna(axis=0) #Creates the dataframe (think spreadsheet, but in a more manipulatable manner) for stock prices
-                    Investmentsdf = pd.read_csv(InvestorsURL, index_col=0).dropna(axis=1, how='all') #Creates the data frame for investors
-                    RPOlist = list() #initializes empty list for list of RPOs with investments
-                    spreadoutsdf = pd.read_csv(SSaccessURL, index_col=0)
-                    spreadoutsdf2 = pd.read_csv(SSaccessURL)
-                    for row in values:
-                        RPOlist.append(row[0]) #Adds all RPOs with investments to a list
-                    #print(RPOlist)
-                    for i in RPOlist:
-                        portfolio(i)
-                    await message.channel.send("Portfolio's updated!")
                 elif message.content.startswith('$updateInvestors'):
                     if message.author not in mods():
                         return
@@ -333,7 +388,7 @@ class MyClient(discord.Client):
                             await message.channel.send("<:KSplodes:896043440872235028> Error: **" + message.author.display_name + "** You need to wait " + str(datetime.timedelta(seconds=43200-timeDifference)) + " more to use this command.")
                         elif timeDifference > 43200:
                             df.loc[str(message.author.id), 'lastWork'] = currentUse
-                            amount = random.randrange(250, 600, 5) #generates random number from 250 to 600, in incrememnts of 5 (same as generating a radom number between 40 and 120, and multiplying it by 5)
+                            amount = random.randrange(800, 1200, 5) #generates random number from 800 to 1200, in incrememnts of 5 (same as generating a radom number between 40 and 120, and multiplying it by 5)
                             lastamount = int(df.loc[str(message.author.id), 'lastWorkAmount'])
                             df.loc[str(message.author.id), 'Coin Amount'] += lastamount
                             df.loc[str(message.author.id), 'lastWorkAmount'] = amount
@@ -349,11 +404,11 @@ class MyClient(discord.Client):
                         await message.channel.send("<:KSplodes:896043440872235028> Error: You are not allowed to use that command.")
                 elif message.content.startswith('$daily'):
                     message = message
-                    await message.delete()
+                    #await message.delete()
                     if str(message.author.id) not in pd.read_csv(UserListURL)['userID'].astype(str).to_list(): #makes sure user isn't already in an RPO
                         undeclared(message)
                     isAllowed = False
-                    for role in ['225414319938994186','225414600101724170','225414953820094465','377254753907769355','338173415527677954','253752685357039617']:
+                    for role in ['733541021488513035','225414319938994186','225414600101724170','225414953820094465','377254753907769355','338173415527677954','253752685357039617']:
                         if discord.utils.get(message.guild.roles, id=int(role)) in message.author.roles:
                             isAllowed = True
                         else:
@@ -441,6 +496,8 @@ class MyClient(discord.Client):
                     if RPO not in pd.read_csv(RPOInfoURL, index_col=0, usecols=['FULL NAME', 'TAG', 'Account Balance'])['TAG'].astype(str).to_list():
                         await message.channel.send("<:KSplodes:896043440872235028> Error: RPO " +RPO + " is not a registered RPO")
                         return
+                    elif RPO == 'CP':
+                        await message.channel.send("<:KSplodes:896043440872235028> Error: You cannot change to the RPO CP")
                     else:
                         df = pd.read_csv(UserListURL)
                         df['userID'] = df['userID'].astype(str)
@@ -456,18 +513,20 @@ class MyClient(discord.Client):
                         print("<@!"+str(message.author.id) + "> you are now in RPO " + str(RPO))
                         name = message.author.display_name
                         try:
-                            await message.author.edit(nick=name+" ["+str(RPO)+"]")
+                            newname, count = re.subn("(?<=\[)[^\[\]]{2,4}(?=\])",RPO,name)
+                            if (count == 0):
+                                newname = name + "[" + RPO + "]"
+                            await message.author.edit(nick=newname)
                         finally:
-                            try:
-                                user = client.get_user(id=363095569515806722)
-                                await user.send('hello')
-                            finally:
-                                await message.channel.send("<@!"+str(message.author.id) + "> you are now in RPO " + RPO)
+                            await message.channel.send("<@!"+str(message.author.id) + "> you are now in RPO " + RPO + ".")
                 elif message.content.startswith('$buyShares'): #args: <Coins/Funds>, <Symbol>, <Amount> 
                     if message.channel.id != 687817008355737606:
                         return
                     author = message.author
                     userid = author.id
+                    if message.author.id == 225344348903047168:
+                        await message.channel.send('<:KSplodes:896043440872235028> Error: Charlie and The Celestial Project are not allowed to invest.')
+                        return
                     args = message.content.split()
                     if str(userid) not in pd.read_csv(UserListURL)['userID'].astype(str).to_list():
                         await message.channel.send("<:KSplodes:896043440872235028> Error: Not registered in an RPO for the bot. Please register with the bot through $joinRPO <RPO_Tag>")
@@ -495,9 +554,16 @@ class MyClient(discord.Client):
                         userList = pd.read_csv(UserListURL)
                         userList["new"] = userList['UserID']
                         userList = userList.set_index("new")
+                        args = message.content.split()
+                        if args[1] == 'Coins':
+                            wealth = int(userList.loc[message.author.id, 'Coin Amount'])
+                            
+                        elif args[1] == 'Funds':
+                            return
+                        else:
+                            await message.channel.send("<:KSplodes:896043440872235028> Error: Invalid argument in position 1: " + str(args[1]) + ".Argument one must be `Coins` for discord currency, or `Funds` for the currency in your RPO's account.")
 
-                        
-
+                      
 with open('bottoken.json') as t:
     token = json.load(t)['Token']
 
