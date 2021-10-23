@@ -8,3 +8,5 @@ discord.log
 mods.json
 bottoken.json
 sheets.googleapis.com-python.json
+Test.py
+persistent.sfs

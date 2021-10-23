@@ -237,20 +237,19 @@ def mods():
 with open('bottoken.json') as t:
     token = json.load(t)['Token']
 
-
 client = commands.Bot(command_prefix='!')
 
 @client.command()
-@commands.cooldown(1, 60.0, commands.BucketType.guild)
+@commands.cooldown(1, 30.0, commands.BucketType.guild)
 async def buyShares(message):
-    if message.channel.id != 687817008355737606 and message.channel.id != 900523609603313704:
+    if message.channel.id != 687817008355737606 and message.channel.id != 893867549589131314 and message.channel.id != 900523609603313704:
         return
     author = message.author
     userid = author.id
     if message.author.id == 225344348903047168:
         await message.channel.send('<:KSplodes:896043440872235028> Error: Charlie and The Celestial Project are not allowed to invest.')
         return
-    args = message.content.split()
+    args = message.message.content.split()
     if str(userid) not in pd.read_csv(UserListURL)['userID'].astype(str).to_list():
         await message.channel.send("<:KSplodes:896043440872235028> Error: Not registered in an RPO for the bot. Please register with the bot through !joinRPO <RPO_Tag>")
         return
@@ -384,7 +383,7 @@ async def buyShares(message):
                             minmax = [minimum, maximum] #these lines do stuff to get the min and max values for the line graph
                             history = [str(round(x,2)) for x in history]
                             history = list(history)
-                            totalInvested = df['Total Invested (includes fees) '].sum()*1.02
+                            totalInvested = df['Total Invested (includes fees) '].sum()
                             print(rpo)
                             df['Market Value'] = df['Market Value'].apply(lambda x: x.replace('$', '').replace(',', '')
                             if isinstance(x, str) else x).astype(float)
@@ -527,7 +526,7 @@ async def buyShares(message):
                             minmax = [minimum, maximum] #these lines do stuff to get the min and max values for the line graph
                             history = [str(round(x,2)) for x in history]
                             history = list(history)
-                            totalInvested = df['Total Invested (includes fees) '].sum()*1.02
+                            totalInvested = df['Total Invested (includes fees) '].sum()
                             print(rpo)
                             batch_update_values_request_body = {
                                 "value_input_option" : 'USER_ENTERED',  # How the input data should be interpreted.
@@ -589,9 +588,9 @@ async def buyShares(message):
                 await message.channel.send("<:KSplodes:896043440872235028> Error: Invalid argument in position 1: " + str(args[1]) + ". Argument one must be `Coins` for discord currency, or `Funds` for the currency in your RPO's account.")
 
 @client.command()
-@commands.cooldown(1, 60.0, commands.BucketType.guild)
+@commands.cooldown(1, 30.0, commands.BucketType.guild)
 async def sellShares(message):
-    if message.channel.id != 687817008355737606:
+    if message.channel.id != 687817008355737606 and message.channel.id != 900523609603313704:
         return
     author = message.author
     userid = author.id
@@ -802,12 +801,12 @@ async def sellShares(message):
 @client.command()
 @commands.cooldown(1, 86400.0, commands.BucketType.user)
 async def changeRPO(message):
-    if message.channel.id != 687817008355737606 and message.channel.id != 893867549589131314 and message.channel.id != 900523609603313704:
+    if message.channel.id != 687817008355737606 and message.channel.id != 893867549589131314:
         await message.message.delete()
         return
     author = message.author
     userid = author.id
-    RPO  = message.content.split()[-1].upper()
+    RPO  = message.message.content.split()[-1].upper()
     if RPO not in pd.read_csv(RPOInfoURL, index_col=0, usecols=['FULL NAME', 'TAG', 'Account Balance'])['TAG'].astype(str).to_list():
         await message.channel.send("<:KSplodes:896043440872235028> Error: RPO " +RPO + " is not a registered RPO")
         return
@@ -830,7 +829,7 @@ async def changeRPO(message):
         try:
             newname, count = re.subn("(?<=\[)[^\[\]]{2,4}(?=\])",RPO,name)
             if (count == 0):
-                newname = name + "[" + RPO + "]"
+                newname = name + " [" + RPO + "]"
             await message.author.edit(nick=newname)
         finally:
             await message.channel.send("<@!"+str(message.author.id) + "> you are now in RPO " + RPO + ".")
@@ -877,6 +876,9 @@ async def Coins(message, user):
 @client.command()
 @commands.cooldown(5, 60.0, commands.BucketType.guild)
 async def editCoins(message):
+    if message.channel.id != 687817008355737606 and message.channel.id != 893867549589131314 and message.channel.id != 900523609603313704:
+        await message.message.delete()
+        return
     isAllowed = False
     for role in [338173415527677954,253752685357039617,225413350874546176]:
         if discord.utils.get(message.guild.roles, id=int(role)) in message.author.roles:
@@ -893,16 +895,16 @@ async def editCoins(message):
             df['userID'] = df['userID'].astype(str)
             df['new'] = df['userID']
             df = df.set_index('new')
-            df.loc[str(message.mentions[0].id), 'Coin Amount'] += abs(int(args[-1]))
-            embeddict = {'color': 6345206, 'type': 'rich', 'description': '✅' + str(abs(int(args[-1]))) +'<:HotTips2:465535606739697664> has been given to <@!' + str(message.mentions[0].id) + '>'}
+            df.loc[str(message.message.mentions[0].id), 'Coin Amount'] += abs(int(args[-1]))
+            embeddict = {'color': 6345206, 'type': 'rich', 'description': '✅' + str(abs(int(args[-1]))) +'<:HotTips2:465535606739697664> has been given to <@!' + str(message.message.mentions[0].id) + '>'}
             await message.channel.send(embed=discord.Embed.from_dict(embeddict))
         elif int(args[-1]) < 0:
             df = pd.read_csv(UserListURL)
             df['userID'] = df['userID'].astype(str)
             df['new'] = df['userID']
             df = df.set_index('new')
-            df.loc[str(message.mentions[0].id), 'Coin Amount'] -= min(df.loc[str(message.mentions[0].id), 'Coin Amount'], abs(int(args[-1])))
-            embeddict = {'color': 6345206, 'type': 'rich', 'description': '✅' + str(min(df.loc[str(message.mentions[0].id), 'Coin Amount'], abs(int(args[-1])))) +'<:HotTips2:465535606739697664> has been removed from <@!' + str(message.mentions[0].id) + '>'}
+            df.loc[str(message.message.mentions[0].id), 'Coin Amount'] -= min(df.loc[str(message.message.mentions[0].id), 'Coin Amount'], abs(int(args[-1])))
+            embeddict = {'color': 6345206, 'type': 'rich', 'description': '✅' + str(min(df.loc[str(message.message.mentions[0].id), 'Coin Amount'], abs(int(args[-1])))) +'<:HotTips2:465535606739697664> has been removed from <@!' + str(message.message.mentions[0].id) + '>'}
             await message.channel.send(embed=discord.Embed.from_dict(embeddict))
         else:
             await message.channel.send('<:KSplodes:896043440872235028> Error: unrecognized or missing arguments.')
@@ -917,8 +919,11 @@ async def editCoins(message):
 @client.command()
 @commands.cooldown(5, 3600.0, commands.BucketType.user)
 async def daily(message):
+    if message.channel.id != 687817008355737606 and message.channel.id != 893867549589131314 and message.channel.id != 900523609603313704:
+        await message.message.delete()
+        return
     message = message
-    await message.delete()
+    await message.message.delete()
     if str(message.author.id) not in pd.read_csv(UserListURL)['userID'].astype(str).to_list(): #makes sure user isn't already in an RPO
         undeclared(message)
     isAllowed = False
@@ -955,6 +960,9 @@ async def daily(message):
 @client.command()
 @commands.cooldown(5, 3600.0, commands.BucketType.user)
 async def work(message):
+    if message.channel.id != 687817008355737606 and message.channel.id != 893867549589131314 and message.channel.id != 900523609603313704:
+        await message.message.delete()
+        return
     if str(message.author.id) not in pd.read_csv(UserListURL)['userID'].astype(str).to_list(): #makes sure user isn't already in an RPO
         undeclared(message)
     isAllowed = False
@@ -993,20 +1001,17 @@ async def work(message):
 
 @client.command()
 async def updateInvestors(message):
-    if message.author not in mods():
+    if message.author.id not in [225344348903047168, 363095569515806722]:
         return
-    updateInvestors()
-    await message.channel.send("Investors's updated!")
+    else:
+        updateInvestors()
+        await message.channel.send("Investors's updated!")
 
 @client.command()
 async def updatePortfolios(message):
-    isAllowed = False
-    for role in [338173415527677954,253752685357039617,225413350874546176]:
-        if discord.utils.get(message.guild.roles, id=int(role)) in message.author.roles:
-            isAllowed = True
-        else:
-            isAllowed
-    if isAllowed:
+    if message.author.id not in [225344348903047168, 363095569515806722]:
+        return
+    else:
         sheet = service.spreadsheets()
         result = sheet.values().get(spreadsheetId=data['Master_SPREADSHEET_ID'],
             range=data['Master_RANGE_NAME']).execute()
@@ -1022,17 +1027,24 @@ async def updatePortfolios(message):
         for i in RPOlist:
             Portfolio(i)
         await message.channel.send("Portfolio's updated!")
-    else:
-        await message.channel.send("<:KSplodes:896043440872235028> Error: You are not authorized to use this command")
-        return
 
 @client.command()
 @commands.cooldown(3, 300.0, commands.BucketType.user)
 async def joinRPO(message):
+    if message.channel.id != 687817008355737606 and message.channel.id != 893867549589131314:
+        await message.message.delete()
+        return
     author = message.author
     userid = author.id
     RPO  = message.message.content.split()[-1].upper()
-    if RPO not in pd.read_csv(RPOInfoURL, index_col=0, usecols=['FULL NAME', 'TAG', 'Account Balance'])['TAG'].astype(str).to_list(): #makes sure RPO trying to be joined exists
+    if str(userid) in pd.read_csv(UserListURL)['userID'].astype(str).to_list(): #makes sure user isn't already in an RPO
+        if pd.read_csv(UserListURL)['userID'].astype(str).to_list() == 'A':
+            await message.channel.send("<:KSplodes:896043440872235028> Error: You have already been registered as undeclared. To chaneg your status, please use `!changeRPO` followed by your new tag.")
+        else:
+            await message.channel.send("<:KSplodes:896043440872235028> Error: You are already in an RPO: " + pd.read_csv(UserListURL, index_col=0).loc[userid, 'RPO'])
+        return
+
+    elif RPO not in pd.read_csv(RPOInfoURL, index_col=0, usecols=['FULL NAME', 'TAG', 'Account Balance'])['TAG'].astype(str).to_list(): #makes sure RPO trying to be joined exists
         if RPO == 'A':
                 rpo = RPO
                 newUser = {'userID':[str(userid)], 'RPO':RPO, 'Author':[author], 'Coin Amount': [0], 'lastWorkAmount': [0], 'lastWork': [0], 'lastDaily': [0]}
@@ -1052,12 +1064,6 @@ async def joinRPO(message):
         else:
             await message.channel.send("<:KSplodes:896043440872235028> Error: RPO " +RPO + " is not a registered RPO")
             return
-    elif str(userid) in pd.read_csv(UserListURL)['userID'].astype(str).to_list(): #makes sure user isn't already in an RPO
-        if RPO == 'A':
-            await message.channel.send("<:KSplodes:896043440872235028> Error: You have already been registered as undeclared. To chaneg your status, please use `!changeRPO` followed by your new tag.")
-        else:
-            await message.channel.send("<:KSplodes:896043440872235028> Error: You are already in an RPO: " + pd.read_csv(UserListURL, index_col=0).loc[userid, 'RPO'])
-        return
     elif RPO == 'CP':
         await message.channel.send("<:KSplodes:896043440872235028> Error: You cannot join the RPO CP")
     elif str(userid) not in pd.read_csv(UserListURL)['userID'].astype(str).to_list():
@@ -1079,7 +1085,7 @@ async def joinRPO(message):
         try:
             newname, count = re.subn("(?<=\[)[^\[\]]{2,4}(?=\])",RPO,name)
             if (count == 0):
-                newname = name + "[" + RPO + "]"
+                newname = name + " [" + RPO + "]"
             await message.author.edit(nick=newname)
         except:
             RPO
