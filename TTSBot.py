@@ -58,25 +58,27 @@ RPOInfoURL = 'https://docs.google.com/spreadsheets/d/{0}/gviz/tq?tqx=out:csv&gid
     data['RPOinfoID'],
     data['RPOinfogid']
 )  #these make the URLS needed for pandas to read the needed CSVs, in combination with the details.json file
-creds = None
+
 # The file token.json stores the user's access and refresh tokens, and is
 # created automatically when the authorization flow completes for the first
 # time.
-if os.path.exists('token.json'):
-    creds = Credentials.from_authorized_user_file('token.json', SCOPES)
-# If there are no (valid) credentials available, let the user log in.
-if not creds or not creds.valid:
-    if creds and creds.expired and creds.refresh_token:
-        creds.refresh(Request())
-    else:
-        flow = InstalledAppFlow.from_client_secrets_file(
-            'credentials.json', SCOPES)
-        creds = flow.run_local_server(port=0)
-    # Save the credentials for the next run
-    with open('token.json', 'w') as token:
-        token.write(creds.to_json())
-
-service = build('sheets', 'v4', credentials=creds)
+def refresh():
+    creds = None
+    if os.path.exists('token.json'):
+        creds = Credentials.from_authorized_user_file('token.json', SCOPES)
+    # If there are no (valid) credentials available, let the user log in.
+    if not creds or not creds.valid:
+        if creds and creds.expired and creds.refresh_token:
+            creds.refresh(Request())
+        else:
+            flow = InstalledAppFlow.from_client_secrets_file(
+                'credentials.json', SCOPES)
+            creds = flow.run_local_server(port=0)
+        # Save the credentials for the next run
+        with open('token.json', 'w') as token:
+            token.write(creds.to_json())
+    return build('sheets', 'v4', credentials=creds)
+service = refresh()
 Marketdf = pd.read_csv(URL, index_col=0, usecols=['Symbol', 'Market Price', 'Day change']).dropna(axis=0) #Creates the dataframe (think spreadsheet, but in a more manipulatable manner) for stock prices
 Investmentsdf = pd.read_csv(InvestorsURL, index_col=0).dropna(axis=1, how='all') #Creates the data fram for investors
 RPOlist = list() #initializes empty list for list of RPOs with investments
@@ -90,10 +92,11 @@ class MyClient(discord.Client):
         if message.channel.id != 893867549589131314:
             return
         else:
-            if message.author.id != 82495450153750528:
+            if message.author.id != 82495450153750528 and message.author.id != 755539532924977262:
                 return
             else:
-                if message.content.startswith('buyShares'): #args: <Coins/Funds>, <Symbol>, <Amount> 
+                service = refresh()
+                if message.content.startswith('buyShares') or message.content.startswith('Buyshares') or message.content.startswith('BuyShares'): #args: <Coins/Funds>, <Symbol>, <Amount> 
                     if message.channel.id != 687817008355737606 and message.channel.id != 900523609603313704:
                         return
                     author = message.author
@@ -106,7 +109,7 @@ class MyClient(discord.Client):
                         await message.channel.send("<:KSplodes:896043440872235028> Error: Not registered in an RPO for the bot. Please register with the bot through !joinRPO <RPO_Tag>")
                         return
                     elif pd.read_csv(UserListURL, index_col=0).loc[userid,'RPO'] == 'A':
-                        await message.channel.send("<:KSplodes:896043440872235028> Error: Invalid in an RPO for investing. Please change your RPO !changeRPO <New_RPO_Tag>")
+                        await message.channel.send("<:KSplodes:896043440872235028> Error: Not explicitly declared in RPO for investing. Please change your RPO !changeRPO <New_RPO_Tag>")
                         return
                     elif str(userid) in pd.read_csv(UserListURL)['userID'].astype(str).to_list():
                         Investmentsdf = pd.read_csv(InvestorsURL, index_col=0).dropna(axis=1, how='all')
@@ -139,8 +142,8 @@ class MyClient(discord.Client):
                         df = df.reset_index() #fixes the data frame so it can be concatenated with with the market value data frame
                         Marketdf = Marketdf.reset_index() #fixes the data frame so it can be concatenated with the specific investments data frame
                         try:
-                            args[1]
-                            args[2]
+                            args[1] = args[1].capitalize()
+                            args[2] = args[2].upper()
                             args[3]
                             try:
                                 int(args[3])
@@ -439,7 +442,7 @@ class MyClient(discord.Client):
                             else:
                                 await message.channel.send("<:KSplodes:896043440872235028> Error: Invalid argument in position 1: " + str(args[1]) + ". Argument one must be `Coins` for discord currency, or `Funds` for the currency in your RPO's account.")
 
-                elif message.content.startswith('sellShares'): #args: <Symbol> <Amount>:
+                elif message.content.startswith('sellShares') or message.content.startswith('SellShares') or message.content.startswith('Sellshares'): #args: <Symbol> <Amount>:
                     if message.channel.id != 687817008355737606:
                         return
                     author = message.author
@@ -485,7 +488,7 @@ class MyClient(discord.Client):
                         df = df.reset_index() #fixes the data frame so it can be concatenated with with the market value data frame
                         Marketdf = Marketdf.reset_index() #fixes the data frame so it can be concatenated with the specific investments data frame
                         try:
-                            args[1]
+                            args[1] = args[1].upper()
                             args[2]
                             try:
                                 int(args[2])
@@ -648,7 +651,7 @@ class MyClient(discord.Client):
                             else:
                                 await message.channel.send("<:KSplodes:896043440872235028> Error: Invalid argument in position 1: " + str(args[1]) + ". Argument one must be one of the public stocks.")
                                 
-                elif message.content.startswith('daily'):
+                elif message.content.startswith('daily') or message.content.startswith('Daily'):
                     message = message
                     await message.delete()
                     isAllowed = False
@@ -682,7 +685,7 @@ class MyClient(discord.Client):
                     elif isAllowed == False:
                         await message.author.send("<:KSplodes:896043440872235028> Error: You are not allowed to use that command.")
 
-                elif message.content.startswith('work'):
+                elif message.content.startswith('work') or message.content.startswith('Work'):
                     isAllowed = False
                     allowedids = ['837812373451702303','837812586997219372','837812662116417566','837812728801525781','837812793914425455','400445639210827786','685331877057658888','337743478190637077','837813262417788988','338173415527677954','253752685357039617']
                     for id in allowedids:
@@ -718,7 +721,7 @@ class MyClient(discord.Client):
                         await message.channel.send("<:KSplodes:896043440872235028> Error: You are not allowed to use that command.")
                     await message.delete()
 
-                elif message.content.startswith('!coins'):
+                elif message.content.startswith('coins') or message.content.startswith('Coins'):
                     if str(message.author.id) not in pd.read_csv(UserListURL)['userID'].astype(str).to_list(): #makes sure user isn't already in an RPO
                         await message.channel.send("<:KSplodes:896043440872235028> Error: You are not registered in an RPO to me.")
                         return
