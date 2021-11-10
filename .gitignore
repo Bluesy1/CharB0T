@@ -29,3 +29,5 @@ __pycache__/votes.json
 .vscode/launch.json
 graph.png
 filekey.key
+token1.json
+__pycache__/grabber.cpython-38.pyc

@@ -874,7 +874,7 @@ async def command(ctx):
     a.render_mpl_table_colors(df,Colors=colorList, header_columns=0, col_width=5.0, alpha=0.5)
     await ctx.author.send(file=discord.File(r'table.png'))
 
-@ui.slash.command(name='allparts', description="All parts in the game", guild_ids=[225345178955808768], guild_permissions={225345178955808768: SlashPermission(allowed={"225345178955808768": SlashPermission.ROLE},forbidden={"684936661745795088":SlashPermission.ROLE,"676250179929636886":SlashPermission.ROLE})})
+@ui.slash.command(name='allparts', description="All parts in the game, only unlocked ones will be highlighted.", guild_ids=[225345178955808768], guild_permissions={225345178955808768: SlashPermission(allowed={"225345178955808768": SlashPermission.ROLE},forbidden={"684936661745795088":SlashPermission.ROLE,"676250179929636886":SlashPermission.ROLE})})
 async def command(ctx):
     with open('parts.json') as p:
         partsDict = json.load(p)
@@ -1043,8 +1043,7 @@ async def command(ctx):
             colorList.append(tempList)
         a.render_mpl_table_colors_pdf(export_pdf, dfOut[:-1],Colors=colorList, header_columns=0, col_width=10)
     plt.close('all')
-    await ctx.respond(file=discord.File(r'Tables.pdf'),hidden=True)
-
+    await ctx.author.send(file=discord.File(r'Tables.pdf'))
 
 #/researched upgrades all
 @ui.slash.subcommand(base_names='researched', name='upgrades', description="All unlocked upgrades", guild_ids=[225345178955808768], guild_permissions={225345178955808768: SlashPermission(allowed={"225345178955808768": SlashPermission.ROLE},forbidden={"684936661745795088":SlashPermission.ROLE,"676250179929636886":SlashPermission.ROLE})})
@@ -1208,114 +1207,6 @@ async def command(ctx):
         a.render_mpl_table(dfOut, header_columns=0, col_width=5.0)
         await ctx.author.send(file=discord.File('table.png'))
     return
-
-@ui.slash.command(name="perception", description="Rolls a special set of d10s for determining perception rolls.", options=[
-    SlashOption(int, name="Amount", description="How many dice to roll, min 3", required=True),
-    SlashOption(str, name="Success", description="Minimum value to get a success", choices=[
-        create_choice('5','5'), create_choice('6','6'), create_choice('7','7'), create_choice('8','8'), create_choice('9','9'),create_choice('10','10')
-    ],required=True),
-    SlashOption(str, name="Failure", description="Maximum value to count as a failure", choices=[
-        create_choice('1','1'), create_choice('2','2'), create_choice('3','3'), create_choice('4','4')
-    ],required=True)], guild_ids=[225345178955808768], guild_permissions={
-    225345178955808768: SlashPermission(
-        allowed={
-            "225413350874546176": SlashPermission.ROLE,
-            "253752685357039617": SlashPermission.ROLE,
-            "338173415527677954": SlashPermission.ROLE
-        },
-        forbidden={
-            "225345178955808768": SlashPermission.ROLE}
-    )})
-async def command(ctx, amount, success, failure):
-    if amount <= 3:
-        ctx.send("<:KSplodes:896043440872235028>: Minimum amount of dice to roll is 3.")
-    i=0
-    successes=0
-    failures=0
-    rolls = list()
-    while i<amount:
-        roll = random.randint(1,10)
-        if roll <= int(failure):
-            failures+=1
-        elif roll >= int(success):
-            successes+=1
-        rolls.append(roll)
-        i+=1
-    numTens = 0
-    for i in rolls:
-        if i==10:
-            numTens+=1
-    CritSuccesses = (numTens-(numTens%2))
-    netSuccesses = successes-failures+CritSuccesses
-    output = '`'
-    for x in rolls:
-        output += str(x) + ', '
-    output = output[:-2]
-    output+='`'
-    embed = None
-    if netSuccesses>0:
-        embed=discord.Embed(title="Perception Roll", description="<@!"+str(ctx.author.id)+"> rolled "+str(amount)+"d10s for "+output+", totaling `"+str(successes)+"` successes, `"+str(CritSuccesses)+"` crit successes and `"+ str(failures) +"` failures, for a net of **`"+str(netSuccesses)+"`** successes.", color=0x00ff00)
-    elif netSuccesses<0:
-        embed=discord.Embed(title="Perception Roll", description="<@!"+str(ctx.author.id)+"> rolled "+str(amount)+"d10s for "+output+", totaling `"+str(successes)+"` successes, `"+str(CritSuccesses)+"` crit successes and `"+ str(failures) +"` failures, for a net of **`"+str(netSuccesses)+"`** successes.", color=0xff0000)
-    elif netSuccesses==0:
-        embed=discord.Embed(title="Perception Roll", description="<@!"+str(ctx.author.id)+"> rolled "+str(amount)+"d10s for "+output+", totaling `"+str(successes)+"` successes, `"+str(CritSuccesses)+"` crit successes and `"+ str(failures) +"` failures, for a net of **`"+str(netSuccesses)+"`** successes.", color=0x0000ff)
-    else:
-        return
-    await ctx.send(embed=embed)
-
-@ui.slash.command(name="patent", description="Rolls a special set of d10s for determining patents.", options=[
-    SlashOption(int, name="Amount", description="How many dice to roll, min 3", required=True),
-    SlashOption(str, name="Success", description="Minimum value to get a success", choices=[
-        create_choice('5','5'), create_choice('6','6'), create_choice('7','7'), create_choice('8','8'), create_choice('9','9'),create_choice('10','10')
-    ],required=True),
-    SlashOption(str, name="Failure", description="Maximum value to count as a failure", choices=[
-        create_choice('1','1'), create_choice('2','2'), create_choice('3','3'), create_choice('4','4')
-    ],required=True)], guild_ids=[225345178955808768], guild_permissions={
-    225345178955808768: SlashPermission(
-        allowed={
-            "225413350874546176": SlashPermission.ROLE,
-            "253752685357039617": SlashPermission.ROLE,
-            "338173415527677954": SlashPermission.ROLE
-        },
-        forbidden={
-            "225345178955808768": SlashPermission.ROLE}
-    )})
-async def command(ctx, amount, success, failure):
-    if amount <= 3:
-        ctx.send("<:KSplodes:896043440872235028>: Minimum amount of dice to roll is 3.")
-    i=0
-    successes=0
-    failures=0
-    rolls = list()
-    while i<amount:
-        roll = random.randint(1,10)
-        if roll <= int(failure):
-            failures+=1
-        elif roll >= int(success):
-            successes+=1
-        rolls.append(roll)
-        i+=1
-    numTens = 0
-    for i in rolls:
-        if i==10:
-            numTens+=1
-    CritSuccesses = (numTens-(numTens%2))
-    netSuccesses = successes-failures+CritSuccesses
-    output = '`'
-    for x in rolls:
-        output += str(x) + ', '
-    output = output[:-2]
-    output+='`'
-    embed = None
-    if netSuccesses>0:
-        embed=discord.Embed(title="Patent Roll", description="<@!"+str(ctx.author.id)+"> rolled "+str(amount)+"d10s for "+output+", totaling `"+str(successes)+"` successes, `"+str(CritSuccesses)+"` crit successes and `"+ str(failures) +"` failures, for a net of **`"+str(netSuccesses)+"`** successes.", color=0x00ff00)
-    elif netSuccesses<0:
-        embed=discord.Embed(title="Patent Roll", description="<@!"+str(ctx.author.id)+"> rolled "+str(amount)+"d10s for "+output+", totaling `"+str(successes)+"` successes, `"+str(CritSuccesses)+"` crit successes and `"+ str(failures) +"` failures, for a net of **`"+str(netSuccesses)+"`** successes.", color=0xff0000)
-    elif netSuccesses==0:
-        embed=discord.Embed(title="Patent Roll", description="<@!"+str(ctx.author.id)+"> rolled "+str(amount)+"d10s for "+output+", totaling `"+str(successes)+"` successes, `"+str(CritSuccesses)+"` crit successes and `"+ str(failures) +"` failures, for a net of **`"+str(netSuccesses)+"`** successes.", color=0x0000ff)
-    else:
-        return
-    await ctx.send(embed=embed)
 
 @ui.slash.subcommand(base_names=['coins','query'], name='me', description="Querys how many coins you have", guild_ids=[225345178955808768], guild_permissions={225345178955808768: SlashPermission(allowed={"225345178955808768": SlashPermission.ROLE},forbidden={"684936661745795088":SlashPermission.ROLE,"676250179929636886":SlashPermission.ROLE})})
 async def command(ctx):
@@ -1696,6 +1587,12 @@ async def command(ctx, title, body, color, time, channel, author="Author Kerman"
                         if len(body1) >=4000:
                             await msg.edit("Max length Reached")
                             break
+            embed=discord.Embed(title=title, description=body1, color=color)
+            embed.set_author(name=author)
+            embed.set_thumbnail(url=image)
+            if addImage:
+                embed.set_image(url=addedImage)
+            embed.set_footer(text=time)
         elif btn.label == "Footer":
             await ctx.send("Please enter new footer:")
             msg = await client.wait_for("message", check=a.author_check(ctx.author), timeout=180)
@@ -1945,10 +1842,101 @@ async def command(ctx, id, message, title=None):
     await sendTo.send("Message from "+str(modnames[ctx.author.id])+": "+message)
     await ctx.respond("Sent.")
 
+@ui.slash.command(name = 'comments',description="updates comment points totals from specified video", options=[
+    SlashOption(str, name="ID",description="video ID to grab comments of",required=True)], guild_ids=[225345178955808768], guild_permissions={
+    225345178955808768: SlashPermission(allowed={
+            "225413350874546176": SlashPermission.ROLE,
+            "253752685357039617": SlashPermission.ROLE,
+            "338173415527677954": SlashPermission.ROLE},forbidden={
+            "225345178955808768": SlashPermission.ROLE})})
+async def command(ctx, id):
+    spreadsheet_id = '1MyTqsdG3uzOYt_sNzc1aKiLXMfATl4pBJg5lf-4hSQw'
+    range_ = 'YT Comment Records!A2:B'
+    value_render_option = 'FORMATTED_VALUE'
+    request = service.spreadsheets().values().get(spreadsheetId=spreadsheet_id, range=range_,majorDimension="COLUMNS", valueRenderOption=value_render_option)
+    response = request.execute()
+    df = pd.DataFrame()
+    df['Name']=response['values'][0]
+    df['Points']=response['values'][1]
+    df['Points'] = df['Points'].astype(float)
+    df['new'] = df['Name']
+    df = df.set_index('new')
+    commenters = grabber.comments(id)
+    for commenter in commenters:
+        if commenter in df['Name'].tolist():
+            df.loc[commenter, 'Points']+=1
+        else:
+            df.loc[-1] = [commenter, 1]
+    os.environ['TZ'] = 'US/Eastern'
+    time.tzset()
+    batch_update_values_request_body = {
+        'value_input_option':'USER_ENTERED',
+        'data':[
+            {"range":range_,
+            "majorDimension":"COLUMNS",
+            "values": [df['Name'].tolist(),df['Points'].tolist()]},
+            {"range":'YT Comment Records!E1',
+            "majorDimension":"COLUMNS",
+            "values": [[time.strftime('%X %x %Z')]]}]}
+    request = service.spreadsheets().values().batchUpdate(spreadsheetId=spreadsheet_id, body=batch_update_values_request_body)
+    response = request.execute()
+    ctx.respond("Done")
 
-
-
-
+@ui.slash.command(name="WODroll", description="Rolls a special set of d10s for determining bellcurve rolls.", options=[
+    SlashOption(str, name="name", description="name for roll", required=True),
+    SlashOption(int, name="Amount", description="How many dice to roll, min 3", required=True),
+    SlashOption(str, name="Success", description="Minimum value to get a success", choices=[
+        create_choice('5','5'), create_choice('6','6'), create_choice('7','7'), create_choice('8','8'), create_choice('9','9'),create_choice('10','10')
+    ],required=True),
+    SlashOption(str, name="Failure", description="Maximum value to count as a failure", choices=[
+        create_choice('1','1'), create_choice('2','2'), create_choice('3','3'), create_choice('4','4')
+    ],required=True),
+    SlashOption(str, name="tag", description="Tag of RPO roll is for", required=True)], guild_ids=[225345178955808768], guild_permissions={
+    225345178955808768: SlashPermission(
+        allowed={
+            "225413350874546176": SlashPermission.ROLE,
+            "253752685357039617": SlashPermission.ROLE,
+            "338173415527677954": SlashPermission.ROLE
+        },
+        forbidden={
+            "225345178955808768": SlashPermission.ROLE}
+    )})
+async def command(ctx, name, amount, success, failure, tag):
+    if amount <= 3:
+        ctx.send("<:KSplodes:896043440872235028>: Minimum amount of dice to roll is 3.")
+    i=0
+    successes=0
+    failures=0
+    rolls = list()
+    while i<amount:
+        roll = random.randint(1,10)
+        if roll <= int(failure):
+            failures+=1
+        elif roll >= int(success):
+            successes+=1
+        rolls.append(roll)
+        i+=1
+    numTens = 0
+    for i in rolls:
+        if i==10:
+            numTens+=1
+    CritSuccesses = (numTens-(numTens%2))
+    netSuccesses = successes-failures+CritSuccesses
+    output = '`'
+    for x in rolls:
+        output += str(x) + ', '
+    output = output[:-2]
+    output+='`'
+    embed = None
+    if netSuccesses>0:
+        embed=discord.Embed(title=name+" Roll", description="**"+str(tag).upper()+"** rolled "+str(amount)+"d10s, getting "+output+", totaling `"+str(successes)+"` successes, `"+str(CritSuccesses)+"` crit successes and `"+ str(failures) +"` failures, for a net of **`"+str(netSuccesses)+"`** successes.", color=0x00ff00)
+    elif netSuccesses<0:
+        embed=discord.Embed(title=name+" Roll", description="**"+str(tag).upper()+"** rolled "+str(amount)+"d10s, getting "+output+", totaling `"+str(successes)+"` successes, `"+str(CritSuccesses)+"` crit successes and `"+ str(failures) +"` failures, for a net of **`"+str(netSuccesses)+"`** successes.", color=0xff0000)
+    elif netSuccesses==0:
+        embed=discord.Embed(title=name+" Roll", description="**"+str(tag).upper()+"** rolled "+str(amount)+"d10s, getting "+output+", totaling `"+str(successes)+"` successes, `"+str(CritSuccesses)+"` crit successes and `"+ str(failures) +"` failures, for a net of **`"+str(netSuccesses)+"`** successes.", color=0x0000ff)
+    else:
+        return
+    await ctx.send(embed=embed)
 
 
 
