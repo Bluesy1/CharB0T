@@ -9,9 +9,10 @@ from discord.gateway import EventListener
 with open("KethranToken.json") as t:
     token = json.load(t)['Token']
 regex = r"kethran"
-client = commands.Bot(command_prefix='!')
+client = commands.Bot(command_prefix='k')
 @client.event
 async def on_message(ctx):
+    await client.process_commands(ctx)
     if ctx.author != client.user:
         if ctx.channel.id in [901325983838244865, 878434694713188362]:
             if bool(re.search(regex,ctx.content,re.IGNORECASE|re.MULTILINE)):
@@ -68,5 +69,49 @@ async def on_message(ctx):
                     await ctx.channel.send("**HOLY SHIT!**")
                     await ctx.channel.send("**HOLY SHIT!**")
                     await ctx.channel.send("**HOLY SHIT!**")
+
+@client.command()
+async def roll(ctx, dice):
+    arg = dice
+    if "+" in arg:
+        dice = arg.split("+")
+    #elif arg == 'patent':
+    #    dice = ['','','']
+    else:
+        dice = [str(arg)]
+    try:
+        sum = 0
+        rolls = list()
+        allowedDice = [4,6,8,10,12,20,100]
+        for die in dice:
+            if 'd' in die:
+                if int(die[die.find('d')+1:]) not in allowedDice:
+                    await ctx.send("Error invalid argument: specified dice can only be d4s, d6s, d8s, d10s, d12s, d20s, or d100s, or if a constant modifier must be a perfect integer, positive or negative, connexted with `+`, and no spaces.")
+                    return
+                try:
+                    numRolls = int(die[:die.find('d')])
+                except:
+                    numRolls = 1
+                i = 1
+                while i <= numRolls:
+                    roll = random.randint(1, int(die[die.find('d')+1:]))
+                    rolls.append(roll)
+                    sum += roll
+                    i += 1
+            else:
+                try:
+                    rolls.append(int(die))
+                    sum += int(die)
+                except:
+                    await ctx.send("Error invalid argument: specified dice can only be d4s, d6s, d8s, d10s, d12s, d20s,  or d100s, or if a constant modifier must be a perfect integer, positive or negative, connexted with `+`, and no spaces.")
+                    return
+        output = '`'
+        for x in rolls:
+            output += str(x) + ', '
+        output = output[:-2]
+        await ctx.send("Kethran rolled `" +arg+"` got "+output+"` for a total value of: "+str(sum))        
+    except:
+        await ctx.send("Error invalid argument: specified dice can only be d4s, d6s, d8s, d10s, d12s, d20s,  or d100s, or if a constant modifier must be a perfect integer, positive or negative, connexted with `+`, and no spaces.")
+        return
 
 client.run(token)

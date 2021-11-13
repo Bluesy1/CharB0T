@@ -87,7 +87,6 @@ def message_check(channel=None, author=None, content=None, ignore_bot=True, lowe
         return True
     return check
 
-
 def render_mpl_table(data, col_width=5, row_height=0.625, font_size=20,
                      header_color='#40466e', row_colors=['xkcd:sky blue', 'xkcd:blue grey'], edge_color='k',
                      bbox=[0, 0, 1.3, 1], header_columns=0,
@@ -312,6 +311,9 @@ def add_onmessage(message):
                 messages = tickets[ticket]['messages']
                 numMessages = len(list(messages.keys()))
                 messages.update({str(numMessages):str(message.author)+": "+str(message.content)})
+                for attachment in message.attachments:
+                    numMessages = len(list(messages.keys()))
+                    messages.update({str(numMessages):str(message.author)+": "+str(attachment.url)})
                 tickets[ticket]['messages'] = messages
                 tickets[ticket]['time'] = time.mktime(message.created_at.timetuple())
                 with open('tickets.json','wb') as t:
@@ -323,13 +325,12 @@ def add_onmessage(message):
                 "0":str(message.author)+": "+str(message.content)
             }
         }
-    tickets.update({str(newTicketNum)+": "+str(message.author):newTicket})
+    tickets.update({str(newTicketNum):newTicket})
     with open('tickets.json','wb') as t:
         t.write(fernet.encrypt(json.dumps(tickets).encode('utf-8')))
     return [str(newTicketNum)+": "+str(message.author),"new"]
 
-
-def add_message(ctx,message, ticket):
+def add_message(ctx,message, ticket, attachments = None):
     with open('tickets.json',"rb") as t:
         temp = fernet.decrypt(t.read())
     tickets = json.loads(temp)
@@ -346,4 +347,4 @@ def ksptime(save):
     hours = math.floor(Sectime/3600)
     minutes = math.floor((Sectime%3600)/60)
     seconds = (Sectime%3600)%60
-    return [math.floor(hours/6),hours%6,minutes,seconds]
+    return [(hours//6),hours%6,minutes,seconds]

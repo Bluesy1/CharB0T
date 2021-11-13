@@ -721,7 +721,7 @@ class MyClient(discord.Client):
                         await message.channel.send("<:KSplodes:896043440872235028> Error: You are not allowed to use that command.")
                     await message.delete()
 
-                elif message.content.startswith('coins') or message.content.startswith('Coins'):
+                elif message.content.startswith('coins') or message.content.startswith('Coins') or message.content.startswith('!coins') or message.content.startswith('!Coins'):
                     if str(message.author.id) not in pd.read_csv(UserListURL)['userID'].astype(str).to_list(): #makes sure user isn't already in an RPO
                         await message.channel.send("<:KSplodes:896043440872235028> Error: You are not registered in an RPO to me.")
                         return

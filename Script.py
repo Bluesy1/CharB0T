@@ -776,9 +776,9 @@ async def work(message):
         lastWork = df.loc[str(message.author.id), 'lastWork']
         currentUse = time.mktime(message.message.created_at.timetuple())
         timeDifference = currentUse - lastWork
-        if timeDifference < 43200:
-            await message.channel.send("<:KSplodes:896043440872235028> Error: **" + message.author.display_name + "** You need to wait " + str(datetime.timedelta(seconds=43200-timeDifference)) + " more to use this command.")
-        elif timeDifference > 43200:
+        if timeDifference < 41400:
+            await message.channel.send("<:KSplodes:896043440872235028> Error: **" + message.author.display_name + "** You need to wait " + str(datetime.timedelta(seconds=41400-timeDifference)) + " more to use this command.")
+        elif timeDifference > 41400:
             df.loc[str(message.author.id), 'lastWork'] = currentUse
             amount = random.randrange(800, 1200, 5) #generates random number from 800 to 1200, in incrememnts of 5 (same as generating a radom number between 40 and 120, and multiplying it by 5)
             lastamount = int(df.loc[str(message.author.id), 'lastWorkAmount'])
@@ -876,6 +876,7 @@ async def command(ctx):
 
 @ui.slash.command(name='allparts', description="All parts in the game, only unlocked ones will be highlighted.", guild_ids=[225345178955808768], guild_permissions={225345178955808768: SlashPermission(allowed={"225345178955808768": SlashPermission.ROLE},forbidden={"684936661745795088":SlashPermission.ROLE,"676250179929636886":SlashPermission.ROLE})})
 async def command(ctx):
+    await ctx.defer(hidden=True)
     with open('parts.json') as p:
         partsDict = json.load(p)
     data2 = sfs.parse_savefile('completed.sfs')
@@ -1350,15 +1351,18 @@ async def command(ctx, user,amount):
     worksheet = sh.get_worksheet(0)
     set_with_dataframe(worksheet, accountBalanceSheet)
 
-@ui.slash.subcommand(base_names='transfer', name='wallet', description="Transfers ALL coins to RPO's funds. Irreversible.", guild_ids=[225345178955808768], guild_permissions={225345178955808768: SlashPermission(allowed={"225345178955808768": SlashPermission.ROLE},forbidden={"684936661745795088":SlashPermission.ROLE,"676250179929636886":SlashPermission.ROLE})})
-async def command(ctx):
+@ui.slash.subcommand(base_names='transfer', name='wallet', description="Transfers ALL coins to RPO's funds. Irreversible.", options=[
+    SlashOption(int, name="Amount",required=True)
+    ], guild_ids=[225345178955808768], guild_permissions={225345178955808768: SlashPermission(allowed={"225345178955808768": SlashPermission.ROLE},forbidden={"684936661745795088":SlashPermission.ROLE,"676250179929636886":SlashPermission.ROLE})})
+async def command(ctx,amount):
     refreshToken()
+    if pd.read_csv(UserListURL, index_col=0).loc[ctx.author.id,'RPO'] == 'A': await ctx.respond("You are not registered in a valid RPO to the bot",hidden=True)
     df = pd.read_csv(UserListURL)
     df['userID'] = df['userID'].astype(str)
     df['new'] = df['userID']
     df = df.set_index('new')
-    charged = df.loc[str(ctx.author.id), 'Coin Amount']
-    df.loc[str(ctx.author.id), 'Coin Amount'] = 0
+    charged = min(df.loc[str(ctx.author.id), 'Coin Amount'],amount)
+    df.loc[str(ctx.author.id), 'Coin Amount'] -= charged
     gc = gspread.oauth(credentials_filename='credentials.json', authorized_user_filename='authorized_user.json') #gets credentials
     sh = gc.open_by_key(data['UserListID']) #gets sheetinfo
     worksheet = sh.get_worksheet(8) #-> 0 - first sheet, 1 - second sheet etc. 
@@ -1712,13 +1716,44 @@ async def command(ctx, kerbals, comms, goal, wants, rp, patent, craft, payment, 
             "338173415527677954": SlashPermission.ROLE},forbidden={
             "225345178955808768": SlashPermission.ROLE})})
 async def command(ctx, ticket, message):
-    user = a.add_message(ctx,message,str(ticket))
-    sendTo = await ctx.guild.fetch_member(int(user))
     modnames={
-        363095569515806722:"[Moderator] Bluesy",247950431630655488:"[Moderator] Doffey",82495450153750528:"[Moderator] Kaitlin",146285543146127361:"[Admin] Jazmine",162833689196101632:"[Moderator] Krios",
+        363095569515806722:"[Moderator] Bluesy",247950431630655488:"[Moderator] Doffey",82495450153750528:"[Moderator] Kaitlin",146285543146127361:"[Admin] Jazmine",138380316095021056:"[Moderator] Krios",
         162833689196101632:"[Moderator] Mike Takumi", 137240557280952321:"[Admin] Pet",137240557280952321:"[Moderator] Melethya",225344348903047168:"[Owner] Charlie"
     }
+    """menu = await (
+    await ctx.send("Attachments?", components=[
+        SelectMenu('attachments',options=[
+            SelectOption(value='0',label='None',description='No Attachments'),
+            SelectOption(value='1',label='One',description='One Attachment'),
+            SelectOption(value='2',label='Two',description='Two Attachments'),
+            SelectOption(value='3',label='Three',description='Three Attachments'),
+            SelectOption(value='4',label='Four',description='Four Attachments'),
+            SelectOption(value='5',label='Five',description='Five Attachments'),
+            SelectOption(value='6',label='Six',description='Six Attachments'),
+            SelectOption(value='7',label='Seven',description='Seven Attachments'),
+            SelectOption(value='8',label='Eight',description='Eight Attachments'),
+            SelectOption(value='9',label='Nine',description='Nine Attachments'),
+            SelectOption(value='10',label='Ten',description='Ten Attachments'),
+        ],min_values=1,max_values=1)
+    ])
+    ).wait_for("select", client)
+    n = (int("".join(menu.data['values'])))
+    i = 0
+    attchmentUrls = list()
+    if n >0:
+        await menu.respond("Please upload first attachment")
+        while i<n:
+            msg = await client.wait_for("message", check=a.message_check(channel=ctx.author.dm_channel), timeout=180)
+            try:
+                attchmentUrls.append(msg.attachments[0].url)
+            except: None
+            await ctx.send("Upload next attachment.")
+            i+=1
+    else:attchmentUrls=None"""
+    user = a.add_message(ctx,message,str(ticket),None)
+    sendTo = await ctx.guild.fetch_member(int(user))
     await sendTo.send("Message from "+str(modnames[ctx.author.id])+": "+message)
+    #if n >0: await sendTo.send(", ".join(attchmentUrls))
     await ctx.send("Sent.")
 
 @ui.slash.subcommand(base_names = 'ticket',name='list',description='Displays all open tickets in modmail.', guild_ids=[225345178955808768], guild_permissions={
@@ -1765,6 +1800,7 @@ async def command(ctx, ticket=None):
         pdfName = "ticket "+ticket+".pdf"
         pdf.output(pdfName)
         await ctx.respond(file=discord.File(pdfName),hidden=True)
+        os.remove(pdfName)
     elif ticket is None:
         pdf = fpdf.FPDF(format='letter')
         pdf.set_font("Arial", size=12)
@@ -1774,7 +1810,7 @@ async def command(ctx, ticket=None):
         for ticket in list(tickets.keys()):
             pdf.add_page()
             pdf.set_font("Arial", size=24)
-            pdf.write(5,a.strip_non_ascii(str(ticket)))
+            pdf.write(10,a.strip_non_ascii(str(ticket)))
             pdf.set_font("Arial", size=12)
             pdf.ln()
             for message in list(tickets[ticket]["messages"].keys()):
@@ -1782,6 +1818,7 @@ async def command(ctx, ticket=None):
                 pdf.ln()
         pdf.output("all tickets.pdf")
         await ctx.respond(file=discord.File("all tickets.pdf"),hidden=True)
+        os.remove("all tickets.pdf")
 
 @ui.slash.subcommand(base_names = 'ticket',name='close',description='Closes an open modmail ticket.',options=[
     SlashOption(str,name="Ticket",description="Ticket to recall history of",required=True), SlashOption(str, name="Name",description="Name to give ticket for easier referral to later.",required=True)
@@ -1802,13 +1839,13 @@ async def command(ctx, ticket, name):
         pdf.write(5,a.strip_non_ascii(str(tickets[ticket]["messages"][message])))
         pdf.ln()
     pdfName = "ticket "+re.sub(r':',"",a.strip_non_ascii(ticket))+".pdf"
-    try: pdf.output(pdfName)
-    except: pdf.output("ticket.pdf")
+    pdf.output(pdfName)
     tickets[ticket]["open"]="False"
     tickets[name] = tickets.pop(ticket)
     with open('tickets.json','wb') as t:
         t.write(fernet.encrypt(json.dumps(tickets).encode('utf-8')))
     await ctx.respond(content="Ticket Closed.",file=discord.File(pdfName))
+    os.remove(pdfName) 
 
 @ui.slash.subcommand(base_names = 'ticket',name='open',description="open a ticket forcefully with a user", options=[
     SlashOption(str, name="ID",description="User ID to open ticket with",required=True),SlashOption(str, name="message",description="message to send",required=True),
@@ -1830,7 +1867,7 @@ async def command(ctx, id, message, title=None):
         }
     sendTo = await ctx.guild.fetch_member(int(id))
     if title is None:
-        tickets.update({str(newTicketNum)+": "+str(sendTo):newTicket})
+        tickets.update({str(newTicketNum):newTicket})
     else:
         tickets.update({str(title):newTicket})
     with open('tickets.json','wb') as t:
@@ -1880,7 +1917,7 @@ async def command(ctx, id):
             "values": [[time.strftime('%X %x %Z')]]}]}
     request = service.spreadsheets().values().batchUpdate(spreadsheetId=spreadsheet_id, body=batch_update_values_request_body)
     response = request.execute()
-    ctx.respond("Done")
+    await ctx.respond("Done")
 
 @ui.slash.command(name="WODroll", description="Rolls a special set of d10s for determining bellcurve rolls.", options=[
     SlashOption(str, name="name", description="name for roll", required=True),
@@ -1938,6 +1975,101 @@ async def command(ctx, name, amount, success, failure, tag):
         return
     await ctx.send(embed=embed)
 
+@ui.slash.subcommand(base_names="recurring",name="add",description="updates the time and checks for any recurring payments",options=[
+        SlashOption(str,name="RPO",description='RPO to check',required=True),
+        SlashOption(str,name="Name",description="Name for the recourring event.",required=True),
+        SlashOption(int,name='Next',description="First day for event to trigger",required=True),
+        SlashOption(int,name="Interval",description="How long between triggers of event",required=True),
+        SlashOption(int,name="Amount",description="Amount to add/remove on event (can be 0 for a tracker event)",required=True)]
+    , guild_ids=[225345178955808768], guild_permissions={
+    225345178955808768: SlashPermission(allowed={"225413350874546176": SlashPermission.ROLE,
+            "253752685357039617": SlashPermission.ROLE,"338173415527677954": SlashPermission.ROLE},
+        forbidden={"225345178955808768": SlashPermission.ROLE})})
+async def command(ctx, rpo, name, next, interval, amount):
+    reccuring = json.load(open("recurring.json"))
+    if rpo.upper() in list(reccuring.keys()):
+        reccuring[rpo.upper()].append({"name":str(name),"nextPayment":int(next),"interval":int(interval),"amount":int(amount)})
+    else:
+        reccuring.update({rpo.upper():[{"name":str(name),"nextPayment":int(next),"interval":int(interval),"amount":int(amount)}]})
+    with open("recurring.json","w") as r:
+        json.dump(reccuring,r)
+    await ctx.send("Added new reccuring event to RPO "+str(rpo.upper())+": "+str(name)+" every "+str(interval)+" days, starting on day "+str(next)+" for a change in balance of "+str(amount)+".")
+
+@ui.slash.subcommand(base_names="recurring",name="other",description="quereys/removes reccuring event",
+    options=[
+        SlashOption(str,name="RPO",description='RPO to check',required=True),
+        SlashOption(str,name="Name",description="OPTIONAL. recurring event to look at, if none given, will show all for the RPO.")
+    ]
+    , guild_ids=[225345178955808768], guild_permissions={
+    225345178955808768: SlashPermission(allowed={"225413350874546176": SlashPermission.ROLE,
+            "253752685357039617": SlashPermission.ROLE,"338173415527677954": SlashPermission.ROLE},
+        forbidden={"225345178955808768": SlashPermission.ROLE})})
+async def command(ctx, rpo, name=None):
+    reccuring = json.load(open("recurring.json"))
+    if name is None:
+        if len(reccuring[rpo.upper()]) == 0:
+            await ctx.send("No reccuring events have been recorded for this RPO")
+        else:
+            try:await ctx.send("This RPO has the following recorded events: "+str([x['name'] for x in reccuring[rpo.upper()]]))
+            except:await ctx.send("No reccuring events have been recorded for this RPO")
+    else:
+        btn = await (
+                await ctx.send("Query or Remove?", components=[
+                    Button("Query", "Query", color=ButtonStyles.blurple), Button("Remove", "Remove", color=ButtonStyles.red)
+                ])
+            ).wait_for("button", client)
+        i = 0
+        length = len(reccuring[rpo.upper()])
+        if btn.label == "Remove":
+            while i<length:
+                if name==reccuring[rpo.upper()][i]['name']:
+                    reccuring[rpo.upper()].pop(i)
+                i+=1
+            with open("recurring.json","w") as r:
+                json.dump(reccuring,r)
+            await ctx.send("Specified Event has been removed.")
+        elif btn.label == "Query":
+            for event in reccuring[rpo.upper()]:
+                await ctx.send(str(event))
+                await asyncio.sleep(1)
+
+@ui.slash.subcommand(base_names="update",name="time",description="updates the time and checks for any recurring payments", 
+    guild_ids=[225345178955808768], guild_permissions={
+    225345178955808768: SlashPermission(
+        allowed={"363095569515806722": SlashPermission.USER,"225344348903047168": SlashPermission.USER},
+        forbidden={"225345178955808768": SlashPermission.ROLE})})
+async def command(ctx):
+    data = sfs.parse_savefile('persistent.sfs')
+    ksptime = a.ksptime(data)
+    reccuring = json.load(open("recurring.json"))
+    accountBalanceSheet = pd.read_csv(RPOInfoURL)
+    accountBalanceSheet['new'] = accountBalanceSheet['TAG']
+    accountBalanceSheet = accountBalanceSheet.set_index('new')
+    accountBalanceSheet['Account Balance'] = accountBalanceSheet['Account Balance'].astype(str).apply(lambda x: x.replace('$', '').replace(',', '')).astype(float)
+    df = pd.DataFrame()
+    df["RPO"] = []
+    df["name"] = []
+    df["amount"] = []
+    df["nextPayment"] = []
+    for rpo in list(reccuring.keys()):
+        length = len(reccuring[rpo])
+        i=0
+        while i<length:
+            if reccuring[rpo][i]["nextPayment"]<ksptime[0]:
+                accountBalanceSheet.loc[str(rpo).upper(), 'Account Balance'] += reccuring[rpo][i]["amount"]
+                reccuring[rpo][i]["nextPayment"] += reccuring[rpo][i]["interval"]
+                df.loc[-1] = [rpo.upper(),reccuring[rpo][i]["name"],reccuring[rpo][i]["amount"],reccuring[rpo][i]["nextPayment"]]
+            i+=1    
+    try:
+        a.render_mpl_table(df,header_columns=0,col_width=10)
+        await ctx.send(file=discord.File(r'table.png'))
+    except:await ctx.send("No recurring events have happened")
+    with open("recurring.json","w") as r:
+        json.dump(reccuring,r)
+    gc = gspread.oauth(credentials_filename='credentials.json', authorized_user_filename='authorized_user.json') #gets credentials
+    sh = gc.open_by_key('1W_IAmn7t7-79WC4MHl1RzGj6q2Bq1-CJ5kDjR2KoXGw')
+    worksheet = sh.get_worksheet(0)
+    set_with_dataframe(worksheet, accountBalanceSheet)
 
 
 
@@ -1948,33 +2080,44 @@ async def on_message(message):
     if message.guild is None and message.author != client.user:
         if message.content is not None:
             if message.content is not None:
-                ticket = await a.add_onmessage(message)
+                ticket = a.add_onmessage(message)
                 if ticket == None:
                     return
                 else:
-                    await channel.send("Message from "+str(message.author)+" ("+str(message.author.id)+", Ticket number: `"+str(ticket[0])+"`):")
+                    await channel.send("Message from "+str(message.author)+" "+str(message.author.id)+", Ticket: `"+str(ticket[0])+"`):")
                     if ticket[1] == "new":
                         await message.author.send("Remember to check our FAQ to see if your question/issue is addressed there: https://cpry.net/discordfaq")
+                    if message.attachments:
+                        for attachment in message.attachments:
+                            attachedFile = await attachment.to_file()
+                            await channel.send(file=attachedFile)
                     if message.content is not None:
                         await channel.send(message.content)
-    elif message.guild is client.get_guild(225345178955808768):
+
+    elif message.guild is client.get_guild(225345178955808768) and message.author != client.user:
         if a.channel_check(message,[244979839147311104,897255188602179614,906190976320679996,906578081496584242,837859633502748672,426016300439961601,682559641930170379,686028730572865545,687817008355737606,839690221083820032,430197357100138497]):
             return
         elif re.search(r"bruh", message.content, re.MULTILINE|re.IGNORECASE):
             await message.delete()
-
+        elif re.search(r"~~:.|:;~~", message.content, re.MULTILINE|re.IGNORECASE) or re.search(r"tilde tilde colon dot vertical bar colon semicolon tilde tilde", message.content, re.MULTILINE|re.IGNORECASE):
+            await message.delete()
+            role = message.guild.get_role(676250179929636886)
+            await message.author.add_roles([676250179929636886])
+            levelrole = 0
+            for role in message.author.roles:
+                if str(role.id) in ['837812373451702303','837812586997219372','837812662116417566','837812728801525781','837812793914425455','400445639210827786','685331877057658888','337743478190637077','837813262417788988']:
+                    levelrole = role.id
+            await message.author.remove_roles([levelrole])
+            await asyncio.sleep(600)
+            await message.author.remove_roles([676250179929636886])
+            await message.author.add_roles([levelrole])
 
 @client.event
 async def on_command_error(ctx, error):
     if isinstance(error, commands.CommandOnCooldown):
         await ctx.send("This command is on cooldown, you can use it in "+ str(round(error.retry_after, 2))+" seconds.")
 
-
-
-
 async def on_connect():
     print("Logged In!")
 client.on_connect = on_connect
 client.run(token)
-
-
