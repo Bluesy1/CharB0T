@@ -86,6 +86,7 @@ def refreshToken():
         # Save the credentials for the next run
         with open('token.json', 'w') as token:
             token.write(creds.to_json())
+    service = build('sheets', 'v4', credentials=creds)
 if os.path.exists('token.json'):
     creds = Credentials.from_authorized_user_file('token.json', SCOPES)
 # If there are no (valid) credentials available, let the user log in.
