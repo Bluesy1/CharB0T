@@ -1,36 +1,19 @@
 from __future__ import print_function
-import os.path
-from discord import client
-from googleapiclient.discovery import build
-import gspread
-from gspread.models import Spreadsheet
-from gspread_dataframe import set_with_dataframe
-from google_auth_oauthlib.flow import InstalledAppFlow
-from google.auth.transport.requests import Request
-from google.oauth2.credentials import Credentials
 import pandas as pd
 import numpy as np
 import json
-import discord
-from discord.ext import commands
-import logging
-from pandas._config.config import options
-import pygsheets
 import time
-import datetime
-import random
-import re
-import sfsutils as sfs
+import discord
 from discord_ui import *
-import discord_ui
-import os
 import matplotlib.pyplot as plt
 import six
-from logging.handlers import RotatingFileHandler
 from matplotlib.backends.backend_pdf import PdfPages
 from collections.abc import Sequence
 from cryptography.fernet import Fernet
 import math
+import seaborn as sns
+from matplotlib.font_manager import FontProperties
+from matplotlib.patches import Shadow
 with open('details.json') as f:
     data = json.load(f) 
 
@@ -157,113 +140,16 @@ def render_mpl_table_colors_pdf(export_pdf, data, Colors, col_width=5, row_heigh
     plt.close()
     return export_pdf
 
-def Portfolio(rpo, service):
-    Marketdf = pd.read_csv(URL, index_col=0, usecols=['Symbol', 'Market Price', 'Day change']) #Creates the dataframe (think spreadsheet, but in a more manipulatable manner) for stock prices
-    Investmentsdf = pd.read_csv(InvestorsURL, index_col=0) #Creates the data frame for investors
-    spreadoutsdf = pd.read_csv(SSaccessURL, index_col=0) #creates the data frame that we reference to get the info needed to push stuff to spreadsheets
-    df = pd.DataFrame(Investmentsdf.loc[rpo]) #creates the data frame with the specific investments with just one rpo
-    df = df.reset_index() #fixes the data frame so it can be concatenated with with the market value data frame
-    Marketdf = Marketdf.reset_index() #fixes the data frame so it can be concatenated with the specific investments data frame
-    df = pd.concat([df, Marketdf], axis = 1).dropna(axis=0).rename(columns={rpo:'Shares'}) #concatenates the two dataframes, removes private companies, and fixes a column title
-    df['Market Value'] = df['Shares'] * df['Market Price']  #does the math to make the market value column
-    df['new'] = df['Symbol']
-    df = df.set_index('new')
-    sum = df['Market Value'].sum() #Gets the sum of the stock prices
-    df['Total Invested (includes fees) '] = 0
-    df['Cost Basis '] = 0
-    print('https://docs.google.com/spreadsheets/d/{0}'.format(spreadoutsdf.loc[rpo, 'sheetID']))
-    #portfolio = pd.read_csv('https://docs.google.com/spreadsheets/d/{0}/gviz/tq?tqx=out:csv&gid={1}'.format(spreadoutsdf.loc[rpo, 'sheetID'],spreadoutsdf.loc[rpo, 'gid1']), dtype={'Market Value':str, 'Total Invested (includes fees) ': str}, skiprows=0).dropna(axis=1,how='all').dropna(axis=0,thresh=6)
-    sheet = service.spreadsheets()
-    result = sheet.values().get(spreadsheetId=spreadoutsdf.loc[rpo, 'sheetID'],
-                            range='A11:H44', majorDimension='COLUMNS').execute()
-    values = result.get('values', [])
-    #print(type(values), values)
-    portfoliodict = {'Shares': values[0],'Symbol ': values[1],'Price': values[2],'Day Change': values[3],'Market Value': values[4],'Total Invested (includes fees) ': values[5],'Cost Basis ': values[6],'Profit / Loss ': values[7]}
-    portfolio = pd.DataFrame(data=portfoliodict).dropna(axis=1,how='all').dropna(axis=0,thresh=6)
-    df['Market Value'] = df['Market Value'].apply(lambda x: x.replace('$', '').replace(',', '')
-                            if isinstance(x, str) else x).astype(float)
-    #print(portfolio.columns)
-    for i in portfolio['Total Invested (includes fees) '].to_list():
-        portfolio2 = portfolio
-        portfolio2['new'] = portfolio2['Total Invested (includes fees) ']
-        portfolio2 = portfolio2.set_index('new')
-        df.loc[portfolio2.loc[i,'Symbol '], 'Total Invested (includes fees) '] = i
-    #print(df.loc[portfolio2.loc[i,'Symbol '], 'Total Invested (includes fees) '])
-    for i in portfolio['Cost Basis '].to_list():
-        portfolio2 = portfolio
-        portfolio2['new'] = portfolio2['Cost Basis ']
-        portfolio2 = portfolio2.set_index('new')
-    #print(portfolio2.head(30))
-    #return
-        df.loc[portfolio2.loc[i,'Symbol '], 'Cost Basis '] = i
-        #print(i)
-    #print(df.loc[portfolio2.loc[i,'Symbol '], 'Cost Basis '])
-    df['Total Invested (includes fees) '] = df['Total Invested (includes fees) '].apply(lambda x: x.replace('$', '').replace(',', '')
-                    if isinstance(x, str) else x).astype(float)
-    df['Profit / Loss '] = df['Market Value'].astype(float) - df['Total Invested (includes fees) '].astype(float)
-    request = service.spreadsheets().values().get(spreadsheetId=spreadoutsdf.loc[rpo, 'sheetID'], range='Visuals!C32:C40', majorDimension = 'COLUMNS', valueRenderOption = 'UNFORMATTED_VALUE')
-    response = request.execute()
-    history = response['values']
-    history = [ item for elem in history for item in elem]
-    history.append(sum)
-    history.insert(0, sum)
-    history = np.array(history)
-    history = history.astype(float)
-    minimum = min(history)*0.8
-    maximum = max(history)*1.2
-    minmax = [minimum, maximum] #these lines do stuff to get the min and max values for the line graph
-    history = [str(round(x,2)) for x in history]
-    history = list(history)
-    totalInvested = df['Total Invested (includes fees) '].sum()
-    print(rpo)
-    batch_update_values_request_body = {
-        "value_input_option" : 'USER_ENTERED',  # How the input data should be interpreted.
-        "data": [
-            {"range": 'A11:H44',
-            "majorDimension":'COLUMNS',
-            "values": [
-                df['Shares'].tolist(),
-                df['Symbol'].tolist(),
-                df['Market Price'].tolist(),
-                df['Day change'].tolist(),
-                df['Market Value'].tolist(),
-                df['Total Invested (includes fees) '].tolist(),
-                df['Cost Basis '].tolist(),
-                df['Profit / Loss '].tolist()]},#Converts dataframe into the form needed to send to google sheets
-            {"range": 'E4:H4',
-            "majorDimension":'ROWS',
-            "values":[['$'+str(sum), totalInvested, "", "$"+str(sum - totalInvested)]]
-            },
-            {"range": 'Visuals!C30:C40',
-            "majorDimension":'COLUMNS',
-            "values":[history]
-            },
-            {"range": 'Visuals!A14:A15',
-            "majorDimension":'COLUMNS',
-            "values":[minmax]
-            }
-            ]#Prepares full list of values that need to be sent to the spreadsheet 
-    }
-    request = service.spreadsheets().values().batchUpdate(spreadsheetId=spreadoutsdf.loc[rpo, 'sheetID'], body=batch_update_values_request_body)
-    response = request.execute() #updates spreadsheet
-
 def undeclared(message):
         author = message.author
         userid = author.id
         RPO  = 'A'
         newUser = {'userID':[str(userid)], 'RPO':RPO, 'Author':[author], 'Coin Amount': [0], 'lastWorkAmount': [0], 'lastWork': [0], 'lastDaily': [0]}
         df = pd.DataFrame(newUser).set_index('userID')
-        df2 = pd.DataFrame(newUser)
-        userList = pd.read_csv(UserListURL, index_col=0).append(pd.DataFrame(newUser))
-        userListOutput = pd.read_csv(UserListURL).append(df2)
-        userListOutput['userID'] = userListOutput['userID'].astype(str)
-        gc = gspread.service_account(filename='service_account.json') #gets credentials
-        sh = gc.open_by_key(data['UserListID']) #gets sheetinfo
-        worksheet = sh.get_worksheet(8) #-> 0 - first sheet, 1 - second sheet etc. 
-        # APPEND DATA TO SHEET
-        #your_dataframe = pd.DataFrame(data=newrpoDict) #creates DF to export new sheet info to persisten storage 
-        set_with_dataframe(worksheet, userListOutput) #-> THIS EXPORTS YOUR DATAFRAME TO THE GOOGLE SHEET
-        print("<@!"+str(message.author.id) + "> you are now in RPO " + str(newUser['RPO'][0]))
+        userList = pd.DataFrame(json.loads(fernet.decrypt(open('UserInfo.json',"rb").read())))
+        userListOutput = userList.append(df)
+        with open('UserInfo.json','wb') as t:
+            t.write(fernet.encrypt(json.dumps(userListOutput.to_dict()).encode('utf-8')))
 
 def channel_check(message, channels):
     return message.channel.id in channels
@@ -348,3 +234,208 @@ def ksptime(save):
     minutes = math.floor((Sectime%3600)/60)
     seconds = (Sectime%3600)%60
     return [(hours//6),hours%6,minutes,seconds]
+
+def transferRPO(RPO,ssaccess):
+    investments = json.load(open('investments.json'))
+    try:
+        portfolio = pd.read_csv('https://docs.google.com/spreadsheets/d/{0}/gviz/tq?tqx=out:csv&gid=1205501929'.format(ssaccess),usecols=[0,1,2,3,4,5,6,7])
+        investmentsList= list()
+        for i,j in portfolio.iterrows():
+            investmentsList.append([j.loc[x] for x in list(portfolio.columns)])
+        history = pd.read_csv('https://docs.google.com/spreadsheets/d/{0}/gviz/tq?tqx=out:csv&gid=1195787828'.format(ssaccess),usecols=[2],skiprows=12,names=['history'])
+        investmentsList2 = list()
+        for x in investmentsList[1:]:
+            if (x[0] !=0):
+                investmentsList2.append(x)
+        investments.update({RPO:
+            {"Market_Value":investmentsList[0][4],
+            "Total_Invested":investmentsList[0][5],
+            "Profit/Loss":investmentsList[0][7],
+            "Investments":investmentsList2,
+            "Market_History":history['history'].tolist()
+            }})
+        json.dump(investments,open('investments.json','w'))
+    except: print(RPO, "has no investments")
+
+def rpoPortfolio(RPO):
+    investments = json.load(open('investments.json'))
+    if RPO not in list(investments.keys()):
+        return False
+    investments[RPO]['Market_History']  = [item.replace('$', '').replace(',', '') if isinstance(item, str) else item for item in investments[RPO]['Market_History']]
+    investments[RPO]['Market_History'] = [float(item) for item in investments[RPO]['Market_History']]
+    i=0
+    length = len(investments[RPO]['Investments'])
+    while i<length:
+        investments[RPO]['Investments'][i]= [item.replace('$', '').replace(',', '').replace('%', '') if isinstance(item, str) else item for item in investments[RPO]['Investments'][i]]
+        tempList = list()
+        for item in investments[RPO]['Investments'][i]:
+            try: 
+                if float(item).is_integer():
+                    tempList.append(int(float(item)))
+                else:
+                    tempList.append(float(item))
+            except: tempList.append(str(item))
+        investments[RPO]['Investments'][i] = tempList
+        i+=1
+    #print(investments[RPO]['Investments'])
+    pdf = PdfPages('multipage.pdf')
+    table_data = [
+        ['Market Value',investments[RPO]['Market_Value']],
+        ['Total Invested',investments[RPO]['Total_Invested']],
+        ['Profit/Loss',investments[RPO]['Profit/Loss']]]
+    fig, ax = plt.subplots()
+    cellColours = []
+    if float(table_data[0][1].replace('$', '').replace(',', ''))>0:
+        cellColours.append(['#00ff0080','#00ff0080'])
+    elif float(table_data[0][1].replace('$', '').replace(',', ''))<0:
+        cellColours.append(['#ff000080','#ff000080'])
+    else: cellColours.append(['#0000ff80','#0000ff80'])
+    cellColours.append(['#0000ff80','#0000ff80'])
+    if float(table_data[2][1].replace('$', '').replace(',', ''))>0:
+        cellColours.append(['#00ff0080','#00ff0080'])
+    elif float(table_data[2][1].replace('$', '').replace(',', ''))<0:
+        cellColours.append(['#ff000080','#ff000080'])
+    else: cellColours.append(['#0000ff80','#0000ff80'])
+    mpl_table = ax.table(cellText=table_data, cellColours=cellColours, loc='center')
+    mpl_table.set_fontsize(14)
+    mpl_table.scale(1,4)
+    ax.axis('off')
+    pdf.savefig()
+    plt.close()
+    fig, ax = plt.subplots()
+    ax.axis('off')
+    investmentsList = list()
+    for item in investments[RPO]['Investments']:
+        item.pop(5)
+        investmentsList.append(item)
+    mpl_table = ax.table(cellText=investmentsList, colLabels=['Shares', 'Symbol', 'Price','Day Change', 'Market Value', 'Cost Basis', 'Profit / Loss'], loc='center',bbox=[0,0,1.5,1])
+    labels = list()
+    fracs = list()
+    for (row, col), cell in mpl_table.get_celld().items():
+        cell.set_facecolor('#000000')
+        cell.set_text_props(color='#ffffff')
+        cell.set_edgecolor(color='#808080')
+        cell.set_text_props(fontproperties=FontProperties(weight='demibold'))
+        if (row == 0):
+            cell.set_text_props(fontproperties=FontProperties(weight='bold'))
+            cell.set_facecolor(color='#808080')
+            cell.set_fontsize(18)
+        elif (col == 0):
+            cell.set_text_props(color='#00FFFF')
+        elif (row>0 and col==3):
+            text = float(str(cell.get_text()).split(',')[2].replace('%','').replace(" ",'').replace("'",'').replace(")",''))
+            if text>0:cell.set_text_props(color='#00ff00')
+            elif text<0:cell.set_text_props(color='#ff0F0F')
+            else: cell.set_text_props(color='#00FFFF')
+        elif (row>0 and col==6):
+            text = float(str(cell.get_text()).split(',')[2].replace('$','').replace(" ",'').replace("'",'').replace(")",''))
+            if text>0:cell.set_text_props(color='#00ff00')
+            elif text<0:cell.set_text_props(color='#ff0F0F')
+            else: cell.set_text_props(color='#00FFFF')
+        if (col == 4 and row>0):
+            fracs.append(float(str(cell.get_text()).split(',')[2].replace('$','').replace(" ",'').replace("'",'').replace(")",'')))
+        if (col == 1 and row>0):
+            labels.append(str(cell.get_text()).split(',')[2].replace('$','').replace(" ",'').replace("'",'').replace(")",''))
+    mpl_table.auto_set_column_width([0,1,2,3,4,5,6,7])
+    mpl_table.auto_set_font_size(True)
+    pdf.savefig(bbox_inches='tight',pad_inches=0.15)
+    plt.close()
+    fig, ax = plt.subplots()
+    # make a square figure and axes
+    fig = plt.figure(figsize=(6, 6))
+    ax = fig.add_axes([0.1, 0.1, 0.8, 0.8])
+    i=0
+    length = len(fracs)-1
+    while i<length:
+        if fracs[length] == 0:
+            fracs.pop(length)
+            labels.pop(length)
+        length-=1
+    labels = tuple(labels)
+    # We want to draw the shadow for each pie but we will not use "shadow"
+    # option as it does'n save the references to the shadow patches.
+    pies = plt.pie(fracs, labels=labels, autopct='%1.1f%%',)
+    for w in pies[0]:
+        # set the id with the label.
+        w.set_gid(w.get_label())
+        # we don't want to draw the edge of the pie
+        w.set_edgecolor("none")
+    for w in pies[0]:
+        # create shadow patch
+        s = Shadow(w, -0.01, -0.01)
+        s.set_gid(w.get_gid() + "_shadow")
+        s.set_zorder(w.get_zorder() - 0.1)
+        ax.add_patch(s)
+    pdf.savefig()
+    df = pd.DataFrame()
+    df['Value'] = investments[RPO]['Market_History']
+    df['Days'] = range(len(investments[RPO]['Market_History']))
+    plt.close()
+    sns.set_theme(style="darkgrid")
+    graph = sns.lineplot(data=df,x="Days",y='Value')
+    pdf.savefig()
+    pdf.close()
+    return True
+
+class userInfo:
+    def readUserInfo():
+        return pd.DataFrame(json.loads(fernet.decrypt(open('UserInfo.json',"rb").read())))
+
+    def writeUserInfo(userinfodf):
+        with open('UserInfo.json','wb') as t:
+            t.write(fernet.encrypt(json.dumps(userinfodf.to_dict()).encode('utf-8')))
+    
+    def editCoins(userID, amount):
+        userInfo = pd.DataFrame(json.loads(fernet.decrypt(open('UserInfo.json',"rb").read())))
+        output = {'before':userInfo.loc[str(userID),"Coin Amount"]}
+        if str(userID) not in list(userInfo.index):
+            return False
+        elif float(amount)>=0:
+            output.update({'changed':amount})
+            userInfo.loc[str(userID),"Coin Amount"]+=amount
+            output.update({'final':userInfo.loc[str(userID),"Coin Amount"]})
+            with open('UserInfo.json','wb') as t:
+                t.write(fernet.encrypt(json.dumps(userInfo.to_dict()).encode('utf-8')))
+            return output
+        elif float(amount)<0:
+            change = min(userInfo.loc[str(userID),"Coin Amount"],abs(amount))
+            output.update({'changed':change})
+            userInfo.loc[str(userID),"Coin Amount"]-=change
+            output.update({'final':userInfo.loc[str(userID),"Coin Amount"]})
+            with open('UserInfo.json','wb') as t:
+                t.write(fernet.encrypt(json.dumps(userInfo.to_dict()).encode('utf-8')))
+            return output
+
+    def getCoins(userID):
+        userInfo = pd.DataFrame(json.loads(fernet.decrypt(open('UserInfo.json',"rb").read())))
+        try:
+            return userInfo.loc[str(userID),"Coin Amount"]
+        except:
+            return 0
+
+    def getWallet():
+        return pd.read_json('Account Balance.json')
+    
+    def writeWallet(walletDf):
+        walletDf.to_json('Account Balance.json')
+
+    def editWallet(RPO, amount):
+        rpoInfo = pd.read_json('Account Balance.json')
+        output = {'before':rpoInfo.loc[str(RPO),"Account Balance"]}
+        if str(RPO) not in list(rpoInfo.index):
+            return False
+        elif float(amount)>=0:
+            output.update({'changed':amount})
+            rpoInfo.loc[str(RPO),"Account Balance"]+=amount
+            output.update({'final':rpoInfo.loc[str(RPO),"Account Balance"]})
+            rpoInfo.to_json('Account Balance.json')
+            return output
+        elif float(amount)<0:
+            change = min(rpoInfo.loc[str(RPO),"Account Balance"],abs(amount))
+            output.update({'changed':change})
+            rpoInfo.loc[str(RPO),"Account Balance"]-=change
+            output.update({'final':rpoInfo.loc[str(RPO),"Account Balance"]})
+            rpoInfo.to_json('Account Balance.json')
+            return output
+
+print(userInfo.readUserInfo())
