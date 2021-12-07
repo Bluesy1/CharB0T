@@ -268,7 +268,7 @@ async def command(ctx):
         .add_option("No, edit footer", "eFoot").set_emoji("❌").set_description("Use this to edit the footer of the embed").add_to_menu()
         .add_to_container
     )
-    await ctx.respond("choose an option:", components=[EditMenu])
+    await ctx.respond("choose an option:", component=EditMenu)
     try:
         async with KSPPlugin.bot.stream(InteractionCreateEvent, timeout=60).filter(('interaction.user.id', ctx.author.id)) as stream:
             async for event in stream:
