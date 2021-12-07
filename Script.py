@@ -1001,7 +1001,7 @@ async def roll(ctx, dice):
     except:
         await ctx.send("<:KSplodes:896043440872235028> Error invalid argument: specified dice can only be d2s, d4s, d6s, d8s, d10s, d12s, d20s,  or d100s, or if a constant modifier must be a perfect integer, positive or negative, connexted with `+`, and no spaces.")
         return
-"""
+
 @ui.slash.subcommand(base_names="Publish", name="post", description="Press Releases and Stuff", options=[
         SlashOption(str, name="Title", description="This is the title of the embed", required=True), SlashOption(str, name="Body", description="This is the body of the command", required=True), SlashOption(int, name="Color", description="Embed color", choices=[
                 {"name": "Breaking News", "value": 16705372}, {"name": "Financial", "value": 5763719},{"name": "Patents/Info Sector Updates", "value": 5793266}, {"name": "Other", "value": 12370112}], required=True), SlashOption(str, name="Time", description="This is the publishing time info (Must include Published at: if you want that to show up.)", required=True),SlashOption(str, name='channel', description='channel to post embed to', choices=[create_choice('news', '902335372321755196'), create_choice('Bot-Dev', '687817008355737606')], required=True) ,SlashOption(str, name="Author", description="Article Author, default Author Kerman"), SlashOption(str, name="Image", description="URL of image to use as logo.")], guild_ids=[225345178955808768], guild_permissions={
@@ -1131,7 +1131,7 @@ async def command(ctx, title, body, color, time, channel, author="Author Kerman"
             author = msg.content
             embed.set_author(name=author)
     await ctx.send("Complete.")
-"""
+
 @ui.slash.command(name='contract', description='Submits a contract request to the CP.', options=[
     SlashOption(str, name='Kerbals', description="Does your mission require kerbals? If so, yours, Charlie's, or a 3rd party?", choices=[
         create_choice("No", "No Kerbals"), create_choice("Yes, Mine", "Own Kerbals"), create_choice("Yes, CP's", "CP's Kerbals"), create_choice("Yes, Other", "Other RPO's Kerbals")], required=True),

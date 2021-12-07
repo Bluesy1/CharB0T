@@ -475,3 +475,5 @@ class checks:
         return True
     
     def check_invest_channel(context):return context.channel_id in [900523609603313704, 687817008355737606]
+
+    def check_publisher(context): return context.author.id in [363095569515806722, 225344348903047168, 146285543146127361]

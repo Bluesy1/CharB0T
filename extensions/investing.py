@@ -100,7 +100,7 @@ async def command(ctx):
                 await ctx.respond("<:KSplodes:896043440872235028> Error: Invalid argument in position 1: " + str(args[1]) + ". Argument one must be one of the public stocks.")
 
 @invest.child
-@lightbulb.command("invest", "buy subgroup")
+@lightbulb.command("buy", "buy subgroup")
 @lightbulb.implements(commands.SlashSubGroup)
 async def buy(ctx) -> None: await ctx.respond("invoked invest-buy")
 
@@ -132,26 +132,26 @@ async def command(ctx):
     Marketdf = Marketdf.reset_index() #fixes the data frame so it can be concatenated with the specific investments data frame
     args = [ctx.options.symbol, abs(ctx.options.amount)]
     wealth = int(userList.loc[str(ctx.member.id), 'Coin Amount'])
-    if args[2] in pd.read_csv(URL, usecols=['Symbol', 'Market Price', 'Day change']).dropna(axis=0)['Symbol'].to_list():
+    if args[0] in pd.read_csv(URL, usecols=['Symbol', 'Market Price', 'Day change']).dropna(axis=0)['Symbol'].to_list():
         i=0
         length = len(investments[rpo]['Investments'])
         newInvest = True
         while i<length:
-            if investments[rpo]['Investments'][i][1]==args[2]:
+            if investments[rpo]['Investments'][i][1]==args[0]:
                 newInvest = False
                 break
             i+=1
         if newInvest:
             Marketdf = pd.read_csv(URL, usecols=['Symbol', 'Market Price', 'Day change'],index_col=0)
-            investments[rpo]['Investments'].append([0,args[2],Marketdf.loc[args[2],'Market Price'],Marketdf.loc[args[2],'Day change'],0,0,0,0])
-        if int(args[3]) > 0:
+            investments[rpo]['Investments'].append([0,args[0],Marketdf.loc[args[0],'Market Price'],Marketdf.loc[args[2],'Day change'],0,0,0,0])
+        if int(args[1]) > 0:
             Marketdf.set_index('Symbol',inplace=True)
-            costForOne = Marketdf.loc[args[2], 'Market Price']
-            costForAmount = round(costForOne * int(args[3]),2)
+            costForOne = Marketdf.loc[args[0], 'Market Price']
+            costForAmount = round(costForOne * int(args[1]),2)
             taxCost = round(costForAmount * .01,2)
             totalCost = round(costForAmount + taxCost,2)
             if wealth >= totalCost:
-                investments[rpo]['Investments'][i][0] += int(args[3])
+                investments[rpo]['Investments'][i][0] += int(args[1])
                 investments[rpo]['Investments'][i][5] = round(float(str(investments[rpo]['Investments'][i][5]).replace(',','')) + totalCost,2)
                 investments[rpo]['Investments'][i][4] = round(investments[rpo]['Investments'][i][0] * float(str(investments[rpo]['Investments'][i][2]).replace(',','')),2)
                 investments[rpo]['Investments'][i][6] = round(float(str(investments[rpo]['Investments'][i][5]).replace(',','')) / float(str(investments[rpo]['Investments'][i][0]).replace(',','')),2)
@@ -168,13 +168,13 @@ async def command(ctx):
                 coinsRemaining = userInfo.editCoins(userid,0-totalCost)['final']
                 userInfo.editCoins(str(225344348903047168), taxCost)
                 #embeddict = {'color': 6345206, 'type': 'rich', 'description': ctx.member.display_name + ', you have bought **'+ str(args[3]) + '** share(s) in **'+ str(args[2]) +'** for a total cost of **'+as_currency(totalCost)  +'** <:HotTips2:465535606739697664>, **'+ as_currency(costForAmount) + '** <:HotTips2:465535606739697664> for these shares and **'+as_currency(taxCost) +'** <:HotTips2:465535606739697664> as a transaction fees. You now have **' + as_currency(round(coinsRemaining,2)) +'** <:HotTips2:465535606739697664> left.'}
-                await ctx.respond(embed=Embed(description=f"{ctx.member.display_name}, you have bought **{str(args[3])}** share(s) in **{str(args[2])}** for a total cost of **{as_currency(totalCost)}** <:HotTips2:465535606739697664>, **{as_currency(costForAmount)}** <:HotTips2:465535606739697664> for these shares and **{as_currency(taxCost)}** <:HotTips2:465535606739697664> as a transaction fees. You now have **{as_currency(round(coinsRemaining,2))}** <:HotTips2:465535606739697664> left.", color="60D1F6"))
+                await ctx.respond(embed=Embed(description=f"{ctx.member.display_name}, you have bought **{str(args[1])}** share(s) in **{str(args[0])}** for a total cost of **{as_currency(totalCost)}** <:HotTips2:465535606739697664>, **{as_currency(costForAmount)}** <:HotTips2:465535606739697664> for these shares and **{as_currency(taxCost)}** <:HotTips2:465535606739697664> as a transaction fees. You now have **{as_currency(round(coinsRemaining,2))}** <:HotTips2:465535606739697664> left.", color="60D1F6"))
             else:
                 await ctx.respond("<:KSplodes:896043440872235028> Error: Cost for requested transaction: " + str(totalCost) +" is greater than the amount of currency you have on your discord account: " +str(wealth)+'.') 
-        elif int(args[3]) <= 0:
-            await ctx.respond("<:KSplodes:896043440872235028> Error: Invalid argument in position 3: " + str(args[3]) + ". Argument must be a positive integer.")
+        elif int(args[1]) <= 0:
+            await ctx.respond("<:KSplodes:896043440872235028> Error: Invalid argument in position 3: " + str(args[1]) + ". Argument must be a positive integer.")
     else:
-        await ctx.respond("<:KSplodes:896043440872235028> Error: Invalid argument in position 2: " + str(args[2]) + ". Argument one must be one of the public stocks.")
+        await ctx.respond("<:KSplodes:896043440872235028> Error: Invalid argument in position 2: " + str(args[0]) + ". Argument one must be one of the public stocks.")
 
 @buy.child
 @lightbulb.option("symbol", "symbol to buy", required=True)
@@ -203,26 +203,26 @@ async def command(ctx):
     args = [ctx.options.symbol, abs(ctx.options.amount)]
     accountBalanceSheet = userInfo.getWallet()
     wealth = float(str(accountBalanceSheet.loc[rpo, 'Account Balance']).replace(',',''))
-    if args[2] in pd.read_csv(URL, usecols=['Symbol', 'Market Price', 'Day change']).dropna(axis=0)['Symbol'].to_list():
+    if args[0] in pd.read_csv(URL, usecols=['Symbol', 'Market Price', 'Day change']).dropna(axis=0)['Symbol'].to_list():
         i=0
         length = len(investments[rpo]['Investments'])
         newInvest = True
         while i<length:
-            if investments[rpo]['Investments'][i][1]==args[2]:
+            if investments[rpo]['Investments'][i][1]==args[0]:
                 newInvest = False
                 break
             i+=1
         if newInvest:
             Marketdf = pd.read_csv(URL, usecols=['Symbol', 'Market Price', 'Day change'],index_col=0)
-            investments[rpo]['Investments'].append([0,args[2],Marketdf.loc[args[2],'Market Price'],Marketdf.loc[args[2],'Day change'],0,0,0,0])
-        if int(args[3]) > 0:
+            investments[rpo]['Investments'].append([0,args[2],Marketdf.loc[args[0],'Market Price'],Marketdf.loc[args[0],'Day change'],0,0,0,0])
+        if int(args[1]) > 0:
             Marketdf.set_index('Symbol',inplace=True)
-            costForOne = Marketdf.loc[str(args[2]), 'Market Price']
-            costForAmount = round(costForOne * int(args[3]),2)
+            costForOne = Marketdf.loc[str(args[0]), 'Market Price']
+            costForAmount = round(costForOne * int(args[1]),2)
             taxCost = round(costForAmount * .01,2)
             totalCost = round(costForAmount + taxCost,2)
             if wealth >= totalCost:
-                investments[rpo]['Investments'][i][0] += int(args[3])
+                investments[rpo]['Investments'][i][0] += int(args[1])
                 investments[rpo]['Investments'][i][5] = round(float(str(investments[rpo]['Investments'][i][5]).replace(',','')) + totalCost,2)
                 investments[rpo]['Investments'][i][4] = round(investments[rpo]['Investments'][i][0] * float(str(investments[rpo]['Investments'][i][2]).replace(',','')),2)
                 investments[rpo]['Investments'][i][6] = round(float(str(investments[rpo]['Investments'][i][5]).replace(',','')) / float(str(investments[rpo]['Investments'][i][0]).replace(',','')),2)
@@ -240,13 +240,13 @@ async def command(ctx):
                 coinsRemaining = userInfo.editWallet(rpo,0-totalCost)['final']
                 userInfo.editCoins(str(225344348903047168), taxCost)
                 #embeddict = {'color': 6345206, 'type': 'rich', 'description': ctx.member.display_name + ', you have bought **'+ str(args[3]) + '** share(s) in **'+ str(args[2]) +'** for a total cost of **'+as_currency(totalCost)  +'** Funds, **'+ as_currency(costForAmount) + '** Funds for those shares and **'+as_currency(taxCost) +'** Funds as transaction fees. Your RPO now has **' + str(round(coinsRemaining,2)) +'** Funds left.'}
-                await ctx.respond(embed=Embed(f"{ctx.member.display_name} + ', you have bought **{str(args[3])}** share(s) in **{str(args[2])}** for a total cost of **{as_currency(totalCost)}** Funds, **{as_currency(costForAmount)}** Funds for those shares and **{as_currency(taxCost)}** Funds as transaction fees. Your RPO now has **{str(round(coinsRemaining,2))} +'** Funds left.",color="60D1F6"))
+                await ctx.respond(embed=Embed(f"{ctx.member.display_name} + ', you have bought **{str(args[1])}** share(s) in **{str(args[0])}** for a total cost of **{as_currency(totalCost)}** Funds, **{as_currency(costForAmount)}** Funds for those shares and **{as_currency(taxCost)}** Funds as transaction fees. Your RPO now has **{str(round(coinsRemaining,2))} +'** Funds left.",color="60D1F6"))
             else:
                 await ctx.respond("<:KSplodes:896043440872235028> Error: Cost for requested transaction: " + str(totalCost) +" is greater than the amount of currency your RPO has in it's account: " +str(wealth)+'.') 
-        elif int(args[3]) <= 0:
-            await ctx.respond("<:KSplodes:896043440872235028> Error: Invalid argument in position 3: " + str(args[3]) + ". Argument must be a positive integer.")
+        elif int(args[1]) <= 0:
+            await ctx.respond("<:KSplodes:896043440872235028> Error: Invalid argument in position 3: " + str(args[1]) + ". Argument must be a positive integer.")
     else:
-        await ctx.respond("<:KSplodes:896043440872235028> Error: Invalid argument in position 2: " + str(args[2]) + ". Argument one must be one of the public stocks.")
+        await ctx.respond("<:KSplodes:896043440872235028> Error: Invalid argument in position 2: " + str(args[0]) + ". Argument one must be one of the public stocks.")
 
 
 def load(bot):bot.add_plugin(InvestPlugin)
