@@ -1,36 +1,37 @@
 from __future__ import print_function
-import asyncio
-import os.path
-from discord import channel, client
-from discord.ext.commands.bot import Bot
-from googleapiclient.discovery import build
-from google_auth_oauthlib.flow import InstalledAppFlow
-from google.auth.transport.requests import Request
-from google.oauth2.credentials import Credentials
+#import asyncio
+#import os.path
+#from discord import channel, client
+#from discord.ext.commands.bot import Bot
+#from googleapiclient.discovery import build
+#from google_auth_oauthlib.flow import InstalledAppFlow
+#from google.auth.transport.requests import Request
+#from google.oauth2.credentials import Credentials
 import pandas as pd
-import numpy as np
+#import numpy as np
 import json
-import discord
-from discord.ext import commands
+#import discord
+#from discord.ext import commands
 import logging
-from pandas._config.config import options
-import time
-import datetime
-import random
-import re
+#from pandas._config.config import options
+#import time
+#import datetime
+#import random
+#import re
 import sfsutils as sfs
-from discord_ui import *
-import discord_ui
+#from discord_ui import *
+#import discord_ui
 import os
-import matplotlib.pyplot as plt
-from logging.handlers import RotatingFileHandler
-from matplotlib.backends.backend_pdf import PdfPages
+#import matplotlib.pyplot as plt
+#from logging.handlers import RotatingFileHandler
+#from matplotlib.backends.backend_pdf import PdfPages
 import auxone as a
 from auxone import userInfo as user
-import grabber
+#import grabber
 from cryptography.fernet import Fernet
-import fpdf
+#import fpdf
 #imports all needed packages
+"""
 logger = logging.getLogger('discord')
 logger.setLevel(logging.DEBUG)
 handler = RotatingFileHandler(filename='discord.log', encoding='utf-8', mode='w', maxBytes=2000000, backupCount=10)
@@ -67,21 +68,6 @@ creds = None
 # The file token.json stores the user's access and refresh tokens, and is
 # created automatically when the authorization flow completes for the first
 # time.
-def refreshToken():
-    if os.path.exists('token.json'):
-        creds = Credentials.from_authorized_user_file('token.json', SCOPES)
-    # If there are no (valid) credentials available, let the user log in.
-    if not creds or not creds.valid:
-        if creds and creds.expired and creds.refresh_token:
-            creds.refresh(Request())
-        else:
-            flow = InstalledAppFlow.from_client_secrets_file(
-                'credentials.json', SCOPES)
-            creds = flow.run_local_server(port=0)
-        # Save the credentials for the next run
-        with open('token.json', 'w') as token:
-            token.write(creds.to_json())
-    service = build('sheets', 'v4', credentials=creds)
 if os.path.exists('token.json'):
     creds = Credentials.from_authorized_user_file('token.json', SCOPES)
 # If there are no (valid) credentials available, let the user log in.
@@ -96,6 +82,21 @@ if not creds or not creds.valid:
     with open('token.json', 'w') as token:
         token.write(creds.to_json())
 service = build('sheets', 'v4', credentials=creds)
+def refreshToken():
+    if os.path.exists('token.json'):
+        creds = Credentials.from_authorized_user_file('token.json', SCOPES)
+    # If there are no (valid) credentials available, let the user log in.
+    if not creds or not creds.valid:
+        if creds and creds.expired and creds.refresh_token:
+            creds.refresh(Request())
+        else:
+            flow = InstalledAppFlow.from_client_secrets_file(
+                'credentials.json', SCOPES)
+            creds = flow.run_local_server(port=0)
+        # Save the credentials for the next run
+        with open('token.json', 'w') as token:
+            token.write(creds.to_json())
+    return build('sheets', 'v4', credentials=creds)
 
 
 Marketdf = pd.read_csv(URL, index_col=0, usecols=['Symbol', 'Market Price', 'Day change']).dropna(axis=0) #Creates the dataframe (think spreadsheet, but in a more manipulatable manner) for stock prices
@@ -104,7 +105,7 @@ RPOlist = list() #initializes empty list for list of RPOs with investments
 spreadoutsdf = pd.read_csv(SSaccessURL, index_col=0)
 techdict = {}
 
-userList = pd.read_csv(UserListURL, index_col=0) 
+#userList = pd.read_csv(UserListURL, index_col=0) 
 
 with open('bottoken.json') as t:
     token = json.load(t)['Token']
@@ -120,17 +121,17 @@ async def sellShares(message):
         return
     author = message.author
     userid = str(author.id)
-    if message.author.id == 225344348903047168:
+    if message.author.id == 225344348903047168 or a.userInfo.readUserInfo().loc[str(message.author.id),"RPO"] == 'CP':
         await message.channel.send('<:KSplodes:896043440872235028> Error: Charlie and The Celestial Project are not allowed to invest.')
         return
     args = message.message.content.split()
     if str(message.author.id) not in list(a.userInfo.readUserInfo().index):
         await message.channel.send("<:KSplodes:896043440872235028> Error: Not registered in an RPO for the bot. Please register with the bot through !joinRPO <RPO_Tag>")
         return
-    elif a.userInfo.readUserInfo().astype(str).to_list() == 'A':
+    elif a.userInfo.readUserInfo().loc[str(message.author.id),"RPO"] == 'A':
         await message.channel.send("<:KSplodes:896043440872235028> Error: Invalid in an RPO for investing. Please change your RPO !changeRPO <New_RPO_Tag>")
         return
-    elif str(userid) not in list(a.userInfo.readUserInfo().index):
+    elif str(userid) in list(a.userInfo.readUserInfo().index):
         userList = a.userInfo.readUserInfo()
         args = message.message.content.split()
         print(args)
@@ -161,37 +162,33 @@ async def sellShares(message):
                 return
             elif args[1] in pd.read_csv(URL, usecols=['Symbol', 'Market Price', 'Day change']).dropna(axis=0)['Symbol'].to_list():
                 if int(args[2]) > 0:
-                    Marketdf['new'] = Marketdf['Symbol']
-                    Marketdf = Marketdf.set_index('new')
+                    Marketdf.set_index('Symbol',inplace=True)
                     costForOne = Marketdf.loc[str(args[1]), 'Market Price']
                     costForAmount = round(costForOne * int(args[2]),2)
-                    taxCost = round(costForAmount * .02,2)
+                    taxCost = round(costForAmount * .01,2)
                     payout = round(costForAmount - taxCost,2)
                     investments[rpo]['Investments'][i][0] -= int(args[2])
                     totalInvested = investments[rpo]['Investments'][i][0]
-                    print(totalInvested)
                     Marketdf = Marketdf.reset_index() #fixes the data frame so it can be concatenated with the specific investments data frame
-                    print(Marketdf.head())
-                    investments[rpo]['Investments'][i][4] = float(investments[rpo]['Investments'][i][0]) * float(investments[rpo]['Investments'][i][2])  #does the math to make the market value column
-                    investments[rpo]['Investments'][i][5] -= payout
-                    investments[rpo]['Investments'][i][6] = float(investments[rpo]['Investments'][i][5]) / float(investments[rpo]['Investments'][i][0])
-                    investments[rpo]['Investments'][i][4] = float(investments[rpo]['Investments'][i][0]) * float(investments[rpo]['Investments'][i][2])
-                    investments[rpo]['Investments'][i][7] = float(investments[rpo]['Investments'][i][4]) - float(investments[rpo]['Investments'][i][5])
+                    investments[rpo]['Investments'][i][4] = round(float(str(investments[rpo]['Investments'][i][0]).replace(',','')) * float(str(investments[rpo]['Investments'][i][2]).replace(',','')),2)  #does the math to make the market value column
+                    investments[rpo]['Investments'][i][5] = round(float(str(investments[rpo]['Investments'][i][5]).replace(',','')) - payout,2)
+                    investments[rpo]['Investments'][i][6] = round(float(str(investments[rpo]['Investments'][i][5]).replace(',','')) / float(str(investments[rpo]['Investments'][i][0]).replace(',','')),2)
+                    investments[rpo]['Investments'][i][4] = round(float(str(investments[rpo]['Investments'][i][0]).replace(',','')) * float(str(investments[rpo]['Investments'][i][2]).replace(',','')),2)
+                    investments[rpo]['Investments'][i][7] = round(float(str(investments[rpo]['Investments'][i][4]).replace(',','')) - float(str(investments[rpo]['Investments'][i][5]).replace(',','')),2)
                     sum = 0 #Gets the sum of the stock prices
-                    investments[rpo]['"Market_History"'].append(sum)
+                    investments[rpo]['Market_History'].append(sum)
                     investments[rpo]['Total_Invested'] = 0
-                    json.dump(investments,open('investments.json','w'))
                     j=0
                     while j<length:
                         investments[rpo]['Total_Invested'] += float(investments[rpo]['Investments'][i][5])
                         sum += float(investments[rpo]['Investments'][i][4])
                         j+=1
-                    print(rpo)
+                    json.dump(investments,open('investments.json','w'))
                     accountBalanceSheet = a.userInfo.getWallet()
                     accountBalanceSheet.loc[rpo, 'Account Balance'] += payout
                     coinsRemaining = accountBalanceSheet.loc[rpo, 'Account Balance']
                     userList.loc[str(225344348903047168), 'Coin Amount'] += taxCost
-                    embeddict = {'color': 6345206, 'type': 'rich', 'description': message.author.display_name + ', you have sold **'+ str(args[2]) + '** share(s) in **'+ str(args[1]) +'** for a total  of **'+str(costForAmount)  +'** Funds, **'+ str(taxCost) + '** have been diverted as a transaction fee. Your RPO recieved a payout of **'+str(payout) +'** Funds. Your RPO now has **' + str(round(coinsRemaining,2)) +'** Funds, and **' + str(totalInvested) +"** stocks left in **" +str(args[1])+"**."}
+                    embeddict = {'color': 6345206, 'type': 'rich', 'description': message.author.display_name + ', you have sold **'+ str(args[2]) + '** share(s) in **'+ str(args[1]) +'** for a total  of **'+a.as_currency(costForAmount)  +'** Funds, **'+ a.as_currency(taxCost) + '** have been diverted as a transaction fee. Your RPO recieved a payout of **'+str(payout) +'** Funds. Your RPO now has **' + a.as_currency(round(coinsRemaining,2)) +'**, and **' + str(totalInvested) +"** shares(s) left in **" +str(args[1])+"**."}
                     a.userInfo.writeUserInfo(userList)
                     a.userInfo.writeWallet(accountBalanceSheet)
                     await message.channel.send(embed=discord.Embed.from_dict(embeddict))
@@ -207,20 +204,20 @@ async def buyShares(message):
         return
     author = message.author
     userid = str(author.id)
-    if message.author.id == 225344348903047168:
+    if message.author.id == 225344348903047168 or a.userInfo.readUserInfo().loc[str(message.author.id),"RPO"] == 'CP':
         await message.channel.send('<:KSplodes:896043440872235028> Error: Charlie and The Celestial Project are not allowed to invest.')
         return
     args = message.message.content.split()
     if str(message.author.id) not in list(a.userInfo.readUserInfo().index):
         await message.channel.send("<:KSplodes:896043440872235028> Error: Not registered in an RPO for the bot. Please register with the bot through !joinRPO <RPO_Tag>")
         return
-    elif a.userInfo.readUserInfo().astype(str).to_list() == 'A':
+    elif a.userInfo.readUserInfo().loc[str(message.author.id),"RPO"] == 'A':
         await message.channel.send("<:KSplodes:896043440872235028> Error: Invalid in an RPO for investing. Please change your RPO !changeRPO <New_RPO_Tag>")
         return
-    elif str(userid) not in list(a.userInfo.readUserInfo().index):
+    elif str(userid) in list(a.userInfo.readUserInfo().index):
         userList = a.userInfo.readUserInfo()
         rpo = userList.loc[str(message.author.id), 'RPO']
-        investments = json.load('investments.json')
+        investments = json.load(open('investments.json'))
         if rpo not in list(investments.keys()):
             investments.update({rpo:{"Market_Value": 0, "Total_Invested": 0, "Profit/Loss": 0, "Investments": [], "Market_History": []}})
         args = message.message.content.split()
@@ -242,7 +239,7 @@ async def buyShares(message):
             return
         finally:
             if args[1] == 'Coins':
-                wealth = int(userList.loc[message.author.id, 'Coin Amount'])
+                wealth = int(userList.loc[str(message.author.id), 'Coin Amount'])
                 if args[2] in pd.read_csv(URL, usecols=['Symbol', 'Market Price', 'Day change']).dropna(axis=0)['Symbol'].to_list():
                     i=0
                     length = len(investments[rpo]['Investments'])
@@ -256,15 +253,17 @@ async def buyShares(message):
                         Marketdf = pd.read_csv(URL, usecols=['Symbol', 'Market Price', 'Day change'],index_col=0)
                         investments[rpo]['Investments'].append([0,args[2],Marketdf.loc[args[2],'Market Price'],Marketdf.loc[args[2],'Day change'],0,0,0,0])
                     if int(args[3]) > 0:
+                        Marketdf.set_index('Symbol',inplace=True)
                         costForOne = Marketdf.loc[args[2], 'Market Price']
                         costForAmount = round(costForOne * int(args[3]),2)
-                        taxCost = round(costForAmount * .02,2)
+                        taxCost = round(costForAmount * .01,2)
                         totalCost = round(costForAmount + taxCost,2)
                         if wealth >= totalCost:
-                            float(investments[rpo]['Investments'][i][5]) += totalCost
-                            investments[rpo]['Investments'][i][4] = float(investments[rpo]['Investments'][i][0]) * float(investments[rpo]['Investments'][i][2])
-                            investments[rpo]['Investments'][i][6] = float(investments[rpo]['Investments'][i][5]) / float(investments[rpo]['Investments'][i][0])
-                            investments[rpo]['Investments'][i][7] = float(investments[rpo]['Investments'][i][4]) - float(investments[rpo]['Investments'][i][5])
+                            investments[rpo]['Investments'][i][0] += int(args[3])
+                            investments[rpo]['Investments'][i][5] = round(float(str(investments[rpo]['Investments'][i][5]).replace(',','')) + totalCost,2)
+                            investments[rpo]['Investments'][i][4] = round(investments[rpo]['Investments'][i][0] * float(str(investments[rpo]['Investments'][i][2]).replace(',','')),2)
+                            investments[rpo]['Investments'][i][6] = round(float(str(investments[rpo]['Investments'][i][5]).replace(',','')) / float(str(investments[rpo]['Investments'][i][0]).replace(',','')),2)
+                            investments[rpo]['Investments'][i][7] = round(float(str(investments[rpo]['Investments'][i][4]).replace(',','')) - float(str(investments[rpo]['Investments'][i][5]).replace(',','')),2)
                             investments[rpo]['Total_Invested'] = 0
                             sum=0
                             j=0
@@ -276,7 +275,7 @@ async def buyShares(message):
                             json.dump(investments,open('investments.json','w'))
                             coinsRemaining = user.editCoins(userid,0-totalCost)['final']
                             user.editCoins(str(225344348903047168), taxCost)
-                            embeddict = {'color': 6345206, 'type': 'rich', 'description': message.author.display_name + ', you have bought **'+ str(args[3]) + '** share(s) in **'+ str(args[2]) +'** for a total cost of **'+str(totalCost)  +'** <:HotTips2:465535606739697664>, **'+ str(costForAmount) + '** <:HotTips2:465535606739697664> for that shares and **'+str(taxCost) +'** <:HotTips2:465535606739697664> in transaction fees. You now have **' + str(round(coinsRemaining,2)) +'** <:HotTips2:465535606739697664> left.'}
+                            embeddict = {'color': 6345206, 'type': 'rich', 'description': message.author.display_name + ', you have bought **'+ str(args[3]) + '** share(s) in **'+ str(args[2]) +'** for a total cost of **'+a.as_currency(totalCost)  +'** <:HotTips2:465535606739697664>, **'+ a.as_currency(costForAmount) + '** <:HotTips2:465535606739697664> for these shares and **'+a.as_currency(taxCost) +'** <:HotTips2:465535606739697664> as a transaction fees. You now have **' + a.as_currency(round(coinsRemaining,2)) +'** <:HotTips2:465535606739697664> left.'}
                             await message.channel.send(embed=discord.Embed.from_dict(embeddict))
                         else:
                             await message.channel.send("<:KSplodes:896043440872235028> Error: Cost for requested transaction: " + str(totalCost) +" is greater than the amount of currency you have on your discord account: " +str(wealth)+'.') 
@@ -286,7 +285,7 @@ async def buyShares(message):
                     await message.channel.send("<:KSplodes:896043440872235028> Error: Invalid argument in position 2: " + str(args[2]) + ". Argument one must be one of the public stocks.")
             elif args[1] == 'Funds':
                 accountBalanceSheet = user.getWallet()
-                wealth = float(accountBalanceSheet.loc[rpo, 'Account Balance'])
+                wealth = float(str(accountBalanceSheet.loc[rpo, 'Account Balance']).replace(',',''))
                 if args[2] in pd.read_csv(URL, usecols=['Symbol', 'Market Price', 'Day change']).dropna(axis=0)['Symbol'].to_list():
                     i=0
                     length = len(investments[rpo]['Investments'])
@@ -300,15 +299,17 @@ async def buyShares(message):
                         Marketdf = pd.read_csv(URL, usecols=['Symbol', 'Market Price', 'Day change'],index_col=0)
                         investments[rpo]['Investments'].append([0,args[2],Marketdf.loc[args[2],'Market Price'],Marketdf.loc[args[2],'Day change'],0,0,0,0])
                     if int(args[3]) > 0:
+                        Marketdf.set_index('Symbol',inplace=True)
                         costForOne = Marketdf.loc[str(args[2]), 'Market Price']
                         costForAmount = round(costForOne * int(args[3]),2)
-                        taxCost = round(costForAmount * .02,2)
+                        taxCost = round(costForAmount * .01,2)
                         totalCost = round(costForAmount + taxCost,2)
                         if wealth >= totalCost:
-                            float(investments[rpo]['Investments'][i][5]) += totalCost
-                            investments[rpo]['Investments'][i][4] = float(investments[rpo]['Investments'][i][0]) * float(investments[rpo]['Investments'][i][2])
-                            investments[rpo]['Investments'][i][6] = float(investments[rpo]['Investments'][i][5]) / float(investments[rpo]['Investments'][i][0])
-                            investments[rpo]['Investments'][i][7] = float(investments[rpo]['Investments'][i][4]) - float(investments[rpo]['Investments'][i][5])
+                            investments[rpo]['Investments'][i][0] += int(args[3])
+                            investments[rpo]['Investments'][i][5] = round(float(str(investments[rpo]['Investments'][i][5]).replace(',','')) + totalCost,2)
+                            investments[rpo]['Investments'][i][4] = round(investments[rpo]['Investments'][i][0] * float(str(investments[rpo]['Investments'][i][2]).replace(',','')),2)
+                            investments[rpo]['Investments'][i][6] = round(float(str(investments[rpo]['Investments'][i][5]).replace(',','')) / float(str(investments[rpo]['Investments'][i][0]).replace(',','')),2)
+                            investments[rpo]['Investments'][i][7] = round(float(str(investments[rpo]['Investments'][i][4]).replace(',','')) - float(str(investments[rpo]['Investments'][i][5]).replace(',','')),2)
                             investments[rpo]['Total_Invested'] = 0
                             sum=0
                             j=0
@@ -321,7 +322,7 @@ async def buyShares(message):
                             json.dump(investments,open('investments.json','w'))
                             coinsRemaining = user.editWallet(rpo,0-totalCost)['final']
                             user.editCoins(str(225344348903047168), taxCost)
-                            embeddict = {'color': 6345206, 'type': 'rich', 'description': message.author.display_name + ', you have bought **'+ str(args[3]) + '** share(s) in **'+ str(args[2]) +'** for a total cost of **'+str(totalCost)  +'** Funds, **'+ str(costForAmount) + '** Funds for that shares and **'+str(taxCost) +'** Funds in transaction fees. Your RPO now has **' + str(round(coinsRemaining,2)) +'** Funds left.'}
+                            embeddict = {'color': 6345206, 'type': 'rich', 'description': message.author.display_name + ', you have bought **'+ str(args[3]) + '** share(s) in **'+ str(args[2]) +'** for a total cost of **'+a.as_currency(totalCost)  +'** Funds, **'+ a.as_currency(costForAmount) + '** Funds for those shares and **'+a.as_currency(taxCost) +'** Funds as transaction fees. Your RPO now has **' + str(round(coinsRemaining,2)) +'** Funds left.'}
                             await message.channel.send(embed=discord.Embed.from_dict(embeddict))
                         else:
                             await message.channel.send("<:KSplodes:896043440872235028> Error: Cost for requested transaction: " + str(totalCost) +" is greater than the amount of currency your RPO has in it's account: " +str(wealth)+'.') 
@@ -348,16 +349,16 @@ async def daily(message):
     if a.role_check(message, ['733541021488513035','225414319938994186','225414600101724170','225414953820094465','377254753907769355','338173415527677954','253752685357039617']):
         df = user.readUserInfo()
         lastWork = df.loc[str(message.author.id), 'lastDaily']
-        currentUse = datetime.time.mktime(message.message.created_at.timetuple())
+        currentUse = time.mktime(message.message.created_at.timetuple())
         timeDifference = currentUse - lastWork
         if timeDifference < 71700:
             await message.author.send("<:KSplodes:896043440872235028> Error: **" + message.author.display_name + "** You need to wait " + str(datetime.timedelta(seconds=71700-timeDifference)) + " more to use this command.")
         elif timeDifference > 71700:
             df.loc[str(message.author.id), 'lastDaily'] = currentUse
             amount = 1500 #assigned number for daily
+            user.writeUserInfo(df)
             user.editCoins(message.author.id,amount)
             embeddict = {'color': 6345206, 'type': 'rich', 'description': '<@!'+str(message.author.id) +'>, here is your daily reward: 1500 <:HotTips2:465535606739697664>'}
-            user.writeUserInfo(df)
             await message.author.send(embed=discord.Embed.from_dict(embeddict))
     else:
         await message.author.send("<:KSplodes:896043440872235028> Error: You are not allowed to use that command.")
@@ -376,7 +377,7 @@ async def work(message):
     if a.role_check(message, ['837812373451702303','837812586997219372','837812662116417566','837812728801525781','837812793914425455','400445639210827786','685331877057658888','337743478190637077','837813262417788988','338173415527677954','253752685357039617']):
         df = user.readUserInfo()
         lastWork = df.loc[str(message.author.id), 'lastWork']
-        currentUse = datetime.time.mktime(message.message.created_at.timetuple())
+        currentUse = time.mktime(message.message.created_at.timetuple())
         timeDifference = currentUse - lastWork
         if timeDifference < 41400:
             await message.channel.send("<:KSplodes:896043440872235028> Error: **" + message.author.display_name + "** You need to wait " + str(datetime.timedelta(seconds=41400-timeDifference)) + " more to use this command.")
@@ -384,15 +385,16 @@ async def work(message):
             df.loc[str(message.author.id), 'lastWork'] = currentUse
             amount = random.randrange(800, 1200, 5) #generates random number from 800 to 1200, in incrememnts of 5 (same as generating a radom number between 40 and 120, and multiplying it by 5)
             lastamount = int(df.loc[str(message.author.id), 'lastWorkAmount'])
+            df.loc[str(message.author.id), 'lastWorkAmount'] = amount
+            user.writeUserInfo(df)
             user.editCoins(message.author.id,lastamount)
             df.loc[str(message.author.id), 'lastWorkAmount'] = amount
             embeddict = {'color': 6345206, 'type': 'rich', 'description': message.author.display_name + ', you started working again. You gain '+ str(lastamount) +' <:HotTips2:465535606739697664> from your last work. Come back in **12 hours** to claim your paycheck of '+ str(amount) + ' <:HotTips2:465535606739697664> and start working again with `!work`'}
-            user.writeUserInfo(df)
             await message.channel.send(embed=discord.Embed.from_dict(embeddict))
     else:
         await message.channel.send("<:KSplodes:896043440872235028> Error: You are not allowed to use that command.")
-@client.command()
 
+@client.command()
 @commands.cooldown(1, 86400.0, commands.BucketType.user)
 async def changeRPO(message):
     if a.channel_check(message, [687817008355737606,893867549589131314]) != True:
@@ -401,11 +403,13 @@ async def changeRPO(message):
     author = message.author
     userid = author.id
     RPO  = message.message.content.split()[-1].upper()
-    if RPO not in pd.read_csv(RPOInfoURL, index_col=0, usecols=['FULL NAME', 'TAG', 'Account Balance'])['TAG'].astype(str).to_list():
+    info = user.readUserInfo()
+    currentRPO = a.userInfo.readUserInfo().loc[str(message.author.id),"RPO"]
+    if RPO not in pd.read_csv(RPOInfoURL, index_col=0, usecols=['FULL NAME', 'TAG'])['TAG'].astype(str).to_list():
         await message.channel.send("<:KSplodes:896043440872235028> Error: RPO " +RPO + " is not a registered RPO")
         return
-    elif RPO == 'CP':
-        await message.channel.send("<:KSplodes:896043440872235028> Error: You cannot change to the RPO CP")
+    elif RPO == 'CP' or currentRPO=='CP':
+        await message.channel.send("<:KSplodes:896043440872235028> Error: You cannot change to or leave the RPO CP")
     else:
         df = user.readUserInfo()
         df.loc[str(message.author.id), 'RPO'] = RPO
@@ -423,45 +427,47 @@ async def changeRPO(message):
 
 @client.command()
 @commands.cooldown(3, 300.0, commands.BucketType.user)
-async def joinRPO(message):
-    if message.channel.id != 687817008355737606 and message.channel.id != 893867549589131314:
-        await message.message.delete()
+async def joinRPO(ctx):
+    if ctx.channel.id != 687817008355737606 and ctx.channel.id != 893867549589131314:
+        await ctx.delete()
         return
-    author = message.author
+    author = ctx.author
     userid = author.id
-    RPO  = message.message.content.split()[-1].upper()
-    if str(message.author.id) not in list(user.readUserInfo.index): #makes sure user isn't already in an RPO
-        if user.readUserInfo().astype(str).to_list() == 'A':
-            await message.channel.send("<:KSplodes:896043440872235028> Error: You have already been registered as undeclared. To change your status, please use `!changeRPO` followed by your new tag.")
+    userInfo = user.readUserInfo()
+    RPO  = ctx.message.content.split()[-1].upper()
+    if str(ctx.author.id) in list(user.readUserInfo().index): #makes sure user isn't already in an RPO
+        if user.readUserInfo().loc[str(ctx.author.id), 'RPO'] == 'A':
+            await ctx.send("<:KSplodes:896043440872235028> Error: You have already been registered as undeclared. To change your status, please use `!changeRPO` followed by your new tag.")
+            return
         else:
-            await message.channel.send("<:KSplodes:896043440872235028> Error: You are already in an RPO: " + user.readUserInfo.loc[userid, 'RPO'])
-        return
+            await ctx.send("<:KSplodes:896043440872235028> Error: You are already in an RPO: " + userInfo.loc[str(userid), 'RPO'])
+            return
 
     elif RPO not in pd.read_csv(RPOInfoURL, index_col=0, usecols=['FULL NAME', 'TAG', 'Account Balance'])['TAG'].astype(str).to_list(): #makes sure RPO trying to be joined exists
         if RPO == 'A':
-                a.undeclared(message)
+                a.undeclared(ctx)
         else:
-            await message.channel.send("<:KSplodes:896043440872235028> Error: RPO " +RPO + " is not a registered RPO")
+            await ctx.send("<:KSplodes:896043440872235028> Error: RPO " +RPO + " is not a registered RPO")
             return
     elif RPO == 'CP':
-        await message.channel.send("<:KSplodes:896043440872235028> Error: You cannot join the RPO CP")
+        await ctx.send("<:KSplodes:896043440872235028> Error: You cannot join the RPO CP")
     elif str(userid) not in list(user.readUserInfo().index):
         rpo = RPO
-        newUser = {'userID':[str(userid)], 'RPO':RPO, 'Author':[author], 'Coin Amount': [0], 'lastWorkAmount': [0], 'lastWork': [0], 'lastDaily': [0]}
+        newUser = {'userID':[str(userid)], 'RPO':RPO, 'Author':[str(author)], 'Coin Amount': [0], 'lastWorkAmount': [0], 'lastWork': [0], 'lastDaily': [0]}
         df = user.readUserInfo()
         userList = df.append(pd.DataFrame(newUser).set_index('userID'))
         user.writeUserInfo(userList)
-        name = message.author.display_name
+        name = ctx.author.display_name
         try:
             newname, count = re.subn("(?<=\[)[^\[\]]{2,4}(?=\])",RPO,name)
             if (count == 0):
                 newname = name + " [" + RPO + "]"
-            await message.author.edit(nick=newname)
+            await ctx.author.edit(nick=newname)
         except:
             RPO
-        Kerbal = message.guild.get_role(906000578092621865)
-        await message.author.add_roles(Kerbal)
-        await message.channel.send("<@!"+str(message.author.id) + "> you are now in RPO " + rpo)
+        Kerbal = ctx.guild.get_role(906000578092621865)
+        await ctx.author.add_roles(Kerbal)
+        await ctx.send("<@!"+str(ctx.author.id) + "> you are now in RPO " + rpo)
 
 @ui.slash.command(name='key', description="Key for colors in part tables", guild_ids=[225345178955808768], guild_permissions={225345178955808768: SlashPermission(allowed={"225345178955808768": SlashPermission.ROLE},forbidden={"684936661745795088":SlashPermission.ROLE,"676250179929636886":SlashPermission.ROLE})})
 async def command(ctx):
@@ -704,7 +710,7 @@ async def Coins(ctx, user):
             isAllowed
     if isAllowed:
         funds = a.userInfo.getCoins(user.id)
-        embeddict = {'color': 6345206, 'type': 'rich', 'description': '<@!'+ str(user.id) + '> has ' + str(funds) + '<:HotTips2:465535606739697664>'}
+        embeddict = {'color': 6345206, 'type': 'rich', 'description': '<@!'+ str(user.id) + '> has ' + str(round(funds,2)) + '<:HotTips2:465535606739697664>'}
         await ctx.author.send(embed=discord.Embed.from_dict(embeddict))
 
 @ui.slash.command(name="toggleChannel", description="Locks Channel the command is run in, if another channel isn't specified.", options=[
@@ -779,7 +785,8 @@ async def command(ctx):
         await ctx.author.send("<:KSplodes:896043440872235028> Error: Invalid RPO for knowledge processing. Please change your RPO !changeRPO <New_RPO_Tag>")
         return
     elif str(userid) in pd.read_csv(UserListURL)['userID'].astype(str).to_list():
-        RPO = pd.read_csv(UserListURL, index_col=0).loc[userid,'RPO']
+        userInfo = a.userInfo.readUserInfo()
+        RPO = userInfo.loc[str(ctx.author.id),'RPO']
         Knowledgedf = pd.read_csv(RPOKnowledgeURL).set_index("TAG").loc[RPO]
         Knowledgedict = Knowledgedf.to_dict()
         with open("ranges.json") as r:
@@ -808,11 +815,9 @@ async def command(ctx):
         #imageTable = render_mpl_table(dfOut, header_columns=0, col_width=2.0)
         a.render_mpl_table(dfOut, header_columns=0, col_width=5.0)
         await ctx.author.send(file=discord.File('table.png'))
-    return
 
 @ui.slash.subcommand(base_names=['coins','query'], name='me', description="Querys how many coins you have", guild_ids=[225345178955808768], guild_permissions={225345178955808768: SlashPermission(allowed={"225345178955808768": SlashPermission.ROLE},forbidden={"684936661745795088":SlashPermission.ROLE,"676250179929636886":SlashPermission.ROLE})})
 async def command(ctx):
-    refreshToken()
     funds = user.getCoins(ctx.author.id)
     embeddict = {'color': 6345206, 'type': 'rich', 'description': '<@!'+ str(ctx.author.id) + '> has ' + str(funds) + '<:HotTips2:465535606739697664>'}
     await ctx.respond(embed=discord.Embed.from_dict(embeddict),hidden=True)
@@ -859,8 +864,8 @@ async def command(ctx, user, amount):
         output = a.userInfo.editCoins(str(user[3:-1]),amount)
         embeddict = {'color': 6345206, 'type': 'rich', 'description': '✅' + str(output['changed']) +'<:HotTips2:465535606739697664> has been removed from <@!' + str(user[3:-1]) + '>'}
     await ctx.send(embed=discord.Embed.from_dict(embeddict))
-    
-@ui.slash.subcommand(base_names='wallet', name='edit', description="Edits and RPO's funds", options=[SlashOption(str, name="user", description='user to query', required=True), SlashOption(int,name='amount',description='amount to remove',required=True)], guild_ids=[225345178955808768],guild_permissions={
+
+@ui.slash.subcommand(base_names='wallets', name='edit', description="Edits and RPO's funds", options=[SlashOption(str, name="user", description='user to query', required=True), SlashOption(int,name='amount',description='amount to remove',required=True)], guild_ids=[225345178955808768],guild_permissions={
     225345178955808768: SlashPermission(
         allowed={
             "225413350874546176": SlashPermission.ROLE,
@@ -885,10 +890,10 @@ async def command(ctx, user,amount):
     ], guild_ids=[225345178955808768], guild_permissions={225345178955808768: SlashPermission(allowed={"225345178955808768": SlashPermission.ROLE},forbidden={"684936661745795088":SlashPermission.ROLE,"676250179929636886":SlashPermission.ROLE})})
 async def command(ctx,amount):
     rpo = a.userInfo.readUserInfo().loc[str(ctx.author.id),'RPO']
-    if rpo == 'A': 
+    if rpo == 'A' or rpo=='CP': 
         await ctx.respond("You are not registered in a valid RPO to the bot",hidden=True)
         return
-    output = user.editCoins(ctx.author.id, amount)
+    output = user.editCoins(ctx.author.id, 0-amount)
     charged = output['changed']
     user.editWallet(rpo,abs(charged))
     embeddict = {'color': 6345206, 'type': 'rich', 'description': '✅' + str(charged) +'<:HotTips2:465535606739697664> has been removed from <@!' + str(ctx.author.id) + '>, and added to your RPO funds.'}
@@ -915,26 +920,27 @@ async def command(message):
         await investChannel.send("**MARKET UPDATING. INVESTMENTS LOCKED UNTIL COMPLETE**")
         await investChannel.set_permissions(message.guild.default_role, overwrite=perms)
         RPOlist = list() #initializes empty list for list of RPOs with investments
-        investments = json.load('investments.json')
-        for rpo in list(investments.keys()):
-            RPOlist.append(rpo) #Adds all RPOs with investments to a list
-        #print(RPOlist)
+        investments = json.load(open('investments.json'))
         Marketdf = pd.read_csv(URL, index_col=0, usecols=['Symbol', 'Market Price', 'Day change'])
-        for rpo in RPOlist:
+        for rpo in list(investments.keys()):
             i=0
-            length = len(investments[i]['Investments'])
+            length = len(investments[rpo]['Investments'])
             investments[rpo]['Total_Invested'] = 0
+            investments[rpo]['Market_Value'] = 0
+            investments[rpo]['Profit/Loss'] = 0
             sum=0
             while i<length:
                 investments[rpo]['Investments'][i][2] = Marketdf.loc[investments[rpo]['Investments'][i][1],'Market Price']
                 investments[rpo]['Investments'][i][3] = Marketdf.loc[investments[rpo]['Investments'][i][1],'Day change']
-                investments[rpo]['Investments'][i][4] = float(investments[rpo]['Investments'][i][0]) * float(investments[rpo]['Investments'][i][2])
-                investments[rpo]['Investments'][i][6] = float(investments[rpo]['Investments'][i][5]) * float(investments[rpo]['Investments'][i][0])
-                investments[rpo]['Investments'][i][7] = float(investments[rpo]['Investments'][i][4]) - float(investments[rpo]['Investments'][i][5])
-                investments[rpo]['Total_Invested'] += float(investments[rpo]['Investments'][i][5])
-                sum += float(investments[rpo]['Investments'][i][4])
+                investments[rpo]['Investments'][i][4] = round(float(str(investments[rpo]['Investments'][i][0]).replace(',','')) * float(str(investments[rpo]['Investments'][i][2]).replace(',','')),2)
+                investments[rpo]['Investments'][i][7] = round(float(str(investments[rpo]['Investments'][i][4]).replace(',','')) - float(str(investments[rpo]['Investments'][i][5]).replace(',','')),2)
+                investments[rpo]['Total_Invested'] += round(float(str(investments[rpo]['Investments'][i][5]).replace(',','')),2)
+                investments[rpo]['Market_Value'] += round(float(str(investments[rpo]['Investments'][i][4]).replace(',','')),2)
+                investments[rpo]['Profit/Loss'] += round(float(str(investments[rpo]['Investments'][i][7]).replace(',','')),2)
+                sum += round(float(investments[rpo]['Investments'][i][4]),2)
                 i+=1
             investments[rpo]["Market_History"].append(sum)
+        json.dump(investments,open('investments.json','w'))
         await investChannel.send("**MARKET UPDATED. INVESTMENTS UNLOCKED.**")
         perms.send_messages=True
         await investChannel.set_permissions(message.guild.default_role, overwrite=perms)
@@ -958,8 +964,6 @@ async def roll(ctx, dice):
     arg = dice
     if "+" in arg:
         dice = arg.split("+")
-    #elif arg == 'patent':
-    #    dice = ['','','']
     else:
         dice = [str(arg)]
     try:
@@ -997,7 +1001,7 @@ async def roll(ctx, dice):
     except:
         await ctx.send("<:KSplodes:896043440872235028> Error invalid argument: specified dice can only be d2s, d4s, d6s, d8s, d10s, d12s, d20s,  or d100s, or if a constant modifier must be a perfect integer, positive or negative, connexted with `+`, and no spaces.")
         return
-
+"""
 @ui.slash.subcommand(base_names="Publish", name="post", description="Press Releases and Stuff", options=[
         SlashOption(str, name="Title", description="This is the title of the embed", required=True), SlashOption(str, name="Body", description="This is the body of the command", required=True), SlashOption(int, name="Color", description="Embed color", choices=[
                 {"name": "Breaking News", "value": 16705372}, {"name": "Financial", "value": 5763719},{"name": "Patents/Info Sector Updates", "value": 5793266}, {"name": "Other", "value": 12370112}], required=True), SlashOption(str, name="Time", description="This is the publishing time info (Must include Published at: if you want that to show up.)", required=True),SlashOption(str, name='channel', description='channel to post embed to', choices=[create_choice('news', '902335372321755196'), create_choice('Bot-Dev', '687817008355737606')], required=True) ,SlashOption(str, name="Author", description="Article Author, default Author Kerman"), SlashOption(str, name="Image", description="URL of image to use as logo.")], guild_ids=[225345178955808768], guild_permissions={
@@ -1018,7 +1022,7 @@ async def command(ctx, title, body, color, time, channel, author="Author Kerman"
     while morePars:
         btn = await (
                 await ctx.send("Do you want to add another paragraph?", components=[
-                    Button("another", "Yes", color=ButtonStyles.green), Button("done", "No", color=ButtonStyles.red)
+                    Button("another", "Yes", color='green'), Button("done", "No", color='red')
                 ])
             ).wait_for("button", client)
         if btn.author.id != ctx.author.id:
@@ -1029,7 +1033,7 @@ async def command(ctx, title, body, color, time, channel, author="Author Kerman"
                 morePars = False
                 btn = await (
                         await ctx.send("Done adding paragraphs. Add an image?", components=[
-                            Button("Yes", "Yes", color=ButtonStyles.green), Button("No", "No", color=ButtonStyles.red)
+                            Button("Yes", "Yes", color='green'), Button("No", "No", color='red')
                         ])
                     ).wait_for("button", client)
                 if btn.label == 'No':
@@ -1060,7 +1064,7 @@ async def command(ctx, title, body, color, time, channel, author="Author Kerman"
     while True:
         btn = await (
                     await ctx.send(content = "is this good?", embed=embed, components=[
-                        Button("Yes", "Yes", color=ButtonStyles.green), Button("No", "No", color=ButtonStyles.red)
+                        Button("Yes", "Yes", color='green'), Button("No", "No", color='red')
                     ])
                 ).wait_for("button", client)
         if btn.label == "Yes":
@@ -1069,7 +1073,7 @@ async def command(ctx, title, body, color, time, channel, author="Author Kerman"
         elif btn.label == "No":
             btn = await (
                 await ctx.send(content = "What to change?", components=[
-                    Button("Title", "Title", color=ButtonStyles.blurple), Button("Body", "Body", color=ButtonStyles.blurple), Button("Footer", "Footer", color=ButtonStyles.blurple), Button("Author", "Author", color=ButtonStyles.blurple)
+                    Button("Title", "Title", color='blurple'), Button("Body", "Body", color='blurple'), Button("Footer", "Footer", color='blurple'), Button("Author", "Author", color='blurple')
                 ])
             ).wait_for("button", client)
         if btn.label == "Title":
@@ -1088,7 +1092,7 @@ async def command(ctx, title, body, color, time, channel, author="Author Kerman"
             while True:
                 btn = await (
                     await ctx.send("Do you want to add another paragraph?", components=[
-                        Button("another", "Yes", color=ButtonStyles.green), Button("done", "No", color=ButtonStyles.red)
+                        Button("another", "Yes", color='green'), Button("done", "No", color='red')
                     ])
                 ).wait_for("button", client)
                 if btn.author.id != ctx.author.id:
@@ -1127,8 +1131,8 @@ async def command(ctx, title, body, color, time, channel, author="Author Kerman"
             author = msg.content
             embed.set_author(name=author)
     await ctx.send("Complete.")
-
-@ui.slash.command(name='contract', description='Submits a contract request to the CP. Max 2 open contracts per RPO.', options=[
+"""
+@ui.slash.command(name='contract', description='Submits a contract request to the CP.', options=[
     SlashOption(str, name='Kerbals', description="Does your mission require kerbals? If so, yours, Charlie's, or a 3rd party?", choices=[
         create_choice("No", "No Kerbals"), create_choice("Yes, Mine", "Own Kerbals"), create_choice("Yes, CP's", "CP's Kerbals"), create_choice("Yes, Other", "Other RPO's Kerbals")], required=True),
     SlashOption(str, name="Comms", description="Do you need comms for this mission? If so do you need Charlie's, or do you have an arrangement?", choices=[create_choice('No', 'No comms needed'), create_choice("Yes, Charlie's", "Need Charlie's Network"), create_choice("Yes, Other", "Has Comms arrangement")], required=True),
@@ -1150,13 +1154,6 @@ async def command(ctx, kerbals, comms, goal, wants, rp, patent, craft,  particip
         await ctx.author.send("Error: You are not registered in an RPO.")
         return
     contractDF = pd.read_csv('https://docs.google.com/spreadsheets/d/1MyTqsdG3uzOYt_sNzc1aKiLXMfATl4pBJg5lf-4hSQw/gviz/tq?tqx=out:csv&gid=918856176',)
-    contractTotal = 0
-    for i in contractDF["RPO"]:
-        if i == RPO:
-            contractTotal+=1
-    if contractTotal>1:
-        await ctx.author.send("Error: Your RPO already has the maximum number of open contracts.")
-        return
     if patent == "Yes":
         await ctx.author.send("What do you want to patent?")
         patent = "Wants Patent"
@@ -1192,13 +1189,13 @@ async def command(ctx, kerbals, comms, goal, wants, rp, patent, craft,  particip
         await ctx.author.send("Needs a craft designed")
     btn = await (
         await ctx.author.send("Is that Correct?", components=[
-            Button("Yes", "Yes", color=ButtonStyles.green), Button("No", "No", color=ButtonStyles.red)
+            Button("Yes", "Yes", color='green'), Button("No", "No", color='red')
         ])
     ).wait_for("button", client)
     if btn.label == "Yes":
         btn = await (
             await ctx.author.send("Is this a multi-part mission?", components=[
-                Button("Yes", "Yes", color=ButtonStyles.green), Button("No", "No", color=ButtonStyles.red)
+                Button("Yes", "Yes", color='green'), Button("No", "No", color='red')
             ])
         ).wait_for("button", client)
         if btn.label == "Yes":
@@ -1212,8 +1209,6 @@ async def command(ctx, kerbals, comms, goal, wants, rp, patent, craft,  particip
         "range":range_,
         "majorDimension":"ROWS",
         "values": [[RPO, str(ctx.author), kerbals, comms, goal, wants, rp, patent, patentWant, craft, submittedCraft, 'Funds', participants, location, multipart]]}
-    request = service.spreadsheets().values().append(spreadsheetId=spreadsheet_id, range=range_, valueInputOption=value_input_option, insertDataOption=insert_data_option, body=value_range_body)
-    response = request.execute()
     await ctx.author.send("Contract Submitted. Please wait for a representative of the Celestial Project to reach out. Have a nice day!")
     logChannel = client.get_channel(906190976320679996)
     await logChannel.send("Contract Submission by: "+str(ctx.author)+", (ID: "+str(ctx.author.id)+") for RPO: "+str(RPO)+", "+str(patent)+" : "+str(patentWant)+", "+str(comms)+", Location: "+str(location)+", Payment: Funds, Participants: "+str(participants)+", "+str(multipart))
@@ -1222,6 +1217,9 @@ async def command(ctx, kerbals, comms, goal, wants, rp, patent, craft,  particip
          await logChannel.send("Submitted Craft: "+str(submittedCraft))
     else:
         await logChannel.send("Needs a craft designed")
+    service = refreshToken()
+    request = service.spreadsheets().values().append(spreadsheetId=spreadsheet_id, range=range_, valueInputOption=value_input_option, insertDataOption=insert_data_option, body=value_range_body)
+    response = request.execute()
 
 @ui.slash.subcommand(base_names = 'ticket',name='reply', description='Replies to an open modmail ticket', options=[
     SlashOption(str, name="Ticket", description="Ticket to reply to. Should be an int, which will be given in a message header.", required=True),
@@ -1237,36 +1235,6 @@ async def command(ctx, ticket, message):
         363095569515806722:"[Moderator] Bluesy",247950431630655488:"[Moderator] Doffey",82495450153750528:"[Moderator] Kaitlin",146285543146127361:"[Admin] Jazmine",138380316095021056:"[Moderator] Krios",
         162833689196101632:"[Moderator] Mike Takumi", 137240557280952321:"[Admin] Pet",137240557280952321:"[Moderator] Melethya",225344348903047168:"[Owner] Charlie"
     }
-    """menu = await (
-    await ctx.send("Attachments?", components=[
-        SelectMenu('attachments',options=[
-            SelectOption(value='0',label='None',description='No Attachments'),
-            SelectOption(value='1',label='One',description='One Attachment'),
-            SelectOption(value='2',label='Two',description='Two Attachments'),
-            SelectOption(value='3',label='Three',description='Three Attachments'),
-            SelectOption(value='4',label='Four',description='Four Attachments'),
-            SelectOption(value='5',label='Five',description='Five Attachments'),
-            SelectOption(value='6',label='Six',description='Six Attachments'),
-            SelectOption(value='7',label='Seven',description='Seven Attachments'),
-            SelectOption(value='8',label='Eight',description='Eight Attachments'),
-            SelectOption(value='9',label='Nine',description='Nine Attachments'),
-            SelectOption(value='10',label='Ten',description='Ten Attachments'),
-        ],min_values=1,max_values=1)
-    ])
-    ).wait_for("select", client)
-    n = (int("".join(menu.data['values'])))
-    i = 0
-    attchmentUrls = list()
-    if n >0:
-        await menu.respond("Please upload first attachment")
-        while i<n:
-            msg = await client.wait_for("message", check=a.message_check(channel=ctx.author.dm_channel), timeout=180)
-            try:
-                attchmentUrls.append(msg.attachments[0].url)
-            except: None
-            await ctx.send("Upload next attachment.")
-            i+=1
-    else:attchmentUrls=None"""
     user = a.add_message(ctx,message,str(ticket),None)
     sendTo = await ctx.guild.fetch_member(int(user))
     await sendTo.send("Message from "+str(modnames[ctx.author.id])+": "+message)
@@ -1396,46 +1364,6 @@ async def command(ctx, id, message, title=None):
     await sendTo.send("Message from "+str(modnames[ctx.author.id])+": "+message)
     await ctx.respond("Sent.")
 
-@ui.slash.command(name = 'comments',description="updates comment points totals from specified video", options=[
-    SlashOption(str, name="ID",description="video ID to grab comments of",required=True)], guild_ids=[225345178955808768], guild_permissions={
-    225345178955808768: SlashPermission(allowed={
-            "225413350874546176": SlashPermission.ROLE,
-            "253752685357039617": SlashPermission.ROLE,
-            "338173415527677954": SlashPermission.ROLE},forbidden={
-            "225345178955808768": SlashPermission.ROLE})})
-async def command(ctx, id):
-    spreadsheet_id = '1MyTqsdG3uzOYt_sNzc1aKiLXMfATl4pBJg5lf-4hSQw'
-    range_ = 'YT Comment Records!A2:B'
-    value_render_option = 'FORMATTED_VALUE'
-    request = service.spreadsheets().values().get(spreadsheetId=spreadsheet_id, range=range_,majorDimension="COLUMNS", valueRenderOption=value_render_option)
-    response = request.execute()
-    df = pd.DataFrame()
-    df['Name']=response['values'][0]
-    df['Points']=response['values'][1]
-    df['Points'] = df['Points'].astype(float)
-    df['new'] = df['Name']
-    df = df.set_index('new')
-    commenters = grabber.comments(id)
-    for commenter in commenters:
-        if commenter in df['Name'].tolist():
-            df.loc[commenter, 'Points']+=1
-        else:
-            df.loc[-1] = [commenter, 1]
-    os.environ['TZ'] = 'US/Eastern'
-    time.tzset()
-    batch_update_values_request_body = {
-        'value_input_option':'USER_ENTERED',
-        'data':[
-            {"range":range_,
-            "majorDimension":"COLUMNS",
-            "values": [df['Name'].tolist(),df['Points'].tolist()]},
-            {"range":'YT Comment Records!E1',
-            "majorDimension":"COLUMNS",
-            "values": [[time.strftime('%X %x %Z')]]}]}
-    request = service.spreadsheets().values().batchUpdate(spreadsheetId=spreadsheet_id, body=batch_update_values_request_body)
-    response = request.execute()
-    await ctx.respond("Done")
-
 @ui.slash.command(name="WODroll", description="Rolls a special set of d10s for determining bellcurve rolls.", options=[
     SlashOption(str, name="name", description="name for roll", required=True),
     SlashOption(int, name="Amount", description="How many dice to roll, min 3", required=True),
@@ -1492,7 +1420,7 @@ async def command(ctx, name, amount, success, failure, tag):
         return
     await ctx.send(embed=embed)
 
-@ui.slash.subcommand(base_names="recurring",name="add",description="updates the time and checks for any recurring payments",options=[
+@ui.slash.subcommand(base_names="recurring",name="add",description="adds new reccuring event",options=[
         SlashOption(str,name="RPO",description='RPO to check',required=True),
         SlashOption(str,name="Name",description="Name for the recourring event.",required=True),
         SlashOption(int,name='Next',description="First day for event to trigger",required=True),
@@ -1532,7 +1460,7 @@ async def command(ctx, rpo, name=None):
     else:
         btn = await (
                 await ctx.send("Query or Remove?", components=[
-                    Button("Query", "Query", color=ButtonStyles.blurple), Button("Remove", "Remove", color=ButtonStyles.red)
+                    Button("Query", "Query", color='blurple'), Button("Remove", "Remove", color='red')
                 ])
             ).wait_for("button", client)
         i = 0
@@ -1559,10 +1487,6 @@ async def command(ctx):
     data = sfs.parse_savefile('persistent.sfs')
     ksptime = a.ksptime(data)
     reccuring = json.load(open("recurring.json"))
-    accountBalanceSheet = pd.read_csv(RPOInfoURL)
-    accountBalanceSheet['new'] = accountBalanceSheet['TAG']
-    accountBalanceSheet = accountBalanceSheet.set_index('new')
-    accountBalanceSheet['Account Balance'] = accountBalanceSheet['Account Balance'].astype(str).apply(lambda x: x.replace('$', '').replace(',', '')).astype(float)
     df = pd.DataFrame()
     df["RPO"] = []
     df["name"] = []
@@ -1581,10 +1505,21 @@ async def command(ctx):
         a.render_mpl_table(df,header_columns=0,col_width=10)
         await ctx.send(file=discord.File(r'table.png'))
     except:await ctx.send("No recurring events have happened")
+    await ctx.send("Current Time: Year: {0}, Day: {1}, Hour: {2}, Minute: {3}, Second {4}".format(ksptime[0]//462,ksptime[0]%462,ksptime[1],ksptime[2],ksptime[3]))
     with open("recurring.json","w") as r:
         json.dump(reccuring,r)
 
-@ui.slash.command(name='portfolio',description="If your RPO has invested, dms you your RPO's protfolio",
+@ui.slash.command(name="ksptime",description="updates the time and checks for any recurring payments", 
+    guild_ids=[225345178955808768], guild_permissions={
+    225345178955808768: SlashPermission(allowed={"225413350874546176": SlashPermission.ROLE,
+            "253752685357039617": SlashPermission.ROLE,"338173415527677954": SlashPermission.ROLE},
+        forbidden={"225345178955808768": SlashPermission.ROLE})})
+async def command(ctx):
+    data = sfs.parse_savefile('persistent.sfs')
+    ksptime = a.ksptime(data)
+    await ctx.send("Current Time: Year: {0}, Day: {1}, Hour: {2}, Minute: {3}, Second {4}".format((ksptime[0]//462)+1,ksptime[0]%462,ksptime[1],ksptime[2],ksptime[3]))
+
+@ui.slash.command(name='portfolio',description="If your RPO has invested, dms you your RPO's portfolio",
     guild_ids=[225345178955808768], guild_permissions={225345178955808768: SlashPermission(
         allowed={"225345178955808768": SlashPermission.ROLE},
         forbidden={"684936661745795088":SlashPermission.ROLE,"676250179929636886":SlashPermission.ROLE})})
@@ -1593,9 +1528,9 @@ async def command(ctx):
     rpo = userInfo.loc[str(ctx.author.id),'RPO']
     hasInvested = a.rpoPortfolio(rpo.upper())
     if hasInvested:
-        ctx.author.send(file=discord.File(r'multipage.pdf'))
+        await ctx.author.send(file=discord.File(r'multipage.pdf'))
     else:
-        ctx.author.send("No investments recorded for your RPO.")
+        await ctx.author.send("No investments recorded for your RPO.")
 
 @ui.slash.user_command(guild_ids=[225345178955808768], guild_permissions={
     225345178955808768: SlashPermission(
@@ -1614,27 +1549,86 @@ async def Portfolio(ctx, user):
     rpo = userInfo.loc[str(user.id),'RPO']
     hasInvested = a.rpoPortfolio(rpo.upper())
     if hasInvested:
-        ctx.author.send(file=discord.File(r'multipage.pdf'))
+        await ctx.author.send(file=discord.File(r'multipage.pdf'))
     else:
-        ctx.author.send("No investments recorded for your RPO.")
+        await ctx.author.send("No investments recorded for your RPO.")
 
-@ui.slash.command(name='wallets',description="DMs you a list of wallet values",
+@ui.slash.command(name='wallet',description="Gives you your RPO's wallet balance",
     guild_ids=[225345178955808768], guild_permissions={225345178955808768: SlashPermission(
         allowed={"225345178955808768": SlashPermission.ROLE},
         forbidden={"684936661745795088":SlashPermission.ROLE,"676250179929636886":SlashPermission.ROLE})})
 async def command(ctx):
-    wallets = user.getWallet
-    a.render_mpl_table(wallets)
-    await ctx.author.send(file=discord.File(r'table.png'))
+    wallets = user.getWallet()
+    userInfo = a.userInfo.readUserInfo()
+    rpo = userInfo.loc[str(ctx.author.id),'RPO']
+    wallet = wallets.loc[rpo, "Account Balance"]
+    await ctx.respond("Your RPO's balance is: "+str(wallet),hidden=True)
 
+@ui.slash.user_command(guild_ids=[225345178955808768], guild_permissions={
+    225345178955808768: SlashPermission(
+        allowed={
+            "225413350874546176": SlashPermission.ROLE,
+            "253752685357039617": SlashPermission.ROLE,
+            "338173415527677954": SlashPermission.ROLE,
+            "914969502037467176": SlashPermission.ROLE
+        },
+        forbidden={
+            "225345178955808768": SlashPermission.ROLE,
+            "82495450153750528": SlashPermission.USER,
+            "138380316095021056": SlashPermission.USER
+        }
+    )
+    })
+async def Knowledge(ctx, user):
+    refreshToken()
+    userid = user.id
+    userInfo = a.userInfo.readUserInfo()
+    RPO = userInfo.loc[str(userid),'RPO']
+    Knowledgedf = pd.read_csv(RPOKnowledgeURL).set_index("TAG").loc[RPO]
+    Knowledgedict = Knowledgedf.to_dict()
+    with open("ranges.json") as r:
+        ranges = json.load(r)
+    Keysname = list()
+    Fieldsname = list()
+    for item in list(Knowledgedict.keys()):
+        for Range in list(ranges.keys()):
+            if str(Knowledgedict[item]) == '-%':
+                Keysname.append(item)
+                Fieldsname.append("Little/none")
+                break
+            try:
+                val = float(str(Knowledgedict[item])[:-1])/100
+            except:
+                break
+            lowerBound = float(ranges[Range]['lowerBound'])
+            upperBound = float(ranges[Range]['upperBound'])
+            if (val >= lowerBound) and (val <= upperBound):
+                Keysname.append(item)
+                Fieldsname.append(ranges[Range]["name"])
+                break
+    dfOut = pd.DataFrame()
+    dfOut['Field'] = Keysname
+    dfOut['Knowledge Level'] = Fieldsname
+    #imageTable = render_mpl_table(dfOut, header_columns=0, col_width=2.0)
+    a.render_mpl_table(dfOut, header_columns=0, col_width=5.0)
+    await ctx.author.send(content="Please don't share this with a different RPO than "+RPO+", Thanks!",file=discord.File('table.png'))
 
-
+@client.command()
+async def presence(ctx, presence):
+    await ctx.message.delete()
+    if ctx.author.id == 363095569515806722:
+        status2 = presence.split()
+        status3 = list()
+        for word in status2:
+            status3.append(word.capitalize())
+        status = " ".join(status3)
+        await client.change_presence(activity=discord.Game(status))
 
 @client.event
 async def on_message(message):
     await client.process_commands(message)
     channel = client.get_channel(906578081496584242)
-    if message.guild is None and message.author != client.user:
+    if message.guild is None and message.author != client.user and message.author.id !=363095569515806722:
         if message.content is not None:
             if message.content is not None:
                 ticket = a.add_onmessage(message)
@@ -1653,6 +1647,7 @@ async def on_message(message):
 
     elif message.guild is client.get_guild(225345178955808768) and message.author != client.user:
         if a.channel_check(message,[244979839147311104,897255188602179614,906190976320679996,906578081496584242,837859633502748672,426016300439961601,682559641930170379,686028730572865545,687817008355737606,839690221083820032,430197357100138497]):
+            service = refreshToken()
             return
         elif re.search(r"bruh", message.content, re.MULTILINE|re.IGNORECASE):
             await message.delete()
@@ -1668,6 +1663,298 @@ async def on_message(message):
             await asyncio.sleep(600)
             await message.author.remove_roles([676250179929636886])
             await message.author.add_roles([levelrole])
+        elif message.content.startswith('buyShares') or message.content.startswith('Buyshares') or message.content.startswith('BuyShares'): #args: <Coins/Funds>, <Symbol>, <Amount> 
+            if a.author_check2(message,[82495450153750528,755539532924977262])!=True:
+                return
+            elif a.channel_check(message, [687817008355737606,893867549589131314,900523609603313704]) != True:
+                return
+            author = message.author
+            userid = str(author.id)
+            if message.author.id == 225344348903047168 or a.userInfo.readUserInfo().loc[str(message.author.id),"RPO"] == 'CP':
+                await message.channel.send('<:KSplodes:896043440872235028> Error: Charlie and The Celestial Project are not allowed to invest.')
+                return
+            args = message.message.content.split()
+            if str(message.author.id) not in list(a.userInfo.readUserInfo().index):
+                await message.channel.send("<:KSplodes:896043440872235028> Error: Not registered in an RPO for the bot. Please register with the bot through !joinRPO <RPO_Tag>")
+                return
+            elif a.userInfo.readUserInfo().loc[str(message.author.id),"RPO"] == 'A':
+                await message.channel.send("<:KSplodes:896043440872235028> Error: Invalid in an RPO for investing. Please change your RPO !changeRPO <New_RPO_Tag>")
+                return
+            elif str(userid) in list(a.userInfo.readUserInfo().index):
+                userList = a.userInfo.readUserInfo()
+                rpo = userList.loc[str(message.author.id), 'RPO']
+                investments = json.load(open('investments.json'))
+                if rpo not in list(investments.keys()):
+                    investments.update({rpo:{"Market_Value": 0, "Total_Invested": 0, "Profit/Loss": 0, "Investments": [], "Market_History": []}})
+                args = message.message.content.split()
+                print(args)
+                Marketdf = pd.read_csv(URL, index_col=0, usecols=['Symbol', 'Market Price', 'Day change']) #Creates the dataframe (think spreadsheet, but in a more manipulatable manner) for stock prices
+                Marketdf = Marketdf.reset_index() #fixes the data frame so it can be concatenated with the specific investments data frame
+                args = message.message.content.split()
+                try:
+                    args[1] = args[1].capitalize()
+                    args[2] = args[2].upper()
+                    args[3]
+                    try:
+                        int(args[3])
+                    except:
+                        await message.channel.send("<:KSplodes:896043440872235028> Error: `"+ str(args[3]) +"` is invalid argument for number of shares.")
+                        return
+                except:
+                    await message.channel.send("<:KSplodes:896043440872235028> Error: !buyShares requires 3 arguments separated by spaces: `Coins/Funds`, `Symbol`, and `Amount to Buy`")
+                    return
+                finally:
+                    if args[1] == 'Coins':
+                        wealth = int(userList.loc[str(message.author.id), 'Coin Amount'])
+                        if args[2] in pd.read_csv(URL, usecols=['Symbol', 'Market Price', 'Day change']).dropna(axis=0)['Symbol'].to_list():
+                            i=0
+                            length = len(investments[rpo]['Investments'])
+                            newInvest = True
+                            while i<length:
+                                if investments[rpo]['Investments'][i][1]==args[2]:
+                                    newInvest = False
+                                    break
+                                i+=1
+                            if newInvest:
+                                Marketdf = pd.read_csv(URL, usecols=['Symbol', 'Market Price', 'Day change'],index_col=0)
+                                investments[rpo]['Investments'].append([0,args[2],Marketdf.loc[args[2],'Market Price'],Marketdf.loc[args[2],'Day change'],0,0,0,0])
+                            if int(args[3]) > 0:
+                                Marketdf.set_index('Symbol',inplace=True)
+                                costForOne = Marketdf.loc[args[2], 'Market Price']
+                                costForAmount = round(costForOne * int(args[3]),2)
+                                taxCost = round(costForAmount * .01,2)
+                                totalCost = round(costForAmount + taxCost,2)
+                                if wealth >= totalCost:
+                                    investments[rpo]['Investments'][i][0] += int(args[3])
+                                    investments[rpo]['Investments'][i][5] = round(float(str(investments[rpo]['Investments'][i][5]).replace(',','')) + totalCost,2)
+                                    investments[rpo]['Investments'][i][4] = round(investments[rpo]['Investments'][i][0] * float(str(investments[rpo]['Investments'][i][2]).replace(',','')),2)
+                                    investments[rpo]['Investments'][i][6] = round(float(str(investments[rpo]['Investments'][i][5]).replace(',','')) / float(str(investments[rpo]['Investments'][i][0]).replace(',','')),2)
+                                    investments[rpo]['Investments'][i][7] = round(float(str(investments[rpo]['Investments'][i][4]).replace(',','')) - float(str(investments[rpo]['Investments'][i][5]).replace(',','')),2)
+                                    investments[rpo]['Total_Invested'] = 0
+                                    sum=0
+                                    j=0
+                                    while j<length:
+                                        investments[rpo]['Total_Invested'] += float(investments[rpo]['Investments'][i][5])
+                                        sum += float(investments[rpo]['Investments'][i][4])
+                                        j+=1
+                                    investments[rpo]["Market_History"].append(sum)
+                                    json.dump(investments,open('investments.json','w'))
+                                    coinsRemaining = user.editCoins(userid,0-totalCost)['final']
+                                    user.editCoins(str(225344348903047168), taxCost)
+                                    embeddict = {'color': 6345206, 'type': 'rich', 'description': message.author.display_name + ', you have bought **'+ str(args[3]) + '** share(s) in **'+ str(args[2]) +'** for a total cost of **'+str(totalCost)  +'** <:HotTips2:465535606739697664>, **'+ str(costForAmount) + '** <:HotTips2:465535606739697664> for these shares and **'+str(taxCost) +'** <:HotTips2:465535606739697664> in transaction fees. You now have **' + str(round(coinsRemaining,2)) +'** <:HotTips2:465535606739697664> left.'}
+                                    await message.channel.send(embed=discord.Embed.from_dict(embeddict))
+                                else:
+                                    await message.channel.send("<:KSplodes:896043440872235028> Error: Cost for requested transaction: " + str(totalCost) +" is greater than the amount of currency you have on your discord account: " +str(wealth)+'.') 
+                            elif int(args[3]) <= 0:
+                                await message.channel.send("<:KSplodes:896043440872235028> Error: Invalid argument in position 3: " + str(args[3]) + ". Argument must be a positive integer.")
+                        else:
+                            await message.channel.send("<:KSplodes:896043440872235028> Error: Invalid argument in position 2: " + str(args[2]) + ". Argument one must be one of the public stocks.")
+                    elif args[1] == 'Funds':
+                        accountBalanceSheet = user.getWallet()
+                        wealth = float(str(accountBalanceSheet.loc[rpo, 'Account Balance']).replace(',',''))
+                        if args[2] in pd.read_csv(URL, usecols=['Symbol', 'Market Price', 'Day change']).dropna(axis=0)['Symbol'].to_list():
+                            i=0
+                            length = len(investments[rpo]['Investments'])
+                            newInvest = True
+                            while i<length:
+                                if investments[rpo]['Investments'][i][1]==args[2]:
+                                    newInvest = False
+                                    break
+                                i+=1
+                            if newInvest:
+                                Marketdf = pd.read_csv(URL, usecols=['Symbol', 'Market Price', 'Day change'],index_col=0)
+                                investments[rpo]['Investments'].append([0,args[2],Marketdf.loc[args[2],'Market Price'],Marketdf.loc[args[2],'Day change'],0,0,0,0])
+                            if int(args[3]) > 0:
+                                Marketdf.set_index('Symbol',inplace=True)
+                                costForOne = Marketdf.loc[str(args[2]), 'Market Price']
+                                costForAmount = round(costForOne * int(args[3]),2)
+                                taxCost = round(costForAmount * .01,2)
+                                totalCost = round(costForAmount + taxCost,2)
+                                if wealth >= totalCost:
+                                    investments[rpo]['Investments'][i][0] += int(args[3])
+                                    investments[rpo]['Investments'][i][5] = round(float(str(investments[rpo]['Investments'][i][5]).replace(',','')) + totalCost,2)
+                                    investments[rpo]['Investments'][i][4] = round(investments[rpo]['Investments'][i][0] * float(str(investments[rpo]['Investments'][i][2]).replace(',','')),2)
+                                    investments[rpo]['Investments'][i][6] = round(float(str(investments[rpo]['Investments'][i][5]).replace(',','')) / float(str(investments[rpo]['Investments'][i][0]).replace(',','')),2)
+                                    investments[rpo]['Investments'][i][7] = round(float(str(investments[rpo]['Investments'][i][4]).replace(',','')) - float(str(investments[rpo]['Investments'][i][5]).replace(',','')),2)
+                                    investments[rpo]['Total_Invested'] = 0
+                                    sum=0
+                                    j=0
+                                    while j<length:
+                                        investments[rpo]['Total_Invested'] += float(investments[rpo]['Investments'][i][5])
+                                        sum += float(investments[rpo]['Investments'][i][4])
+                                        j+=1
+                                    investments[rpo]["Market_History"].append(sum)
+                                    json.dump(investments,open('investments.json','w'))
+                                    json.dump(investments,open('investments.json','w'))
+                                    coinsRemaining = user.editWallet(rpo,0-totalCost)['final']
+                                    user.editCoins(str(225344348903047168), taxCost)
+                                    embeddict = {'color': 6345206, 'type': 'rich', 'description': message.author.display_name + ', you have bought **'+ str(args[3]) + '** share(s) in **'+ str(args[2]) +'** for a total cost of **'+a.as_currency(totalCost)  +'** <:HotTips2:465535606739697664>, **'+ a.as_currency(costForAmount) + '** <:HotTips2:465535606739697664> for that shares and **'+a.as_currency(taxCost) +'** <:HotTips2:465535606739697664> in transaction fees. Your now has **' + a.as_currency(round(coinsRemaining,2)) +'** funds left.'}
+                                    await message.channel.send(embed=discord.Embed.from_dict(embeddict))
+                                else:
+                                    await message.channel.send("<:KSplodes:896043440872235028> Error: Cost for requested transaction: " + str(totalCost) +" is greater than the amount of currency your RPO has in it's account: " +str(wealth)+'.') 
+                            elif int(args[3]) <= 0:
+                                await message.channel.send("<:KSplodes:896043440872235028> Error: Invalid argument in position 3: " + str(args[3]) + ". Argument must be a positive integer.")
+                        else:
+                            await message.channel.send("<:KSplodes:896043440872235028> Error: Invalid argument in position 2: " + str(args[2]) + ". Argument one must be one of the public stocks.")
+                    else:
+                        await message.channel.send("<:KSplodes:896043440872235028> Error: Invalid argument in position 1: " + str(args[1]) + ". Argument one must be `Coins` for discord currency, or `Funds` for the currency in your RPO's account.")
+
+        elif message.content.startswith('sellShares') or message.content.startswith('SellShares') or message.content.startswith('Sellshares'): #args: <Symbol> <Amount>:
+            if a.author_check2(message,[82495450153750528,755539532924977262])!=True:
+                return
+            elif a.channel_check(message, [687817008355737606,893867549589131314,900523609603313704]) != True:
+                return
+            author = message.author
+            userid = str(author.id)
+            if message.author.id == 225344348903047168 or a.userInfo.readUserInfo().loc[str(message.author.id),"RPO"] == 'CP':
+                await message.channel.send('<:KSplodes:896043440872235028> Error: Charlie and The Celestial Project are not allowed to invest.')
+                return
+            args = message.message.content.split()
+            if str(message.author.id) not in list(a.userInfo.readUserInfo().index):
+                await message.channel.send("<:KSplodes:896043440872235028> Error: Not registered in an RPO for the bot. Please register with the bot through !joinRPO <RPO_Tag>")
+                return
+            elif a.userInfo.readUserInfo().loc[str(message.author.id),"RPO"] == 'A':
+                await message.channel.send("<:KSplodes:896043440872235028> Error: Invalid in an RPO for investing. Please change your RPO !changeRPO <New_RPO_Tag>")
+                return
+            elif str(userid) in list(a.userInfo.readUserInfo().index):
+                userList = a.userInfo.readUserInfo()
+                args = message.message.content.split()
+                print(args)
+                Marketdf = pd.read_csv(URL, index_col=0, usecols=['Symbol', 'Market Price', 'Day change']) #Creates the dataframe (think spreadsheet, but in a more manipulatable manner) for stock prices
+                Marketdf = Marketdf.reset_index() #fixes the data frame so it can be concatenated with the specific investments data frame
+                try:
+                    args[1] = args[1].upper()
+                    args[2]
+                    try:
+                        int(args[2])
+                    except:
+                        await message.channel.send("<:KSplodes:896043440872235028> Error: `"+ str(args[2]) +"` is invalid argument for number of shares.")
+                        return
+                except:
+                    await message.channel.send("<:KSplodes:896043440872235028> Error: !sellShares requires 2 arguments separated by spaces: `Symbol` and `Amount to Sell`")
+                    return
+                finally:
+                    rpo = userList.loc[str(message.author.id), 'RPO']
+                    investments = json.load(open('investments.json'))
+                    i=0
+                    length = len(investments[rpo]['Investments'])
+                    while i<length:
+                        if investments[rpo]['Investments'][i][1]==args[1]:
+                            break
+                        i+=1
+                    if int(args[2]) > investments[rpo]['Investments'][i][0]:
+                        await message.channel.send("<:KSplodes:896043440872235028> Error: you cannot sell more shares than you own.")
+                        return
+                    elif args[1] in pd.read_csv(URL, usecols=['Symbol', 'Market Price', 'Day change']).dropna(axis=0)['Symbol'].to_list():
+                        if int(args[2]) > 0:
+                            Marketdf.set_index('Symbol',inplace=True)
+                            costForOne = Marketdf.loc[str(args[1]), 'Market Price']
+                            costForAmount = round(costForOne * int(args[2]),2)
+                            taxCost = round(costForAmount * .01,2)
+                            payout = round(costForAmount - taxCost,2)
+                            investments[rpo]['Investments'][i][0] -= int(args[2])
+                            totalInvested = investments[rpo]['Investments'][i][0]
+                            Marketdf = Marketdf.reset_index() #fixes the data frame so it can be concatenated with the specific investments data frame
+                            investments[rpo]['Investments'][i][4] = round(float(str(investments[rpo]['Investments'][i][0]).replace(',','')) * float(str(investments[rpo]['Investments'][i][2]).replace(',','')),2)  #does the math to make the market value column
+                            investments[rpo]['Investments'][i][5] = round(float(str(investments[rpo]['Investments'][i][5]).replace(',','')) - payout,2)
+                            investments[rpo]['Investments'][i][6] = round(float(str(investments[rpo]['Investments'][i][5]).replace(',','')) / float(str(investments[rpo]['Investments'][i][0]).replace(',','')),2)
+                            investments[rpo]['Investments'][i][4] = round(float(str(investments[rpo]['Investments'][i][0]).replace(',','')) * float(str(investments[rpo]['Investments'][i][2]).replace(',','')),2)
+                            investments[rpo]['Investments'][i][7] = round(float(str(investments[rpo]['Investments'][i][4]).replace(',','')) - float(str(investments[rpo]['Investments'][i][5]).replace(',','')),2)
+                            sum = 0 #Gets the sum of the stock prices
+                            investments[rpo]['Market_History'].append(sum)
+                            investments[rpo]['Total_Invested'] = 0
+                            j=0
+                            while j<length:
+                                investments[rpo]['Total_Invested'] += float(investments[rpo]['Investments'][i][5])
+                                sum += float(investments[rpo]['Investments'][i][4])
+                                j+=1
+                            json.dump(investments,open('investments.json','w'))
+                            accountBalanceSheet = a.userInfo.getWallet()
+                            accountBalanceSheet.loc[rpo, 'Account Balance'] += payout
+                            coinsRemaining = accountBalanceSheet.loc[rpo, 'Account Balance']
+                            userList.loc[str(225344348903047168), 'Coin Amount'] += taxCost
+                            embeddict = {'color': 6345206, 'type': 'rich', 'description': message.author.display_name + ', you have sold **'+ str(args[2]) + '** share(s) in **'+ str(args[1]) +'** for a total  of **'+a.as_currency(costForAmount)  +'** Funds, **'+ a.as_currency(taxCost) + '** have been diverted as a transaction fee. Your RPO recieved a payout of **'+str(payout) +'** Funds. Your RPO now has **' + a.as_currency(round(coinsRemaining,2)) +'**, and **' + str(totalInvested) +"** shares(s) left in **" +str(args[1])+"**."}
+                            a.userInfo.writeUserInfo(userList)
+                            a.userInfo.writeWallet(accountBalanceSheet)
+                            await message.channel.send(embed=discord.Embed.from_dict(embeddict))
+                        elif int(args[2]) <= 0:
+                            await message.channel.send("<:KSplodes:896043440872235028> Error: Invalid argument in position 2: " + str(args[2]) + ". Argument must be a positive integer.")
+                    else:
+                        await message.channel.send("<:KSplodes:896043440872235028> Error: Invalid argument in position 1: " + str(args[1]) + ". Argument one must be one of the public stocks.")
+                        
+        elif message.content.startswith('daily') or message.content.startswith('Daily'):
+            if a.author_check2(message,[82495450153750528,755539532924977262])!=True:
+                return
+            elif a.channel_check(message, [893867549589131314, 687817008355737606, 839690221083820032]) != True:
+                return
+            message = message
+            await message.message.delete()
+            if str(message.author.id) not in list(user.readUserInfo().index): #makes sure user isn't already in an RPO
+                a.undeclared(message)
+            if a.role_check(message, ['733541021488513035','225414319938994186','225414600101724170','225414953820094465','377254753907769355','338173415527677954','253752685357039617']):
+                df = user.readUserInfo()
+                lastWork = df.loc[str(message.author.id), 'lastDaily']
+                currentUse = time.mktime(message.created_at.timetuple())
+                timeDifference = currentUse - lastWork
+                if timeDifference < 71700:
+                    await message.author.send("<:KSplodes:896043440872235028> Error: **" + message.author.display_name + "** You need to wait " + str(datetime.timedelta(seconds=71700-timeDifference)) + " more to use this command.")
+                elif timeDifference > 71700:
+                    df.loc[str(message.author.id), 'lastDaily'] = currentUse
+                    amount = 1500 #assigned number for daily
+                    user.writeUserInfo(df)
+                    user.editCoins(message.author.id,amount)
+                    embeddict = {'color': 6345206, 'type': 'rich', 'description': '<@!'+str(message.author.id) +'>, here is your daily reward: 1500 <:HotTips2:465535606739697664>'}
+                    await message.author.send(embed=discord.Embed.from_dict(embeddict))
+            else:
+                await message.author.send("<:KSplodes:896043440872235028> Error: You are not allowed to use that command.")
+
+        elif message.content.startswith('work') or message.content.startswith('Work'):
+            if a.author_check2(message,[82495450153750528,755539532924977262])!=True:
+                return
+            elif a.channel_check(message, [893867549589131314, 687817008355737606, 839690221083820032]) != True:
+                return
+            elif str(message.author.id) not in list(user.readUserInfo().index):
+                a.undeclared(message)
+            if a.role_check(message, ['837812373451702303','837812586997219372','837812662116417566','837812728801525781','837812793914425455','400445639210827786','685331877057658888','337743478190637077','837813262417788988','338173415527677954','253752685357039617']):
+                await message.delete()
+                df = user.readUserInfo()
+                lastWork = df.loc[str(message.author.id), 'lastWork']
+                currentUse = time.mktime(message.created_at.timetuple())
+                timeDifference = currentUse - lastWork
+                if timeDifference < 41400:
+                    await message.channel.send("<:KSplodes:896043440872235028> Error: **" + message.author.display_name + "** You need to wait " + str(datetime.timedelta(seconds=41400-timeDifference)) + " more to use this command.")
+                elif timeDifference > 41400:
+                    df.loc[str(message.author.id), 'lastWork'] = currentUse
+                    amount = random.randrange(800, 1200, 5) #generates random number from 800 to 1200, in incrememnts of 5 (same as generating a radom number between 40 and 120, and multiplying it by 5)
+                    lastamount = int(df.loc[str(message.author.id), 'lastWorkAmount'])
+                    df.loc[str(message.author.id), 'lastWorkAmount'] = amount
+                    user.writeUserInfo(df)
+                    user.editCoins(message.author.id,lastamount)
+                    df.loc[str(message.author.id), 'lastWorkAmount'] = amount
+                    embeddict = {'color': 6345206, 'type': 'rich', 'description': message.author.display_name + ', you started working again. You gain '+ str(lastamount) +' <:HotTips2:465535606739697664> from your last work. Come back in **12 hours** to claim your paycheck of '+ str(amount) + ' <:HotTips2:465535606739697664> and start working again with `!work`'}
+                    await message.channel.send(embed=discord.Embed.from_dict(embeddict))
+            else:
+                await message.channel.send("<:KSplodes:896043440872235028> Error: You are not allowed to use that command.")
+
+        elif message.content.startswith('coins') or message.content.startswith('Coins') or message.content.startswith('!coins') or message.content.startswith('!Coins'):
+            await message.delete()
+            if a.author_check2(message,[82495450153750528,755539532924977262])!=True:    
+                return
+            funds = user.getCoins(message.author.id)
+            embeddict = {'color': 6345206, 'type': 'rich', 'description': '<@!'+ str(message.author.id) + '> has ' + str(funds) + '<:HotTips2:465535606739697664>'}
+            await message.author.send(embed=discord.Embed.from_dict(embeddict))
+
+        elif message.content.startswith('portfolio') or message.content.startswith('Portfolio'):
+            if a.author_check2(message,[82495450153750528,755539532924977262])!=True:    
+                return
+            await message.delete()
+            userInfo = user.readUserInfo()
+            rpo = userInfo.loc[str(message.author.id),'RPO']
+            hasInvested = a.rpoPortfolio(rpo.upper())
+            if hasInvested:
+                await message.author.send(file=discord.File(r'multipage.pdf'))
+            else:
+                await message.author.send("No investments recorded for your RPO.")
 
 @client.event
 async def on_command_error(ctx, error):
@@ -1676,5 +1963,8 @@ async def on_command_error(ctx, error):
 
 async def on_connect():
     print("Logged In!")
+    channel = client.get_channel(687817008355737606)
+    await channel.send("Online, please wait up to 90 seconds for all functionality to be ready")
 client.on_connect = on_connect
 client.run(token)
+"""

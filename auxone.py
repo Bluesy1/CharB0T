@@ -1,10 +1,9 @@
 from __future__ import print_function
+from lightbulb.commands import user
 import pandas as pd
 import numpy as np
 import json
 import time
-import discord
-from discord_ui import *
 import matplotlib.pyplot as plt
 import six
 from matplotlib.backends.backend_pdf import PdfPages
@@ -140,28 +139,16 @@ def render_mpl_table_colors_pdf(export_pdf, data, Colors, col_width=5, row_heigh
     plt.close()
     return export_pdf
 
-def undeclared(message):
-        author = message.author
+def undeclared(ctx):
+        author = ctx.author
         userid = author.id
         RPO  = 'A'
-        newUser = {'userID':[str(userid)], 'RPO':RPO, 'Author':[author], 'Coin Amount': [0], 'lastWorkAmount': [0], 'lastWork': [0], 'lastDaily': [0]}
+        newUser = {'userID':[str(userid)], 'RPO':RPO, 'Author':[str(author.username)], 'Coin Amount': [0], 'lastWorkAmount': [0], 'lastWork': [0], 'lastDaily': [0]}
         df = pd.DataFrame(newUser).set_index('userID')
         userList = pd.DataFrame(json.loads(fernet.decrypt(open('UserInfo.json',"rb").read())))
         userListOutput = userList.append(df)
         with open('UserInfo.json','wb') as t:
             t.write(fernet.encrypt(json.dumps(userListOutput.to_dict()).encode('utf-8')))
-
-def channel_check(message, channels):
-    return message.channel.id in channels
-
-def role_check(message, roles):
-    for role in roles:
-        if discord.utils.get(message.guild.roles, id=int(role)) in message.author.roles:
-            return True
-    return False
-
-def author_check2(message, authors):
-    return message.author.id in authors
 
 def open_channel(message, json):
     if str(message.author.id) in list(json.keys()):
@@ -192,48 +179,48 @@ def add_onmessage(message):
     for ticket in list(tickets.keys()):
         if tickets[ticket]["open"] == "True":
             if tickets[ticket]['starter'] == message.author.id:
-                if (int(time.mktime(message.created_at.timetuple()))-int(tickets[ticket]['time'])) < 5:
+                if (int(round(time.time(),0))-int(tickets[ticket]['time'])) < 5:
                     return None
                 messages = tickets[ticket]['messages']
                 numMessages = len(list(messages.keys()))
-                messages.update({str(numMessages):str(message.author)+": "+str(message.content)})
+                messages.update({str(numMessages):str(message.author.username)+": "+str(message.content)})
                 for attachment in message.attachments:
                     numMessages = len(list(messages.keys()))
                     messages.update({str(numMessages):str(message.author)+": "+str(attachment.url)})
                 tickets[ticket]['messages'] = messages
-                tickets[ticket]['time'] = time.mktime(message.created_at.timetuple())
+                tickets[ticket]['time'] = round(time.time(),0)
                 with open('tickets.json','wb') as t:
                     t.write(fernet.encrypt(json.dumps(tickets).encode('utf-8')))
                 return [ticket,"old"]
     newTicketNum = len(list(tickets.keys()))
     newTicket = {
-            "open":"True","time":time.mktime(message.created_at.timetuple()),"starter":message.author.id, "messages":{
+            "open":"True","time":round(time.time(),0),"starter":message.author.id, "messages":{
                 "0":str(message.author)+": "+str(message.content)
             }
         }
     tickets.update({str(newTicketNum):newTicket})
     with open('tickets.json','wb') as t:
         t.write(fernet.encrypt(json.dumps(tickets).encode('utf-8')))
-    return [str(newTicketNum)+": "+str(message.author),"new"]
+    return [str(newTicketNum)+": "+str(message.author.username),"new"]
 
-def add_message(ctx,message, ticket, attachments = None):
+def add_message(ctx,message, userID):
     with open('tickets.json',"rb") as t:
         temp = fernet.decrypt(t.read())
     tickets = json.loads(temp)
+    for ticket in list(tickets.keys()):
+        if tickets[str(ticket)]['starter']==userID:break
     messages = tickets[ticket]['messages']
     numMessages = len(list(messages.keys()))
-    messages.update({str(numMessages):str(ctx.author)+": "+str(message)})
+    messages.update({str(numMessages):str(ctx.author.username)+": "+str(message)})
     tickets[ticket]['messages'] = messages
-    with open('tickets.json','wb') as t:
-        t.write(fernet.encrypt(json.dumps(tickets).encode('utf-8')))
-    return int(tickets[ticket]['starter'])
+    open('tickets.json','wb').write(fernet.encrypt(json.dumps(tickets).encode('utf-8')))
 
 def ksptime(save):
     Sectime = float(save['GAME']['FLIGHTSTATE']['UT'])
     hours = math.floor(Sectime/3600)
     minutes = math.floor((Sectime%3600)/60)
     seconds = (Sectime%3600)%60
-    return [(hours//6),hours%6,minutes,seconds]
+    return [(hours//6)+1,hours%6,minutes,seconds]
 
 def transferRPO(RPO,ssaccess):
     investments = json.load(open('investments.json'))
@@ -256,6 +243,18 @@ def transferRPO(RPO,ssaccess):
             }})
         json.dump(investments,open('investments.json','w'))
     except: print(RPO, "has no investments")
+
+def as_currency(amount):
+    if amount >= 0:
+        return '${:,.2f}'.format(amount)
+    else:
+        return '-${:,.2f}'.format(abs(amount))
+
+def as_percent(amount):
+    if amount >= 0:
+        return '{:,.2f}%'.format(amount)
+    else:
+        return '-{:,.2f}%'.format(abs(amount))
 
 def rpoPortfolio(RPO):
     investments = json.load(open('investments.json'))
@@ -280,20 +279,20 @@ def rpoPortfolio(RPO):
     #print(investments[RPO]['Investments'])
     pdf = PdfPages('multipage.pdf')
     table_data = [
-        ['Market Value',investments[RPO]['Market_Value']],
-        ['Total Invested',investments[RPO]['Total_Invested']],
-        ['Profit/Loss',investments[RPO]['Profit/Loss']]]
+        ['Market Value',as_currency(investments[RPO]['Market_Value'])],
+        ['Total Invested',as_currency(investments[RPO]['Total_Invested'])],
+        ['Profit/Loss',as_currency(investments[RPO]['Profit/Loss'])]]
     fig, ax = plt.subplots()
     cellColours = []
-    if float(table_data[0][1].replace('$', '').replace(',', ''))>0:
+    if float(str(table_data[0][1]).replace('$', '').replace(',', ''))>0:
         cellColours.append(['#00ff0080','#00ff0080'])
-    elif float(table_data[0][1].replace('$', '').replace(',', ''))<0:
+    elif float(str(table_data[0][1]).replace('$', '').replace(',', ''))<0:
         cellColours.append(['#ff000080','#ff000080'])
     else: cellColours.append(['#0000ff80','#0000ff80'])
     cellColours.append(['#0000ff80','#0000ff80'])
-    if float(table_data[2][1].replace('$', '').replace(',', ''))>0:
+    if float(str(table_data[2][1]).replace('$', '').replace(',', ''))>0:
         cellColours.append(['#00ff0080','#00ff0080'])
-    elif float(table_data[2][1].replace('$', '').replace(',', ''))<0:
+    elif float(str(table_data[2][1]).replace('$', '').replace(',', ''))<0:
         cellColours.append(['#ff000080','#ff000080'])
     else: cellColours.append(['#0000ff80','#0000ff80'])
     mpl_table = ax.table(cellText=table_data, cellColours=cellColours, loc='center')
@@ -307,6 +306,11 @@ def rpoPortfolio(RPO):
     investmentsList = list()
     for item in investments[RPO]['Investments']:
         item.pop(5)
+        item[2] = as_currency(float(item[2]))
+        item[3] = as_percent(float(item[3]))
+        item[4] = as_currency(float(item[4]))
+        item[5] = as_currency(float(item[5]))
+        item[6] = as_currency(float(item[6]))
         investmentsList.append(item)
     mpl_table = ax.table(cellText=investmentsList, colLabels=['Shares', 'Symbol', 'Price','Day Change', 'Market Value', 'Cost Basis', 'Profit / Loss'], loc='center',bbox=[0,0,1.5,1])
     labels = list()
@@ -379,7 +383,10 @@ def rpoPortfolio(RPO):
 
 class userInfo:
     def readUserInfo():
-        return pd.DataFrame(json.loads(fernet.decrypt(open('UserInfo.json',"rb").read())))
+        df = pd.DataFrame(json.loads(fernet.decrypt(open('UserInfo.json',"rb").read())))
+        with open('UserInfo.json','wb') as t:
+            t.write(fernet.encrypt(json.dumps(df.to_dict()).encode('utf-8')))
+        return df
 
     def writeUserInfo(userinfodf):
         with open('UserInfo.json','wb') as t:
@@ -408,34 +415,63 @@ class userInfo:
 
     def getCoins(userID):
         userInfo = pd.DataFrame(json.loads(fernet.decrypt(open('UserInfo.json',"rb").read())))
+        with open('UserInfo.json','wb') as t:
+            t.write(fernet.encrypt(json.dumps(userInfo.to_dict()).encode('utf-8')))
         try:
             return userInfo.loc[str(userID),"Coin Amount"]
         except:
             return 0
 
     def getWallet():
-        return pd.read_json('Account Balance.json')
+        df = pd.read_json('Account Balance.json')
+        df.to_json('Account Balance.json')
+        return df
     
     def writeWallet(walletDf):
         walletDf.to_json('Account Balance.json')
 
     def editWallet(RPO, amount):
         rpoInfo = pd.read_json('Account Balance.json')
+        print(rpoInfo.head(10))
         output = {'before':rpoInfo.loc[str(RPO),"Account Balance"]}
         if str(RPO) not in list(rpoInfo.index):
             return False
         elif float(amount)>=0:
             output.update({'changed':amount})
-            rpoInfo.loc[str(RPO),"Account Balance"]+=amount
+            rpoInfo.loc[str(RPO),"Account Balance"] = round(float(str(rpoInfo.loc[str(RPO),"Account Balance"]).replace(',',''))+amount,2)
             output.update({'final':rpoInfo.loc[str(RPO),"Account Balance"]})
             rpoInfo.to_json('Account Balance.json')
             return output
         elif float(amount)<0:
-            change = min(rpoInfo.loc[str(RPO),"Account Balance"],abs(amount))
+            change = min(float(str(rpoInfo.loc[str(RPO),"Account Balance"]).replace(',','')),abs(float(amount)))
             output.update({'changed':change})
-            rpoInfo.loc[str(RPO),"Account Balance"]-=change
+            rpoInfo.loc[str(RPO),"Account Balance"] = round(float(str(rpoInfo.loc[str(RPO),"Account Balance"]).replace(",",''))-change,2)
             output.update({'final':rpoInfo.loc[str(RPO),"Account Balance"]})
             rpoInfo.to_json('Account Balance.json')
             return output
 
-print(userInfo.readUserInfo())
+    def roleCheck(author, aroles):
+        roles = author.role_ids
+        for role in roles:
+            if role in aroles: return True
+        return False
+
+class checks:
+    # Defining the custom check function
+    def check_author_is_me(context)->bool:# Returns True if the author's ID is the same as the given one
+        return context.author.id == 363095569515806722
+
+    def check_econ_channel(context):
+        return context.channel_id in [893867549589131314, 687817008355737606]
+
+    def check_modmail_channel(context):
+        return context.channel_id in [906578081496584242,687817008355737606]
+    
+    def Punished(context):
+        roles = context.member.role_ids
+        for role in roles:
+            if role in [684936661745795088,676250179929636886]:
+                return False
+        return True
+    
+    def check_invest_channel(context):return context.channel_id in [900523609603313704, 687817008355737606]

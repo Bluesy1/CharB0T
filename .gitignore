@@ -41,3 +41,9 @@ thing2.py
 investments.json
 Account Balance.json
 UserInfo.json
+Video Script.py
+*.pyc
+*.zip
+server.code-workspace
+.vscode/settings.json
+tickets.json

@@ -16,4 +16,4 @@ encrypted = fernet.encrypt(data)
 #this writes your new, encrypted data into a new JSON file
 with open('tickets.json','wb') as f:
     f.write(encrypted)
-#    json.dump(json.loads(encrypted),f)
+    #json.dump(json.loads(encrypted),f)
