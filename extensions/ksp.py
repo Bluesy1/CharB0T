@@ -253,6 +253,7 @@ async def command(ctx):
 @KSPPlugin.command
 @lightbulb.add_checks(lightbulb.owner_only)
 @lightbulb.command("test","test")
+@lightbulb.implements(commands.PrefixCommand)
 async def command(ctx):
     EditMenu = KSPPlugin.bot.rest.build_action_row()
     (EditMenu.add_select_menu("Editing")
