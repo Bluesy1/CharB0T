@@ -40,7 +40,7 @@ async def command(ctx):
         Marketdf = pd.read_csv(URL, index_col=0, usecols=['Symbol', 'Market Price', 'Day change']) #Creates the dataframe (think spreadsheet, but in a more manipulatable manner) for stock prices
         Marketdf = Marketdf.reset_index() #fixes the data frame so it can be concatenated with the specific investments data frame
         try:
-            args[1] = args[1].upper()
+            args[0] = args[0].upper()
             args[2]
             try:
                 int(args[2])
@@ -115,7 +115,7 @@ async def command(ctx):
     if ctx.member.id == 225344348903047168 or userInfo.readUserInfo().loc[str(ctx.member.id),"RPO"] == 'CP':
         await ctx.respond('<:KSplodes:896043440872235028> Error: Charlie and The Celestial Project are not allowed to invest.')
         return
-    args = [ctx.options.symbol,ctx.options.amount]
+    args = [ctx.options.symbol.upper(),ctx.options.amount]
     if str(ctx.member.id) not in list(userInfo.readUserInfo().index):
         await ctx.respond("<:KSplodes:896043440872235028> Error: Not registered in an RPO for the bot. Please register with the bot through !joinRPO <RPO_Tag>")
         return
@@ -160,10 +160,11 @@ async def command(ctx):
                 sum=0
                 j=0
                 while j<length:
-                    investments[rpo]['Total_Invested'] += float(investments[rpo]['Investments'][i][5])
+                    investments[rpo]['Total_Invested'] += round(float(investments[rpo]['Investments'][i][5]),2)
                     sum += float(investments[rpo]['Investments'][i][4])
                     j+=1
                 investments[rpo]["Market_History"].append(sum)
+                investments[rpo]["Market_Value"] = sum
                 json.dump(investments,open('investments.json','w'))
                 coinsRemaining = userInfo.editCoins(userid,0-totalCost)['final']
                 userInfo.editCoins(str(225344348903047168), taxCost)
@@ -200,7 +201,7 @@ async def command(ctx):
     print(args)
     Marketdf = pd.read_csv(URL, index_col=0, usecols=['Symbol', 'Market Price', 'Day change']) #Creates the dataframe (think spreadsheet, but in a more manipulatable manner) for stock prices
     Marketdf = Marketdf.reset_index() #fixes the data frame so it can be concatenated with the specific investments data frame
-    args = [ctx.options.symbol, abs(ctx.options.amount)]
+    args = [ctx.options.symbol.upper(), abs(ctx.options.amount)]
     accountBalanceSheet = userInfo.getWallet()
     wealth = float(str(accountBalanceSheet.loc[rpo, 'Account Balance']).replace(',',''))
     if args[0] in pd.read_csv(URL, usecols=['Symbol', 'Market Price', 'Day change']).dropna(axis=0)['Symbol'].to_list():
