@@ -77,14 +77,17 @@ async def command(ctx):
                     investments[rpo]['Investments'][i][6] = round(float(str(investments[rpo]['Investments'][i][5]).replace(',','')) / float(str(investments[rpo]['Investments'][i][0]).replace(',','')),2)
                     investments[rpo]['Investments'][i][4] = round(float(str(investments[rpo]['Investments'][i][0]).replace(',','')) * float(str(investments[rpo]['Investments'][i][2]).replace(',','')),2)
                     investments[rpo]['Investments'][i][7] = round(float(str(investments[rpo]['Investments'][i][4]).replace(',','')) - float(str(investments[rpo]['Investments'][i][5]).replace(',','')),2)
-                    sum = 0 #Gets the sum of the stock prices
-                    investments[rpo]['Market_History'].append(sum)
                     investments[rpo]['Total_Invested'] = 0
+                    investments[rpo]['Profit/Loss'] = 0
+                    sum=0
                     j=0
                     while j<length:
-                        investments[rpo]['Total_Invested'] += float(investments[rpo]['Investments'][i][5])
+                        investments[rpo]['Total_Invested'] += round(float(investments[rpo]['Investments'][i][5]),2)
                         sum += float(investments[rpo]['Investments'][i][4])
+                        investments[rpo]['Profit/Loss']+=round(float(investments[rpo]['Investments'][i][7]),2)
                         j+=1
+                    investments[rpo]["Market_History"].append(sum)
+                    investments[rpo]["Market_Value"] = sum
                     json.dump(investments,open('investments.json','w'))
                     accountBalanceSheet = userInfo.getWallet()
                     accountBalanceSheet.loc[rpo, 'Account Balance'] += payout
@@ -157,11 +160,13 @@ async def command(ctx):
                 investments[rpo]['Investments'][i][6] = round(float(str(investments[rpo]['Investments'][i][5]).replace(',','')) / float(str(investments[rpo]['Investments'][i][0]).replace(',','')),2)
                 investments[rpo]['Investments'][i][7] = round(float(str(investments[rpo]['Investments'][i][4]).replace(',','')) - float(str(investments[rpo]['Investments'][i][5]).replace(',','')),2)
                 investments[rpo]['Total_Invested'] = 0
+                investments[rpo]['Profit/Loss'] = 0
                 sum=0
                 j=0
                 while j<length:
                     investments[rpo]['Total_Invested'] += round(float(investments[rpo]['Investments'][i][5]),2)
                     sum += float(investments[rpo]['Investments'][i][4])
+                    investments[rpo]['Profit/Loss']+=round(float(investments[rpo]['Investments'][i][7]),2)
                     j+=1
                 investments[rpo]["Market_History"].append(sum)
                 investments[rpo]["Market_Value"] = sum
@@ -229,13 +234,16 @@ async def command(ctx):
                 investments[rpo]['Investments'][i][6] = round(float(str(investments[rpo]['Investments'][i][5]).replace(',','')) / float(str(investments[rpo]['Investments'][i][0]).replace(',','')),2)
                 investments[rpo]['Investments'][i][7] = round(float(str(investments[rpo]['Investments'][i][4]).replace(',','')) - float(str(investments[rpo]['Investments'][i][5]).replace(',','')),2)
                 investments[rpo]['Total_Invested'] = 0
+                investments[rpo]['Profit/Loss'] = 0
                 sum=0
                 j=0
                 while j<length:
-                    investments[rpo]['Total_Invested'] += float(investments[rpo]['Investments'][i][5])
+                    investments[rpo]['Total_Invested'] += round(float(investments[rpo]['Investments'][i][5]),2)
                     sum += float(investments[rpo]['Investments'][i][4])
+                    investments[rpo]['Profit/Loss']+=round(float(investments[rpo]['Investments'][i][7]),2)
                     j+=1
                 investments[rpo]["Market_History"].append(sum)
+                investments[rpo]["Market_Value"] = sum
                 json.dump(investments,open('investments.json','w'))
                 json.dump(investments,open('investments.json','w'))
                 coinsRemaining = userInfo.editWallet(rpo,0-totalCost)['final']
