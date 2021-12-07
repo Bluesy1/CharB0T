@@ -1,0 +1,68 @@
+{
+    "none":
+    {
+        "name": "Little/none",
+        "lowerBound": "0",
+        "upperBound": "0.10"
+    },
+	"verylow":
+    {
+        "name": "You've heard of it",
+        "lowerBound": "0.11",
+        "upperBound": "0.19"
+    },
+	"concept":
+    {
+        "name": "Concept-only",
+        "lowerBound": "0.2",
+        "upperBound": "0.29"
+    },
+	"familiar":
+    {
+        "name": "Familiar",
+        "lowerBound": "0.3",
+        "upperBound": "0.39"
+    },
+	"medium":
+    {
+        "name": "Minor understanding",
+        "lowerBound": "0.4",
+        "upperBound": "0.49"
+    },
+	"mediumhigh":
+    {
+        "name": "Understood",
+        "lowerBound": "0.5",
+        "upperBound": "0.59"
+    },
+	"high":
+    {
+        "name": "Well understood",
+        "lowerBound": "0.6",
+        "upperBound": "0.69"
+    },
+	"veryhigh":
+    {
+        "name": "Educated",
+        "lowerBound": "0.7",
+        "upperBound": "0.79"
+    },
+	"educated":
+    {
+        "name": "Well-educated",
+        "lowerBound": "0.8",
+        "upperBound": "0.89"
+    },
+	"master":
+    {
+        "name": "Mastery",
+        "lowerBound": "0.9",
+        "upperBound": "0.99"
+    },
+	"Perfect":
+    {
+        "name": "World-renowned",
+        "lowerBound": "1",
+        "upperBound": "1"
+    }
+}
