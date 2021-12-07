@@ -269,14 +269,14 @@ async def command(ctx):
         .add_option("No, edit title", "Title").set_emoji("❌").set_description("Use this to edit the title of the embed").add_to_menu()
         .add_option("No, edit author", "eAuth").set_emoji("❌").set_description("Use this to edit the author of the embed").add_to_menu()
         .add_option("No, edit footer", "eFoot").set_emoji("❌").set_description("Use this to edit the footer of the embed").add_to_menu()
-        .add_to_container
+        .add_to_container()
     )
-    await ctx.respond("choose an option:", components=[YesNoButtons,])
+    await ctx.respond("choose an option:", components=[EditMenu,])
     try:
         async with KSPPlugin.bot.stream(InteractionCreateEvent, timeout=60).filter(('interaction.user.id', ctx.author.id)) as stream:
             async for event in stream:
-                await event.interaction.create_initial_response(ResponseType.DEFERRED_MESSAGE_UPDATE)
-            print(event)
+                #await event.interaction.create_initial_response(ResponseType.DEFERRED_MESSAGE_UPDATE)
+                await ctx.edit_last_response(event.interaction.values[0], components=[])
     except asyncio.TimeoutError:
         await ctx.edit_initial_response("Waited for 60 seconds... Timeout.", embed=None, components=[])
 
