@@ -135,7 +135,7 @@ async def command(ctx):
 @reccuring.child
 @lightbulb.option("rpo", "RPO to query",required=True)
 @lightbulb.option("name", "OPTIONAL. recurring event to look at, if none given, will show all for the RPO.",required=True)
-@lightbulb.command("query","removes one reccuring event for an RPO")
+@lightbulb.command("remove","removes one reccuring event for an RPO")
 @lightbulb.implements(commands.SlashSubCommand)
 async def command(ctx):
     reccuring = json.load(open("recurring.json"))
