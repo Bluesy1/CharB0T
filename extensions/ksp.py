@@ -255,6 +255,9 @@ async def command(ctx):
 @lightbulb.command("test","test")
 @lightbulb.implements(commands.PrefixCommand)
 async def command(ctx):
+    YesNoButtons=KSPPlugin.bot.rest.build_action_row()
+    YesNoButtons.add_button(ButtonStyle.SUCCESS, "Yes").set_label("Yes").set_emoji("✅").add_to_container()
+    YesNoButtons.add_button(ButtonStyle.DANGER, "No").set_label("No").set_emoji("❌").add_to_container()
     EditMenu = KSPPlugin.bot.rest.build_action_row()
     (EditMenu.add_select_menu("Editing")
         .add_option("Yes", "Yes").set_emoji("✅").set_description("Use this to publish Embed").add_to_menu()
@@ -268,7 +271,7 @@ async def command(ctx):
         .add_option("No, edit footer", "eFoot").set_emoji("❌").set_description("Use this to edit the footer of the embed").add_to_menu()
         .add_to_container
     )
-    await ctx.respond("choose an option:", component=EditMenu)
+    await ctx.respond("choose an option:", components=[YesNoButtons,])
     try:
         async with KSPPlugin.bot.stream(InteractionCreateEvent, timeout=60).filter(('interaction.user.id', ctx.author.id)) as stream:
             async for event in stream:
