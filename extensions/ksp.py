@@ -20,7 +20,7 @@ KSPPlugin = lightbulb.Plugin("KSPPlugin")
 @lightbulb.add_checks(lightbulb.Check(checks.Punished))
 @lightbulb.command("parts", "parts group")
 @lightbulb.implements(commands.SlashCommandGroup)
-async def parts(ctx: lightbulb.Context) -> None: await ctx.respond("invoked parts")
+async def parts(ctx) -> None: await ctx.respond("invoked parts")
 
 @parts.child
 @lightbulb.command("key","key for parts table", inherit_checks=True, auto_defer=True, ephemeral=True)
