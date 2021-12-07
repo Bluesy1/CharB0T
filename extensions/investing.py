@@ -20,7 +20,7 @@ async def invest(ctx) -> None: await ctx.respond("invoked invest")
 @lightbulb.option("symbol", "symbol to sell", required=True)
 @lightbulb.option("amount", "amount to sell", type=int, required=True)
 @lightbulb.command("sell", "sells shares in a specified stock")
-@lightbulb.implements(commands.SlashCommandGroup)
+@lightbulb.implements(commands.SlashSubCommand)
 async def command(ctx):
     author = ctx.member
     userid = str(author.id)
@@ -108,7 +108,7 @@ async def buy(ctx) -> None: await ctx.respond("invoked invest-buy")
 @lightbulb.option("symbol", "symbol to buy", required=True)
 @lightbulb.option("amount", "amount to buy", type=int, required=True)
 @lightbulb.command("coins", "buys a secified amount of a specified stock using coins")
-@lightbulb.implements(commands.SlashCommandGroup)
+@lightbulb.implements(commands.SlashSubCommand)
 async def command(ctx):
     author = ctx.member
     userid = str(author.id)
@@ -180,7 +180,7 @@ async def command(ctx):
 @lightbulb.option("symbol", "symbol to buy", required=True)
 @lightbulb.option("amount", "amount to buy", type=int, required=True)
 @lightbulb.command("funds", "buys a secified amount of a specified stock using funds")
-@lightbulb.implements(commands.SlashCommandGroup)
+@lightbulb.implements(commands.SlashSubCommand)
 async def command(ctx):
     if ctx.member.id == 225344348903047168 or userInfo.readUserInfo().loc[str(ctx.member.id),"RPO"] == 'CP':
         await ctx.respond('<:KSplodes:896043440872235028> Error: Charlie and The Celestial Project are not allowed to invest.')
