@@ -3,17 +3,13 @@ import os
 import re
 
 import lightbulb
-import matplotlib.pyplot as plt
 import pandas as pd
-import sfsutils as sfs
-from auxone import (URL, as_currency, checks, part_check, render_mpl_table_colors,
-                    render_mpl_table_colors_pdf, userInfo)
+from auxone import (URL, as_currency, checks, userInfo)
 from hikari import Embed
 from lightbulb import commands
-from matplotlib.backends.backend_pdf import PdfPages
 
 InvestPlugin = lightbulb.Plugin("InvestPlugin")
-@InvestPlugin.add_checks(lightbulb.Check(checks.Punished),lightbulb.has_roles(906000578092621865)|lightbulb.owner_only,lightbulb.Check(checks.check_invest_channel))
+InvestPlugin.add_checks(lightbulb.Check(checks.Punished),lightbulb.has_roles(906000578092621865)|lightbulb.owner_only,lightbulb.Check(checks.check_invest_channel))
 
 @InvestPlugin.command
 @lightbulb.command("invest", "invest group")
@@ -186,8 +182,6 @@ async def command(ctx):
 @lightbulb.command("funds", "buys a secified amount of a specified stock using funds")
 @lightbulb.implements(commands.SlashCommandGroup)
 async def command(ctx):
-    author = ctx.member
-    userid = str(author.id)
     if ctx.member.id == 225344348903047168 or userInfo.readUserInfo().loc[str(ctx.member.id),"RPO"] == 'CP':
         await ctx.respond('<:KSplodes:896043440872235028> Error: Charlie and The Celestial Project are not allowed to invest.')
         return
