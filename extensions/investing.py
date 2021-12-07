@@ -59,17 +59,17 @@ async def command(ctx):
                 if investments[rpo]['Investments'][i][1]==args[1]:
                     break
                 i+=1
-            if int(args[2]) > investments[rpo]['Investments'][i][0]:
+            if int(args[1]) > investments[rpo]['Investments'][i][0]:
                 await ctx.respond("<:KSplodes:896043440872235028> Error: you cannot sell more shares than you own.")
                 return
-            elif args[1] in pd.read_csv(URL, usecols=['Symbol', 'Market Price', 'Day change']).dropna(axis=0)['Symbol'].to_list():
-                if int(args[2]) > 0:
+            elif args[0] in pd.read_csv(URL, usecols=['Symbol', 'Market Price', 'Day change']).dropna(axis=0)['Symbol'].to_list():
+                if int(args[1]) > 0:
                     Marketdf.set_index('Symbol',inplace=True)
                     costForOne = Marketdf.loc[str(args[1]), 'Market Price']
                     costForAmount = round(costForOne * int(args[2]),2)
                     taxCost = round(costForAmount * .01,2)
                     payout = round(costForAmount - taxCost,2)
-                    investments[rpo]['Investments'][i][0] -= int(args[2])
+                    investments[rpo]['Investments'][i][0] -= int(args[1])
                     totalInvested = investments[rpo]['Investments'][i][0]
                     Marketdf = Marketdf.reset_index() #fixes the data frame so it can be concatenated with the specific investments data frame
                     investments[rpo]['Investments'][i][4] = round(float(str(investments[rpo]['Investments'][i][0]).replace(',','')) * float(str(investments[rpo]['Investments'][i][2]).replace(',','')),2)  #does the math to make the market value column
@@ -93,11 +93,11 @@ async def command(ctx):
                     #embeddict = {'color': 6345206, 'type': 'rich', 'description': ctx.member.display_name + ', you have sold **'+ str(args[2]) + '** share(s) in **'+ str(args[1]) +'** for a total  of **'+as_currency(costForAmount)  +'** Funds, **'+ as_currency(taxCost) + '** have been diverted as a transaction fee. Your RPO recieved a payout of **'+str(payout) +'** Funds. Your RPO now has **' + as_currency(round(coinsRemaining,2)) +'**, and **' + str(totalInvested) +"** shares(s) left in **" +str(args[1])+"**."}
                     userInfo.writeUserInfo(userList)
                     userInfo.writeWallet(accountBalanceSheet)
-                    await ctx.respond(embed=Embed(description=f"{ctx.member.display_name} , you have sold **{str(args[2])}** share(s) in **{str(args[1])}** for a total  of **{as_currency(costForAmount)}** Funds, **{as_currency(taxCost)}** have been diverted as a transaction fee. Your RPO recieved a payout of **{str(payout)}** Funds. Your RPO now has **{as_currency(round(coinsRemaining,2))}**, and **{str(totalInvested)}** shares(s) left in **{str(args[1])}**.", color="60D1F6"))
-                elif int(args[2]) <= 0:
-                    await ctx.respond("<:KSplodes:896043440872235028> Error: Invalid argument in position 2: " + str(args[2]) + ". Argument must be a positive integer.")
+                    await ctx.respond(embed=Embed(description=f"{ctx.member.display_name} , you have sold **{str(args[1])}** share(s) in **{str(args[0])}** for a total  of **{as_currency(costForAmount)}** Funds, **{as_currency(taxCost)}** have been diverted as a transaction fee. Your RPO recieved a payout of **{str(payout)}** Funds. Your RPO now has **{as_currency(round(coinsRemaining,2))}**, and **{str(totalInvested)}** shares(s) left in **{str(args[0])}**.", color="60D1F6"))
+                elif int(args[1]) <= 0:
+                    await ctx.respond("<:KSplodes:896043440872235028> Error: Invalid argument in position 2: " + str(args[1]) + ". Argument must be a positive, non-zero integer.")
             else:
-                await ctx.respond("<:KSplodes:896043440872235028> Error: Invalid argument in position 1: " + str(args[1]) + ". Argument one must be one of the public stocks.")
+                await ctx.respond("<:KSplodes:896043440872235028> Error: Invalid argument in position 1: " + str(args[0]) + ". Argument one must be one of the public stocks.")
 
 @invest.child
 @lightbulb.command("buy", "buy subgroup")
