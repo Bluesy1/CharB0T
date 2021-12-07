@@ -126,12 +126,4 @@ async def roll(ctx):
         await ctx.respond("Error invalid argument: specified dice can only be d4s, d6s, d8s, d10s, d12s, d20s,  or d100s, or if a constant modifier must be a perfect integer, positive or negative, connexted with `+`, and no spaces.")
         return
 
-
-
-
-
-
-
-
-
 bot.run()
