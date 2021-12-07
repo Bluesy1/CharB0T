@@ -245,7 +245,7 @@ async def command(ctx):
                 json.dump(investments,open('investments.json','w'))
                 coinsRemaining = userInfo.editWallet(rpo,0-totalCost)['final']
                 userInfo.editCoins(str(225344348903047168), taxCost)
-                embeddict = {'color': 6345206, 'type': 'rich', 'description': ctx.member.display_name + ', you have bought **'+ str(args[3]) + '** share(s) in **'+ str(args[2]) +'** for a total cost of **'+as_currency(totalCost)  +'** Funds, **'+ as_currency(costForAmount) + '** Funds for those shares and **'+as_currency(taxCost) +'** Funds as transaction fees. Your RPO now has **' + str(round(coinsRemaining,2)) +'** Funds left.'}
+                #embeddict = {'color': 6345206, 'type': 'rich', 'description': ctx.member.display_name + ', you have bought **'+ str(args[3]) + '** share(s) in **'+ str(args[2]) +'** for a total cost of **'+as_currency(totalCost)  +'** Funds, **'+ as_currency(costForAmount) + '** Funds for those shares and **'+as_currency(taxCost) +'** Funds as transaction fees. Your RPO now has **' + str(round(coinsRemaining,2)) +'** Funds left.'}
                 await ctx.respond(embed=Embed(f"{ctx.member.display_name} + ', you have bought **{str(args[3])}** share(s) in **{str(args[2])}** for a total cost of **{as_currency(totalCost)}** Funds, **{as_currency(costForAmount)}** Funds for those shares and **{as_currency(taxCost)}** Funds as transaction fees. Your RPO now has **{str(round(coinsRemaining,2))} +'** Funds left.",color="60D1F6"))
             else:
                 await ctx.respond("<:KSplodes:896043440872235028> Error: Cost for requested transaction: " + str(totalCost) +" is greater than the amount of currency your RPO has in it's account: " +str(wealth)+'.') 
