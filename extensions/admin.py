@@ -265,7 +265,7 @@ async def command(ctx):
                     await event.interaction.create_initial_response(ResponseType.DEFERRED_MESSAGE_UPDATE)
                     key = event.interaction.values[0]
                     if key=="Yes":
-                        await ctx.edit_last_response("Sent.",embed=None, compnonents=[])
+                        await ctx.edit_last_response("Sent.",embed=None, components=[])
                         publish = await AdminPlugin.bot.rest.fetch_channel(publishTo)
                         await publish.send(embed=embed)
                         return; break
