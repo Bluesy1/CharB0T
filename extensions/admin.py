@@ -171,7 +171,7 @@ async def command(ctx):
 @lightbulb.command("publish", "publishes and embed to passed channel")
 @lightbulb.implements(commands.SlashCommand)
 async def command(ctx):
-    publishTo=ctx.options.channel;morePars=True;body1=ctx.options.body;title=ctx.options.title;color=ctx.options.color
+    publishTo=ctx.options.channel.id;morePars=True;body1=ctx.options.body;title=ctx.options.title;color=ctx.options.color
     addImage = False; author=ctx.options.author; time=ctx.options.time; image = ctx.options.image; footer=True; hasAuthor=True
     hasLogo = ctx.options.logo
     embed=Embed(title=title, description=body1, color=color).set_author(name=author).set_footer(text=time)
@@ -208,13 +208,13 @@ async def command(ctx):
                                         break
                                     continue
                         except asyncio.TimeoutError:
-                            await ctx.edit_initial_response("Waited for 60 seconds... Timeout.", embed=None, components=[])
+                            await ctx.edit_last_response("Waited for 15 seconds... Timeout.", embed=None, components=[])
                     elif key == "No":
                         await ctx.edit_last_response("Done adding paragraphs.",embed=None, components=[])
                         await asyncio.sleep(5)
                         morePars=False
         except asyncio.TimeoutError:
-            await ctx.edit_initial_response("Waited for 60 seconds... Timeout.", embed=None, components=[])
+            await ctx.edit_last_response("Waited for 15 seconds... Timeout.", embed=None, components=[])
     await ctx.edit_last_response("Add Image?",embed=None, components=[YesNoButtons, ])
     try:
         async with AdminPlugin.bot.stream(InteractionCreateEvent, timeout=15).filter(('interaction.user.id', ctx.author.id)) as stream:
@@ -233,9 +233,9 @@ async def command(ctx):
                                 addImage = True
                                 await event2.message.delete()
                     except asyncio.TimeoutError:
-                            await ctx.edit_initial_response("Waited for 60 seconds... Timeout.", embed=None, components=[])
+                            await ctx.edit_last_response("Waited for 15 seconds... Timeout.", embed=None, components=[])
     except asyncio.TimeoutError:
-        await ctx.edit_initial_response("Waited for 60 seconds... Timeout.", embed=None, components=[])
+        await ctx.edit_last_response("Waited for 15 seconds... Timeout.", embed=None, components=[])
     embed=Embed(title=title, description=body1, color=color).set_author(name=author).set_footer(text=time)
     if ctx.options.logo:embed.set_thumbnail(image)
     if addImage:embed.set_image(addedImage)
@@ -266,8 +266,9 @@ async def command(ctx):
                     await event.interaction.create_initial_response(ResponseType.DEFERRED_MESSAGE_UPDATE)
                     key = event.interaction.values[0]
                     if key=="Yes":
-                        await publishTo.send(embed=embed)
                         await ctx.edit_last_response("Sent.",embed=None, compnonents=[])
+                        publish = await AdminPlugin.bot.rest.fetch_channel(publishTo)
+                        await publish.send(embed=embed)
                         return; break
                     elif key=="CANCEL":
                         await ctx.edit_last_response("CANCELED.",embed=None, compnonents=[])
@@ -305,7 +306,7 @@ async def command(ctx):
                                         await asyncio.sleep(5)
                                     await event2.message.delete()
                                     continue
-                        except asyncio.TimeoutError:await ctx.edit_initial_response("Waited for 60 seconds... Timeout.", embed=None, components=[]);continue
+                        except asyncio.TimeoutError:await ctx.edit_last_response("Waited for 15 seconds... Timeout.", embed=None, components=[]);continue
                     elif key=="Text":
                         await ctx.edit_last_response("Please send first paragraph",embed=None, compnonents=[]); morePars=True
                         try:
@@ -315,9 +316,9 @@ async def command(ctx):
                                     body1 = event2.content
                                     await event2.message.delete()
                                     continue
-                        except asyncio.TimeoutError:await ctx.edit_initial_response("Waited for 60 seconds... Timeout.", embed=None, components=[])
+                        except asyncio.TimeoutError:await ctx.edit_last_response("Waited for 15 seconds... Timeout.", embed=None, components=[])
                         while morePars:
-                            await ctx.respond("Do you want to add another paragraph?", embed=embed, components=[YesNoButtons, ])
+                            await ctx.edit_last_response("Do you want to add another paragraph?", embed=embed, components=[YesNoButtons, ])
                             try:
                                 async with AdminPlugin.bot.stream(InteractionCreateEvent, timeout=15).filter(('interaction.user.id', ctx.author.id)) as stream:
                                     async for event in stream:
@@ -345,12 +346,12 @@ async def command(ctx):
                                                             break
                                                         continue
                                             except asyncio.TimeoutError:
-                                                await ctx.edit_initial_response("Waited for 60 seconds... Timeout.", embed=None, components=[])
+                                                await ctx.edit_last_response("Waited for 15 seconds... Timeout.", embed=None, components=[])
                                         elif key == "No":
                                             await ctx.edit_last_response("Done adding paragraphs.",embed=None, components=[])
                                             await asyncio.sleep(5)
                                             morePars=False
-                            except asyncio.TimeoutError:await ctx.edit_initial_response("Waited for 60 seconds... Timeout.", embed=None, components=[])
+                            except asyncio.TimeoutError:await ctx.edit_last_response("Waited for 15 seconds... Timeout.", embed=None, components=[])
                     elif key=="eAuth":
                         await ctx.edit_last_response("Please send new author",embed=None, compnonents=[])
                         try:
@@ -365,7 +366,7 @@ async def command(ctx):
                                         await asyncio.sleep(5)
                                     await event2.message.delete()
                                     continue
-                        except asyncio.TimeoutError:await ctx.edit_initial_response("Waited for 60 seconds... Timeout.", embed=None, components=[]);continue
+                        except asyncio.TimeoutError:await ctx.edit_last_response("Waited for 15 seconds... Timeout.", embed=None, components=[]);continue
                     elif key=="eFoot":
                         await ctx.edit_last_response("Please send new footer",embed=None, compnonents=[])
                         try:
@@ -380,9 +381,9 @@ async def command(ctx):
                                         await asyncio.sleep(5)
                                     await event2.message.delete()
                                     continue
-                        except asyncio.TimeoutError:await ctx.edit_initial_response("Waited for 60 seconds... Timeout.", embed=None, components=[]);continue
+                        except asyncio.TimeoutError:await ctx.edit_last_response("Waited for 15 seconds... Timeout.", embed=None, components=[]);continue
         except asyncio.TimeoutError:
-            await ctx.edit_initial_response("Waited for 60 seconds... Timeout.", embed=None, components=[])
+            await ctx.edit_last_response("Waited for 15 seconds... Timeout.", embed=None, components=[])
 
 
 def load(bot):bot.add_plugin(AdminPlugin)
