@@ -228,7 +228,6 @@ async def command(ctx):
                     try:
                         async with AdminPlugin.bot.stream(GuildMessageCreateEvent, timeout=15).filter(('author_id', ctx.author.id)) as stream2:
                             async for event2 in stream2:
-                                await event2.interaction.create_initial_response(ResponseType.DEFERRED_MESSAGE_UPDATE)
                                 addedImage = event2.message.attachments[0].url
                                 addImage = True
                                 await event2.message.delete()
