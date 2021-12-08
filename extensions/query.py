@@ -95,8 +95,6 @@ async def command(ctx):
 @lightbulb.command("edit", "edits a member's rpo wallet", ephemeral=True, inherit_checks=True)
 @lightbulb.implements(commands.SlashSubCommand)
 async def command(ctx):
-    await ctx.respond("This temporarally disabled as a complementary portion of the bot is in testing.")
-    return
     rpo = userInfo.readUserInfo().loc[str(ctx.options.member.id),'RPO']
     output = userInfo.editWallet(rpo, ctx.options.amount)
     charged = output['changed']
@@ -127,8 +125,6 @@ async def command(ctx):
 @lightbulb.command("send", "sends coins to your RPO's wallet", ephemeral=True, inherit_checks=True)
 @lightbulb.implements(commands.SlashSubCommand)
 async def command(ctx):
-    await ctx.respond("This temporarally disabled as a complementary portion of the bot is in testing.")
-    return
     rpo = userInfo.readUserInfo().loc[str(ctx.author.id),'RPO']
     if rpo == 'A' or rpo=='CP': 
         await ctx.respond("You are not registered in a valid RPO to the bot")
