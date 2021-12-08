@@ -47,18 +47,18 @@ async def command(ctx):
             i=0
             length = len(investments[rpo]['Investments'])
             while i<length:
-                if investments[rpo]['Investments'][i][1]==args[1]:
+                if investments[rpo]['Investments'][i][1]==args[0]:
                     break
                 i+=1
-            
+            if i==length: await ctx.respond("Cannot sell a stock you do not own")
             if int(args[1]) > investments[rpo]['Investments'][i][0]:
                 await ctx.respond("<:KSplodes:896043440872235028> Error: you cannot sell more shares than you own.")
                 return
             elif args[0] in pd.read_csv(URL, usecols=['Symbol', 'Market Price', 'Day change']).dropna(axis=0)['Symbol'].to_list():
                 if int(args[1]) > 0:
                     Marketdf.set_index('Symbol',inplace=True)
-                    costForOne = Marketdf.loc[str(args[1]), 'Market Price']
-                    costForAmount = round(costForOne * int(args[2]),2)
+                    costForOne = Marketdf.loc[str(args[0]), 'Market Price']
+                    costForAmount = round(costForOne * int(args[1]),2)
                     taxCost = round(costForAmount * .01,2)
                     payout = round(costForAmount - taxCost,2)
                     investments[rpo]['Investments'][i][0] -= int(args[1])
@@ -74,9 +74,9 @@ async def command(ctx):
                     sum=0
                     j=0
                     while j<length:
-                        investments[rpo]['Total_Invested'] += round(float(investments[rpo]['Investments'][i][5]),2)
-                        sum += float(investments[rpo]['Investments'][i][4])
-                        investments[rpo]['Profit/Loss']+=round(float(investments[rpo]['Investments'][i][7]),2)
+                        investments[rpo]['Total_Invested'] += round(float(str(investments[rpo]['Investments'][j][5]).replace(',','')),2)
+                        sum += round(float(str(investments[rpo]['Investments'][j][4]).replace(',','')),2)
+                        investments[rpo]['Profit/Loss']+=round(float(str(investments[rpo]['Investments'][j][7]).replace(',','')),2)
                         j+=1
                     investments[rpo]["Market_History"].append(sum)
                     investments[rpo]["Market_Value"] = sum
@@ -156,16 +156,15 @@ async def command(ctx):
                 sum=0
                 j=0
                 while j<length:
-                    investments[rpo]['Total_Invested'] += round(float(investments[rpo]['Investments'][i][5]),2)
-                    sum += float(investments[rpo]['Investments'][i][4])
-                    investments[rpo]['Profit/Loss']+=round(float(investments[rpo]['Investments'][i][7]),2)
+                    investments[rpo]['Total_Invested'] += round(float(str(investments[rpo]['Investments'][j][5]).replace(',','')),2)
+                    sum += round(float(str(investments[rpo]['Investments'][j][4]).replace(',','')),2)
+                    investments[rpo]['Profit/Loss']+=round(float(str(investments[rpo]['Investments'][j][7]).replace(',','')),2)
                     j+=1
                 investments[rpo]["Market_History"].append(sum)
                 investments[rpo]["Market_Value"] = sum
                 json.dump(investments,open('investments.json','w'))
-                coinsRemaining = userInfo.editCoins(userid,0-totalCost)['final']
+                coinsRemaining = userInfo.editCoins(userid,round(0-totalCost,2))['final']
                 userInfo.editCoins(str(225344348903047168), taxCost)
-                #embeddict = {'color': 6345206, 'type': 'rich', 'description': ctx.member.display_name + ', you have bought **'+ str(args[3]) + '** share(s) in **'+ str(args[2]) +'** for a total cost of **'+as_currency(totalCost)  +'** <:HotTips2:465535606739697664>, **'+ as_currency(costForAmount) + '** <:HotTips2:465535606739697664> for these shares and **'+as_currency(taxCost) +'** <:HotTips2:465535606739697664> as a transaction fees. You now have **' + as_currency(round(coinsRemaining,2)) +'** <:HotTips2:465535606739697664> left.'}
                 await ctx.respond(embed=Embed(description=f"{ctx.member.display_name}, you have bought **{str(args[1])}** share(s) in **{str(args[0])}** for a total cost of **{as_currency(totalCost)}** <:HotTips2:465535606739697664>, **{as_currency(costForAmount)}** <:HotTips2:465535606739697664> for these shares and **{as_currency(taxCost)}** <:HotTips2:465535606739697664> as a transaction fees. You now have **{as_currency(round(coinsRemaining,2))}** <:HotTips2:465535606739697664> left.", color="60D1F6"))
             else:
                 await ctx.respond("<:KSplodes:896043440872235028> Error: Cost for requested transaction: " + str(totalCost) +" is greater than the amount of currency you have on your discord account: " +str(wealth)+'.') 
@@ -230,18 +229,17 @@ async def command(ctx):
                 sum=0
                 j=0
                 while j<length:
-                    investments[rpo]['Total_Invested'] += round(float(investments[rpo]['Investments'][i][5]),2)
-                    sum += float(investments[rpo]['Investments'][i][4])
-                    investments[rpo]['Profit/Loss']+=round(float(investments[rpo]['Investments'][i][7]),2)
+                    investments[rpo]['Total_Invested'] += round(float(str(investments[rpo]['Investments'][j][5]).replace(',','')),2)
+                    sum += round(float(str(investments[rpo]['Investments'][j][4]).replace(',','')),2)
+                    investments[rpo]['Profit/Loss']+=round(float(str(investments[rpo]['Investments'][j][7]).replace(',','')),2)
                     j+=1
                 investments[rpo]["Market_History"].append(sum)
                 investments[rpo]["Market_Value"] = sum
                 json.dump(investments,open('investments.json','w'))
-                json.dump(investments,open('investments.json','w'))
                 coinsRemaining = userInfo.editWallet(rpo,0-totalCost)['final']
                 userInfo.editCoins(str(225344348903047168), taxCost)
-                #embeddict = {'color': 6345206, 'type': 'rich', 'description': ctx.member.display_name + ', you have bought **'+ str(args[3]) + '** share(s) in **'+ str(args[2]) +'** for a total cost of **'+as_currency(totalCost)  +'** Funds, **'+ as_currency(costForAmount) + '** Funds for those shares and **'+as_currency(taxCost) +'** Funds as transaction fees. Your RPO now has **' + str(round(coinsRemaining,2)) +'** Funds left.'}
-                await ctx.respond(embed=Embed(f"{ctx.member.display_name} + ', you have bought **{str(args[1])}** share(s) in **{str(args[0])}** for a total cost of **{as_currency(totalCost)}** Funds, **{as_currency(costForAmount)}** Funds for those shares and **{as_currency(taxCost)}** Funds as transaction fees. Your RPO now has **{str(round(coinsRemaining,2))} +'** Funds left.",color="60D1F6"))
+                embed=Embed(description=f"{ctx.member.display_name}, you have bought **{str(args[1])}** share(s) in **{str(args[0])}** for a total cost of **{as_currency(totalCost)}** Funds, **{as_currency(costForAmount)}** Funds for those shares and **{as_currency(taxCost)}** Funds as transaction fees. Your RPO now has **{str(round(coinsRemaining,2))}** Funds left.",color="60D1F6")
+                await ctx.respond(embed=embed)
             else:
                 await ctx.respond("<:KSplodes:896043440872235028> Error: Cost for requested transaction: " + str(totalCost) +" is greater than the amount of currency your RPO has in it's account: " +str(wealth)+'.') 
         elif int(args[1]) <= 0:
