@@ -166,8 +166,8 @@ async def command(ctx):
 @lightbulb.option("time","This is the publishing time info (Must include Published at: if you want that to show up.)", required=True)
 @lightbulb.option('channel', 'channel to post embed to', type=OptionType.CHANNEL, required=True)
 @lightbulb.option("logo", "use logo?", type=OptionType.BOOLEAN, requied=True)
-@lightbulb.option("author", "Article Author, default Author Kerman", default="Author Kerman", required=False)
-@lightbulb.option("image", "URL of image to use as logo.", default=None, required=False)
+@lightbulb.option("author", "Article Author, default Author Kerman", default="Author Kerman")
+@lightbulb.option("image", "URL of image to use as logo.", default=None)
 @lightbulb.command("publish", "publishes and embed to passed channel")
 @lightbulb.implements(commands.SlashCommand)
 async def command(ctx):
