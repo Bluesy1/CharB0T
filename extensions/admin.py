@@ -156,7 +156,7 @@ async def command(ctx):
 
 @AdminPlugin.command
 @lightbulb.add_checks(lightbulb.Check(checks.check_publisher))
-@lightbulb.option("logo", "use logo?", type=OptionType.BOOLEAN, requied=True)
+@lightbulb.option("logo", "use logo?", type=OptionType.BOOLEAN, required=True)
 @lightbulb.option('channel', 'channel to post embed to', type=OptionType.CHANNEL, required=True)
 @lightbulb.option("time","This is the publishing time info (Must include Published at: if you want that to show up.)", required=True)
 @lightbulb.option("Color","Embed color", choices=[
