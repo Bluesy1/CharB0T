@@ -189,7 +189,7 @@ async def command(ctx):
                     if key == "Yes":
                         await ctx.edit_last_response("Please enter your next paragraph:", embed=None, components=[])
                         try:
-                            async with AdminPlugin.bot.stream(GuildMessageCreateEvent, timeout=60).filter(('author_id', ctx.author.id)) as stream2:
+                            async with AdminPlugin.bot.stream(GuildMessageCreateEvent, timeout=15).filter(('author_id', ctx.author.id)) as stream2:
                                 async for event2 in stream2:
                                     add = " \n \n "+(str(event2.message.content))
                                     await event2.message.delete()
@@ -226,7 +226,7 @@ async def command(ctx):
                 elif key== "Yes":
                     await ctx.edit_last_response("Please upload the photo:",embed=None, components=[])
                     try:
-                        async with AdminPlugin.bot.stream(GuildMessageCreateEvent, timeout=60).filter(('author_id', ctx.author.id)) as stream2:
+                        async with AdminPlugin.bot.stream(GuildMessageCreateEvent, timeout=15).filter(('author_id', ctx.author.id)) as stream2:
                             async for event2 in stream2:
                                 await event2.interaction.create_initial_response(ResponseType.DEFERRED_MESSAGE_UPDATE)
                                 addedImage = event2.message.attachments[0].url
@@ -295,7 +295,7 @@ async def command(ctx):
                     elif key=="Title":
                         await ctx.edit_last_response("Please send new title",embed=None, compnonents=[])
                         try:
-                            async with AdminPlugin.bot.stream(GuildMessageCreateEvent, timeout=60).filter(('author_id', ctx.author.id)) as stream2:
+                            async with AdminPlugin.bot.stream(GuildMessageCreateEvent, timeout=15).filter(('author_id', ctx.author.id)) as stream2:
                                 async for event2 in stream2:
                                     await event2.interaction.create_initial_response(ResponseType.DEFERRED_MESSAGE_UPDATE)
                                     if event2.content is not None:
@@ -309,7 +309,7 @@ async def command(ctx):
                     elif key=="Text":
                         await ctx.edit_last_response("Please send first paragraph",embed=None, compnonents=[]); morePars=True
                         try:
-                            async with AdminPlugin.bot.stream(GuildMessageCreateEvent, timeout=60).filter(('author_id', ctx.author.id)) as stream2:
+                            async with AdminPlugin.bot.stream(GuildMessageCreateEvent, timeout=15).filter(('author_id', ctx.author.id)) as stream2:
                                 async for event2 in stream2:
                                     await event2.interaction.create_initial_response(ResponseType.DEFERRED_MESSAGE_UPDATE)
                                     body1 = event2.content
@@ -326,7 +326,7 @@ async def command(ctx):
                                         if key == "Yes":
                                             await ctx.edit_last_response("Please enter your next paragraph:", embed=None, components=[])
                                             try:
-                                                async with AdminPlugin.bot.stream(GuildMessageCreateEvent, timeout=60).filter(('author_id', ctx.author.id)) as stream2:
+                                                async with AdminPlugin.bot.stream(GuildMessageCreateEvent, timeout=15).filter(('author_id', ctx.author.id)) as stream2:
                                                     async for event2 in stream2:
                                                         add = " \n \n "+(str(event2.message.content))
                                                         await event2.message.delete()
@@ -354,7 +354,7 @@ async def command(ctx):
                     elif key=="eAuth":
                         await ctx.edit_last_response("Please send new author",embed=None, compnonents=[])
                         try:
-                            async with AdminPlugin.bot.stream(GuildMessageCreateEvent, timeout=60).filter(('author_id', ctx.author.id)) as stream2:
+                            async with AdminPlugin.bot.stream(GuildMessageCreateEvent, timeout=15).filter(('author_id', ctx.author.id)) as stream2:
                                 async for event2 in stream2:
                                     await event2.interaction.create_initial_response(ResponseType.DEFERRED_MESSAGE_UPDATE)
                                     if event2.content is not None:
@@ -369,7 +369,7 @@ async def command(ctx):
                     elif key=="eFoot":
                         await ctx.edit_last_response("Please send new footer",embed=None, compnonents=[])
                         try:
-                            async with AdminPlugin.bot.stream(GuildMessageCreateEvent, timeout=60).filter(('author_id', ctx.author.id)) as stream2:
+                            async with AdminPlugin.bot.stream(GuildMessageCreateEvent, timeout=15).filter(('author_id', ctx.author.id)) as stream2:
                                 async for event2 in stream2:
                                     await event2.interaction.create_initial_response(ResponseType.DEFERRED_MESSAGE_UPDATE)
                                     if event2.content is not None:
