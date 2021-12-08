@@ -156,16 +156,16 @@ async def command(ctx):
 
 @AdminPlugin.command
 @lightbulb.add_checks(lightbulb.Check(checks.check_publisher))
-@lightbulb.option("title","This is the title of the embed",required=True)
-@lightbulb.option("Body","This is the body of the command", required=True)
+@lightbulb.option("logo", "use logo?", type=OptionType.BOOLEAN, requied=True)
+@lightbulb.option('channel', 'channel to post embed to', type=OptionType.CHANNEL, required=True)
+@lightbulb.option("time","This is the publishing time info (Must include Published at: if you want that to show up.)", required=True)
 @lightbulb.option("Color","Embed color", choices=[
     CommandChoice(name="Breaking News",value="#FEE75C"),
     CommandChoice(name="Financial",value="#57F287"),
     CommandChoice(name="Patents/Info Sector Updates",value="#5865F2"),
     CommandChoice(name="Other",value="#BCC0C0")],required=True)
-@lightbulb.option("time","This is the publishing time info (Must include Published at: if you want that to show up.)", required=True)
-@lightbulb.option('channel', 'channel to post embed to', type=OptionType.CHANNEL, required=True)
-@lightbulb.option("logo", "use logo?", type=OptionType.BOOLEAN, requied=True)
+@lightbulb.option("Body","This is the body of the command", required=True)
+@lightbulb.option("title","This is the title of the embed",required=True)
 @lightbulb.option("author", "Article Author, default Author Kerman", default="Author Kerman", required=False)
 @lightbulb.option("image", "URL of image to use as logo.", default=None, required=False)
 @lightbulb.command("publish", "publishes and embed to passed channel")
@@ -187,11 +187,10 @@ async def command(ctx):
                     await event.interaction.create_initial_response(ResponseType.DEFERRED_MESSAGE_UPDATE)
                     key = event.interaction.custom_id
                     if key == "Yes":
-                        await ctx.edit_last_response("Please enter your next paragraph:, embed=None, components=[]")
+                        await ctx.edit_last_response("Please enter your next paragraph:", embed=None, components=[])
                         try:
                             async with AdminPlugin.bot.stream(GuildMessageCreateEvent, timeout=60).filter(('author_id', ctx.author.id)) as stream2:
                                 async for event2 in stream2:
-                                    await event2.interaction.create_initial_response(ResponseType.DEFERRED_MESSAGE_UPDATE)
                                     add = " \n \n "+(str(event2.message.content))
                                     await event2.message.delete()
                                     if (len(body1+add)>4096):
@@ -219,7 +218,6 @@ async def command(ctx):
     try:
         async with AdminPlugin.bot.stream(InteractionCreateEvent, timeout=60).filter(('interaction.user.id', ctx.author.id)) as stream:
             async for event in stream:
-                await event.interaction.create_initial_response(ResponseType.DEFERRED_MESSAGE_UPDATE)
                 key = event.interaction.custom_id
                 if key == "No":
                     await ctx.edit_last_response("No Image.",embed=None, components=[])
@@ -325,11 +323,10 @@ async def command(ctx):
                                         await event.interaction.create_initial_response(ResponseType.DEFERRED_MESSAGE_UPDATE)
                                         key = event.interaction.custom_id
                                         if key == "Yes":
-                                            await ctx.edit_last_response("Please enter your next paragraph:, embed=None, components=[]")
+                                            await ctx.edit_last_response("Please enter your next paragraph:", embed=None, components=[])
                                             try:
                                                 async with AdminPlugin.bot.stream(GuildMessageCreateEvent, timeout=60).filter(('author_id', ctx.author.id)) as stream2:
                                                     async for event2 in stream2:
-                                                        await event2.interaction.create_initial_response(ResponseType.DEFERRED_MESSAGE_UPDATE)
                                                         add = " \n \n "+(str(event2.message.content))
                                                         await event2.message.delete()
                                                         if (len(body1+add)>4096):
