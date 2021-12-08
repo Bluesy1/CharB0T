@@ -202,10 +202,11 @@ async def command(ctx):
                                     if ctx.options.logo:embed.set_thumbnail(image)
                                     msg = await ctx.edit_last_response("Paragraph added.", embed=embed, components=[])
                                     await asyncio.sleep(5)
-                                    if len(body1) >=3900:
+                                    if len(body1) >=3950:
                                         await ctx.edit_last_response("Max length Reached, No more paragraphs allowed", embed=None, components=[])
                                         await asyncio.sleep(5)
                                         break
+                                    continue
                         except asyncio.TimeoutError:
                             await ctx.edit_initial_response("Waited for 60 seconds... Timeout.", embed=None, components=[])
                     elif key == "No":
@@ -338,10 +339,11 @@ async def command(ctx):
                                                         if ctx.options.logo:embed.set_thumbnail(image)
                                                         msg = await ctx.edit_last_response("Paragraph added.", embed=embed, components=[])
                                                         await asyncio.sleep(5)
-                                                        if len(body1) >=3900:
+                                                        if len(body1) >=3950:
                                                             await ctx.edit_last_response("Max length Reached, No more paragraphs allowed", embed=None, components=[])
                                                             await asyncio.sleep(5)
                                                             break
+                                                        continue
                                             except asyncio.TimeoutError:
                                                 await ctx.edit_initial_response("Waited for 60 seconds... Timeout.", embed=None, components=[])
                                         elif key == "No":
