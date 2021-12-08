@@ -182,7 +182,7 @@ async def command(ctx):
     while morePars:
         await ctx.respond("Do you want to add another paragraph?", embed=embed, components=[YesNoButtons, ])
         try:
-            async with AdminPlugin.bot.stream(InteractionCreateEvent, timeout=60).filter(('interaction.user.id', ctx.author.id)) as stream:
+            async with AdminPlugin.bot.stream(InteractionCreateEvent, timeout=15).filter(('interaction.user.id', ctx.author.id)) as stream:
                 async for event in stream:
                     await event.interaction.create_initial_response(ResponseType.DEFERRED_MESSAGE_UPDATE)
                     key = event.interaction.custom_id
@@ -217,7 +217,7 @@ async def command(ctx):
             await ctx.edit_initial_response("Waited for 60 seconds... Timeout.", embed=None, components=[])
     await ctx.edit_last_response("Add Image?",embed=None, components=[YesNoButtons, ])
     try:
-        async with AdminPlugin.bot.stream(InteractionCreateEvent, timeout=60).filter(('interaction.user.id', ctx.author.id)) as stream:
+        async with AdminPlugin.bot.stream(InteractionCreateEvent, timeout=15).filter(('interaction.user.id', ctx.author.id)) as stream:
             async for event in stream:
                 key = event.interaction.custom_id
                 if key == "No":
@@ -261,7 +261,7 @@ async def command(ctx):
         if addImage:embed.set_image(addedImage)
         await ctx.edit_last_response("Is this good?",embed=embed, components=[EditMenu, ])
         try:
-            async with AdminPlugin.bot.stream(InteractionCreateEvent, timeout=60).filter(('interaction.user.id', ctx.author.id)) as stream:
+            async with AdminPlugin.bot.stream(InteractionCreateEvent, timeout=15).filter(('interaction.user.id', ctx.author.id)) as stream:
                 async for event in stream:
                     await event.interaction.create_initial_response(ResponseType.DEFERRED_MESSAGE_UPDATE)
                     key = event.interaction.values[0]
@@ -319,7 +319,7 @@ async def command(ctx):
                         while morePars:
                             await ctx.respond("Do you want to add another paragraph?", embed=embed, components=[YesNoButtons, ])
                             try:
-                                async with AdminPlugin.bot.stream(InteractionCreateEvent, timeout=60).filter(('interaction.user.id', ctx.author.id)) as stream:
+                                async with AdminPlugin.bot.stream(InteractionCreateEvent, timeout=15).filter(('interaction.user.id', ctx.author.id)) as stream:
                                     async for event in stream:
                                         await event.interaction.create_initial_response(ResponseType.DEFERRED_MESSAGE_UPDATE)
                                         key = event.interaction.custom_id
