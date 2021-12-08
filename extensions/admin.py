@@ -159,12 +159,12 @@ async def command(ctx):
 @lightbulb.option("logo", "use logo?", type=OptionType.BOOLEAN, required=True)
 @lightbulb.option('channel', 'channel to post embed to', type=OptionType.CHANNEL, required=True)
 @lightbulb.option("time","This is the publishing time info (Must include Published at: if you want that to show up.)", required=True)
-@lightbulb.option("Color","Embed color", choices=[
+@lightbulb.option("color","Embed color", choices=[
     CommandChoice(name="Breaking News",value="#FEE75C"),
     CommandChoice(name="Financial",value="#57F287"),
     CommandChoice(name="Patents/Info Sector Updates",value="#5865F2"),
     CommandChoice(name="Other",value="#BCC0C0")],required=True)
-@lightbulb.option("Body","This is the body of the command", required=True)
+@lightbulb.option("body","This is the body of the command", required=True)
 @lightbulb.option("title","This is the title of the embed",required=True)
 @lightbulb.option("author", "Article Author, default Author Kerman", default="Author Kerman", required=False)
 @lightbulb.option("image", "URL of image to use as logo.", default=None, required=False)
