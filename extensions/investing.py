@@ -66,7 +66,8 @@ async def command(ctx):
                     Marketdf = Marketdf.reset_index() #fixes the data frame so it can be concatenated with the specific investments data frame
                     investments[rpo]['Investments'][i][4] = round(float(str(investments[rpo]['Investments'][i][0]).replace(',','')) * float(str(investments[rpo]['Investments'][i][2]).replace(',','')),2)  #does the math to make the market value column
                     investments[rpo]['Investments'][i][5] = round(float(str(investments[rpo]['Investments'][i][5]).replace(',','')) - payout,2)
-                    investments[rpo]['Investments'][i][6] = round(float(str(investments[rpo]['Investments'][i][5]).replace(',','')) / float(str(investments[rpo]['Investments'][i][0]).replace(',','')),2)
+                    try: investments[rpo]['Investments'][i][6] = round(float(str(investments[rpo]['Investments'][i][5]).replace(',','')) / float(str(investments[rpo]['Investments'][i][0]).replace(',','')),2)
+                    except: investments[rpo]['Investments'][i][6] =0
                     investments[rpo]['Investments'][i][4] = round(float(str(investments[rpo]['Investments'][i][0]).replace(',','')) * float(str(investments[rpo]['Investments'][i][2]).replace(',','')),2)
                     investments[rpo]['Investments'][i][7] = round(float(str(investments[rpo]['Investments'][i][4]).replace(',','')) - float(str(investments[rpo]['Investments'][i][5]).replace(',','')),2)
                     investments[rpo]['Total_Invested'] = 0
