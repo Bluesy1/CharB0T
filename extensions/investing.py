@@ -41,15 +41,6 @@ async def command(ctx):
         Marketdf = Marketdf.reset_index() #fixes the data frame so it can be concatenated with the specific investments data frame
         try:
             args[0] = args[0].upper()
-            args[2]
-            try:
-                int(args[2])
-            except:
-                await ctx.respond("<:KSplodes:896043440872235028> Error: `"+ str(args[2]) +"` is invalid argument for number of shares.")
-                return
-        except:
-            await ctx.respond("<:KSplodes:896043440872235028> Error: !sellShares requires 2 arguments separated by spaces: `Symbol` and `Amount to Sell`")
-            return
         finally:
             rpo = userList.loc[str(ctx.member.id), 'RPO']
             investments = json.load(open('investments.json'))
@@ -59,6 +50,7 @@ async def command(ctx):
                 if investments[rpo]['Investments'][i][1]==args[1]:
                     break
                 i+=1
+            
             if int(args[1]) > investments[rpo]['Investments'][i][0]:
                 await ctx.respond("<:KSplodes:896043440872235028> Error: you cannot sell more shares than you own.")
                 return
