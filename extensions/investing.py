@@ -141,7 +141,7 @@ async def command(ctx):
             Marketdf = pd.read_csv(URL, usecols=['Symbol', 'Market Price', 'Day change'],index_col=0)
             investments[rpo]['Investments'].append([0,args[0],Marketdf.loc[args[0],'Market Price'],Marketdf.loc[args[0],'Day change'],0,0,0,0])
         if int(args[1]) > 0:
-            Marketdf.set_index('Symbol',inplace=True)
+            #Marketdf.set_index('Symbol',inplace=True)
             costForOne = Marketdf.loc[args[0], 'Market Price']
             costForAmount = round(costForOne * int(args[1]),2)
             taxCost = round(costForAmount * .01,2)
@@ -214,7 +214,7 @@ async def command(ctx):
             Marketdf = pd.read_csv(URL, usecols=['Symbol', 'Market Price', 'Day change'],index_col=0)
             investments[rpo]['Investments'].append([0,args[2],Marketdf.loc[args[0],'Market Price'],Marketdf.loc[args[0],'Day change'],0,0,0,0])
         if int(args[1]) > 0:
-            Marketdf.set_index('Symbol',inplace=True)
+            #Marketdf.set_index('Symbol',inplace=True)
             costForOne = Marketdf.loc[str(args[0]), 'Market Price']
             costForAmount = round(costForOne * int(args[1]),2)
             taxCost = round(costForAmount * .01,2)
