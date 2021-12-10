@@ -114,6 +114,10 @@ async def on_message(event) -> None:
 async def on_error(event: lightbulb.CommandErrorEvent) -> None:
     if isinstance(event.exception, lightbulb.CommandInvocationError):
         await event.context.respond(f"Something went wrong during invocation of command `{event.context.command.name}`.")
+        channel = await event.app.rest.fetch_channel(687817008355737606)
+        me = await event.app.rest.fetch_user(363095569515806722)
+        await channel.send(embed = Embed(title="Invocation Error", description=event.exception).set_footer(text=f"Requested by {event.member.display_name}",icon=event.member.avatar_url))
+        await me.send(embed = Embed(title="Invocation Error", description=event.exception).set_footer(text=f"Requested by {event.member.display_name}",icon=event.member.avatar_url))
         raise event.exception
     exception = event.exception.__cause__ or event.exception # Unwrap the exception to get the original cause
     if isinstance(exception, lightbulb.NotOwner):
