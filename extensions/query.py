@@ -30,7 +30,7 @@ async def query(ctx) -> None: await ctx.respond("invoked coins query")
 @lightbulb.implements(commands.SlashSubCommand)
 async def command(ctx):
     funds = userInfo.getCoins(ctx.author.id)
-    await ctx.author.send(embed=Embed(description=ctx.author.mention+"has " + str(funds) + '<:HotTips2:465535606739697664>', color="60D1F6").set_footer(text=f"Requested by {ctx.member.display_name}",icon=ctx.member.avatar_url))
+    await ctx.respond(embed=Embed(description=ctx.author.mention+"has " + str(funds) + '<:HotTips2:465535606739697664>', color="60D1F6").set_footer(text=f"Requested by {ctx.member.display_name}",icon=ctx.member.avatar_url), flags=64)
 
 @query.child
 @lightbulb.add_checks(lightbulb.owner_only|lightbulb.Check(has_roles(338173415527677954,253752685357039617,225413350874546176,mode=any)))
@@ -39,13 +39,13 @@ async def command(ctx):
 @lightbulb.implements(commands.SlashSubCommand)
 async def command(ctx):
     funds = userInfo.getCoins(ctx.options.member.id)
-    await ctx.author.send(embed=Embed(description=ctx.options.member.mention+"has " + str(funds) + '<:HotTips2:465535606739697664>', color="60D1F6").set_footer(text=f"Requested by {ctx.member.display_name}",icon=ctx.member.avatar_url))
+    await ctx.respond(embed=Embed(description=ctx.options.member.mention+"has " + str(funds) + '<:HotTips2:465535606739697664>', color="60D1F6").set_footer(text=f"Requested by {ctx.member.display_name}",icon=ctx.member.avatar_url), flags=64)
 
 @coins.child
 @lightbulb.add_checks(lightbulb.owner_only|lightbulb.Check(has_roles(338173415527677954,253752685357039617,225413350874546176,mode=any)))
 @lightbulb.option("member", "member to query",type=hikari.Member,required=True)
 @lightbulb.option("amount", "amount to add/remove", type=int)
-@lightbulb.command("edit", "edits a member's coins", ephemeral=True)
+@lightbulb.command("edit", "edits a member's coins")
 @lightbulb.implements(commands.SlashSubCommand)
 async def command(ctx):
     if ctx.options.amount == 0:
@@ -87,7 +87,7 @@ async def command(ctx):
     UserInfo = userInfo.readUserInfo()
     rpo = UserInfo.loc[str(ctx.options.member.id),'RPO']
     wallet = wallets.loc[rpo, "Account Balance"]
-    await ctx.author.send(rpo+"'s balance is: "+str(wallet))
+    await ctx.respond(rpo+"'s balance is: "+str(wallet), flags=64)
 
 @mod.child
 @lightbulb.option("member", "member to query",type=hikari.Member,required=True)
@@ -102,7 +102,7 @@ async def command(ctx):
         embed = Embed(description='✅' + str(ctx.options.amount) +' 🪙 has been given to ' + str(rpo), color="60D1F6").set_footer(text=f"Requested by {ctx.member.display_name}",icon=ctx.member.avatar_url)
     else:
         embed = Embed(description='✅' + str(charged) +' 🪙 has been removed from ' + str(rpo), color="60D1F6").set_footer(text=f"Requested by {ctx.member.display_name}",icon=ctx.member.avatar_url)
-    await ctx.author.send(embed=embed)
+    await ctx.respond(embed=embed, flags=64)
 
 @wallet.child
 @lightbulb.add_checks(lightbulb.Check(checks.Punished, has_roles(906000578092621865)))
@@ -118,7 +118,7 @@ async def command(ctx):
     UserInfo = userInfo.readUserInfo()
     rpo = UserInfo.loc[str(ctx.author.id),'RPO']
     wallet = wallets.loc[rpo, "Account Balance"]
-    await ctx.author.send(rpo+"'s balance is: "+str(wallet))
+    await ctx.respond(rpo+"'s balance is: "+str(wallet), flags=64)
 
 @user.child
 @lightbulb.option("amount", "amount to send to wallet", type=int)
@@ -133,7 +133,7 @@ async def command(ctx):
     charged = output['changed']
     userInfo.editWallet(rpo,abs(charged))
     embed = Embed(description='✅' + str(charged) +'<:HotTips2:465535606739697664> has been removed from ' + str(ctx.author.mention) + ', and added to your RPO funds.', color="60D1F6").set_footer(text=f"Requested by {ctx.member.display_name}",icon=ctx.member.avatar_url)
-    await ctx.author.send(embed=embed)
+    await ctx.respond(embed=embed, flags=64)
 
 @QueryPlugin.command
 @lightbulb.command("rpo", "rpo group")
@@ -193,7 +193,7 @@ async def command(ctx):
         message = await ctx.author.send("See attached")
         await message.edit(attachment='multipage.pdf')
     else:
-        await ctx.author.send("No investments recorded for your RPO.")
+        await ctx.respond("No investments recorded for your RPO.", flags=64)
 
 @rpo_.child
 @lightbulb.add_checks(lightbulb.Check(has_roles(914969502037467176))|lightbulb.owner_only)
@@ -250,7 +250,7 @@ async def command(ctx):
         message = await ctx.author.send("See attached")
         await message.edit(attachment='multipage.pdf')
     else:
-        await ctx.author.send("No investments recorded for your RPO.")
+        await ctx.respond("No investments recorded for your RPO.", flags=64)
 
 @QueryPlugin.command
 @lightbulb.add_checks(lightbulb.Check(checks.Punished))
@@ -259,8 +259,7 @@ async def command(ctx):
 async def command(ctx):
     data = sfsutils.parse_savefile('persistent.sfs')
     Ksptime = ksptime(data)
-    await ctx.send("Current Time: Year: {0}, Day: {1}, Hour: {2}, Minute: {3}, Second {4}".format((Ksptime[0]//462)+1,Ksptime[0]%462,Ksptime[1],Ksptime[2],Ksptime[3]))
-
+    await ctx.respond("Current Time: Year: {0}, Day: {1}, Hour: {2}, Minute: {3}, Second {4}".format((Ksptime[0]//462)+1,Ksptime[0]%462,Ksptime[1],Ksptime[2],Ksptime[3]), flags=64)
 
 
 def load(bot):bot.add_plugin(QueryPlugin)
