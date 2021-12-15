@@ -259,7 +259,7 @@ async def command(ctx):
 async def command(ctx):
     data = sfsutils.parse_savefile('persistent.sfs')
     Ksptime = ksptime(data)
-    await ctx.send("Current Time: Year: {0}, Day: {1}, Hour: {2}, Minute: {3}, Second {4}".format((Ksptime[0]//462)+1,Ksptime[0]%462,Ksptime[1],Ksptime[2],Ksptime[3]))
+    await ctx.respond("Current Time: Year: {0}, Day: {1}, Hour: {2}, Minute: {3}, Second {4}".format((Ksptime[0]//462)+1,Ksptime[0]%462,Ksptime[1],Ksptime[2],Ksptime[3]))
 
 
 
