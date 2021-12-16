@@ -74,7 +74,7 @@ async def ping(ctx):
     await ctx.respond(f"Pong! Latency: {bot.heartbeat_latency*1000:.2f}ms")
 
 bot.load_extensions_from("extensions")
-bot.reload_extensions("extensions.help")
+bot.load_extensions("extensions.__help")
 
 
 # Run the bot
