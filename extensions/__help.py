@@ -36,7 +36,7 @@ class CustomHelp(lightbulb.BaseHelpCommand):
     async def send_group_help(self, context, group):
         # Override this method to change the message sent when the help command
         # argument is the name or alias of a command group.
-        embed = Embed(title=f"Commands in group {group.name}")
+        embed = Embed(title=f"Commands in group {group.name}",description=group.subcommands)
         for command in group.subcommands:
             command=group[command]
             embed.add_field("test",command)
