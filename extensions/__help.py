@@ -40,7 +40,7 @@ class CustomHelp(lightbulb.BaseHelpCommand):
         for command in group.subcommands:
             command=group.subcommands[command]
             embed.add_field("test",command)
-            if command.subcommands is None:
+            if command.subcommands is []:
                 embed.add_field(command.name,command.options,inline=True)
             else:
                 for subcommand in command.subcommands:
