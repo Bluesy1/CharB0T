@@ -472,7 +472,8 @@ class checks:
         for role in roles:
             if role in [684936661745795088,676250179929636886]:
                 return False
-        return True
+        if context.author.id == 920994579342311465: return False
+        return True 
     
     def check_invest_channel(context):return context.channel_id in [900523609603313704, 687817008355737606]
 

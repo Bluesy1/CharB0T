@@ -35,8 +35,7 @@ async def command(ctx):
         subList = ["xkcd:"+i,"xkcd:"+i]
         colorList.append(subList)
     render_mpl_table_colors(df,Colors=colorList, header_columns=0, col_width=5.0, alpha=0.5)
-    message = await ctx.author.send("see attached:")
-    await message.edit(attachment='table.png')
+    await ctx.respond(Embed(title="Key").set_image('table.png'),flags=64)
     os.remove('table.png')
 
 @parts.child

@@ -30,7 +30,7 @@ async def query(ctx) -> None: await ctx.respond("invoked coins query")
 @lightbulb.implements(commands.SlashSubCommand)
 async def command(ctx):
     funds = userInfo.getCoins(ctx.author.id)
-    await ctx.author.send(embed=Embed(description=ctx.author.mention+"has " + str(funds) + '<:HotTips2:465535606739697664>', color="60D1F6").set_footer(text=f"Requested by {ctx.member.display_name}",icon=ctx.member.avatar_url))
+    await ctx.respond(embed=Embed(description=ctx.author.mention+"has " + str(funds) + '<:HotTips2:465535606739697664>', color="60D1F6").set_footer(text=f"Requested by {ctx.member.display_name}",icon=ctx.member.avatar_url),flags=64)
 
 @query.child
 @lightbulb.add_checks(lightbulb.owner_only|lightbulb.Check(has_roles(338173415527677954,253752685357039617,225413350874546176,mode=any)))
@@ -39,7 +39,7 @@ async def command(ctx):
 @lightbulb.implements(commands.SlashSubCommand)
 async def command(ctx):
     funds = userInfo.getCoins(ctx.options.member.id)
-    await ctx.author.send(embed=Embed(description=ctx.options.member.mention+"has " + str(funds) + '<:HotTips2:465535606739697664>', color="60D1F6").set_footer(text=f"Requested by {ctx.member.display_name}",icon=ctx.member.avatar_url))
+    await ctx.respond(embed=Embed(description=ctx.options.member.mention+"has " + str(funds) + '<:HotTips2:465535606739697664>', color="60D1F6").set_footer(text=f"Requested by {ctx.member.display_name}",icon=ctx.member.avatar_url),flags=64)
 
 @coins.child
 @lightbulb.add_checks(lightbulb.owner_only|lightbulb.Check(has_roles(338173415527677954,253752685357039617,225413350874546176,mode=any)))
@@ -87,7 +87,7 @@ async def command(ctx):
     UserInfo = userInfo.readUserInfo()
     rpo = UserInfo.loc[str(ctx.options.member.id),'RPO']
     wallet = wallets.loc[rpo, "Account Balance"]
-    await ctx.author.send(rpo+"'s balance is: "+str(wallet))
+    await ctx.respond(rpo+"'s balance is: "+str(wallet),flags=64)
 
 @mod.child
 @lightbulb.option("member", "member to query",type=hikari.Member,required=True)
@@ -118,7 +118,7 @@ async def command(ctx):
     UserInfo = userInfo.readUserInfo()
     rpo = UserInfo.loc[str(ctx.author.id),'RPO']
     wallet = wallets.loc[rpo, "Account Balance"]
-    await ctx.author.send(rpo+"'s balance is: "+str(wallet))
+    await ctx.respond(rpo+"'s balance is: "+str(wallet),flags=64)
 
 @user.child
 @lightbulb.option("amount", "amount to send to wallet", type=int)
@@ -133,7 +133,7 @@ async def command(ctx):
     charged = output['changed']
     userInfo.editWallet(rpo,abs(charged))
     embed = Embed(description='✅' + str(charged) +'<:HotTips2:465535606739697664> has been removed from ' + str(ctx.author.mention) + ', and added to your RPO funds.', color="60D1F6").set_footer(text=f"Requested by {ctx.member.display_name}",icon=ctx.member.avatar_url)
-    await ctx.author.send(embed=embed)
+    await ctx.respond(embed=embed,flags=64)
 
 @QueryPlugin.command
 @lightbulb.command("rpo", "rpo group")
@@ -180,8 +180,8 @@ async def command(ctx):
     dfOut['Knowledge Level'] = Fieldsname
     #imageTable = render_mpl_table(dfOut, header_columns=0, col_width=2.0)
     render_mpl_table(dfOut, header_columns=0, col_width=5.0)
-    message = await ctx.author.send("see attached")
-    await message.edit(attachment='table.png')
+    await ctx.respond(Embed(title="Knowledge").set_image('table.png'),flags=64)
+    os.remove('table.png')
 
 @user.child
 @lightbulb.command("portfolio", "querys your RPO's portfolio, if it exists", ephemeral=True, inherit_checks=True)
@@ -236,8 +236,8 @@ async def command(ctx):
     dfOut['Knowledge Level'] = Fieldsname
     #imageTable = render_mpl_table(dfOut, header_columns=0, col_width=2.0)
     render_mpl_table(dfOut, header_columns=0, col_width=5.0)
-    message = await ctx.author.send("see attached")
-    await message.edit(attachment='table.png')
+    await ctx.respond(Embed(title=f"{RPO}'s Knowledge").set_image('table.png'),flags=64)
+    os.remove('table.png')
 
 @cp.child
 @lightbulb.option("member", "member to query",type=hikari.Member,required=True)
