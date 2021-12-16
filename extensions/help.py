@@ -7,6 +7,7 @@ class CustomHelp(lightbulb.BaseHelpCommand):
         # Override this method to change the message sent when the help command
         # is run without any arguments.
         print(self.app.slash_commands)
+        context.respond("Test")
 
 
     async def send_plugin_help(self, context, plugin):

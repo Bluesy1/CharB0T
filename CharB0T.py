@@ -24,7 +24,7 @@ bot = lightbulb.BotApp(token=token, prefix="!", help_slash_command=True, default
             "hikari.ratelimits": {"level": "TRACE_HIKARI"},
             "lightbulb": {"level": "INFO"},
         },},case_insensitive_prefix_commands=True)
-bot.load_extensions_from("extensions")
+
 #bot.load_extensions("extensions.events")
 
 def check_author_is_me(context):
@@ -73,11 +73,9 @@ async def ping(ctx):
     await ctx.event.message.delete()
     await ctx.respond(f"Pong! Latency: {bot.heartbeat_latency*1000:.2f}ms")
 
+bot.load_extensions_from("extensions")
+bot.reload_extensions("extensions.help")
 
-
-async def test(ctx):
-    None
-    bot.slash_commands
 
 # Run the bot
 # Note that this is blocking meaning no code after this line will run
