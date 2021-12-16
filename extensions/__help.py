@@ -15,9 +15,9 @@ class CustomHelp(lightbulb.BaseHelpCommand):
         # argument is the name of a plugin.
         embed = Embed(title=f"Commands in plugin {plugin.name}")
         for command in plugin.all_commands:
-            if command is lightbulb.commands.slash.SlashCommand:
+            if command is lightbulb.commands.slash.SlashCommand or command is lightbulb.commands.slash.SlashSubCommand:
                 embed.add_field(command.name,command.options,inline=True)
-            elif command is lightbulb.commands.slash.SlashSubCommand:
+            elif command is lightbulb.commands.slash.SlashCommandGroup:
                 for subcommand in command.subcommands:
                     if subcommand is lightbulb.commands.slash.SlashSubCommand:
                         embed.add_field(subcommand.name,subcommand.options,inline=True)
