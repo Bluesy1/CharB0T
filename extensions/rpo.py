@@ -10,7 +10,7 @@ from lightbulb.checks import has_roles
 RPO_Plugin = lightbulb.Plugin("RPO_Plugin")
 
 @RPO_Plugin.command()
-@lightbulb.option("RPO", "RPO to join", required=True)
+@lightbulb.option("rpo", "RPO to join", required=True)
 @lightbulb.add_checks(lightbulb.Check(has_roles(837812373451702303,837812586997219372,837812662116417566,837812728801525781,837812793914425455,400445639210827786,685331877057658888,337743478190637077,837813262417788988,338173415527677954,253752685357039617,mode=any)),lightbulb.Check(a.checks.check_econ_channel),lightbulb.Check(a.checks.Punished))
 @lightbulb.add_cooldown(300,3,lightbulb.UserBucket)
 @lightbulb.command("joinrpo", "Joins an RPO")
