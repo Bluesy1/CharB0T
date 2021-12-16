@@ -15,11 +15,11 @@ class CustomHelp(lightbulb.BaseHelpCommand):
         # argument is the name of a plugin.
         embed = Embed(title=f"Commands in plugin {plugin.name}")
         for command in plugin.all_commands:
-            if command is lightbulb.commands.slash.SlashCommand or command is lightbulb.commands.slash.SlashSubCommand:
+            if command is lightbulb.commands.SlashCommand or command is lightbulb.commands.SlashSubCommand:
                 embed.add_field(command.name,command.options,inline=True)
-            elif command is lightbulb.commands.slash.SlashCommandGroup:
+            elif command is lightbulb.commands.SlashCommandGroup:
                 for subcommand in command.subcommands:
-                    if subcommand is lightbulb.commands.slash.SlashSubCommand:
+                    if subcommand is lightbulb.commands.SlashSubCommand:
                         embed.add_field(subcommand.name,subcommand.options,inline=True)
                     else:
                         for subsubcommand in subcommand.subcommands:
@@ -38,9 +38,9 @@ class CustomHelp(lightbulb.BaseHelpCommand):
         # argument is the name or alias of a command group.
         embed = Embed(title=f"Commands in group {group.name}")
         for command in group.subcommands:
-            if command is lightbulb.commands.slash.SlashSubCommand:
+            if command is lightbulb.commands.SlashCommand or command is lightbulb.commands.SlashSubCommand:
                 embed.add_field(command.name,command.options,inline=True)
-            else:
+            elif command is lightbulb.commands.SlashSubGroup:
                 for subcommand in command.subcommands:
                     embed.add_field(subcommand.name,subcommand.options,inline=True)
         await context.respond(embed=embed)
