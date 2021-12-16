@@ -1,6 +1,7 @@
 import json
 import logging
 import os
+from hikari.presences import Activity
 
 import lightbulb
 from lightbulb import commands
@@ -76,4 +77,4 @@ async def ping(ctx):
 # Run the bot
 # Note that this is blocking meaning no code after this line will run
 # until the bot is shut off
-bot.run()
+bot.run()#activity=Activity())

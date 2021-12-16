@@ -113,11 +113,13 @@ async def on_message(event) -> None:
 @EventsPlugin.listener(lightbulb.CommandErrorEvent)
 async def on_error(event: lightbulb.CommandErrorEvent) -> None:
     if isinstance(event.exception, lightbulb.CommandInvocationError):
-        await event.context.respond(f"Something went wrong during invocation of command `{event.context.command.name}`.")
+        await event.context.respond(f"Something went wrong during invocation of command `{event.context.command.name}`. Dev has been notified, but check for case sensitive components. Do not spam.")
         channel = await event.app.rest.fetch_channel(687817008355737606)
         me = await event.app.rest.fetch_user(363095569515806722)
-        await channel.send(embed = Embed(title=f"Invocation Error in <@!{event.context.channel_id}>", description=event.exception))
-        await me.send(embed = Embed(title=f"Invocation Error in <@!{event.context.channel_id}>", description=event.exception))
+        await channel.send(embed = Embed(title=f"Invocation Error in <#{event.context.channel_id}>", description=event.exception).set_footer(text=f"Requested by {event.member.display_name}",icon=event.member.avatar_url))
+        embed = Embed(title=f"Invocation Error in <#{event.context.channel_id}>", description=event.exception).set_footer(text=f"Requested by {event.member.display_name}",icon=event.member.avatar_url)
+        try: embed= embed.add_field("Traceback:", value=event.exception.__cause__)
+        finally:await me.send(embed = embed)
         raise event.exception
     exception = event.exception.__cause__ or event.exception # Unwrap the exception to get the original cause
     if isinstance(exception, lightbulb.NotOwner):
