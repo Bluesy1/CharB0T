@@ -40,12 +40,12 @@ class CustomHelp(lightbulb.BaseHelpCommand):
         for command in group.subcommands:
             command=group.subcommands[command]
             embed.add_field("test",command)
-            if command.subcommands is []:
-                embed.add_field(command.name,command.options,inline=True)
-            else:
+            try:
                 for subcommand in command.subcommands:
                     subcommand=command.subcommands[command]
                     embed.add_field(subcommand.name,subcommand.options,inline=True)
+            except:
+                embed.add_field(command.name,command.options,inline=True)
         await context.respond(embed=embed)
 
     """async def object_not_found(self, context, obj):
