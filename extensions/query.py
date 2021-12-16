@@ -45,7 +45,7 @@ async def command(ctx):
 @lightbulb.add_checks(lightbulb.owner_only|lightbulb.Check(has_roles(338173415527677954,253752685357039617,225413350874546176,mode=any)))
 @lightbulb.option("member", "member to query",type=hikari.Member,required=True)
 @lightbulb.option("amount", "amount to add/remove", type=int)
-@lightbulb.command("edit", "edits a member's coins", ephemeral=True)
+@lightbulb.command("edit", "edits a member's coins")
 @lightbulb.implements(commands.SlashSubCommand)
 async def command(ctx):
     if ctx.options.amount == 0:
@@ -102,7 +102,7 @@ async def command(ctx):
         embed = Embed(description='✅' + str(ctx.options.amount) +' 🪙 has been given to ' + str(rpo), color="60D1F6").set_footer(text=f"Requested by {ctx.member.display_name}",icon=ctx.member.avatar_url)
     else:
         embed = Embed(description='✅' + str(charged) +' 🪙 has been removed from ' + str(rpo), color="60D1F6").set_footer(text=f"Requested by {ctx.member.display_name}",icon=ctx.member.avatar_url)
-    await ctx.author.send(embed=embed)
+    await ctx.respond(embed=embed, flags=64)
 
 @wallet.child
 @lightbulb.add_checks(lightbulb.Check(checks.Punished, has_roles(906000578092621865)))
@@ -193,7 +193,7 @@ async def command(ctx):
         message = await ctx.author.send("See attached")
         await message.edit(attachment='multipage.pdf')
     else:
-        await ctx.author.send("No investments recorded for your RPO.")
+        await ctx.respond("No investments recorded for your RPO.", flags=64)
 
 @rpo_.child
 @lightbulb.add_checks(lightbulb.Check(has_roles(914969502037467176))|lightbulb.owner_only)
@@ -250,7 +250,7 @@ async def command(ctx):
         message = await ctx.author.send("See attached")
         await message.edit(attachment='multipage.pdf')
     else:
-        await ctx.author.send("No investments recorded for your RPO.")
+        await ctx.respond("No investments recorded for your RPO.", flags=64)
 
 @QueryPlugin.command
 @lightbulb.add_checks(lightbulb.Check(checks.Punished))
