@@ -8,7 +8,6 @@ from lightbulb import commands
 
 import auxone as a
 from auxone import userInfo as user
-
 if os.name != "nt":
     import uvloop
     uvloop.install()
@@ -16,7 +15,7 @@ if os.name != "nt":
 with open('bottoken.json') as t:
     token = json.load(t)['Token']
 # Instantiate a Bot instance
-bot = lightbulb.BotApp(token=token, prefix="!", help_class=None, default_enabled_guilds=225345178955808768, 
+bot = lightbulb.BotApp(token=token, prefix="!", help_slash_command=True, default_enabled_guilds=225345178955808768, 
     owner_ids=[225344348903047168, 363095569515806722],logs={
         "version": 1,
         "incremental": True,
@@ -73,6 +72,12 @@ async def ping(ctx):
     """Checks that the bot is alive"""
     await ctx.event.message.delete()
     await ctx.respond(f"Pong! Latency: {bot.heartbeat_latency*1000:.2f}ms")
+
+
+
+async def test(ctx):
+    None
+    bot.slash_commands
 
 # Run the bot
 # Note that this is blocking meaning no code after this line will run
