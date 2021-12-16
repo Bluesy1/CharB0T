@@ -14,10 +14,10 @@ class CustomHelp(lightbulb.BaseHelpCommand):
         # argument is the name of a plugin.
         await context.respond(f"{plugin.all_commands}")
 
-    """async def send_command_help(self, context, command):
+    async def send_command_help(self, context, command):
         # Override this method to change the message sent when the help command
         # argument is the name or alias of a command.
-        ..."""
+        await context.respond(f"{command.options}")
 
     async def send_group_help(self, context, group):
         # Override this method to change the message sent when the help command
