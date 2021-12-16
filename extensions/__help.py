@@ -38,6 +38,7 @@ class CustomHelp(lightbulb.BaseHelpCommand):
         # argument is the name or alias of a command group.
         embed = Embed(title=f"Commands in group {group.name}")
         for command in group.subcommands:
+            command=group[command]
             embed.add_field("test",command)
             if command is lightbulb.commands.SlashCommand or command is lightbulb.commands.SlashSubCommand:
                 embed.add_field(command.name,command.options,inline=True)
