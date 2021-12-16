@@ -40,10 +40,11 @@ class CustomHelp(lightbulb.BaseHelpCommand):
         for command in group.subcommands:
             command=group.subcommands[command]
             embed.add_field("test",command)
-            if type(command) is lightbulb.commands.slash.SlashCommand or type(command) is lightbulb.commands.slash.SlashSubCommand:
+            if command.subcommands is None:
                 embed.add_field(command.name,command.options,inline=True)
-            elif type(command) is lightbulb.commands.slash.SlashSubGroup:
+            else:
                 for subcommand in command.subcommands:
+                    subcommand=command.subcommands[command]
                     embed.add_field(subcommand.name,subcommand.options,inline=True)
         await context.respond(embed=embed)
 
