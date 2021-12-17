@@ -10,7 +10,7 @@ from lightbulb.errors import LightbulbError
 import pandas as pd
 import sfsutils
 from auxone import URL, checks, ksptime, render_mpl_table, userInfo
-from hikari.channels import PermissionOverwriteType
+from hikari.channels import ChannelType, PermissionOverwriteType
 from hikari.commands import CommandChoice, OptionType
 from hikari.embeds import Embed
 from hikari.events.interaction_events import InteractionCreateEvent
@@ -162,7 +162,7 @@ async def command(ctx):
 @AdminPlugin.command
 @lightbulb.add_checks(lightbulb.Check(checks.check_publisher))
 @lightbulb.option("logo", "use logo?", type=OptionType.BOOLEAN, required=True)
-@lightbulb.option('channel', 'channel to post embed to', type=OptionType.CHANNEL, required=True)
+@lightbulb.option('channel', 'channel to post embed to', type=OptionType.CHANNEL, required=True, channel_types=[ChannelType.GUILD_TEXT, ChannelType.GUILD_NEWS])
 @lightbulb.option("time","This is the publishing time info (Must include Published at: if you want that to show up.)", required=True)
 @lightbulb.option("color","Embed color", choices=[
     CommandChoice(name="Breaking News",value="#FEE75C"),

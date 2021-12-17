@@ -1,4 +1,5 @@
 from __future__ import print_function
+from hikari.undefined import UNDEFINED
 import lightbulb
 from lightbulb.commands import user
 import pandas as pd
@@ -395,11 +396,19 @@ def list_to_string(arg: list):
 
 def option_help(option: lightbulb.commands.base.OptionLike) -> str:
     vartype = strip_class(option.arg_type)
-    options = list_to_string(option.choices)
-    default = option.default
-    if option.required: required = " "
-    else: required = " not "
-    return f" Arg type: {vartype}, Choices: {options}, Default: {default}, is{required}required"
+    output = f" Arg type: {vartype}"
+    if option.choices is not None:
+        output += ", Choices: "
+        output += list_to_string(option.choices)
+    if option.default is not UNDEFINED:
+        output += ", Default: "
+        output += option.default
+    if option.required: output+=", Is required"
+    if option.channel_types is not None:
+        output += ", Channel Types: "
+        output += list_to_string(option.channel_types)
+    return output
+    
 
 
 class userInfo:
