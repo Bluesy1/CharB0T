@@ -475,5 +475,6 @@ async def command(ctx):
                         await ctx.edit_last_response("Use the select menu to adjust the time", embed=embed, components=[AddButtons,SubButtons])
     except asyncio.TimeoutError:
         await ctx.edit_last_response("Waited for 15 seconds... Timeout.", embed=None, components=[])
+
 def load(bot):bot.add_plugin(AdminPlugin)
 def unload(bot):bot.remove_plugin(AdminPlugin)
