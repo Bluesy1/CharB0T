@@ -444,35 +444,35 @@ async def command(ctx):
                     elif key == "+w":
                         ts +=604800
                         embed = Embed(title="Time builder", description=f"timestamp: {ts}: <t:{ts}:F>")
-                        await ctx.edit_last_response("Use the select menu to adjust the time", embed=embed, components=[TimeMenu,])
+                        await ctx.edit_last_response("Use the select menu to adjust the time", embed=embed, components=[AddButtons,SubButtons])
                     elif key == "+d":
                         ts +=86400 
                         embed = Embed(title="Time builder", description=f"timestamp: {ts}: <t:{ts}:F>")
-                        await ctx.edit_last_response("Use the select menu to adjust the time", embed=embed, components=[TimeMenu,])
+                        await ctx.edit_last_response("Use the select menu to adjust the time", embed=embed, components=[AddButtons,SubButtons])
                     elif key == "+h":
                         ts +=3600
                         embed = Embed(title="Time builder", description=f"timestamp: {ts}: <t:{ts}:F>")
-                        await ctx.edit_last_response("Use the select menu to adjust the time", embed=embed, components=[TimeMenu,])
+                        await ctx.edit_last_response("Use the select menu to adjust the time", embed=embed, components=[AddButtons,SubButtons])
                     elif key == "+m":
                         ts +=1800
                         embed = Embed(title="Time builder", description=f"timestamp: {ts}: <t:{ts}:F>")
-                        await ctx.edit_last_response("Use the select menu to adjust the time", embed=embed, components=[TimeMenu,])
+                        await ctx.edit_last_response("Use the select menu to adjust the time", embed=embed, components=[AddButtons,SubButtons])
                     elif key == "-w":
                         ts -=604800
                         embed = Embed(title="Time builder", description=f"timestamp: {ts}: <t:{ts}:F>")
-                        await ctx.edit_last_response("Use the select menu to adjust the time", embed=embed, components=[TimeMenu,])
+                        await ctx.edit_last_response("Use the select menu to adjust the time", embed=embed, components=[AddButtons,SubButtons])
                     elif key == "-d":
                         ts -=86400 
                         embed = Embed(title="Time builder", description=f"timestamp: {ts}: <t:{ts}:F>")
-                        await ctx.edit_last_response("Use the select menu to adjust the time", embed=embed, components=[TimeMenu,])
+                        await ctx.edit_last_response("Use the select menu to adjust the time", embed=embed, components=[AddButtons,SubButtons])
                     elif key == "-h":
                         ts -=3600
                         embed = Embed(title="Time builder", description=f"timestamp: {ts}: <t:{ts}:F>")
-                        await ctx.edit_last_response("Use the select menu to adjust the time", embed=embed, components=[TimeMenu,])
+                        await ctx.edit_last_response("Use the select menu to adjust the time", embed=embed, components=[AddButtons,SubButtons])
                     elif key == "-m":
                         ts -=1800
                         embed = Embed(title="Time builder", description=f"timestamp: {ts}: <t:{ts}:F>")
-                        await ctx.edit_last_response("Use the select menu to adjust the time", embed=embed, components=[TimeMenu,])
+                        await ctx.edit_last_response("Use the select menu to adjust the time", embed=embed, components=[AddButtons,SubButtons])
     except asyncio.TimeoutError:
         await ctx.edit_last_response("Waited for 15 seconds... Timeout.", embed=None, components=[])
 def load(bot):bot.add_plugin(AdminPlugin)
