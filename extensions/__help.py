@@ -1,6 +1,6 @@
 from hikari.embeds import Embed
 import lightbulb
-
+import auxone
 
 
 class CustomHelp(lightbulb.BaseHelpCommand):
@@ -43,15 +43,15 @@ class CustomHelp(lightbulb.BaseHelpCommand):
             try:
                 for subcommand in command.subcommands:
                     subcommand=command.subcommands[command]
-                    embed.add_field(subcommand.name,'options')
+                    embed.add_field(subcommand.name,subcommand.description)
                     for option in subcommand.options:
                         option = subcommand.options[option]
                         embed.add_field(option.name,option.arg_type)
             except:
-                embed.add_field(command.name,'options',inline=True)
+                embed.add_field(command.name,command.description,)
                 for option in command.options:
                     option = command.options[option]
-                    embed.add_field(option.name,option.arg_type)
+                    embed.add_field(f"Option {option.name}",auxone.option_help(option))
         await context.respond(embed=embed)
 
     """async def object_not_found(self, context, obj):

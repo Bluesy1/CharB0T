@@ -1,4 +1,6 @@
 from __future__ import print_function
+from typing_extensions import Required
+import lightbulb
 from lightbulb.commands import user
 import pandas as pd
 import numpy as np
@@ -380,6 +382,26 @@ def rpoPortfolio(RPO):
     pdf.savefig()
     pdf.close()
     return True
+
+def strip_class(arg:str):
+    if arg =="<class 'str'>":return "str"
+    if arg =="<class 'int'>":return "int"
+    if arg =="<class 'float'>":return "float"
+    if arg =="<class 'bool'>":return "boolean"
+    return arg
+
+def list_to_string(arg: list):
+    tempstr = ", "
+    return tempstr.join(arg)
+
+def option_help(option: lightbulb.commands.base.OptionLike) -> str:
+    vartype = strip_class(option.arg_type)
+    options = list_to_string(option.choices)
+    default = option.default
+    if option.required: required = " "
+    else: required = " not "
+    return f" Arg type: {vartype}, Choices: {options}, Default: {default}, is{required}required"
+
 
 class userInfo:
     def readUserInfo():
