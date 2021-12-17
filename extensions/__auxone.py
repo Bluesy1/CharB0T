@@ -1,4 +1,6 @@
 from __future__ import print_function
+from typing_extensions import Required
+import lightbulb
 from lightbulb.commands import user
 import pandas as pd
 import numpy as np
@@ -381,6 +383,26 @@ def rpoPortfolio(RPO):
     pdf.close()
     return True
 
+def strip_class(arg:str):
+    if arg =="<class 'str'>":return "str"
+    if arg =="<class 'int'>":return "int"
+    if arg =="<class 'float'>":return "float"
+    if arg =="<class 'bool'>":return "boolean"
+    return arg
+
+def list_to_string(arg: list):
+    tempstr = ", "
+    return tempstr.join(arg)
+
+def option_help(option: lightbulb.commands.base.OptionLike) -> str:
+    vartype = strip_class(option.arg_type)
+    options = list_to_string(option.choices)
+    default = option.default
+    if option.required: required = " "
+    else: required = " not "
+    return f" Arg type: {vartype}, Choices: {options}, Default: {default}, is{required}required"
+
+
 class userInfo:
     def readUserInfo():
         df = pd.DataFrame(json.loads(fernet.decrypt(open('UserInfo.json',"rb").read())))
@@ -472,6 +494,9 @@ class checks:
         for role in roles:
             if role in [684936661745795088,676250179929636886]:
                 return False
-        return True
+        #if context.author.id == 920994579342311465: return False
+        return True 
     
     def check_invest_channel(context):return context.channel_id in [900523609603313704, 687817008355737606]
+
+    def check_publisher(context): return context.author.id in [363095569515806722, 225344348903047168, 146285543146127361]
