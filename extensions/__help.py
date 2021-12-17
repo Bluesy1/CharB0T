@@ -14,6 +14,12 @@ def list_to_string(arg: list):
     tempstr = ", "
     return tempstr.join(arg)
 
+def option_string(arg: list):
+    if arg is not None:
+        arg = [str(x) for x in arg]
+        tempstr = "] ["
+        return f"[{tempstr.join(arg)}]"
+    else: return " "
 def option_help(option: lightbulb.commands.base.OptionLike) -> str:
     vartype = strip_class(option.arg_type)
     output = f" Arg type: {vartype}"
@@ -74,11 +80,11 @@ class CustomHelp(lightbulb.BaseHelpCommand):
                         #embed.add_field(f"Option {option.name}",option_help(option)).add_field(f"{option.name} description", option.description)
                         embed.add_field(f"Option {option.name}",option.description)
             except:
-                embed.add_field(f"/{group.name} {command.name}",command.get_help(context) or command.description)
+                embed.add_field(f"/{group.name} {command.name} {option_string(command.options)}",command.get_help(context) or command.description)
                 for option in command.options:
                     option = command.options[option]
                     #embed.add_field(f"Option {option.name}",option_help(option)).add_field(f"{option.name} description", option.description)
-                    embed.add_field(f"Option {option.name}",option.description)
+                    embed.add_field(f"{option.name}",option.description)
             finally:embed.add_field("-----","-------")
         embed.remove_field(-1)
         await context.respond(embed=embed)
