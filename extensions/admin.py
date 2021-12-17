@@ -410,7 +410,7 @@ async def command(ctx):
     os.environ['TZ'] = 'US/Eastern'
     time.tzset() 
     ts = round(time.time(),)
-    ts = ts//3600
+    ts -=ts%1800
     embed = Embed(title="Time builder", description=f"timestamp: {ts}: <t:{ts}:F>")
     await ctx.respond("Use the select menu to adjust the time", embed=embed, components=[TimeMenu,])
     try:
