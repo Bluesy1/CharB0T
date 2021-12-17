@@ -79,13 +79,15 @@ class CustomHelp(lightbulb.BaseHelpCommand):
                         option = subcommand.options[option]
                         #embed.add_field(f"Option {option.name}",option_help(option)).add_field(f"{option.name} description", option.description)
                         embed.add_field(f"{option.name}",option.description)
+                    embed.add_field("-------","-------")
+                embed.remove_field(-1)
             except:
                 embed.add_field(f"/{group.name} {command.name} {option_string(command.options)}",command.get_help(context) or command.description)
                 for option in command.options:
                     option = command.options[option]
                     #embed.add_field(f"Option {option.name}",option_help(option)).add_field(f"{option.name} description", option.description)
                     embed.add_field(f"{option.name}",option.description)
-            finally:embed.add_field("-----","-------")
+            finally:embed.add_field("-------","-------")
         embed.remove_field(-1)
         await context.respond(embed=embed)
 
