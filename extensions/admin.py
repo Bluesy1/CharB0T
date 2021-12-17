@@ -412,6 +412,7 @@ async def command(ctx):
     AddButtons.add_button(ButtonStyle.SUCCESS, "+d").set_label("+1 day").set_emoji("▶️").add_to_container()
     AddButtons.add_button(ButtonStyle.SUCCESS, "+h").set_label("+1 hour").set_emoji("▶️").add_to_container()
     AddButtons.add_button(ButtonStyle.SUCCESS, "+m").set_label("+30 minutes").set_emoji("▶️").add_to_container()
+    AddButtons.add_button(ButtonStyle.PRIMARY, "Done").set_label("Done").set_emoji("✅").add_to_container()
     SubButtons=AdminPlugin.bot.rest.build_action_row()
     SubButtons.add_button(ButtonStyle.DANGER, "-w").set_label("-1 week").set_emoji("◀️").add_to_container()
     SubButtons.add_button(ButtonStyle.DANGER, "-d").set_label("-1 day").set_emoji("◀️").add_to_container()
