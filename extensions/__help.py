@@ -65,19 +65,18 @@ class CustomHelp(lightbulb.BaseHelpCommand):
         embed = Embed(title=f"Commands in group {group.name}",description=group.subcommands)
         for command in group.subcommands:
             command=group.subcommands[command]
-            embed.add_field("test",command)
             try:
                 for subcommand in command.subcommands:
                     subcommand=command.subcommands[command]
-                    embed.add_field(subcommand.name,subcommand.description)
+                    embed.add_field(subcommand.name,subcommand.get_help(context))
                     for option in subcommand.options:
                         option = subcommand.options[option]
-                        embed.add_field(f"Option {option.name}",option_help(option))
+                        embed.add_field(f"Option {option.name}",option_help(option)).add_field(f"{option.name} description", option.description)
             except:
-                embed.add_field(command.name,command.description,)
+                embed.add_field(command.name,command.get_help(context))
                 for option in command.options:
                     option = command.options[option]
-                    embed.add_field(f"Option {option.name}",option_help(option))
+                    embed.add_field(f"Option {option.name}",option_help(option)).add_field(f"{option.name} description", option.description)
         await context.respond(embed=embed)
 
     """async def object_not_found(self, context, obj):
