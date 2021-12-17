@@ -440,7 +440,7 @@ async def command(ctx):
                             .add_field(f"Long Date/Time: `<t:{ts}:F>`",f"<t:{ts}:F>")
                             .add_field(f"Relative Time: `<t:{ts}:R>`",f"<t:{ts}:R>")
                         )
-                        await ctx.edit_last_response(embed=embed, components=[])
+                        await ctx.edit_last_response(f"<t:{ts}",embed=embed, components=[])
                         return
                     elif key == "+w":
                         ts +=604800
