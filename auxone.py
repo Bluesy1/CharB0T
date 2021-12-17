@@ -382,36 +382,7 @@ def rpoPortfolio(RPO):
     pdf.savefig()
     pdf.close()
     return True
-
-def strip_class(arg:str):
-    if arg =="<class 'str'>":return "str"
-    if arg =="<class 'int'>":return "int"
-    if arg =="<class 'float'>":return "float"
-    if arg =="<class 'bool'>":return "boolean"
-    return arg
-
-def list_to_string(arg: list):
-    arg = [str(x) for x in arg]
-    tempstr = ", "
-    return tempstr.join(arg)
-
-def option_help(option: lightbulb.commands.base.OptionLike) -> str:
-    vartype = strip_class(option.arg_type)
-    output = f" Arg type: {vartype}"
-    if option.choices is not None:
-        output += ", Choices: "
-        output += list_to_string(option.choices)
-    if option.default is not UNDEFINED:
-        output += ", Default: "
-        output += option.default
-    if option.required: output+=", Is required"
-    if option.channel_types is not None:
-        output += ", Channel Types: "
-        output += list_to_string(option.channel_types)
-    return output
-    
-
-
+  
 class userInfo:
     def readUserInfo():
         df = pd.DataFrame(json.loads(fernet.decrypt(open('UserInfo.json',"rb").read())))
