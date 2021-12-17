@@ -85,25 +85,19 @@ async def on_DMmessage(event):
 @lightbulb.implements(commands.PrefixCommand)
 async def roll(ctx):
     arg = ctx.options.dice
-    if "+" in arg:
-        dice = arg.split("+")
-    #elif arg == 'patent':
-    #    dice = ['','','']
-    else:
-        dice = [str(arg)]
+    if "+" in arg:dice = arg.split("+")
+    else:dice = [str(arg)]
     try:
         sum = 0
         rolls = list()
-        allowedDice = [4,6,8,10,12,20,100]
+        allowedDice = [2,4,6,8,10,12,20,100]
         for die in dice:
             if 'd' in die:
                 if int(die[die.find('d')+1:]) not in allowedDice:
-                    await ctx.respond("Error invalid argument: specified dice can only be d4s, d6s, d8s, d10s, d12s, d20s, or d100s, or if a constant modifier must be a perfect integer, positive or negative, connexted with `+`, and no spaces.")
+                    await ctx.respond("Error invalid argument: specified dice can only be d2s, d4s, d6s, d8s, d10s, d12s, d20s, or d100s, or if a constant modifier must be a perfect integer, positive or negative, connexted with `+`, and no spaces.")
                     return
-                try:
-                    numRolls = int(die[:die.find('d')])
-                except:
-                    numRolls = 1
+                try:numRolls = int(die[:die.find('d')])
+                except:numRolls = 1
                 i = 1
                 while i <= numRolls:
                     roll = random.randint(1, int(die[die.find('d')+1:]))
@@ -115,15 +109,14 @@ async def roll(ctx):
                     rolls.append(int(die))
                     sum += int(die)
                 except:
-                    await ctx.respond("Error invalid argument: specified dice can only be d4s, d6s, d8s, d10s, d12s, d20s,  or d100s, or if a constant modifier must be a perfect integer, positive or negative, connexted with `+`, and no spaces.")
+                    await ctx.respond("Error invalid argument: specified dice can only be d2s, d4s, d6s, d8s, d10s, d12s, d20s,  or d100s, or if a constant modifier must be a perfect integer, positive or negative, connexted with `+`, and no spaces.")
                     return
         output = '`'
-        for x in rolls:
-            output += str(x) + ', '
+        for x in rolls:output += str(x) + ', '
         output = output[:-2]
         await ctx.respond("Kethran rolled `" +arg+"` got "+output+"` for a total value of: "+str(sum))        
     except:
-        await ctx.respond("Error invalid argument: specified dice can only be d4s, d6s, d8s, d10s, d12s, d20s,  or d100s, or if a constant modifier must be a perfect integer, positive or negative, connexted with `+`, and no spaces.")
+        await ctx.respond("Error invalid argument: specified dice can only be d2s, d4s, d6s, d8s, d10s, d12s, d20s,  or d100s, or if a constant modifier must be a perfect integer, positive or negative, connexted with `+`, and no spaces.")
         return
 
 bot.run()

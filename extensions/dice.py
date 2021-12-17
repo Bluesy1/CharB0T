@@ -21,12 +21,11 @@ async def roll(ctx) -> None: await ctx.respond("invoked roll")
 @lightbulb.option("success", "Minimum value to get a success", type=int, choices=[5,6,7,8,9,10], required=True)
 @lightbulb.option("failure", "Maximum value to count as a failure", type=int, choices=[1,2,3,4], required=True)
 @lightbulb.option("tag", "Tag of RPO roll is for", type=str, required=True)
-@lightbulb.command("wod", "rolls WOD stylem wish custom paramters", inherit_checks=True)
+@lightbulb.command("wod", "rolls WOD style with custom paramters", inherit_checks=True)
 @lightbulb.implements(commands.SlashSubCommand)
 async def command(ctx):
     amount = ctx.options.amount;failure = ctx.options.failure;name = ctx.options.name;tag = ctx.options.tag;success = ctx.options.success
-    if amount <= 3:
-        ctx.respond("<:KSplodes:896043440872235028>: Minimum amount of dice to roll is 3.")
+    if amount <= 3:ctx.respond("<:KSplodes:896043440872235028>: Minimum amount of dice to roll is 3.")
     i=0
     successes=0
     failures=0
@@ -63,14 +62,12 @@ async def command(ctx):
 
 @roll.child
 @lightbulb.option("dice","Dice to roll, accepts d2s, d4s, d6s, d8s, d10s, d12s, d20s, and d100s.",required=True)
-@lightbulb.command("standard", "D&D STandard Array of 7 Dice roller", inherit_checks=True)
+@lightbulb.command("standard", "D&D Standard Array 7 Dice roller, plus coin flips", inherit_checks=True)
 @lightbulb.implements(commands.SlashSubCommand)
 async def command(ctx):
     arg = ctx.options.dice
-    if "+" in arg:
-        dice = arg.split("+")
-    else:
-        dice = [str(arg)]
+    if "+" in arg:dice = arg.split("+")
+    else:dice = [str(arg)]
     try:
         sum = 0
         rolls = list()
@@ -80,10 +77,8 @@ async def command(ctx):
                 if int(die[die.find('d')+1:]) not in allowedDice:
                     await ctx.respond("<:KSplodes:896043440872235028> Error invalid argument: specified dice can only be d2s, d4s, d6s, d8s, d10s, d12s, d20s, or d100s, or if a constant modifier must be a perfect integer, positive or negative, connexted with `+`, and no spaces.")
                     return
-                try:
-                    numRolls = int(die[:die.find('d')])
-                except:
-                    numRolls = 1
+                try:numRolls = int(die[:die.find('d')])
+                except:numRolls = 1
                 i = 1
                 roll = 0
                 while i <= numRolls:

@@ -77,6 +77,7 @@ class CustomHelp(lightbulb.BaseHelpCommand):
                 for option in command.options:
                     option = command.options[option]
                     embed.add_field(f"Option {option.name}",option_help(option)).add_field(f"{option.name} description", option.description)
+            finally:embed.add_field("-----","-------")
         await context.respond(embed=embed)
 
     """async def object_not_found(self, context, obj):
