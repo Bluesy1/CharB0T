@@ -73,12 +73,12 @@ class CustomHelp(lightbulb.BaseHelpCommand):
             command=group.subcommands[command]
             try:
                 for subcommand in command.subcommands:
-                    subcommand=command.subcommands[command]
-                    embed.add_field(f"/{group.name} {command.name} {subcommand.name}",subcommand.get_help(context) or subcommand.description)
+                    subcommand=command.subcommands[subcommand]
+                    embed.add_field(f"/{group.name} {command.name} {subcommand.name} {option_string(subcommand.options)}",subcommand.get_help(context) or subcommand.description)
                     for option in subcommand.options:
                         option = subcommand.options[option]
                         #embed.add_field(f"Option {option.name}",option_help(option)).add_field(f"{option.name} description", option.description)
-                        embed.add_field(f"Option {option.name}",option.description)
+                        embed.add_field(f"{option.name}",option.description)
             except:
                 embed.add_field(f"/{group.name} {command.name} {option_string(command.options)}",command.get_help(context) or command.description)
                 for option in command.options:
