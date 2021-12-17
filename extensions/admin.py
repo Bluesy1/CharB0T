@@ -431,14 +431,14 @@ async def command(ctx):
                     key = event.interaction.custom_id
                     if key == "Done":
                         embed = (Embed(title="Final times", description=f"timestamp: {ts}: <t:{ts}:F>")
-                            .add_field(f"Default: `<t:{ts}>`",f"Default: <t:{ts}>",inline=True)
-                            .add_field(f"Short Time: `<t:{ts}:t>`",f"Short Time: <t:{ts}:t>",inline=True)
-                            .add_field(f"Long Time: `<t:{ts}:T>`",f"Long Time: <t:{ts}:t>",inline=True)
-                            .add_field(f"Short Date: `<t:{ts}:d>`",f"Short Date: <t:{ts}:d>",inline=True)
-                            .add_field(f"Long Date: `<t:{ts}:D>`",f"Long Date: <t:{ts}:D>",inline=True)
-                            .add_field(f"Short Date/Time: `<t:{ts}:f>`",f"Short Date/Time: <t:{ts}:f>",inline=True)
-                            .add_field(f"Long Date/Time: `<t:{ts}:F>`",f"Long Date/Time: <t:{ts}:F>",inline=True)
-                            .add_field(f"Relative Time: `<t:{ts}:R>`",f"Relative Time: <t:{ts}:R>",inline=True)
+                            .add_field(f"Default: `<t:{ts}>`",f"<t:{ts}>")
+                            .add_field(f"Short Time: `<t:{ts}:t>`",f"<t:{ts}:t>")
+                            .add_field(f"Long Time: `<t:{ts}:T>`",f"<t:{ts}:t>")
+                            .add_field(f"Short Date: `<t:{ts}:d>`",f"<t:{ts}:d>")
+                            .add_field(f"Long Date: `<t:{ts}:D>`",f"<t:{ts}:D>")
+                            .add_field(f"Short Date/Time: `<t:{ts}:f>`",f"<t:{ts}:f>")
+                            .add_field(f"Long Date/Time: `<t:{ts}:F>`",f"<t:{ts}:F>")
+                            .add_field(f"Relative Time: `<t:{ts}:R>`",f"<t:{ts}:R>")
                         )
                         await ctx.edit_last_response(embed=embed, components=[])
                         return
