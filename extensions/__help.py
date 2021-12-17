@@ -73,7 +73,7 @@ class CustomHelp(lightbulb.BaseHelpCommand):
                         option = subcommand.options[option]
                         embed.add_field(f"Option {option.name}",option_help(option)).add_field(f"{option.name} description", option.description)
             except:
-                embed.add_field(command.name,command.get_help(context) or subcommand.description)
+                embed.add_field(command.name,command.get_help(context) or command.description)
                 for option in command.options:
                     option = command.options[option]
                     embed.add_field(f"Option {option.name}",option_help(option)).add_field(f"{option.name} description", option.description)
