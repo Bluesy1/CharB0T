@@ -1,5 +1,4 @@
 from __future__ import print_function
-from typing_extensions import Required
 import lightbulb
 from lightbulb.commands import user
 import pandas as pd
