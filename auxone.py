@@ -391,6 +391,7 @@ def strip_class(arg:str):
     return arg
 
 def list_to_string(arg: list):
+    arg = [str(x) for x in arg]
     tempstr = ", "
     return tempstr.join(arg)
 
