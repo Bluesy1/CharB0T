@@ -1,7 +1,11 @@
 import asyncio
 import json
+import time
 
 import lightbulb
+from lightbulb.commands.slash import SlashCommand
+from lightbulb.decorators import implements
+from lightbulb.errors import LightbulbError
 import pandas as pd
 import sfsutils
 from auxone import URL, checks, ksptime, render_mpl_table, userInfo
@@ -384,8 +388,79 @@ async def command(ctx):
         except asyncio.TimeoutError:
             await ctx.edit_last_response("Waited for 15 seconds... Timeout.", embed=None, components=[])
 
-
-
-
+@AdminPlugin.command
+@lightbulb.add_checks(lightbulb.owner_only)
+@lightbulb.command("maketime","makes a unix time constructor for use with discord's unix time feature")
+@lightbulb.implements(commands.SlashCommand)
+async def command(ctx):
+    TimeMenu = AdminPlugin.bot.rest.build_action_row()
+    (TimeMenu.add_select_menu("Editing")
+        .add_option("Done", "Done").set_emoji("✅").set_description("Use this to get the final options").add_to_menu()
+        .add_option("+1 week", "+w").set_emoji("➡️").set_description("Use this to increase the time by 1 week").add_to_menu()
+        .add_option("+1 day", "+d").set_emoji("▶️").set_description("Use this to increase the time by 1 day").add_to_menu()
+        .add_option("+1 hour", "+h").set_emoji("➡️").set_description("UsUse this to increase the time by 1 hout").add_to_menu()
+        .add_option("+30 minutes", "+m").set_emoji("➡️").set_description("UsUse this to increase the time by 1 hout").add_to_menu()
+        .add_option("-30 minutes", "-m").set_emoji("⬅️").set_description("UsUse this to increase the time by 1 hout").add_to_menu()
+        .add_option("-1 week", "-w").set_emoji("◀️").set_description("Use this to increase the time by 1 week").add_to_menu()
+        .add_option("-1 day", "-d").set_emoji("⬅️").set_description("Use this to increase the time by 1 day").add_to_menu()
+        .add_option("-1 hour", "-h").set_emoji("◀️").set_description("UsUse this to increase the time by 1 hout").add_to_menu()
+        .add_to_container()
+    ) 
+    ts = round(time.time(),)
+    ts = ts//3600
+    embed = Embed(title="Time builder", description=f"timestamp: {ts}: <t:{ts}:F>")
+    await ctx.respond("Use the select menu to adjust the time", embed=embed, components=[TimeMenu,])
+    try:
+        async with AdminPlugin.bot.stream(InteractionCreateEvent, timeout=15).filter(('interaction.user.id', ctx.author.id)) as stream:
+                async for event in stream:
+                    await event.interaction.create_initial_response(ResponseType.DEFERRED_MESSAGE_UPDATE)
+                    key = event.interaction.values[0]
+                    if key == "Done":
+                        embed = (Embed(title="Final times", description=f"timestamp: {ts}: <t:{ts}:F>")
+                            .add_field(f"`<t:{ts}>`",f"<t:{ts}>",inline=True)
+                            .add_field(f"`<t:{ts}:t>`",f"<t:{ts}:t>",inline=True)
+                            .add_field(f"`<t:{ts}:T>`",f"<t:{ts}:t>",inline=True)
+                            .add_field(f"`<t:{ts}:d>`",f"<t:{ts}:d>",inline=True)
+                            .add_field(f"`<t:{ts}:D>`",f"<t:{ts}:D>",inline=True)
+                            .add_field(f"`<t:{ts}:f>`",f"<t:{ts}:f>",inline=True)
+                            .add_field(f"`<t:{ts}:F>`",f"<t:{ts}:F>",inline=True)
+                            .add_field(f"`<t:{ts}:R>`",f"<t:{ts}:R>",inline=True)
+                        )
+                        await ctx.edit_last_response(embed=embed, components=[])
+                        return
+                    elif key == "+w":
+                        ts +=604800
+                        embed = Embed(title="Time builder", description=f"timestamp: {ts}: <t:{ts}:F>")
+                        ctx.edit_last_response("Use the select menu to adjust the time", embed=embed, components=[TimeMenu,])
+                    elif key == "+d":
+                        ts +=86400 
+                        embed = Embed(title="Time builder", description=f"timestamp: {ts}: <t:{ts}:F>")
+                        ctx.edit_last_response("Use the select menu to adjust the time", embed=embed, components=[TimeMenu,])
+                    elif key == "+h":
+                        ts +=3600
+                        embed = Embed(title="Time builder", description=f"timestamp: {ts}: <t:{ts}:F>")
+                        ctx.edit_last_response("Use the select menu to adjust the time", embed=embed, components=[TimeMenu,])
+                    elif key == "+m":
+                        ts +=1800
+                        embed = Embed(title="Time builder", description=f"timestamp: {ts}: <t:{ts}:F>")
+                        ctx.edit_last_response("Use the select menu to adjust the time", embed=embed, components=[TimeMenu,])
+                    elif key == "-w":
+                        ts -=604800
+                        embed = Embed(title="Time builder", description=f"timestamp: {ts}: <t:{ts}:F>")
+                        ctx.edit_last_response("Use the select menu to adjust the time", embed=embed, components=[TimeMenu,])
+                    elif key == "-d":
+                        ts -=86400 
+                        embed = Embed(title="Time builder", description=f"timestamp: {ts}: <t:{ts}:F>")
+                        ctx.edit_last_response("Use the select menu to adjust the time", embed=embed, components=[TimeMenu,])
+                    elif key == "-h":
+                        ts -=3600
+                        embed = Embed(title="Time builder", description=f"timestamp: {ts}: <t:{ts}:F>")
+                        ctx.edit_last_response("Use the select menu to adjust the time", embed=embed, components=[TimeMenu,])
+                    elif key == "-m":
+                        ts -=1800
+                        embed = Embed(title="Time builder", description=f"timestamp: {ts}: <t:{ts}:F>")
+                        ctx.edit_last_response("Use the select menu to adjust the time", embed=embed, components=[TimeMenu,])
+    except asyncio.TimeoutError:
+        await ctx.edit_last_response("Waited for 15 seconds... Timeout.", embed=None, components=[])
 def load(bot):bot.add_plugin(AdminPlugin)
 def unload(bot):bot.remove_plugin(AdminPlugin)
