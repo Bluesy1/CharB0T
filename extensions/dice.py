@@ -16,12 +16,12 @@ DicePlugin = lightbulb.Plugin("DicePlugin")
 async def roll(ctx) -> None: await ctx.respond("invoked roll")
 
 @roll.child
-@lightbulb.option("name", "name for roll", type=str, required=True)
-@lightbulb.option("amount", "How many dice to roll, min 3", type=int, required=True)
-@lightbulb.option("success", "Minimum value to get a success", type=int, choices=[5,6,7,8,9,10], required=True)
-@lightbulb.option("failure", "Maximum value to count as a failure", type=int, choices=[1,2,3,4], required=True)
-@lightbulb.option("tag", "Tag of RPO roll is for", type=str, required=True)
-@lightbulb.command("wod", "rolls WOD style with custom paramters", inherit_checks=True)
+@lightbulb.option("name", "The name for your roll", type=str, required=True)
+@lightbulb.option("amount", "The amount of dice to roll, minimum 3 dice", type=int, required=True)
+@lightbulb.option("success", "What the minimum value for the roll to count as a success (5-10)", type=int, choices=[5,6,7,8,9,10], required=True)
+@lightbulb.option("failure", "What is the maximum number for the roll to count as a failure (1-4) ", type=int, choices=[1,2,3,4], required=True)
+@lightbulb.option("tag", "The tag of the RPO that the roll is for", type=str, required=True)
+@lightbulb.command("wod", "Rolls WOD style with custom paramters", inherit_checks=True)
 @lightbulb.implements(commands.SlashSubCommand)
 async def command(ctx):
     amount = ctx.options.amount;failure = ctx.options.failure;name = ctx.options.name;tag = ctx.options.tag;success = ctx.options.success
