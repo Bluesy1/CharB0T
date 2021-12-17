@@ -390,7 +390,6 @@ async def command(ctx):
             await ctx.edit_last_response("Waited for 15 seconds... Timeout.", embed=None, components=[])
 
 @AdminPlugin.command
-@lightbulb.add_checks(lightbulb.owner_only)
 @lightbulb.command("maketime","makes a unix time constructor for use with discord's unix time feature")
 @lightbulb.implements(commands.SlashCommand)
 async def command(ctx):
