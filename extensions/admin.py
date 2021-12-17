@@ -1,5 +1,6 @@
 import asyncio
 import json
+import os
 import time
 
 import lightbulb
@@ -405,7 +406,9 @@ async def command(ctx):
         .add_option("-1 day", "-d").set_emoji("⬅️").set_description("Use this to increase the time by 1 day").add_to_menu()
         .add_option("-1 hour", "-h").set_emoji("◀️").set_description("UsUse this to increase the time by 1 hout").add_to_menu()
         .add_to_container()
-    ) 
+    )
+    os.environ['TZ'] = 'US/Eastern'
+    time.tzset() 
     ts = round(time.time(),)
     ts = ts//3600
     embed = Embed(title="Time builder", description=f"timestamp: {ts}: <t:{ts}:F>")
@@ -431,35 +434,35 @@ async def command(ctx):
                     elif key == "+w":
                         ts +=604800
                         embed = Embed(title="Time builder", description=f"timestamp: {ts}: <t:{ts}:F>")
-                        ctx.edit_last_response("Use the select menu to adjust the time", embed=embed, components=[TimeMenu,])
+                        await ctx.edit_last_response("Use the select menu to adjust the time", embed=embed, components=[TimeMenu,])
                     elif key == "+d":
                         ts +=86400 
                         embed = Embed(title="Time builder", description=f"timestamp: {ts}: <t:{ts}:F>")
-                        ctx.edit_last_response("Use the select menu to adjust the time", embed=embed, components=[TimeMenu,])
+                        await ctx.edit_last_response("Use the select menu to adjust the time", embed=embed, components=[TimeMenu,])
                     elif key == "+h":
                         ts +=3600
                         embed = Embed(title="Time builder", description=f"timestamp: {ts}: <t:{ts}:F>")
-                        ctx.edit_last_response("Use the select menu to adjust the time", embed=embed, components=[TimeMenu,])
+                        await ctx.edit_last_response("Use the select menu to adjust the time", embed=embed, components=[TimeMenu,])
                     elif key == "+m":
                         ts +=1800
                         embed = Embed(title="Time builder", description=f"timestamp: {ts}: <t:{ts}:F>")
-                        ctx.edit_last_response("Use the select menu to adjust the time", embed=embed, components=[TimeMenu,])
+                        await ctx.edit_last_response("Use the select menu to adjust the time", embed=embed, components=[TimeMenu,])
                     elif key == "-w":
                         ts -=604800
                         embed = Embed(title="Time builder", description=f"timestamp: {ts}: <t:{ts}:F>")
-                        ctx.edit_last_response("Use the select menu to adjust the time", embed=embed, components=[TimeMenu,])
+                        await ctx.edit_last_response("Use the select menu to adjust the time", embed=embed, components=[TimeMenu,])
                     elif key == "-d":
                         ts -=86400 
                         embed = Embed(title="Time builder", description=f"timestamp: {ts}: <t:{ts}:F>")
-                        ctx.edit_last_response("Use the select menu to adjust the time", embed=embed, components=[TimeMenu,])
+                        await ctx.edit_last_response("Use the select menu to adjust the time", embed=embed, components=[TimeMenu,])
                     elif key == "-h":
                         ts -=3600
                         embed = Embed(title="Time builder", description=f"timestamp: {ts}: <t:{ts}:F>")
-                        ctx.edit_last_response("Use the select menu to adjust the time", embed=embed, components=[TimeMenu,])
+                        await ctx.edit_last_response("Use the select menu to adjust the time", embed=embed, components=[TimeMenu,])
                     elif key == "-m":
                         ts -=1800
                         embed = Embed(title="Time builder", description=f"timestamp: {ts}: <t:{ts}:F>")
-                        ctx.edit_last_response("Use the select menu to adjust the time", embed=embed, components=[TimeMenu,])
+                        await ctx.edit_last_response("Use the select menu to adjust the time", embed=embed, components=[TimeMenu,])
     except asyncio.TimeoutError:
         await ctx.edit_last_response("Waited for 15 seconds... Timeout.", embed=None, components=[])
 def load(bot):bot.add_plugin(AdminPlugin)
