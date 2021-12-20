@@ -27,7 +27,7 @@ async def joinRPO(ctx):
         else:
             await ctx.respond("<:KSplodes:896043440872235028> Error: You are already in an RPO: " + userInfo.loc[str(userid), 'RPO'])
             return
-    elif RPO not in pd.read_csv(a.RPOInfoURL, index_col=0, usecols=['FULL NAME', 'TAG', 'Account Balance'])['TAG'].astype(str).to_list(): #makes sure RPO trying to be joined exists
+    elif RPO not in pd.read_csv(a.RPOInfoURL, index_col=0, usecols=['FULL NAME', 'TAG'])['TAG'].astype(str).to_list(): #makes sure RPO trying to be joined exists
         if RPO == 'A': a.undeclared(ctx)
         else:
             await ctx.respond("<:KSplodes:896043440872235028> Error: RPO " +RPO + " is not a registered RPO")
