@@ -16,7 +16,7 @@ RPO_Plugin = lightbulb.Plugin("RPO_Plugin")
 @lightbulb.command("joinrpo", "Joins an RPO")
 @lightbulb.implements(commands.SlashCommand)
 async def joinRPO(ctx):
-    author = ctx.author
+    author = ctx.member
     userid = author.id
     userInfo = a.userInfo.readUserInfo()
     RPO  = ctx.options.rpo.upper()
@@ -40,15 +40,16 @@ async def joinRPO(ctx):
         df = a.userInfo.readUserInfo()
         userList = df.append(pd.DataFrame(newUser).set_index('userID'))
         a.userInfo.writeUserInfo(userList)
-        name = ctx.author.display_name
-        Kerbal = ctx.get_guild().get_role(906000578092621865)
+        name = ctx.member.display_name
         try:
             newname, count = re.subn("(?<=\[)[^\[\]]{2,4}(?=\])",RPO,name)
             if (count == 0): newname = name + " [" + RPO + "]"
         except: None
-        if len(newname) <=32:await ctx.author.edit(nick=newname, roles=Kerbal)
-        else:await ctx.author.edit(roles=Kerbal)
-        await ctx.respond(ctx.author.mention + " you are now in RPO " + rpo)
+        if len(newname) <=32:
+            await ctx.member.edit(nick=newname)
+            await ctx.member.add_role(906000578092621865)
+        else:await ctx.member.add_role(906000578092621865)
+        await ctx.respond(ctx.member.mention + " you are now in RPO " + rpo)
 
 @RPO_Plugin.command()
 @lightbulb.option("rpo", "RPO to change to", required=True)
@@ -71,14 +72,15 @@ async def changeRPO(ctx):
         df = a.userInfo.readUserInfo()
         df.loc[str(ctx.author.id), 'RPO'] = RPO
         a.userInfo.writeUserInfo(df)
-        name = ctx.author.display_name
-        Kerbal = ctx.get_guild().get_role(906000578092621865)
+        name = ctx.member.display_name
         try:
             newname, count = re.subn("(?<=\[)[^\[\]]{2,4}(?=\])",RPO,name)
             if (count == 0): newname = name + " [" + RPO + "]"
         except: None
-        if len(newname) <=32:await ctx.author.edit(nick=newname, roles=Kerbal)
-        else:await ctx.author.edit(roles=Kerbal)
+        if len(newname) <=32:
+            await ctx.member.edit(nick=newname)
+            await ctx.member.add_role(906000578092621865)
+        else:await ctx.member.add_role(906000578092621865)
         await ctx.respond(ctx.author.mention + " you are now in RPO " + RPO)
 
 
