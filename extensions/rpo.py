@@ -16,9 +16,6 @@ RPO_Plugin = lightbulb.Plugin("RPO_Plugin")
 @lightbulb.command("joinrpo", "Joins an RPO")
 @lightbulb.implements(commands.SlashCommand)
 async def joinRPO(ctx):
-    if ctx.channel.id != 687817008355737606 and ctx.channel.id != 893867549589131314:
-        await ctx.delete()
-        return
     author = ctx.author
     userid = author.id
     userInfo = a.userInfo.readUserInfo()
@@ -60,8 +57,6 @@ async def joinRPO(ctx):
 @lightbulb.command("changerpo", "Changes what RPO you're in")
 @lightbulb.implements(commands.SlashCommand)
 async def changeRPO(ctx):
-    if a.channel_check(ctx, [687817008355737606,893867549589131314]) != True:
-        return
     author = ctx.author
     userid = author.id
     RPO  = ctx.options.RPO.upper()
