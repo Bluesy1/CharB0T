@@ -19,7 +19,7 @@ async def joinRPO(ctx):
     author = ctx.author
     userid = author.id
     userInfo = a.userInfo.readUserInfo()
-    RPO  = ctx.options.RPO.upper()
+    RPO  = ctx.options.rpo.upper()
     if str(ctx.author.id) in list(a.userInfo.readUserInfo().index): #makes sure user isn't already in an RPO
         if a.userInfo.readUserInfo().loc[str(ctx.author.id), 'RPO'] == 'A':
             await ctx.respond("<:KSplodes:896043440872235028> Error: You have already been registered as undeclared. To change your status, please use `!changeRPO` followed by your new tag.")
@@ -59,7 +59,7 @@ async def joinRPO(ctx):
 async def changeRPO(ctx):
     author = ctx.author
     userid = author.id
-    RPO  = ctx.options.RPO.upper()
+    RPO  = ctx.options.rpo.upper()
     info = a.userInfo.readUserInfo()
     currentRPO = a.userInfo.readUserInfo().loc[str(ctx.author.id),"RPO"]
     if RPO not in pd.read_csv(a.RPOInfoURL, index_col=0, usecols=['FULL NAME', 'TAG'])['TAG'].astype(str).to_list():
