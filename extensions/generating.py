@@ -39,9 +39,9 @@ async def command(ctx):
 @lightbulb.command("work", "work command")
 @lightbulb.implements(commands.SlashCommand)
 async def work(ctx):
-    df = a.userInfo.readUserInfo()
     if str(ctx.author.id) not in list(a.userInfo.readUserInfo().index): #makes sure user isn't already in an RPO
         a.undeclared(ctx)
+    df = a.userInfo.readUserInfo()
     lastWork = df.loc[str(ctx.author.id), 'lastWork']
     currentUse = round(time.time(),0)
     timeDifference = currentUse - lastWork
