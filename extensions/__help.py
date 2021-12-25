@@ -39,15 +39,18 @@ class CustomHelp(lightbulb.BaseHelpCommand):
     async def send_bot_help(self, context):
         # Override this method to change the message sent when the help command
         # is run without any arguments.
+        commands = dict()
         for item in self.app.slash_commands:
             item2 = self.app.slash_commands[item]
             try:
                 for command in item2.subcommands:
                     command2=item2.subcommands[command]
                     try:
-                        for subcommand in command2.subcommands:await context.respond(f"{subcommand}:{command2.subcommands[subcommand]}")
-                    except:await context.respond(f"{command}:{command2}")
-            except:await context.respond(f"{item}:{item2}")
+                        for subcommand in command2.subcommands:
+                            commands.update({subcommand:command2.subcommands[subcommand]})
+                    except:commands.update({command:command2})
+            except:commands.update({item:item2})
+        print(commands)
 
 
     async def send_plugin_help(self, context, plugin):
