@@ -47,8 +47,8 @@ class CustomHelp(lightbulb.BaseHelpCommand):
                     command2=item2.subcommands[command]
                     try:
                         for subcommand in command2.subcommands:
-                            commands.update({subcommand:command2.subcommands[subcommand]})
-                    except:commands.update({command:command2})
+                            commands.update({f"{item} {command} {subcommand}":command2.subcommands[subcommand]})
+                    except:commands.update({f"{item} {command}":command2})
             except:commands.update({item:item2})
         print(commands)
 
