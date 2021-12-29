@@ -8,12 +8,12 @@ sched = AsyncIOScheduler()
 sched.start()
 
 
-@sched.scheduled_job(CronTrigger(day_of_week="wed",hour="11/1",second="*/1"),id=1)
+@sched.scheduled_job(CronTrigger(day_of_week="wed",hour="11/1",second="*/1"),id="1")
 async def msg1() -> None:
     await test_plugin.app.rest.create_message(687817008355737606, "Test")
 
 
 def load(bot: lightbulb.BotApp) -> None: bot.add_plugin(test_plugin)
 def unload(bot: lightbulb.BotApp):
-    sched.remove_job(1)
+    sched.remove_job("1")
     bot.remove_plugin(test_plugin)
