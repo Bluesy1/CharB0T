@@ -8,7 +8,7 @@ sched = AsyncIOScheduler()
 sched.start()
 
 
-@sched.scheduled_job(CronTrigger(day_of_week="mon-fri",hour="21/1"),id="1")
+@sched.scheduled_job(CronTrigger(day_of_week="mon-fri",hour="16"),id="1")
 async def msg1() -> None:
     await test_plugin.app.rest.create_message(687817008355737606, "Market Test")
 
