@@ -21,7 +21,7 @@ def find_embedded_urls(data):
     return re.finditer(regex,data,flags=re.M|re.I)
 
 def find_embedded_phones(data):
-    regex = r"^\s*(?:\+?(\d{1,3}))?[-. (]*(\d{3})[-. )]+(\d{3})[-. ]+(\d{4})(?: *x(\d+))?\s*$"
+    regex = r"\s*(?:\+?(\d{1,3}))?[-. (]*(\d{3})[-. )]+(\d{3})[-. ]+(\d{4})(?: *x(\d+))?\s*$"
     return re.finditer(regex,data,flags=re.M|re.I)
 
 EventsPlugin = lightbulb.Plugin("EventsPlugin")
