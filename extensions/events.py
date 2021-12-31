@@ -51,7 +51,7 @@ async def on_message(event: hikari.GuildMessageCreateEvent) -> None:
         nums = find_embedded_phones(event.content)
         nums = [match[0] for match in nums]
         has_nums = True if not nums else False
-        has_whatsapp = "whatsapp" in event.content.lower
+        has_whatsapp = "whatsapp" in event.content.lower()
         has_dollarsign = "$" in event.content
         allowed_roles = [225413350874546176,253752685357039617,725377514414932030,338173415527677954,387037912782471179,406690402956083210,729368484211064944]
         role_check = not any(role in event.member.role_ids for role in allowed_roles)
