@@ -56,7 +56,7 @@ async def on_message(event: hikari.GuildMessageCreateEvent) -> None:
         allowed_roles = [225413350874546176,253752685357039617,725377514414932030,338173415527677954,387037912782471179,406690402956083210,729368484211064944]
         role_check = not any(role in event.member.role_ids for role in allowed_roles)
         if any([has_whatsapp,has_dollarsign,has_nums])and event.channel_id==926532222398369812:
-            if all(has_whatsapp,has_dollarsign,has_nums):
+            if all([has_whatsapp,has_dollarsign,has_nums]):
                 embed = Embed(title="Ban Level Event - WhatsApp Cryptoscam - all triggers hit:",description=event.content,color="0xff0000").add_field("Whatsapp Check:","Triggered: Found keyword" if has_whatsapp else "Keyword Not Present",inline=True).add_field("Phone Number Check:","Triggered: Found Regex Match(s)" if has_nums else "No Regex Matches Present",inline=True).add_field("`$` Check:","Triggered: Found symbol" if has_dollarsign else "Symbol Not Present",inline=True).add_field("Role Check:","Triggered: No allowed roles" if role_check else "Allowed role present",inline=True).add_field("Result:","Ban" if role_check else "Log",inline=False).add_field("Member",f"Username: {event.member.username}, Discriminator: {event.member.discriminator}",inline=True).add_field("Member ID",event.member.id).add_field("CHannel:",event.get_channel().mention,inline=True)
                 await event.message.respond(embed=embed)
                 #await event.message.delete()
