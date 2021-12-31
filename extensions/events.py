@@ -21,7 +21,7 @@ def find_embedded_urls(data):
     return re.finditer(regex,data,flags=re.M|re.I)
 
 def find_embedded_phones(data):
-    regex = r"\s*(?:\+?(\d{1,3}))?[-. (]*(\d{3})[-. )]+(\d{3})[-. ]+(\d{4})(?: *x(\d+))?\s*"
+    regex = r"\s*(?:\+?(\d{1,3}))?[-. (/]*(\d{3})[-. )/]+(\d{3})[-. /]+(\d{4})(?: *x(\d+))?\s*"
     return re.finditer(regex,data,flags=re.M|re.I)
 
 EventsPlugin = lightbulb.Plugin("EventsPlugin")
@@ -51,25 +51,25 @@ async def on_message(event: hikari.GuildMessageCreateEvent) -> None:
         nums = find_embedded_phones(event.content)
         nums = [match[0] for match in nums]
         has_nums = True if nums else False
-        has_whatsapp = "whatsapp" in event.content.lower()
-        has_dollarsign = "$" in event.content
+        has_whatsapp = any(app in event.content.lower() for app in ["whatsapp","whats app","whats.app","what'sapp","telegram","cash.app","cash app"])
+        has_dollarsign = any(currency in event.content.lower() for currency in ["btc", "bitcoin", "eth", "ethereum", "xrp", "ripple", "usdt", "tether","usdc", "usd coin","doge","dogecoin","ada","cardano","zec","zcash","btz","bitcoinz","bnb","binance coin","shib", "shiba inu","ltc","litecoin","bch","bitcoin cash","xmr","monero","cake","pancakeswap token","€",  "£", "$", "¥", "eur", "gbp",  "usd", "cad"])
         allowed_roles = [225413350874546176,253752685357039617,725377514414932030,338173415527677954,387037912782471179,406690402956083210,729368484211064944]
         role_check = not any(role in event.member.role_ids for role in allowed_roles)
         if any([has_whatsapp,has_dollarsign,has_nums])and event.channel_id==926532222398369812:
             if all([has_whatsapp,has_dollarsign,has_nums]):
                 embed = Embed(title="Ban Level Event - WhatsApp Cryptoscam - all triggers hit:",description=event.content,color="0xff0000").add_field("Whatsapp Check:","Triggered: Found keyword" if has_whatsapp else "Keyword Not Present",inline=True).add_field("Phone Number Check:",f"Triggered: Found Regex Match(s):{nums}" if has_nums else "No Regex Matches Present",inline=True).add_field("`$` Check:","Triggered: Found symbol" if has_dollarsign else "Symbol Not Present",inline=True).add_field("Role Check:","Triggered: No allowed roles" if role_check else "Allowed role present",inline=True).add_field("Result:","Ban" if role_check else "Log",inline=True).add_field("Member",f"Username: {event.member.username}, Discriminator: {event.member.discriminator}",inline=True).add_field("Member ID",event.member.id).add_field("CHannel:",event.get_channel().mention,inline=True)
-                await event.message.respond(embed=embed)
+                await EventsPlugin.app.rest.create_message(926532222398369812,embed=embed)
                 await event.message.delete()
                 #if role_check:await EventsPlugin.app.rest.ban_user(225345178955808768,event.member.id,delete_message_days=0,reason="CryptoScam")
             elif any([has_dollarsign and has_nums,has_nums and has_whatsapp, has_whatsapp and has_dollarsign]):
                 embed = Embed(title="Mute Level Event - Possible WhatsApp Cryptoscam - 2/3 triggers hit:",description=event.content,color="0xff0000").add_field("Whatsapp Check:","Triggered: Found keyword" if has_whatsapp else "Keyword Not Present",inline=True).add_field("Phone Number Check:",f"Triggered: Found Regex Match(s):{nums}" if has_nums else "No Regex Matches Present",inline=True).add_field("`$` Check:","Triggered: Found symbol" if has_dollarsign else "Symbol Not Present",inline=True).add_field("Role Check:","Triggered: No allowed roles" if role_check else "Allowed role present",inline=True).add_field("Result:","Mute" if role_check else "Log",inline=True).add_field("Member",f"Username: {event.member.username}, Discriminator: {event.member.discriminator}",inline=True).add_field("Member ID",event.member.id).add_field("CHannel:",event.get_channel().mention,inline=True)
-                await event.message.respond(embed=embed)
+                await EventsPlugin.app.rest.create_message(926532222398369812,embed=embed)
                 await event.message.delete()
                 #if role_check:await EventsPlugin.app.rest.add_role_to_member(225345178955808768,event.member.id,684936661745795088,reason="CryptoScam")
                 #if role_check:await EventsPlugin.app.rest.add_role_to_member(225345178955808768,event.member.id,676250179929636886,reason="CryptoScam")
             elif any([has_nums,has_whatsapp]):
                 embed = Embed(title="Log Level Event - Vauge Possibility of WhatsApp Cryptoscam - 1/3 triggers hit:",description=event.content,color="0x0000ff").add_field("Whatsapp Check:","Triggered: Found keyword" if has_whatsapp else "Keyword Not Present",inline=True).add_field("Phone Number Check:",f"Triggered: Found Regex Match(s):{nums}" if has_nums else "No Regex Matches Present",inline=True).add_field("`$` Check:","Triggered: Found symbol" if has_dollarsign else "Symbol Not Present",inline=True).add_field("Role Check:","Triggered: No allowed roles" if role_check else "Allowed role present",inline=True).add_field("Member",f"Username: {event.member.username}, Discriminator: {event.member.discriminator}",inline=True).add_field("Member ID",event.member.id).add_field("CHannel:",event.get_channel().mention,inline=True)
-                await event.message.respond(embed=embed)
+                await EventsPlugin.app.rest.create_message(926532222398369812,embed=embed)
         del nums;del has_nums;del has_dollarsign;del has_whatsapp;del role_check;del allowed_roles
         if not user.roleCheck(event.message.member, [338173415527677954,253752685357039617,225413350874546176,387037912782471179,406690402956083210,729368484211064944]):
             if "<@&225345178955808768>" in event.content or "@everyone" in event.content or "@here" in event.content:
