@@ -76,7 +76,7 @@ async def on_message(event: hikari.GuildMessageCreateEvent) -> None:
         del nums;del has_nums;del has_dollarsign;del has_whatsapp;del role_check;del allowed_roles
         links = find_embedded_urls(event.content)
         links = [match[0] for match in links]
-        if bool(links) and not any("discord.gift" in link for link in links) and event.channel_id==926532222398369812:
+        if bool(links) and not any("discord.gift/" in link for link in links) and event.channel_id==926532222398369812:
             delinked = re.sub(r"(http|ftp|https):\/\/([\w_-]+(?:(?:\.[\w_-]+)+))([\w.,@?^=%&:\/~+#-]*[\w@?^=%&\/~+#-])"," ",event.content.lower(),flags=re.M|re.I)
             if 'nitro' in delinked.lower():
                 listDelinked = delinked.lower().split()
