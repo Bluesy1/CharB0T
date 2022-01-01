@@ -20,7 +20,7 @@ bot = lightbulb.BotApp(token=token, prefix="c?", default_enabled_guilds=22534517
             "hikari": {"level": "INFO"},
             "hikari.ratelimits": {"level": "TRACE_HIKARI"},
             "lightbulb": {"level": "INFO"},
-        },},case_insensitive_prefix_commands=True,)
+        },},case_insensitive_prefix_commands=True,delete_unbound_commands=False)
 
 @bot.command()
 @lightbulb.add_checks(lightbulb.owner_only)
