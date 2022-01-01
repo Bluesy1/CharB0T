@@ -4,6 +4,8 @@ import re
 import time
 from collections import Counter
 
+from hikari import undefined
+
 import auxone as a
 import hikari
 import lightbulb
@@ -73,7 +75,7 @@ async def on_message(event: hikari.GuildMessageCreateEvent) -> None:
             elif has_nums or has_whatsapp:
                 embed = Embed(title="Log Level Event - Phone Number or WhatsApp like trigger hit:",description=event.content,color="0x0000ff").add_field("Whatsapp Check:","Triggered: Found keyword" if has_whatsapp else "Keyword Not Present",inline=True).add_field("Phone Number Check:",f"Triggered: Found Regex Match(s):{nums}" if has_nums else "No Regex Matches Present",inline=True).add_field("Member",f"Username: {event.member.username}, Discriminator: {event.member.discriminator}",inline=True).add_field("Member ID",event.member.id,inline=True).add_field("Channel:",event.get_channel().mention,inline=True)
                 await EventsPlugin.app.rest.create_message(682559641930170379,embed=embed)
-        del nums;del has_nums;del has_dollarsign;del has_whatsapp;del role_check;del allowed_roles
+        del nums;del has_nums;del has_dollarsign;del has_whatsapp;del allowed_roles
         links = find_embedded_urls(event.content)
         links = [match[0] for match in links]
         if bool(links) and not any([any("discord.gift/" in link for link in links),any("discord.com/" in link for link in links)]) and event.channel_id==926532222398369812:
@@ -81,14 +83,22 @@ async def on_message(event: hikari.GuildMessageCreateEvent) -> None:
             if 'nitro' in delinked.lower():
                 listDelinked = delinked.lower().split()
                 counted = Counter(listDelinked)
-                keywords = 0
+                keywords = set();joiner = ", ";reportlevel = ['Ban',"Log"];nitro = 0
                 for element in counted.elements():
                     if element in ['airdrop', 'steam', 'free', 'gift', 'left', 'some','got','accidentally','other']:
-                        keywords+=1
-                if keywords>0:
-                    await EventsPlugin.app.rest.create_message(926532222398369812,f"Would have Bannned, {keywords} final step keywords detected, along with nitro keyword and link",reply=event.message_id)
-                else:await EventsPlugin.app.rest.create_message(926532222398369812,f"Would have logged as possible scam, no final step keywords detected, but nitro was along with a link",reply=event.message_id)
-            else: await EventsPlugin.app.rest.create_message(926532222398369812,f"Would have ignored, no nitro keyword detected with a link",reply=event.message_id)
+                        keywords.add(element)
+                    elif 'nitro' in element: nitro+=1
+                embed = Embed(title=f"{reportlevel[0] if keywords else reportlevel[1]} Event: Nitro Scam",description=event.content,color="0xff0000"if keywords else "0x0000ff").add_field("Links",joiner.join(links),inline=True).add_field("Nitro Keyword Count",nitro,inline=True).add_field("Secondary Keyword Count",f"{len(keywords)}: {joiner.join(keywords)}",inline=True).add_field("Role Check:","Failed" if role_check else "Passed",inline=True).add_field("Result:","Ban" if role_check and keywords else "Log",inline=True).add_field("Member",f"Username: {event.member.username}, Discriminator: {event.member.discriminator}",inline=True)
+                if keywords:
+                    await event.message.delete()
+                    await EventsPlugin.app.rest.create_message(926532222398369812,content="**LOG ONLY**"if not role_check else undefined.UNDEFINED,embed=embed)
+                    if role_check:
+                        await event.message.respond("Ban stand-in")#await event.member.send("Hey! The bot caught a message from you it thinks is a scam beyond a threshold of doubt. If you believe this is an error, reach out to us here: : https://cpry.net/banned. or if that is broken, tweet @CharliePryor at https://twitter.com/CharliePryor. If able, you can also try replying to this message.")
+                        #await EventsPlugin.app.rest.ban_user(225345178955808768,event.member.id,delete_message_days=0,reason="NitroScam")
+                    else: await event.message.respond("Log stand-in")
+                else:
+                    await EventsPlugin.app.rest.create_message(926532222398369812,embed=embed)
+            
         if not user.roleCheck(event.message.member, [338173415527677954,253752685357039617,225413350874546176,387037912782471179,406690402956083210,729368484211064944]):
             if "<@&225345178955808768>" in event.content or "@everyone" in event.content or "@here" in event.content:
                 await event.message.member.add_role(676250179929636886)
