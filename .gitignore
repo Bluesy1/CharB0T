@@ -47,3 +47,6 @@ server.code-workspace
 .vscode/settings.json
 tickets.json
 testfsd.py
+market.json
+asdadas.py
+extensions/token2.json
