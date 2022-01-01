@@ -5,16 +5,13 @@ import time
 from collections import Counter
 
 from hikari import undefined
+import validators
 
 import auxone as a
 import hikari
 import lightbulb
 from auxone import userInfo as user
-from hikari import Embed, embeds
-from hikari.messages import ButtonStyle
-from lightbulb import commands, utils
-from lightbulb.checks import has_roles
-from lightbulb.utils.nav import ComponentButton
+from hikari import Embed
 
 
 def find_embedded_urls(data):
@@ -75,13 +72,15 @@ async def on_message(event: hikari.GuildMessageCreateEvent) -> None:
                 embed = Embed(title="Log Level Event - Phone Number or WhatsApp like trigger hit:",description=event.content,color="0x0000ff").add_field("Whatsapp Check:","Triggered: Found keyword" if has_whatsapp else "Keyword Not Present",inline=True).add_field("Phone Number Check:",f"Triggered: Found Regex Match(s):{nums}" if has_nums else "No Regex Matches Present",inline=True).add_field("Member",f"Username: {event.member.username}, Discriminator: {event.member.discriminator}",inline=True).add_field("Member ID",event.member.id,inline=True).add_field("Channel:",event.get_channel().mention,inline=True)
                 await EventsPlugin.app.rest.create_message(682559641930170379,embed=embed)
         del nums;del has_nums;del has_dollarsign;del has_whatsapp;del allowed_roles
-        links = find_embedded_urls(event.content)
-        links = [match[0] for match in links]
+        listDelinked = event.content.lower().split();links = list()
+        for item in listDelinked:
+            if "http" not in item:item = "https://"+item
+            if validators.url(item): links.append(item)
         if bool(links) and not any([any("discord.gift/" in link for link in links),any("discord.com/" in link for link in links)]) and event.channel_id==926532222398369812:
-            delinked = event.content.lower()#re.sub(r"(http|ftp|https):\/\/([\w_-]+(?:(?:\.[\w_-]+)+))([\w.,@?^=%&:\/~+#-]*[\w@?^=%&\/~+#-])"," ",event.content.lower(),flags=re.M|re.I)
-            if 'nitro' in delinked.lower():
-                listDelinked = delinked.lower().split()
-                counted = Counter(listDelinked)
+            counted = Counter(listDelinked);nitro=False
+            for element in counted.elements():
+                if 'nitro' in element:nitro=True;break
+            if nitro:        
                 keywords = set();joiner = ", ";reportlevel = ['Ban',"Log"];nitro = 0;none_found="None Found"
                 for element in counted.elements():
                     if element in ['airdrop', 'steam', 'free', 'gift', 'left', 'some','got','accidentally','other']:
