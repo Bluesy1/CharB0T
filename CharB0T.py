@@ -81,4 +81,4 @@ bot.load_extensions("extensions.__help")
 # Run the bot
 # Note that this is blocking meaning no code after this line will run
 # until the bot is shut off
-bot.run(activity=Activity(name="for scammers",type=ActivityType.LISTENING))#activity=Activity())
+bot.run(activity=Activity(name="for scammers",type=ActivityType.WATCHING))#activity=Activity())
