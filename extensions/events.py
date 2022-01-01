@@ -63,14 +63,13 @@ async def on_message(event: hikari.GuildMessageCreateEvent) -> None:
                 await event.message.delete()
                 if role_check:
                     await event.member.send("Hey! The bot caught a message from you it thinks is a scam beyond a threshold of doubt. If you believe this is an error, reach out to us here: : https://cpry.net/banned. or if that is broken, tweet @CharliePryor at https://twitter.com/CharliePryor. If able, you can also try replying to this message.")
-                    await EventsPlugin.app.rest.ban_user(225345178955808768,event.member.id,delete_message_days=0,reason="CryptoScam")
+                    await EventsPlugin.app.rest.ban_user(event.guild_id,event.member.id,delete_message_days=0,reason="CryptoScam")
                 return
             elif any([has_dollarsign and has_nums,has_nums and has_whatsapp, has_whatsapp and has_dollarsign]):
                 embed = Embed(title="Mute Level Event - Possible WhatsApp Cryptoscam - 2/3 triggers hit:",description=event.content,color="0xff0000").add_field("Whatsapp Check:","Triggered: Found keyword" if has_whatsapp else "Keyword Not Present",inline=True).add_field("Phone Number Check:",f"Triggered: Found Regex Match(s):{nums}" if has_nums else "No Regex Matches Present",inline=True).add_field("`$` Check:","Triggered: Found symbol" if has_dollarsign else "Symbol Not Present",inline=True).add_field("Role Check:","Triggered: No allowed roles" if role_check else "Allowed role present",inline=True).add_field("Result:","Mute" if role_check else "Log",inline=True).add_field("Member",f"Username: {event.member.username}, Discriminator: {event.member.discriminator}",inline=True).add_field("Member ID",event.member.id,inline=True).add_field("Channel:",event.get_channel().mention,inline=True)
                 await EventsPlugin.app.rest.create_message(426016300439961601,embed=embed)
                 await event.message.delete()
-                if role_check:await EventsPlugin.app.rest.add_role_to_member(225345178955808768,event.member.id,684936661745795088,reason="CryptoScam")
-                if role_check:await EventsPlugin.app.rest.add_role_to_member(225345178955808768,event.member.id,676250179929636886,reason="CryptoScam")
+                if role_check:await EventsPlugin.app.rest.add_role_to_member(event.guild_id,event.member.id,684936661745795088,reason="CryptoScam")
                 return
             elif has_nums or has_whatsapp:
                 embed = Embed(title="Log Level Event - Phone Number or WhatsApp like trigger hit:",description=event.content,color="0x0000ff").add_field("Whatsapp Check:","Triggered: Found keyword" if has_whatsapp else "Keyword Not Present",inline=True).add_field("Phone Number Check:",f"Triggered: Found Regex Match(s):{nums}" if has_nums else "No Regex Matches Present",inline=True).add_field("Member",f"Username: {event.member.username}, Discriminator: {event.member.discriminator}",inline=True).add_field("Member ID",event.member.id,inline=True).add_field("Channel:",event.get_channel().mention,inline=True)
@@ -94,13 +93,13 @@ async def on_message(event: hikari.GuildMessageCreateEvent) -> None:
                     await EventsPlugin.app.rest.create_message(926532222398369812,content="**LOG ONLY**"if not role_check else undefined.UNDEFINED,embed=embed)
                     if role_check:
                         await event.message.respond("Ban stand-in")#await event.member.send("Hey! The bot caught a message from you it thinks is a scam beyond a threshold of doubt. If you believe this is an error, reach out to us here: : https://cpry.net/banned. or if that is broken, tweet @CharliePryor at https://twitter.com/CharliePryor. If able, you can also try replying to this message.")
-                        #await EventsPlugin.app.rest.ban_user(225345178955808768,event.member.id,delete_message_days=0,reason="NitroScam")
+                        #await EventsPlugin.app.rest.ban_user(event.guild_id,event.member.id,delete_message_days=0,reason="NitroScam")
                     else: await event.message.respond("Log stand-in")
                 else:
                     await EventsPlugin.app.rest.create_message(926532222398369812,embed=embed)
             
         if not user.roleCheck(event.message.member, [338173415527677954,253752685357039617,225413350874546176,387037912782471179,406690402956083210,729368484211064944]):
-            if "<@&225345178955808768>" in event.content or "@everyone" in event.content or "@here" in event.content:
+            if f"<@&{event.guild_id}>" in event.content or "@everyone" in event.content or "@here" in event.content:
                 await event.message.member.add_role(676250179929636886)
                 await event.message.member.add_role(684936661745795088)
                 await event.message.delete()
