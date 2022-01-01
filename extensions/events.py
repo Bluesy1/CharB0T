@@ -83,12 +83,12 @@ async def on_message(event: hikari.GuildMessageCreateEvent) -> None:
             if 'nitro' in delinked.lower():
                 listDelinked = delinked.lower().split()
                 counted = Counter(listDelinked)
-                keywords = set();joiner = ", ";reportlevel = ['Ban',"Log"];nitro = 0
+                keywords = set();joiner = ", ";reportlevel = ['Ban',"Log"];nitro = 0;none_found="None Found"
                 for element in counted.elements():
                     if element in ['airdrop', 'steam', 'free', 'gift', 'left', 'some','got','accidentally','other']:
                         keywords.add(element)
                     elif 'nitro' in element: nitro+=1
-                embed = Embed(title=f"{reportlevel[0] if keywords else reportlevel[1]} Event: Nitro Scam",description=event.content,color="0xff0000"if keywords else "0x0000ff").add_field("Links",joiner.join(links),inline=True).add_field("Nitro Keyword Count",nitro,inline=True).add_field("Secondary Keyword Count",f"{len(keywords)}: {joiner.join(keywords)}",inline=True).add_field("Role Check:","Failed" if role_check else "Passed",inline=True).add_field("Result:","Ban" if role_check and keywords else "Log",inline=True).add_field("Member",f"Username: {event.member.username}, Discriminator: {event.member.discriminator}",inline=True)
+                embed = Embed(title=f"{reportlevel[0] if keywords else reportlevel[1]} Event: Nitro Scam",description=event.content,color="0xff0000"if keywords else "0x0000ff").add_field("Links",joiner.join(links),inline=True).add_field("Nitro Keyword Count",nitro,inline=True).add_field("Secondary Keyword Count",f"{len(keywords)}: {joiner.join(keywords) if keywords else none_found}",inline=True).add_field("Role Check:","Failed" if role_check else "Passed",inline=True).add_field("Member",f"Username: {event.member.username}, Discriminator: {event.member.discriminator}",inline=True).add_field("Member ID",event.member.id,inline=True).add_field("Channel:",event.get_channel().mention,inline=True)
                 if keywords:
                     await event.message.delete()
                     await EventsPlugin.app.rest.create_message(926532222398369812,content="**LOG ONLY**"if not role_check else undefined.UNDEFINED,embed=embed)
