@@ -76,14 +76,14 @@ async def on_message(event: hikari.GuildMessageCreateEvent) -> None:
         del nums;del has_nums;del has_dollarsign;del has_whatsapp;del role_check;del allowed_roles
         links = find_embedded_urls(event.content)
         links = [match[0] for match in links]
-        if bool(links) and not any("discord.gift/" in link for link in links) and event.channel_id==926532222398369812:
-            delinked = re.sub(r"(http|ftp|https):\/\/([\w_-]+(?:(?:\.[\w_-]+)+))([\w.,@?^=%&:\/~+#-]*[\w@?^=%&\/~+#-])"," ",event.content.lower(),flags=re.M|re.I)
+        if bool(links) and not any([any("discord.gift/" in link for link in links),any("discord.com/" in link for link in links)]) and event.channel_id==926532222398369812:
+            delinked = event.content.lower()#re.sub(r"(http|ftp|https):\/\/([\w_-]+(?:(?:\.[\w_-]+)+))([\w.,@?^=%&:\/~+#-]*[\w@?^=%&\/~+#-])"," ",event.content.lower(),flags=re.M|re.I)
             if 'nitro' in delinked.lower():
                 listDelinked = delinked.lower().split()
                 counted = Counter(listDelinked)
                 keywords = 0
                 for element in counted.elements():
-                    if element in ['airdrop', 'steam', 'free', 'gift', 'left', 'some']:
+                    if element in ['airdrop', 'steam', 'free', 'gift', 'left', 'some','got','accidentally','other']:
                         keywords+=1
                 if keywords>0:
                     await EventsPlugin.app.rest.create_message(926532222398369812,f"Would have Bannned, {keywords} final step keywords detected, along with nitro keyword and link",reply=event.message_id)

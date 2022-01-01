@@ -1,7 +1,9 @@
 import json
 import logging
 import os
-from hikari.presences import Activity
+import hikari
+from hikari.intents import Intents
+from hikari.presences import Activity, ActivityType
 
 import lightbulb
 from lightbulb import commands
@@ -23,7 +25,7 @@ bot = lightbulb.BotApp(token=token, prefix="!", help_slash_command=True, default
             "hikari": {"level": "INFO"},
             "hikari.ratelimits": {"level": "TRACE_HIKARI"},
             "lightbulb": {"level": "INFO"},
-        },},case_insensitive_prefix_commands=True)
+        },},case_insensitive_prefix_commands=True,intents=Intents.ALL)
 
 #bot.load_extensions("extensions.events")
 
@@ -69,7 +71,6 @@ async def load(ctx) -> None:
 @lightbulb.command("ping", "Checks that the bot is alive")
 @lightbulb.implements(commands.PrefixCommand)
 async def ping(ctx):
-    """Checks that the bot is alive"""
     await ctx.event.message.delete()
     await ctx.respond(f"Pong! Latency: {bot.heartbeat_latency*1000:.2f}ms")
 
@@ -80,4 +81,4 @@ bot.load_extensions("extensions.__help")
 # Run the bot
 # Note that this is blocking meaning no code after this line will run
 # until the bot is shut off
-bot.run()#activity=Activity())
+bot.run(activity=Activity(name="for scammers",type=ActivityType.LISTENING))#activity=Activity())
