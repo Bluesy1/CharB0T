@@ -32,7 +32,7 @@ async def nitroScan(event: Union[hikari.GuildMessageUpdateEvent,hikari.GuildMess
     for item in listDelinked:
         if "http" not in item:item = "https://"+item
         if validators.url(item): links.append(item)
-    if bool(links) and not any([any("discord.gift/" in link for link in links),any("discord.com/" in link for link in links)]) and event.channel_id==926532222398369812:
+    if bool(links) and not any([any("discord.gift/" in link for link in links),any("discord.com/" in link for link in links)]):
         counted = Counter(listDelinked);nitro=False
         for element in counted.elements():
             if 'nitro' in element:nitro=True;break
@@ -45,14 +45,14 @@ async def nitroScan(event: Union[hikari.GuildMessageUpdateEvent,hikari.GuildMess
             embed = Embed(title=f"{reportlevel[0] if keywords else reportlevel[1]} Event: Nitro Scam",description=event.content,color="0xff0000"if keywords else "0x0000ff").add_field("Links",joiner.join(links),inline=True).add_field("Nitro Keyword Count",nitro,inline=True).add_field("Secondary Keyword Count",f"{len(keywords)}: {joiner.join(keywords) if keywords else none_found}",inline=True).add_field("Role Check:","Failed" if role_check else "Passed",inline=True).add_field("Member",f"Username: {event.member.username}, Discriminator: {event.member.discriminator}",inline=True).add_field("Member ID",event.member.id,inline=True).add_field("Channel:",event.get_channel().mention,inline=True)
             if keywords:
                 try:await event.message.delete()
-                finally:await EventsPlugin.app.rest.create_message(926532222398369812,content="**LOG ONLY**"if not role_check else undefined.UNDEFINED,embed=embed)
+                finally:await EventsPlugin.app.rest.create_message(426016300439961601,content="**LOG ONLY**"if not role_check else undefined.UNDEFINED,embed=embed)
                 if role_check:
-                    await event.message.respond("Ban stand-in")#await event.member.send("Hey! The bot caught a message from you it thinks is a scam beyond a threshold of doubt. If you believe this is an error, reach out to us here: : https://cpry.net/banned. or if that is broken, tweet @CharliePryor at https://twitter.com/CharliePryor. If able, you can also try replying to this message.")
-                    #await EventsPlugin.app.rest.ban_user(event.guild_id,event.member.id,delete_message_days=0,reason="NitroScam")
+                    await event.member.send("Hey! The bot caught a message from you it thinks is a scam beyond a threshold of doubt. If you believe this is an error, reach out to us here: : https://cpry.net/banned. or if that is broken, tweet @CharliePryor at https://twitter.com/CharliePryor. If able, you can also try replying to this message.")
+                    await EventsPlugin.app.rest.ban_user(event.guild_id,event.member.id,delete_message_days=0,reason="NitroScam")
                     return "Ban"
-                else: await event.message.respond("Log stand-in");return None
+                else: return None
             else:
-                await EventsPlugin.app.rest.create_message(926532222398369812,embed=embed)
+                await EventsPlugin.app.rest.create_message(682559641930170379,embed=embed)
                 return None
     return None
 
