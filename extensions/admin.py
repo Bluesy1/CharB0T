@@ -96,7 +96,7 @@ async def command(ctx):
     await ctx.send("Current Time: Year: {0}, Day: {1}, Hour: {2}, Minute: {3}, Second {4}".format(Ksptime[0]//462,Ksptime[0]%462,Ksptime[1],Ksptime[2],Ksptime[3]))
     with open("recurring.json","w") as r:
         json.dump(reccuring,r)
-
+"""
 @AdminPlugin.command
 @lightbulb.command("reccuring", "reccuring group")
 @lightbulb.implements(commands.SlashCommandGroup)
@@ -158,7 +158,7 @@ async def command(ctx):
     with open("recurring.json","w") as r:
         json.dump(reccuring,r)
     await ctx.respond("Specified Event has been removed.")
-
+"""
 @AdminPlugin.command
 @lightbulb.add_checks(lightbulb.Check(checks.check_publisher))
 @lightbulb.option("logo", "use logo?", type=OptionType.BOOLEAN, required=True)
@@ -275,30 +275,30 @@ async def command(ctx):
                         await publish.send(embed=embed)
                         return; break
                     elif key=="CANCEL":
-                        await ctx.edit_last_response("CANCELED.",embed=None, compnonents=[])
+                        await ctx.edit_last_response("CANCELED.",embed=None, components=[])
                         return
                     elif key=="rImg":
                         addImage=False
-                        await ctx.edit_last_response("Removed.",embed=None, compnonents=[])
+                        await ctx.edit_last_response("Removed.",embed=None, components=[])
                         await asyncio.sleep(5)
                         continue
                     elif key=="rLogo":
                         hasLogo=False
-                        await ctx.edit_last_response("Removed.",embed=None, compnonents=[])
+                        await ctx.edit_last_response("Removed.",embed=None, components=[])
                         await asyncio.sleep(5)
                         continue
                     elif key=="rAuth":
                         hasAuthor=False
-                        await ctx.edit_last_response("Removed.",embed=None, compnonents=[])
+                        await ctx.edit_last_response("Removed.",embed=None, components=[])
                         await asyncio.sleep(5)
                         continue
                     elif key=="rFoot":
                         footer=False
-                        await ctx.edit_last_response("Removed.",embed=None, compnonents=[])
+                        await ctx.edit_last_response("Removed.",embed=None, components=[])
                         await asyncio.sleep(5)
                         continue
                     elif key=="Title":
-                        await ctx.edit_last_response("Please send new title",embed=None, compnonents=[])
+                        await ctx.edit_last_response("Please send new title",embed=None, components=[])
                         try:
                             async with AdminPlugin.bot.stream(GuildMessageCreateEvent, timeout=15).filter(('author_id', ctx.author.id)) as stream2:
                                 async for event2 in stream2:
@@ -306,13 +306,13 @@ async def command(ctx):
                                     if event2.content is not None:
                                         title = event2.content
                                     else:
-                                        await ctx.edit_last_response("Error: No text found in message.",embed=None, compnonents=[])
+                                        await ctx.edit_last_response("Error: No text found in message.",embed=None, components=[])
                                         await asyncio.sleep(5)
                                     await event2.message.delete()
                                     continue
                         except asyncio.TimeoutError:await ctx.edit_last_response("Waited for 15 seconds... Timeout.", embed=None, components=[]);continue
                     elif key=="Text":
-                        await ctx.edit_last_response("Please send first paragraph",embed=None, compnonents=[]); morePars=True
+                        await ctx.edit_last_response("Please send first paragraph",embed=None, components=[]); morePars=True
                         try:
                             async with AdminPlugin.bot.stream(GuildMessageCreateEvent, timeout=15).filter(('author_id', ctx.author.id)) as stream2:
                                 async for event2 in stream2:
@@ -357,7 +357,7 @@ async def command(ctx):
                                             morePars=False
                             except asyncio.TimeoutError:await ctx.edit_last_response("Waited for 15 seconds... Timeout.", embed=None, components=[])
                     elif key=="eAuth":
-                        await ctx.edit_last_response("Please send new author",embed=None, compnonents=[])
+                        await ctx.edit_last_response("Please send new author",embed=None, components=[])
                         try:
                             async with AdminPlugin.bot.stream(GuildMessageCreateEvent, timeout=15).filter(('author_id', ctx.author.id)) as stream2:
                                 async for event2 in stream2:
@@ -366,13 +366,13 @@ async def command(ctx):
                                         hasAuthor=True
                                         author = event2.content
                                     else:
-                                        await ctx.edit_last_response("Error: No text found in message.",embed=None, compnonents=[])
+                                        await ctx.edit_last_response("Error: No text found in message.",embed=None, components=[])
                                         await asyncio.sleep(5)
                                     await event2.message.delete()
                                     continue
                         except asyncio.TimeoutError:await ctx.edit_last_response("Waited for 15 seconds... Timeout.", embed=None, components=[]);continue
                     elif key=="eFoot":
-                        await ctx.edit_last_response("Please send new footer",embed=None, compnonents=[])
+                        await ctx.edit_last_response("Please send new footer",embed=None, components=[])
                         try:
                             async with AdminPlugin.bot.stream(GuildMessageCreateEvent, timeout=15).filter(('author_id', ctx.author.id)) as stream2:
                                 async for event2 in stream2:
@@ -381,7 +381,7 @@ async def command(ctx):
                                         footer=True
                                         time = event2.content
                                     else:
-                                        await ctx.edit_last_response("Error: No text found in message.",embed=None, compnonents=[])
+                                        await ctx.edit_last_response("Error: No text found in message.",embed=None, components=[])
                                         await asyncio.sleep(5)
                                     await event2.message.delete()
                                     continue
@@ -419,7 +419,7 @@ async def command(ctx):
     SubButtons.add_button(ButtonStyle.DANGER, "-m").set_label("-30 minutes").set_emoji("◀️").add_to_container()
     os.environ['TZ'] = 'US/Eastern'
     time.tzset() 
-    ts = round(time.time(),)
+    ts = round(time.time())
     ts -=ts%1800
     embed = Embed(title="Time builder", description=f"timestamp: {ts}: <t:{ts}:F>")
     await ctx.respond("Use the select menu to adjust the time", embed=embed, components=[AddButtons,SubButtons])
