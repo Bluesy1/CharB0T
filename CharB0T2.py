@@ -38,7 +38,6 @@ async def create_task(time: datetime,guild_id:snowflakes.Snowflakeish,member_id:
         timeoutStill = member.communication_disabled_until()
         if not timeoutStill:
             await bot.rest.create_message(926532222398369812,embed=Embed(color="0x00ff00").set_author(icon=member.avatar_url,name=f"[UNTIMEOUT] {member.username}#{member.discriminator}").add_field("User",member.mention,inline=True))
-            sched.remove_job(f"{guild_id}-{member_id}")
         elif timeoutStill:
             await create_task(timeoutStill,member.guild_id,member.id)
     sched.add_job(log_untimeout,DateTrigger(run_date=time),id=f"{guild_id}-{member_id}",replace_existing=True)
