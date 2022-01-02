@@ -1,5 +1,5 @@
 import asyncio
-from datetime import datetime, timedelta
+from datetime import timedelta
 import json
 import os
 import hikari
@@ -55,8 +55,11 @@ async def on_member_update(event: hikari.MemberUpdateEvent):
                 await bot.rest.create_message(926532222398369812,embed=embed)
                 if td.days< 0 or td.seconds <0:
                     embed = Embed(color="0x00ff00").set_author(icon=event.member.avatar_url,name=f"[UNTIMEOUT] {event.member.username}#{event.member.discriminator}").add_field("User",event.member.mention,inline=True)
-                    await asyncio.sleep(td.seconds+(td.days*86400))
-                    await bot.rest.create_message(926532222398369812,embed=embed)
+                    member_id=event.member.id;guild_id = event.guild_id
+                    await asyncio.sleep(td.seconds+(td.days*86400)-3)
+                    member = await bot.rest.fetch_member(guild_id,member_id)
+                    timeout_still = member.communication_disabled_until()
+                    if timeout_still: await bot.rest.create_message(926532222398369812,embed=embed)
             else:
                 embed = Embed(color="0x00ff00").set_author(icon=event.member.avatar_url,name=f"[UNTIMEOUT] {event.member.username}#{event.member.discriminator}").add_field("User",event.member.mention,inline=True)
                 await bot.rest.create_message(926532222398369812,embed=embed)
@@ -74,8 +77,11 @@ async def on_member_update(event: hikari.MemberUpdateEvent):
             await bot.rest.create_message(926532222398369812,embed=embed)
         if td.days< 0 or td.seconds <0:
             embed = Embed(color="0x00ff00").set_author(icon=event.member.avatar_url,name=f"[UNTIMEOUT] {event.member.username}#{event.member.discriminator}").add_field("User",event.member.mention,inline=True)
-            await asyncio.sleep(td.seconds+(td.days*86400))
-            await bot.rest.create_message(926532222398369812,embed=embed)
+            member_id=event.member.id;guild_id = event.guild_id
+            await asyncio.sleep(td.seconds+(td.days*86400)-3)
+            member = await bot.rest.fetch_member(guild_id,member_id)
+            timeout_still = member.communication_disabled_until()
+            if timeout_still: await bot.rest.create_message(926532222398369812,embed=embed)
 
 
 
