@@ -9,11 +9,11 @@ from hikari.internal.time import utc_datetime
 
 import lightbulb
 from lightbulb import commands
-"""
+
 if os.name != "nt":
     import uvloop
     uvloop.install()
-"""
+
 with open('token2.json') as t:
     token = json.load(t)['token']
 # Instantiate a Bot instance
