@@ -87,6 +87,9 @@ async def on_member_update(event: hikari.MemberUpdateEvent):
             await bot.rest.create_message(426016300439961601,embed=embed)
             await create_task(event.member.communication_disabled_until(),event.guild_id,event.member.id)
 
+@bot.listen(hikari.MemberDeleteEvent)
+async def on_member_leave(event: hikari.MemberDeleteEvent):
+    await bot.rest.create_message(430197357100138497,f"**{event.user.username}#{event.user.discriminator}** has left the server. ID:{event.user_id}")
 
 # Run the bot
 # Note that this is blocking meaning no code after this line will run
