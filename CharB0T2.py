@@ -1,14 +1,17 @@
 import asyncio
-from datetime import timedelta
+from datetime import datetime, timedelta
 import json
 import os
 import hikari
+from hikari import snowflakes
 from hikari.embeds import Embed
 from hikari.intents import Intents
 from hikari.internal.time import utc_datetime
 
 import lightbulb
 from lightbulb import commands
+from apscheduler.schedulers.asyncio import AsyncIOScheduler
+from  apscheduler.triggers.date import DateTrigger
 
 if os.name != "nt":
     import uvloop
@@ -26,6 +29,19 @@ bot = lightbulb.BotApp(token=token, prefix="c?", default_enabled_guilds=22534517
             "hikari.ratelimits": {"level": "TRACE_HIKARI"},
             "lightbulb": {"level": "INFO"},
         },},case_insensitive_prefix_commands=True,delete_unbound_commands=False,intents=Intents.ALL)
+sched = AsyncIOScheduler()
+sched.start()
+
+async def create_task(time: datetime,guild_id:snowflakes.Snowflakeish,member_id: snowflakes.Snowflakeish):
+    @sched.scheduled_job(DateTrigger(run_date=time),id=str(member_id))
+    async def log_untimeout()->None:
+        member = await bot.rest.fetch_member(guild_id,member_id)
+        timeoutStill = member.communication_disabled_until()
+        if not timeoutStill:
+            await bot.rest.create_message(926532222398369812,embed=Embed(color="0x00ff00").set_author(icon=member.avatar_url,name=f"[UNTIMEOUT] {member.username}#{member.discriminator}").add_field("User",member.mention,inline=True))
+        elif timeoutStill:
+            await create_task(timeoutStill,member.guild_id,member.id)
+    sched.add_job(log_untimeout,DateTrigger(run_date=time),id=f"{guild_id}-{member_id}",replace_existing=True)
 
 @bot.command()
 @lightbulb.add_checks(lightbulb.owner_only)
@@ -53,16 +69,11 @@ async def on_member_update(event: hikari.MemberUpdateEvent):
                 if (td.seconds%3600)%60!=0:timedeltastring+=f"{', 'if bool(timedeltastring)else ''}{(td.seconds%3600)%60} Second{'s' if (td.seconds%3600)%60>1 else ''}"
                 embed = Embed(color="0xff0000").set_author(icon=event.member.avatar_url,name=f"[TIMEOUT] {event.member.username}#{event.member.discriminator}").add_field("User",event.member.mention,inline=True).add_field("Duration",timedeltastring,inline=True)
                 await bot.rest.create_message(926532222398369812,embed=embed)
-                if td.days< 0 or td.seconds <0:
-                    embed = Embed(color="0x00ff00").set_author(icon=event.member.avatar_url,name=f"[UNTIMEOUT] {event.member.username}#{event.member.discriminator}").add_field("User",event.member.mention,inline=True)
-                    member_id=event.member.id;guild_id = event.guild_id
-                    await asyncio.sleep(td.seconds+(td.days*86400)-3)
-                    member = await bot.rest.fetch_member(guild_id,member_id)
-                    timeout_still = member.communication_disabled_until()
-                    if timeout_still: await bot.rest.create_message(926532222398369812,embed=embed)
+                await create_task(event.member.communication_disabled_until(),event.guild_id,event.member.id)
             else:
                 embed = Embed(color="0x00ff00").set_author(icon=event.member.avatar_url,name=f"[UNTIMEOUT] {event.member.username}#{event.member.discriminator}").add_field("User",event.member.mention,inline=True)
                 await bot.rest.create_message(926532222398369812,embed=embed)
+                sched.remove_job(f"{event.guild_id}-{event.member.id}")
             
     except:
         if event.member.raw_communication_disabled_until is not None:
@@ -75,14 +86,7 @@ async def on_member_update(event: hikari.MemberUpdateEvent):
             if (td.seconds%3600)%60!=0:timedeltastring+=f"{', 'if bool(timedeltastring)else ''}{(td.seconds%3600)%60} Second{'s' if (td.seconds%3600)%60>1 else ''}"
             embed = Embed(color="0xff0000").set_author(icon=event.member.avatar_url,name=f"[TIMEOUT] {event.member.username}#{event.member.discriminator}").add_field("User",event.member.mention,inline=True).add_field("Duration",timedeltastring,inline=True)
             await bot.rest.create_message(926532222398369812,embed=embed)
-        if td.days< 0 or td.seconds <0:
-            embed = Embed(color="0x00ff00").set_author(icon=event.member.avatar_url,name=f"[UNTIMEOUT] {event.member.username}#{event.member.discriminator}").add_field("User",event.member.mention,inline=True)
-            member_id=event.member.id;guild_id = event.guild_id
-            await asyncio.sleep(td.seconds+(td.days*86400)-3)
-            member = await bot.rest.fetch_member(guild_id,member_id)
-            timeout_still = member.communication_disabled_until()
-            if timeout_still: await bot.rest.create_message(926532222398369812,embed=embed)
-
+            await create_task(event.member.communication_disabled_until(),event.guild_id,event.member.id)
 
 
 # Run the bot
