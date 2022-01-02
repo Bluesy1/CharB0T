@@ -71,7 +71,7 @@ async def on_member_update(event: hikari.MemberUpdateEvent):
             if (td.seconds%3600)//60!=0:timedeltastring+=f"{', 'if bool(timedeltastring)else ''}{(td.seconds%3600)//60} Minute{'s' if (td.seconds%3600)//60>1 else ''} "
             if (td.seconds%3600)%60!=0:timedeltastring+=f"{', 'if bool(timedeltastring)else ''}{(td.seconds%3600)%60} Second{'s' if (td.seconds%3600)%60>1 else ''}"
             embed = Embed(color="0xff0000").set_author(icon=event.member.avatar_url,name=f"[TIMEOUT] {event.member.username}#{event.member.discriminator}").add_field("User",event.member.mention,inline=True).add_field("Duration",timedeltastring,inline=True)
-        await bot.rest.create_message(926532222398369812,embed=embed)
+            await bot.rest.create_message(926532222398369812,embed=embed)
         if td.days< 0 or td.seconds <0:
             embed = Embed(color="0x00ff00").set_author(icon=event.member.avatar_url,name=f"[UNTIMEOUT] {event.member.username}#{event.member.discriminator}").add_field("User",event.member.mention,inline=True)
             await asyncio.sleep(td.seconds+(td.days*86400))
