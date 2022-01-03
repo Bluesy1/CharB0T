@@ -104,6 +104,7 @@ async def on_member_leave(event: hikari.MemberDeleteEvent):
         channel = await bot.rest.fetch_channel(430197357100138497)
         messages: iterators.LazyIterator[Message] = await channel.fetch_history(before=datetime.utcnow())
         messages = messages.filter(("message.author.is_bot",True))
+        messages = messages.reversed()
         timedeltastring="None Found"
         async for item in messages:
             mentions = item.mentions.get_members()
@@ -114,7 +115,7 @@ async def on_member_leave(event: hikari.MemberDeleteEvent):
                 day, hour = divmod(hour, 24)
                 year, day = divmod(day, 365)
                 timedeltastring = "{0} Year(s), {1} Day(s), {2} Hour(s), {3} Min(s), {4} Sec(s)".format(year,day,hour,min,sec)
-                break
+                
     await bot.rest.create_message(430197357100138497,f"**{event.user.username}#{event.user.discriminator}** has left the server. ID:{event.user_id}. Time on Server: {timedeltastring}")
 
 # Run the bot
