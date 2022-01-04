@@ -103,7 +103,8 @@ async def on_member_leave(event: hikari.MemberDeleteEvent):
     else:
         channel = await bot.rest.fetch_channel(430197357100138497)
         messages: iterators.LazyIterator[Message] = await channel.fetch_history(before=datetime.utcnow())
-        messages = messages.filter(("message.author.is_bot",True))
+        try:messages = messages.filter(("message.author.is_bot",True))
+        except:None
         messages = messages.reversed()
         timedeltastring="None Found"
         async for item in messages:
@@ -122,7 +123,8 @@ async def on_ban(event: hikari.BanCreateEvent):
     audit = await event.fetch_ban()
     channel = await bot.rest.fetch_channel(430197357100138497)
     messages: iterators.LazyIterator[Message] = await channel.fetch_history(before=datetime.utcnow())
-    messages = messages.filter(("message.author.is_bot",True))
+    try:messages = messages.filter(("message.author.is_bot",True))
+    except:None
     messages = messages.reversed()
     timedeltastring="None Found"
     async for item in messages:
