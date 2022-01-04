@@ -115,8 +115,27 @@ async def on_member_leave(event: hikari.MemberDeleteEvent):
                 day, hour = divmod(hour, 24)
                 year, day = divmod(day, 365)
                 timedeltastring = "{0} Year(s), {1} Day(s), {2} Hour(s), {3} Min(s), {4} Sec(s)".format(year,day,hour,min,sec)
-                
     await bot.rest.create_message(430197357100138497,f"**{event.user.username}#{event.user.discriminator}** has left the server. ID:{event.user_id}. Time on Server: {timedeltastring}")
+
+@bot.listen(hikari.BanCreateEvent)
+async def on_ban(event: hikari.BanCreateEvent):
+    audit = await event.fetch_ban()
+    channel = await bot.rest.fetch_channel(430197357100138497)
+    messages: iterators.LazyIterator[Message] = await channel.fetch_history(before=datetime.utcnow())
+    messages = messages.filter(("message.author.is_bot",True))
+    messages = messages.reversed()
+    timedeltastring="None Found"
+    async for item in messages:
+        mentions = item.mentions.get_members()
+        if event.user_id in mentions.keys:
+            delta = time.time() - time.mktime(item.created_at.utctimetuple())
+            min, sec = divmod(delta, 60)
+            hour, min = divmod(min, 60)
+            day, hour = divmod(hour, 24)
+            year, day = divmod(day, 365)
+            timedeltastring = "{0} Year(s), {1} Day(s), {2} Hour(s), {3} Min(s), {4} Sec(s)".format(year,day,hour,min,sec)
+    await bot.rest.create_message(430197357100138497,f"**{event.user.username}#{event.user.discriminator}** was banned. ID:{event.user.id}. Reason: {audit.reason if audit.reason else 'No reason proveded'}. Time on Server: {timedeltastring}")
+
 
 # Run the bot
 # Note that this is blocking meaning no code after this line will run
