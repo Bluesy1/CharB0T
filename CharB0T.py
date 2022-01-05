@@ -86,7 +86,7 @@ async def ping(ctx):
         try:member:guilds.Member = await bot.rest.fetch_member(225345178955808768,int(id))
         except: continue
         name = member.display_name
-        newname, count = re.subn("(?<=[\[\(])[^\[\]]{2,4}(?=\]\()","",name)
+        newname, count = re.subn("(?<=[\[\(])[^\[\]]{2,4}(?=\]\))","",name)
         if newname != name:
             await member.edit(nick=newname)
 bot.load_extensions_from("extensions")
