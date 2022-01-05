@@ -2,12 +2,15 @@ import json
 import logging
 import os
 import re
+from cryptography.fernet import Fernet
 import hikari
+from hikari import guilds
 from hikari.intents import Intents
 from hikari.presences import Activity, ActivityType
 
 import lightbulb
 from lightbulb import commands
+import pandas as pd
 
 import auxone as a
 from auxone import userInfo as user
@@ -73,13 +76,18 @@ async def load(ctx) -> None:
 async def ping(ctx):
     await ctx.event.message.delete()
     await ctx.respond(f"Pong! Latency: {bot.heartbeat_latency*1000:.2f}ms")
-    members = bot.rest.fetch_members(225345178955808768)
-    async for member in members:
-        if 906000578092621865 not in member.role_ids:continue
+    with open('filekey.key','rb') as file:
+        key = file.read()
+    fernet = Fernet(key)
+    df = pd.DataFrame(json.loads(fernet.decrypt(open('UserInfo.json',"rb").read())))
+    with open('UserInfo.json','wb') as t:
+        t.write(fernet.encrypt(json.dumps(df.to_dict()).encode('utf-8')))
+    for id in list(df.index):
+        member:guilds.Member = await bot.rest.fetch_member(int(id))
         name = member.display_name
-        new_name, count = re.subn("(?<=[\[\(])[^\[\]]{2,4}(?=\]\()","",name)
-        await member.edit(nick=new_name)
-
+        newname, count = re.subn("(?<=[\[\(])[^\[\]]{2,4}(?=\]\()","",name)
+        if newname != name:
+            await member.edit(nick=newname)
 bot.load_extensions_from("extensions")
 bot.load_extensions("extensions.__help")
 
