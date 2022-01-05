@@ -12,6 +12,10 @@ import hikari
 import lightbulb
 from hikari import Embed
 
+with open('filekey.key','rb') as file:
+    key = file.read()
+fernet = fernet.Fernet(key)
+
 def add_onmessage(message):
     with open('tickets.json',"rb") as t:
         temp = fernet.decrypt(t.read())
