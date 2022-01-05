@@ -5,8 +5,6 @@ from hikari.presences import Activity, ActivityType
 
 import lightbulb
 from lightbulb import commands
-import pandas as pd
-from auxone import userInfo as user
 if os.name != "nt":
     import uvloop
     uvloop.install()
