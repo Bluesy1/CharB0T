@@ -74,7 +74,6 @@ async def ping(ctx):
     await ctx.event.message.delete()
     await ctx.respond(f"Pong! Latency: {bot.heartbeat_latency*1000:.2f}ms")
     members = bot.rest.fetch_members(225345178955808768)
-    members = members.filter(("906000578092621865 in member.role_ids",True))
     async for member in members:
         if 906000578092621865 not in member.role_ids:continue
         name = member.display_name
