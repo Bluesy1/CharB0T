@@ -1,18 +1,11 @@
 import json
-import logging
 import os
-import re
-from cryptography.fernet import Fernet
-import hikari
-from hikari import guilds
 from hikari.intents import Intents
 from hikari.presences import Activity, ActivityType
 
 import lightbulb
 from lightbulb import commands
 import pandas as pd
-
-import auxone as a
 from auxone import userInfo as user
 if os.name != "nt":
     import uvloop
@@ -28,7 +21,7 @@ bot = lightbulb.BotApp(token=token, prefix="!", help_slash_command=True,owner_id
             "hikari": {"level": "INFO"},
             "hikari.ratelimits": {"level": "TRACE_HIKARI"},
             "lightbulb": {"level": "INFO"},
-        },},case_insensitive_prefix_commands=True,intents=Intents.ALL, default_enabled_guilds=225345178955808768)
+        },},case_insensitive_prefix_commands=True,intents=Intents.ALL)
 
 #bot.load_extensions("extensions.events")
 

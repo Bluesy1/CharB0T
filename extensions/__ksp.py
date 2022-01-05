@@ -6,14 +6,60 @@ import lightbulb
 import matplotlib.pyplot as plt
 import pandas as pd
 import sfsutils as sfs
-from auxone import (checks, part_check, render_mpl_table_colors,
-                    render_mpl_table_colors_pdf)
+from auxone import (checks, part_check)
 from hikari import Embed
 from lightbulb import commands
 from matplotlib.backends.backend_pdf import PdfPages
+import numpy as np
+import six
 
 KSPPlugin = lightbulb.Plugin("KSPPlugin")
 
+def render_mpl_table_colors(data, Colors, col_width=5, row_height=0.625, font_size=20,
+                     header_color='#40466e', edge_color='k',
+                     bbox=[0, 0, 1.3, 1], header_columns=0,
+                     ax=None, **kwargs):
+    if ax is None:
+        size = (np.array(data.shape[::-1]) + np.array([0, 1])) * np.array([col_width, row_height])
+        fig, ax = plt.subplots(figsize=size)
+        ax.axis('off')
+
+    mpl_table = ax.table(cellText=data.values, bbox=bbox,cellColours=Colors, colLabels=data.columns, **kwargs)
+
+    mpl_table.auto_set_font_size(False)
+    mpl_table.set_fontsize(font_size)
+
+    for k, cell in  six.iteritems(mpl_table._cells):
+        cell.set_edgecolor(edge_color)
+        if k[0] == 0 or k[1] < header_columns:
+            cell.set_text_props(weight='bold', color='w')
+            cell.set_facecolor(header_color)
+    plt.savefig('table.png',dpi=250,bbox_inches='tight')
+    return ax
+
+def render_mpl_table_colors_pdf(export_pdf, data, Colors, col_width=5, row_height=0.625, font_size=20,
+                     header_color='#40466e', edge_color='k',
+                     bbox=[0, 0, 1.3, 1], header_columns=0,
+                     ax=None, **kwargs):
+    plt.rcParams['text.usetex'] = False
+    if ax is None:
+        size = (np.array(data.shape[::-1]) + np.array([0, 1])) * np.array([col_width, row_height])
+        fig, ax = plt.subplots(figsize=size)
+        ax.axis('off')
+
+    mpl_table = ax.table(cellText=data.values, bbox=bbox,cellColours=Colors, colLabels=data.columns, **kwargs)
+
+    mpl_table.auto_set_font_size(False)
+    mpl_table.set_fontsize(font_size)
+
+    for k, cell in  six.iteritems(mpl_table._cells):
+        cell.set_edgecolor(edge_color)
+        if k[0] == 0 or k[1] < header_columns:
+            cell.set_text_props(weight='bold', color='w')
+            cell.set_facecolor(header_color)
+    export_pdf.savefig(dpi=250,bbox_inches='tight')
+    plt.close()
+    return export_pdf
 
 
 @KSPPlugin.command

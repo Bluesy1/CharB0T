@@ -1,19 +1,47 @@
-import datetime
-import random
+import json
 import re
-import time
 from collections import Counter
+import time
 from typing import Union
+from cryptography import fernet
 
 from hikari import undefined
 import validators
 
-import auxone as a
 import hikari
 import lightbulb
-from auxone import userInfo as user
 from hikari import Embed
 
+def add_onmessage(message):
+    with open('tickets.json',"rb") as t:
+        temp = fernet.decrypt(t.read())
+    tickets = json.loads(temp)
+    for ticket in list(tickets.keys()):
+        if tickets[ticket]["open"] == "True":
+            if tickets[ticket]['starter'] == message.author.id:
+                if (int(round(time.time(),0))-int(tickets[ticket]['time'])) < 5:
+                    return None
+                messages = tickets[ticket]['messages']
+                numMessages = len(list(messages.keys()))
+                messages.update({str(numMessages):str(message.author.username)+": "+str(message.content)})
+                for attachment in message.attachments:
+                    numMessages = len(list(messages.keys()))
+                    messages.update({str(numMessages):str(message.author)+": "+str(attachment.url)})
+                tickets[ticket]['messages'] = messages
+                tickets[ticket]['time'] = round(time.time(),0)
+                with open('tickets.json','wb') as t:
+                    t.write(fernet.encrypt(json.dumps(tickets).encode('utf-8')))
+                return [ticket,"old"]
+    newTicketNum = len(list(tickets.keys()))
+    newTicket = {
+            "open":"True","time":round(time.time(),0),"starter":message.author.id, "messages":{
+                "0":str(message.author)+": "+str(message.content)
+            }
+        }
+    tickets.update({str(newTicketNum):newTicket})
+    with open('tickets.json','wb') as t:
+        t.write(fernet.encrypt(json.dumps(tickets).encode('utf-8')))
+    return [str(newTicketNum)+": "+str(message.author.username),"new"]
 
 def find_embedded_urls(data):
     regex = r"(http|ftp|https):\/\/([\w_-]+(?:(?:\.[\w_-]+)+))([\w.,@?^=%&:\/~+#-]*[\w@?^=%&\/~+#-])"
@@ -93,7 +121,7 @@ async def on_DMmessage(event:hikari.DMMessageCreateEvent):
             if str(event.message.content).startswith("!"):
                 await event.author.send("Commands do not work in dms.")
                 return
-            ticket = a.add_onmessage(event.message)
+            ticket = add_onmessage(event.message)
             if ticket == None:
                 return
             else:
@@ -120,7 +148,7 @@ async def on_message(event: hikari.GuildMessageCreateEvent) -> None:
         if result: return
         result1 = await nitroScan(event)
         if result1: return
-        if event.guild_id==225345178955808768 and not user.roleCheck(event.message.member, [338173415527677954,253752685357039617,225413350874546176,387037912782471179,406690402956083210,729368484211064944]):
+        if event.guild_id==225345178955808768 and not any(role in [338173415527677954,253752685357039617,225413350874546176,387037912782471179,406690402956083210,729368484211064944] for role in event.member.role_ids):
             if f"<@&{event.guild_id}>" in event.content or "@everyone" in event.content or "@here" in event.content:
                 await event.message.member.add_role(676250179929636886)
                 await event.message.member.add_role(684936661745795088)

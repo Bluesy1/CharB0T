@@ -4,9 +4,15 @@ import re
 
 import lightbulb
 import pandas as pd
-from auxone import (URL, as_currency, checks, userInfo)
+from auxone import (URL, checks, userInfo)
 from hikari import Embed
 from lightbulb import commands
+
+def as_currency(amount):
+    if amount >= 0:
+        return '${:,.2f}'.format(amount)
+    else:
+        return '-${:,.2f}'.format(abs(amount))
 
 InvestPlugin = lightbulb.Plugin("InvestPlugin")
 InvestPlugin.add_checks(lightbulb.Check(checks.Punished),lightbulb.has_roles(906000578092621865)|lightbulb.owner_only,lightbulb.Check(checks.check_invest_channel))

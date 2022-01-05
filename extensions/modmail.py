@@ -1,9 +1,7 @@
-from io import BytesIO
 import json
 import os
 import re
 
-import auxone as a
 import fpdf
 import hikari
 import lightbulb
@@ -14,11 +12,31 @@ from lightbulb.commands.base import OptionModifier
 with open('filekey.key','rb') as file:
     key = file.read()
     fernet = Fernet(key)
-    
+
+def strip_non_ascii(string):
+    ''' Returns the string without non ASCII characters'''
+    stripped = [c for c in string if 0 < ord(c) < 255]
+    return ''.join(stripped)
+
+def add_message(ctx,message, userID):
+    with open('tickets.json',"rb") as t:
+        temp = fernet.decrypt(t.read())
+    tickets = json.loads(temp)
+    for ticket in list(tickets.keys()):
+        if tickets[str(ticket)]['starter']==userID:break
+    messages = tickets[ticket]['messages']
+    numMessages = len(list(messages.keys()))
+    messages.update({str(numMessages):str(ctx.author.username)+": "+str(message)})
+    tickets[ticket]['messages'] = messages
+    open('tickets.json','wb').write(fernet.encrypt(json.dumps(tickets).encode('utf-8')))
+
+def check_modmail_channel(context):
+        return context.channel_id in [906578081496584242,687817008355737606]
+
 Modmail_Plugin = lightbulb.Plugin("Modmail_Plugin")
 
 @Modmail_Plugin.command
-@lightbulb.add_checks(lightbulb.Check(a.checks.check_modmail_channel)|lightbulb.owner_only)
+@lightbulb.add_checks(lightbulb.Check(check_modmail_channel)|lightbulb.owner_only)
 @lightbulb.command("ticket", "modmail group",hidden=True,guilds=[225345178955808768])
 @lightbulb.implements(commands.SlashCommandGroup)
 async def ticket(ctx) -> None: await ctx.respond("invoked ticket")
@@ -33,7 +51,7 @@ async def command(ctx):
         363095569515806722:"[Moderator] Bluesy",247950431630655488:"[Moderator] Doffey",82495450153750528:"[Moderator] Kaitlin",146285543146127361:"[Admin] Jazmine",138380316095021056:"[Moderator] Krios",
         162833689196101632:"[Moderator] Mike Takumi", 137240557280952321:"[Admin] Pet",137240557280952321:"[Moderator] Melethya",225344348903047168:"[Owner] Charlie"
     }
-    a.add_message(ctx,ctx.options.message,ctx.options.member.id)
+    add_message(ctx,ctx.options.message,ctx.options.member.id)
     await ctx.respond("Sent.")
     await ctx.options.member.send("Message from "+str(modnames[ctx.author.id])+": "+ctx.options.message)
 
@@ -52,7 +70,7 @@ async def history(ctx):
             temp = fernet.decrypt(t.read())
         tickets = json.loads(temp)
         for message in list(tickets[ticket]["messages"].keys()):
-            pdf.write(5,a.strip_non_ascii(str(tickets[ticket]["messages"][message])))
+            pdf.write(5,strip_non_ascii(str(tickets[ticket]["messages"][message])))
             pdf.ln()
         pdfName = "ticket_"+ticket+".pdf"
         pdf.output(pdfName)
@@ -68,11 +86,11 @@ async def history(ctx):
         for ticket in list(tickets.keys()):
             pdf.add_page()
             pdf.set_font("Arial", size=24)
-            pdf.write(10,a.strip_non_ascii(str(ticket)))
+            pdf.write(10,strip_non_ascii(str(ticket)))
             pdf.set_font("Arial", size=12)
             pdf.ln()
             for message in list(tickets[ticket]["messages"].keys()):
-                pdf.write(5,a.strip_non_ascii(str(tickets[ticket]["messages"][message])))
+                pdf.write(5,strip_non_ascii(str(tickets[ticket]["messages"][message])))
                 pdf.ln()
         pdf.output("all_tickets.pdf")
         await ctx.respond('see here:')
@@ -111,9 +129,9 @@ async def command(ctx):
         temp = fernet.decrypt(t.read())
     tickets = json.loads(temp)
     for message in list(tickets[ticket]["messages"].keys()):
-        pdf.write(5,a.strip_non_ascii(str(tickets[ticket]["messages"][message])))
+        pdf.write(5,strip_non_ascii(str(tickets[ticket]["messages"][message])))
         pdf.ln()
-    pdfName = "ticket "+re.sub(r':',"",a.strip_non_ascii(ticket))+".pdf"
+    pdfName = "ticket "+re.sub(r':',"",strip_non_ascii(ticket))+".pdf"
     pdf.output(pdfName)
     tickets[ticket]["open"]="False"
     tickets[name] = tickets.pop(ticket)

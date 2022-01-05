@@ -1,31 +1,25 @@
 import asyncio
-import json
 import os
 import time
 
 import lightbulb
-from lightbulb.commands.slash import SlashCommand
-from lightbulb.decorators import implements
-from lightbulb.errors import LightbulbError
-import pandas as pd
-import sfsutils
-from auxone import URL, checks, ksptime, render_mpl_table, userInfo
-from hikari.channels import ChannelType, PermissionOverwriteType
+from hikari.channels import ChannelType
 from hikari.commands import CommandChoice, OptionType
 from hikari.embeds import Embed
 from hikari.events.interaction_events import InteractionCreateEvent
 from hikari.events.message_events import GuildMessageCreateEvent
 from hikari.interactions.base_interactions import ResponseType
 from hikari.messages import ButtonStyle
-from hikari.permissions import Permissions
 from lightbulb import commands
 from lightbulb.checks import has_roles
+
+def check_publisher(context): return context.author.id in [363095569515806722, 225344348903047168, 146285543146127361]
 
 AdminPlugin = lightbulb.Plugin("AdminPlugin")
 AdminPlugin.add_checks(lightbulb.Check(has_roles(338173415527677954,253752685357039617,225413350874546176,mode=any)))
 
 @AdminPlugin.command
-@lightbulb.add_checks(lightbulb.Check(checks.check_publisher))
+@lightbulb.add_checks(lightbulb.Check(check_publisher))
 @lightbulb.option("logo", "use logo?", type=OptionType.BOOLEAN, required=True)
 @lightbulb.option('channel', 'channel to post embed to', type=OptionType.CHANNEL, required=True, channel_types=[ChannelType.GUILD_TEXT, ChannelType.GUILD_NEWS])
 @lightbulb.option("time","This is the publishing time info (Must include Published at: if you want that to show up.)", required=True)
