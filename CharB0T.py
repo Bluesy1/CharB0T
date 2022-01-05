@@ -76,20 +76,7 @@ async def load(ctx) -> None:
 async def ping(ctx):
     await ctx.event.message.delete()
     await ctx.respond(f"Pong! Latency: {bot.heartbeat_latency*1000:.2f}ms")
-    with open('filekey.key','rb') as file:
-        key = file.read()
-    fernet = Fernet(key)
-    df = pd.DataFrame(json.loads(fernet.decrypt(open('UserInfo.json',"rb").read())))
-    with open('UserInfo.json','wb') as t:
-        t.write(fernet.encrypt(json.dumps(df.to_dict()).encode('utf-8')))
-    for id in list(df.index):
-        try:member:guilds.Member = await bot.rest.fetch_member(225345178955808768,int(id))
-        except: continue
-        name = member.display_name
-        newname, count = re.subn("[\[\(][^\[\]]{2,4}[\]\)]","",name)
-        if newname != name:
-            try:await member.edit(nick=newname)
-            except:None
+
 bot.load_extensions_from("extensions")
 bot.load_extensions("extensions.__help")
 
