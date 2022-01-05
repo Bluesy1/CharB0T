@@ -88,7 +88,8 @@ async def ping(ctx):
         name = member.display_name
         newname, count = re.subn("[\[\(][^\[\]]{2,4}[\]\)]","",name)
         if newname != name:
-            await member.edit(nick=newname)
+            try:await member.edit(nick=newname)
+            except:None
 bot.load_extensions_from("extensions")
 bot.load_extensions("extensions.__help")
 
