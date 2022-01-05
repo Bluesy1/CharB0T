@@ -19,14 +19,14 @@ Modmail_Plugin = lightbulb.Plugin("Modmail_Plugin")
 
 @Modmail_Plugin.command
 @lightbulb.add_checks(lightbulb.Check(a.checks.check_modmail_channel)|lightbulb.owner_only)
-@lightbulb.command("ticket", "modmail group",hidden=True)
+@lightbulb.command("ticket", "modmail group",hidden=True,guilds=[225345178955808768])
 @lightbulb.implements(commands.SlashCommandGroup)
 async def ticket(ctx) -> None: await ctx.respond("invoked ticket")
 
 @ticket.child
 @lightbulb.option("member", "Ticket ID to reply to",type=hikari.Member,required=True)
 @lightbulb.option("message", "Message to reply with", type=str, required=True, modifier=OptionModifier.CONSUME_REST)
-@lightbulb.command("reply", "reply to an open ticket", inherit_checks=True,hidden=True)
+@lightbulb.command("reply", "reply to an open ticket", inherit_checks=True,hidden=True,guilds=[225345178955808768])
 @lightbulb.implements(commands.SlashSubCommand)
 async def command(ctx):
     modnames={
@@ -40,7 +40,7 @@ async def command(ctx):
 
 @ticket.child
 @lightbulb.option("ticket", "ticket to query", type=str, default=None)
-@lightbulb.command("history", "displays history of one or all tickets", inherit_checks=True,hidden=True)
+@lightbulb.command("history", "displays history of one or all tickets", inherit_checks=True,hidden=True,guilds=[225345178955808768])
 @lightbulb.implements(commands.SlashSubCommand)
 async def history(ctx):
     ticket = ctx.options.ticket
@@ -81,7 +81,7 @@ async def history(ctx):
 
 
 @ticket.child
-@lightbulb.command("list", "Displays all open tickets in modmail", inherit_checks=True, ephemeral=True,hidden=True)
+@lightbulb.command("list", "Displays all open tickets in modmail", inherit_checks=True, ephemeral=True,hidden=True,guilds=[225345178955808768])
 @lightbulb.implements(commands.SlashSubCommand)
 async def command(ctx):
         with open('tickets.json',"rb") as t:
@@ -100,7 +100,7 @@ async def command(ctx):
 
 @ticket.child
 @lightbulb.option("ticket", "ticket to close", type=str, default=None)
-@lightbulb.command("name", "displays history of one or all tickets", inherit_checks=True,hidden=True)
+@lightbulb.command("name", "displays history of one or all tickets", inherit_checks=True,hidden=True,guilds=[225345178955808768])
 @lightbulb.implements(commands.SlashSubCommand)
 async def command(ctx):
     ticket = ctx.options.ticket;name = ctx.options.name
@@ -127,7 +127,7 @@ async def command(ctx):
 @ticket.child
 @lightbulb.option("member", "member to open ticket with",type=hikari.Member,required=True)
 @lightbulb.option("message", "Message to send", type=str, required=True, modifier=OptionModifier.CONSUME_REST)
-@lightbulb.command("open", "open a ticket", inherit_checks=True,hidden=True)
+@lightbulb.command("open", "open a ticket", inherit_checks=True,hidden=True,guilds=[225345178955808768])
 @lightbulb.implements(commands.SlashSubCommand)
 async def command(ctx):
     member = ctx.options.member;message = ctx.options.message

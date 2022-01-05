@@ -85,7 +85,9 @@ async def whatsappScan(event: Union[hikari.GuildMessageUpdateEvent,hikari.GuildM
     return None
 
 @EventsPlugin.listener(hikari.DMMessageCreateEvent)
-async def on_DMmessage(event):
+async def on_DMmessage(event:hikari.DMMessageCreateEvent):
+    try: await EventsPlugin.app.rest.fetch_member(225345178955808768,event.author_id)
+    except: return
     if event.is_human:
         if event.content is not None:
             if str(event.message.content).startswith("!"):
@@ -105,7 +107,7 @@ async def on_DMmessage(event):
 
 @EventsPlugin.listener(hikari.GuildMessageUpdateEvent)
 async def on_message(event: hikari.GuildMessageUpdateEvent) -> None:
-    if event.content is not None and event.is_human:
+    if event.content is not None and event.is_human and event.guild_id==225345178955808768:
         result = await whatsappScan(event)
         if result: return
         result1 = await nitroScan(event)
@@ -113,12 +115,12 @@ async def on_message(event: hikari.GuildMessageUpdateEvent) -> None:
 
 @EventsPlugin.listener(hikari.GuildMessageCreateEvent)
 async def on_message(event: hikari.GuildMessageCreateEvent) -> None:
-    if event.content is not None and event.is_human:
+    if event.content is not None and event.is_human and event.guild_id==225345178955808768:
         result = await whatsappScan(event)
         if result: return
         result1 = await nitroScan(event)
         if result1: return
-        if not user.roleCheck(event.message.member, [338173415527677954,253752685357039617,225413350874546176,387037912782471179,406690402956083210,729368484211064944]):
+        if event.guild_id==225345178955808768 and not user.roleCheck(event.message.member, [338173415527677954,253752685357039617,225413350874546176,387037912782471179,406690402956083210,729368484211064944]):
             if f"<@&{event.guild_id}>" in event.content or "@everyone" in event.content or "@here" in event.content:
                 await event.message.member.add_role(676250179929636886)
                 await event.message.member.add_role(684936661745795088)
@@ -132,61 +134,7 @@ async def on_message(event: hikari.GuildMessageCreateEvent) -> None:
             await event.message.delete()
         elif re.search(r"~~:.|:;~~", event.content, re.MULTILINE|re.IGNORECASE) or re.search(r"tilde tilde colon dot vertical bar colon semicolon tilde tilde", event.content, re.MULTILINE|re.IGNORECASE):
             await event.message.delete()
-        elif event.message.content.startswith('daily') or event.message.content.startswith('Daily'):
-            if event.author_id not in [82495450153750528,755539532924977262]:
-                return
-            elif event.channel_id not in [893867549589131314, 687817008355737606, 839690221083820032]:
-                return
-            await event.message.delete()
-            if user.role_check(event.author, ['733541021488513035','225414319938994186','225414600101724170','225414953820094465','377254753907769355','338173415527677954','253752685357039617']):
-                df = user.readUserInfo()
-                lastWork = df.loc[str(event.author_id), 'lastDaily']
-                currentUse = round(time.time(),0)%100
-                timeDifference = currentUse - lastWork
-                if timeDifference < 71700:
-                    await event.author.send("<:KSplodes:896043440872235028> Error: **" + event.author.display_name + "** You need to wait " + str(datetime.timedelta(seconds=71700-timeDifference)) + " more to use this command.")
-                elif timeDifference > 71700:
-                    df.loc[str(event.author_id), 'lastDaily'] = currentUse
-                    amount = 1500 #assigned number for daily
-                    user.writeUserInfo(df)
-                    user.editCoins(event.author_id,amount)
-                    await event.author.send(embed=Embed(description= event.author.mention +', here is your daily reward: 1500 <:HotTips2:465535606739697664>', color="60D1F6").set_footer(text=f"Requested by {event.member.display_name}",icon=event.member.avatar_url))
-            else:
-                await event.author.send("<:KSplodes:896043440872235028> Error: You are not allowed to use that command.")
-
-        elif event.message.content.startswith('work') or event.message.content.startswith('Work'):
-            if event.author_id not in [82495450153750528,755539532924977262]:
-                return
-            elif event.channel_id not in [893867549589131314, 687817008355737606, 839690221083820032]:
-                return
-            if a.role_check(event.author, ['837812373451702303','837812586997219372','837812662116417566','837812728801525781','837812793914425455','400445639210827786','685331877057658888','337743478190637077','837813262417788988','338173415527677954','253752685357039617']):
-                await event.message.delete()
-                df = user.readUserInfo()
-                lastWork = df.loc[str(event.author_id), 'lastWork']
-                currentUse = round(time.time(),0)%100
-                timeDifference = currentUse - lastWork
-                if timeDifference < 41400:
-                    await event.get_channel().send("<:KSplodes:896043440872235028> Error: **" + event.author.mention + "** You need to wait " + str(datetime.timedelta(seconds=41400-timeDifference)) + " more to use this command.")
-                elif timeDifference > 41400:
-                    df.loc[str(event.author_id), 'lastWork'] = currentUse
-                    amount = random.randrange(800, 1200, 5) #generates random number from 800 to 1200, in incrememnts of 5 (same as generating a radom number between 40 and 120, and multiplying it by 5)
-                    lastamount = int(df.loc[str(event.author_id), 'lastWorkAmount'])
-                    df.loc[str(event.author_id), 'lastWorkAmount'] = amount
-                    user.writeUserInfo(df)
-                    user.editCoins(event.author_id,lastamount)
-                    df.loc[str(event.author_id), 'lastWorkAmount'] = amount
-                    await event.get_channel().send(embed=Embed(description= event.author.mention + ', you started working again. You gain '+ str(lastamount) +' <:HotTips2:465535606739697664> from your last work. Come back in **12 hours** to claim your paycheck of '+ str(amount) + ' <:HotTips2:465535606739697664> and start working again with `!work`', color="60D1F6").set_footer(text=f"Requested by {event.member.display_name}",icon=event.member.avatar_url))
-            else:
-                await event.get_channel().send("<:KSplodes:896043440872235028> Error: You are not allowed to use that command.")
-
-        elif event.message.content.startswith('coins') or event.message.content.startswith('Coins') or event.message.content.startswith('!coins') or event.message.content.startswith('!Coins'):
-            await event.message.delete()
-            if event.author_id not in [82495450153750528,755539532924977262]:
-                return
-            elif event.channel_id not in [893867549589131314, 687817008355737606, 839690221083820032]:
-                return
-            funds = user.getCoins(event.author_id)
-            await event.author.send(embed=Embed(description= event.author.mention + ' has ' + str(funds) + '<:HotTips2:465535606739697664>', color="60D1F6").set_footer(text=f"Requested by {event.member.display_name}",icon=event.member.avatar_url))
+        
 
 @EventsPlugin.listener(lightbulb.CommandErrorEvent)
 async def on_error(event: lightbulb.CommandErrorEvent) -> None:

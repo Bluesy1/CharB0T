@@ -18,12 +18,12 @@ KSPPlugin = lightbulb.Plugin("KSPPlugin")
 
 @KSPPlugin.command
 @lightbulb.add_checks(lightbulb.Check(checks.Punished))
-@lightbulb.command("parts", "parts group")
+@lightbulb.command("parts", "parts group",guilds=[225345178955808768])
 @lightbulb.implements(commands.SlashCommandGroup)
 async def parts(ctx) -> None: await ctx.respond("invoked parts")
 
 @parts.child
-@lightbulb.command("key","key for parts table", inherit_checks=True, auto_defer=True, ephemeral=True)
+@lightbulb.command("key","key for parts table", inherit_checks=True, auto_defer=True, ephemeral=True,guilds=[225345178955808768])
 @lightbulb.implements(commands.SlashSubCommand)
 async def command(ctx):
     df = pd.DataFrame()
@@ -39,7 +39,7 @@ async def command(ctx):
     os.remove('table.png')
 
 @parts.child
-@lightbulb.command("all","All parts in the game, only unlocked ones will be highlighted.", inherit_checks=True, auto_defer=True, ephemeral=True)
+@lightbulb.command("all","All parts in the game, only unlocked ones will be highlighted.", inherit_checks=True, auto_defer=True, ephemeral=True,guilds=[225345178955808768])
 @lightbulb.implements(commands.SlashSubCommand)
 async def command(ctx):
     await ctx.defer(hidden=True)
@@ -212,7 +212,7 @@ async def command(ctx):
     await message.edit(attachement='Tables.pdf')
 
 @parts.child
-@lightbulb.command("upgrades","All unlocked upgrades", inherit_checks=True, auto_defer=True, ephemeral=True)
+@lightbulb.command("upgrades","All unlocked upgrades", inherit_checks=True, auto_defer=True, ephemeral=True,guilds=[225345178955808768])
 @lightbulb.implements(commands.SlashSubCommand)
 async def command(ctx):
     tech = sfs.parse_savefile('persistent.sfs')['GAME']['SCENARIO'][2]['UPGRADES']['Unlocks']
@@ -225,7 +225,7 @@ async def command(ctx):
     await ctx.author.send(embed=embed)
 
 @parts.child
-@lightbulb.command("nodes","All researched nodes", inherit_checks=True, auto_defer=True, ephemeral=True)
+@lightbulb.command("nodes","All researched nodes", inherit_checks=True, auto_defer=True, ephemeral=True,guilds=[225345178955808768])
 @lightbulb.implements(commands.SlashSubCommand)
 async def command(ctx):
     tech = sfs.parse_savefile('persistent.sfs')['GAME']['SCENARIO'][6]['Tech']

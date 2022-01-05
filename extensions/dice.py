@@ -11,7 +11,7 @@ DicePlugin = lightbulb.Plugin("DicePlugin")
 
 @DicePlugin.command
 @lightbulb.add_checks(lightbulb.Check(has_roles(338173415527677954,253752685357039617,225413350874546176,914969502037467176,mode=any)))
-@lightbulb.command("roll", "roll group")
+@lightbulb.command("roll", "roll group",guilds=[225345178955808768])
 @lightbulb.implements(commands.SlashCommandGroup)
 async def roll(ctx) -> None: await ctx.respond("invoked roll")
 
@@ -21,7 +21,7 @@ async def roll(ctx) -> None: await ctx.respond("invoked roll")
 @lightbulb.option("success", "What the minimum value for the roll to count as a success (5-10)", type=int, choices=[5,6,7,8,9,10], required=True)
 @lightbulb.option("failure", "What is the maximum number for the roll to count as a failure (1-4) ", type=int, choices=[1,2,3,4], required=True)
 @lightbulb.option("tag", "The tag of the RPO that the roll is for", type=str, required=True)
-@lightbulb.command("wod", "Rolls WOD style with custom paramters", inherit_checks=True)
+@lightbulb.command("wod", "Rolls WOD style with custom paramters", inherit_checks=True,guilds=[225345178955808768])
 @lightbulb.implements(commands.SlashSubCommand)
 async def command(ctx):
     amount = ctx.options.amount;failure = ctx.options.failure;name = ctx.options.name;tag = ctx.options.tag;success = ctx.options.success
@@ -62,7 +62,7 @@ async def command(ctx):
 
 @roll.child
 @lightbulb.option("dice","Dice to roll, accepts d2s, d4s, d6s, d8s, d10s, d12s, d20s, and d100s.",required=True)
-@lightbulb.command("standard", "D&D Standard Array 7 Dice roller, plus coin flips", inherit_checks=True)
+@lightbulb.command("standard", "D&D Standard Array 7 Dice roller, plus coin flips", inherit_checks=True,guilds=[225345178955808768])
 @lightbulb.implements(commands.SlashSubCommand)
 async def command(ctx):
     arg = ctx.options.dice
