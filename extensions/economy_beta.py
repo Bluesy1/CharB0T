@@ -171,8 +171,8 @@ async def work(ctx):
         await ctx.respond(embed=embed)"""
 
 def load(bot:lightbulb.BotApp):
-    bot.add_plugin(Economy)
     init()
+    bot.add_plugin(Economy)
 
 def unload(bot):
     bot.remove_plugin(Economy)
