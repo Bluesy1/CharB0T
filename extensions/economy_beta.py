@@ -115,7 +115,7 @@ async def config_mods_query(ctx: lightbulb.Context):
             embed.add_field(f"<@&{x['role_id']}>","Disabling Role" if x['disabling'] else "Enabling Role", inline=True)
     elif queryier==3:
         result = await mydb.fetchrow("SELECT * FROM guild_feature_work WHERE guild_id = $1",ctx.guild_id)
-        embed = Embed(title="Economy settings in the bot",description=ECONOMYSETTINGS,timestamp=datetime.datetime.now(tz=datetime.timezone.utc),color="0x0000ff").add_field("Minimum Gain", f"{result['min_gain']} {result['coin_symbol']}",inline=True).add_field("Maximum Gain", f"{result['max_gain']} {result['coin_symbol']}",inline=True).add_field("Step", f"{result['gain_step']} {result['coin_symbol']}",inline=True).add_field("Gain Cooldown",f"{result['gain_cooldown']} Seconds ({result['gain_cooldown']/3600} Hours)",inline=True).add_field("Coin Name",result['coin_name'],inline=True).add_field("Coin Symbol",result['coin_symbol'],inline=True).add_field("Starting Balance",f"{result['starting_bal']} {result['coin_symbol']}",inline=True)
+        embed = Embed(title="Economy settings in the bot",description=ECONOMYSETTINGS,timestamp=datetime.datetime.now(tz=datetime.timezone.utc),color="0x0000ff").add_field("Minimum Gain", f"{result['min_gain']} {result['coin_symbol']}",inline=True).add_field("Maximum Gain", f"{result['max_gain']} {result['coin_symbol']}",inline=True).add_field("Step", f"{result['gain_step']} {result['coin_symbol']}",inline=True).add_field("Gain Cooldown",f"{result['gain_cooldown']} Seconds ({result['gain_cooldown']/3600} Hours)",inline=True).add_field("Coin Name",result['coin_name'],inline=True).add_field("Coin Symbol",result['coin_symbol'],inline=True).add_field("Starting Balance",f"{int(result['starting_bal'])} {result['coin_symbol']}",inline=True)
     else:return
     await ctx.respond(embed=embed,flags=EPHEMERAL)
 
@@ -133,7 +133,7 @@ async def config_mods_set(ctx: lightbulb.Context):
         if role.id in x:new=False
     if add and not new:
         result = await mydb.fetch("SELECT * FROM guild_mod_roles WHERE guild_id = $1",ctx.guild_id)
-        await mydb.execute("UPDATE guild_mod_roles set is_admin  = $1 WHERE guild_is = $2 and role_id = $3", admin,ctx.guild_id,role.id)
+        await mydb.execute("UPDATE guild_mod_roles set is_admin = $1 WHERE guild_id = $2 and role_id = $3", admin,ctx.guild_id,role.id)
     elif add and new:
         result = await mydb.fetch("SELECT * FROM guild_mod_roles WHERE guild_id = $1",ctx.guild_id)
         await mydb.execute("INSERT INTO guild_mod_roles (guild_id, role_id, is_admin) VALUES ($1,$2, $3)", ctx.guild_id,role.id,admin)
