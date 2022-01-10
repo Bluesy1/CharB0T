@@ -83,7 +83,7 @@ async def on_guild_join(event: hikari.GuildJoinEvent):
     
     
 
-@Economy.command
+
 @lightbulb.add_checks(check_author_is_admin,guild_only)
 @lightbulb.command("config", "configuration group")
 @lightbulb.implements(commands.SlashCommandGroup)
@@ -170,8 +170,9 @@ async def work(ctx):
         embed = Embed(description= ctx.author.mention + ', you started working again. You gain '+ str(lastamount) +' <:HotTips2:465535606739697664> from your last work. Come back in **12 hours** to claim your paycheck of '+ str(amount) + ' <:HotTips2:465535606739697664> and start working again with `!work`', color="60D1F6").set_footer(text=f"Requested by {ctx.member.display_name}",icon=ctx.member.avatar_url)
         await ctx.respond(embed=embed)"""
 
-def load(bot):
+def load(bot:lightbulb.BotApp):
     bot.add_plugin(Economy)
+    bot.command(config)
     init()
 
 def unload(bot):
