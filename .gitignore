@@ -54,3 +54,5 @@ token2.json
 test2134213412.py
 key.py
 sqlinfo.json
+*.code-workspace
+async test.py
