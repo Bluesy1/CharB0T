@@ -20,7 +20,7 @@ DISABLER:Final[str] = "A role marked as disabling will mean that a user with thi
 ECONOMYSETTINGS:Final[str] = "Minimum Gain, Maximum Gain, and Step dictate how random numbers are generated for the /work system - a number between the minimum and maximum, both inclusive with steps of size step from the minimum. i.e., for a (min,max,step) of (800,1200,5), which are the default settings, the random number possibilities would be (800,805,810,815,...,1190,1195,1200). Gain cooldown is the number of seconds between work uses for a user, default 11.5 hours, it's recommended to set this slightly under the time you advertise. i.e., for a 12-hour cycle, it's suggested using a cycle of 11.5 hours so people don't have to be perfect. Coin name and symbol allow you to customize the name and symbol of the coin if you don't like the default name of EchoCoin with the symbol <:Echocoin:928020676751814656>. Default starting balance allows people to start investing without having to do a couple of work cycles first. The default is 10,000, but you can change this if you want. All currencies, regardless of name and symbol are always a 1:1 vs USD for simplicity."
 Economy = lightbulb.Plugin("Economy", default_enabled_guilds=225345178955808768)
 
-loop = asyncio.get_event_loop()
+#loop = asyncio.get_event_loop()
 
 async def get_db() -> asyncpg.Connection:
     with open('sqlinfo.json') as t:
@@ -30,7 +30,11 @@ async def get_db() -> asyncpg.Connection:
 async def init():
     global mydb;mydb = await get_db()
 
-loop.run_until_complete(init())
+#loop.run_until_complete(init())
+
+@Economy.listener(hikari.StartedEvent)
+async def on_started(_: hikari.StartedEvent) -> None:
+    await init()
 
 @lightbulb.Check
 async def check_author_work_allowed(context: lightbulb.Context) -> bool:
