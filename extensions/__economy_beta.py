@@ -27,14 +27,12 @@ async def get_db() -> asyncpg.Connection:
         sqlinfo = json.load(t)
     return await asyncpg.connect(host=sqlinfo['host'],user=sqlinfo['user'],password=sqlinfo['password'],database=sqlinfo['database'])
 
-async def init():
-    global mydb;mydb = await get_db()
+def init():
+    global mydb;mydb = yield from get_db()
 
 #loop.run_until_complete(init())
 
-@Economy.listener(hikari.StartedEvent)
-async def on_started(_: hikari.StartedEvent) -> None:
-    await init()
+
 
 @lightbulb.Check
 async def check_author_work_allowed(context: lightbulb.Context) -> bool:
@@ -174,6 +172,7 @@ async def work(ctx):
 
 def load(bot):
     bot.add_plugin(Economy)
+    init()
 
 def unload(bot):
     bot.remove_plugin(Economy)
