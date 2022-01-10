@@ -83,7 +83,7 @@ async def on_guild_join(event: hikari.GuildJoinEvent):
     
     
 
-
+@Economy.command()
 @lightbulb.add_checks(check_author_is_admin,guild_only)
 @lightbulb.command("config", "configuration group")
 @lightbulb.implements(commands.SlashCommandGroup)
@@ -172,7 +172,6 @@ async def work(ctx):
 
 def load(bot:lightbulb.BotApp):
     bot.add_plugin(Economy)
-    bot.command(config)
     init()
 
 def unload(bot):

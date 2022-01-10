@@ -6,6 +6,7 @@ from typing import Union
 from cryptography import fernet
 
 from hikari import undefined
+from hikari.impl import bot
 import validators
 
 import hikari
@@ -166,7 +167,6 @@ async def on_message(event: hikari.GuildMessageCreateEvent) -> None:
             await event.message.delete()
         elif re.search(r"~~:.|:;~~", event.content, re.MULTILINE|re.IGNORECASE) or re.search(r"tilde tilde colon dot vertical bar colon semicolon tilde tilde", event.content, re.MULTILINE|re.IGNORECASE):
             await event.message.delete()
-        
 
 @EventsPlugin.listener(lightbulb.CommandErrorEvent)
 async def on_error(event: lightbulb.CommandErrorEvent) -> None:
