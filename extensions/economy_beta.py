@@ -132,8 +132,8 @@ async def config_mods_set(ctx: lightbulb.Context):
     for x in result:
         if role.id in x:new=False
     if add and not new:
-        result = await mydb.fetch("SELECT * FROM guild_mod_roles WHERE guild_id = $1",ctx.guild_id)
         await mydb.execute("UPDATE guild_mod_roles set is_admin = $1 WHERE guild_id = $2 and role_id = $3", admin,ctx.guild_id,role.id)
+        result = await mydb.fetch("SELECT * FROM guild_mod_roles WHERE guild_id = $1",ctx.guild_id)
     elif add and new:
         result = await mydb.fetch("SELECT * FROM guild_mod_roles WHERE guild_id = $1",ctx.guild_id)
         await mydb.execute("INSERT INTO guild_mod_roles (guild_id, role_id, is_admin) VALUES ($1,$2, $3)", ctx.guild_id,role.id,admin)
@@ -144,7 +144,8 @@ async def config_mods_set(ctx: lightbulb.Context):
     if add and new:embed.add_field(f"<@&{role.id}>","**NEW** Admin" if bool(admin) else "**NEW** Mod",inline=True)
     elif add and not new: embed.add_field(f"<@&{role.id}>","**CHANGED TO** Admin" if bool(admin) else "**CHANGED TO** Mod",inline=True)
     for x in result:
-        embed.add_field(f"<@&{x[1]}>","Admin" if bool(admin) else "Mod", inline=True)
+        if int(x[1])==int(role.id):continue
+        embed.add_field(f"<@&{x[1]}>","Admin" if x['is_admin'] else "Mod", inline=True)
     await ctx.respond(embed=embed,flags=EPHEMERAL)
 
 
