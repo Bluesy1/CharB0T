@@ -27,8 +27,6 @@ async def get_db() -> asyncpg.Connection:
         sqlinfo = json.load(t)
     return await asyncpg.connect(host=sqlinfo['host'],user=sqlinfo['user'],password=sqlinfo['password'],database=sqlinfo['database'])
 
-def init():
-    global mydb;mydb = yield from get_db()
 
 #loop.run_until_complete(init())
 
@@ -36,6 +34,7 @@ def init():
 
 @lightbulb.Check
 async def check_author_work_allowed(context: lightbulb.Context) -> bool:
+    mydb = await get_db()
     result=await mydb.fetch("SELECT * FROM guild_feature_work_roles WHERE guild_id = $1",context.guild_id)
     roles = context.member.role_ids;possible = False
     for x in result:
@@ -47,6 +46,7 @@ async def check_author_work_allowed(context: lightbulb.Context) -> bool:
 
 @lightbulb.Check
 async def check_author_is_admin(context: lightbulb.Context) -> bool:
+    mydb = await get_db()
     result = await mydb.fetch("SELECT * FROM guild_mod_roles WHERE guild_id = $1",context.guild_id)
     roles = context.member.role_ids
     for x in result:
@@ -55,6 +55,7 @@ async def check_author_is_admin(context: lightbulb.Context) -> bool:
 
 @lightbulb.Check
 async def check_author_is_mod(context: lightbulb.Context) -> bool:
+    mydb = await get_db()
     result = await mydb.fetch("SELECT * FROM guild_mod_roles WHERE guild_id = $1",context.guild_id)
     roles = context.member.role_ids
     for x in result:
@@ -63,6 +64,7 @@ async def check_author_is_mod(context: lightbulb.Context) -> bool:
 
 @Economy.listener(hikari.GuildJoinEvent)
 async def on_guild_join(event: hikari.GuildJoinEvent):
+    mydb = await get_db()
     result = await mydb.fetch("SELECT id FROM guilds")
     for x in result:
         if event.guild_id in x:return
@@ -99,6 +101,7 @@ async def mods(ctx: lightbulb.Context) -> None:await ctx.respond("invoked config
 @lightbulb.command("query","querys guild settings for the bot",inherit_checks=True, auto_defer = True)
 @lightbulb.implements(commands.SlashSubCommand)
 async def config_mods_query(ctx: lightbulb.Context):
+    mydb = await get_db()
     queryier = ctx.options.group
     if queryier==1:
         result = await mydb.fetch("SELECT * FROM guild_mod_roles WHERE guild_id = $1",ctx.guild_id)
@@ -123,6 +126,7 @@ async def config_mods_query(ctx: lightbulb.Context):
 @lightbulb.command("set","adds, edits, or removes a role from consideration as a mod or admin", inherit_checks=True, auto_defer = True)
 @lightbulb.implements(commands.SlashSubCommand)
 async def config_mods_set(ctx: lightbulb.Context):
+    mydb = await get_db()
     role:Final[hikari.Role] = ctx.options.role;add:Final[bool]=ctx.options.add;admin:Final[bool]=ctx.options.admin;new=True
     result = await mydb.fetch("SELECT * FROM guild_mod_roles WHERE guild_id = $1",ctx.guild_id)
     for x in result:
@@ -171,7 +175,6 @@ async def work(ctx):
         await ctx.respond(embed=embed)"""
 
 def load(bot:lightbulb.BotApp):
-    init()
     bot.add_plugin(Economy)
 
 def unload(bot):
