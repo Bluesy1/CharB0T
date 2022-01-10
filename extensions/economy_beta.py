@@ -130,7 +130,7 @@ async def config_mods_set(ctx: lightbulb.Context):
     role:Final[hikari.Role] = ctx.options.role;add:Final[bool]=ctx.options.add;admin:Final[bool]=ctx.options.admin;new=True
     result = await mydb.fetch("SELECT * FROM guild_mod_roles WHERE guild_id = $1",ctx.guild_id)
     for x in result:
-        if role.id in x:new=False
+        if int(role.id) == int(x[1]):new=False
     if add and not new:
         await mydb.execute("UPDATE guild_mod_roles set is_admin = $1 WHERE guild_id = $2 and role_id = $3", admin,ctx.guild_id,role.id)
         result = await mydb.fetch("SELECT * FROM guild_mod_roles WHERE guild_id = $1",ctx.guild_id)
