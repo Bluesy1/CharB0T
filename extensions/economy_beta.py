@@ -105,19 +105,19 @@ async def config_mods_query(ctx: lightbulb.Context):
     queryier = ctx.options.group
     if queryier==1:
         result = await mydb.fetch("SELECT * FROM guild_mod_roles WHERE guild_id = $1",ctx.guild_id)
-        embed = Embed(title="Moderator and Admin Roles registered in the bot",description=MODVADMIN,timestamp=datetime.datetime.utcnow(),color="0x0000ff")
+        embed = Embed(title="Moderator and Admin Roles registered in the bot",description=MODVADMIN,timestamp=datetime.datetime.now(tz=datetime.timezone.utc),color="0x0000ff")
         for x in result:
             embed.add_field(f"<@&{x[1]}>","Admin" if x[2] else "Mod", inline=True)
     elif queryier==2:
         result = await mydb.fetch("SELECT * FROM guild_feature_work_roles WHERE guild_id = $1",ctx.guild_id)
-        embed = Embed(title="Work Enabler and Disabler roles in the bot",description=DISABLER,timestamp=datetime.datetime.utcnow(),color="0x0000ff")
+        embed = Embed(title="Work Enabler and Disabler roles in the bot",description=DISABLER,timestamp=datetime.datetime.now(tz=datetime.timezone.utc),color="0x0000ff")
         for x in result:
             embed.add_field(f"<@&{x['role_id']}>","Disabling Role" if x['disabling'] else "Enabling Role", inline=True)
     elif queryier==3:
         result = await mydb.fetchrow("SELECT * FROM guild_feature_work WHERE guild_id = $1",ctx.guild_id)
-        embed = Embed(title="Economy settings in the bot",description=ECONOMYSETTINGS,timestamp=datetime.datetime.utcnow(),color="0x0000ff").add_field("Minimum Gain", f"{result['min_gain']} {result['coin_symbol']}",inline=True).add_field("Maximum Gain", f"{result['max_gain']} {result['coin_symbol']}",inline=True).add_field("Step", f"{result['gain_step']} {result['coin_symbol']}",inline=True).add_field("Gain Cooldown",f"{result['gain_cooldown']} Seconds ({result['gain_cooldown']/3600} Hours)",inline=True).add_field("Coin Name",result['coin_name'],inline=True).add_field("Coin Symbol",result['coin_symbol'],inline=True).add_field("Starting Balance",f"{result['starting_bal']} {result['coin_symbol']}",inline=True)
+        embed = Embed(title="Economy settings in the bot",description=ECONOMYSETTINGS,timestamp=datetime.datetime.now(tz=datetime.timezone.utc),color="0x0000ff").add_field("Minimum Gain", f"{result['min_gain']} {result['coin_symbol']}",inline=True).add_field("Maximum Gain", f"{result['max_gain']} {result['coin_symbol']}",inline=True).add_field("Step", f"{result['gain_step']} {result['coin_symbol']}",inline=True).add_field("Gain Cooldown",f"{result['gain_cooldown']} Seconds ({result['gain_cooldown']/3600} Hours)",inline=True).add_field("Coin Name",result['coin_name'],inline=True).add_field("Coin Symbol",result['coin_symbol'],inline=True).add_field("Starting Balance",f"{result['starting_bal']} {result['coin_symbol']}",inline=True)
     else:return
-    ctx.respond(embed=embed,flags=EPHEMERAL)
+    await ctx.respond(embed=embed,flags=EPHEMERAL)
 
 @mods.child
 @lightbulb.option("admin", "should the role have administrative permissions in the bot", type=bool, required=True)
@@ -140,12 +140,12 @@ async def config_mods_set(ctx: lightbulb.Context):
     else:
         await mydb.execute("DELETE FROM guild_mod_roles WHERE role_id = $1", role.id)
         result = await mydb.fetch("SELECT * FROM guild_mod_roles WHERE guild_id = $1",ctx.guild_id)
-    embed = Embed(title="New List of Moderator and Admin Roles",description=MODVADMIN,color = "0x00ff00" if add and new else "0x0000ff" if add and not new else "0xff0000",timestamp=datetime.datetime.utcnow())
+    embed = Embed(title="New List of Moderator and Admin Roles",description=MODVADMIN,color = "0x00ff00" if add and new else "0x0000ff" if add and not new else "0xff0000",timestamp=datetime.datetime.now(tz=datetime.timezone.utc))
     if add and new:embed.add_field(f"<@&{role.id}>","**NEW** Admin" if bool(admin) else "**NEW** Mod",inline=True)
     elif add and not new: embed.add_field(f"<@&{role.id}>","**CHANGED TO** Admin" if bool(admin) else "**CHANGED TO** Mod",inline=True)
     for x in result:
         embed.add_field(f"<@&{x[1]}>","Admin" if bool(admin) else "Mod", inline=True)
-    ctx.respond(embed=embed,flags=EPHEMERAL)
+    await ctx.respond(embed=embed,flags=EPHEMERAL)
 
 
 
