@@ -123,7 +123,7 @@ async def config_mods_query(ctx: lightbulb.Context):
 @lightbulb.option("admin", "should the role have administrative permissions in the bot", type=bool, required=True)
 @lightbulb.option("add","True to add or edit, False to remove", type=bool, required=True)
 @lightbulb.option("role","role to add/edit/remove from mod list", type=hikari.Role, required=True)
-@lightbulb.command("set","adds, edits, or removes a role from consideration as a mod or admin", inherit_checks=True, auto_defer = True)
+@lightbulb.command("mod","adds, edits, or removes a role from consideration as a mod or admin", inherit_checks=True, auto_defer = True)
 @lightbulb.implements(commands.SlashSubCommand)
 async def config_roles_mods(ctx: lightbulb.Context):
     mydb = await get_db()
@@ -152,7 +152,7 @@ async def config_roles_mods(ctx: lightbulb.Context):
 @lightbulb.option("disabling", "should the role be disabling", type=bool, required=True)
 @lightbulb.option("add","True to add or edit, False to remove", type=bool, required=True)
 @lightbulb.option("role","role to add/edit/remove from work list", type=hikari.Role, required=True)
-@lightbulb.command("set","adds, edits, or removes a role from consideration as a work role", inherit_checks=True, auto_defer = True)
+@lightbulb.command("work","adds, edits, or removes a role from consideration as a work role", inherit_checks=True, auto_defer = True)
 @lightbulb.implements(commands.SlashSubCommand)
 async def config_roles_work(ctx: lightbulb.Context):
     mydb = await get_db()
