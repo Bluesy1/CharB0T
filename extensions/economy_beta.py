@@ -179,7 +179,7 @@ async def config_roles_work(ctx: lightbulb.Context):
 
 @config.child
 @lightbulb.option("starting_bal","balance to start all new users of the bot on the server with",type=int,default=1,min_value=1,required=False)
-@lightbulb.option("symbol","default to reset, help to get help on this setting",type=str, default="",required=False)
+@lightbulb.option("symbol","default to reset, send one emoji to use a custom one, bot must be in emote's server if server emote",type=str, default="",required=False)
 @lightbulb.option("name","custom name for the coin, put 'default' (without the quotes) to reset to the default name",type=str, default="",required=False)
 @lightbulb.option("cooldown","cooldown between allowed uses of /work by a single user, in seconds. i.e. 3600 is one hour",type=int,default = 3599,min_value=3599,required=False)
 @lightbulb.option("step","step between numbers possible to randomly generate",type=int,default = 1,min_value=1,max_value=100,required=False)
@@ -209,24 +209,10 @@ async def config_work(ctx: lightbulb.Context):
     if name and name !='default':await mydb.execute("UPDATE guild_feature_work set coin_name = $1 WHERE guild_id = $2",name,ctx.guild_id)
     if name and name !='default':await mydb.execute("UPDATE guild_feature_work set coin_name = $1 WHERE guild_id = $2",name,ctx.guild_id)
     embed.add_field(f"{'**NEW**' if name else ''} Coin Name",name if name and name!="default" else DEFAULTNAME if name=='default' else result['coin_name'],inline=True)
-    if symbol and symbol not in['default','help']:await mydb.execute("UPDATE guild_feature_work set coin_symbol = $1 WHERE guild_id = $2",symbol,ctx.guild_id)
-    embed.add_field(f"{'**NEW**' if symbol and symbol != 'help' else ''} Coin Symbol",symbol if symbol and symbol not in ['default','help'] else DEFAULTSYMBOL if symbol=='default' else result['coin_symbol'],inline=True)
+    if symbol and symbol !='default':await mydb.execute("UPDATE guild_feature_work set coin_symbol = $1 WHERE guild_id = $2",symbol,ctx.guild_id)
+    embed.add_field(f"{'**NEW**' if symbol else ''} Coin Symbol",symbol if symbol and symbol !='default' else DEFAULTSYMBOL if symbol=='default' else result['coin_symbol'],inline=True)
     if starting_bal !=1:await mydb.execute("UPDATE guild_feature_work set starting_bal = $1 WHERE guild_id = $2",starting_bal,ctx.guild_id)
     embed.add_field(f"{'**NEW**' if starting_bal !=1 else ''} Starting Balance",f"{starting_bal if starting_bal !=1 else int(result['starting_bal'])} {symbol if symbol else result['coin_symbol']}",inline=True)
-    if symbol=='help':await ctx.respond("""**How to get a custom symbol in the bot:**
-Custom emotes are represented internally in the following format:
-`<:name:id>`
-Where the name is the name of the custom emote, and the ID is the id of the custom emote. 
-For example, `<:Echocoin:928020676751814656>` is the name:id for :Echocoin:
-
-For a *standard* unicode emoji, just put the emoji in the box ... not the discord name .. but the unicode emoji. 
-
-You can quickly obtain the `<:name:id>` format by putting a backslash in front of the custom emoji when you put it in your client. 
-Example: `\<:Echocoin:928020676751814656>` would give you the `<:name:id>` format.
-
-**Animated emojis** are the same as above but have an `a` before the name- ie: `<a:name:id>`
-
-**TO SUBMIT A CUSTOM EMOJI THEN** you have to first get the `<name:id>` format then enter a backslash `\` to get the following final input for :Echocoin: as an example: `\<:Echocoin:928020676751814656>`. Note: Without the backslash, it will just convert to a normal emoji and it wont work. **THIS IS A LIMITATION ON DISCORDS END**""", flags=EPHEMERAL)
     await ctx.respond(embed=embed, flags=EPHEMERAL)
 
 """@Generating_Plugin.command()
