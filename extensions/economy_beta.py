@@ -21,17 +21,10 @@ ECONOMYSETTINGS:Final[str] = "Minimum Gain, Maximum Gain, and Step dictate how r
 DEFAULTNAME:Final[str]="EchoCoin";DEFAULTSYMBOL:Final[str]="<:Echocoin:928020676751814656>"
 Economy = lightbulb.Plugin("Economy", default_enabled_guilds=225345178955808768)
 
-#loop = asyncio.get_event_loop()
-
 async def get_db() -> asyncpg.Connection:
     with open('sqlinfo.json') as t:
         sqlinfo = json.load(t)
     return await asyncpg.connect(host=sqlinfo['host'],user=sqlinfo['user'],password=sqlinfo['password'],database=sqlinfo['database'])
-
-
-#loop.run_until_complete(init())
-
-
 
 @lightbulb.Check
 async def check_author_work_allowed(context: lightbulb.Context) -> bool:
@@ -43,6 +36,7 @@ async def check_author_work_allowed(context: lightbulb.Context) -> bool:
         elif context.guild_id in x and not bool(x['disabling']):return True
         elif x[1] in roles and x[2] > 0:return False
         elif x[1] in roles and x[2] == 0: possible = True
+    await mydb.close()
     return possible
 
 @lightbulb.Check
@@ -52,6 +46,7 @@ async def check_author_is_admin(context: lightbulb.Context) -> bool:
     roles = context.member.role_ids
     for x in result:
         if x[1] in roles and x[2] > 0:return True
+    await mydb.close()
     return False
 
 @lightbulb.Check
@@ -61,6 +56,7 @@ async def check_author_is_mod(context: lightbulb.Context) -> bool:
     roles = context.member.role_ids
     for x in result:
         if x[1] in roles:return True
+    await mydb.close()
     return False
 
 @Economy.listener(hikari.GuildJoinEvent)
@@ -83,7 +79,7 @@ async def on_guild_join(event: hikari.GuildJoinEvent):
     await mydb.executemany("INSERT INTO guild_mod_roles (guild_id, role_id) VALUES ($1, $2)", admins)
     await mydb.executemany("INSERT INTO guild_feature_work_roles (guild_id, role_id, disabling) VALUES ($1, $2s, $3)", workers)
     await mydb.execute("INSERT INTO guild_feature_work guild_id VALUES $1",int(event.guild_id))
-    
+    await mydb.close()
     
 
 @Economy.command()
@@ -118,6 +114,7 @@ async def config_mods_query(ctx: lightbulb.Context):
         embed = Embed(title=f"Economy settings in {ctx.get_guild().name}",description=ECONOMYSETTINGS,timestamp=datetime.datetime.now(tz=datetime.timezone.utc),color="0x0000ff").add_field("Minimum Gain", f"{result['min_gain']} {result['coin_symbol']}",inline=True).add_field("Maximum Gain", f"{result['max_gain']} {result['coin_symbol']}",inline=True).add_field("Step", f"{result['gain_step']} {result['coin_symbol']}",inline=True).add_field("Gain Cooldown",f"{result['gain_cooldown']} Seconds ({result['gain_cooldown']/3600} Hours)",inline=True).add_field("Coin Name",result['coin_name'],inline=True).add_field("Coin Symbol",result['coin_symbol'],inline=True).add_field("Starting Balance",f"{int(result['starting_bal'])} {result['coin_symbol']}",inline=True)
     else:return
     await ctx.respond(embed=embed,flags=EPHEMERAL)
+    await mydb.close()
 
 @roles.child
 @lightbulb.option("admin", "should the role have administrative permissions in the bot", type=bool, required=True)
@@ -147,6 +144,7 @@ async def config_roles_mods(ctx: lightbulb.Context):
         if int(x[1])==int(role.id):continue
         embed.add_field("Admin" if x['is_admin'] else "Mod",f"<@&{x[1]}>",inline=True)
     await ctx.respond(embed=embed,flags=EPHEMERAL)
+    await mydb.close()
 
 @roles.child
 @lightbulb.option("disabling", "should the role be disabling", type=bool, required=True)
@@ -199,6 +197,7 @@ async def config_work(ctx: lightbulb.Context):
     curr_min = minimum if minimum else result['min_gain'];curr_max = maximum if maximum else result['max_gain']
     if curr_min > curr_max:
         await ctx.respond(embed=Embed(title="**ERROR** Unbounded range for work",description=f"Minimum generated value of {curr_min} is greater than the maximum generated value of {curr_max}. The maximum must be greater to or equal to the minimum.",color="0xff0000",timestamp=datetime.datetime.now(tz=datetime.timezone.utc)),flags=EPHEMERAL)
+        await mydb.close()
         return
     embed = Embed(title=f"**New** Economy settings in {ctx.get_guild().name}",description=ECONOMYSETTINGS,timestamp=datetime.datetime.now(tz=datetime.timezone.utc),color="0x0000ff")
     if minimum: await mydb.execute("UPDATE guild_feature_work set min_gain = $1 WHERE guild_id = $2",minimum,ctx.guild_id)
@@ -218,6 +217,7 @@ async def config_work(ctx: lightbulb.Context):
     if starting_bal !=1:await mydb.execute("UPDATE guild_feature_work set starting_bal = $1 WHERE guild_id = $2",starting_bal,ctx.guild_id)
     embed.add_field(f"{'**NEW**' if starting_bal !=1 else ''} Starting Balance",f"{starting_bal if starting_bal !=1 else int(result['starting_bal'])} {symbol if symbol else result['coin_symbol']}",inline=True)
     await ctx.respond(embed=embed, flags=EPHEMERAL)
+    await mydb.close()
 
 """@Generating_Plugin.command()
 @lightbulb.add_checks(lightbulb.Check(has_roles(837812373451702303,837812586997219372,837812662116417566,837812728801525781,837812793914425455,400445639210827786,685331877057658888,337743478190637077,837813262417788988,338173415527677954,253752685357039617,mode=any)),lightbulb.Check(a.checks.check_econ_channel),lightbulb.Check(a.checks.Punished))
