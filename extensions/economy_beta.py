@@ -227,7 +227,7 @@ Example: `\<:Echocoin:928020676751814656>` would give you the `<:name:id>` forma
 **Animated emojis** are the same as above but have an `a` before the name- ie: `<a:name:id>`
 
 **TO SUBMIT A CUSTOM EMOJI THEN** you have to first get the `<name:id>` format then enter a backslash `\` to get the following final input for :Echocoin: as an example: `\<:Echocoin:928020676751814656>`. Note: Without the backslash, it will just convert to a normal emoji and it wont work. **THIS IS A LIMITATION ON DISCORDS END**""", flags=EPHEMERAL)
-    ctx.respond(embed=embed, flags=EPHEMERAL)
+    await ctx.respond(embed=embed, flags=EPHEMERAL)
 
 """@Generating_Plugin.command()
 @lightbulb.add_checks(lightbulb.Check(has_roles(837812373451702303,837812586997219372,837812662116417566,837812728801525781,837812793914425455,400445639210827786,685331877057658888,337743478190637077,837813262417788988,338173415527677954,253752685357039617,mode=any)),lightbulb.Check(a.checks.check_econ_channel),lightbulb.Check(a.checks.Punished))
