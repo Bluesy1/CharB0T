@@ -18,6 +18,7 @@ EPHEMERAL:Final[int] = 64
 MODVADMIN:Final[str] = "A  role marked as mod is ignored by autopunishments. A role marked as admin can edit the bot's settings along with the benefits of being a mod."
 DISABLER:Final[str] = "A role marked as disabling will mean that a user with this role cannot use this portion of the bot, even if they have another role that would allow it. A role marked as enabling will allow a user to use this portion of the bot, as long as they don't have any role listed under disabling. Users listed with a mod role are not immune to disabling roles, but Users with an admin role are. If the everyone role is set as an enabling role, all users without a disabling role can use the bot (not recommended on servers that already have a levelling system). If the everyone role is set as a disabling role, the system will be disabled completely."
 ECONOMYSETTINGS:Final[str] = "Minimum Gain, Maximum Gain, and Step dictate how random numbers are generated for the /work system - a number between the minimum and maximum, both inclusive with steps of size step from the minimum. i.e., for a (min,max,step) of (800,1200,5), which are the default settings, the random number possibilities would be (800,805,810,815,...,1190,1195,1200). Gain cooldown is the number of seconds between work uses for a user, default 11.5 hours, it's recommended to set this slightly under the time you advertise. i.e., for a 12-hour cycle, it's suggested using a cycle of 11.5 hours so people don't have to be perfect. Coin name and symbol allow you to customize the name and symbol of the coin if you don't like the default name of EchoCoin with the symbol <:Echocoin:928020676751814656>. Default starting balance allows people to start investing without having to do a couple of work cycles first. The default is 10,000, but you can change this if you want. All currencies, regardless of name and symbol are always a 1:1 vs USD for simplicity."
+DEFAULTNAME:Final[str]="EchoCoin";DEFAULTSYMBOL:Final[str]="<:Echocoin:928020676751814656>"
 Economy = lightbulb.Plugin("Economy", default_enabled_guilds=225345178955808768)
 
 #loop = asyncio.get_event_loop()
@@ -178,7 +179,7 @@ async def config_roles_work(ctx: lightbulb.Context):
 
 @config.child
 @lightbulb.option("starting_bal","balance to start all new users of the bot on the server with",type=int,default=1,min_value=1,required=False)
-@lightbulb.option("symbol","default to reset, to get the id format needed, send a message with a `\` in front of the emoji",type=str, default="",required=False)
+@lightbulb.option("symbol","default to reset, help to get help on this setting",type=str, default="",required=False)
 @lightbulb.option("name","custom name for the coin, put 'default' (without the quotes) to reset to the default name",type=str, default="",required=False)
 @lightbulb.option("cooldown","cooldown between allowed uses of /work by a single user, in seconds. i.e. 3600 is one hour",type=int,default = 3599,min_value=3599,required=False)
 @lightbulb.option("step","step between numbers possible to randomly generate",type=int,default = 1,min_value=1,max_value=100,required=False)
@@ -187,24 +188,44 @@ async def config_roles_work(ctx: lightbulb.Context):
 @lightbulb.command("work","edits guild settings for the work module. leave option default to leave unchanged", inherit_checks=True, auto_defer = True)
 @lightbulb.implements(commands.SlashSubCommand)
 async def config_work(ctx: lightbulb.Context):
-    mydb = await get_db()
-    result = await mydb.fetchrow("SELECT * FROM guild_feature_work WHERE guild_id = $1",ctx.guild_id)
+    minimum = ctx.options.minimum if ctx.options.minimum is not None else 0
+    maximum = ctx.options.maximum if ctx.options.maximum is not None else 1
+    step = ctx.options.step if ctx.options.step is not None else 1
+    cooldown = ctx.options.cooldown if ctx.options.cooldown is not None else 3599
+    name = ctx.options.name if ctx.options.name is not None else ""
+    symbol = ctx.options.symbol if ctx.options.symbol is not None else ""
+    starting_bal = ctx.options.starting_bal if ctx.options.starting_bal is not None else 1
+    mydb = await get_db();result = await mydb.fetchrow("SELECT * FROM guild_feature_work WHERE guild_id = $1",ctx.guild_id)
     embed = Embed(title=f"**New** Economy settings in {ctx.get_guild().name}",description=ECONOMYSETTINGS,timestamp=datetime.datetime.now(tz=datetime.timezone.utc),color="0x0000ff")
-    if ctx.options.minimum !=0: await mydb.execute("UPDATE guild_feature_work set min_gain = $1 WHERE guild_id = $2",ctx.options.minimum,ctx.guild_id)
-    embed.add_field(f"{'**NEW**' if ctx.options.minimum !=0 else ''} Minimum Gain", f"{ctx.options.minimum if ctx.options.minimum !=0 else result['min_gain']} {ctx.options.symbol if ctx.options.symbol else result['coin_symbol']}",inline=True)
-    if ctx.options.maximum != 1:await mydb.execute("UPDATE guild_feature_work set max_gain = $1 WHERE guild_id = $2",ctx.options.maximum,ctx.guild_id)
-    embed.add_field(f"{'**NEW**' if ctx.options.maximum !=1 else ''} Maximum Gain", f"{ctx.options.maximum if ctx.options.maximum !=1 else result['max_gain']} {ctx.options.symbol if ctx.options.symbol else result['coin_symbol']}",inline=True)
-    if ctx.options.step !=1: await mydb.execute("UPDATE guild_feature_work set gain_step = $1 WHERE guild_id = $2",ctx.options.step,ctx.guild_id)
-    embed.add_field(f"{'**NEW**' if ctx.options.step !=1 else ''} Step", f"{ctx.options.step if ctx.options.step !=1 else result['gain_step']} {ctx.options.symbol if ctx.options.symbol else result['coin_symbol']}",inline=True)
-    if ctx.options.cooldown != 3599:await mydb.execute("UPDATE guild_feature_work set gain_cooldown = $1 WHERE guild_id = $2",ctx.options.cooldown,ctx.guild_id)
-    embed.add_field(f"{'**NEW**' if ctx.options.cooldown != 3599 else ''} Gain Cooldown",f"{ctx.options.cooldown if ctx.options.cooldown != 3599 else result['gain_cooldown']} Seconds ({(ctx.options.cooldown if ctx.options.cooldown != 3599 else result['gain_cooldown'])/3600} Hours)",inline=True)
-    if ctx.options.name:await mydb.execute("UPDATE guild_feature_work set coin_name = $1 WHERE guild_id = $2",ctx.options.name,ctx.guild_id)
-    embed.add_field(f"{'**NEW**' if ctx.options.name else ''} Coin Name",ctx.options.name if ctx.options.name else result['coin_name'],inline=True)
-    if ctx.options.symbol:await mydb.execute("UPDATE guild_feature_work set coin_symbol = $1 WHERE guild_id = $2",ctx.options.symbol,ctx.guild_id)
-    embed.add_field(f"{'**NEW**' if ctx.options.symbol else ''} Coin Symbol",ctx.options.symbol if ctx.options.symbol else result['coin_name'],inline=True)
-    if ctx.options.starting_bal !=1:await mydb.execute("UPDATE guild_feature_work set starting_bal = $1 WHERE guild_id = $2",ctx.options.starting_bal,ctx.guild_id)
-    embed.add_field(f"{'**NEW**' if ctx.options.starting_bal !=1 else ''} Starting Balance",f"{ctx.options.starting_bal if ctx.options.starting_bal !=1 else int(result['starting_bal'])} {ctx.options.symbol if ctx.options.symbol else result['coin_symbol']}",inline=True)
-    await ctx.send(embed=embed, flags=EPHEMERAL)
+    if minimum: await mydb.execute("UPDATE guild_feature_work set min_gain = $1 WHERE guild_id = $2",minimum,ctx.guild_id)
+    embed.add_field(f"{'**NEW**' if minimum else ''} Minimum Gain", f"{minimum if minimum else result['min_gain']} {symbol if symbol else result['coin_symbol']}",inline=True)
+    if maximum != 1:await mydb.execute("UPDATE guild_feature_work set max_gain = $1 WHERE guild_id = $2",maximum,ctx.guild_id)
+    embed.add_field(f"{'**NEW**' if maximum !=1 else ''} Maximum Gain", f"{maximum if maximum !=1 else result['max_gain']} {symbol if symbol else result['coin_symbol']}",inline=True)
+    if step !=1: await mydb.execute("UPDATE guild_feature_work set gain_step = $1 WHERE guild_id = $2",step,ctx.guild_id)
+    embed.add_field(f"{'**NEW**' if step !=1 else ''} Step", f"{step if step !=1 else result['gain_step']} {symbol if symbol else result['coin_symbol']}",inline=True)
+    if cooldown != 3599:await mydb.execute("UPDATE guild_feature_work set gain_cooldown = $1 WHERE guild_id = $2",cooldown,ctx.guild_id)
+    embed.add_field(f"{'**NEW**' if cooldown != 3599 else ''} Gain Cooldown",f"{cooldown if cooldown != 3599 else result['gain_cooldown']} Seconds ({(cooldown if cooldown != 3599 else result['gain_cooldown'])/3600} Hours)",inline=True)
+    if name and name !='default':await mydb.execute("UPDATE guild_feature_work set coin_name = $1 WHERE guild_id = $2",name,ctx.guild_id)
+    embed.add_field(f"{'**NEW**' if name else ''} Coin Name",name if name and name!="default" else DEFAULTNAME if name=='default' else result['coin_name'],inline=True)
+    if symbol and symbol not in['default','help']:await mydb.execute("UPDATE guild_feature_work set coin_symbol = $1 WHERE guild_id = $2",symbol,ctx.guild_id)
+    embed.add_field(f"{'**NEW**' if symbol and symbol != 'help' else ''} Coin Symbol",symbol if symbol and symbol not in ['default','help'] else DEFAULTSYMBOL if symbol=='default' else result['coin_symbol'],inline=True)
+    if starting_bal !=1:await mydb.execute("UPDATE guild_feature_work set starting_bal = $1 WHERE guild_id = $2",starting_bal,ctx.guild_id)
+    embed.add_field(f"{'**NEW**' if starting_bal !=1 else ''} Starting Balance",f"{starting_bal if starting_bal !=1 else int(result['starting_bal'])} {symbol if symbol else result['coin_symbol']}",inline=True)
+    if symbol=='help':await ctx.respond("""**How to get a custom symbol in the bot:**
+Custom emotes are represented internally in the following format:
+`<:name:id>`
+Where the name is the name of the custom emote, and the ID is the id of the custom emote. 
+For example, `<:Echocoin:928020676751814656>` is the name:id for :Echocoin:
+
+For a *standard* unicode emoji, just put the emoji in the box ... not the discord name .. but the unicode emoji. 
+
+You can quickly obtain the `<:name:id>` format by putting a backslash in front of the custom emoji when you put it in your client. 
+Example: `\<:Echocoin:928020676751814656>` would give you the `<:name:id>` format.
+
+**Animated emojis** are the same as above but have an `a` before the name- ie: `<a:name:id>`
+
+**TO SUBMIT A CUSTOM EMOJI THEN** you have to first get the `<name:id>` format then enter a backslash `\` to get the following final input for :Echocoin: as an example: `\<:Echocoin:928020676751814656>`. Note: Without the backslash, it will just convert to a normal emoji and it wont work. **THIS IS A LIMITATION ON DISCORDS END**""", flags=EPHEMERAL)
+    ctx.respond(embed=embed, flags=EPHEMERAL)
 
 """@Generating_Plugin.command()
 @lightbulb.add_checks(lightbulb.Check(has_roles(837812373451702303,837812586997219372,837812662116417566,837812728801525781,837812793914425455,400445639210827786,685331877057658888,337743478190637077,837813262417788988,338173415527677954,253752685357039617,mode=any)),lightbulb.Check(a.checks.check_econ_channel),lightbulb.Check(a.checks.Punished))
