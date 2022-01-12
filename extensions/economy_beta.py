@@ -196,8 +196,12 @@ async def config_work(ctx: lightbulb.Context):
     symbol = ctx.options.symbol if ctx.options.symbol is not None else ""
     starting_bal = ctx.options.starting_bal if ctx.options.starting_bal is not None else 1
     mydb = await get_db();result = await mydb.fetchrow("SELECT * FROM guild_feature_work WHERE guild_id = $1",ctx.guild_id)
+    curr_min = minimum if minimum else result['min_gain'];curr_max = maximum if maximum else result['max_gain']
+    if curr_min > curr_max:
+        await ctx.respond(embed=Embed(title="**ERROR** Unbounded range for work",description=f"Minimum generated value of {curr_min} is greater than the maximum generated value of {curr_max}. The maximum must be greater to or equal to the minimum.",color="0xff0000",timestamp=datetime.datetime.now(tz=datetime.timezone.utc)))
+        return
     embed = Embed(title=f"**New** Economy settings in {ctx.get_guild().name}",description=ECONOMYSETTINGS,timestamp=datetime.datetime.now(tz=datetime.timezone.utc),color="0x0000ff")
-    if minimum!=0: await mydb.execute("UPDATE guild_feature_work set min_gain = $1 WHERE guild_id = $2",minimum,ctx.guild_id)
+    if minimum: await mydb.execute("UPDATE guild_feature_work set min_gain = $1 WHERE guild_id = $2",minimum,ctx.guild_id)
     embed.add_field(f"{'**NEW**' if minimum else ''} Minimum Gain", f"{minimum if minimum else result['min_gain']} {symbol if symbol else result['coin_symbol']}",inline=True)
     if maximum != 1:await mydb.execute("UPDATE guild_feature_work set max_gain = $1 WHERE guild_id = $2",maximum,ctx.guild_id)
     embed.add_field(f"{'**NEW**' if maximum !=1 else ''} Maximum Gain", f"{maximum if maximum !=1 else result['max_gain']} {symbol if symbol else result['coin_symbol']}",inline=True)
