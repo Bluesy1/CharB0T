@@ -198,7 +198,7 @@ async def config_work(ctx: lightbulb.Context):
     mydb = await get_db();result = await mydb.fetchrow("SELECT * FROM guild_feature_work WHERE guild_id = $1",ctx.guild_id)
     curr_min = minimum if minimum else result['min_gain'];curr_max = maximum if maximum else result['max_gain']
     if curr_min > curr_max:
-        await ctx.respond(embed=Embed(title="**ERROR** Unbounded range for work",description=f"Minimum generated value of {curr_min} is greater than the maximum generated value of {curr_max}. The maximum must be greater to or equal to the minimum.",color="0xff0000",timestamp=datetime.datetime.now(tz=datetime.timezone.utc)))
+        await ctx.respond(embed=Embed(title="**ERROR** Unbounded range for work",description=f"Minimum generated value of {curr_min} is greater than the maximum generated value of {curr_max}. The maximum must be greater to or equal to the minimum.",color="0xff0000",timestamp=datetime.datetime.now(tz=datetime.timezone.utc)),flags=EPHEMERAL)
         return
     embed = Embed(title=f"**New** Economy settings in {ctx.get_guild().name}",description=ECONOMYSETTINGS,timestamp=datetime.datetime.now(tz=datetime.timezone.utc),color="0x0000ff")
     if minimum: await mydb.execute("UPDATE guild_feature_work set min_gain = $1 WHERE guild_id = $2",minimum,ctx.guild_id)
@@ -235,7 +235,7 @@ async def work(ctx):
         await ctx.respond("🚫 Error: **" + ctx.author.mention + "** You need to wait " + str(datetime.timedelta(seconds=41400-timeDifference)) + " more to use this command.")
     elif timeDifference > 41400:
         df.loc[str(ctx.author.id), 'lastWork'] = currentUse
-        amount = random.randrange(800, 1200, 5) #generates random number from 800 to 1200, in incrememnts of 5 (same as generating a radom number between 40 and 120, and multiplying it by 5)
+        amount = random.randrange(800, 1200+1, 5) #generates random number from 800 to 1200, in incrememnts of 5 (same as generating a radom number between 40 and 120, and multiplying it by 5), the +1 to make it inclusive
         lastamount = int(df.loc[str(ctx.author.id), 'lastWorkAmount'])
         df.loc[str(ctx.author.id), 'lastWorkAmount'] = amount
         a.userInfo.writeUserInfo(df)
