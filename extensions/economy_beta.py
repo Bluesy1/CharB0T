@@ -188,13 +188,13 @@ async def config_roles_work(ctx: lightbulb.Context):
 @lightbulb.command("work","edits guild settings for the work module. leave option default to leave unchanged", inherit_checks=True, auto_defer = True)
 @lightbulb.implements(commands.SlashSubCommand)
 async def config_work(ctx: lightbulb.Context):
-    minimum = ctx.options.minimum if ctx.options.minimum is not type(None) else 0
-    maximum = ctx.options.maximum if ctx.options.maximum is not type(None) else 1
-    step = ctx.options.step if ctx.options.step is not type(None) else 1
-    cooldown = ctx.options.cooldown if ctx.options.cooldown is not type(None) else 3599
-    name = ctx.options.name if ctx.options.name is not type(None) else ""
-    symbol = ctx.options.symbol if ctx.options.symbol is not type(None) else ""
-    starting_bal = ctx.options.starting_bal if ctx.options.starting_bal is not type(None) else 1
+    minimum = ctx.options.minimum if ctx.options.minimum is not None else 0
+    maximum = ctx.options.maximum if ctx.options.maximum is not None else 1
+    step = ctx.options.step if ctx.options.step is not None else 1
+    cooldown = ctx.options.cooldown if ctx.options.cooldown is not None else 3599
+    name = ctx.options.name if ctx.options.name is not None else ""
+    symbol = ctx.options.symbol if ctx.options.symbol is not None else ""
+    starting_bal = ctx.options.starting_bal if ctx.options.starting_bal is not None else 1
     mydb = await get_db();result = await mydb.fetchrow("SELECT * FROM guild_feature_work WHERE guild_id = $1",ctx.guild_id)
     embed = Embed(title=f"**New** Economy settings in {ctx.get_guild().name}",description=ECONOMYSETTINGS,timestamp=datetime.datetime.now(tz=datetime.timezone.utc),color="0x0000ff")
     if minimum!=0: await mydb.execute("UPDATE guild_feature_work set min_gain = $1 WHERE guild_id = $2",minimum,ctx.guild_id)
