@@ -26,13 +26,13 @@ bot = lightbulb.BotApp(token=token, prefix=";",help_class=None,owner_ids=[363095
             "lightbulb": {"level": "INFO"},
         },},case_insensitive_prefix_commands=True,intents=Intents.ALL)
 
-
 bot.command()
 @lightbulb.add_checks(has_roles(832521484378308660,832521484378308659,832521484378308658,mode=any))
 @lightbulb.option("word","Word to remove")
 @lightbulb.command("add","adds a word to the slur filter")
 @lightbulb.implements(PrefixCommand)
 async def command(ctx: lightbulb.Context):
+    if ctx.guild_id!=832521484340953088:return
     with open('UBCbot.json') as t:
         fulldict = json.load(t)
     joinstring = ", "
@@ -49,17 +49,19 @@ bot.command()
 @lightbulb.command("query","querys the slur filter list")
 @lightbulb.implements(PrefixCommand)
 async def command(ctx: lightbulb.Context):
+    if ctx.guild_id!=832521484340953088:return
     with open('UBCbot.json') as t:
         fulldict = json.load(t)
     joinstring = ", "
     await ctx.respond(embed=Embed(title="List of words defined as slurs",description=f"||{joinstring.join(fulldict['Words'])}||"),color="0x0000ff",timestamp=datetime.datetime.now(tz=datetime.timezone.utc))    
 
 bot.command()
-@lightbulb.add_checks(has_roles(832521484378308660,832521484378308659,832521484378308658,mode=any))
+@lightbulb.add_checks(has_roles(832521484378308660,832521484378308659,832521484378308658,mode=any),)
 @lightbulb.option("word","Word to remove")
 @lightbulb.command("remove","removes a word from the slur filter")
 @lightbulb.implements(PrefixCommand)
 async def command(ctx: lightbulb.Context):
+    if ctx.guild_id!=832521484340953088:return
     with open('UBCbot.json') as t:
         fulldict = json.load(t)
     joinstring = ", "
@@ -76,6 +78,7 @@ async def command(ctx: lightbulb.Context):
 
 @bot.listen(GuildMessageCreateEvent)
 async def on_guild_message(event:GuildMessageCreateEvent):
+    if event.guild_id!=832521484340953088:return
     with open('UBCbot.json') as t:
             words:list[str] = json.load(t)['Words']
     content = event.content.lower();used_slurs = set();joinstring = ", "
