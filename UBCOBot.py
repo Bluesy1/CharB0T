@@ -24,7 +24,7 @@ bot = lightbulb.BotApp(token=token, prefix=";",help_class=None,owner_ids=[363095
             "hikari": {"level": "INFO"},
             "hikari.ratelimits": {"level": "TRACE_HIKARI"},
             "lightbulb": {"level": "INFO"},
-        },},case_insensitive_prefix_commands=True,intents=Intents.ALL)
+        },},case_insensitive_prefix_commands=True,intents=Intents.ALL,delete_unbound_commands=False)
 
 bot.command()
 @lightbulb.add_checks(has_roles(832521484378308660,832521484378308659,832521484378308658,mode=any))
