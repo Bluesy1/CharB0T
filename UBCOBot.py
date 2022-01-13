@@ -39,9 +39,9 @@ async def add(ctx: lightbulb.Context):
         fulldict['Words'].append(ctx.options.word.lower())
         with open('UBCbot.json','w') as t:
             json.dump(fulldict,t)
-        await ctx.respond(embed=Embed(title="New list of words defined as slurs",description=f"||{joinstring.join(fulldict['Words'])}||"),color="0x00ff00",timestamp=datetime.datetime.now(tz=datetime.timezone.utc))
+        await ctx.respond(embed=Embed(title="New list of words defined as slurs",description=f"||{joinstring.join(fulldict['Words'])}||",color="0x00ff00",timestamp=datetime.datetime.now(tz=datetime.timezone.utc)))
     else:
-        await ctx.respond(embed=Embed(title="Word already in list of words defined as slurs",description=f"||{joinstring.join(fulldict['Words'])}||"),color="0x0000ff",timestamp=datetime.datetime.now(tz=datetime.timezone.utc))
+        await ctx.respond(embed=Embed(title="Word already in list of words defined as slurs",description=f"||{joinstring.join(fulldict['Words'])}||",color="0x0000ff",timestamp=datetime.datetime.now(tz=datetime.timezone.utc)))
 
 @bot.command()
 @lightbulb.add_checks(has_roles(832521484378308660,832521484378308659,832521484378308658,mode=any))
@@ -52,7 +52,7 @@ async def query(ctx: lightbulb.Context):
     with open('UBCbot.json') as t:
         fulldict = json.load(t)
     joinstring = ", "
-    await ctx.respond(embed=Embed(title="List of words defined as slurs",description=f"||{joinstring.join(fulldict['Words'])}||"),color="0x0000ff",timestamp=datetime.datetime.now(tz=datetime.timezone.utc))    
+    await ctx.respond(embed=Embed(title="List of words defined as slurs",description=f"||{joinstring.join(fulldict['Words'])}||",color="0x0000ff",timestamp=datetime.datetime.now(tz=datetime.timezone.utc)))
 
 @bot.command()
 @lightbulb.option("word","Word to remove")
@@ -68,12 +68,12 @@ async def remove(ctx: lightbulb.Context):
         for i in range(len(fulldict['Words'])):
             if fulldict['Words'][i] == ctx.options.word.lower():
                 fulldict['Words'].pop(i)
-                await ctx.respond(embed=Embed(title="New list of words defined as slurs",description=f"||{joinstring.join(fulldict['Words'])}||"),color="0x00ff00",timestamp=datetime.datetime.now(tz=datetime.timezone.utc))
+                await ctx.respond(embed=Embed(title="New list of words defined as slurs",description=f"||{joinstring.join(fulldict['Words'])}||",color="0x00ff00",timestamp=datetime.datetime.now(tz=datetime.timezone.utc)))
                 with open('UBCbot.json','w') as t:
                     json.dump(fulldict,t)
                 break
     else:
-        await ctx.respond(embed=Embed(title="Word not in list of words defined as slurs",description=f"||{joinstring.join(fulldict['Words'])}||"),color="0x0000ff",timestamp=datetime.datetime.now(tz=datetime.timezone.utc))
+        await ctx.respond(embed=Embed(title="Word not in list of words defined as slurs",description=f"||{joinstring.join(fulldict['Words'])}||",color="0x0000ff",timestamp=datetime.datetime.now(tz=datetime.timezone.utc)))
 
 @bot.listen(GuildMessageCreateEvent)
 async def on_guild_message(event:GuildMessageCreateEvent):
