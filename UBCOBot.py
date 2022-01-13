@@ -31,7 +31,7 @@ bot.command()
 @lightbulb.option("word","Word to remove")
 @lightbulb.command("add","adds a word to the slur filter")
 @lightbulb.implements(PrefixCommand)
-async def command(ctx: lightbulb.Context):
+async def add(ctx: lightbulb.Context):
     if ctx.guild_id!=832521484340953088:return
     with open('UBCbot.json') as t:
         fulldict = json.load(t)
@@ -48,7 +48,7 @@ bot.command()
 @lightbulb.add_checks(has_roles(832521484378308660,832521484378308659,832521484378308658,mode=any))
 @lightbulb.command("query","querys the slur filter list")
 @lightbulb.implements(PrefixCommand)
-async def command(ctx: lightbulb.Context):
+async def query(ctx: lightbulb.Context):
     if ctx.guild_id!=832521484340953088:return
     with open('UBCbot.json') as t:
         fulldict = json.load(t)
@@ -60,7 +60,7 @@ bot.command()
 @lightbulb.option("word","Word to remove")
 @lightbulb.command("remove","removes a word from the slur filter")
 @lightbulb.implements(PrefixCommand)
-async def command(ctx: lightbulb.Context):
+async def remove(ctx: lightbulb.Context):
     if ctx.guild_id!=832521484340953088:return
     with open('UBCbot.json') as t:
         fulldict = json.load(t)
