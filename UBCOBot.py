@@ -25,7 +25,7 @@ bot = lightbulb.BotApp(token=token, prefix=";",help_class=None,owner_ids=[363095
             "lightbulb": {"level": "INFO"},
         },},case_insensitive_prefix_commands=True,intents=Intents.ALL,delete_unbound_commands=False)
 
-bot.command()
+@bot.command()
 @lightbulb.option("word","Word to remove")
 @lightbulb.add_checks(has_roles(832521484378308660,832521484378308659,832521484378308658,mode=any))
 @lightbulb.command("add","adds a word to the slur filter")
@@ -43,7 +43,7 @@ async def add(ctx: lightbulb.Context):
     else:
         await ctx.respond(embed=Embed(title="Word already in list of words defined as slurs",description=f"||{joinstring.join(fulldict['Words'])}||"),color="0x0000ff",timestamp=datetime.datetime.now(tz=datetime.timezone.utc))
 
-bot.command()
+@bot.command()
 @lightbulb.add_checks(has_roles(832521484378308660,832521484378308659,832521484378308658,mode=any))
 @lightbulb.command("query","querys the slur filter list")
 @lightbulb.implements(commands.PrefixCommand)
@@ -54,7 +54,7 @@ async def query(ctx: lightbulb.Context):
     joinstring = ", "
     await ctx.respond(embed=Embed(title="List of words defined as slurs",description=f"||{joinstring.join(fulldict['Words'])}||"),color="0x0000ff",timestamp=datetime.datetime.now(tz=datetime.timezone.utc))    
 
-bot.command()
+@bot.command()
 @lightbulb.option("word","Word to remove")
 @lightbulb.add_checks(has_roles(832521484378308660,832521484378308659,832521484378308658,mode=any))
 @lightbulb.command("remove","removes a word from the slur filter")
