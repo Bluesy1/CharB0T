@@ -9,7 +9,6 @@ from hikari.presences import Activity, ActivityType
 import lightbulb
 from lightbulb import commands
 from lightbulb.checks import has_roles
-from lightbulb.commands.prefix import PrefixCommand
 if os.name != "nt":
     import uvloop
     uvloop.install()
@@ -27,10 +26,10 @@ bot = lightbulb.BotApp(token=token, prefix=";",help_class=None,owner_ids=[363095
         },},case_insensitive_prefix_commands=True,intents=Intents.ALL,delete_unbound_commands=False)
 
 bot.command()
-@lightbulb.add_checks(has_roles(832521484378308660,832521484378308659,832521484378308658,mode=any))
 @lightbulb.option("word","Word to remove")
+@lightbulb.add_checks(has_roles(832521484378308660,832521484378308659,832521484378308658,mode=any))
 @lightbulb.command("add","adds a word to the slur filter")
-@lightbulb.implements(PrefixCommand)
+@lightbulb.implements(commands.PrefixCommand)
 async def add(ctx: lightbulb.Context):
     if ctx.guild_id!=832521484340953088:return
     with open('UBCbot.json') as t:
@@ -47,7 +46,7 @@ async def add(ctx: lightbulb.Context):
 bot.command()
 @lightbulb.add_checks(has_roles(832521484378308660,832521484378308659,832521484378308658,mode=any))
 @lightbulb.command("query","querys the slur filter list")
-@lightbulb.implements(PrefixCommand)
+@lightbulb.implements(commands.PrefixCommand)
 async def query(ctx: lightbulb.Context):
     if ctx.guild_id!=832521484340953088:return
     with open('UBCbot.json') as t:
@@ -56,10 +55,10 @@ async def query(ctx: lightbulb.Context):
     await ctx.respond(embed=Embed(title="List of words defined as slurs",description=f"||{joinstring.join(fulldict['Words'])}||"),color="0x0000ff",timestamp=datetime.datetime.now(tz=datetime.timezone.utc))    
 
 bot.command()
-@lightbulb.add_checks(has_roles(832521484378308660,832521484378308659,832521484378308658,mode=any),)
 @lightbulb.option("word","Word to remove")
+@lightbulb.add_checks(has_roles(832521484378308660,832521484378308659,832521484378308658,mode=any))
 @lightbulb.command("remove","removes a word from the slur filter")
-@lightbulb.implements(PrefixCommand)
+@lightbulb.implements(commands.PrefixCommand)
 async def remove(ctx: lightbulb.Context):
     if ctx.guild_id!=832521484340953088:return
     with open('UBCbot.json') as t:
@@ -89,5 +88,5 @@ async def on_guild_message(event:GuildMessageCreateEvent):
         await event.message.delete()
         await bot.rest.add_role_to_member(832521484340953088,event.member.id,900612423332028416,reason="Used a Slur")
         await bot.rest.add_role_to_member(832521484340953088,event.member.id,930953847411736598,reason="Used a Slur")
-        await bot.rest.create_message(832521484828147741,embed=Embed(title=f"[SLUR] {event.member.username}#{event.member.discriminator}",color="oxff0000",timestamp=datetime.datetime.now(tz=datetime.timezone.utc)).add_field("User",event.member.mention,inline=True).add_field("Slurs Used",f"||{joinstring.join(used_slurs)}||",inline=True).add_field("Channel",f"<#{event.channel_id}>",inline=True).add_field("Message",event.content,inline=True))
+        await bot.rest.create_message(832521484828147741,embed=Embed(title=f"[SLUR] {event.member.username}#{event.member.discriminator}",color="0xff0000",timestamp=datetime.datetime.now(tz=datetime.timezone.utc)).add_field("User",event.member.mention,inline=True).add_field("Slurs Used",f"||{joinstring.join(used_slurs)}||",inline=True).add_field("Channel",f"<#{event.channel_id}>",inline=True).add_field("Message",event.content,inline=True))
 bot.run()
