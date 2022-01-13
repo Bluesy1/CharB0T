@@ -56,3 +56,4 @@ key.py
 sqlinfo.json
 *.code-workspace
 async test.py
+UBCbot.json
