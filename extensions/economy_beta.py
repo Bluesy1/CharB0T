@@ -266,7 +266,7 @@ async def work(ctx:lightbulb.Context):
     elif timeDifference >= datetime.timedelta(seconds=seconds):
         amount = random.randrange(min_gain, max_gain+1, step) #generates random number from min to max inclusive, in incrememnts of step, the +1 to make it inclusive
         balance += lastamount
-        await mydb.execute("UPDATE user_guild_balance SET balance = $1,next_work_amount = $2,last_gain_time = $3",Decimal(balance),amount,currentUse)
+        await mydb.execute("UPDATE user_guild_balance SET balance = $1,next_work_amount = $2,last_gain_time = $3 user_id = $4 AND guild_id = $5",Decimal(balance),amount,currentUse,ctx.member.id,ctx.guild_id)
         if lastWork is not None:embed = Embed(description= f"{ctx.author.mention}, you started working again. You gain  {str(lastamount)} {symbol} from your last work. Come back in **{int(ceil(seconds/3600))} hours** to claim your paycheck of {str(amount)} {symbol} and start working again with `/work`", color="60D1F6")
         else: embed = Embed(description= f"{ctx.author.mention}, you started working. Come back in **{int(ceil(seconds/3600))} hours** to claim your paycheck of {str(amount)} {symbol} and start working again with `/work`", color="60D1F6")
         await ctx.respond(embed=embed,flags=EPHEMERAL)
