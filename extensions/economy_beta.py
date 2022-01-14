@@ -36,11 +36,11 @@ async def check_author_work_allowed(context: lightbulb.Context) -> bool:
     result=await mydb.fetch("SELECT * FROM guild_feature_work_roles WHERE guild_id = $1",context.guild_id)
     roles = context.member.role_ids;possible = False
     for x in result:
-        if context.guild_id == x[1] and bool(x['disabling']):return False
-        elif context.guild_id == x[1] and not bool(x['disabling']):possible = True
-        elif x[1] in roles and bool(x['disabling']):return False
-        elif x[1] in roles and not bool(x['disabling']) == 0: possible = True
-    await mydb.close()
+        if context.guild_id == x[1] and bool(x['disabling']):print("fail");await mydb.close();return False
+        elif context.guild_id == x[1] and not bool(x['disabling']):print("possible success");possible = True
+        elif x[1] in roles and bool(x['disabling']):print("fail");await mydb.close();return False
+        elif x[1] in roles and not bool(x['disabling']) == 0:print("possible success");possible = True
+    await mydb.close();print("returning")
     return possible
 
 @lightbulb.Check
@@ -110,7 +110,7 @@ async def config_mods_query(ctx: lightbulb.Context):
             embed.add_field("Admin" if x[2] else "Mod",f"<@&{x[1]}>",inline=True)
     elif queryier==2:
         result = await mydb.fetchrow("SELECT * from guilds where id = $1",ctx.guild_id)
-        embed = Embed(f"**UPDATED** Moderation Settings in {ctx.get_guild().name}",description=MODERATIONSETTINGS,timestamp=datetime.datetime.now(tz=datetime.timezone.utc),color="0x00ff00")
+        embed = Embed(title=f"**UPDATED** Moderation Settings in {ctx.get_guild().name}",description=MODERATIONSETTINGS,timestamp=datetime.datetime.now(tz=datetime.timezone.utc),color="0x00ff00")
         embed.add_field("Nitro Scam Scan","Enabled" if result['nitro_enabled'] else "Disabled",inline=True).add_field("Crypto Scam Scan","Enabled" if result['crypto_enabled'] else "Disabled",inline=True).add_field("Mute Role",f"<@&{result['mute_role']}>",inline=True).add_field("Moderation Log",f"<#{result['main_log']}>",inline=True).add_field("Secondary Log",f"<#{result['second_log']}>",inline=True)
     elif queryier==3:
         result = await mydb.fetch("SELECT * FROM guild_feature_work_roles WHERE guild_id = $1",ctx.guild_id)
@@ -255,10 +255,10 @@ async def work(ctx:lightbulb.Context):
         temp = await mydb.fetchrow("SELECT starting_bal FROM guild_feature_work WHERE guild_id = $1",ctx.guild_id)
         await mydb.execute("INSERT INTO user_guild_balance (user_id,guild_id,balance,next_work_amount) VALUES ($1,$2,$3,$4)",ctx.member.id,ctx.guild_id,int(temp[0]),0)
         del temp
-    workinfo = await mydb.fetchrow("SELECT (balance,next_work_amount,last_gain_time) FROM user_guild_balance WHERE user_id = $1 AND guild_id = $2",ctx.member.id,ctx.guild_id)
+    workinfo = await mydb.fetchrow("SELECT balance,next_work_amount,last_gain_time FROM user_guild_balance WHERE user_id = $1 AND guild_id = $2",ctx.member.id,ctx.guild_id)
     balance = float(workinfo[0]);lastamount = int(workinfo[1]);lastWork:typing.Union[datetime.datetime,None] = workinfo[2]
     currentUse = datetime.datetime.now(tz=datetime.timezone.utc)
-    guild_info = await mydb.fetchrow("SELECT (min_gain,max_gain,gain_step,gain_cooldown) FROM guild_feature_work WHERE guild_id = $1",ctx.guild_id)
+    guild_info = await mydb.fetchrow("SELECT min_gain,max_gain,gain_step,gain_cooldown FROM guild_feature_work WHERE guild_id = $1",ctx.guild_id)
     seconds = int(guild_info[3]);min_gain=int(guild_info[0]);max_gain = int(guild_info[1]);step = int(guild_info[2])
     timeDifference = (currentUse - lastWork) if lastWork is not None else datetime.timedelta(seconds=seconds+10)
     if timeDifference < datetime.timedelta(seconds=seconds):
