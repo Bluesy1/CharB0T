@@ -258,16 +258,16 @@ async def work(ctx:lightbulb.Context):
     workinfo = await mydb.fetchrow("SELECT balance,next_work_amount,last_gain_time FROM user_guild_balance WHERE user_id = $1 AND guild_id = $2",ctx.member.id,ctx.guild_id)
     balance = float(workinfo[0]);lastamount = int(workinfo[1]);lastWork:typing.Union[datetime.datetime,None] = workinfo[2]
     currentUse = datetime.datetime.now(tz=datetime.timezone.utc)
-    guild_info = await mydb.fetchrow("SELECT min_gain,max_gain,gain_step,gain_cooldown FROM guild_feature_work WHERE guild_id = $1",ctx.guild_id)
-    seconds = int(guild_info[3]);min_gain=int(guild_info[0]);max_gain = int(guild_info[1]);step = int(guild_info[2])
+    guild_info = await mydb.fetchrow("SELECT min_gain,max_gain,gain_step,gain_cooldown,coin_symbol FROM guild_feature_work WHERE guild_id = $1",ctx.guild_id)
+    seconds = int(guild_info[3]);min_gain=int(guild_info[0]);max_gain = int(guild_info[1]);step = int(guild_info[2]);symbol = guild_info[4]
     timeDifference = (currentUse - lastWork) if lastWork is not None else datetime.timedelta(seconds=seconds+10)
     if timeDifference < datetime.timedelta(seconds=seconds):
         await ctx.respond("🚫 Error: **" + ctx.author.mention + "** You need to wait " + str(datetime.timedelta(seconds=seconds-timeDifference)) + " more to use this command.")
     elif timeDifference > datetime.timedelta(seconds=seconds):
-        amount = random.randrange(min_gain, max_gain+1, step) #generates random number from 800 to 1200, in incrememnts of 5 (same as generating a radom number between 40 and 120, and multiplying it by 5), the +1 to make it inclusive
+        amount = random.randrange(min_gain, max_gain+1, step) #generates random number from min to max inclusive, in incrememnts of step, the +1 to make it inclusive
         balance += lastamount
         await mydb.execute("UPDATE user_guild_balance SET balance = $1,next_work_amount = $2,last_gain_time = $3",Decimal(balance),amount,currentUse)
-        embed = Embed(description= ctx.author.mention + ', you started working again. You gain '+ str(lastamount) +f' <:HotTips2:465535606739697664> from your last work. Come back in **{int(ceil(seconds/3600))} hours** to claim your paycheck of '+ str(amount) + ' <:HotTips2:465535606739697664> and start working again with `\work`', color="60D1F6").set_footer(text=f"Requested by {ctx.member.display_name}",icon=ctx.member.avatar_url)
+        embed = Embed(description= f"{ctx.author.mention}, you started working again. You gain  {str(lastamount)} {symbol} from your last work. Come back in **{int(ceil(seconds/3600))} hours** to claim your paycheck of {str(amount)} {symbol} and start working again with `\work`", color="60D1F6").set_footer(text=f"Requested by {ctx.member.display_name}",icon=ctx.member.avatar_url)
         await ctx.respond(embed=embed,flags=EPHEMERAL)
         await mydb.close()
 
