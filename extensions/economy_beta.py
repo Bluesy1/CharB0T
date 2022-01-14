@@ -245,7 +245,7 @@ async def config_moderation(ctx: lightbulb.Context):
 
 @Economy.command()
 @lightbulb.add_checks(check_author_work_allowed)
-@lightbulb.command("work", "work command",auto_defer = True)
+@lightbulb.command("work", "work command",auto_defer = True,ephemeral=True)
 @lightbulb.implements(commands.SlashCommand)
 async def work(ctx:lightbulb.Context):
     mydb = await get_db()
@@ -262,7 +262,7 @@ async def work(ctx:lightbulb.Context):
     seconds = int(guild_info[3]);min_gain=int(guild_info[0]);max_gain = int(guild_info[1]);step = int(guild_info[2]);symbol = guild_info[4]
     timeDifference = (currentUse - lastWork) if lastWork is not None else datetime.timedelta(seconds=seconds+10)
     if timeDifference < datetime.timedelta(seconds=seconds):
-        await ctx.respond("🚫 Error: **" + ctx.author.mention + "** You need to wait " + str(datetime.timedelta(seconds=seconds-timeDifference)) + " more to use this command.")
+        await ctx.respond("🚫 Error: **" + ctx.author.mention + "** You need to wait " + str(datetime.timedelta(seconds=seconds)-timeDifference) + " more to use this command.",flags=EPHEMERAL)
     elif timeDifference > datetime.timedelta(seconds=seconds):
         amount = random.randrange(min_gain, max_gain+1, step) #generates random number from min to max inclusive, in incrememnts of step, the +1 to make it inclusive
         balance += lastamount
