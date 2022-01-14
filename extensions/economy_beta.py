@@ -274,6 +274,17 @@ async def work(ctx:lightbulb.Context):
         await ctx.respond(embed=embed,flags=EPHEMERAL)
         await mydb.close()
 
+@Economy.command()
+@lightbulb.add_checks(check_author_work_allowed)
+@lightbulb.command("balance", "checks your balance",auto_defer = True,ephemeral=True)
+@lightbulb.implements(commands.SlashCommand)
+async def balance(ctx:lightbulb.Context):
+    mydb = await get_db()
+    balance = (await mydb.fetchrow("SELECT balance FROM user_guild_balance WHERE user_id = $1 AND guild_id = $2",ctx.member.id,ctx.guild_id))[0]
+    symbol = (await mydb.fetchrow("SELECT coin_symbol FROM guild_feature_work WHERE guild_id = $1",ctx.guild_id))[0]
+    await ctx.respond(embed=Embed(description=f"{ctx.member.display_name}, your current balance is {balance} {symbol}", color="60D1F6"),flags=EPHEMERAL)
+    await mydb.close()
+
 def load(bot:lightbulb.BotApp):
     bot.add_plugin(Economy)
 
