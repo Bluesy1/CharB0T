@@ -245,7 +245,7 @@ async def config_moderation(ctx: lightbulb.Context):
 
 @Economy.command()
 @lightbulb.add_checks(check_author_work_allowed)
-@lightbulb.command("work", "work command",ephemeral=True)
+@lightbulb.command("work", "work command",auto_defer = True,ephemeral=True)
 @lightbulb.implements(commands.SlashCommand)
 async def work(ctx:lightbulb.Context):
     mydb = await get_db()

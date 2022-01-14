@@ -187,7 +187,7 @@ async def on_error(event: lightbulb.CommandErrorEvent) -> None:
     elif isinstance(exception, lightbulb.CheckFailure):
         if "check_econ_channel" in str(exception) or "check_modmail_channel" in str(exception) or "check_invest_channel" in str(exception):
             await event.context.respond("Wrong Channel.")
-        if "check_author_is_me" in str(exception) or "Punished" in str(exception) or "check_publisher" in str(exception):
+        if any(substring in str(exception) for substring in ["check_author_is_me","Punished","check_publisher","check_author_work_allowed","check_author_is_admin","check_author_is_mod"]):
             await event.context.respond("You are not authorized to use this command")
     elif isinstance(exception, lightbulb.MissingRequiredRole):
         await event.context.respond("You are not authorized to use this command")
