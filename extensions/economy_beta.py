@@ -266,7 +266,7 @@ async def work(ctx:lightbulb.Context):
     elif timeDifference > datetime.timedelta(seconds=seconds):
         amount = random.randrange(min_gain, max_gain+1, step) #generates random number from 800 to 1200, in incrememnts of 5 (same as generating a radom number between 40 and 120, and multiplying it by 5), the +1 to make it inclusive
         balance += lastamount
-        await mydb.execute("UPDATE user_guild balance SET balance = $1,next_work_amount = $2,last_gain_time = $3",Decimal(balance),amount,currentUse)
+        await mydb.execute("UPDATE user_guild_balance SET balance = $1,next_work_amount = $2,last_gain_time = $3",Decimal(balance),amount,currentUse)
         embed = Embed(description= ctx.author.mention + ', you started working again. You gain '+ str(lastamount) +f' <:HotTips2:465535606739697664> from your last work. Come back in **{int(ceil(seconds/3600))} hours** to claim your paycheck of '+ str(amount) + ' <:HotTips2:465535606739697664> and start working again with `\work`', color="60D1F6").set_footer(text=f"Requested by {ctx.member.display_name}",icon=ctx.member.avatar_url)
         await ctx.respond(embed=embed,flags=EPHEMERAL)
         await mydb.close()
