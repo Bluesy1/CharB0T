@@ -1,20 +1,20 @@
-import datetime
-from decimal import Decimal
-import json
-import time
-from typing import Final
-import typing
-
-import hikari
-from hikari import Embed
-from hikari import permissions
-from hikari.commands import CommandChoice
-import lightbulb
-from lightbulb import commands
-import random
-from lightbulb.checks import (has_roles,guild_only)
-import asyncpg
 import asyncio
+import datetime
+import json
+import os
+import random
+import time
+import typing
+from decimal import Decimal
+from typing import Final
+
+import asyncpg
+import hikari
+import lightbulb
+from hikari import Embed, permissions
+from hikari.commands import CommandChoice
+from lightbulb import commands
+from lightbulb.checks import guild_only, has_roles
 from numpy import ceil
 from pytz import timezone
 
@@ -258,6 +258,8 @@ async def work(ctx:lightbulb.Context):
         del temp
     workinfo = await mydb.fetchrow("SELECT balance,next_work_amount,last_gain_time FROM user_guild_balance WHERE user_id = $1 AND guild_id = $2",ctx.member.id,ctx.guild_id)
     balance = float(workinfo[0]);lastamount = int(workinfo[1]);lastWork:typing.Union[datetime.datetime,None] = workinfo[2]
+    os.environ['TZ'] = 'US/Eastern'
+    time.tzset()
     currentUse = datetime.datetime.now(tz=timezone('US/Eastern'))
     guild_info = await mydb.fetchrow("SELECT min_gain,max_gain,gain_step,gain_cooldown,coin_symbol FROM guild_feature_work WHERE guild_id = $1",ctx.guild_id)
     seconds = int(guild_info[3]);min_gain=int(guild_info[0]);max_gain = int(guild_info[1]);step = int(guild_info[2]);symbol = guild_info[4]
