@@ -194,6 +194,9 @@ async def config_roles_work(ctx: lightbulb.Context):
 @lightbulb.command("work","edits guild settings for the work module. leave option default to leave unchanged", inherit_checks=True, auto_defer = True)
 @lightbulb.implements(commands.SlashSubCommand)
 async def config_work(ctx: lightbulb.Context):
+    if all(thing is None for thing in [ctx.options.minimum,ctx.options.maximum,ctx.options.step,ctx.options.cooldown,ctx.options.name,ctx.options.symbol,ctx.options.starting_bal]):
+        await ctx.respond(embed=Embed(title="**ERROR** No Settings changed",description="If you want to check settings, see `/config query` and select the work settings",color="0xff0000",timestamp=datetime.datetime.now(tz=datetime.timezone.utc)),flags=EPHEMERAL)
+        return
     minimum = ctx.options.minimum if ctx.options.minimum is not None else 0
     maximum = ctx.options.maximum if ctx.options.maximum is not None else 1
     step = ctx.options.step if ctx.options.step is not None else 1
