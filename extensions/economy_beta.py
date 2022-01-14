@@ -16,6 +16,7 @@ from lightbulb.checks import (has_roles,guild_only)
 import asyncpg
 import asyncio
 from numpy import ceil
+from pytz import timezone
 
 EPHEMERAL:Final[int] = 64
 MODVADMIN:Final[str] = "A  role marked as mod is ignored by autopunishments. A role marked as admin can edit the bot's settings along with the benefits of being a mod."
@@ -257,7 +258,7 @@ async def work(ctx:lightbulb.Context):
         del temp
     workinfo = await mydb.fetchrow("SELECT balance,next_work_amount,last_gain_time FROM user_guild_balance WHERE user_id = $1 AND guild_id = $2",ctx.member.id,ctx.guild_id)
     balance = float(workinfo[0]);lastamount = int(workinfo[1]);lastWork:typing.Union[datetime.datetime,None] = workinfo[2]
-    currentUse = datetime.datetime.now(tz=datetime.timezone.utc)
+    currentUse = datetime.datetime.now(tz=timezone('US/Eastern'))
     guild_info = await mydb.fetchrow("SELECT min_gain,max_gain,gain_step,gain_cooldown,coin_symbol FROM guild_feature_work WHERE guild_id = $1",ctx.guild_id)
     seconds = int(guild_info[3]);min_gain=int(guild_info[0]);max_gain = int(guild_info[1]);step = int(guild_info[2]);symbol = guild_info[4]
     timeDifference = (currentUse - lastWork) if lastWork is not None else datetime.timedelta(seconds=seconds)
@@ -267,7 +268,7 @@ async def work(ctx:lightbulb.Context):
     elif timeDifference >= datetime.timedelta(seconds=seconds):
         amount = random.randrange(min_gain, max_gain+1, step) #generates random number from min to max inclusive, in incrememnts of step, the +1 to make it inclusive
         balance += lastamount
-        await mydb.execute("UPDATE user_guild_balance SET balance = $1,next_work_amount = $2,last_gain_time = $3 user_id = $4 AND guild_id = $5",Decimal(balance),amount,currentUse,ctx.member.id,ctx.guild_id)
+        await mydb.execute("UPDATE user_guild_balance SET balance = $1,next_work_amount = $2,last_gain_time = $3 WHERE user_id = $4 AND guild_id = $5",Decimal(balance),amount,currentUse,ctx.member.id,ctx.guild_id)
         if lastWork is not None:embed = Embed(description= f"{ctx.author.mention}, you started working again. You gain  {str(lastamount)} {symbol} from your last work. Come back in **{int(ceil(seconds/3600))} hours** to claim your paycheck of {str(amount)} {symbol} and start working again with `/work`", color="60D1F6")
         else: embed = Embed(description= f"{ctx.author.mention}, you started working. Come back in **{int(ceil(seconds/3600))} hours** to claim your paycheck of {str(amount)} {symbol} and start working again with `/work`", color="60D1F6")
         await ctx.respond(embed=embed,flags=EPHEMERAL)
