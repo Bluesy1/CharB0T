@@ -232,7 +232,7 @@ async def config_work(ctx: lightbulb.Context):
 @lightbulb.option("muted","role role bot should assign as a muted role", type=hikari.Role, required=True)
 @lightbulb.option("crypto", "should the bot be scanning for crypto scams on this server?", type=bool, required=True)
 @lightbulb.option("nitro","should the bot be scanning for nitro scams on this server?", type=bool, required=True)
-@lightbulb.command("work","edits guild settings for the work module. leave option default to leave unchanged", inherit_checks=True, auto_defer = True)
+@lightbulb.command("moderation","edits guild settings for the automoderation module.", inherit_checks=True, auto_defer = True)
 @lightbulb.implements(commands.SlashSubCommand)
 async def config_moderation(ctx: lightbulb.Context):
     mydb = await get_db()

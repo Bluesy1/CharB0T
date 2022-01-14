@@ -1,8 +1,6 @@
-import asyncio
 from datetime import datetime, timedelta
 import json
 import os
-from time import mktime
 import time
 import hikari
 from hikari import snowflakes
