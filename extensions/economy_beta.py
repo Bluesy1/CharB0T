@@ -238,7 +238,7 @@ async def config_moderation(ctx: lightbulb.Context):
     mydb = await get_db()
     result = await mydb.fetchrow("SELECT * from guilds where id = $1",ctx.guild_id)
     await mydb.execute("UPDATE guilds set nitro_enabled = $1, crypto_enabled = $2, mute_role = $3, main_log = $4, second_log = $5 WHERE id = $6",ctx.options.nitro,ctx.options.crypto,ctx.options.muted.id,ctx.options.main_log.id,ctx.options.message_log.id,ctx.guild_id)
-    embed = Embed(f"**UPDATED** Moderation Settings in {ctx.get_guild().name}",description=MODERATIONSETTINGS,timestamp=datetime.datetime.now(tz=datetime.timezone.utc),color="0x00ff00")
+    embed = Embed(title=f"**UPDATED** Moderation Settings in {ctx.get_guild().name}",description=MODERATIONSETTINGS,timestamp=datetime.datetime.now(tz=datetime.timezone.utc),color="0x00ff00")
     embed.add_field(f"{'**CHANGED** ' if ctx.options.nitro != result['nitro_enabled'] else ''}Nitro Scam Scan","Enabled" if ctx.options.nitro else "Disabled",inline=True).add_field(f"{'**CHANGED** ' if ctx.options.crypto != result['crypto_enabled'] else ''}Crypto Scam Scan","Enabled" if ctx.options.crypto else "Disabled",inline=True).add_field(f"{'**CHANGED** ' if ctx.options.muted.id != result['mute_role'] else ''}Mute Role",ctx.options.muted.mention,inline=True).add_field(f"{'**CHANGED** ' if ctx.options.main_log.id != result['main_log'] else ''}Moderation Log",ctx.options.main_log.mention,inline=True).add_field(f"{'**CHANGED** ' if ctx.options.message_log.id != result['second_log'] else ''}Secondary Log",ctx.options.message_log.mention,inline=True)
     await ctx.resolved(embed=embed,flags=EPHEMERAL)
     await mydb.close()
