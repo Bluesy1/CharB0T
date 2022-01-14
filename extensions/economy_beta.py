@@ -1,7 +1,9 @@
 import datetime
+from decimal import Decimal
 import json
 import time
 from typing import Final
+import typing
 
 import hikari
 from hikari import Embed
@@ -13,11 +15,13 @@ import random
 from lightbulb.checks import (has_roles,guild_only)
 import asyncpg
 import asyncio
+from numpy import ceil
 
 EPHEMERAL:Final[int] = 64
 MODVADMIN:Final[str] = "A  role marked as mod is ignored by autopunishments. A role marked as admin can edit the bot's settings along with the benefits of being a mod."
 DISABLER:Final[str] = "A role marked as disabling will mean that a user with this role cannot use this portion of the bot, even if they have another role that would allow it. A role marked as enabling will allow a user to use this portion of the bot, as long as they don't have any role listed under disabling. Users listed with a mod role are not immune to disabling roles, but Users with an admin role are. If the everyone role is set as an enabling role, all users without a disabling role can use the bot (not recommended on servers that already have a levelling system). If the everyone role is set as a disabling role, the system will be disabled completely."
 ECONOMYSETTINGS:Final[str] = "Minimum Gain, Maximum Gain, and Step dictate how random numbers are generated for the /work system - a number between the minimum and maximum, both inclusive with steps of size step from the minimum. i.e., for a (min,max,step) of (800,1200,5), which are the default settings, the random number possibilities would be (800,805,810,815,...,1190,1195,1200). Gain cooldown is the number of seconds between work uses for a user, default 11.5 hours, it's recommended to set this slightly under the time you advertise. i.e., for a 12-hour cycle, it's suggested using a cycle of 11.5 hours so people don't have to be perfect. Coin name and symbol allow you to customize the name and symbol of the coin if you don't like the default name of EchoCoin with the symbol <:Echocoin:928020676751814656>. Default starting balance allows people to start investing without having to do a couple of work cycles first. The default is 10,000, but you can change this if you want. All currencies, regardless of name and symbol are always a 1:1 vs USD for simplicity."
+MODERATIONSETTINGS:Final[str] = "Nitro Scan and Crypto Scan respectively refer to whether the Nitro and Crypto Scam Detections are active. Mute Role is the role that the bot will assign if the bot believes that a message has a high probability of a scam but is not 100% sure. Main Log is where punishments are logged, and Message/Secondary log is for when there's a very log probability there's a scam. Its suggested to set the secondary/message logging to your message log channel if you have one, but it gets triggered very infrequently in most servers where it would be used."
 DEFAULTNAME:Final[str]="EchoCoin";DEFAULTSYMBOL:Final[str]="<:Echocoin:928020676751814656>"
 Economy = lightbulb.Plugin("Economy", default_enabled_guilds=225345178955808768)
 
@@ -32,10 +36,10 @@ async def check_author_work_allowed(context: lightbulb.Context) -> bool:
     result=await mydb.fetch("SELECT * FROM guild_feature_work_roles WHERE guild_id = $1",context.guild_id)
     roles = context.member.role_ids;possible = False
     for x in result:
-        if context.guild_id in x and bool(x['disabling']):return False
-        elif context.guild_id in x and not bool(x['disabling']):return True
-        elif x[1] in roles and x[2] > 0:return False
-        elif x[1] in roles and x[2] == 0: possible = True
+        if context.guild_id == x[1] and bool(x['disabling']):return False
+        elif context.guild_id == x[1] and not bool(x['disabling']):possible = True
+        elif x[1] in roles and bool(x['disabling']):return False
+        elif x[1] in roles and not bool(x['disabling']) == 0: possible = True
     await mydb.close()
     return possible
 
@@ -80,7 +84,6 @@ async def on_guild_join(event: hikari.GuildJoinEvent):
     await mydb.executemany("INSERT INTO guild_feature_work_roles (guild_id, role_id, disabling) VALUES ($1, $2s, $3)", workers)
     await mydb.execute("INSERT INTO guild_feature_work guild_id VALUES $1",int(event.guild_id))
     await mydb.close()
-    
 
 @Economy.command()
 @lightbulb.add_checks(check_author_is_admin,guild_only)
@@ -94,7 +97,7 @@ async def config(ctx: lightbulb.Context) -> None:await ctx.respond("invoked conf
 async def roles(ctx: lightbulb.Context) -> None:await ctx.respond("invoked config mods")
 
 @config.child
-@lightbulb.option("group", "settings group to query",type=int, choices = [CommandChoice(name="Mod Roles",value=1),CommandChoice(name="Work Roles",value=2),CommandChoice(name="Work settings",value=3)])
+@lightbulb.option("group", "settings group to query",type=int, choices = [CommandChoice(name="Mod Roles",value=1),CommandChoice(name="Moderation settings",value=2),CommandChoice(name="Work Roles",value=3),CommandChoice(name="Work settings",value=4)])
 @lightbulb.command("query","querys guild settings for the bot",inherit_checks=True, auto_defer = True)
 @lightbulb.implements(commands.SlashSubCommand)
 async def config_mods_query(ctx: lightbulb.Context):
@@ -106,10 +109,14 @@ async def config_mods_query(ctx: lightbulb.Context):
         for x in result:
             embed.add_field("Admin" if x[2] else "Mod",f"<@&{x[1]}>",inline=True)
     elif queryier==2:
+        result = await mydb.fetchrow("SELECT * from guilds where id = $1",ctx.guild_id)
+        embed = Embed(f"**UPDATED** Moderation Settings in {ctx.get_guild().name}",description=MODERATIONSETTINGS,timestamp=datetime.datetime.now(tz=datetime.timezone.utc),color="0x00ff00")
+        embed.add_field("Nitro Scam Scan","Enabled" if result['nitro_enabled'] else "Disabled",inline=True).add_field("Crypto Scam Scan","Enabled" if result['crypto_enabled'] else "Disabled",inline=True).add_field("Mute Role",f"<@&{result['mute_role']}>",inline=True).add_field("Moderation Log",f"<#{result['main_log']}>",inline=True).add_field("Secondary Log",f"<#{result['second_log']}>",inline=True)
+    elif queryier==3:
         result = await mydb.fetch("SELECT * FROM guild_feature_work_roles WHERE guild_id = $1",ctx.guild_id)
         embed = Embed(title="Work Enabler and Disabler roles in the bot",description=DISABLER,timestamp=datetime.datetime.now(tz=datetime.timezone.utc),color="0x0000ff")
         for x in result:embed.add_field("Disabling Role" if x['disabling'] else "Enabling Role",f"<@&{x['role_id']}>",inline=True)
-    elif queryier==3:
+    elif queryier==4:
         result = await mydb.fetchrow("SELECT * FROM guild_feature_work WHERE guild_id = $1",ctx.guild_id)
         embed = Embed(title=f"Economy settings in {ctx.get_guild().name}",description=ECONOMYSETTINGS,timestamp=datetime.datetime.now(tz=datetime.timezone.utc),color="0x0000ff").add_field("Minimum Gain", f"{result['min_gain']} {result['coin_symbol']}",inline=True).add_field("Maximum Gain", f"{result['max_gain']} {result['coin_symbol']}",inline=True).add_field("Step", f"{result['gain_step']} {result['coin_symbol']}",inline=True).add_field("Gain Cooldown",f"{result['gain_cooldown']} Seconds ({result['gain_cooldown']/3600} Hours)",inline=True).add_field("Coin Name",result['coin_name'],inline=True).add_field("Coin Symbol",result['coin_symbol'],inline=True).add_field("Starting Balance",f"{int(result['starting_bal'])} {result['coin_symbol']}",inline=True)
     else:return
@@ -199,7 +206,7 @@ async def config_work(ctx: lightbulb.Context):
         await ctx.respond(embed=Embed(title="**ERROR** Unbounded range for work",description=f"Minimum generated value of {curr_min} is greater than the maximum generated value of {curr_max}. The maximum must be greater to or equal to the minimum.",color="0xff0000",timestamp=datetime.datetime.now(tz=datetime.timezone.utc)),flags=EPHEMERAL)
         await mydb.close()
         return
-    embed = Embed(title=f"**New** Economy settings in {ctx.get_guild().name}",description=ECONOMYSETTINGS,timestamp=datetime.datetime.now(tz=datetime.timezone.utc),color="0x0000ff")
+    embed = Embed(title=f"**New** Economy settings in {ctx.get_guild().name}",description=ECONOMYSETTINGS,timestamp=datetime.datetime.now(tz=datetime.timezone.utc),color="0x00ff00")
     if minimum: await mydb.execute("UPDATE guild_feature_work set min_gain = $1 WHERE guild_id = $2",minimum,ctx.guild_id)
     embed.add_field(f"{'**NEW**' if minimum else ''} Minimum Gain", f"{minimum if minimum else result['min_gain']} {symbol if symbol else result['coin_symbol']}",inline=True)
     if maximum != 1:await mydb.execute("UPDATE guild_feature_work set max_gain = $1 WHERE guild_id = $2",maximum,ctx.guild_id)
@@ -219,30 +226,50 @@ async def config_work(ctx: lightbulb.Context):
     await ctx.respond(embed=embed, flags=EPHEMERAL)
     await mydb.close()
 
-"""@Generating_Plugin.command()
-@lightbulb.add_checks(lightbulb.Check(has_roles(837812373451702303,837812586997219372,837812662116417566,837812728801525781,837812793914425455,400445639210827786,685331877057658888,337743478190637077,837813262417788988,338173415527677954,253752685357039617,mode=any)),lightbulb.Check(a.checks.check_econ_channel),lightbulb.Check(a.checks.Punished))
-@lightbulb.add_cooldown(3600,5,lightbulb.UserBucket)
-@lightbulb.command("work", "work command")
+@config.child
+@lightbulb.option("message_log","channel bot should log possible scam incidents in, only if moderation action is not taken",type=hikari.OptionType.CHANNEL,channel_types=[hikari.ChannelType.GUILD_TEXT,hikari.ChannelType.GUILD_NEWS], required=True)
+@lightbulb.option("main_log","channel bot should log scam incidents in, if moderation action is taken",type=hikari.TextableGuildChannel,channel_types=[hikari.ChannelType.GUILD_TEXT], required=True)
+@lightbulb.option("muted","role role bot should assign as a muted role", type=hikari.Role, required=True)
+@lightbulb.option("crypto", "should the bot be scanning for crypto scams on this server?", type=bool, required=True)
+@lightbulb.option("nitro","should the bot be scanning for nitro scams on this server?", type=bool, required=True)
+@lightbulb.command("work","edits guild settings for the work module. leave option default to leave unchanged", inherit_checks=True, auto_defer = True)
+@lightbulb.implements(commands.SlashSubCommand)
+async def config_moderation(ctx: lightbulb.Context):
+    mydb = await get_db()
+    result = await mydb.fetchrow("SELECT * from guilds where id = $1",ctx.guild_id)
+    await mydb.execute("UPDATE guilds set nitro_enabled = $1, crypto_enabled = $2, mute_role = $3, main_log = $4, second_log = $5 WHERE id = $6",ctx.options.nitro,ctx.options.crypto,ctx.options.muted.id,ctx.options.main_log.id,ctx.options.message_log.id,ctx.guild_id)
+    embed = Embed(f"**UPDATED** Moderation Settings in {ctx.get_guild().name}",description=MODERATIONSETTINGS,timestamp=datetime.datetime.now(tz=datetime.timezone.utc),color="0x00ff00")
+    embed.add_field(f"{'**CHANGED** ' if ctx.options.nitro != result['nitro_enabled'] else ''}Nitro Scam Scan","Enabled" if ctx.options.nitro else "Disabled",inline=True).add_field(f"{'**CHANGED** ' if ctx.options.crypto != result['crypto_enabled'] else ''}Crypto Scam Scan","Enabled" if ctx.options.crypto else "Disabled",inline=True).add_field(f"{'**CHANGED** ' if ctx.options.muted.id != result['mute_role'] else ''}Mute Role",ctx.options.muted.mention,inline=True).add_field(f"{'**CHANGED** ' if ctx.options.main_log.id != result['main_log'] else ''}Moderation Log",ctx.options.main_log.mention,inline=True).add_field(f"{'**CHANGED** ' if ctx.options.message_log.id != result['second_log'] else ''}Secondary Log",ctx.options.message_log.mention,inline=True)
+    await ctx.resolved(embed=embed,flags=EPHEMERAL)
+    await mydb.close()
+
+@Economy.command()
+@lightbulb.add_checks(check_author_work_allowed)
+@lightbulb.command("work", "work command",auto_defer = True)
 @lightbulb.implements(commands.SlashCommand)
-async def work(ctx):
-    if str(ctx.author.id) not in list(a.userInfo.readUserInfo().index): #makes sure user isn't already in an RPO
-        a.undeclared(ctx)
-    df = a.userInfo.readUserInfo()
-    lastWork = df.loc[str(ctx.author.id), 'lastWork']
-    currentUse = round(time.time(),0)
-    timeDifference = currentUse - lastWork
-    if timeDifference < 41400:
-        await ctx.respond("🚫 Error: **" + ctx.author.mention + "** You need to wait " + str(datetime.timedelta(seconds=41400-timeDifference)) + " more to use this command.")
-    elif timeDifference > 41400:
-        df.loc[str(ctx.author.id), 'lastWork'] = currentUse
-        amount = random.randrange(800, 1200+1, 5) #generates random number from 800 to 1200, in incrememnts of 5 (same as generating a radom number between 40 and 120, and multiplying it by 5), the +1 to make it inclusive
-        lastamount = int(df.loc[str(ctx.author.id), 'lastWorkAmount'])
-        df.loc[str(ctx.author.id), 'lastWorkAmount'] = amount
-        a.userInfo.writeUserInfo(df)
-        a.userInfo.editCoins(ctx.author.id,lastamount)
-        df.loc[str(ctx.author.id), 'lastWorkAmount'] = amount
-        embed = Embed(description= ctx.author.mention + ', you started working again. You gain '+ str(lastamount) +' <:HotTips2:465535606739697664> from your last work. Come back in **12 hours** to claim your paycheck of '+ str(amount) + ' <:HotTips2:465535606739697664> and start working again with `!work`', color="60D1F6").set_footer(text=f"Requested by {ctx.member.display_name}",icon=ctx.member.avatar_url)
-        await ctx.respond(embed=embed)"""
+async def work(ctx:lightbulb.Context):
+    mydb = await get_db()
+    if await mydb.fetchrow("SELECT * FROM users WHERE id = $1",ctx.member.id) is None:
+        await mydb.execute("INSERT INTO users (id) VALUES ($1)",ctx.member.id)
+    if await mydb.fetchrow("SELECT * FROM user_guild_balance WHERE user_id = $1 AND guild_id = $2",ctx.member.id,ctx.guild_id) is None:
+        temp = await mydb.fetchrow("SELECT starting_bal FROM guild_feature_work WHERE guild_id = $1",ctx.guild_id)
+        await mydb.execute("INSERT INTO user_guild_balance (user_id,guild_id,balance,next_work_amount) VALUES ($1,$2,$3,$4)",ctx.member.id,ctx.guild_id,int(temp[0]),0)
+        del temp
+    workinfo = await mydb.fetchrow("SELECT (balance,next_work_amount,last_gain_time) FROM user_guild_balance WHERE user_id = $1 AND guild_id = $2",ctx.member.id,ctx.guild_id)
+    balance = float(workinfo[0]);lastamount = int(workinfo[1]);lastWork:typing.Union[datetime.datetime,None] = workinfo[2]
+    currentUse = datetime.datetime.now(tz=datetime.timezone.utc)
+    guild_info = await mydb.fetchrow("SELECT (min_gain,max_gain,gain_step,gain_cooldown) FROM guild_feature_work WHERE guild_id = $1",ctx.guild_id)
+    seconds = int(guild_info[3]);min_gain=int(guild_info[0]);max_gain = int(guild_info[1]);step = int(guild_info[2])
+    timeDifference = (currentUse - lastWork) if lastWork is not None else datetime.timedelta(seconds=seconds+10)
+    if timeDifference < datetime.timedelta(seconds=seconds):
+        await ctx.respond("🚫 Error: **" + ctx.author.mention + "** You need to wait " + str(datetime.timedelta(seconds=seconds-timeDifference)) + " more to use this command.")
+    elif timeDifference > datetime.timedelta(seconds=seconds):
+        amount = random.randrange(min_gain, max_gain+1, step) #generates random number from 800 to 1200, in incrememnts of 5 (same as generating a radom number between 40 and 120, and multiplying it by 5), the +1 to make it inclusive
+        balance += lastamount
+        await mydb.execute("UPDATE user_guild balance SET balance = $1,next_work_amount = $2,last_gain_time = $3",Decimal(balance),amount,currentUse)
+        embed = Embed(description= ctx.author.mention + ', you started working again. You gain '+ str(lastamount) +f' <:HotTips2:465535606739697664> from your last work. Come back in **{int(ceil(seconds/3600))} hours** to claim your paycheck of '+ str(amount) + ' <:HotTips2:465535606739697664> and start working again with `\work`', color="60D1F6").set_footer(text=f"Requested by {ctx.member.display_name}",icon=ctx.member.avatar_url)
+        await ctx.respond(embed=embed,flags=EPHEMERAL)
+        await mydb.close()
 
 def load(bot:lightbulb.BotApp):
     bot.add_plugin(Economy)
