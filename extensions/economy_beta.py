@@ -36,11 +36,11 @@ async def check_author_work_allowed(context: lightbulb.Context) -> bool:
     result=await mydb.fetch("SELECT * FROM guild_feature_work_roles WHERE guild_id = $1",context.guild_id)
     roles = context.member.role_ids;possible = False
     for x in result:
-        if context.guild_id == x[1] and bool(x['disabling']):print("fail");await mydb.close();return False
-        elif context.guild_id == x[1] and not bool(x['disabling']):print("possible success");possible = True
-        elif x[1] in roles and bool(x['disabling']):print("fail");await mydb.close();return False
-        elif x[1] in roles and not bool(x['disabling']) == 0:print("possible success");possible = True
-    await mydb.close();print("returning")
+        if context.guild_id == x[1] and bool(x['disabling']):await mydb.close();return False
+        elif context.guild_id == x[1] and not bool(x['disabling']):possible = True
+        elif x[1] in roles and bool(x['disabling']):await mydb.close();return False
+        elif x[1] in roles and not bool(x['disabling']):possible = True
+    await mydb.close()
     return possible
 
 @lightbulb.Check
