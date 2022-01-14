@@ -264,7 +264,7 @@ async def work(ctx:lightbulb.Context):
     timeDifference = (currentUse - lastWork.astimezone(timezone('US/Eastern'))) if lastWork is not None else datetime.timedelta(seconds=seconds)
     if timeDifference < datetime.timedelta(seconds=seconds):
         lastWork:datetime.datetime
-        await ctx.respond(f"🚫 Error: **{ctx.author.mention}** come back <t:{round(time.mktime((lastWork.astimezone(timezone('US/Eastern')) + datetime.timedelta(seconds=seconds)).timetuple()))}:R> to use this command.",flags=EPHEMERAL)
+        await ctx.respond(f"🚫 Error: **{ctx.author.mention}** come back <t:{round(time.mktime((lastWork.astimezone(tz=timezone('US/Eastern')) + datetime.timedelta(seconds=seconds)).timetuple()))}:R> to use this command.",flags=EPHEMERAL)
     elif timeDifference >= datetime.timedelta(seconds=seconds):
         amount = random.randrange(min_gain, max_gain+1, step) #generates random number from min to max inclusive, in incrememnts of step, the +1 to make it inclusive
         balance += lastamount
