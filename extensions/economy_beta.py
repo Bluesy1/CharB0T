@@ -261,10 +261,10 @@ async def work(ctx:lightbulb.Context):
     currentUse = datetime.datetime.now(tz=timezone('US/Eastern'))
     guild_info = await mydb.fetchrow("SELECT min_gain,max_gain,gain_step,gain_cooldown,coin_symbol FROM guild_feature_work WHERE guild_id = $1",ctx.guild_id)
     seconds = int(guild_info[3]);min_gain=int(guild_info[0]);max_gain = int(guild_info[1]);step = int(guild_info[2]);symbol = guild_info[4]
-    timeDifference = (currentUse - lastWork) if lastWork is not None else datetime.timedelta(seconds=seconds)
+    timeDifference = (currentUse - lastWork.astimezone(timezone('US/Eastern'))) if lastWork is not None else datetime.timedelta(seconds=seconds)
     if timeDifference < datetime.timedelta(seconds=seconds):
         lastWork:datetime.datetime
-        await ctx.respond(f"🚫 Error: **{ctx.author.mention}** come back <t:{round(time.mktime((lastWork + datetime.timedelta(seconds=seconds)).timetuple()))}:R> to use this command.",flags=EPHEMERAL)
+        await ctx.respond(f"🚫 Error: **{ctx.author.mention}** come back <t:{round(time.mktime((lastWork.astimezone(timezone('US/Eastern')) + datetime.timedelta(seconds=seconds)).timetuple()))}:R> to use this command.",flags=EPHEMERAL)
     elif timeDifference >= datetime.timedelta(seconds=seconds):
         amount = random.randrange(min_gain, max_gain+1, step) #generates random number from min to max inclusive, in incrememnts of step, the +1 to make it inclusive
         balance += lastamount
