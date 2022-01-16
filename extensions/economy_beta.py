@@ -17,6 +17,7 @@ from lightbulb import commands
 from lightbulb.checks import guild_only, has_roles
 from numpy import ceil
 from pytz import timezone
+import yahoo_finance_async as yf
 
 EPHEMERAL:Final[int] = 64
 MODVADMIN:Final[str] = "A  role marked as mod is ignored by autopunishments. A role marked as admin can edit the bot's settings along with the benefits of being a mod."
@@ -290,8 +291,31 @@ async def balance(ctx:lightbulb.Context):
     await ctx.respond(embed=Embed(description=f"{ctx.member.display_name}, your current balance is {balance} {symbol}", color="60D1F6"),flags=EPHEMERAL)
     await mydb.close()
 
-
-
+@Economy.command()
+@lightbulb.add_checks(check_author_work_allowed)
+@lightbulb.option("comments","any comments on the stock and why you want it added, if you want to explain",required=False,default="None")
+@lightbulb.option("stock","symbol for stock/crypto. if a crypto, it should be like `BTC-USD`")
+@lightbulb.command("request", "requests a new stock to be tracked and included in the simulation",auto_defer = True,ephemeral=True)
+@lightbulb.implements(commands.SlashCommand)
+async def balance(ctx:lightbulb.Context):
+    try: await yf.OHLC.fetch(ctx.options.stock.upper())
+    except:
+        await ctx.respond("🚫 Error: Stock Not Found. Check Spelling.")
+        return
+    mydb = await get_db()
+    accepted = await mydb.fetch("SELECT symbol FROM stocks");accepted = [item[0] for item in accepted]
+    if ctx.options.stock.upper() in accepted:
+        await ctx.respond("🚫 Error: Stock Already Available.")
+        return
+    pending = await mydb.fetch("SELECT symbol FROM requested_stocks");pending = [item[0] for item in pending]
+    if ctx.options.stock.upper() in pending:
+        await ctx.respond("🚫 Error: Stock Already Requested, please be patient until Bluesy#8150 has time to review open requests. He has been renotified of this request.")
+        me = await Economy.bot.rest.fetch_user(363095569515806722)
+        stock_request = await mydb.fetchrow("SELECT * FROM requested_stocks WHERE symbol = $1",ctx.options.stock.upper())
+        requester = await Economy.bot.rest.fetch_user(stock_request['requester'])
+        await me.send(embed=Embed(title="Reminder of stock request",description=f"""Old Comments: {stock_request['comments']}
+        New Comments: {ctx.options.comments}""").add_field("Requested Stock",ctx.options.stock.upper(),inline=True).add_field("id",stock_request['id'],inline=True).add_field("initial requester",f"{requester.username}#{requester.discriminator}",inline=True).add_field("this requester",f"{ctx.author.username}#{ctx.author.discriminator}",inline=True).add_field("comments",stock_request['id'],inline=True))
+        return
 
 def load(bot:lightbulb.BotApp):
     bot.add_plugin(Economy)
