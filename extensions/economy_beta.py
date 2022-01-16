@@ -205,7 +205,7 @@ async def config_work(ctx: lightbulb.Context):
     symbol = ctx.options.symbol if ctx.options.symbol is not None else ""
     starting_bal = ctx.options.starting_bal if ctx.options.starting_bal is not None else 1
     mydb = await get_db();result = await mydb.fetchrow("SELECT * FROM guild_feature_work WHERE guild_id = $1",ctx.guild_id)
-    curr_min = minimum if minimum else result['min_gain'];curr_max = maximum if maximum else result['max_gain']
+    curr_min = minimum if minimum else result['min_gain'];curr_max = maximum if maximum!=1 else result['max_gain']
     if curr_min > curr_max:
         await ctx.respond(embed=Embed(title="**ERROR** Unbounded range for work",description=f"Minimum generated value of {curr_min} is greater than the maximum generated value of {curr_max}. The maximum must be greater to or equal to the minimum.",color="0xff0000",timestamp=datetime.datetime.now(tz=datetime.timezone.utc)),flags=EPHEMERAL)
         await mydb.close()
@@ -289,6 +289,9 @@ async def balance(ctx:lightbulb.Context):
     symbol = (await mydb.fetchrow("SELECT coin_symbol FROM guild_feature_work WHERE guild_id = $1",ctx.guild_id))[0]
     await ctx.respond(embed=Embed(description=f"{ctx.member.display_name}, your current balance is {balance} {symbol}", color="60D1F6"),flags=EPHEMERAL)
     await mydb.close()
+
+
+
 
 def load(bot:lightbulb.BotApp):
     bot.add_plugin(Economy)
