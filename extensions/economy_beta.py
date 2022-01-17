@@ -80,9 +80,9 @@ async def on_guild_join(event: hikari.GuildJoinEvent):
     admins = list(); workers = list()
     for roleid in roles:
         role = roles[roleid]
-        if role.permissions.any(permissions.Permissions.ADMINISTRATOR):admins.append(tuple((event.guild_id,roleid,1)));workers.append(tuple((event.guild_id,roleid,0)))
-        elif role.permissions.any(permissions.Permissions.MANAGE_CHANNELS,permissions.Permissions.MANAGE_EMOJIS_AND_STICKERS,permissions.Permissions.MANAGE_GUILD,permissions.Permissions.MANAGE_MESSAGES,permissions.Permissions.MANAGE_NICKNAMES,permissions.Permissions.MANAGE_ROLES,permissions.Permissions.MANAGE_THREADS,permissions.Permissions.MANAGE_WEBHOOKS,permissions.Permissions.MODERATE_MEMBERS):admins.append(tuple((event.guild_id,roleid,0)));workers.append(tuple((event.guild_id,roleid,0)))
-    await mydb.executemany("INSERT INTO guild_mod_roles (guild_id, role_id) VALUES ($1, $2)", admins)
+        if role.permissions.any(permissions.Permissions.ADMINISTRATOR):admins.append(tuple((event.guild_id,roleid,1)));workers.append(tuple((event.guild_id,roleid,0,role.permissions.value)))
+        elif role.permissions.any(permissions.Permissions.MANAGE_CHANNELS,permissions.Permissions.MANAGE_EMOJIS_AND_STICKERS,permissions.Permissions.MANAGE_GUILD,permissions.Permissions.MANAGE_MESSAGES,permissions.Permissions.MANAGE_NICKNAMES,permissions.Permissions.MANAGE_ROLES,permissions.Permissions.MANAGE_THREADS,permissions.Permissions.MANAGE_WEBHOOKS,permissions.Permissions.MODERATE_MEMBERS):admins.append(tuple((event.guild_id,roleid,0,role.permissions.value)));workers.append(tuple((event.guild_id,roleid,0)))
+    await mydb.executemany("INSERT INTO guild_mod_roles (guild_id, role_id, bitfield) VALUES ($1, $2, $3)", admins)
     await mydb.executemany("INSERT INTO guild_feature_work_roles (guild_id, role_id, disabling) VALUES ($1, $2s, $3)", workers)
     await mydb.execute("INSERT INTO guild_feature_work guild_id VALUES $1",int(event.guild_id))
     await mydb.close()
@@ -138,11 +138,11 @@ async def config_roles_mods(ctx: lightbulb.Context):
     for x in result:
         if int(role.id) == int(x[1]):new=False
     if add and not new:
-        await mydb.execute("UPDATE guild_mod_roles set is_admin = $1 WHERE guild_id = $2 and role_id = $3", admin,ctx.guild_id,role.id)
+        await mydb.execute("UPDATE guild_mod_roles set is_admin = $1,bitfield=$2 WHERE guild_id = $3 and role_id = $4", admin,role.permissions.value,ctx.guild_id,role.id)
         result = await mydb.fetch("SELECT * FROM guild_mod_roles WHERE guild_id = $1",ctx.guild_id)
     elif add and new:
         result = await mydb.fetch("SELECT * FROM guild_mod_roles WHERE guild_id = $1",ctx.guild_id)
-        await mydb.execute("INSERT INTO guild_mod_roles (guild_id, role_id, is_admin) VALUES ($1,$2, $3)", ctx.guild_id,role.id,admin)
+        await mydb.execute("INSERT INTO guild_mod_roles (guild_id, role_id, is_admin, bitfield) VALUES ($1,$2, $3, $4)", ctx.guild_id,role.id,admin, role.permissions.value)
     else:
         await mydb.execute("DELETE FROM guild_mod_roles WHERE role_id = $1", role.id)
         result = await mydb.fetch("SELECT * FROM guild_mod_roles WHERE guild_id = $1",ctx.guild_id)
@@ -290,7 +290,7 @@ async def balance(ctx:lightbulb.Context):
     symbol = (await mydb.fetchrow("SELECT coin_symbol FROM guild_feature_work WHERE guild_id = $1",ctx.guild_id))[0]
     await ctx.respond(embed=Embed(description=f"{ctx.member.display_name}, your current balance is {balance} {symbol}", color="60D1F6"),flags=EPHEMERAL)
     await mydb.close()
-
+"""
 @Economy.command()
 @lightbulb.add_checks(check_author_work_allowed)
 @lightbulb.option("comments","any comments on the stock and why you want it added, if you want to explain",required=False,default="None")
@@ -313,9 +313,9 @@ async def balance(ctx:lightbulb.Context):
         me = await Economy.bot.rest.fetch_user(363095569515806722)
         stock_request = await mydb.fetchrow("SELECT * FROM requested_stocks WHERE symbol = $1",ctx.options.stock.upper())
         requester = await Economy.bot.rest.fetch_user(stock_request['requester'])
-        await me.send(embed=Embed(title="Reminder of stock request",description=f"""Old Comments: {stock_request['comments']}
-        New Comments: {ctx.options.comments}""").add_field("Requested Stock",ctx.options.stock.upper(),inline=True).add_field("id",stock_request['id'],inline=True).add_field("initial requester",f"{requester.username}#{requester.discriminator}",inline=True).add_field("this requester",f"{ctx.author.username}#{ctx.author.discriminator}",inline=True).add_field("comments",stock_request['id'],inline=True))
-        return
+        await me.send(embed=Embed(title="Reminder of stock request",description=f"""#Old Comments: {stock_request['comments']}
+        #New Comments: {ctx.options.comments}""").add_field("Requested Stock",ctx.options.stock.upper(),inline=True).add_field("id",stock_request['id'],inline=True).add_field("initial requester",f"{requester.username}#{requester.discriminator}",inline=True).add_field("this requester",f"{ctx.author.username}#{ctx.author.discriminator}",inline=True).add_field("comments",stock_request['id'],inline=True))
+        #return
 
 def load(bot:lightbulb.BotApp):
     bot.add_plugin(Economy)
