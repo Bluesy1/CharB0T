@@ -80,9 +80,9 @@ async def on_guild_message(event:GuildMessageCreateEvent):
     if event.guild_id!=832521484340953088:return
     with open('UBCbot.json') as t:
             words:list[str] = json.load(t)['Words']
-    content = event.content.lower();used_slurs = set();joinstring = ", "
-    for word in words:
-        if word in content:
+    content = event.content.lower().split();used_slurs = set();joinstring = ", "
+    for word in content:
+        if word in words:
             used_slurs.add(word)
     if used_slurs != set() and not any(rid in event.member.role_ids for rid in [832521484378308660,832521484378308659,832521484378308658]):
         await event.message.delete()
