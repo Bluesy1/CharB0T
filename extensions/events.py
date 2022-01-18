@@ -80,8 +80,8 @@ async def nitroScan(event: Union[hikari.GuildMessageUpdateEvent,hikari.GuildMess
                 try:await event.message.delete()
                 finally:await EventsPlugin.app.rest.create_message(426016300439961601,content="**LOG ONLY**"if not role_check else undefined.UNDEFINED,embed=embed)
                 if role_check:
-                    await event.member.send("Hey! The bot caught a message from you it thinks is a scam beyond a threshold of doubt. If you believe this is an error, reach out to us here: : https://cpry.net/banned. or if that is broken, tweet @CharliePryor at https://twitter.com/CharliePryor. If able, you can also try replying to this message.")
-                    await EventsPlugin.app.rest.ban_user(event.guild_id,event.member.id,delete_message_days=0,reason="NitroScam")
+                    try:await event.member.send("Hey! The bot caught a message from you it thinks is a scam beyond a threshold of doubt. If you believe this is an error, reach out to us here: : https://cpry.net/banned. or if that is broken, tweet @CharliePryor at https://twitter.com/CharliePryor. If able, you can also try replying to this message.")
+                    finally:await EventsPlugin.app.rest.ban_user(event.guild_id,event.member.id,delete_message_days=0,reason="NitroScam")
                     return "Ban"
                 else: return None
             else:
@@ -103,8 +103,8 @@ async def whatsappScan(event: Union[hikari.GuildMessageUpdateEvent,hikari.GuildM
             await EventsPlugin.app.rest.create_message(426016300439961601,embed=embed)
             await event.message.delete()
             if role_check:
-                await event.member.send("Hey! The bot caught a message from you it thinks is a scam beyond a threshold of doubt. If you believe this is an error, reach out to us here: : https://cpry.net/banned. or if that is broken, tweet @CharliePryor at https://twitter.com/CharliePryor. If able, you can also try replying to this message.")
-                await EventsPlugin.app.rest.ban_user(event.guild_id,event.member.id,delete_message_days=0,reason="CryptoScam")
+                try:await event.member.send("Hey! The bot caught a message from you it thinks is a scam beyond a threshold of doubt. If you believe this is an error, reach out to us here: : https://cpry.net/banned. or if that is broken, tweet @CharliePryor at https://twitter.com/CharliePryor. If able, you can also try replying to this message.")
+                finally:await EventsPlugin.app.rest.ban_user(event.guild_id,event.member.id,delete_message_days=0,reason="CryptoScam")
             return "Ban"
         elif any([has_dollarsign and has_nums,has_nums and has_whatsapp, has_whatsapp and has_dollarsign]):
             embed = Embed(title="Mute Level Event - Possible WhatsApp Cryptoscam - 2/3 triggers hit:",description=event.content,color="0xff0000").add_field("Whatsapp Check:","Triggered: Found keyword" if has_whatsapp else "Keyword Not Present",inline=True).add_field("Phone Number Check:",f"Triggered: Found Regex Match(s):{nums}" if has_nums else "No Regex Matches Present",inline=True).add_field("`$` Check:","Triggered: Found symbol" if has_dollarsign else "Symbol Not Present",inline=True).add_field("Role Check:","Triggered: No allowed roles" if role_check else "Allowed role present",inline=True).add_field("Result:","Mute" if role_check else "Log",inline=True).add_field("Member",f"Username: {event.member.username}, Discriminator: {event.member.discriminator}",inline=True).add_field("Member ID",event.member.id,inline=True).add_field("Channel:",event.get_channel().mention,inline=True)
