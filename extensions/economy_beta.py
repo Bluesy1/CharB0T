@@ -11,7 +11,7 @@ from typing import Final
 import asyncpg
 import hikari
 import lightbulb
-from hikari import Embed, permissions
+from hikari import Embed
 from hikari.commands import CommandChoice
 from lightbulb import commands
 from lightbulb.checks import guild_only, has_roles
@@ -65,28 +65,6 @@ async def check_author_is_mod(context: lightbulb.Context) -> bool:
     await mydb.close()
     return False
 
-@Economy.listener(hikari.GuildJoinEvent)
-async def on_guild_join(event: hikari.GuildJoinEvent):
-    mydb = await get_db()
-    result = await mydb.fetch("SELECT id FROM guilds")
-    for x in result:
-        if event.guild_id in x:return
-    id = event.guild.id
-    roles = event.guild.get_roles()
-    muted_role = 0
-    for roleid in roles:
-        if 'mute' in roles[roleid].name.lower():muted_role = int(roleid);break
-    await mydb.execute("INSERT INTO guilds (id, nitro_enabled, crypto_enabled, mute_role) VALUES ($1, $2, $3, $4)", id, False, False, muted_role)
-    admins = list(); workers = list()
-    for roleid in roles:
-        role = roles[roleid]
-        if role.permissions.any(permissions.Permissions.ADMINISTRATOR):admins.append(tuple((event.guild_id,roleid,1)));workers.append(tuple((event.guild_id,roleid,0,role.permissions.value)))
-        elif role.permissions.any(permissions.Permissions.MANAGE_CHANNELS,permissions.Permissions.MANAGE_EMOJIS_AND_STICKERS,permissions.Permissions.MANAGE_GUILD,permissions.Permissions.MANAGE_MESSAGES,permissions.Permissions.MANAGE_NICKNAMES,permissions.Permissions.MANAGE_ROLES,permissions.Permissions.MANAGE_THREADS,permissions.Permissions.MANAGE_WEBHOOKS,permissions.Permissions.MODERATE_MEMBERS):admins.append(tuple((event.guild_id,roleid,0,role.permissions.value)));workers.append(tuple((event.guild_id,roleid,0)))
-    await mydb.executemany("INSERT INTO guild_mod_roles (guild_id, role_id, bitfield) VALUES ($1, $2, $3)", admins)
-    await mydb.executemany("INSERT INTO guild_feature_work_roles (guild_id, role_id, disabling) VALUES ($1, $2s, $3)", workers)
-    await mydb.execute("INSERT INTO guild_feature_work guild_id VALUES $1",int(event.guild_id))
-    await mydb.close()
-
 @Economy.command()
 @lightbulb.add_checks(check_author_is_admin,guild_only)
 @lightbulb.command("config", "configuration group")
@@ -99,61 +77,23 @@ async def config(ctx: lightbulb.Context) -> None:await ctx.respond("invoked conf
 async def roles(ctx: lightbulb.Context) -> None:await ctx.respond("invoked config mods")
 
 @config.child
-@lightbulb.option("group", "settings group to query",type=int, choices = [CommandChoice(name="Mod Roles",value=1),CommandChoice(name="Moderation settings",value=2),CommandChoice(name="Work Roles",value=3),CommandChoice(name="Work settings",value=4)])
+@lightbulb.option("group", "settings group to query",type=int, choices = [CommandChoice(name="Work Roles",value=1),CommandChoice(name="Work settings",value=2)])
 @lightbulb.command("query","querys guild settings for the bot",inherit_checks=True, auto_defer = True)
 @lightbulb.implements(commands.SlashSubCommand)
 async def config_mods_query(ctx: lightbulb.Context):
     mydb = await get_db()
     queryier = ctx.options.group
     if queryier==1:
-        result = await mydb.fetch("SELECT * FROM guild_mod_roles WHERE guild_id = $1",ctx.guild_id)
-        embed = Embed(title="Moderator and Admin Roles registered in the bot",description=MODVADMIN,timestamp=datetime.datetime.now(tz=datetime.timezone.utc),color="0x0000ff")
-        for x in result:
-            embed.add_field("Admin" if x[2] else "Mod",f"<@&{x[1]}>",inline=True)
-    elif queryier==2:
-        result = await mydb.fetchrow("SELECT * from guilds where id = $1",ctx.guild_id)
-        embed = Embed(title=f"**UPDATED** Moderation Settings in {ctx.get_guild().name}",description=MODERATIONSETTINGS,timestamp=datetime.datetime.now(tz=datetime.timezone.utc),color="0x00ff00")
-        embed.add_field("Nitro Scam Scan","Enabled" if result['nitro_enabled'] else "Disabled",inline=True).add_field("Crypto Scam Scan","Enabled" if result['crypto_enabled'] else "Disabled",inline=True).add_field("Mute Role",f"<@&{result['mute_role']}>",inline=True).add_field("Moderation Log",f"<#{result['main_log']}>",inline=True).add_field("Secondary Log",f"<#{result['second_log']}>",inline=True)
-    elif queryier==3:
         result = await mydb.fetch("SELECT * FROM guild_feature_work_roles WHERE guild_id = $1",ctx.guild_id)
         embed = Embed(title="Work Enabler and Disabler roles in the bot",description=DISABLER,timestamp=datetime.datetime.now(tz=datetime.timezone.utc),color="0x0000ff")
         for x in result:embed.add_field("Disabling Role" if x['disabling'] else "Enabling Role",f"<@&{x['role_id']}>",inline=True)
-    elif queryier==4:
+    elif queryier==2:
         result = await mydb.fetchrow("SELECT * FROM guild_feature_work WHERE guild_id = $1",ctx.guild_id)
         embed = Embed(title=f"Economy settings in {ctx.get_guild().name}",description=ECONOMYSETTINGS,timestamp=datetime.datetime.now(tz=datetime.timezone.utc),color="0x0000ff").add_field("Minimum Gain", f"{result['min_gain']} {result['coin_symbol']}",inline=True).add_field("Maximum Gain", f"{result['max_gain']} {result['coin_symbol']}",inline=True).add_field("Step", f"{result['gain_step']} {result['coin_symbol']}",inline=True).add_field("Gain Cooldown",f"{result['gain_cooldown']} Seconds ({result['gain_cooldown']/3600} Hours)",inline=True).add_field("Coin Name",result['coin_name'],inline=True).add_field("Coin Symbol",result['coin_symbol'],inline=True).add_field("Starting Balance",f"{int(result['starting_bal'])} {result['coin_symbol']}",inline=True)
     else:return
     await ctx.respond(embed=embed,flags=EPHEMERAL)
     await mydb.close()
 
-@roles.child
-@lightbulb.option("admin", "should the role have administrative permissions in the bot", type=bool, required=True)
-@lightbulb.option("add","True to add or edit, False to remove", type=bool, required=True)
-@lightbulb.option("role","role to add/edit/remove from mod list", type=hikari.Role, required=True)
-@lightbulb.command("mod","adds, edits, or removes a role from consideration as a mod or admin", inherit_checks=True, auto_defer = True)
-@lightbulb.implements(commands.SlashSubCommand)
-async def config_roles_mods(ctx: lightbulb.Context):
-    mydb = await get_db()
-    role:Final[hikari.Role] = ctx.options.role;add:Final[bool]=ctx.options.add;admin:Final[bool]=ctx.options.admin;new=True
-    result = await mydb.fetch("SELECT * FROM guild_mod_roles WHERE guild_id = $1",ctx.guild_id)
-    for x in result:
-        if int(role.id) == int(x[1]):new=False
-    if add and not new:
-        await mydb.execute("UPDATE guild_mod_roles set is_admin = $1,bitfield=$2 WHERE guild_id = $3 and role_id = $4", admin,role.permissions.value,ctx.guild_id,role.id)
-        result = await mydb.fetch("SELECT * FROM guild_mod_roles WHERE guild_id = $1",ctx.guild_id)
-    elif add and new:
-        result = await mydb.fetch("SELECT * FROM guild_mod_roles WHERE guild_id = $1",ctx.guild_id)
-        await mydb.execute("INSERT INTO guild_mod_roles (guild_id, role_id, is_admin, bitfield) VALUES ($1,$2, $3, $4)", ctx.guild_id,role.id,admin, role.permissions.value)
-    else:
-        await mydb.execute("DELETE FROM guild_mod_roles WHERE role_id = $1", role.id)
-        result = await mydb.fetch("SELECT * FROM guild_mod_roles WHERE guild_id = $1",ctx.guild_id)
-    embed = Embed(title="New List of Moderator and Admin Roles",description=MODVADMIN,color = "0x00ff00" if add and new else "0x0000ff" if add and not new else "0xff0000",timestamp=datetime.datetime.now(tz=datetime.timezone.utc))
-    if add and new:embed.add_field("**NEW** Admin" if bool(admin) else "**NEW** Mod",f"<@&{role.id}>",inline=True)
-    elif add and not new: embed.add_field("**CHANGED TO** Admin" if bool(admin) else "**CHANGED TO** Mod",f"<@&{role.id}>",inline=True)
-    for x in result:
-        if int(x[1])==int(role.id):continue
-        embed.add_field("Admin" if x['is_admin'] else "Mod",f"<@&{x[1]}>",inline=True)
-    await ctx.respond(embed=embed,flags=EPHEMERAL)
-    await mydb.close()
 
 @roles.child
 @lightbulb.option("disabling", "should the role be disabling", type=bool, required=True)
@@ -231,22 +171,6 @@ async def config_work(ctx: lightbulb.Context):
     await ctx.respond(embed=embed, flags=EPHEMERAL)
     await mydb.close()
 
-@config.child
-@lightbulb.option("message_log","channel bot should log possible scam incidents in, only if moderation action is not taken",type=hikari.OptionType.CHANNEL,channel_types=[hikari.ChannelType.GUILD_TEXT,hikari.ChannelType.GUILD_NEWS], required=True)
-@lightbulb.option("main_log","channel bot should log scam incidents in, if moderation action is taken",type=hikari.TextableGuildChannel,channel_types=[hikari.ChannelType.GUILD_TEXT], required=True)
-@lightbulb.option("muted","role role bot should assign as a muted role", type=hikari.Role, required=True)
-@lightbulb.option("crypto", "should the bot be scanning for crypto scams on this server?", type=bool, required=True)
-@lightbulb.option("nitro","should the bot be scanning for nitro scams on this server?", type=bool, required=True)
-@lightbulb.command("moderation","edits guild settings for the automoderation module.", inherit_checks=True, auto_defer = True)
-@lightbulb.implements(commands.SlashSubCommand)
-async def config_moderation(ctx: lightbulb.Context):
-    mydb = await get_db()
-    result = await mydb.fetchrow("SELECT * from guilds where id = $1",ctx.guild_id)
-    await mydb.execute("UPDATE guilds set nitro_enabled = $1, crypto_enabled = $2, mute_role = $3, main_log = $4, second_log = $5 WHERE id = $6",ctx.options.nitro,ctx.options.crypto,ctx.options.muted.id,ctx.options.main_log.id,ctx.options.message_log.id,ctx.guild_id)
-    embed = Embed(title=f"**UPDATED** Moderation Settings in {ctx.get_guild().name}",description=MODERATIONSETTINGS,timestamp=datetime.datetime.now(tz=datetime.timezone.utc),color="0x00ff00")
-    embed.add_field(f"{'**CHANGED** ' if ctx.options.nitro != result['nitro_enabled'] else ''}Nitro Scam Scan","Enabled" if ctx.options.nitro else "Disabled",inline=True).add_field(f"{'**CHANGED** ' if ctx.options.crypto != result['crypto_enabled'] else ''}Crypto Scam Scan","Enabled" if ctx.options.crypto else "Disabled",inline=True).add_field(f"{'**CHANGED** ' if ctx.options.muted.id != result['mute_role'] else ''}Mute Role",ctx.options.muted.mention,inline=True).add_field(f"{'**CHANGED** ' if ctx.options.main_log.id != result['main_log'] else ''}Moderation Log",f"<#{ctx.options.main_log.id}>",inline=True).add_field(f"{'**CHANGED** ' if ctx.options.message_log.id != result['second_log'] else ''}Secondary Log",f"<#{ctx.options.message_log.id}>",inline=True)
-    await ctx.respond(embed=embed,flags=EPHEMERAL)
-    await mydb.close()
 
 @Economy.command()
 @lightbulb.add_checks(check_author_work_allowed)
