@@ -3,10 +3,10 @@ import re
 from collections import Counter
 import time
 from typing import Union
+import asyncpg
 from cryptography import fernet
 
 from hikari import undefined
-from hikari.impl import bot
 import validators
 
 import hikari
@@ -16,6 +16,7 @@ from hikari import Embed
 with open('filekey.key','rb') as file:
     key = file.read()
 fernet = fernet.Fernet(key)
+
 
 def add_onmessage(message):
     with open('tickets.json',"rb") as t:
@@ -48,74 +49,7 @@ def add_onmessage(message):
         t.write(fernet.encrypt(json.dumps(tickets).encode('utf-8')))
     return [str(newTicketNum)+": "+str(message.author.username),"new"]
 
-def find_embedded_urls(data):
-    regex = r"(http|ftp|https):\/\/([\w_-]+(?:(?:\.[\w_-]+)+))([\w.,@?^=%&:\/~+#-]*[\w@?^=%&\/~+#-])"
-    return re.finditer(regex,data,flags=re.M|re.I)
-
-def find_embedded_phones(data):
-    regex = r"\s*(?:\+?(\d{1,3}))?[-. (/]*(\d{3,4})[-. )/]+(\d{3})[-. /]+(\d{3,4})(?: *x(\d+))?\s*"
-    return re.finditer(regex,data,flags=re.M|re.I)
-
 EventsPlugin = lightbulb.Plugin("EventsPlugin")
-
-async def nitroScan(event: Union[hikari.GuildMessageUpdateEvent,hikari.GuildMessageCreateEvent]):
-    allowed_roles = [225413350874546176,253752685357039617,725377514414932030,338173415527677954,387037912782471179,406690402956083210,729368484211064944]
-    role_check = not any(role in event.member.role_ids for role in allowed_roles)
-    listDelinked = event.content.lower().split();links = list()
-    for item in listDelinked:
-        if "http" not in item:item = "https://"+item
-        if validators.url(item): links.append(item)
-    if bool(links) and not any([any("discord.gift/" in link for link in links),any("discord.com/" in link for link in links)]):
-        counted = Counter(listDelinked);nitro=False
-        for element in counted.elements():
-            if 'nitro' in element:nitro=True;break
-        if nitro:
-            keywords = set();joiner = ", ";reportlevel = ['Ban',"Log"];nitro = 0;none_found="None Found"
-            for element in counted.elements():
-                if element in ['airdrop', 'steam', 'free', 'gift', 'left', 'some','got','accidentally','other']:
-                    keywords.add(element)
-                elif 'nitro' in element: nitro+=1
-            embed = Embed(title=f"{reportlevel[0] if keywords else reportlevel[1]} Event: Nitro Scam",description=event.content,color="0xff0000"if keywords else "0x0000ff").add_field("Links",joiner.join(links),inline=True).add_field("Nitro Keyword Count",nitro,inline=True).add_field("Secondary Keyword Count",f"{len(keywords)}: {joiner.join(keywords) if keywords else none_found}",inline=True).add_field("Role Check:","Failed" if role_check else "Passed",inline=True).add_field("Member",f"Username: {event.member.username}, Discriminator: {event.member.discriminator}",inline=True).add_field("Member ID",event.member.id,inline=True).add_field("Channel:",event.get_channel().mention,inline=True)
-            if keywords:
-                try:await event.message.delete()
-                finally:await EventsPlugin.app.rest.create_message(426016300439961601,content="**LOG ONLY**"if not role_check else undefined.UNDEFINED,embed=embed)
-                if role_check:
-                    try:await event.member.send("Hey! The bot caught a message from you it thinks is a scam beyond a threshold of doubt. If you believe this is an error, reach out to us here: : https://cpry.net/banned. or if that is broken, tweet @CharliePryor at https://twitter.com/CharliePryor. If able, you can also try replying to this message.")
-                    finally:await EventsPlugin.app.rest.ban_user(event.guild_id,event.member.id,delete_message_days=0,reason="NitroScam")
-                    return "Ban"
-                else: return None
-            else:
-                await EventsPlugin.app.rest.create_message(682559641930170379,embed=embed)
-                return None
-    return None
-
-async def whatsappScan(event: Union[hikari.GuildMessageUpdateEvent,hikari.GuildMessageCreateEvent]):
-    nums = find_embedded_phones(event.content)
-    nums = [match[0] for match in nums]
-    has_nums = True if nums else False
-    has_whatsapp = any(app in event.content.lower() for app in ["whatsapp","whats app","whats.app","what'sapp","telegram","cash.app","cash app"])
-    has_dollarsign = any(currency in event.content.lower() for currency in ["btc", "bitcoin", "eth", "ethereum", "xrp", "ripple", "usdt", "tether","usdc", "usd coin","doge","dogecoin","ada","cardano","zec","zcash","btz","bitcoinz","bnb","binance coin","shib", "shiba inu","ltc","litecoin","bch","bitcoin cash","xmr","monero","cake","pancakeswap token","€",  "£", "$", "¥", "eur", "gbp",  "usd", "cad"])
-    allowed_roles = [225413350874546176,253752685357039617,725377514414932030,338173415527677954,387037912782471179,406690402956083210,729368484211064944]
-    role_check = not any(role in event.member.role_ids for role in allowed_roles)
-    if any([has_whatsapp,has_dollarsign,has_nums]):
-        if all([has_whatsapp,has_dollarsign,has_nums]):
-            embed = Embed(title="Ban Level Event - WhatsApp Cryptoscam - all triggers hit:",description=event.content,color="0xff0000").add_field("Whatsapp Check:","Triggered: Found keyword" if has_whatsapp else "Keyword Not Present",inline=True).add_field("Phone Number Check:",f"Triggered: Found Regex Match(s):{nums}" if has_nums else "No Regex Matches Present",inline=True).add_field("`$` Check:","Triggered: Found symbol" if has_dollarsign else "Symbol Not Present",inline=True).add_field("Role Check:","Triggered: No allowed roles" if role_check else "Allowed role present",inline=True).add_field("Result:","Ban" if role_check else "Log",inline=True).add_field("Member",f"Username: {event.member.username}, Discriminator: {event.member.discriminator}",inline=True).add_field("Member ID",event.member.id,inline=True).add_field("Channel:",event.get_channel().mention,inline=True)
-            await EventsPlugin.app.rest.create_message(426016300439961601,embed=embed)
-            await event.message.delete()
-            if role_check:
-                try:await event.member.send("Hey! The bot caught a message from you it thinks is a scam beyond a threshold of doubt. If you believe this is an error, reach out to us here: : https://cpry.net/banned. or if that is broken, tweet @CharliePryor at https://twitter.com/CharliePryor. If able, you can also try replying to this message.")
-                finally:await EventsPlugin.app.rest.ban_user(event.guild_id,event.member.id,delete_message_days=0,reason="CryptoScam")
-            return "Ban"
-        elif any([has_dollarsign and has_nums,has_nums and has_whatsapp, has_whatsapp and has_dollarsign]):
-            embed = Embed(title="Mute Level Event - Possible WhatsApp Cryptoscam - 2/3 triggers hit:",description=event.content,color="0xff0000").add_field("Whatsapp Check:","Triggered: Found keyword" if has_whatsapp else "Keyword Not Present",inline=True).add_field("Phone Number Check:",f"Triggered: Found Regex Match(s):{nums}" if has_nums else "No Regex Matches Present",inline=True).add_field("`$` Check:","Triggered: Found symbol" if has_dollarsign else "Symbol Not Present",inline=True).add_field("Role Check:","Triggered: No allowed roles" if role_check else "Allowed role present",inline=True).add_field("Result:","Mute" if role_check else "Log",inline=True).add_field("Member",f"Username: {event.member.username}, Discriminator: {event.member.discriminator}",inline=True).add_field("Member ID",event.member.id,inline=True).add_field("Channel:",event.get_channel().mention,inline=True)
-            await EventsPlugin.app.rest.create_message(426016300439961601,embed=embed)
-            await event.message.delete()
-            if role_check:await EventsPlugin.app.rest.add_role_to_member(event.guild_id,event.member.id,684936661745795088,reason="CryptoScam")
-            return "Mute"
-        elif has_nums or has_whatsapp:
-            embed = Embed(title="Log Level Event - Phone Number or WhatsApp like trigger hit:",description=event.content,color="0x0000ff").add_field("Whatsapp Check:","Triggered: Found keyword" if has_whatsapp else "Keyword Not Present",inline=True).add_field("Phone Number Check:",f"Triggered: Found Regex Match(s):{nums}" if has_nums else "No Regex Matches Present",inline=True).add_field("Member",f"Username: {event.member.username}, Discriminator: {event.member.discriminator}",inline=True).add_field("Member ID",event.member.id,inline=True).add_field("Channel:",event.get_channel().mention,inline=True)
-            await EventsPlugin.app.rest.create_message(682559641930170379,embed=embed)
-    return None
 
 @EventsPlugin.listener(hikari.DMMessageCreateEvent)
 async def on_DMmessage(event:hikari.DMMessageCreateEvent):
@@ -138,21 +72,9 @@ async def on_DMmessage(event:hikari.DMMessageCreateEvent):
                 message= await channel.send('message: '+event.message.content)
                 await message.edit(attachments=event.message.attachments)
 
-@EventsPlugin.listener(hikari.GuildMessageUpdateEvent)
-async def on_message(event: hikari.GuildMessageUpdateEvent) -> None:
-    if event.content is not None and event.is_human and event.guild_id==225345178955808768:
-        result = await whatsappScan(event)
-        if result: return
-        result1 = await nitroScan(event)
-        if result1: return
-
 @EventsPlugin.listener(hikari.GuildMessageCreateEvent)
 async def on_message(event: hikari.GuildMessageCreateEvent) -> None:
-    if event.content is not None and event.is_human and event.guild_id==225345178955808768:
-        result = await whatsappScan(event)
-        if result: return
-        result1 = await nitroScan(event)
-        if result1: return
+    if event.content is not None and event.is_human:
         if event.guild_id==225345178955808768 and not any(role in [338173415527677954,253752685357039617,225413350874546176,387037912782471179,406690402956083210,729368484211064944] for role in event.member.role_ids):
             if f"<@&{event.guild_id}>" in event.content or "@everyone" in event.content or "@here" in event.content:
                 await event.message.member.add_role(676250179929636886)
