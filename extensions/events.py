@@ -1,16 +1,15 @@
+import datetime
 import json
 import re
-from collections import Counter
 import time
-from typing import Union
-import asyncpg
+import traceback
 from cryptography import fernet
 
-from hikari import undefined
-import validators
+from hikari import GuildChannel
 
 import hikari
 import lightbulb
+from lightbulb import commands
 from hikari import Embed
 
 with open('filekey.key','rb') as file:
@@ -19,6 +18,7 @@ fernet = fernet.Fernet(key)
 
 
 def add_onmessage(message):
+    """Adds a messag dmed to the bot to modlog logs"""
     with open('tickets.json',"rb") as t:
         temp = fernet.decrypt(t.read())
     tickets = json.loads(temp)
@@ -94,13 +94,12 @@ async def on_message(event: hikari.GuildMessageCreateEvent) -> None:
 async def on_error(event: lightbulb.CommandErrorEvent) -> None:
     if isinstance(event.exception, lightbulb.CommandInvocationError):
         await event.context.respond(f"Something went wrong during invocation of command `{event.context.command.name}`. Dev has been notified, but check for case sensitive components. Do not spam.")
-        channel = await event.app.rest.fetch_channel(687817008355737606)
         me = await event.app.rest.fetch_user(363095569515806722)
-        await channel.send(embed = Embed(title=f"Invocation Error in <#{event.context.channel_id}>", description=event.exception))
-        embed = Embed(title=f"Invocation Error in <#{event.context.channel_id}>", description=event.exception)
-        try: embed= embed.add_field("Traceback:", value=event.exception.__cause__)
-        finally:await me.send(embed = embed)
-        raise event.exception
+        try:raise event.exception
+        except Exception as e:
+            embed = Embed(title=f"Invocation Error in {f'{event.context.get_channel().name} in guild {event.context.get_guild().name} ((Guild,Channel) ID pair) ({event.context.guild_id},{event.context.channel_id})' if event.context.get_channel() is GuildChannel else 'DMs' if event.context.get_channel() is None else f'<@{event.context.channel_id}>'}",timestamp=datetime.datetime.now(tz=datetime.timezone.utc), description=f"```{traceback.format_exc()}```")
+            await me.send(embed = embed)
+            raise e
     exception = event.exception.__cause__ or event.exception # Unwrap the exception to get the original cause
     if isinstance(exception, lightbulb.NotOwner):
         await event.context.respond("You are not the owner of this bot.")
@@ -116,7 +115,20 @@ async def on_error(event: lightbulb.CommandErrorEvent) -> None:
     elif isinstance(exception, lightbulb.CommandNotFound):None
     else:
         await event.context.respond(str(exception))
-        raise exception
+        me = await event.app.rest.fetch_user(363095569515806722)
+        try:raise event.exception
+        except Exception as e:
+            embed = Embed(title=f"Error in {f'{event.context.get_channel().name} in guild {event.context.get_guild().name} ((Guild,Channel) ID pair) ({event.context.guild_id},{event.context.channel_id})' if event.context.get_channel() is  GuildChannel else 'DMs' if event.context.get_channel() is None else f'<@{event.context.channel_id}>'}", timestamp=datetime.datetime.now(tz=datetime.timezone.utc), description=f"```{traceback.format_exc()}```")
+            await me.send(embed = embed)
+            raise e
+
+@EventsPlugin.command()
+@lightbulb.add_checks(lightbulb.owner_only)
+@lightbulb.command("error", "Checks that the bot is alive")
+@lightbulb.implements(commands.PrefixCommand)
+async def error(ctx:lightbulb.Context):
+    test = (1,2)
+    test[1] = 3
 
 def load(bot):bot.add_plugin(EventsPlugin)
 def unload(bot):bot.remove_plugin(EventsPlugin)
