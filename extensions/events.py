@@ -15,7 +15,7 @@ with open('filekey.key', 'rb') as file:
 
 def add_onmessage(message):
     """Adds a messag dmed to the bot to modlog logs"""
-    with open('tickets.json',"rb") as ticket_file:
+    with open('tickets.json', "rb") as ticket_file:
         tickets = json.loads(FERNET.decrypt(ticket_file.read()))
     for ticket in list(tickets.keys()):
         if tickets[ticket]["open"] == "True":
@@ -32,12 +32,12 @@ def add_onmessage(message):
                 tickets[ticket]['time'] = round(time.time(), 0)
                 with open('tickets.json', 'wb') as ticket_file:
                     ticket_file.write(FERNET.encrypt(json.dumps(tickets).encode('utf-8')))
-                return [ticket,"old"]
+                return [ticket, "old"]
     new_ticket_num = len(list(tickets.keys()))
     new_ticket = {
-            "open":"True", "time":round(time.time(),0), "starter":message.author.id, "messages":{
-                "0":str(message.author)+": "+str(message.content)
-            }
+        "open":"True", "time":round(time.time(), 0), "starter":message.author.id, "messages":{
+            "0":str(message.author)+": "+str(message.content)
+        }
         }
     tickets.update({str(new_ticket_num):new_ticket})
     with open('tickets.json', 'wb') as ticket_file:
@@ -72,9 +72,9 @@ async def on_dm_message(event: hikari.DMMessageCreateEvent):
 async def on_guild_message(event: hikari.GuildMessageCreateEvent) -> None:
     """Guild Message Create Handler ***DO NOT CALL MANUALLY***"""
     if event.content is not None and event.is_human:
-        if (int(event.guild_id) == 225345178955808768 and
+        if (event.guild_id == 225345178955808768 and#pylint: disable=using-constant-test
                 not any(role in [338173415527677954, 253752685357039617, 225413350874546176,
-                                     387037912782471179, 406690402956083210, 729368484211064944])
+                                 387037912782471179, 406690402956083210, 729368484211064944])
                 for role in event.member.role_ids):
             if f"<@&{event.guild_id}>" in event.content or "@everyone" in event.content or "@here" in event.content:
                 await event.message.member.add_role(676250179929636886)
