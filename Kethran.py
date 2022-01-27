@@ -7,8 +7,8 @@ def main():
     import lightbulb
     from lightbulb import commands
 
-    with open("KethranToken.json") as t:
-        token = json.load(t)['Token']
+    with open("KethranToken.json") as file:
+        token = json.load(file)['Token']
     regex = r"kethran"
 
     bot = lightbulb.BotApp(token=token, prefix="k", help_class=None, owner_ids=363095569515806722,case_insensitive_prefix_commands=True)
@@ -19,7 +19,7 @@ def main():
     async def on_message(event: hikari.GuildMessageCreateEvent):
         if event.is_human:
             if event.channel_id in [901325983838244865, 878434694713188362]:
-                if bool(re.search(regex,event.content,re.IGNORECASE|re.MULTILINE)):
+                if re.search(regex,event.content,re.IGNORECASE|re.MULTILINE) is not None:
                     rand = random.randint(1,100)
                     if rand <4:
                         await event.get_channel().send("Bork!",reply=event.message_id,mentions_reply=True)
