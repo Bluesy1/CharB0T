@@ -1,22 +1,30 @@
 def main():
     import json
+    import os
     import random
     import re
 
     import hikari
     import lightbulb
+    from apscheduler.schedulers.asyncio import AsyncIOScheduler
+    from apscheduler.triggers.cron import CronTrigger
     from lightbulb import commands
+
+    if os.name != "nt":
+        import uvloop
+        uvloop.install()
 
     with open("KethranToken.json") as file:
         token = json.load(file)['Token']
     regex = r"kethran"
 
     bot = lightbulb.BotApp(token=token, prefix="k", help_class=None, owner_ids=363095569515806722,case_insensitive_prefix_commands=True)
-
+    sched = AsyncIOScheduler()
+    sched.start()
 
 
     @bot.listen(hikari.GuildMessageCreateEvent)
-    async def on_message(event: hikari.GuildMessageCreateEvent):
+    async def on_guild_message(event: hikari.GuildMessageCreateEvent):
         if event.is_human:
             if event.channel_id in [901325983838244865, 878434694713188362]:
                 if re.search(regex,event.content,re.IGNORECASE|re.MULTILINE) is not None:
@@ -75,7 +83,7 @@ def main():
                         await event.get_channel().send("**HOLY SHIT!**",reply=message.id)
 
     @bot.listen(hikari.DMMessageCreateEvent)
-    async def on_DMmessage(event: hikari.DMMessageCreateEvent):
+    async def on_dm_message(event: hikari.DMMessageCreateEvent):
         if event.is_human and event.content is not None and event.author_id==184524255197659136:
             channel = await bot.rest.fetch_channel(878434694713188362)
             await channel.send(event.content)
@@ -119,6 +127,62 @@ def main():
         except:
             await ctx.respond("Error invalid argument: specified dice can only be d2s, d4s, d6s, d8s, d10s, d12s, d20s,  or d100s, or if a constant modifier must be a perfect integer, positive or negative, connexted with `+`, and no spaces.",reply=True)
             return
+
+    @sched.scheduled_job(CronTrigger(day_of_week="sat",hour="1"),id="1")
+    async def friday_5() -> None:
+        rand = random.randint(1,100)
+        if rand <4:
+            await bot.rest.create_message(878434694713188362,"Bork!")
+        elif rand <8:
+            await bot.rest.create_message(878434694713188362,"WOOF!")
+        elif rand <12:
+            await bot.rest.create_message(878434694713188362,"AROOOF!")
+        elif rand <16:
+            await bot.rest.create_message(878434694713188362,"HOOOWL!")
+        elif rand <20:
+            await bot.rest.create_message(878434694713188362,"Aroof")
+        elif rand <24:
+            await bot.rest.create_message(878434694713188362,"*Sniff Sniff Sniff*")
+        elif rand <28:
+            await bot.rest.create_message(878434694713188362,"*Does not care*")
+        elif rand <32:
+            await bot.rest.create_message(878434694713188362,"*I want scritches*")
+        elif rand <36:
+            await bot.rest.create_message(878434694713188362,"*is busy*")
+        elif rand <40:
+            await bot.rest.create_message(878434694713188362,"snuffles")
+        elif rand <44:
+            await bot.rest.create_message(878434694713188362,"snuffles apologetically")
+        elif rand <48:
+            await bot.rest.create_message(878434694713188362,"sits")
+        elif rand <52:
+            await bot.rest.create_message(878434694713188362,"lays down")
+        elif rand <56:
+            await bot.rest.create_message(878434694713188362,"chuffs")
+        elif rand <60:
+            await bot.rest.create_message(878434694713188362,"pants")
+        elif rand <64:
+            await bot.rest.create_message(878434694713188362,"plays dead")
+        elif rand <68:
+            await bot.rest.create_message(878434694713188362,"gives paw")
+        elif rand <72:
+            await bot.rest.create_message(878434694713188362,"rolls over")
+        elif rand <76:
+            await bot.rest.create_message(878434694713188362,"is adorable")
+        elif rand <80:
+            await bot.rest.create_message(878434694713188362,"whimpers")
+        elif rand <84:
+            await bot.rest.create_message(878434694713188362,"licks face")
+        elif rand <88:
+            await bot.rest.create_message(878434694713188362,"*Sits*")
+        elif rand <92:
+            await bot.rest.create_message(878434694713188362,"*is adorable*")
+        elif rand <96:
+            await bot.rest.create_message(878434694713188362,"pants")
+        elif rand <=100:
+            message = await bot.rest.create_message(878434694713188362,"**HOLY SHIT!**")
+            message = await bot.rest.create_message(878434694713188362,"**HOLY SHIT!**",reply=message.id)
+            await bot.rest.create_message(878434694713188362,"**HOLY SHIT!**",reply=message.id) 
 
     bot.run()
     

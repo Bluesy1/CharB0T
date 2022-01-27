@@ -1,4 +1,3 @@
-import asyncio
 import datetime
 import json
 import os
@@ -14,17 +13,17 @@ import lightbulb
 from hikari import Embed
 from hikari.commands import CommandChoice
 from lightbulb import commands
-from lightbulb.checks import guild_only, has_roles
+from lightbulb.checks import guild_only
 from numpy import ceil
 from pytz import timezone
 import yahoo_finance_async as yf
 
-EPHEMERAL:Final[int] = 64
-MODVADMIN:Final[str] = "A  role marked as mod is ignored by autopunishments. A role marked as admin can edit the bot's settings along with the benefits of being a mod."
-DISABLER:Final[str] = "A role marked as disabling will mean that a user with this role cannot use this portion of the bot, even if they have another role that would allow it. A role marked as enabling will allow a user to use this portion of the bot, as long as they don't have any role listed under disabling. Users listed with a mod role are not immune to disabling roles, but Users with an admin role are. If the everyone role is set as an enabling role, all users without a disabling role can use the bot (not recommended on servers that already have a levelling system). If the everyone role is set as a disabling role, the system will be disabled completely."
-ECONOMYSETTINGS:Final[str] = "Minimum Gain, Maximum Gain, and Step dictate how random numbers are generated for the /work system - a number between the minimum and maximum, both inclusive with steps of size step from the minimum. i.e., for a (min,max,step) of (800,1200,5), which are the default settings, the random number possibilities would be (800,805,810,815,...,1190,1195,1200). Gain cooldown is the number of seconds between work uses for a user, default 11.5 hours, it's recommended to set this slightly under the time you advertise. i.e., for a 12-hour cycle, it's suggested using a cycle of 11.5 hours so people don't have to be perfect. Coin name and symbol allow you to customize the name and symbol of the coin if you don't like the default name of EchoCoin with the symbol <:Echocoin:928020676751814656>. Default starting balance allows people to start investing without having to do a couple of work cycles first. The default is 10,000, but you can change this if you want. All currencies, regardless of name and symbol are always a 1:1 vs USD for simplicity."
-MODERATIONSETTINGS:Final[str] = "Nitro Scan and Crypto Scan respectively refer to whether the Nitro and Crypto Scam Detections are active. Mute Role is the role that the bot will assign if the bot believes that a message has a high probability of a scam but is not 100% sure. Main Log is where punishments are logged, and Message/Secondary log is for when there's a very log probability there's a scam. Its suggested to set the secondary/message logging to your message log channel if you have one, but it gets triggered very infrequently in most servers where it would be used."
-DEFAULTNAME:Final[str]="EchoCoin";DEFAULTSYMBOL:Final[str]="<:Echocoin:928020676751814656>"
+EPHEMERAL: Final[int] = 64
+MODVADMIN: Final[str] = "A  role marked as mod is ignored by autopunishments. A role marked as admin can edit the bot's settings along with the benefits of being a mod."
+DISABLER: Final[str] = "A role marked as disabling will mean that a user with this role cannot use this portion of the bot, even if they have another role that would allow it. A role marked as enabling will allow a user to use this portion of the bot, as long as they don't have any role listed under disabling. Users listed with a mod role are not immune to disabling roles, but Users with an admin role are. If the everyone role is set as an enabling role, all users without a disabling role can use the bot (not recommended on servers that already have a levelling system). If the everyone role is set as a disabling role, the system will be disabled completely."
+ECONOMYSETTINGS: Final[str] = "Minimum Gain, Maximum Gain, and Step dictate how random numbers are generated for the /work system - a number between the minimum and maximum, both inclusive with steps of size step from the minimum. i.e., for a (min,max,step) of (800,1200,5), which are the default settings, the random number possibilities would be (800,805,810,815,...,1190,1195,1200). Gain cooldown is the number of seconds between work uses for a user, default 11.5 hours, it's recommended to set this slightly under the time you advertise. i.e., for a 12-hour cycle, it's suggested using a cycle of 11.5 hours so people don't have to be perfect. Coin name and symbol allow you to customize the name and symbol of the coin if you don't like the default name of EchoCoin with the symbol <:Echocoin:928020676751814656>. Default starting balance allows people to start investing without having to do a couple of work cycles first. The default is 10,000, but you can change this if you want. All currencies, regardless of name and symbol are always a 1:1 vs USD for simplicity."
+MODERATIONSETTINGS: Final[str] = "Nitro Scan and Crypto Scan respectively refer to whether the Nitro and Crypto Scam Detections are active. Mute Role is the role that the bot will assign if the bot believes that a message has a high probability of a scam but is not 100% sure. Main Log is where punishments are logged, and Message/Secondary log is for when there's a very log probability there's a scam. Its suggested to set the secondary/message logging to your message log channel if you have one, but it gets triggered very infrequently in most servers where it would be used."
+DEFAULTNAME: Final[str]="EchoCoin";DEFAULTSYMBOL: Final[str]="<:Echocoin:928020676751814656>"
 Economy = lightbulb.Plugin("Economy", default_enabled_guilds=225345178955808768)
 
 async def get_db() -> asyncpg.Connection:
