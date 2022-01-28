@@ -32,12 +32,6 @@ def main():
     sched = AsyncIOScheduler()
     sched.start()
 
-    @sched.scheduled_job(DateTrigger(run_date=datetime(2022, 2, 5, 12, 0, 0, 0, timezone(-timedelta(hours=8)))))
-    async def meh()->None:
-        """Thing"""
-        user = await bot.rest.fetch_user(318794104110710787)
-        await user.send("Pack some SATA Cables for Ankkit")
-
     @bot.command()
     @lightbulb.option("word","Word to remove")
     @lightbulb.add_checks(has_roles(832521484378308660,832521484378308659,832521484378308658,mode=any))
@@ -102,6 +96,15 @@ def main():
             await bot.rest.add_role_to_member(832521484340953088,event.member.id,900612423332028416,reason="Used a Slur")
             await bot.rest.add_role_to_member(832521484340953088,event.member.id,930953847411736598,reason="Used a Slur")
             await bot.rest.create_message(832521484828147741,embed=Embed(title=f"[SLUR] {event.member.username}#{event.member.discriminator}",color="0xff0000",timestamp=datetime.datetime.now(tz=datetime.timezone.utc)).add_field("User",event.member.mention,inline=True).add_field("Slurs Used",f"||{joinstring.join(used_slurs)}||",inline=True).add_field("Channel",f"<#{event.channel_id}>",inline=True).add_field("Message",event.content,inline=True))
+    
+    
+    @sched.scheduled_job(DateTrigger(run_date=datetime(2022, 2, 5, 12, 0, 0, 0, timezone(-timedelta(hours=8)))))
+    async def meh()->None:
+        """Thing"""
+        user = await bot.rest.fetch_user(318794104110710787)
+        await user.send("Pack some SATA Cables for Ankkit")
+
+    
     bot.run()
 
 if __name__ == "__main__":
