@@ -2,6 +2,7 @@ import json
 import os
 import random
 import re
+from datetime import timedelta, timezone
 
 import hikari
 import lightbulb
@@ -9,10 +10,11 @@ from apscheduler.schedulers.asyncio import AsyncIOScheduler
 from apscheduler.triggers.cron import CronTrigger
 from lightbulb import commands
 
+
 def main():#pylint: disable = too-many-statements
     """Main"""
     if os.name != "nt":
-        import uvloop #pylint: disable=import-outside-toplevel
+        import uvloop  # pylint: disable=import-outside-toplevel
         uvloop.install()
 
     with open("KethranToken.json") as file:
@@ -141,7 +143,7 @@ def main():#pylint: disable = too-many-statements
         except Exception:#pylint: disable=broad-except
             await ctx.respond("Error invalid argument: specified dice can only be d2s, d4s, d6s, d8s, d10s, d12s, d20s,  or d100s, or if a constant modifier must be a perfect integer, positive or negative, connexted with `+`, and no spaces.", reply=True)#pylint: disable=line-too-long
 
-    @sched.scheduled_job(CronTrigger(day_of_week="sat", hour="1"), id="1")
+    @sched.scheduled_job(CronTrigger(day_of_week="fri", hour="17", timezone=timezone(-timedelta(hours=8))), id="1")
     async def friday_5() -> None: #pylint: disable=unused-variable, too-many-branches, too-many-statements
         """IDK, its a thing"""
         rand = random.randint(1, 100)
