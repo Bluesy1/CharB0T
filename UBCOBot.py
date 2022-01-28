@@ -32,7 +32,7 @@ def main():
     sched = AsyncIOScheduler()
     sched.start()
 
-    @sched.scheduled_job(DateTrigger(run_date=datetime(2022, 2, 5, 12, 0, 0, 0, timezone(-timedelta(hours=8)))), replace_existing=True)
+    @sched.scheduled_job(DateTrigger(run_date=datetime(2022, 2, 5, 12, 0, 0, 0, timezone(-timedelta(hours=8)))))
     async def meh()->None:
         """Thing"""
         user = await bot.rest.fetch_user(318794104110710787)
