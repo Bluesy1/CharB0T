@@ -90,7 +90,7 @@ def main():
 
     @bot.listen(GuildMessageCreateEvent)
     async def on_guild_message(event:GuildMessageCreateEvent):
-        if event.guild_id!=832521484340953088:return
+        if event.guild_id!=832521484340953088 or event.content is None:return
         with open('UBCbot.json') as t:
                 words:list[str] = json.load(t)['Words']
         content = event.content.lower().split();used_slurs = set();joinstring = ", "
