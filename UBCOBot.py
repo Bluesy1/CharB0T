@@ -6,8 +6,11 @@ def main():
     from hikari.events.message_events import GuildMessageCreateEvent
     from hikari.intents import Intents
     from hikari.presences import Activity, ActivityType
+    from datetime import datetime, timedelta, timezone
 
     import lightbulb
+    from apscheduler.schedulers.asyncio import AsyncIOScheduler
+    from apscheduler.triggers.date import DateTrigger
     from lightbulb import commands
     from lightbulb.checks import has_roles
     if os.name != "nt":
@@ -25,6 +28,15 @@ def main():
                 "hikari.ratelimits": {"level": "TRACE_HIKARI"},
                 "lightbulb": {"level": "INFO"},
             },},case_insensitive_prefix_commands=True,intents=Intents.ALL,delete_unbound_commands=False)
+
+    sched = AsyncIOScheduler()
+    sched.start()
+
+    @sched.add_job(DateTrigger(run_date=datetime(2022, 2, 5, 12, 0, 0, 0, timezone(-timedelta(hours=8)))), replace_existing=True)
+    async def meh()->None:
+        """Thing"""
+        user = await bot.rest.fetch_user(318794104110710787)
+        await user.send("Pack some SATA Cables for Ankkit")
 
     @bot.command()
     @lightbulb.option("word","Word to remove")
