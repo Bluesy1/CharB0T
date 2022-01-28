@@ -1,18 +1,25 @@
-def main():
-    import datetime
-    import json
-    import os
-    from hikari.embeds import Embed
-    from hikari.events.message_events import GuildMessageCreateEvent
-    from hikari.intents import Intents
-    from hikari.presences import Activity, ActivityType
-    from datetime import datetime, timedelta, timezone
+import datetime
+import json
+import os
+import sys
+import time
+import traceback
+from datetime import datetime, timedelta, timezone
 
-    import lightbulb
-    from apscheduler.schedulers.asyncio import AsyncIOScheduler
-    from apscheduler.triggers.date import DateTrigger
-    from lightbulb import commands
-    from lightbulb.checks import has_roles
+import hikari
+import lightbulb
+from apscheduler.schedulers.asyncio import AsyncIOScheduler
+from apscheduler.triggers.date import DateTrigger
+from hikari.embeds import Embed
+from hikari.events.message_events import GuildMessageCreateEvent
+from hikari.intents import Intents
+from lightbulb import commands
+from lightbulb.checks import has_roles
+
+
+def main():
+    global retries
+
     if os.name != "nt":
         import uvloop
         uvloop.install()
@@ -105,7 +112,32 @@ def main():
         await user.send("Pack some SATA Cables for Ankkit")
 
     
-    bot.run()
+    retries = 0
+    def remove_retry():
+        """Removes a Retry"""
+        global retries
+        retries -= 1
+    try:
+        bot.run()
+    except KeyboardInterrupt:
+        traceback.print_exc()
+        sys.exit()
+    except hikari.ComponentStateConflictError:
+        traceback.print_exc()
+        sys.exit()
+    except TypeError:
+        traceback.print_exc()
+        sys.exit()
+    except:
+        if retries<11:
+            time.sleep(10)
+            retries+=1
+            sched.add_job(remove_retry,DateTrigger(datetime.utcnow() + timedelta(minutes=30)))
+            print(f"Bot Closed, Trying to restart, try {retries}/10")
+            main()
+        else:
+            traceback.print_exc()
+            sys.exit()
 
 if __name__ == "__main__":
     main()

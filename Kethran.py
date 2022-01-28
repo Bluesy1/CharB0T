@@ -1,15 +1,21 @@
+from datetime import datetime, timedelta
 import json
 import os
 import random
 import re
+import sys
+import time
+import traceback
 
 import hikari
 import lightbulb
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
 from apscheduler.triggers.cron import CronTrigger
+from apscheduler.triggers.date import DateTrigger
 from lightbulb import commands
 
 def main():#pylint: disable = too-many-statements
+    global retries
     """Main"""
     if os.name != "nt":
         import uvloop #pylint: disable=import-outside-toplevel
@@ -198,7 +204,32 @@ def main():#pylint: disable = too-many-statements
             message = await bot.rest.create_message(878434694713188362, "**HOLY SHIT!**", reply=message.id)
             await bot.rest.create_message(878434694713188362, "**HOLY SHIT!**", reply=message.id)
 
-    bot.run()
+    retries = 0
+    def remove_retry():
+        """Removes a Retry"""
+        global retries
+        retries -= 1
+    try:
+        bot.run()
+    except KeyboardInterrupt:
+        traceback.print_exc()
+        sys.exit()
+    except hikari.ComponentStateConflictError:
+        traceback.print_exc()
+        sys.exit()
+    except TypeError:
+        traceback.print_exc()
+        sys.exit()
+    except:
+        if retries<11:
+            time.sleep(10)
+            retries+=1
+            sched.add_job(remove_retry,DateTrigger(datetime.utcnow() + timedelta(minutes=30)))
+            print(f"Bot Closed, Trying to restart, try {retries}/10")
+            main()
+        else:
+            traceback.print_exc()
+            sys.exit()
 
 if __name__ == "__main__":
     main()

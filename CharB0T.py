@@ -1,16 +1,24 @@
 #pylint: disable=invalid-name
 import json
 import os
+import sys
+import traceback
+from datetime import datetime, timedelta
+from time import sleep
+
+import hikari
+import lightbulb
+from apscheduler.schedulers.background import BackgroundScheduler
+from apscheduler.triggers.date import DateTrigger
 from hikari.intents import Intents
 from hikari.presences import Activity, ActivityType
-
-import lightbulb
 from lightbulb import commands
 
 def main():
     """Main"""
+    global retries
     if os.name != "nt":
-        import uvloop#pylint: disable=import-outside-toplevel
+        import uvloop  # pylint: disable=import-outside-toplevel
         uvloop.install()
 
     with open('bottoken.json') as file:
@@ -68,13 +76,40 @@ def main():
         await ctx.event.message.delete()
         await ctx.respond(f"Pong! Latency: {bot.heartbeat_latency*1000:.2f}ms")
 
-    bot.load_extensions_from("extensions")
-    bot.load_extensions("extensions.__help")
+    #bot.load_extensions_from("extensions")
 
     # Run the bot
     # Note that this is blocking meaning no code after this line will run
     # until the bot is shut off
-    bot.run(activity=Activity(name="for scammers", type=ActivityType.WATCHING))
+    retries = 0
+    scheduler = BackgroundScheduler()
+    scheduler.start()
+    def remove_retry():
+        """Removes a Retry"""
+        global retries
+        retries -= 1
+    try:
+        bot.run(activity=Activity(name="over the server", type=ActivityType.WATCHING))
+    except KeyboardInterrupt:
+        traceback.print_exc()
+        sys.exit()
+    except hikari.ComponentStateConflictError:
+        traceback.print_exc()
+        sys.exit()
+    except TypeError:
+        traceback.print_exc()
+        sys.exit()
+    except:
+        if retries<11:
+            sleep(10)
+            retries+=1
+            scheduler.add_job(remove_retry,DateTrigger(datetime.utcnow() + timedelta(minutes=30)))
+            print(f"Bot Closed, Trying to restart, try {retries}/10")
+            main()
+        else:
+            traceback.print_exc()
+            sys.exit()
+    
 
 if __name__ == "__main__":
     main()
