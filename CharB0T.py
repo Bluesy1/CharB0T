@@ -76,7 +76,7 @@ def main():
         await ctx.event.message.delete()
         await ctx.respond(f"Pong! Latency: {bot.heartbeat_latency*1000:.2f}ms")
 
-    #bot.load_extensions_from("extensions")
+    bot.load_extensions_from("extensions")
 
     # Run the bot
     # Note that this is blocking meaning no code after this line will run
