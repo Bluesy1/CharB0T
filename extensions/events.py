@@ -88,7 +88,7 @@ async def on_guild_message(event: hikari.GuildMessageCreateEvent) -> None:
                 await channel.send(embed=embed)
         if event.is_bot or not event.content:
             return
-        if re.search(r"bruh", event.content, re.MULTILINE|re.IGNORECASE):
+        if False and re.search(r"bruh", event.content, re.MULTILINE|re.IGNORECASE):
             await event.message.delete()
         elif (re.search(r"~~:.|:;~~", event.content, re.MULTILINE|re.IGNORECASE)
               or re.search(r"tilde tilde colon dot vertical bar colon semicolon tilde tilde",
