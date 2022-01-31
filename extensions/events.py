@@ -72,10 +72,7 @@ async def on_dm_message(event: hikari.DMMessageCreateEvent):
 async def on_guild_message(event: hikari.GuildMessageCreateEvent) -> None:
     """Guild Message Create Handler ***DO NOT CALL MANUALLY***"""
     if event.content is not None and event.is_human:
-        if (event.guild_id == 225345178955808768 and#pylint: disable=using-constant-test
-                not any(role in [338173415527677954, 253752685357039617, 225413350874546176,
-                                 387037912782471179, 406690402956083210, 729368484211064944])
-                for role in event.member.role_ids):
+        if (event.guild_id == 225345178955808768 and not any(role in [338173415527677954, 253752685357039617, 225413350874546176, 387037912782471179, 406690402956083210, 729368484211064944]) for role in event.member.role_ids):#pylint: disable=using-constant-test, line-too-long
             if f"<@&{event.guild_id}>" in event.content or "@everyone" in event.content or "@here" in event.content:
                 await event.message.member.add_role(676250179929636886)
                 await event.message.member.add_role(684936661745795088)
