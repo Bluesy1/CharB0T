@@ -39,6 +39,8 @@ def main():#pylint: disable=too-many-statements
     sched = AsyncIOScheduler()
     sched.start()
 
+    bot.load_extensions("lightbulb.ext.filament.exts.superuser")
+
     async def create_task(run_time: datetime,
                           guild_id: snowflakes.Snowflakeish,member_id: snowflakes.Snowflakeish):
         """Creates a Scheduled Untimeout"""
@@ -56,7 +58,7 @@ def main():#pylint: disable=too-many-statements
                 await create_task(timeoutStill, member.guild_id, member.id)
         sched.add_job(log_untimeout, DateTrigger(run_date=run_time),
                       id=f"{guild_id}-{member_id}", replace_existing=True)
-
+    
     @bot.command()
     @lightbulb.add_checks(lightbulb.owner_only)
     @lightbulb.command("ping", "Checks that the bot is alive")
@@ -141,7 +143,13 @@ def main():#pylint: disable=too-many-statements
                 messages = messages.filter(("message.author.is_bot",True))
             except:
                 None#pylint: disable=pointless-statement
-            messages = messages.reversed()
+            try:
+                messages = messages.reversed()
+            except:
+                try:
+                    messages = messages.reverse()
+                except:
+                    None#pylint: disable=pointless-statement
             timedeltastring = "None Found"
             async for item in messages:
                 mentions = item.mentions.get_members()
@@ -155,9 +163,7 @@ def main():#pylint: disable=too-many-statements
                                         .format(year, day, hour, minutes, sec))
         await bot.rest.create_message(430197357100138497,
                                       f"**{event.user.username}#{event.user.discriminator}** has left the server. ID:{event.user_id}. Time on Server: {timedeltastring}")
-
-
-
+    
     # Run the bot
     # Note that this is blocking meaning no code after this line will run
     # until the bot is shut off
