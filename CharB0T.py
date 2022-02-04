@@ -14,12 +14,12 @@ from hikari.intents import Intents
 from hikari.presences import Activity, ActivityType
 from lightbulb import commands
 
-retries = 0
+RETRIES = 0
 
 
 def main():
     """Main"""
-    global retries  # pylint: disable=global-statement
+    global RETRIES  # pylint: disable=global-statement
     if os.name != "nt":
         import uvloop  # pylint: disable=import-outside-toplevel
         uvloop.install()
@@ -93,7 +93,7 @@ def main():
 
     def remove_retry():
         """Removes a Retry"""
-        global retries  # pylint: disable=global-statement
+        global RETRIES  # pylint: disable=global-statement
         retries -= 1
 
     try:

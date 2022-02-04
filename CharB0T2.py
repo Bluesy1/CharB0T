@@ -17,13 +17,13 @@ from hikari.internal.time import utc_datetime
 from hikari.messages import Message
 from lightbulb import commands
 
-retries = 0
+RETRIES = 0
 
 
 # noinspection PyBroadException
 def main():  # pylint: disable=too-many-statements
     """Main"""
-    global retries
+    global RETRIES
     if os.name != "nt":
         import uvloop  # pylint: disable=import-outside-toplevel
         uvloop.install()
@@ -164,7 +164,7 @@ def main():  # pylint: disable=too-many-statements
 
     def remove_retry():
         """Removes a Retry"""
-        global retries
+        global RETRIES
         retries -= 1
 
     try:
