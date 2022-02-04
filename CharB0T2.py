@@ -25,18 +25,19 @@ def main():  # pylint: disable=too-many-statements
         import uvloop  # pylint: disable=import-outside-toplevel
         uvloop.install()
 
-    with open('token2.json') as file:
-        token = json.load(file)['token']
+    token = json.load(open('token2.json'))['token']
     # Instantiate a Bot instance
-    bot = lightbulb.BotApp(token=token, prefix="c?", default_enabled_guilds=225345178955808768,
-                           owner_ids=[225344348903047168, 363095569515806722], logs={
+    bot = lightbulb.BotApp(
+        token=token, prefix="c?", default_enabled_guilds=225345178955808768,
+        owner_ids=[225344348903047168, 363095569515806722], logs={
             "version": 1,
             "incremental": True,
             "loggers": {
                 "hikari": {"level": "INFO"},
                 "hikari.ratelimits": {"level": "TRACE_HIKARI"},
                 "lightbulb": {"level": "INFO"},
-            }, }, case_insensitive_prefix_commands=True, delete_unbound_commands=False, intents=Intents.ALL)
+            }, }, case_insensitive_prefix_commands=True,
+        delete_unbound_commands=False, intents=Intents.ALL)
     scheduler = AsyncIOScheduler()
     scheduler.start()
 
