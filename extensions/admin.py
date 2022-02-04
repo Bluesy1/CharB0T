@@ -19,7 +19,7 @@ AdminPlugin.add_checks(lightbulb.Check(has_roles(338173415527677954, 25375268535
     "maketime", "makes a unix time constructor for use with discord's unix time feature",
     guilds=[225345178955808768])
 @lightbulb.implements(commands.SlashCommand)
-async def command(ctx):
+async def command(ctx):  # pylint: disable=too-many-statements
     """Command that makes a unix time constructor for use with discord's unix time feature"""
     time_menu = AdminPlugin.bot.rest.build_action_row()
     (time_menu.add_select_menu("Editing")
