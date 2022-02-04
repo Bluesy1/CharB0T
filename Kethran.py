@@ -16,6 +16,8 @@ from lightbulb import commands
 
 RETRIES = 0
 
+
+# noinspection PyBroadException
 def main():  # pylint: disable = too-many-statements
     """Main"""
     global RETRIES
@@ -148,7 +150,7 @@ def main():  # pylint: disable = too-many-statements
     except TypeError:
         traceback.print_exc()
         sys.exit()
-    except:
+    except:   # pylint: disable=bare-except
         if RETRIES < 11:
             time.sleep(10)
             RETRIES += 1
