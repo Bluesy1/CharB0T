@@ -88,7 +88,6 @@ def main():
     # Run the bot
     # Note that this is blocking meaning no code after this line will run
     # until the bot is shut off
-    retries = 0
     scheduler = BackgroundScheduler()
     scheduler.start()
 
