@@ -180,11 +180,11 @@ def main():  # pylint: disable=too-many-statements
         traceback.print_exc()
         sys.exit()
     except:  # pylint: disable=bare-except
-        if retries < 11:
+        if RETRIES < 11:
             time.sleep(10)
-            retries += 1
+            RETRIES += 1
             scheduler.add_job(remove_retry, DateTrigger(datetime.utcnow() + timedelta(minutes=30)))
-            print(f"Bot Closed, Trying to restart, try {retries}/10")
+            print(f"Bot Closed, Trying to restart, try {RETRIES}/10")
             main()
         else:
             traceback.print_exc()
