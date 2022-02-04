@@ -24,6 +24,7 @@ jobs:
         pip install apscheduler
         pip install uvloop
         pip install seaborn
+        pip install cryptography
         
     - name: Analysing the code with pylint
       run: |
