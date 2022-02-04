@@ -15,10 +15,12 @@ dice_plugin.d.roll_error = "Error invalid argument: specified dice can only be d
     has_roles(338173415527677954, 253752685357039617, 225413350874546176, 914969502037467176, mode=any)))
 @lightbulb.command("roll", "roll group", guilds=[225345178955808768])
 @lightbulb.implements(commands.SlashCommandGroup)
-async def roll(ctx) -> None: await ctx.respond("invoked roll")
+async def roll_group(ctx) -> None:
+    """Roll Group"""
+    await ctx.respond("invoked roll")
 
 
-@roll.child
+@roll_group.child
 @lightbulb.option("dice", "Dice to roll, accepts d2s, d4s, d6s, d8s, d10s, d12s, d20s, and d100s.", required=True)
 @lightbulb.command("standard", "D&D Standard Array 7 Dice roller, plus coin flips", inherit_checks=True,
                    guilds=[225345178955808768])
