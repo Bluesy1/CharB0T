@@ -1,3 +1,4 @@
+# pylint: disable=invalid-name
 import datetime
 import json
 import os
@@ -18,23 +19,31 @@ from lightbulb.checks import has_roles
 
 RETRIES = 0
 
-def main():
+
+# noinspection PyBroadException
+def main():  # pylint: disable=  # pylint: disbale=global-statement
+    """Main"""
     global RETRIES  # pylint: disable=global-statement
 
     if os.name != "nt":
         import uvloop
         uvloop.install()
 
-    token = json.load(open('UBCbot.json'))['Token']
+    with open('UBCbot.json', encoding='utf8') as file:
+        token = json.load(file)['token']
+
     # Instantiate a Bot instance
-    bot = lightbulb.BotApp(token=token, prefix=";", help_class=None, owner_ids=[363095569515806722], logs={
-        "version": 1,
-        "incremental": True,
-        "loggers": {
-            "hikari": {"level": "INFO"},
-            "hikari.ratelimits": {"level": "TRACE_HIKARI"},
-            "lightbulb": {"level": "INFO"},
-        }, }, case_insensitive_prefix_commands=True, intents=Intents.ALL, delete_unbound_commands=False)
+    bot = lightbulb.BotApp(
+        token=token, prefix=";", help_class=None,
+        owner_ids=[363095569515806722], logs={
+            "version": 1,
+            "incremental": True,
+            "loggers": {
+                "hikari": {"level": "INFO"},
+                "hikari.ratelimits": {"level": "TRACE_HIKARI"},
+                "lightbulb": {"level": "INFO"},
+            }, }, case_insensitive_prefix_commands=True,
+        intents=Intents.ALL, delete_unbound_commands=False)
     bot.load_extensions("lightbulb.ext.filament.exts.superuser")
     scheduler = AsyncIOScheduler()
     scheduler.start()
@@ -45,14 +54,15 @@ def main():
     @lightbulb.command("add", "adds a word to the slur filter")
     @lightbulb.implements(commands.PrefixCommand)
     async def add(ctx: lightbulb.Context):
-        if ctx.guild_id != 832521484340953088: return
-        with open('UBCbot.json') as t:
-            fulldict = json.load(t)
+        if ctx.guild_id != 832521484340953088:
+            return
+        with open('UBCbot.json') as json_dict:
+            fulldict = json.load(json_dict)
         joinstring = ", "
         if ctx.options.word.lower() not in fulldict['Words']:
             fulldict['Words'].append(ctx.options.word.lower())
-            with open('UBCbot.json', 'w') as t:
-                json.dump(fulldict, t)
+            with open('UBCbot.json', 'w') as json_dict:
+                json.dump(fulldict, json_dict)
             await ctx.respond(embed=Embed(title="New list of words defined as slurs",
                                           description=f"||{joinstring.join(fulldict['Words'])}||", color="0x00ff00",
                                           timestamp=datetime.datetime.now(tz=datetime.timezone.utc)))
@@ -66,9 +76,10 @@ def main():
     @lightbulb.command("query", "querys the slur filter list")
     @lightbulb.implements(commands.PrefixCommand)
     async def query(ctx: lightbulb.Context):
-        if ctx.guild_id != 832521484340953088: return
-        with open('UBCbot.json') as t:
-            fulldict = json.load(t)
+        if ctx.guild_id != 832521484340953088:
+            return
+        with open('UBCbot.json') as json_dict:
+            fulldict = json.load(json_dict)
         joinstring = ", "
         await ctx.respond(
             embed=Embed(title="List of words defined as slurs", description=f"||{joinstring.join(fulldict['Words'])}||",
@@ -80,7 +91,8 @@ def main():
     @lightbulb.command("remove", "removes a word from the slur filter")
     @lightbulb.implements(commands.PrefixCommand)
     async def remove(ctx: lightbulb.Context):
-        if ctx.guild_id != 832521484340953088: return
+        if ctx.guild_id != 832521484340953088:
+            return
         with open('UBCbot.json') as t:
             fulldict = json.load(t)
         joinstring = ", "
@@ -102,11 +114,12 @@ def main():
 
     @bot.listen(GuildMessageCreateEvent)
     async def on_guild_message(event: GuildMessageCreateEvent):
-        if event.guild_id != 832521484340953088 or event.content is None: return
+        if event.guild_id != 832521484340953088 or event.content is None:
+            return
         with open('UBCbot.json') as t:
             words: list[str] = json.load(t)['Words']
-        content = event.content.lower().split();
-        used_slurs = set();
+        content = event.content.lower().split()
+        used_slurs = set()
         joinstring = ", "
         for word in content:
             if word in words:
@@ -143,12 +156,10 @@ def main():
                                       .add_field("Custom ID", str(event.interaction.custom_id), inline=True))
     """
 
-    retries = 0
-
     def remove_retry():
         """Removes a Retry"""
-        global RETRIES
-        retries -= 1
+        global RETRIES  # pylint: disbale=global-statement
+        RETRIES -= 1
 
     try:
         bot.run()
@@ -161,12 +172,12 @@ def main():
     except TypeError:
         traceback.print_exc()
         sys.exit()
-    except:
-        if retries < 11:
+    except:  # pylint: disbale=bare-except
+        if RETRIES < 11:
             time.sleep(10)
-            retries += 1
+            RETRIES += 1
             scheduler.add_job(remove_retry, DateTrigger(datetime.utcnow() + timedelta(minutes=30)))
-            print(f"Bot Closed, Trying to restart, try {retries}/10")
+            print(f"Bot Closed, Trying to restart, try {RETRIES}/10")
             main()
         else:
             traceback.print_exc()
