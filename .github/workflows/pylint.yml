@@ -20,6 +20,11 @@ jobs:
       run: |
         python -m pip install --upgrade pip
         pip install pylint
+        pip install hikari-lightbulb
+        pip install apscheduler
+        pip install uvloop
+        pip install seaborn
+        
     - name: Analysing the code with pylint
       run: |
         pylint $(git ls-files '*.py')
