@@ -45,7 +45,7 @@ grpcio==1.43.0
 h5py==3.6.0
 hikari==2.0.0.dev106
 hikari-lightbulb==2.2.0
-httplib2==0.14.0
+httplib2==0.19.0
 hyperlink==19.0.0
 idna==2.8
 importlib-metadata==4.10.1
