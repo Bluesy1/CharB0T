@@ -10,11 +10,6 @@ from hikari.messages import ButtonStyle
 from lightbulb import commands
 from lightbulb.checks import has_roles
 
-
-def check_publisher(context):
-    return context.author.id in [363095569515806722, 225344348903047168, 146285543146127361]
-
-
 AdminPlugin = lightbulb.Plugin("AdminPlugin")
 AdminPlugin.add_checks(lightbulb.Check(has_roles(338173415527677954, 253752685357039617, 225413350874546176, mode=any)))
 
@@ -25,6 +20,7 @@ AdminPlugin.add_checks(lightbulb.Check(has_roles(338173415527677954, 25375268535
     guilds=[225345178955808768])
 @lightbulb.implements(commands.SlashCommand)
 async def command(ctx):
+    """Command that makes a unix time constructor for use with discord's unix time feature"""
     time_menu = AdminPlugin.bot.rest.build_action_row()
     (time_menu.add_select_menu("Editing")
      .add_option("Done", "Done").set_emoji("✅").set_description("Use this to get the final options").add_to_menu()
@@ -57,9 +53,9 @@ async def command(ctx):
     sub_buttons.add_button(ButtonStyle.DANGER, "-m").set_label("-30 minutes").set_emoji("◀️").add_to_container()
     os.environ['TZ'] = 'US/Eastern'
     time.tzset()
-    ts = round(time.time())
-    ts -= ts % 1800
-    embed = Embed(title="Time builder", description=f"timestamp: {ts}: <t:{ts}:F>")
+    time_seconds = round(time.time())
+    time_seconds -= time_seconds % 1800
+    embed = Embed(title="Time builder", description=f"timestamp: {time_seconds}: <t:{time_seconds}:F>")
     await ctx.respond("Use the select menu to adjust the time", embed=embed, components=[add_buttons, sub_buttons])
     try:
         async with AdminPlugin.bot.stream(InteractionCreateEvent, timeout=15).filter(
@@ -68,63 +64,67 @@ async def command(ctx):
                 await event.interaction.create_initial_response(ResponseType.DEFERRED_MESSAGE_UPDATE)
                 key = event.interaction.custom_id
                 if key == "Done":
-                    embed = (Embed(title="Final times", description=f"timestamp: {ts}: <t:{ts}:F>")
-                             .add_field(f"Default: `<t:{ts}>`", f"<t:{ts}>")
-                             .add_field(f"Short Time: `<t:{ts}:t>`", f"<t:{ts}:t>")
-                             .add_field(f"Long Time: `<t:{ts}:T>`", f"<t:{ts}:t>")
-                             .add_field(f"Short Date: `<t:{ts}:d>`", f"<t:{ts}:d>")
-                             .add_field(f"Long Date: `<t:{ts}:D>`", f"<t:{ts}:D>")
-                             .add_field(f"Short Date/Time: `<t:{ts}:f>`", f"<t:{ts}:f>")
-                             .add_field(f"Long Date/Time: `<t:{ts}:F>`", f"<t:{ts}:F>")
-                             .add_field(f"Relative Time: `<t:{ts}:R>`", f"<t:{ts}:R>")
+                    embed = (Embed(title="Final times", description=f"timestamp: {time_seconds}: <t:{time_seconds}:F>")
+                             .add_field(f"Default: `<t:{time_seconds}>`", f"<t:{time_seconds}>")
+                             .add_field(f"Short Time: `<t:{time_seconds}:t>`", f"<t:{time_seconds}:t>")
+                             .add_field(f"Long Time: `<t:{time_seconds}:T>`", f"<t:{time_seconds}:t>")
+                             .add_field(f"Short Date: `<t:{time_seconds}:d>`", f"<t:{time_seconds}:d>")
+                             .add_field(f"Long Date: `<t:{time_seconds}:D>`", f"<t:{time_seconds}:D>")
+                             .add_field(f"Short Date/Time: `<t:{time_seconds}:f>`", f"<t:{time_seconds}:f>")
+                             .add_field(f"Long Date/Time: `<t:{time_seconds}:F>`", f"<t:{time_seconds}:F>")
+                             .add_field(f"Relative Time: `<t:{time_seconds}:R>`", f"<t:{time_seconds}:R>")
                              )
-                    await ctx.edit_last_response(f"<t:{ts}", embed=embed, components=[])
+                    await ctx.edit_last_response(f"<t:{time_seconds}", embed=embed, components=[])
                     return
-                elif key == "+w":
-                    ts += 604800
-                    embed = Embed(title="Time builder", description=f"timestamp: {ts}: <t:{ts}:F>")
+                if key == "+w":
+                    time_seconds += 604800
+                    embed = Embed(title="Time builder", description=f"timestamp: {time_seconds}: <t:{time_seconds}:F>")
                     await ctx.edit_last_response("Use the select menu to adjust the time", embed=embed,
                                                  components=[add_buttons, sub_buttons])
                 elif key == "+d":
-                    ts += 86400
-                    embed = Embed(title="Time builder", description=f"timestamp: {ts}: <t:{ts}:F>")
+                    time_seconds += 86400
+                    embed = Embed(title="Time builder", description=f"timestamp: {time_seconds}: <t:{time_seconds}:F>")
                     await ctx.edit_last_response("Use the select menu to adjust the time", embed=embed,
                                                  components=[add_buttons, sub_buttons])
                 elif key == "+h":
-                    ts += 3600
-                    embed = Embed(title="Time builder", description=f"timestamp: {ts}: <t:{ts}:F>")
+                    time_seconds += 3600
+                    embed = Embed(title="Time builder", description=f"timestamp: {time_seconds}: <t:{time_seconds}:F>")
                     await ctx.edit_last_response("Use the select menu to adjust the time", embed=embed,
                                                  components=[add_buttons, sub_buttons])
                 elif key == "+m":
-                    ts += 1800
-                    embed = Embed(title="Time builder", description=f"timestamp: {ts}: <t:{ts}:F>")
+                    time_seconds += 1800
+                    embed = Embed(title="Time builder", description=f"timestamp: {time_seconds}: <t:{time_seconds}:F>")
                     await ctx.edit_last_response("Use the select menu to adjust the time", embed=embed,
                                                  components=[add_buttons, sub_buttons])
                 elif key == "-w":
-                    ts -= 604800
-                    embed = Embed(title="Time builder", description=f"timestamp: {ts}: <t:{ts}:F>")
+                    time_seconds -= 604800
+                    embed = Embed(title="Time builder", description=f"timestamp: {time_seconds}: <t:{time_seconds}:F>")
                     await ctx.edit_last_response("Use the select menu to adjust the time", embed=embed,
                                                  components=[add_buttons, sub_buttons])
                 elif key == "-d":
-                    ts -= 86400
-                    embed = Embed(title="Time builder", description=f"timestamp: {ts}: <t:{ts}:F>")
+                    time_seconds -= 86400
+                    embed = Embed(title="Time builder", description=f"timestamp: {time_seconds}: <t:{time_seconds}:F>")
                     await ctx.edit_last_response("Use the select menu to adjust the time", embed=embed,
                                                  components=[add_buttons, sub_buttons])
                 elif key == "-h":
-                    ts -= 3600
-                    embed = Embed(title="Time builder", description=f"timestamp: {ts}: <t:{ts}:F>")
+                    time_seconds -= 3600
+                    embed = Embed(title="Time builder", description=f"timestamp: {time_seconds}: <t:{time_seconds}:F>")
                     await ctx.edit_last_response("Use the select menu to adjust the time", embed=embed,
                                                  components=[add_buttons, sub_buttons])
                 elif key == "-m":
-                    ts -= 1800
-                    embed = Embed(title="Time builder", description=f"timestamp: {ts}: <t:{ts}:F>")
+                    time_seconds -= 1800
+                    embed = Embed(title="Time builder", description=f"timestamp: {time_seconds}: <t:{time_seconds}:F>")
                     await ctx.edit_last_response("Use the select menu to adjust the time", embed=embed,
                                                  components=[add_buttons, sub_buttons])
     except asyncio.TimeoutError:
         await ctx.edit_last_response("Waited for 15 seconds... Timeout.", embed=None, components=[])
 
 
-def load(bot): bot.add_plugin(AdminPlugin)
+def load(bot):
+    """Loads Plugin"""
+    bot.add_plugin(AdminPlugin)
 
 
-def unload(bot): bot.remove_plugin(AdminPlugin)
+def unload(bot):
+    """Unloads Plugin"""
+    bot.remove_plugin(AdminPlugin)
