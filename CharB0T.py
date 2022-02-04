@@ -14,6 +14,7 @@ from hikari.intents import Intents
 from hikari.presences import Activity, ActivityType
 from lightbulb import commands
 
+retries = 0
 
 def main():
     """Main"""
@@ -22,7 +23,9 @@ def main():
         import uvloop  # pylint: disable=import-outside-toplevel
         uvloop.install()
 
-    token = json.load(open('bottoken.json'))['Token']
+    with open('bottoken.json', encoding='utf8') as file:
+        token = json.load(file)['token']
+
     # Instantiate a Bot instance
     bot = lightbulb.BotApp(token=token, prefix="!", help_slash_command=True,
                            owner_ids=[225344348903047168, 363095569515806722], logs={

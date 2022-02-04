@@ -17,6 +17,7 @@ from hikari.internal.time import utc_datetime
 from hikari.messages import Message
 from lightbulb import commands
 
+retries = 0
 
 def main():  # pylint: disable=too-many-statements
     """Main"""
@@ -25,7 +26,8 @@ def main():  # pylint: disable=too-many-statements
         import uvloop  # pylint: disable=import-outside-toplevel
         uvloop.install()
 
-    token = json.load(open('token2.json'))['token']
+    with open('token2.json', encoding='utf8') as file:
+        token = json.load(file)['token']
     # Instantiate a Bot instance
     bot = lightbulb.BotApp(
         token=token, prefix="c?", default_enabled_guilds=225345178955808768,
