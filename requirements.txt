@@ -120,7 +120,7 @@ sqlparse==0.4.2
 ssh-import-id==5.10
 systemd-python==234
 termcolor==1.1.0
-Twisted==18.9.0
+Twisted==20.3.0
 typing-extensions==4.0.1
 tzdata==2021.5
 tzlocal==4.1
