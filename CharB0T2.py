@@ -161,7 +161,6 @@ def main():  # pylint: disable=too-many-statements
     # Run the bot
     # Note that this is blocking meaning no code after this line will run
     # until the bot is shut off
-    RETRIES = 0
 
     def remove_retry():
         """Removes a Retry"""

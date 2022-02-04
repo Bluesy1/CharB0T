@@ -20,12 +20,13 @@ RETRIES = 0
 # noinspection PyBroadException
 def main():  # pylint: disable = too-many-statements
     """Main"""
-    global RETRIES
+    global RETRIES  # pylint: disable = global-statement
     if os.name != "nt":
         import uvloop  # pylint: disable=import-outside-toplevel
         uvloop.install()
 
-    token = json.load(open("KethranToken.json"))['Token']
+    with open("KethranToken.json", encoding='utf8') as file:
+        token = json.load(file)['token']
 
     bot = lightbulb.BotApp(token=token, prefix="k", help_class=None,
                            owner_ids=[363095569515806722], case_insensitive_prefix_commands=True)
@@ -135,7 +136,7 @@ def main():  # pylint: disable = too-many-statements
 
     def remove_retry():
         """Removes a Retry"""
-        global RETRIES
+        global RETRIES  # pylint: disable = global-statement
         RETRIES -= 1
 
     try:
