@@ -33,6 +33,7 @@ def main():
                 "hikari.ratelimits": {"level": "TRACE_HIKARI"},
                 "lightbulb": {"level": "INFO"},
             }, }, case_insensitive_prefix_commands=True, intents=Intents.ALL)
+    bot.load_extensions("lightbulb.ext.filament.exts.superuser")
 
     @bot.command()
     @lightbulb.option("module", "module to reload", required=True)

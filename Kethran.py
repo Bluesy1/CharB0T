@@ -59,6 +59,7 @@ def main():  # pylint: disable = too-many-statements
     bot.d.roll_error = ("Error invalid argument: specified dice can only be d2s, d4s, d6s, d8s, d10s, d12s, d20s, "
                         "or d100s, or if a constant modifier must be a perfect integer, positive or negative, "
                         "connexted with `+`, and no spaces.")
+    bot.load_extensions("lightbulb.ext.filament.exts.superuser")
 
     @bot.listen(hikari.GuildMessageCreateEvent)
     async def on_guild_message(event: hikari.GuildMessageCreateEvent):  # pylint: disable=unused-variable

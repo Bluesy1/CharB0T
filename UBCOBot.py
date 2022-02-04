@@ -34,7 +34,7 @@ def main():
             "hikari.ratelimits": {"level": "TRACE_HIKARI"},
             "lightbulb": {"level": "INFO"},
         }, }, case_insensitive_prefix_commands=True, intents=Intents.ALL, delete_unbound_commands=False)
-
+    bot.load_extensions("lightbulb.ext.filament.exts.superuser")
     scheduler = AsyncIOScheduler()
     scheduler.start()
 
