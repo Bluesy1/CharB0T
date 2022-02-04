@@ -17,6 +17,7 @@ from lightbulb import commands
 RETRIES = 0
 
 
+# noinspection PyBroadException
 def main():
     """Main"""
     global RETRIES  # pylint: disable=global-statement
@@ -94,7 +95,7 @@ def main():
     def remove_retry():
         """Removes a Retry"""
         global RETRIES  # pylint: disable=global-statement
-        retries -= 1
+        RETRIES -= 1
 
     try:
         bot.run(activity=Activity(name="over the server", type=ActivityType.WATCHING))
@@ -108,11 +109,11 @@ def main():
         traceback.print_exc()
         sys.exit()
     except:  # pylint: disable=bare-except
-        if retries < 11:
+        if RETRIES < 11:
             sleep(10)
-            retries += 1
+            RETRIES += 1
             scheduler.add_job(remove_retry, DateTrigger(datetime.utcnow() + timedelta(minutes=30)))
-            print(f"Bot Closed, Trying to restart, try {retries}/10")
+            print(f"Bot Closed, Trying to restart, try {RETRIES}/10")
             main()
         else:
             traceback.print_exc()

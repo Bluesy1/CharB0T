@@ -21,7 +21,6 @@ RETRIES = 0
 def main():  # pylint: disable = too-many-statements
     """Main"""
     global RETRIES
-    """Main"""
     if os.name != "nt":
         import uvloop  # pylint: disable=import-outside-toplevel
         uvloop.install()
@@ -95,7 +94,7 @@ def main():  # pylint: disable = too-many-statements
             dice = [str(arg)]
         try:
             sums = 0
-            rolls = list()
+            rolls = []
             allowed_dice = [2, 4, 6, 8, 10, 12, 20, 100]
             for die in dice:
                 if 'd' in die:
