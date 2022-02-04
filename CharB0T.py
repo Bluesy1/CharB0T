@@ -16,9 +16,10 @@ from lightbulb import commands
 
 retries = 0
 
+
 def main():
     """Main"""
-    global retries
+    global retries  # pylint: disable=global-statement
     if os.name != "nt":
         import uvloop  # pylint: disable=import-outside-toplevel
         uvloop.install()
@@ -27,8 +28,9 @@ def main():
         token = json.load(file)['token']
 
     # Instantiate a Bot instance
-    bot = lightbulb.BotApp(token=token, prefix="!", help_slash_command=True,
-                           owner_ids=[225344348903047168, 363095569515806722], logs={
+    bot = lightbulb.BotApp(
+        token=token, prefix="!", help_slash_command=True,
+        owner_ids=[225344348903047168, 363095569515806722], logs={
             "version": 1,
             "incremental": True,
             "loggers": {
@@ -91,7 +93,7 @@ def main():
 
     def remove_retry():
         """Removes a Retry"""
-        global retries
+        global retries  # pylint: disable=global-statement
         retries -= 1
 
     try:
@@ -105,7 +107,7 @@ def main():
     except TypeError:
         traceback.print_exc()
         sys.exit()
-    except:
+    except:  # pylint: disable=bare-except
         if retries < 11:
             sleep(10)
             retries += 1
