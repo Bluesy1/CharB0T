@@ -21,7 +21,7 @@ RETRIES = 0
 
 
 # noinspection PyBroadException
-def main():  # pylint: disable=global-statement
+def main():  # pylint: disable=too-many-statements
     """Main"""
     global RETRIES  # pylint: disable=global-statement
 
