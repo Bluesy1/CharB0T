@@ -19,6 +19,8 @@ from lightbulb import commands
 
 retries = 0
 
+
+# noinspection PyBroadException
 def main():  # pylint: disable=too-many-statements
     """Main"""
     global retries
@@ -104,13 +106,13 @@ def main():  # pylint: disable=too-many-statements
         if td.days // 7 != 0:
             time_string += f"{td.days // 7} Week{'s' if td.days // 7 > 1 else ''}"
         if td.days % 7 != 0:
-            time_string += f"{', ' if bool(time_string) else ''}{td.days % 7} Day{'s' if td.days % 7 > 1 else ''} "
+            time_string += f"{', ' if bool(time_string) else ''}{td.days % 7} Day(s) "
         if td.seconds // 3600 > 0:
-            time_string += f"{', ' if bool(time_string) else ''}{td.seconds // 3600} Hour{'s' if td.seconds // 3600 > 1 else ''} "
+            time_string += f"{', ' if bool(time_string) else ''}{td.seconds // 3600} Hour(s) "
         if (td.seconds % 3600) // 60 != 0:
-            time_string += f"{', ' if bool(time_string) else ''}{(td.seconds % 3600) // 60} Minute{'s' if (td.seconds % 3600) // 60 > 1 else ''} "
+            time_string += f"{', ' if bool(time_string) else ''}{(td.seconds % 3600) // 60} Minute(s) "
         if (td.seconds % 3600) % 60 != 0:
-            time_string += f"{', ' if bool(time_string) else ''}{(td.seconds % 3600) % 60} Second{'s' if (td.seconds % 3600) % 60 > 1 else ''}"
+            time_string += f"{', ' if bool(time_string) else ''}{(td.seconds % 3600) % 60} Second(s) "
         embed = Embed(color="0xff0000")
         embed.set_author(icon=event.member.avatar_url,
                          name=f"[TIMEOUT] {event.member.username}#{event.member.discriminator}")
@@ -129,14 +131,14 @@ def main():  # pylint: disable=too-many-statements
             messages: iterators.LazyIterator[Message] = await channel.fetch_history(before=datetime.utcnow())
             try:
                 messages = messages.filter(("message.author.is_bot", True))
-            except:
+            except:  # pylint: disable=bare-except
                 None  # pylint: disable=pointless-statement
             try:
                 messages = messages.reversed()
-            except:
+            except:  # pylint: disable=bare-except
                 try:
                     messages = messages.reverse()
-                except:
+                except:  # pylint: disable=bare-except
                     None  # pylint: disable=pointless-statement
             time_string = "None Found"
             async for item in messages:
@@ -176,7 +178,7 @@ def main():  # pylint: disable=too-many-statements
     except TypeError:
         traceback.print_exc()
         sys.exit()
-    except:
+    except:  # pylint: disable=bare-except
         if retries < 11:
             time.sleep(10)
             retries += 1
