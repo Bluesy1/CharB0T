@@ -25,6 +25,7 @@ jobs:
         pip install uvloop
         pip install seaborn
         pip install cryptography
+        pip install asyncpg
         
     - name: Analysing the code with pylint
       run: |
