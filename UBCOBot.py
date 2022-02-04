@@ -16,9 +16,10 @@ from hikari.intents import Intents
 from lightbulb import commands
 from lightbulb.checks import has_roles
 
+RETRIES = 0
 
 def main():
-    global retries
+    global RETRIES  # pylint: disable=global-statement
 
     if os.name != "nt":
         import uvloop
@@ -146,7 +147,7 @@ def main():
 
     def remove_retry():
         """Removes a Retry"""
-        global retries
+        global RETRIES
         retries -= 1
 
     try:

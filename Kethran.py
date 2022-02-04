@@ -1,3 +1,4 @@
+# pylint: disable=invalid-name
 import json
 import os
 import random
@@ -13,9 +14,11 @@ from apscheduler.triggers.cron import CronTrigger
 from apscheduler.triggers.date import DateTrigger
 from lightbulb import commands
 
+RETRIES = 0
 
 def main():  # pylint: disable = too-many-statements
-    global retries
+    """Main"""
+    global RETRIES
     """Main"""
     if os.name != "nt":
         import uvloop  # pylint: disable=import-outside-toplevel
@@ -127,12 +130,12 @@ def main():  # pylint: disable = too-many-statements
         """IDK, it's a thing"""
         await bot.rest.create_message(878434694713188362, bot.d.responses[random.randint(0, 99)])
 
-    retries = 0
+    RETRIES = 0
 
     def remove_retry():
         """Removes a Retry"""
-        global retries
-        retries -= 1
+        global RETRIES
+        RETRIES -= 1
 
     try:
         bot.run()
@@ -146,11 +149,11 @@ def main():  # pylint: disable = too-many-statements
         traceback.print_exc()
         sys.exit()
     except:
-        if retries < 11:
+        if RETRIES < 11:
             time.sleep(10)
-            retries += 1
+            RETRIES += 1
             scheduler.add_job(remove_retry, DateTrigger(datetime.utcnow() + timedelta(minutes=30)))
-            print(f"Bot Closed, Trying to restart, try {retries}/10")
+            print(f"Bot Closed, Trying to restart, try {RETRIES}/10")
             main()
         else:
             traceback.print_exc()
