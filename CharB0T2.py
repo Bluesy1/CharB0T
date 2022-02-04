@@ -23,7 +23,7 @@ RETRIES = 0
 # noinspection PyBroadException
 def main():  # pylint: disable=too-many-statements
     """Main"""
-    global RETRIES
+    global RETRIES  # pylint: disable=global-statement
     if os.name != "nt":
         import uvloop  # pylint: disable=import-outside-toplevel
         uvloop.install()
@@ -121,6 +121,7 @@ def main():  # pylint: disable=too-many-statements
         await bot.rest.create_message(426016300439961601, embed=embed)
         await create_task(event.member.communication_disabled_until(), event.guild_id, event.member.id)
 
+    # noinspection PyBroadException
     @bot.listen(hikari.MemberDeleteEvent)
     async def on_member_leave(event: hikari.MemberDeleteEvent):  # pylint: disable=unused-variable
         if event.old_member:
@@ -147,25 +148,25 @@ def main():  # pylint: disable=too-many-statements
                     delta = time.time() - time.mktime(item.created_at.utctimetuple())
                     time_string = await time_string_from_seconds(delta)
         await bot.rest.create_message(430197357100138497,
-                                      f"**{event.user.username}#{event.user.discriminator}** has left the server. ID:{event.user_id}. Time on Server: {time_string}")
+                                      f"**{event.user.username}#{event.user.discriminator}** has left the server. "
+                                      f"ID:{event.user_id}. Time on Server: {time_string}")
 
     async def time_string_from_seconds(delta: float) -> str:
         minutes, sec = divmod(delta, 60)
         hour, minutes = divmod(minutes, 60)
         day, hour = divmod(hour, 24)
         year, day = divmod(day, 365)
-        return ("{0} Year(s), {1} Day(s), {2} Hour(s), {3} Min(s), {4} Sec(s)"
-                .format(year, day, hour, minutes, sec))
+        return f"{year} Year(s), {day} Day(s), {hour} Hour(s), {minutes} Min(s), {sec} Sec(s)"
 
     # Run the bot
     # Note that this is blocking meaning no code after this line will run
     # until the bot is shut off
-    retries = 0
+    RETRIES = 0
 
     def remove_retry():
         """Removes a Retry"""
-        global RETRIES
-        retries -= 1
+        global RETRIES   # pylint: disable=global-statement
+        RETRIES -= 1
 
     try:
         bot.run()
