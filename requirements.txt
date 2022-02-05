@@ -7,7 +7,7 @@ hikari==2.0.0.dev106
 hikari-lightbulb==2.2.0
 lightbulb-ext-filament>=0.1.2
 matplotlib==3.5.1
-numpy~=1.22.0
+numpy~=1.22.2
 pandas==1.4.0
 pytz==2021.3
 scipy==1.7.3
