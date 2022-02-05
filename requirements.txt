@@ -1,6 +1,6 @@
 APScheduler==3.8.1
 asyncpg==0.25.0
-cryptography~=2.8
+cryptography>=3.2
 disrank==0.0.2
 fpdf==1.7.2
 hikari==2.0.0.dev106
