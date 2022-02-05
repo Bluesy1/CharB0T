@@ -30,7 +30,7 @@ def main():  # pylint: disable=too-many-statements
         uvloop.install()
 
     with open('UBCbot.json', encoding='utf8') as file:
-        token = json.load(file)['token']
+        token = json.load(file)['Token']
 
     # Instantiate a Bot instance
     bot = lightbulb.BotApp(
