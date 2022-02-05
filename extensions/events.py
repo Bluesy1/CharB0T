@@ -7,7 +7,7 @@ import traceback
 import hikari
 import lightbulb
 from cryptography import fernet
-from hikari import Embed, GuildChannel, HikariError
+from hikari import Embed, HikariError
 
 with open('filekey.key', 'rb') as file:
     FERNET = fernet.Fernet(file.read())
@@ -65,10 +65,12 @@ async def on_dm_message(event: hikari.DMMessageCreateEvent):
                 return
             channel = await EVENTS.bot.rest.fetch_channel(906578081496584242)
             await channel.send(
-                f"Message from {str(event.message.author.username)} `{str(event.message.author.id)}`, Ticket: `{str(ticket[0])}`):")  # pylint: disable=line-too-long
+                f"Message from {str(event.message.author.username)} `{str(event.message.author.id)}`,"
+                f" Ticket: `{str(ticket[0])}`):")
             if ticket[1] == "new":
                 await event.author.send(
-                    "Remember to check our FAQ to see if your question/issue is addressed there: https://cpry.net/discordfaq")  # pylint: disable=line-too-long
+                    "Remember to check our FAQ to see if your question/issue is addressed there: "
+                    "https://cpry.net/discordfaq")
             message = await channel.send(f"message: {event.message.content}")
             await message.edit(attachments=event.message.attachments)
 
@@ -105,14 +107,14 @@ async def on_error(event: lightbulb.CommandErrorEvent) -> None:
     """Error Handler ***DO NOT CALL MANUALLY***"""
     if isinstance(event.exception, lightbulb.CommandInvocationError):
         await event.context.respond(
-            f"Something went wrong while running command `{event.context.command.name}`. Bluesy#8150 has been notified.",
-            flags=64)  # pylint: disable=line-too-long
+            f"Something went wrong while running command `{event.context.command.name}`. Bluesy#8150 has been notified."
+            , flags=64)  # pylint: disable=line-too-long
         bluesy = await event.app.rest.fetch_user(363095569515806722)
         try:
             raise event.exception
         except event.exception:
             embed = (Embed(
-                title=f"Invocation Error in {f'{event.context.get_channel().name} in guild {event.context.get_guild().name} ((Guild,Channel) ID pair) ({event.context.guild_id},{event.context.channel_id})' if event.context.get_channel() is GuildChannel else 'DMs' if event.context.get_channel() is None else f'<@{event.context.channel_id}>'}", # pylint: disable=line-too-long
+                title=f"Invocation Error in command {event.context.command.name}",
                 timestamp=datetime.datetime.now(tz=datetime.timezone.utc),
                 description=f"```{traceback.format_exc()}```"))
             await bluesy.send(embed=embed)
@@ -139,8 +141,7 @@ async def on_error(event: lightbulb.CommandErrorEvent) -> None:
             raise exception
         except exception:
             embed = (Embed(
-                title=f"Error in {f'{event.context.get_channel().name} in guild {event.context.get_guild().name} ((Guild,Channel) ID pair) ({event.context.guild_id},{event.context.channel_id})' if event.context.get_channel() is GuildChannel else 'DMs' if event.context.get_channel() is None else f'<@{event.context.channel_id}>'}",
-                # pylint: disable=line-too-long
+                title=f"Error in command {event.context.command.name}",
                 timestamp=datetime.datetime.now(tz=datetime.timezone.utc),
                 description=f"```{traceback.format_exc()}```"))
             await bluesy.send(embed=embed)
