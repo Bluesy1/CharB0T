@@ -6,6 +6,7 @@ from lightbulb import commands
 
 
 def punished(context):
+    """Checks if command user is punished"""
     roles = context.member.role_ids
     for role in roles:
         if role in [684936661745795088, 676250179929636886]:
@@ -21,6 +22,7 @@ QueryPlugin = lightbulb.Plugin("QueryPlugin")
 @lightbulb.command("time", "display's charlie's time", guilds=[225345178955808768])
 @lightbulb.implements(commands.SlashCommand)
 async def command(ctx):
+    """Returns eastern time"""
     os.environ['TZ'] = 'US/Eastern'
     time.tzset()
     await ctx.respond("Charlie's time is: " + time.strftime('%X %x %Z'))
