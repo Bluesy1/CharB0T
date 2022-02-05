@@ -22,8 +22,8 @@ def strip_non_ascii(string):
 
 def add_message(ctx, message, user_id):
     """Adds message to json"""
-    with open('tickets.json', "rb") as t:
-        temp = fernet.decrypt(t.read())
+    with open('tickets.json', "rb") as temp_a:
+        temp = fernet.decrypt(temp_a.read())
     tickets = json.loads(temp)
     for sub_ticket in list(tickets.keys()):
         if tickets[str(sub_ticket)]['starter'] == user_id:
@@ -142,7 +142,7 @@ async def list_command(ctx):
 @lightbulb.command("name", "displays history of one or all tickets", inherit_checks=True, hidden=True,
                    guilds=[225345178955808768])
 @lightbulb.implements(commands.SlashSubCommand)
-async def command(ctx):
+async def name_command(ctx):
     """Closes a modmail ticket"""
     opt_ticket = ctx.options.ticket
     name = ctx.options.name
@@ -175,8 +175,8 @@ async def open_command(ctx):
     """Opens a modmail ticket"""
     member = ctx.options.member
     message = ctx.options.message
-    with open('tickets.json', "rb") as t:
-        temp = fernet.decrypt(t.read())
+    with open('tickets.json', "rb") as temp_a:
+        temp = fernet.decrypt(temp_a.read())
     tickets = json.loads(temp)
     new_ticket_num = len(list(tickets.keys()))
     new_ticket = {
@@ -185,8 +185,8 @@ async def open_command(ctx):
         }
     }
     tickets.update({str(new_ticket_num): new_ticket})
-    with open('tickets.json', 'wb') as t:
-        t.write(fernet.encrypt(json.dumps(tickets).encode('utf-8')))
+    with open('tickets.json', 'wb') as temp_a:
+        temp_a.write(fernet.encrypt(json.dumps(tickets).encode('utf-8')))
     modnames = {
         363095569515806722: "[Moderator] Bluesy", 247950431630655488: "[Moderator] Doffey",
         82495450153750528: "[Moderator] Kaitlin", 146285543146127361: "[Admin] Jazmine",
