@@ -26,7 +26,7 @@ def main():
         uvloop.install()
 
     with open('bottoken.json', encoding='utf8') as file:
-        token = json.load(file)['token']
+        token = json.load(file)['Token']
 
     # Instantiate a Bot instance
     bot = lightbulb.BotApp(

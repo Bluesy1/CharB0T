@@ -28,7 +28,7 @@ def main():  # pylint: disable = too-many-statements
         uvloop.install()
 
     with open("KethranToken.json", encoding='utf8') as file:
-        token = json.load(file)['token']
+        token = json.load(file)['Token']
 
     bot = lightbulb.BotApp(token=token, prefix="k", help_class=None,
                            owner_ids=[363095569515806722], case_insensitive_prefix_commands=True)
