@@ -57,28 +57,30 @@ Economy = lightbulb.Plugin("Economy", default_enabled_guilds=225345178955808768)
 
 
 async def get_db() -> asyncpg.Connection:
-    with open('sqlinfo.json') as t:
-        sqlinfo = json.load(t)
+    """Opens a PostgreSQL Connection"""
+    with open('sqlinfo.json', encoding='utf8') as file:
+        sqlinfo = json.load(file)
     return await asyncpg.connect(host=sqlinfo['host'], user=sqlinfo['user'], password=sqlinfo['password'],
                                  database=sqlinfo['database'])
 
 
 @lightbulb.Check
 async def check_author_work_allowed(context: lightbulb.Context) -> bool:
+    """Checks if command user can work"""
     mydb = await get_db()
     result = await mydb.fetch("SELECT * FROM guild_feature_work_roles WHERE guild_id = $1", context.guild_id)
     role_ids = context.member.role_ids
     possible = False
-    for x in result:
-        if context.guild_id == x[1] and bool(x['disabling']):
+    for sub_result in result:
+        if context.guild_id == sub_result[1] and bool(sub_result['disabling']):
             await mydb.close()
             return False
-        elif context.guild_id == x[1] and not bool(x['disabling']):
+        elif context.guild_id == sub_result[1] and not bool(sub_result['disabling']):
             possible = True
-        elif x[1] in role_ids and bool(x['disabling']):
+        elif sub_result[1] in role_ids and bool(sub_result['disabling']):
             await mydb.close()
             return False
-        elif x[1] in role_ids and not bool(x['disabling']):
+        elif sub_result[1] in role_ids and not bool(sub_result['disabling']):
             possible = True
     await mydb.close()
     return possible
@@ -86,11 +88,12 @@ async def check_author_work_allowed(context: lightbulb.Context) -> bool:
 
 @lightbulb.Check
 async def check_author_is_admin(context: lightbulb.Context) -> bool:
+    """Checks if command user has admin perms"""
     mydb = await get_db()
     result = await mydb.fetch("SELECT * FROM guild_mod_roles WHERE guild_id = $1", context.guild_id)
     role_ids = context.member.role_ids
-    for x in result:
-        if x[1] in role_ids and x[2] > 0:
+    for sub_result in result:
+        if sub_result[1] in role_ids and sub_result[2] > 0:
             return True
     await mydb.close()
     return False
@@ -98,11 +101,12 @@ async def check_author_is_admin(context: lightbulb.Context) -> bool:
 
 @lightbulb.Check
 async def check_author_is_mod(context: lightbulb.Context) -> bool:
+    """Checks if command user has mod perms"""
     mydb = await get_db()
     result = await mydb.fetch("SELECT * FROM guild_mod_roles WHERE guild_id = $1", context.guild_id)
     role_ids = context.member.role_ids
-    for x in result:
-        if x[1] in role_ids:
+    for sub_result in result:
+        if sub_result[1] in role_ids:
             return True
     await mydb.close()
     return False
@@ -131,6 +135,7 @@ async def roles(ctx: lightbulb.Context) -> None:
 @lightbulb.command("query", "querys guild settings for the bot", inherit_checks=True, auto_defer=True)
 @lightbulb.implements(commands.SlashSubCommand)
 async def config_mods_query(ctx: lightbulb.Context):
+    """Mod Role Config Display"""
     mydb = await get_db()
     queryier = ctx.options.group
     if queryier == 1:
@@ -139,8 +144,10 @@ async def config_mods_query(ctx: lightbulb.Context):
             title="Work Enabler and Disabler roles in the bot",
             description=DISABLER,
             timestamp=datetime.datetime.now(tz=datetime.timezone.utc), color="0x0000ff")
-        for x in result:
-            embed.add_field("Disabling Role" if x['disabling'] else "Enabling Role", f"<@&{x['role_id']}>", inline=True)
+        for sub_result in result:
+            embed.add_field(
+                "Disabling Role" if sub_result['disabling'] else "Enabling Role", f"<@&{sub_result['role_id']}>",
+                inline = True)
     elif queryier == 2:
         result = await mydb.fetchrow("SELECT * FROM guild_feature_work WHERE guild_id = $1", ctx.guild_id)
         embed = Embed(
@@ -169,14 +176,15 @@ async def config_mods_query(ctx: lightbulb.Context):
                    auto_defer=True)
 @lightbulb.implements(commands.SlashSubCommand)
 async def config_roles_work(ctx: lightbulb.Context):
+    """Work Roles Config"""
     mydb = await get_db()
     role: Final[hikari.Role] = ctx.options.role
     add: Final[bool] = ctx.options.add
     disabling: Final[bool] = ctx.options.disabling
     new = True
     result = await mydb.fetch("SELECT * FROM guild_feature_work_roles WHERE guild_id = $1", ctx.guild_id)
-    for x in result:
-        if int(role.id) == int(x[1]):
+    for sub_result in result:
+        if int(role.id) == int(sub_result[1]):
             new = False
     if add and not new:
         await mydb.execute("UPDATE guild_feature_work_roles set disabling = $1 WHERE guild_id = $2 and role_id = $3",
@@ -198,10 +206,12 @@ async def config_roles_work(ctx: lightbulb.Context):
     elif add and not new:
         embed.add_field("**CHANGED TO** Disabling Role" if bool(disabling) else "**CHANGED TO** Enabling Role",
                         f"<@&{role.id}>", inline=True)
-    for x in result:
-        if int(x[1]) == int(role.id):
+    for sub_result in result:
+        if int(sub_result[1]) == int(role.id):
             continue
-        embed.add_field("Disabling Role" if x['disabling'] else "Enabling Role", f"<@&{x['role_id']}>", inline=True)
+        embed.add_field(
+            "Disabling Role" if sub_result['disabling'] else "Enabling Role", f"<@&{sub_result['role_id']}>",
+            inline = True)
     await ctx.respond(embed=embed, flags=EPHEMERAL)
 
 
@@ -227,6 +237,7 @@ async def config_roles_work(ctx: lightbulb.Context):
                    inherit_checks=True, auto_defer=True)
 @lightbulb.implements(commands.SlashSubCommand)
 async def config_work(ctx: lightbulb.Context):
+    """Work Config Command"""
     if all(thing is None for thing in
            [ctx.options.minimum, ctx.options.maximum, ctx.options.step, ctx.options.cooldown, ctx.options.name,
             ctx.options.symbol, ctx.options.starting_bal]):
@@ -317,6 +328,7 @@ async def config_work(ctx: lightbulb.Context):
 @lightbulb.command("work", "work command", auto_defer=True, ephemeral=True)
 @lightbulb.implements(commands.SlashCommand)
 async def work(ctx: lightbulb.Context):
+    """Work Command"""
     mydb = await get_db()
     if await mydb.fetchrow("SELECT * FROM users WHERE id = $1", ctx.member.id) is None:
         await mydb.execute("INSERT INTO users (id) VALUES ($1)", ctx.member.id)
