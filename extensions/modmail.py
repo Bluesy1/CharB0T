@@ -21,6 +21,7 @@ def strip_non_ascii(string):
 
 
 def add_message(ctx, message, user_id):
+    """Adds message to json"""
     with open('tickets.json', "rb") as t:
         temp = fernet.decrypt(t.read())
     tickets = json.loads(temp)
@@ -28,13 +29,15 @@ def add_message(ctx, message, user_id):
         if tickets[str(sub_ticket)]['starter'] == user_id:
             break
     messages = tickets[sub_ticket]['messages']  # pylint: disable=undefined-loop-variable
-    num_messages = len(list(messages.keys()))
+    num_messages = len(list(messages.keys()))  # pylint: disable=undefined-loop-variable
     messages.update({str(num_messages): str(ctx.author.username) + ": " + str(message)})
-    tickets[sub_ticket]['messages'] = messages
-    open('tickets.json', 'wb').write(fernet.encrypt(json.dumps(tickets).encode('utf-8')))
+    tickets[sub_ticket]['messages'] = messages  # pylint: disable=undefined-loop-variable
+    with open('tickets.json', 'wb') as file_a:
+        file_a.write(fernet.encrypt(json.dumps(tickets).encode('utf-8')))
 
 
 def check_modmail_channel(context):
+    """Channel Check"""
     return context.channel_id in [906578081496584242, 687817008355737606]
 
 
@@ -81,8 +84,8 @@ async def history(ctx):
         pdf = fpdf.FPDF(format='letter')
         pdf.add_page()
         pdf.set_font("Arial", size=12)
-        with open('tickets.json', "rb") as t:
-            temp = fernet.decrypt(t.read())
+        with open('tickets.json', "rb") as temp_a:
+            temp = fernet.decrypt(temp_a.read())
         tickets = json.loads(temp)
         for message in list(tickets[opt_ticket]["messages"].keys()):
             pdf.write(5, strip_non_ascii(str(tickets[opt_ticket]["messages"][message])))
@@ -95,8 +98,8 @@ async def history(ctx):
     elif opt_ticket is None:
         pdf = fpdf.FPDF(format='letter')
         pdf.set_font("Arial", size=12)
-        with open('tickets.json', "rb") as t:
-            temp = fernet.decrypt(t.read())
+        with open('tickets.json', "rb") as temp_a:
+            temp = fernet.decrypt(temp_a.read())
         tickets = json.loads(temp)
         for opt_ticket in list(tickets.keys()):
             pdf.add_page()
@@ -117,12 +120,12 @@ async def history(ctx):
 @lightbulb.command("list", "Displays all open tickets in modmail", inherit_checks=True, ephemeral=True, hidden=True,
                    guilds=[225345178955808768])
 @lightbulb.implements(commands.SlashSubCommand)
-async def command(ctx):
+async def list_command(ctx):
     """Lists all open tickets"""
-    with open('tickets.json', "rb") as t:
-        temp = fernet.decrypt(t.read())
+    with open('tickets.json', "rb") as temp:
+        temp = fernet.decrypt(temp.read())
     tickets = json.loads(temp)
-    open_tickets = list()
+    open_tickets = []
     for sub_ticket in list(tickets.keys()):
         if tickets[sub_ticket]["open"] == "True":
             author = "<@!" + str(tickets[sub_ticket]['starter']) + ">"
@@ -146,8 +149,8 @@ async def command(ctx):
     pdf = fpdf.FPDF(format='letter')
     pdf.add_page()
     pdf.set_font("Arial", size=12)
-    with open('tickets.json', "rb") as t:
-        temp = fernet.decrypt(t.read())
+    with open('tickets.json', "rb") as temp_a:
+        temp = fernet.decrypt(temp_a.read())
     tickets = json.loads(temp)
     for message in list(tickets[opt_ticket]["messages"].keys()):
         pdf.write(5, strip_non_ascii(str(tickets[opt_ticket]["messages"][message])))
@@ -156,8 +159,8 @@ async def command(ctx):
     pdf.output(pdf_name)
     tickets[opt_ticket]["open"] = "False"
     tickets[name] = tickets.pop(opt_ticket)
-    with open('tickets.json', 'wb') as t:
-        t.write(fernet.encrypt(json.dumps(tickets).encode('utf-8')))
+    with open('tickets.json', 'wb') as temp_a:
+        temp_a.write(fernet.encrypt(json.dumps(tickets).encode('utf-8')))
     await ctx.respond("Ticket Closed.")
     await ctx.edit_last_response(attachment=pdf_name)
     os.remove(pdf_name)
@@ -168,7 +171,7 @@ async def command(ctx):
 @lightbulb.option("message", "Message to send", type=str, required=True, modifier=OptionModifier.CONSUME_REST)
 @lightbulb.command("open", "open a ticket", inherit_checks=True, hidden=True, guilds=[225345178955808768])
 @lightbulb.implements(commands.SlashSubCommand)
-async def command(ctx):
+async def open_command(ctx):
     """Opens a modmail ticket"""
     member = ctx.options.member
     message = ctx.options.message
