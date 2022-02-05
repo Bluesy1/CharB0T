@@ -5,8 +5,8 @@ import lightbulb
 
 async def roll(ctx: lightbulb.Context):  # pylint: disable=unused-variable
     """Dice roller"""
-    roll_error = ("Error invalid argument: specified dice can only be d2s, d4s, d6s, d8s, d10s, d12s, d20s, "
-                  "or d100s, or if a constant modifier must be a perfect integer, positive or negative, "
+    roll_error = ("Error invalid argument: specified dice can only be d<int>, or if a constant modifier must be a "
+                  "perfect integer, positive or negative, "
                   "connexted with `+`, and no spaces.")
     arg = ctx.options.dice
     if "+" in arg:
@@ -16,12 +16,8 @@ async def roll(ctx: lightbulb.Context):  # pylint: disable=unused-variable
     try:
         sums = 0
         rolls = []
-        allowed_dice = [2, 4, 6, 8, 10, 12, 20, 100]
         for die in dice:
             if 'd' in die:
-                if int(die[die.find('d') + 1:]) not in allowed_dice:
-                    await ctx.respond(roll_error)
-                    return
                 try:
                     num_rolls = int(die[:die.find('d')])
                 except ValueError:
