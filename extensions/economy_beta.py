@@ -14,7 +14,7 @@ from hikari import Embed
 from hikari.commands import CommandChoice
 from lightbulb import commands
 from lightbulb.checks import guild_only
-from numpy import ceil
+from numpy import ceil  # pylint: disable=no-name-in-module
 from pytz import timezone
 
 EPHEMERAL: Final[int] = 64
@@ -75,7 +75,7 @@ async def check_author_work_allowed(context: lightbulb.Context) -> bool:
         if context.guild_id == sub_result[1] and bool(sub_result['disabling']):
             await mydb.close()
             return False
-        elif context.guild_id == sub_result[1] and not bool(sub_result['disabling']):
+        if context.guild_id == sub_result[1] and not bool(sub_result['disabling']):
             possible = True
         elif sub_result[1] in role_ids and bool(sub_result['disabling']):
             await mydb.close()
@@ -327,7 +327,7 @@ async def config_work(ctx: lightbulb.Context):
 @lightbulb.add_checks(check_author_work_allowed)
 @lightbulb.command("work", "work command", auto_defer=True, ephemeral=True)
 @lightbulb.implements(commands.SlashCommand)
-async def work(ctx: lightbulb.Context):
+async def work(ctx: lightbulb.Context):  # pylint: disable=too-many-locals
     """Work Command"""
     mydb = await get_db()
     if await mydb.fetchrow("SELECT * FROM users WHERE id = $1", ctx.member.id) is None:
@@ -394,6 +394,7 @@ async def work(ctx: lightbulb.Context):
 @lightbulb.command("balance", "checks your balance", auto_defer=True, ephemeral=True)
 @lightbulb.implements(commands.SlashCommand)
 async def balance(ctx: lightbulb.Context):
+    """Command to check balance"""
     mydb = await get_db()
     user_guild_balance = (await mydb.fetchrow(
         "SELECT balance FROM user_guild_balance WHERE user_id = $1 AND guild_id = $2",
@@ -406,8 +407,10 @@ async def balance(ctx: lightbulb.Context):
 
 
 def load(bot: lightbulb.BotApp):
+    """Loads Module"""
     bot.add_plugin(Economy)
 
 
 def unload(bot):
+    """Unloads Module"""
     bot.remove_plugin(Economy)
