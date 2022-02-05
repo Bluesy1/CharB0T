@@ -1,10 +1,6 @@
 name: Pylint
 
-on:
-  create: 
-    types: [push]
-  pull_request:
-    types: [labeled, unlabeled, opened, reopened, synchronize]
+on: [push]
 
 jobs:
   build:
