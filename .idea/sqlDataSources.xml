@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="DdlMappings">
+    <mapping uuid="8412b1fd-0b83-4582-8788-58e6b5030891" name="gavin@159.203.73.29 Mapping">
+      <data-sources db="aa59645c-af4d-4103-b405-6079ea852d4b" ddl="9fca33f3-6f3e-49aa-9ee5-526da0dea076" />
+      <scope>
+        <node negative="1">
+          <node kind="database" qname="@">
+            <node kind="schema" qname="@" />
+          </node>
+          <node kind="database">
+            <name qname="bot" />
+            <name qname="website" />
+          </node>
+        </node>
+      </scope>
+    </mapping>
+  </component>
+</project>

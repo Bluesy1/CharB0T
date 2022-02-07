@@ -60,3 +60,4 @@ UBCbot.json
 embeder.py
 node_modules
 website/Website/discordlogin/tailwind.config.js
+/KethranToken.json
