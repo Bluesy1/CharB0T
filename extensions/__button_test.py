@@ -19,6 +19,8 @@ button_plugin.d.open_callbacks = {}
 
 
 class ButtonTestOne(tungsten.Components):
+    """Test Button Class"""
+
     def __init__(self, *args, **kwargs):
         """Creates a Button group object"""
 
@@ -60,7 +62,8 @@ class ButtonTestOne(tungsten.Components):
         super().__init__(*args, **kwargs)
 
     async def button_callback(
-            self, button: tungsten.Button, x: int, y: int, interaction: hikari.ComponentInteraction
+            self, button: tungsten.Button,  # pylint: disable=unused-argument
+            x: int, y: int, interaction: hikari.ComponentInteraction  # pylint: disable=invalid-name
     ) -> None:
         """Callback for when a button has been pressed"""
         if button_plugin.d.open_callbacks.get(interaction.message.id):

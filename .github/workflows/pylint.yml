@@ -19,6 +19,7 @@ jobs:
         python -m pip install --upgrade pip
         pip install pylint
         pip install hikari-lightbulb
+        pip install lightbulb-ext-tungsten
         pip install apscheduler
         pip install uvloop
         pip install seaborn
