@@ -66,15 +66,13 @@ class ButtonTestOne(tungsten.Components):
             x: int, y: int, interaction: hikari.ComponentInteraction  # pylint: disable=invalid-name
     ) -> None:
         """Callback for when a button has been pressed"""
-        if button_plugin.d.open_callbacks.get(interaction.message.id):
-            button_plugin.d.open_callbacks[interaction.message.id] = False
+        if interaction.message.content == "Click a button!":
             await self.edit_msg(f"Order that buttons have been clicked in is: ({x},{y})", components=self.build())
         else:
             await self.edit_msg(f"{interaction.message.content}, ({x},{y})", components=self.build())
 
     async def timeout_callback(self) -> None:
         """Callback on timeouts"""
-        button_plugin.d.open_callbacks.pop(self.message.id)
         await self.edit_msg(f"{self.message.content}. ***The interactions have expired.***", components=[])
 
 
@@ -85,9 +83,8 @@ class ButtonTestOne(tungsten.Components):
 async def button_test_one(ctx: lightbulb.Context) -> None:
     """Test command"""
     buttons = ButtonTestOne(ctx)
-    response = await ctx.respond("ClicK a button!", components=buttons.build())
+    response = await ctx.respond("Click a button!", components=buttons.build())
     await buttons.run(response)
-    button_plugin.d.open_callbacks[(await response.message()).id] = True
 
 
 def load(bot):
