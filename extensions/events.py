@@ -113,7 +113,7 @@ async def on_error(event: lightbulb.CommandErrorEvent) -> None:
         bluesy = await event.app.rest.fetch_user(363095569515806722)
         try:
             raise event.exception
-        except:  # pylint: disable=broad-except
+        except:  # pylint: disable=bare-except
             embed = (Embed(
                 title=f"Invocation Error in command {event.context.command.name}",
                 timestamp=datetime.datetime.now(tz=datetime.timezone.utc),
@@ -140,7 +140,7 @@ async def on_error(event: lightbulb.CommandErrorEvent) -> None:
         bluesy = await event.app.rest.fetch_user(363095569515806722)
         try:
             raise exception
-        except:  # pylint: disable=broad-except
+        except:  # pylint: disable=bare-except
             embed = (Embed(
                 title=f"Error in command {event.context.command.name}",
                 timestamp=datetime.datetime.now(tz=datetime.timezone.utc),
