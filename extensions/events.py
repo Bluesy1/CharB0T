@@ -102,17 +102,18 @@ async def on_guild_message(event: hikari.GuildMessageCreateEvent) -> None:
             await event.message.delete()
 
 
+# noinspection PyBroadException
 @EVENTS.listener(lightbulb.CommandErrorEvent)
 async def on_error(event: lightbulb.CommandErrorEvent) -> None:
     """Error Handler ***DO NOT CALL MANUALLY***"""
     if isinstance(event.exception, lightbulb.CommandInvocationError):
         await event.context.respond(
-            f"Something went wrong while running command `{event.context.command.name}`. Bluesy#8150 has been notified."
-            , flags=64)  # pylint: disable=line-too-long
+            f"Something went wrong while running command `{event.context.command.name}`."
+            f"Bluesy#8150 has been notified.", flags=64)
         bluesy = await event.app.rest.fetch_user(363095569515806722)
         try:
             raise event.exception
-        except event.exception:
+        except:  # pylint: disable=broad-except
             embed = (Embed(
                 title=f"Invocation Error in command {event.context.command.name}",
                 timestamp=datetime.datetime.now(tz=datetime.timezone.utc),
@@ -139,7 +140,7 @@ async def on_error(event: lightbulb.CommandErrorEvent) -> None:
         bluesy = await event.app.rest.fetch_user(363095569515806722)
         try:
             raise exception
-        except exception:
+        except:  # pylint: disable=broad-except
             embed = (Embed(
                 title=f"Error in command {event.context.command.name}",
                 timestamp=datetime.datetime.now(tz=datetime.timezone.utc),
