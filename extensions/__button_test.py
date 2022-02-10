@@ -63,7 +63,6 @@ class ButtonTestOne(tungsten.Components):
                 kwargs["allowed_ids"].append(args[0].author.id)
         except KeyError:
             kwargs["allowed_ids"] = [args[0].author.id]
-
         # Actually creates object
         super().__init__(*args, **kwargs)
 
