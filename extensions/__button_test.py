@@ -26,55 +26,61 @@ class ButtonTestOne(tungsten.Components):
 
         button_rows = [
             [
-                tungsten.Button("0,0", hikari.ButtonStyle.PRIMARY),
-                tungsten.Button("1,0", hikari.ButtonStyle.PRIMARY),
-                tungsten.Button("2,0", hikari.ButtonStyle.PRIMARY),
-                tungsten.Button("3,0", hikari.ButtonStyle.PRIMARY),
-                tungsten.Button("4,0", hikari.ButtonStyle.PRIMARY)
+                tungsten.Button("A", hikari.ButtonStyle.PRIMARY),
+                tungsten.Button("B", hikari.ButtonStyle.PRIMARY),
+                tungsten.Button("C", hikari.ButtonStyle.PRIMARY),
+                tungsten.Button("D", hikari.ButtonStyle.PRIMARY),
+                tungsten.Button("E", hikari.ButtonStyle.PRIMARY)
             ], [
-                tungsten.Button("0,1", hikari.ButtonStyle.PRIMARY),
-                tungsten.Button("1,1", hikari.ButtonStyle.PRIMARY),
-                tungsten.Button("2,1", hikari.ButtonStyle.PRIMARY),
-                tungsten.Button("3,1", hikari.ButtonStyle.PRIMARY),
-                tungsten.Button("4,1", hikari.ButtonStyle.PRIMARY)
+                tungsten.Button("F", hikari.ButtonStyle.PRIMARY),
+                tungsten.Button("G", hikari.ButtonStyle.PRIMARY),
+                tungsten.Button("H", hikari.ButtonStyle.PRIMARY),
+                tungsten.Button("I", hikari.ButtonStyle.PRIMARY),
+                tungsten.Button("J", hikari.ButtonStyle.PRIMARY)
             ], [
-                tungsten.Button("0,2", hikari.ButtonStyle.PRIMARY),
-                tungsten.Button("1,2", hikari.ButtonStyle.PRIMARY),
-                tungsten.Button("2,2", hikari.ButtonStyle.PRIMARY),
-                tungsten.Button("3,2", hikari.ButtonStyle.PRIMARY),
-                tungsten.Button("4,2", hikari.ButtonStyle.PRIMARY)
+                tungsten.Button("K", hikari.ButtonStyle.PRIMARY),
+                tungsten.Button("L", hikari.ButtonStyle.PRIMARY),
+                tungsten.Button("M", hikari.ButtonStyle.PRIMARY),
+                tungsten.Button("N", hikari.ButtonStyle.PRIMARY),
+                tungsten.Button("O", hikari.ButtonStyle.PRIMARY)
             ], [
-                tungsten.Button("0,3", hikari.ButtonStyle.PRIMARY),
-                tungsten.Button("1,3", hikari.ButtonStyle.PRIMARY),
-                tungsten.Button("2,3", hikari.ButtonStyle.PRIMARY),
-                tungsten.Button("3,3", hikari.ButtonStyle.PRIMARY),
-                tungsten.Button("4,3", hikari.ButtonStyle.PRIMARY)
+                tungsten.Button("P", hikari.ButtonStyle.PRIMARY),
+                tungsten.Button("Q", hikari.ButtonStyle.PRIMARY),
+                tungsten.Button("R", hikari.ButtonStyle.PRIMARY),
+                tungsten.Button("S", hikari.ButtonStyle.PRIMARY),
+                tungsten.Button("T", hikari.ButtonStyle.PRIMARY)
             ], [
-                tungsten.Button("0,4", hikari.ButtonStyle.PRIMARY),
-                tungsten.Button("1,4", hikari.ButtonStyle.PRIMARY),
-                tungsten.Button("2,4", hikari.ButtonStyle.PRIMARY),
-                tungsten.Button("3,4", hikari.ButtonStyle.PRIMARY),
-                tungsten.Button("4,4", hikari.ButtonStyle.PRIMARY)
+                tungsten.Button("U", hikari.ButtonStyle.PRIMARY),
+                tungsten.Button("V", hikari.ButtonStyle.PRIMARY),
+                tungsten.Button("W", hikari.ButtonStyle.PRIMARY),
+                tungsten.Button("X", hikari.ButtonStyle.PRIMARY),
+                tungsten.Button("Y", hikari.ButtonStyle.PRIMARY)
             ]
         ]
         kwargs["button_group"] = tungsten.ButtonGroup(button_rows)
+        try:
+            if args[0].author.id not in kwargs["allowed_ids"]:
+                kwargs["allowed_ids"].append(args[0].author.id)
+        except KeyError:
+            kwargs["allowed_ids"] = [args[0].author.id]
+
         # Actually creates object
         super().__init__(*args, **kwargs)
 
     async def button_callback(
             self, button: tungsten.Button,  # pylint: disable=unused-argument
-            x: int, y: int, interaction: hikari.ComponentInteraction  # pylint: disable=invalid-name
+            x: int, y: int, interaction: hikari.ComponentInteraction  # pylint: disable=invalid-name,unused-argument
     ) -> None:
         """Callback for when a button has been pressed"""
-        if button_plugin.d.open_callbacks.get(interaction.message.id):
-            button_plugin.d.open_callbacks[interaction.message.id] = False
-            await self.edit_msg(f"Order that buttons have been clicked in is: ({x},{y})", components=self.build())
+        if interaction.message.content == "Click a button!":
+            await self.edit_msg(
+                f"Order that buttons have been clicked in is: ({button.label})",
+                components=self.build())
         else:
-            await self.edit_msg(f"{interaction.message.content}, ({x},{y})", components=self.build())
+            await self.edit_msg(f"{interaction.message.content}, ({button.label})", components=self.build())
 
     async def timeout_callback(self) -> None:
         """Callback on timeouts"""
-        button_plugin.d.pop(self.message.id)
         await self.edit_msg(f"{self.message.content}. ***The interactions have expired.***", components=[])
 
 
@@ -85,7 +91,7 @@ class ButtonTestOne(tungsten.Components):
 async def button_test_one(ctx: lightbulb.Context) -> None:
     """Test command"""
     buttons = ButtonTestOne(ctx)
-    response = await ctx.respond("ClicK a button!", components=buttons.build())
+    response = await ctx.respond("Click a button!", components=buttons.build())
     await buttons.run(response)
 
 
