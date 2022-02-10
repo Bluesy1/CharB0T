@@ -85,7 +85,7 @@ class ButtonTestOne(tungsten.Components):
 async def button_test_one(ctx: lightbulb.Context) -> None:
     """Test command"""
     buttons = ButtonTestOne(ctx)
-    response = await ctx.respond("Clicc a button!", components=buttons.build())
+    response = await ctx.respond("ClicK a button!", components=buttons.build())
     await buttons.run(response)
     button_plugin.d.open_callbacks[(await response.message()).id] = True
 
