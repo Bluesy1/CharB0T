@@ -31,7 +31,7 @@ async def command(ctx):  # pylint: disable=too-many-statements
      .add_option("+1 hour", "+h").set_emoji("➡️").set_description(
         "Use this to increase the time by 1 hour").add_to_menu()
      .add_option("-1 hour", "-h").set_emoji("◀️").set_description(
-        "UsUse this to decrease the time by 1 hout=r").add_to_menu()
+        "Use this to decrease the time by 1 hour").add_to_menu()
      .add_option("-1 day", "-d").set_emoji("⬅️").set_description("Use this to decrease the time by 1 day").add_to_menu()
      .add_option("+1 day", "+d").set_emoji("▶️").set_description("Use this to increase the time by 1 day").add_to_menu()
      .add_option("+1 week", "+w").set_emoji("➡️").set_description(
