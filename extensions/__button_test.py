@@ -74,7 +74,7 @@ class ButtonTestOne(tungsten.Components):
 
     async def timeout_callback(self) -> None:
         """Callback on timeouts"""
-        button_plugin.d.pop(self.message.id)
+        button_plugin.d.open_callbacks.pop(self.message.id)
         await self.edit_msg(f"{self.message.content}. ***The interactions have expired.***", components=[])
 
 
@@ -87,6 +87,7 @@ async def button_test_one(ctx: lightbulb.Context) -> None:
     buttons = ButtonTestOne(ctx)
     response = await ctx.respond("Clicc a button!", components=buttons.build())
     await buttons.run(response)
+    button_plugin.d.open_callbacks[(await response.message()).id] = True
 
 
 def load(bot):
