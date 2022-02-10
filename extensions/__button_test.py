@@ -58,11 +58,11 @@ class ButtonTestOne(tungsten.Components):
             ]
         ]
         kwargs["button_group"] = tungsten.ButtonGroup(button_rows)
-        if not kwargs["allowed_ids"]:
-            kwargs["allowed_ids"] = [args[0].author.id]
-        else:
+        try:
             if args[0].author.id not in kwargs["allowed_ids"]:
                 kwargs["allowed_ids"].append(args[0].author.id)
+        except KeyError:
+            kwargs["allowed_ids"] = [args[0].author.id]
         # Actually creates object
         super().__init__(*args, **kwargs)
 
