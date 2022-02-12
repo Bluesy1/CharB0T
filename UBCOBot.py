@@ -9,8 +9,6 @@ from datetime import datetime, timedelta, timezone
 
 import hikari
 import lightbulb
-from apscheduler.schedulers.asyncio import AsyncIOScheduler
-from apscheduler.triggers.date import DateTrigger
 from hikari.embeds import Embed
 from hikari.events.message_events import GuildMessageCreateEvent
 from hikari.intents import Intents
@@ -26,7 +24,7 @@ def main():  # pylint: disable=too-many-statements
     global RETRIES  # pylint: disable=global-statement
 
     if os.name != "nt":
-        import uvloop   # pylint: disable=import-outside-toplevel
+        import uvloop  # pylint: disable=import-outside-toplevel
         uvloop.install()
 
     with open('UBCbot.json', encoding='utf8') as file:
@@ -45,8 +43,6 @@ def main():  # pylint: disable=too-many-statements
             }, }, case_insensitive_prefix_commands=True,
         intents=Intents.ALL, delete_unbound_commands=False)
     bot.load_extensions("lightbulb.ext.filament.exts.superuser")
-    scheduler = AsyncIOScheduler()
-    scheduler.start()
 
     @bot.command()
     @lightbulb.option("word", "Word to remove")
@@ -65,11 +61,11 @@ def main():  # pylint: disable=too-many-statements
                 json.dump(fulldict, json_dict)
             await ctx.respond(embed=Embed(title="New list of words defined as slurs",
                                           description=f"||{joinstring.join(fulldict['Words'])}||", color="0x00ff00",
-                                          timestamp=datetime.datetime.now(tz=datetime.timezone.utc)))
+                                          timestamp=datetime.now(tz=timezone.utc)))
         else:
             await ctx.respond(embed=Embed(title="Word already in list of words defined as slurs",
                                           description=f"||{joinstring.join(fulldict['Words'])}||", color="0x0000ff",
-                                          timestamp=datetime.datetime.now(tz=datetime.timezone.utc)))
+                                          timestamp=datetime.now(tz=timezone.utc)))
 
     @bot.command()
     @lightbulb.add_checks(has_roles(832521484378308660, 832521484378308659, 832521484378308658, mode=any))
@@ -83,7 +79,7 @@ def main():  # pylint: disable=too-many-statements
         joinstring = ", "
         await ctx.respond(
             embed=Embed(title="List of words defined as slurs", description=f"||{joinstring.join(fulldict['Words'])}||",
-                        color="0x0000ff", timestamp=datetime.datetime.now(tz=datetime.timezone.utc)))
+                        color="0x0000ff", timestamp=datetime.now(tz=timezone.utc)))
 
     @bot.command()
     @lightbulb.option("word", "Word to remove")
@@ -103,14 +99,14 @@ def main():  # pylint: disable=too-many-statements
                     await ctx.respond(embed=Embed(title="New list of words defined as slurs",
                                                   description=f"||{joinstring.join(fulldict['Words'])}||",
                                                   color="0x00ff00",
-                                                  timestamp=datetime.datetime.now(tz=datetime.timezone.utc)))
+                                                  timestamp=datetime.now(tz=timezone.utc)))
                     with open('UBCbot.json', 'w', encoding='utf8') as t:
                         json.dump(fulldict, t)
                     break
         else:
             await ctx.respond(embed=Embed(title="Word not in list of words defined as slurs",
                                           description=f"||{joinstring.join(fulldict['Words'])}||", color="0x0000ff",
-                                          timestamp=datetime.datetime.now(tz=datetime.timezone.utc)))
+                                          timestamp=datetime.now(tz=timezone.utc)))
 
     @bot.listen(GuildMessageCreateEvent)
     async def on_guild_message(event: GuildMessageCreateEvent):
@@ -133,18 +129,10 @@ def main():  # pylint: disable=too-many-statements
                                               reason="Used a Slur")
             await bot.rest.create_message(832521484828147741, embed=Embed(
                 title=f"[SLUR] {event.member.username}#{event.member.discriminator}", color="0xff0000",
-                timestamp=datetime.datetime.now(tz=datetime.timezone.utc)).add_field("User", event.member.mention,
-                                                                                     inline=True).add_field(
-                "Slurs Used", f"||{joinstring.join(used_slurs)}||", inline=True).add_field("Channel",
-                                                                                           f"<#{event.channel_id}>",
-                                                                                           inline=True).add_field(
-                "Message", event.content, inline=True))
-
-    @scheduler.scheduled_job(DateTrigger(run_date=datetime(2022, 2, 5, 12, 0, 0, 0, timezone(-timedelta(hours=8)))))
-    async def meh() -> None:
-        """Thing"""
-        user = await bot.rest.fetch_user(318794104110710787)
-        await user.send("Pack some SATA Cables for Ankkit")
+                timestamp=datetime.now(tz=timezone.utc)).add_field(
+                "User", event.member.mention, inline=True).add_field(
+                "Slurs Used", f"||{joinstring.join(used_slurs)}||", inline=True).add_field(
+                "Channel", f"<#{event.channel_id}>", inline=True).add_field("Message", event.content, inline=True))
 
     def remove_retry():
         """Removes a Retry"""
