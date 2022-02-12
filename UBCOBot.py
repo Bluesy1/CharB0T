@@ -9,6 +9,8 @@ from datetime import datetime, timedelta, timezone
 
 import hikari
 import lightbulb
+from apscheduler.schedulers.asyncio import AsyncIOScheduler
+from apscheduler.triggers.date import DateTrigger
 from hikari.embeds import Embed
 from hikari.events.message_events import GuildMessageCreateEvent
 from hikari.intents import Intents
@@ -43,6 +45,9 @@ def main():  # pylint: disable=too-many-statements
             }, }, case_insensitive_prefix_commands=True,
         intents=Intents.ALL, delete_unbound_commands=False)
     bot.load_extensions("lightbulb.ext.filament.exts.superuser")
+
+    scheduler = AsyncIOScheduler()
+    scheduler.start()
 
     @bot.command()
     @lightbulb.option("word", "Word to remove")
