@@ -94,8 +94,6 @@ def main():  # pylint: disable = too-many-statements
         """IDK, it's a thing"""
         await bot.rest.create_message(878434694713188362, random.choice(bot.d.responses))
 
-    RETRIES = 0
-
     def remove_retry():
         """Removes a Retry"""
         global RETRIES  # pylint: disable = global-statement
