@@ -77,33 +77,31 @@ def make_modmail_buttons(plugin: lightbulb.Plugin):
 
 def blacklist_user(user_id: hikari.Snowflakeish) -> bool:
     """Adds a user to the blacklist"""
-    with open("modmail_blacklist.json", "r") as file:
+    with open("modmail_blacklist.json", "r", encoding="utf8") as file:
         modmail_blacklist = json.load(file)
     if user_id not in modmail_blacklist["blacklisted"]:
         modmail_blacklist["blacklisted"].append(user_id)
-        with open("modmail_blacklist.json", "w") as file:
+        with open("modmail_blacklist.json", "w", encoding="utf8") as file:
             json.dump(modmail_blacklist, file)
         return True
-    else:
-        return False
+    return False
 
 
 def un_blacklist_user(user_id: hikari.Snowflakeish) -> bool:
     """Removes a user from the blacklist"""
-    with open("modmail_blacklist.json", "r") as file:
+    with open("modmail_blacklist.json", "r", encoding="utf8") as file:
         modmail_blacklist = json.load(file)
     if user_id in modmail_blacklist["blacklisted"]:
         modmail_blacklist["blacklisted"].remove(user_id)
-        with open("modmail_blacklist.json", "w") as file:
+        with open("modmail_blacklist.json", "w", encoding="utf8") as file:
             json.dump(modmail_blacklist, file)
         return True
-    else:
-        return False
+    return False
 
 
 def get_blacklist() -> list[hikari.Snowflakeish]:
     """Returns the User Blacklist"""
-    with open("modmail_blacklist.json", "r") as file:
+    with open("modmail_blacklist.json", "r", encoding="utf8") as file:
         return json.load(file)["blacklisted"]
 
 
@@ -112,6 +110,6 @@ def check_not_modmail_blacklisted(user_id: hikari.Snowflakeish) -> bool:
     Checks if a user is in the blacklist
     Returns True if a user is allowed to use modmail buttons, False if not.
     """
-    with open("modmail_blacklist.json", "r") as file:
+    with open("modmail_blacklist.json", "r", encoding="utf8") as file:
         modmail_blacklist = json.load(file)
     return user_id not in modmail_blacklist["blacklisted"]
