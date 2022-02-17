@@ -54,6 +54,7 @@ async def on_error(event: lightbulb.CommandErrorEvent) -> None:
                 description=f"```{traceback.format_exc()}```"))
             await bluesy.send(embed=embed)
             traceback.print_exc()
+        return
     exception = event.exception.__cause__ or event.exception  # Unwrap the exception to get the original cause
     if isinstance(exception, lightbulb.NotOwner):
         await event.context.respond("You are not the owner of this bot.", flags=64)
