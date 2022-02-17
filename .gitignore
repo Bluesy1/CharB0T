@@ -20,5 +20,5 @@ sqlinfo.json
 UBCbot.json
 embeder.py
 /KethranToken.json
-/.venv/
 /bottest.py
+modmail_blacklist.json
