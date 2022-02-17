@@ -1,78 +1,12 @@
 import datetime
-import json
 import re
-import time
 import traceback
 
 import hikari
 import lightbulb
-from cryptography import fernet
-from hikari import Embed, HikariError
-
-with open('filekey.key', 'rb') as file:
-    FERNET = fernet.Fernet(file.read())
-
-
-def add_onmessage(message):
-    """Adds a messag dmed to the bot to modlog logs"""
-    with open('tickets.json', "rb") as ticket_file:
-        tickets = json.loads(FERNET.decrypt(ticket_file.read()))
-    for ticket in list(tickets.keys()):
-        if tickets[ticket]["open"] == "True":
-            if tickets[ticket]['starter'] == message.author.id:
-                if (int(round(time.time(), 0)) - int(tickets[ticket]['time'])) < 5:
-                    return None
-                messages = tickets[ticket]['messages']
-                num_messages = len(list(messages.keys()))
-                messages.update({str(num_messages): str(message.author.username) + ": " + str(message.content)})
-                for attachment in message.attachments:
-                    num_messages = len(list(messages.keys()))
-                    messages.update({str(num_messages): str(message.author) + ": " + str(attachment.url)})
-                tickets[ticket]['messages'] = messages
-                tickets[ticket]['time'] = round(time.time(), 0)
-                with open('tickets.json', 'wb') as ticket_file:
-                    ticket_file.write(FERNET.encrypt(json.dumps(tickets).encode('utf-8')))
-                return [ticket, "old"]
-    new_ticket_num = len(list(tickets.keys()))
-    new_ticket = {
-        "open": "True", "time": round(time.time(), 0), "starter": message.author.id, "messages": {
-            "0": str(message.author) + ": " + str(message.content)
-        }
-    }
-    tickets.update({str(new_ticket_num): new_ticket})
-    with open('tickets.json', 'wb') as ticket_file:
-        ticket_file.write(FERNET.encrypt(json.dumps(tickets).encode('utf-8')))
-    return [str(new_ticket_num) + ": " + str(message.author.username), "new"]
-
+from hikari import Embed
 
 EVENTS = lightbulb.Plugin("EVENTS")
-
-
-@EVENTS.listener(hikari.DMMessageCreateEvent)
-async def on_dm_message(event: hikari.DMMessageCreateEvent):
-    """DM Message Create Handler ***DO NOT CALL MANUALLY***"""
-    try:
-        await EVENTS.app.rest.fetch_member(225345178955808768, event.author_id)
-    except HikariError:
-        return
-    if event.is_human:
-        if event.content is not None:
-            if str(event.message.content).startswith("!"):
-                await event.author.send("Commands do not work in dms.")
-                return
-            ticket = add_onmessage(event.message)
-            if ticket is None:
-                return
-            channel = await EVENTS.bot.rest.fetch_channel(906578081496584242)
-            await channel.send(
-                f"Message from {str(event.message.author.username)} `{str(event.message.author.id)}`,"
-                f" Ticket: `{str(ticket[0])}`):")
-            if ticket[1] == "new":
-                await event.author.send(
-                    "Remember to check our FAQ to see if your question/issue is addressed there: "
-                    "https://cpry.net/discordfaq")
-            message = await channel.send(f"message: {event.message.content}")
-            await message.edit(attachments=event.message.attachments)
 
 
 @EVENTS.listener(hikari.GuildMessageCreateEvent)
@@ -128,7 +62,7 @@ async def on_error(event: lightbulb.CommandErrorEvent) -> None:
                                     flags=64)  # pylint: disable=line-too-long
     elif isinstance(exception, lightbulb.CheckFailure):
         if any(substring in str(exception) for substring in
-               ["check_author_is_me", "Punished", "check_author_work_allowed",
+               ["check_author_is_me", "punished", "check_author_work_allowed",
                 "check_author_is_admin", "check_author_is_mod"]):
             await event.context.respond("You are not authorized to use this command", flags=64)
     elif isinstance(exception, lightbulb.MissingRequiredRole):
