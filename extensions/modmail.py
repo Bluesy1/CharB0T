@@ -3,7 +3,7 @@ import lightbulb
 from lightbulb import SlashCommandGroup, SlashSubCommand, SlashContext
 
 from helper import MOD_SENSITIVE, MOD_GENERAL, EVERYONE_MODMAIL, user_perms, make_modmail_buttons, \
-    blacklist_user, un_blacklist_user, get_blacklist
+    blacklist_user, un_blacklist_user, get_blacklist, check_not_modmail_blacklisted
 
 MODMAIL_PLUGIN = lightbulb.Plugin("Modmail_Plugin", include_datastore=True, default_enabled_guilds=[225345178955808768])
 MODMAIL_PLUGIN.d.message_dict = {}
@@ -15,7 +15,10 @@ async def on_dm(event: hikari.DMMessageCreateEvent):
     if event.is_human:
         if event.content is not None:
             log = await event.app.rest.fetch_channel(906578081496584242)
+            await log.send(f"<@{event.author.id}>")
             await log.send(event.content)
+        if not check_not_modmail_blacklisted(event.author.id):
+            return
         modmail_buttons = make_modmail_buttons(MODMAIL_PLUGIN)
         message = await event.message.respond(
             "I noticed you've DMed me. If this was an attempt to speak to mods, choose the right category below,"
@@ -27,7 +30,8 @@ async def on_dm(event: hikari.DMMessageCreateEvent):
 @MODMAIL_PLUGIN.listener(hikari.InteractionCreateEvent)
 async def button_press(event: hikari.InteractionCreateEvent):  # pylint: disable=too-many-branches
     """Modmail button press event handler"""
-    if event.interaction.type in (hikari.InteractionType.MESSAGE_COMPONENT, 3):
+    if event.interaction.type in (hikari.InteractionType.MESSAGE_COMPONENT, 3)\
+            and check_not_modmail_blacklisted(event.interaction.user.id):
         # noinspection PyTypeChecker
         interaction: hikari.ComponentInteraction = event.interaction
         if "Sensitive" in interaction.custom_id:
@@ -118,7 +122,6 @@ async def modmail(ctx: SlashContext) -> None:
 @lightbulb.implements(SlashSubCommand)
 async def modmail_edit_blacklist(ctx: SlashContext) -> None:
     """Modmail edit blacklist command"""
-    successful = False
     if ctx.options.add:
         successful = blacklist_user(ctx.options.user.id)
     else:
