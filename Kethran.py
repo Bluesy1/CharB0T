@@ -72,7 +72,7 @@ def main():  # pylint: disable = too-many-statements
             if event.channel_id in [901325983838244865, 878434694713188362]:
                 if "kethran" in event.content.lower():
                     await event.get_channel().send(
-                        bot.d.responses[random.randint(0, 99)], reply=event.message_id, mentions_reply=True)
+                        random.choice(bot.d.responses), reply=event.message_id, mentions_reply=True)
 
     @bot.listen(hikari.DMMessageCreateEvent)
     async def on_dm_message(event: hikari.DMMessageCreateEvent):  # pylint: disable=unused-variable
@@ -92,9 +92,7 @@ def main():  # pylint: disable = too-many-statements
     @scheduler.scheduled_job(CronTrigger(day_of_week="sat", hour="1"), id="1")
     async def friday_5() -> None:  # pylint: disable=unused-variable
         """IDK, it's a thing"""
-        await bot.rest.create_message(878434694713188362, bot.d.responses[random.randint(0, 99)])
-
-    RETRIES = 0
+        await bot.rest.create_message(878434694713188362, random.choice(bot.d.responses))
 
     def remove_retry():
         """Removes a Retry"""
