@@ -57,7 +57,7 @@ async def button_press(event: hikari.InteractionCreateEvent):  # pylint: disable
                     hikari.ResponseType.MESSAGE_CREATE,
                     f"Channel created: <#{channel.id}>",
                     flags=hikari.MessageFlag.EPHEMERAL)
-                if interaction.guild_id is not None:
+                if interaction.guild_id is None:
                     try:
                         await channel.send(
                             f"This was prompted from DMs. The starting message from <@{interaction.user.id}> :\n"
@@ -88,7 +88,7 @@ async def button_press(event: hikari.InteractionCreateEvent):  # pylint: disable
                     hikari.ResponseType.MESSAGE_CREATE,
                     f"Channel created: <#{channel.id}>",
                     flags=hikari.MessageFlag.EPHEMERAL)
-                if interaction.guild_id is not None:
+                if interaction.guild_id is None:
                     try:
                         await channel.send(
                             f"This was prompted from DMs. The starting message from <@{interaction.user.id}> :\n"
