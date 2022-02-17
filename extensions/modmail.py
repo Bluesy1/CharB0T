@@ -5,27 +5,29 @@ from lightbulb import SlashCommandGroup, SlashSubCommand, SlashContext
 from helper import MOD_SENSITIVE, MOD_GENERAL, EVERYONE_MODMAIL, user_perms, make_modmail_buttons, \
     blacklist_user, un_blacklist_user, get_blacklist
 
-Modmail_Plugin = lightbulb.Plugin("Modmail_Plugin", include_datastore=True, default_enabled_guilds=[225345178955808768])
-Modmail_Plugin.d.message_dict = {}
+MODMAIL_PLUGIN = lightbulb.Plugin("Modmail_Plugin", include_datastore=True, default_enabled_guilds=[225345178955808768])
+MODMAIL_PLUGIN.d.message_dict = {}
 
 
-@Modmail_Plugin.listener(hikari.DMMessageCreateEvent)
+@MODMAIL_PLUGIN.listener(hikari.DMMessageCreateEvent)
 async def on_dm(event: hikari.DMMessageCreateEvent):
+    """Dm event handler"""
     if event.is_human:
         if event.content is not None:
             log = await event.app.rest.fetch_channel(906578081496584242)
             await log.send(event.content)
-        modmail_buttons = make_modmail_buttons(Modmail_Plugin)
+        modmail_buttons = make_modmail_buttons(MODMAIL_PLUGIN)
         message = await event.message.respond(
             "I noticed you've DMed me. If this was an attempt to speak to mods, choose the right category below,"
             " else ignore this:",
             components=modmail_buttons)
-        Modmail_Plugin.d.message_dict.update({message.id: event.message.content})
+        MODMAIL_PLUGIN.d.message_dict.update({message.id: event.message.content})
 
 
-@Modmail_Plugin.listener(hikari.InteractionCreateEvent)
-async def button_press(event: hikari.InteractionCreateEvent):
-    if event.interaction.type == hikari.InteractionType.MESSAGE_COMPONENT or event.interaction.type == 3:
+@MODMAIL_PLUGIN.listener(hikari.InteractionCreateEvent)
+async def button_press(event: hikari.InteractionCreateEvent):  # pylint: disable=too-many-branches
+    """Modmail button press event handler"""
+    if event.interaction.type in (hikari.InteractionType.MESSAGE_COMPONENT, 3):
         # noinspection PyTypeChecker
         interaction: hikari.ComponentInteraction = event.interaction
         if "Sensitive" in interaction.custom_id:
@@ -59,8 +61,8 @@ async def button_press(event: hikari.InteractionCreateEvent):
                     try:
                         await channel.send(
                             f"This was prompted from DMs. The starting message from <@{interaction.user.id}> :\n"
-                            f"{Modmail_Plugin.d.message_dict[interaction.message.id]}")
-                        del Modmail_Plugin.d.message_dict[interaction.message.id]
+                            f"{MODMAIL_PLUGIN.d.message_dict[interaction.message.id]}")
+                        del MODMAIL_PLUGIN.d.message_dict[interaction.message.id]
                     finally:
                         await interaction.edit_message(interaction.message.id, "Understood.", components=[])
                 else:
@@ -90,15 +92,15 @@ async def button_press(event: hikari.InteractionCreateEvent):
                     try:
                         await channel.send(
                             f"This was prompted from DMs. The starting message from <@{interaction.user.id}> :\n"
-                            f"{Modmail_Plugin.d.message_dict[interaction.message.id]}")
-                        del Modmail_Plugin.d.message_dict[interaction.message.id]
+                            f"{MODMAIL_PLUGIN.d.message_dict[interaction.message.id]}")
+                        del MODMAIL_PLUGIN.d.message_dict[interaction.message.id]
                     finally:
                         await interaction.edit_message(interaction.message.id, "Understood.", components=[])
                 else:
                     await channel.send(f"<@{interaction.user.id}> please send your query/message here.")
 
 
-@Modmail_Plugin.command()
+@MODMAIL_PLUGIN.command()
 @lightbulb.add_checks(lightbulb.has_roles(225413350874546176, 253752685357039617,
                                           725377514414932030, 338173415527677954, mode=any))
 @lightbulb.command("modmail", "modmail command group", auto_defer=True, ephemeral=True, hidden=True)
@@ -140,15 +142,16 @@ async def modmail_edit_blacklist(ctx: SlashContext) -> None:
                    ephemeral=True, hidden=True, inherit_checks=True)
 @lightbulb.implements(SlashSubCommand)
 async def modmail_query_blacklist(ctx: SlashContext) -> None:
+    """Modmail blacklist query command"""
     blacklisted = [f"<@{item}>" for item in get_blacklist()]
     await ctx.respond(embed=hikari.Embed(title="Blacklisted users", description="\n".join(blacklisted)))
 
 
 def load(bot):
     """Loads the plugin"""
-    bot.add_plugin(Modmail_Plugin)
+    bot.add_plugin(MODMAIL_PLUGIN)
 
 
 def unload(bot):
     """Unloads the plugin"""
-    bot.remove_plugin(Modmail_Plugin)
+    bot.remove_plugin(MODMAIL_PLUGIN)
