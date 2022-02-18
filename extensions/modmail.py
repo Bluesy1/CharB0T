@@ -154,22 +154,6 @@ async def modmail_query_blacklist(ctx: SlashContext) -> None:
     await ctx.respond(embed=hikari.Embed(title="Blacklisted users", description="\n".join(blacklisted)))
 
 
-@modmail.child
-@lightbulb.command("query_blacklist", "modmail command group", auto_defer=True,
-                   ephemeral=True, hidden=True, inherit_checks=True)
-@lightbulb.option("user", "user to add to the channel", type=hikari.User, required=True)
-@lightbulb.implements(SlashSubCommand)
-async def modmail_add_member(ctx: SlashContext) -> None:
-    """Modmail blacklist query command"""
-    # noinspection PyTypeChecker
-    channel: hikari.GuildTextChannel = await ctx.app.rest.fetch_channel(ctx.channel_id)
-    if channel.parent_id != 942578610336837632:
-        await ctx.respond("Error: Channel not in modmail category")
-        return
-    await channel.edit_overwrite(user_perms(ctx.options.user.id))
-    await ctx.respond(f"<@{ctx.options.user.id}> successfully added to this channel!")
-
-
 def load(bot):
     """Loads the plugin"""
     bot.add_plugin(MODMAIL_PLUGIN)
