@@ -1,3 +1,5 @@
+import asyncio
+
 import hikari
 import lightbulb
 from lightbulb import SlashCommandGroup, SlashSubCommand, SlashContext
@@ -25,6 +27,11 @@ async def on_dm(event: hikari.DMMessageCreateEvent):
             " else ignore this:",
             components=modmail_buttons)
         MODMAIL_PLUGIN.d.message_dict.update({message.id: event.message.content})
+        await asyncio.sleep(300)
+        try:
+            del MODMAIL_PLUGIN.d.message_dict[message.id]
+        finally:
+            await message.edit("Timed Out.", components=[])
 
 
 @MODMAIL_PLUGIN.listener(hikari.InteractionCreateEvent)
@@ -88,7 +95,6 @@ async def button_press(event: hikari.InteractionCreateEvent):  # pylint: disable
                     await channel.send(f"This is a **PRIVATE** modmail channel for <@{interaction.user.id}>"
                                        f", please send your query/message here.",
                                        user_mentions=[interaction.user.id])
-
 
 
 @MODMAIL_PLUGIN.command()
