@@ -34,29 +34,19 @@ async def button_press(event: hikari.InteractionCreateEvent):  # pylint: disable
             and check_not_modmail_blacklisted(event.interaction.user.id):
         # noinspection PyTypeChecker
         interaction: hikari.ComponentInteraction = event.interaction
-        if "Sensitive" in interaction.custom_id:
-            if interaction.custom_id in ["Emergency_Sensitive", "Important_Sensitive",
-                                         "Question_Sensitive", "Other_Sensitive"]:
+        if "Modmail" in interaction.custom_id:
+            if interaction.custom_id in ["Modmail_General", "Modmail_Important", "Modmail_Emergency"]:
                 if "Emergency" in interaction.custom_id:
                     channel_header = "EMERGENCY"
                 elif "Important" in interaction.custom_id:
                     channel_header = "IMPORTANT"
-                elif "Question" in interaction.custom_id:
-                    channel_header = "QUESTION"
                 else:
-                    channel_header = "OTHER"
+                    channel_header = "GENERAL"
                 channel = await event.app.rest.create_guild_text_channel(
                     225345178955808768,
                     f"[{channel_header}]-{interaction.user.username}",
                     category=942578610336837632,
-                    permission_overwrites=[MOD_SENSITIVE, EVERYONE_MODMAIL, user_perms(interaction.user.id)]
-                )
-                if interaction.custom_id == "Emergency_Sensitive":
-                    await channel.edit_overwrite(
-                        363095569515806722,
-                        target_type=hikari.PermissionOverwriteType.MEMBER,
-                        allow=(hikari.Permissions.VIEW_CHANNEL | hikari.Permissions.SEND_MESSAGES)
-                    )
+                    permission_overwrites=[MOD_GENERAL, EVERYONE_MODMAIL, user_perms(interaction.user.id)])
                 await interaction.create_initial_response(
                     hikari.ResponseType.MESSAGE_CREATE,
                     f"Channel created: <#{channel.id}>",
@@ -64,32 +54,22 @@ async def button_press(event: hikari.InteractionCreateEvent):  # pylint: disable
                 if interaction.guild_id is None:
                     try:
                         await channel.send(
-                            f"This was prompted from DMs. The starting message from <@{interaction.user.id}> :\n"
-                            f"{MODMAIL_PLUGIN.d.message_dict[interaction.message.id]}",
+                            f"This was prompted from DMs. The starting message from <@{interaction.user.id}> :\n",
                             user_mentions=[interaction.user.id])
+                        await channel.send(MODMAIL_PLUGIN.d.message_dict[interaction.message.id])
                         del MODMAIL_PLUGIN.d.message_dict[interaction.message.id]
                     finally:
                         await interaction.edit_message(interaction.message.id, "Understood.", components=[])
                 else:
                     await channel.send(f"<@{interaction.user.id}> please send your query/message here.",
                                        user_mentions=[interaction.user.id])
-        elif "General" in event.interaction.custom_id:
-            if interaction.custom_id in ["Emergency_General", "Important_General",
-                                         "Question_General", "Other_General"]:
-                if "Emergency" in interaction.custom_id:
-                    channel_header = "EMERGENCY"
-                elif "Important" in interaction.custom_id:
-                    channel_header = "IMPORTANT"
-                elif "Question" in interaction.custom_id:
-                    channel_header = "QUESTION"
-                else:
-                    channel_header = "OTHER"
+            elif interaction.custom_id == "Modmail_Private":
                 channel = await event.app.rest.create_guild_text_channel(
                     225345178955808768,
-                    f"[{channel_header}]-{interaction.user.username}",
+                    f"[PRIVATE]-{interaction.user.username}",
                     category=942578610336837632,
-                    permission_overwrites=[MOD_GENERAL, EVERYONE_MODMAIL, user_perms(interaction.user.id)]
-                )
+                    permission_overwrites=[MOD_SENSITIVE, EVERYONE_MODMAIL, user_perms(interaction.user.id)] +
+                                          [user_perms(int(item)) for item in interaction.values])
                 await interaction.create_initial_response(
                     hikari.ResponseType.MESSAGE_CREATE,
                     f"Channel created: <#{channel.id}>",
@@ -97,15 +77,17 @@ async def button_press(event: hikari.InteractionCreateEvent):  # pylint: disable
                 if interaction.guild_id is None:
                     try:
                         await channel.send(
-                            f"This was prompted from DMs. The starting message from <@{interaction.user.id}> :\n"
-                            f"{MODMAIL_PLUGIN.d.message_dict[interaction.message.id]}",
+                            f"This **PRIVATE** modmail channel was prompted from DMs. The starting message from"
+                            f" <@{interaction.user.id}> :\n",
                             user_mentions=[interaction.user.id])
+                        await channel.send(MODMAIL_PLUGIN.d.message_dict[interaction.message.id])
                         del MODMAIL_PLUGIN.d.message_dict[interaction.message.id]
                     finally:
                         await interaction.edit_message(interaction.message.id, "Understood.", components=[])
                 else:
                     await channel.send(f"<@{interaction.user.id}> please send your query/message here.",
                                        user_mentions=[interaction.user.id])
+
 
 
 @MODMAIL_PLUGIN.command()

@@ -49,30 +49,21 @@ def user_perms(user_id: hikari.Snowflakeish):
 def make_modmail_buttons(plugin: lightbulb.Plugin):
     """Creates a button row"""
     return [
-        (plugin.bot.rest.build_action_row().add_button(hikari.ButtonStyle.DANGER, "Emergency Header")
-         .set_label("EMERGENCY").set_emoji("‼").set_is_disabled(True).add_to_container()
-         .add_button(hikari.ButtonStyle.PRIMARY, "Emergency_Sensitive")
-         .set_label("Sensitive").set_emoji("❗").add_to_container()
-         .add_button(hikari.ButtonStyle.SUCCESS, "Emergency_General")
-         .set_label("General").set_emoji("⁉").add_to_container()),
-        (plugin.bot.rest.build_action_row().add_button(hikari.ButtonStyle.DANGER, "Important Header")
-         .set_label("IMPORTANT").set_emoji("⚠").set_is_disabled(True).add_to_container()
-         .add_button(hikari.ButtonStyle.PRIMARY, "Important_Sensitive")
-         .set_label("Sensitive").set_emoji("❗").add_to_container()
-         .add_button(hikari.ButtonStyle.SUCCESS, "Important_General")
-         .set_label("General").set_emoji("⁉").add_to_container()),
-        (plugin.bot.rest.build_action_row().add_button(hikari.ButtonStyle.DANGER, "Question Header")
-         .set_label("QUESTION").set_emoji("❓").set_is_disabled(True).add_to_container()
-         .add_button(hikari.ButtonStyle.PRIMARY, "Question_Sensitive")
-         .set_label("Sensitive").set_emoji("❗").add_to_container()
-         .add_button(hikari.ButtonStyle.SUCCESS, "Question_General")
-         .set_label("General").set_emoji("⁉").add_to_container()),
-        (plugin.bot.rest.build_action_row().add_button(hikari.ButtonStyle.DANGER, "Other Header")
-         .set_label("OTHER").set_emoji("❔").set_is_disabled(True).add_to_container()
-         .add_button(hikari.ButtonStyle.PRIMARY, "Other_Sensitive")
-         .set_label("Sensitive").set_emoji("❗").add_to_container()
-         .add_button(hikari.ButtonStyle.SUCCESS, "Other_General")
-         .set_label("General").set_emoji("⁉").add_to_container())]
+        (plugin.bot.rest.build_action_row().add_button(hikari.ButtonStyle.SUCCESS, "Modmail_General")
+         .set_label("General").set_emoji("❔").add_to_container()
+         .add_button(hikari.ButtonStyle.PRIMARY, "Modmail_Important")
+         .set_label("Imporant").set_emoji("❗").add_to_container()
+         .add_button(hikari.ButtonStyle.DANGER, "Modmail_Emergency")
+         .set_label("Emergency").set_emoji("‼").add_to_container()),
+        (plugin.bot.rest.build_action_row().add_select_menu("Modmail_Private")
+         .set_placeholder("Private").set_max_values(5)
+         .add_option("Admins Only", "146285543146127361").add_to_menu()
+         .add_option("Bluesy", "363095569515806722").add_to_menu()
+         .add_option("Krios", "138380316095021056").add_to_menu()
+         .add_option("Mike Takumi", "162833689196101632").add_to_menu()
+         .add_option("Kaitlin", "82495450153750528").add_to_menu()
+         .add_to_container()
+         )]
 
 
 def blacklist_user(user_id: hikari.Snowflakeish) -> bool:
