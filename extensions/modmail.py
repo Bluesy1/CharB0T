@@ -30,7 +30,7 @@ async def on_dm(event: hikari.DMMessageCreateEvent):
 @MODMAIL_PLUGIN.listener(hikari.InteractionCreateEvent)
 async def button_press(event: hikari.InteractionCreateEvent):  # pylint: disable=too-many-branches
     """Modmail button press event handler"""
-    if event.interaction.type in (hikari.InteractionType.MESSAGE_COMPONENT, 3)\
+    if event.interaction.type in (hikari.InteractionType.MESSAGE_COMPONENT, 3) \
             and check_not_modmail_blacklisted(event.interaction.user.id):
         # noinspection PyTypeChecker
         interaction: hikari.ComponentInteraction = event.interaction
@@ -65,12 +65,14 @@ async def button_press(event: hikari.InteractionCreateEvent):  # pylint: disable
                     try:
                         await channel.send(
                             f"This was prompted from DMs. The starting message from <@{interaction.user.id}> :\n"
-                            f"{MODMAIL_PLUGIN.d.message_dict[interaction.message.id]}")
+                            f"{MODMAIL_PLUGIN.d.message_dict[interaction.message.id]}",
+                            user_mentions=[interaction.user.id])
                         del MODMAIL_PLUGIN.d.message_dict[interaction.message.id]
                     finally:
                         await interaction.edit_message(interaction.message.id, "Understood.", components=[])
                 else:
-                    await channel.send(f"<@{interaction.user.id}> please send your query/message here.")
+                    await channel.send(f"<@{interaction.user.id}> please send your query/message here.",
+                                       user_mentions=[interaction.user.id])
         elif "General" in event.interaction.custom_id:
             if interaction.custom_id in ["Emergency_General", "Important_General",
                                          "Question_General", "Other_General"]:
@@ -96,12 +98,14 @@ async def button_press(event: hikari.InteractionCreateEvent):  # pylint: disable
                     try:
                         await channel.send(
                             f"This was prompted from DMs. The starting message from <@{interaction.user.id}> :\n"
-                            f"{MODMAIL_PLUGIN.d.message_dict[interaction.message.id]}")
+                            f"{MODMAIL_PLUGIN.d.message_dict[interaction.message.id]}",
+                            user_mentions=[interaction.user.id])
                         del MODMAIL_PLUGIN.d.message_dict[interaction.message.id]
                     finally:
                         await interaction.edit_message(interaction.message.id, "Understood.", components=[])
                 else:
-                    await channel.send(f"<@{interaction.user.id}> please send your query/message here.")
+                    await channel.send(f"<@{interaction.user.id}> please send your query/message here.",
+                                       user_mentions=[interaction.user.id])
 
 
 @MODMAIL_PLUGIN.command()
@@ -148,6 +152,22 @@ async def modmail_query_blacklist(ctx: SlashContext) -> None:
     """Modmail blacklist query command"""
     blacklisted = [f"<@{item}>" for item in get_blacklist()]
     await ctx.respond(embed=hikari.Embed(title="Blacklisted users", description="\n".join(blacklisted)))
+
+
+@modmail.child
+@lightbulb.command("query_blacklist", "modmail command group", auto_defer=True,
+                   ephemeral=True, hidden=True, inherit_checks=True)
+@lightbulb.option("user", "user to add to the channel", type=hikari.User, required=True)
+@lightbulb.implements(SlashSubCommand)
+async def modmail_add_member(ctx: SlashContext) -> None:
+    """Modmail blacklist query command"""
+    # noinspection PyTypeChecker
+    channel: hikari.GuildTextChannel = await ctx.app.rest.fetch_channel(ctx.channel_id)
+    if channel.parent_id != 942578610336837632:
+        await ctx.respond("Error: Channel not in modmail category")
+        return
+    await channel.edit_overwrite(user_perms(ctx.options.user.id))
+    await ctx.respond(f"<@{ctx.options.user.id}> successfully added to this channel!")
 
 
 def load(bot):
