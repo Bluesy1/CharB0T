@@ -86,7 +86,7 @@ async def button_press(event: hikari.InteractionCreateEvent):  # pylint: disable
                         await interaction.edit_message(interaction.message.id, "Understood.", components=[])
                 else:
                     await channel.send(f"This is a **PRIVATE** modmail channel for <@{interaction.user.id}>"
-                                       f" please send your query/message here.",
+                                       f", please send your query/message here.",
                                        user_mentions=[interaction.user.id])
 
 
