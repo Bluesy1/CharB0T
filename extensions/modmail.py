@@ -155,9 +155,9 @@ async def modmail_query_blacklist(ctx: SlashContext) -> None:
 
 
 @modmail.child
+@lightbulb.option("user", "user to add to the channel", type=hikari.User, required=True)
 @lightbulb.command("query_blacklist", "modmail command group", auto_defer=True,
                    ephemeral=True, hidden=True, inherit_checks=True)
-@lightbulb.option("user", "user to add to the channel", type=hikari.User, required=True)
 @lightbulb.implements(SlashSubCommand)
 async def modmail_add_member(ctx: SlashContext) -> None:
     """Modmail blacklist query command"""
