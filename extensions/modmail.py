@@ -3,19 +3,17 @@ from datetime import datetime, timedelta
 
 import hikari
 import lightbulb
-from apscheduler.schedulers.asyncio import AsyncIOScheduler
-from apscheduler.triggers.cron import CronTrigger
 from lightbulb import SlashCommandGroup, SlashSubCommand, SlashContext
+from lightbulb.ext import tasks
 
 from helper import MOD_SENSITIVE, MOD_GENERAL, EVERYONE_MODMAIL, user_perms, make_modmail_buttons, \
     blacklist_user, un_blacklist_user, get_blacklist, check_not_modmail_blacklisted
 
 MODMAIL_PLUGIN = lightbulb.Plugin("Modmail_Plugin", include_datastore=True, default_enabled_guilds=[225345178955808768])
 MODMAIL_PLUGIN.d.message_dict = {}
-SCHEDULER = AsyncIOScheduler()
-SCHEDULER.start()
 
 
+@tasks.task(d=1, auto_start=True)
 async def check_modmail_channels():
     """Remove stale modmail channels"""
     channels = await MODMAIL_PLUGIN.app.rest.fetch_guild_channels(225345178955808768)
@@ -168,10 +166,9 @@ async def modmail_query_blacklist(ctx: SlashContext) -> None:
 def load(bot):
     """Loads the plugin"""
     bot.add_plugin(MODMAIL_PLUGIN)
-    SCHEDULER.add_job(check_modmail_channels, CronTrigger(hour=12), id="channel_remover", replace_existing=True)
+    tasks.load(bot)
 
 
 def unload(bot):
     """Unloads the plugin"""
-    SCHEDULER.remove_job("channel_remover")
     bot.remove_plugin(MODMAIL_PLUGIN)
