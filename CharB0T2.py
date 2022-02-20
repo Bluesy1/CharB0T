@@ -142,11 +142,14 @@ def main():  # pylint: disable=too-many-statements
                 except:  # pylint: disable=bare-except
                     None  # pylint: disable=pointless-statement
             time_string = "None Found"
-            async for item in messages:
-                mentions = item.mentions.get_members()
-                if event.user_id in mentions.keys:
-                    delta = time.time() - time.mktime(item.created_at.utctimetuple())
-                    time_string = await time_string_from_seconds(delta)
+            try:
+                async for item in messages:
+                    mentions = item.mentions.get_members()
+                    if event.user_id in mentions.keys:
+                        delta = time.time() - time.mktime(item.created_at.utctimetuple())
+                        time_string = await time_string_from_seconds(delta)
+            except TypeError:
+                print("Unable to calculate time.")
         await bot.rest.create_message(430197357100138497,
                                       f"**{event.user.username}#{event.user.discriminator}** has left the server. "
                                       f"ID:{event.user_id}. Time on Server: {time_string}")
