@@ -39,6 +39,10 @@ async def roll(ctx: lightbulb.Context):  # pylint: disable=unused-variable
         for roll1 in rolls:
             output += str(roll1) + ', '
         output = output[:-2]
-        await ctx.respond(f"Kethran rolled `{arg}` got {output}` for a total value of: {str(sums)}", reply=True)
+        if ctx.guild_id == 878426206561775676:
+            await ctx.respond(f"Kethran rolled `{arg}` got {output}` for a total value of: {str(sums)}", reply=True)
+        else:
+            await ctx.respond(
+                f"{ctx.member.display_name} rolled `{arg}` got {output}` for a total value of: {str(sums)}", reply=True)
     except Exception:  # pylint: disable=broad-except
         await ctx.respond(roll_error, reply=True)
