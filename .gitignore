@@ -22,4 +22,4 @@ embeder.py
 /KethranToken.json
 /bottest.py
 modmail_blacklist.json
-words.json
+sensitive_settings.json
