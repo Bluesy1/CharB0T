@@ -21,7 +21,7 @@ async def sensitive_scan(event: GuildMessageCreateEvent) -> None:
         if word in event.content.lower():
             count_found += 1
             used_words.add(word)
-    if datetime.now() > (EVENTS.d.last_sensitive_logged + timedelta(seconds=5))\
+    if datetime.now() > (EVENTS.d.last_sensitive_logged + timedelta(minutes=5))\
             and ((count_found >= 2 and 25 <= (len(event.content)-len("".join(used_words))) < 50) or
                  (count_found > 2 and (len(event.content)-len("".join(used_words))) >= 50) or
                  (count_found >= 1 and (len(event.content)-len("".join(used_words))) < 25)):
@@ -30,7 +30,7 @@ async def sensitive_scan(event: GuildMessageCreateEvent) -> None:
         embed = Embed(title="Probable Sensitive Topic Detected", description=f"Content:\n {event.content}",
                       color="0xff0000", timestamp=datetime.now(tz=timezone.utc))
         embed.add_field("Words Found:", ", ".join(used_words), inline=True)
-        embed.add_field("Author:", f"{event.member.display_name}:{event.author.username}#{event.author.discriminator}",
+        embed.add_field("Author:", f"{event.member.display_name}: {event.author.username}#{event.author.discriminator}",
                         inline=True)
         embed.add_field("Message Link:", f"[Link]({event.message.make_link(event.guild_id)})", inline=True)
         await webhook.execute(username=bot_user.username, avatar_url=bot_user.avatar_url, embed=embed)
