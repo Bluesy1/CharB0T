@@ -21,7 +21,7 @@ async def sensitive_scan(event: GuildMessageCreateEvent) -> None:
         if word in event.content:
             count_found += 1
             used_words.add(word)
-    if (datetime.now() - EVENTS.d.last_sensitive_logged) < timedelta(minutes=5) and count_found > 2 \
+    if (datetime.now() - EVENTS.d.last_sensitive_logged) < timedelta(seconds=5) and count_found > 2 \
             and len(event.content) >= 50:
         webhook = await event.app.rest.fetch_webhook(fulldict["webhook_id"])
         bot_user = await event.app.rest.fetch_my_user()
@@ -32,6 +32,7 @@ async def sensitive_scan(event: GuildMessageCreateEvent) -> None:
                         inline=True)
         embed.add_field("Message Link:", f"[Link]({event.message.make_link(event.guild_id)})", inline=True)
         await webhook.excute(username=bot_user.username, avatar_url=bot_user.avatar_url, embed=embed)
+        EVENTS.d.last_sensitive_logged = datetime.now()
 
 
 @EVENTS.listener(hikari.GuildMessageCreateEvent)
