@@ -18,7 +18,7 @@ async def sensitive_scan(event: GuildMessageCreateEvent) -> None:
     used_words = set()
     count_found = 0
     for word in fulldict["words"]:
-        if word in event.content:
+        if word in event.content.lower():
             count_found += 1
             used_words.add(word)
     if (datetime.now() - EVENTS.d.last_sensitive_logged) < timedelta(seconds=5) and count_found > 2 \
