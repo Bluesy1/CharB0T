@@ -21,7 +21,7 @@ async def sensitive_scan(event: GuildMessageCreateEvent) -> None:
         if word in event.content.lower():
             count_found += 1
             used_words.add(word)
-    if (datetime.now() - EVENTS.d.last_sensitive_logged) < timedelta(seconds=5)\
+    if datetime.now() > (EVENTS.d.last_sensitive_logged + timedelta(seconds=5))\
             and ((count_found >= 2 and len(event.content) >= 20) or (count_found > 2 and len(event.content) >= 50) or
                  (count_found >= 1 and len(event.content) >= 10)):
         webhook = await event.app.rest.fetch_webhook(fulldict["webhook_id"])
