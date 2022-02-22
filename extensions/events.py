@@ -11,7 +11,7 @@ EVENTS = lightbulb.Plugin("EVENTS", include_datastore=True)
 EVENTS.d.last_sensitive_logged = datetime.now() - timedelta(days=1)
 
 
-async def sensitive_scan(event: GuildMessageCreateEvent, plugin: lightbulb.Plugin) -> None:
+async def sensitive_scan(event: GuildMessageCreateEvent) -> None:
     """Scans for sensitive topics"""
     with open('sensitive_settings.json', encoding='utf8') as json_dict:
         fulldict = json.load(json_dict)
@@ -24,7 +24,7 @@ async def sensitive_scan(event: GuildMessageCreateEvent, plugin: lightbulb.Plugi
     if (datetime.now() - EVENTS.d.last_sensitive_logged) < timedelta(minutes=5) and count_found > 2 \
             and len(event.content) >= 50:
         webhook = await event.app.rest.fetch_webhook(fulldict["webhook_id"])
-        bot_user = await plugin.app.rest.fetch_my_user()
+        bot_user = await event.app.rest.fetch_my_user()
         embed = Embed(title="Probable Sensitive Topic Detected", description=f"Content:\n {event.content}",
                       color="0xff0000", timestamp=datetime.now(tz=timezone.utc))
         embed.add_field("Words Found:", ", ".join(used_words), inline=True)
