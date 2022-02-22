@@ -126,6 +126,7 @@ async def command(ctx):  # pylint: disable=too-many-statements
 @lightbulb.command("sensitive", "sensitive topics parent group", ephemeral=True)
 @lightbulb.implements(SlashCommandGroup)
 async def sensitive(ctx: SlashContext) -> None:
+    """sensitive topics parent group"""
     await ctx.respond("Invoked sensitive")
 
 
@@ -133,15 +134,17 @@ async def sensitive(ctx: SlashContext) -> None:
 @lightbulb.command("words", "sensitive topic words subgroup", ephemeral=True)
 @lightbulb.implements(SlashSubGroup)
 async def sensitive_words(ctx: SlashContext) -> None:
+    """Sensitive topic words subgroup"""
     await ctx.respond("Invoked sensitive words")
 
 
 @sensitive_words.child()
-@lightbulb.option("word", "Word to remove")
+@lightbulb.option("word", "Word to add")
 @lightbulb.add_checks(has_roles(832521484378308660, 832521484378308659, 832521484378308658, mode=any))
 @lightbulb.command("add", "adds a word to the sensitive topics word list")
 @lightbulb.implements(commands.PrefixCommand)
 async def add(ctx: lightbulb.Context):
+    """adds a word to the sensitive topics list"""
     with open('sensitive_settings.json', encoding='utf8') as json_dict:
         fulldict = json.load(json_dict)
     joinstring = ", "
@@ -163,6 +166,7 @@ async def add(ctx: lightbulb.Context):
 @lightbulb.command("query", "querys the sensitive topics word list")
 @lightbulb.implements(commands.PrefixCommand)
 async def query(ctx: lightbulb.Context):
+    """queries the sensitive topics list"""
     with open('sensitive_settings.json', encoding='utf8') as json_dict:
         fulldict = json.load(json_dict)
     joinstring = ", "
@@ -176,6 +180,7 @@ async def query(ctx: lightbulb.Context):
 @lightbulb.command("remove", "removes a word from the sensitive topics word list")
 @lightbulb.implements(commands.PrefixCommand)
 async def remove(ctx: lightbulb.Context):
+    """removes a word from sensitive topics list"""
     with open('sensitive_settings.json', encoding='utf8') as file:
         fulldict = json.load(file)
     joinstring = ", "
