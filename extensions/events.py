@@ -8,7 +8,7 @@ import lightbulb
 from hikari import Embed, GuildMessageCreateEvent
 
 EVENTS = lightbulb.Plugin("EVENTS", include_datastore=True)
-EVENTS.d.last_sensitive_logged = datetime.now() - timedelta(days=1)
+EVENTS.d.last_sensitive_logged = {}
 
 
 async def sensitive_scan(event: GuildMessageCreateEvent) -> None:
@@ -21,7 +21,8 @@ async def sensitive_scan(event: GuildMessageCreateEvent) -> None:
         if word in event.content.lower():
             count_found += 1
             used_words.add(word)
-    if datetime.now() > (EVENTS.d.last_sensitive_logged + timedelta(minutes=5))\
+    EVENTS.d.last_sensitive_logged.setdefault(event.author_id, datetime.now() - timedelta(days=1))
+    if datetime.now() > (EVENTS.d.last_sensitive_logged[event.author_id] + timedelta(minutes=5))\
             and ((count_found >= 2 and 25 <= (len(event.content)-len("".join(used_words))) < 50) or
                  (count_found > 2 and (len(event.content)-len("".join(used_words))) >= 50) or
                  (count_found >= 1 and (len(event.content)-len("".join(used_words))) < 25)):
@@ -34,7 +35,7 @@ async def sensitive_scan(event: GuildMessageCreateEvent) -> None:
                         inline=True)
         embed.add_field("Message Link:", f"[Link]({event.message.make_link(event.guild_id)})", inline=True)
         await webhook.execute(username=bot_user.username, avatar_url=bot_user.avatar_url, embed=embed)
-        EVENTS.d.last_sensitive_logged = datetime.now()
+        EVENTS.d.last_sensitive_logged[event.author_id] = datetime.now()
 
 
 @EVENTS.listener(hikari.GuildMessageCreateEvent)
