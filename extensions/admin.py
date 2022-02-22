@@ -9,7 +9,7 @@ from hikari.embeds import Embed
 from hikari.events.interaction_events import InteractionCreateEvent
 from hikari.interactions.base_interactions import ResponseType
 from hikari.messages import ButtonStyle
-from lightbulb import commands, SlashCommandGroup, SlashSubGroup, SlashContext
+from lightbulb import commands, SlashCommandGroup, SlashSubGroup, SlashContext, SlashSubCommand
 from lightbulb.checks import has_roles
 
 AdminPlugin = lightbulb.Plugin("AdminPlugin", default_enabled_guilds=[225345178955808768])
@@ -142,7 +142,7 @@ async def sensitive_words(ctx: SlashContext) -> None:
 @lightbulb.option("word", "Word to add")
 @lightbulb.add_checks(has_roles(832521484378308660, 832521484378308659, 832521484378308658, mode=any))
 @lightbulb.command("add", "adds a word to the sensitive topics word list")
-@lightbulb.implements(commands.PrefixCommand)
+@lightbulb.implements(SlashSubCommand)
 async def add(ctx: lightbulb.Context):
     """adds a word to the sensitive topics list"""
     with open('sensitive_settings.json', encoding='utf8') as json_dict:
@@ -164,7 +164,7 @@ async def add(ctx: lightbulb.Context):
 @sensitive_words.child
 @lightbulb.add_checks(has_roles(832521484378308660, 832521484378308659, 832521484378308658, mode=any))
 @lightbulb.command("query", "querys the sensitive topics word list")
-@lightbulb.implements(commands.PrefixCommand)
+@lightbulb.implements(SlashSubCommand)
 async def query(ctx: lightbulb.Context):
     """queries the sensitive topics list"""
     with open('sensitive_settings.json', encoding='utf8') as json_dict:
@@ -178,7 +178,7 @@ async def query(ctx: lightbulb.Context):
 @sensitive_words.child
 @lightbulb.option("word", "Word to remove")
 @lightbulb.command("remove", "removes a word from the sensitive topics word list")
-@lightbulb.implements(commands.PrefixCommand)
+@lightbulb.implements(SlashSubCommand)
 async def remove(ctx: lightbulb.Context):
     """removes a word from sensitive topics list"""
     with open('sensitive_settings.json', encoding='utf8') as file:
