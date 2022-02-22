@@ -22,8 +22,8 @@ async def sensitive_scan(event: GuildMessageCreateEvent) -> None:
             count_found += 1
             used_words.add(word)
     if datetime.now() > (EVENTS.d.last_sensitive_logged + timedelta(seconds=5))\
-            and ((count_found >= 2 and len(event.content) >= 20) or (count_found > 2 and len(event.content) >= 50) or
-                 (count_found >= 1 and len(event.content) >= 10)):
+            and ((count_found >= 1 and len(event.content) < 50) or
+                 (count_found > 2 and len(event.content) >= 50)):
         webhook = await event.app.rest.fetch_webhook(fulldict["webhook_id"])
         bot_user = await event.app.rest.fetch_my_user()
         embed = Embed(title="Probable Sensitive Topic Detected", description=f"Content:\n {event.content}",
