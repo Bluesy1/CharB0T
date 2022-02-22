@@ -1,18 +1,44 @@
-import datetime
+import json
 import re
 import traceback
+from datetime import datetime, timedelta, timezone
 
 import hikari
 import lightbulb
-from hikari import Embed
+from hikari import Embed, GuildMessageCreateEvent
 
-EVENTS = lightbulb.Plugin("EVENTS")
+EVENTS = lightbulb.Plugin("EVENTS", include_datastore=True)
+EVENTS.d.last_sensitive_logged = datetime.now() - timedelta(days=1)
+
+
+async def sensitive_scan(event: GuildMessageCreateEvent) -> None:
+    """Scans for sensitive topics"""
+    with open('sensitive_settings.json', encoding='utf8') as json_dict:
+        fulldict = json.load(json_dict)
+    used_words = set()
+    count_found = 0
+    for word in fulldict["words"]:
+        if word in event.content:
+            count_found += 1
+            used_words.add(word)
+    if (datetime.now() - EVENTS.d.last_sensitive_logged) < timedelta(minutes=5) and count_found > 2 \
+            and len(event.content) >= 50:
+        webhook = await event.app.rest.fetch_webhook(fulldict["webhook_id"])
+        bot_user = await event.app.rest.fetch_my_user()
+        embed = Embed(title="Probable Sensitive Topic Detected", description=f"Content:\n {event.content}",
+                      color="0xff0000", timestamp=datetime.now(tz=timezone.utc))
+        embed.add_field("Words Found:", ", ".join(used_words), inline=True)
+        embed.add_field("Author:", f"{event.member.display_name}:{event.author.username}#{event.author.discriminator}",
+                        inline=True)
+        embed.add_field("Message Link:", f"[Link]({event.message.make_link(event.guild_id)})", inline=True)
+        await webhook.excute(username=bot_user.username, avatar_url=bot_user.avatar_url, embed=embed)
 
 
 @EVENTS.listener(hikari.GuildMessageCreateEvent)
 async def on_guild_message(event: hikari.GuildMessageCreateEvent) -> None:
     """Guild Message Create Handler ***DO NOT CALL MANUALLY***"""
     if event.content is not None and event.is_human:
+        await sensitive_scan(event)
         if not any(role in event.member.role_ids for role in
                    [338173415527677954, 253752685357039617, 225413350874546176, 387037912782471179, 406690402956083210,
                     729368484211064944]):  # pylint: disable=using-constant-test, line-too-long

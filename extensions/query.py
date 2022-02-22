@@ -4,21 +4,13 @@ import time
 import lightbulb
 from lightbulb import commands
 
-
-def punished(context):
-    """Checks if command user is punished"""
-    roles = context.member.role_ids
-    for role in roles:
-        if role in [684936661745795088, 676250179929636886]:
-            return False
-    return True
-
+from helper import punished
 
 QueryPlugin = lightbulb.Plugin("QueryPlugin")
 
 
 @QueryPlugin.command
-@lightbulb.add_checks(lightbulb.Check(punished))
+@lightbulb.add_checks(punished)
 @lightbulb.command("time", "display's charlie's time", guilds=[225345178955808768])
 @lightbulb.implements(commands.SlashCommand)
 async def command(ctx):

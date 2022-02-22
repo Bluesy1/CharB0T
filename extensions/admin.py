@@ -1,17 +1,19 @@
 import asyncio
+import json
 import os
 import time
+from datetime import datetime, timezone
 
 import lightbulb
 from hikari.embeds import Embed
 from hikari.events.interaction_events import InteractionCreateEvent
 from hikari.interactions.base_interactions import ResponseType
 from hikari.messages import ButtonStyle
-from lightbulb import commands
+from lightbulb import commands, SlashCommandGroup, SlashSubGroup, SlashContext
 from lightbulb.checks import has_roles
 
-AdminPlugin = lightbulb.Plugin("AdminPlugin")
-AdminPlugin.add_checks(lightbulb.Check(has_roles(338173415527677954, 253752685357039617, 225413350874546176, mode=any)))
+AdminPlugin = lightbulb.Plugin("AdminPlugin", default_enabled_guilds=[225345178955808768])
+AdminPlugin.add_checks(has_roles(338173415527677954, 253752685357039617, 225413350874546176, mode=any))
 
 
 @AdminPlugin.command
@@ -118,6 +120,85 @@ async def command(ctx):  # pylint: disable=too-many-statements
                                                  components=[add_buttons, sub_buttons])
     except asyncio.TimeoutError:
         await ctx.edit_last_response("Waited for 15 seconds... Timeout.", embed=None, components=[])
+
+
+@AdminPlugin.command()
+@lightbulb.command("sensitive", "sensitive topics parent group", ephemeral=True)
+@lightbulb.implements(SlashCommandGroup)
+async def sensitive(ctx: SlashContext) -> None:
+    """sensitive topics parent group"""
+    await ctx.respond("Invoked sensitive")
+
+
+@sensitive.child
+@lightbulb.command("words", "sensitive topic words subgroup", ephemeral=True)
+@lightbulb.implements(SlashSubGroup)
+async def sensitive_words(ctx: SlashContext) -> None:
+    """Sensitive topic words subgroup"""
+    await ctx.respond("Invoked sensitive words")
+
+
+@sensitive_words.child()
+@lightbulb.option("word", "Word to add")
+@lightbulb.add_checks(has_roles(832521484378308660, 832521484378308659, 832521484378308658, mode=any))
+@lightbulb.command("add", "adds a word to the sensitive topics word list")
+@lightbulb.implements(commands.PrefixCommand)
+async def add(ctx: lightbulb.Context):
+    """adds a word to the sensitive topics list"""
+    with open('sensitive_settings.json', encoding='utf8') as json_dict:
+        fulldict = json.load(json_dict)
+    joinstring = ", "
+    if ctx.options.word.lower() not in fulldict['words']:
+        fulldict['words'].append(ctx.options.word.lower())
+        with open('sensitive_settings.json', 'w', encoding='utf8') as json_dict:
+            json.dump(fulldict, json_dict)
+        await ctx.respond(embed=Embed(title="New list of words defined as sensitive",
+                                      description=f"||{joinstring.join(fulldict['words'])}||", color="0x00ff00",
+                                      timestamp=datetime.now(tz=timezone.utc)))
+    else:
+        await ctx.respond(embed=Embed(title="Word already in list of words defined as sensitive",
+                                      description=f"||{joinstring.join(fulldict['words'])}||", color="0x0000ff",
+                                      timestamp=datetime.now(tz=timezone.utc)))
+
+
+@sensitive_words.child
+@lightbulb.add_checks(has_roles(832521484378308660, 832521484378308659, 832521484378308658, mode=any))
+@lightbulb.command("query", "querys the sensitive topics word list")
+@lightbulb.implements(commands.PrefixCommand)
+async def query(ctx: lightbulb.Context):
+    """queries the sensitive topics list"""
+    with open('sensitive_settings.json', encoding='utf8') as json_dict:
+        fulldict = json.load(json_dict)
+    joinstring = ", "
+    await ctx.respond(
+        embed=Embed(title="List of words defined as sensitive", description=f"||{joinstring.join(fulldict['words'])}||",
+                    color="0x0000ff", timestamp=datetime.now(tz=timezone.utc)))
+
+
+@sensitive_words.child
+@lightbulb.option("word", "Word to remove")
+@lightbulb.command("remove", "removes a word from the sensitive topics word list")
+@lightbulb.implements(commands.PrefixCommand)
+async def remove(ctx: lightbulb.Context):
+    """removes a word from sensitive topics list"""
+    with open('sensitive_settings.json', encoding='utf8') as file:
+        fulldict = json.load(file)
+    joinstring = ", "
+    if ctx.options.word.lower() in fulldict['words']:
+        for i, word in enumerate(fulldict['words']):
+            if word == ctx.options.word.lower():
+                fulldict['words'].pop(i)
+                await ctx.respond(embed=Embed(title="New list of words defined as sensitive",
+                                              description=f"||{joinstring.join(fulldict['words'])}||",
+                                              color="0x00ff00",
+                                              timestamp=datetime.now(tz=timezone.utc)))
+                with open('sensitive_settings.json', 'w', encoding='utf8') as file:
+                    json.dump(fulldict, file)
+                break
+    else:
+        await ctx.respond(embed=Embed(title="Word not in list of words defined as sensitive",
+                                      description=f"||{joinstring.join(fulldict['words'])}||", color="0x0000ff",
+                                      timestamp=datetime.now(tz=timezone.utc)))
 
 
 def load(bot):
