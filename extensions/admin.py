@@ -140,38 +140,34 @@ async def sensitive_words(ctx: SlashContext) -> None:
 
 @sensitive_words.child()
 @lightbulb.option("word", "Word to add")
-@lightbulb.add_checks(has_roles(832521484378308660, 832521484378308659, 832521484378308658, mode=any))
 @lightbulb.command("add", "adds a word to the sensitive topics word list")
 @lightbulb.implements(SlashSubCommand)
 async def add(ctx: lightbulb.Context):
     """adds a word to the sensitive topics list"""
     with open('sensitive_settings.json', encoding='utf8') as json_dict:
         fulldict = json.load(json_dict)
-    joinstring = ", "
     if ctx.options.word.lower() not in fulldict['words']:
         fulldict['words'].append(ctx.options.word.lower())
         with open('sensitive_settings.json', 'w', encoding='utf8') as json_dict:
             json.dump(fulldict, json_dict)
         await ctx.respond(embed=Embed(title="New list of words defined as sensitive",
-                                      description=f"||{joinstring.join(fulldict['words'])}||", color="0x00ff00",
+                                      description=", ".join(fulldict['words']), color="0x00ff00",
                                       timestamp=datetime.now(tz=timezone.utc)))
     else:
         await ctx.respond(embed=Embed(title="Word already in list of words defined as sensitive",
-                                      description=f"||{joinstring.join(fulldict['words'])}||", color="0x0000ff",
+                                      description=", ".join(fulldict['words']), color="0x0000ff",
                                       timestamp=datetime.now(tz=timezone.utc)))
 
 
 @sensitive_words.child
-@lightbulb.add_checks(has_roles(832521484378308660, 832521484378308659, 832521484378308658, mode=any))
 @lightbulb.command("query", "querys the sensitive topics word list")
 @lightbulb.implements(SlashSubCommand)
-async def query(ctx: lightbulb.Context):
+async def query(ctx: lightbulb.SlashContext):
     """queries the sensitive topics list"""
     with open('sensitive_settings.json', encoding='utf8') as json_dict:
         fulldict = json.load(json_dict)
-    joinstring = ", "
     await ctx.respond(
-        embed=Embed(title="List of words defined as sensitive", description=f"||{joinstring.join(fulldict['words'])}||",
+        embed=Embed(title="List of words defined as sensitive", description=", ".join(fulldict['words']),
                     color="0x0000ff", timestamp=datetime.now(tz=timezone.utc)))
 
 
@@ -183,13 +179,12 @@ async def remove(ctx: lightbulb.Context):
     """removes a word from sensitive topics list"""
     with open('sensitive_settings.json', encoding='utf8') as file:
         fulldict = json.load(file)
-    joinstring = ", "
     if ctx.options.word.lower() in fulldict['words']:
         for i, word in enumerate(fulldict['words']):
             if word == ctx.options.word.lower():
                 fulldict['words'].pop(i)
                 await ctx.respond(embed=Embed(title="New list of words defined as sensitive",
-                                              description=f"||{joinstring.join(fulldict['words'])}||",
+                                              description=", ".join(fulldict['words']),
                                               color="0x00ff00",
                                               timestamp=datetime.now(tz=timezone.utc)))
                 with open('sensitive_settings.json', 'w', encoding='utf8') as file:
@@ -197,7 +192,7 @@ async def remove(ctx: lightbulb.Context):
                 break
     else:
         await ctx.respond(embed=Embed(title="Word not in list of words defined as sensitive",
-                                      description=f"||{joinstring.join(fulldict['words'])}||", color="0x0000ff",
+                                      description=", ".join(fulldict['words']), color="0x0000ff",
                                       timestamp=datetime.now(tz=timezone.utc)))
 
 
