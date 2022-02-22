@@ -32,7 +32,7 @@ async def sensitive_scan(event: GuildMessageCreateEvent) -> None:
         embed.add_field("Author:", f"{event.member.display_name}:{event.author.username}#{event.author.discriminator}",
                         inline=True)
         embed.add_field("Message Link:", f"[Link]({event.message.make_link(event.guild_id)})", inline=True)
-        await webhook.excute(username=bot_user.username, avatar_url=bot_user.avatar_url, embed=embed)
+        await webhook.execute(username=bot_user.username, avatar_url=bot_user.avatar_url, embed=embed)
         EVENTS.d.last_sensitive_logged = datetime.now()
 
 
