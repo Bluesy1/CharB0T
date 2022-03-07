@@ -1,40 +1,35 @@
+# coding=utf-8
 # pylint: disable=invalid-name
+import datetime
 import json
+import logging
 import os
 import random
-import sys
-import time
-import traceback
-from datetime import datetime, timedelta
+from logging.handlers import RotatingFileHandler
 
-import hikari
-import lightbulb
-from apscheduler.schedulers.asyncio import AsyncIOScheduler
-from apscheduler.triggers.cron import CronTrigger
-from apscheduler.triggers.date import DateTrigger
-from lightbulb import commands
+import discord
+from discord.ext import commands, tasks
 
-from roller import roll
-
-RETRIES = 0
+from roller import roll as aroll
 
 
 # noinspection PyBroadException
 def main():  # pylint: disable = too-many-statements
     """Main"""
-    global RETRIES  # pylint: disable = global-statement
     if os.name != "nt":
         import uvloop  # pylint: disable=import-outside-toplevel
         uvloop.install()
 
     with open("KethranToken.json", encoding='utf8') as file:
         token = json.load(file)['Token']
-
-    bot = lightbulb.BotApp(token=token, prefix="k", help_class=None,
-                           owner_ids=[363095569515806722], case_insensitive_prefix_commands=True)
-    scheduler = AsyncIOScheduler()
-    scheduler.start()
-    bot.d.responses = [
+    logger = logging.getLogger('discord')
+    logger.setLevel(logging.WARNING)
+    handler = RotatingFileHandler(filename='kethran.log', encoding='utf-8', mode='w', maxBytes=2000000, backupCount=10)
+    handler.setFormatter(logging.Formatter('%(asctime)s:%(levelname)s:%(name)s: %(message)s'))
+    logger.addHandler(handler)
+    bot = commands.Bot(command_prefix="k", owner_id=363095569515806722, case_insensitive=True, help_command=None,
+                       intents=discord.Intents.message_content)
+    responses = [
         "Bork!", "Bork!", "Bork!", "Bork!", "Bork!",
         "WOOF!", "WOOF!", "WOOF!", "WOOF!",
         "AROOOF!", "AROOOF!", "AROOOF!", "AROOOF!",
@@ -63,63 +58,39 @@ def main():  # pylint: disable = too-many-statements
         "pants", "pants", "pants", "pants",
         "**HOLY SHIT!** \n**HOLY SHIT!**\n**HOLY SHIT!**",
     ]
-    bot.load_extensions("lightbulb.ext.filament.exts.superuser")
 
-    @bot.listen(hikari.GuildMessageCreateEvent)
-    async def on_guild_message(event: hikari.GuildMessageCreateEvent):  # pylint: disable=unused-variable
+    @bot.event
+    async def on_message(message: discord.Message):  # pylint: disable=unused-variable
         """Checks guild messages in correct channels for regex trigger"""
-        if event.is_human:
-            if event.channel_id in [901325983838244865, 878434694713188362]:
-                if "kethran" in event.content.lower():
-                    await event.get_channel().send(
-                        random.choice(bot.d.responses), reply=event.message_id, mentions_reply=True)
-
-    @bot.listen(hikari.DMMessageCreateEvent)
-    async def on_dm_message(event: hikari.DMMessageCreateEvent):  # pylint: disable=unused-variable
-        """Checks for DMs from a specific user to forward"""
-        if event.is_human and event.content is not None and event.author_id == 184524255197659136:
-            channel = await bot.rest.fetch_channel(878434694713188362)
-            await channel.send(event.content)
+        if not message.author.bot and message.channel.type is not discord.ChannelType.private:
+            if message.channel.id in [901325983838244865, 878434694713188362]:
+                if "kethran" in message.content.lower():
+                    await message.channel.send(random.choice(responses), reference=message, mention_author=True)
+        elif message.author.id == 184524255197659136:
+            channel = await bot.fetch_channel(878434694713188362)
+            await channel.send(message.content)
 
     @bot.command()
-    @lightbulb.option("dice", "dice to roll", required=True)
-    @lightbulb.command("roll", "diceroller")
-    @lightbulb.implements(commands.PrefixCommand)
-    async def roll_comm(ctx: lightbulb.Context):  # pylint: disable=unused-variable
+    async def roll(ctx: commands.Context, *, arg: str):  # pylint: disable=unused-variable
         """Dice roller"""
-        await roll(ctx)
+        await ctx.send(f"Kethran {aroll(arg)}")
 
-    @scheduler.scheduled_job(CronTrigger(day_of_week="sat", hour="1"), id="1")
+    @tasks.loop(minutes=1)
     async def friday_5() -> None:  # pylint: disable=unused-variable
         """IDK, it's a thing"""
-        await bot.rest.create_message(878434694713188362, random.choice(bot.d.responses))
-
-    def remove_retry():
-        """Removes a Retry"""
-        global RETRIES  # pylint: disable = global-statement
-        RETRIES -= 1
-
-    try:
-        bot.run()
-    except KeyboardInterrupt:
-        traceback.print_exc()
-        sys.exit()
-    except hikari.ComponentStateConflictError:
-        traceback.print_exc()
-        sys.exit()
-    except TypeError:
-        traceback.print_exc()
-        sys.exit()
-    except:   # pylint: disable=bare-except
-        if RETRIES < 11:
-            time.sleep(10)
-            RETRIES += 1
-            scheduler.add_job(remove_retry, DateTrigger(datetime.utcnow() + timedelta(minutes=30)))
-            print(f"Bot Closed, Trying to restart, try {RETRIES}/10")
-            main()
+        if datetime.datetime.now(tz=datetime.timezone.utc).date().weekday() == 6 and \
+                datetime.datetime.now(tz=datetime.timezone.utc).hour == 1 and \
+                datetime.datetime.now(tz=datetime.timezone.utc).minute == 0:
+            await (await bot.fetch_channel(878434694713188362)).send(random.choice(responses))
         else:
-            traceback.print_exc()
-            sys.exit()
+            print("Test")
+
+    async def on_connect():
+        print("Logged In!")
+
+    friday_5.start()
+    bot.on_connect = on_connect
+    bot.run(token)
 
 
 if __name__ == "__main__":

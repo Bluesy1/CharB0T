@@ -1,3 +1,4 @@
+# coding=utf-8
 import asyncio
 import json
 import os
@@ -5,15 +6,30 @@ import time
 from datetime import datetime, timezone
 
 import lightbulb
+from discord import Embed
+from discord.ext import commands
+from discord.ext.commands import Cog, Context
 from hikari.embeds import Embed
 from hikari.events.interaction_events import InteractionCreateEvent
 from hikari.interactions.base_interactions import ResponseType
 from hikari.messages import ButtonStyle
-from lightbulb import commands, SlashCommandGroup, SlashSubGroup, SlashContext, SlashSubCommand
+from lightbulb import SlashCommandGroup, SlashSubGroup, SlashContext, SlashSubCommand
 from lightbulb.checks import has_roles
 
 AdminPlugin = lightbulb.Plugin("AdminPlugin", default_enabled_guilds=[225345178955808768])
 AdminPlugin.add_checks(has_roles(338173415527677954, 253752685357039617, 225413350874546176, mode=any))
+
+
+class Admin(Cog):
+
+    def __init__(self, bot):
+        self.bot = bot
+
+    def cog_check(self, ctx: Context) -> bool:
+        return any(role.id in (338173415527677954, 253752685357039617, 225413350874546176) for role in ctx.author.roles)
+
+
+
 
 
 @AdminPlugin.command
@@ -196,11 +212,6 @@ async def remove(ctx: lightbulb.Context):
                                       timestamp=datetime.now(tz=timezone.utc)))
 
 
-def load(bot):
+def setup(bot: commands.Bot):
     """Loads Plugin"""
-    bot.add_plugin(AdminPlugin)
-
-
-def unload(bot):
-    """Unloads Plugin"""
-    bot.remove_plugin(AdminPlugin)
+    bot.add_cog(Admin(bot))

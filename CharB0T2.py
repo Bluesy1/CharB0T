@@ -1,107 +1,131 @@
+# coding=utf-8
 # pylint: disable=invalid-name
 import json
+import logging
 import os
-import sys
+import re
 import time
-import traceback
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
+from logging.handlers import RotatingFileHandler
 
-import hikari
-import lightbulb
-from apscheduler.schedulers.asyncio import AsyncIOScheduler
-from apscheduler.triggers.date import DateTrigger
-from hikari import iterators, snowflakes
-from hikari.embeds import Embed
-from hikari.intents import Intents
-from hikari.internal.time import utc_datetime
-from hikari.messages import Message
-from lightbulb import commands
-
-RETRIES = 0
+import discord
+from discord import Embed, Color
+from discord.ext import commands, tasks
+from discord.ext.commands import Cog
 
 
-# noinspection PyBroadException
-def main():  # pylint: disable=too-many-statements
-    """Main"""
-    global RETRIES  # pylint: disable=global-statement
-    if os.name != "nt":
-        import uvloop  # pylint: disable=import-outside-toplevel
-        uvloop.install()
+async def time_string_from_seconds(delta: float) -> str:
+    minutes, sec = divmod(delta, 60)
+    hour, minutes = divmod(minutes, 60)
+    day, hour = divmod(hour, 24)
+    year, day = divmod(day, 365)
+    return f"{year} Year(s), {day} Day(s), {hour} Hour(s), {minutes} Min(s), {sec:.2f} Sec(s)"
 
-    with open('token2.json', encoding='utf8') as file:
-        token = json.load(file)['token']
-    # Instantiate a Bot instance
-    bot = lightbulb.BotApp(
-        token=token, prefix="c?", default_enabled_guilds=225345178955808768,
-        owner_ids=[225344348903047168, 363095569515806722], logs={
-            "version": 1,
-            "incremental": True,
-            "loggers": {
-                "hikari": {"level": "INFO"},
-                "hikari.ratelimits": {"level": "TRACE_HIKARI"},
-                "lightbulb": {"level": "INFO"},
-            }, }, case_insensitive_prefix_commands=True,
-        delete_unbound_commands=False, intents=Intents.ALL)
-    scheduler = AsyncIOScheduler()
-    scheduler.start()
 
-    bot.load_extensions("lightbulb.ext.filament.exts.superuser")
+class PrimaryFunctions(Cog):
+    """Primary CharBot2 class"""
 
-    async def create_task(run_time: datetime,
-                          guild_id: snowflakes.Snowflakeish, member_id: snowflakes.Snowflakeish):
-        """Creates a Scheduled Untimeout"""
+    def __init__(self, bot):
+        """Init func"""
+        self.bot = bot
+        self.timeouts = {}
 
-        async def log_untimeout() -> None:
-            """Untimeout Report Method"""
-            member = await bot.rest.fetch_member(guild_id, member_id)
-            timeout_still = member.communication_disabled_until()
-            if not timeout_still:
-                await bot.rest.create_message(426016300439961601,
-                                              embed=Embed(color="0x00ff00")
-                                              .set_author(icon=member.avatar_url,
-                                                          name=f"[UNTIMEOUT] {member.username}#{member.discriminator}")
-                                              .add_field("User", member.mention, inline=True))
-            elif timeout_still:
-                await create_task(timeout_still, member.guild_id, member.id)
+    @commands.command()
+    async def ping(self, ctx):  # pylint: disable=unused-variable
+        """ping command"""
+        await ctx.send(f"Pong! Latency: {self.bot.latency * 1000:.2f}ms")
 
-        scheduler.add_job(log_untimeout, DateTrigger(run_date=run_time),
-                          id=f"{guild_id}-{member_id}", replace_existing=True)
+    @tasks.loop(seconds=30)
+    async def log_untimeout(self) -> None:
+        """Untimeout Report Method"""
+        removeable = []
+        for i in self.timeouts:
+            if self.timeouts[i] < datetime.now(tz=timezone.utc):
+                member = await (await self.bot.fetch_guild(225345178955808768)).fetch_member(i)
+                if not member.is_timed_out():
+                    embed = Embed(color=Color.green())
+                    embed.set_author(name=f"[UNTIMEOUT] {member.name}#{member.discriminator}")
+                    embed.add_field(name="User", value=member.mention, inline=True)
+                    await (await self.bot.fetch_channel(687817008355737606)).send(embed=embed)
+                    removeable.append(i)
+                elif member.is_timed_out():
+                    self.timeouts.update({i: member.timed_out_until})
+        for i in removeable:
+            self.timeouts.pop(i)
+    log_untimeout.start()
 
-    @bot.command()
-    @lightbulb.add_checks(lightbulb.owner_only)
-    @lightbulb.command("ping", "Checks that the bot is alive")
-    @lightbulb.implements(commands.PrefixCommand)
-    async def ping(ctx):  # pylint: disable=unused-variable
-        await ctx.event.message.delete()
-        await ctx.respond(f"Pong! Latency: {bot.heartbeat_latency * 1000:.2f}ms")
-
-    @bot.listen(hikari.DMMessageCreateEvent)
-    async def on_dm_message(event: hikari.DMMessageCreateEvent) -> None:  # pylint: disable=unused-variable
-        if event.is_human:
-            await event.author.send(
+    @Cog.listener()
+    async def on_message(self, message: discord.Message) -> None:  # pylint: disable=unused-variable
+        if not message.author.bot and message.channel.type is discord.ChannelType.private:
+            await message.channel.send(
                 "Hi! If this was an attempt to reach the mod team through modmail, you've messaged the wrong bot "
                 "sadly. Please message <@406885177281871902> (CharB0T#3153) instead. We apologize for the confusion "
                 "of having 2 identically named bots, and hope you will still reach out if you were meaning to!")
+        elif message.channel.id == 926532222398369812 and (len(message.mentions) == 1 or
+                                                           re.search("<@!?(\d+)>\B", message.content)):
+            return
+            print(message.content, message.mentions)
+            member = message.mentions[0] if message.mentions else None
+            print(member)
+            time_string = "None Found"
+            mentioned_id = None
+            if member and member.joined_at:
+                delta = time.time() - time.mktime(member.joined_at.utctimetuple())
+                time_string = await time_string_from_seconds(delta)
 
-    @bot.listen(hikari.MemberUpdateEvent)
-    async def on_member_update(event: hikari.MemberUpdateEvent):  # pylint: disable=unused-variable
+            else:
+                channel = await self.bot.fetch_channel(430197357100138497)
+                messages = channel.history(before=datetime.utcnow())
+                if re.search("<@!?(\d+)>\B", message.content) and not member:
+                    mentioned_id = int(re.search("<@!?(\d+)>\B", message.content).groups()[0])
+                print(mentioned_id)
+                try:
+                    async for item in messages:
+                        if not item.author.bot:
+                            continue
+                        mentions = item.mentions
+                        is_mentioned = False
+                        if member:
+                            for mention in mentions:
+                                if member.id == mention.id:
+                                    is_mentioned = True
+                        elif mentioned_id:
+                            for mention in mentions:
+                                if mentioned_id == mention.id:
+                                    is_mentioned = True
+                        if is_mentioned:
+                            delta = time.time() - time.mktime(item.created_at.utctimetuple())
+                            time_string = await time_string_from_seconds(delta)
+                except TypeError:
+                    print(time_string := "Unable to calculate time.")
+            print(mentioned_id, member)
+            member = member if member else await self.bot.fetch_user(mentioned_id) if mentioned_id else None
+            print(member)
+            if member:
+                await (await self.bot.fetch_channel(926532222398369812)).send(
+                    f"**{member.name}#{member.discriminator}** has left the server. "
+                    f"ID:{member.id}. Time on Server: {time_string}")
+                await message.delete()
+
+    # noinspection PyBroadException
+    @Cog.listener()
+    async def on_member_update(self, before: discord.Member, after: discord.Member):  # pylint: disable=unused-variable
         try:
-            if event.member.communication_disabled_until() != event.old_member.communication_disabled_until():
-                if event.member.raw_communication_disabled_until is not None:
-                    await parse_timeout(event)
+            if after.timed_out_until != before.timed_out_until:
+                if after.is_timed_out():
+                    await self.parse_timeout(after)
                 else:
-                    embed = Embed(color="0x00ff00")
-                    embed.set_author(icon=event.member.avatar_url,
-                                     name=f"[UNTIMEOUT] {event.member.username}#{event.member.discriminator}")
-                    embed.add_field("User", event.member.mention, inline=True)
-                    await bot.rest.create_message(426016300439961601, embed=embed)
-                    scheduler.remove_job(f"{event.guild_id}-{event.member.id}")
+                    embed = Embed(color=Color.green())
+                    embed.set_author(name=f"[UNTIMEOUT] {after.name}#{after.discriminator}")
+                    embed.add_field(name="User", value=after.mention, inline=True)
+                    await (await self.bot.fetch_channel(687817008355737606)).send(embed=embed)
+                    self.bot.timeouts.pop(after.id)
         except:  # pylint: disable=bare-except
-            if event.member.raw_communication_disabled_until is not None:
-                await parse_timeout(event)
+            if after.is_timed_out():
+                await self.parse_timeout(after)
 
-    async def parse_timeout(event):
-        td = event.member.communication_disabled_until() + timedelta(seconds=1) - utc_datetime()
+    async def parse_timeout(self, after: discord.Member):
+        td = after.timed_out_until + timedelta(seconds=1) - datetime.now(tz=timezone.utc)
         time_string = ""
         if td.days // 7 != 0:
             time_string += f"{td.days // 7} Week{'s' if td.days // 7 > 1 else ''}"
@@ -113,84 +137,39 @@ def main():  # pylint: disable=too-many-statements
             time_string += f"{', ' if bool(time_string) else ''}{(td.seconds % 3600) // 60} Minute(s) "
         if (td.seconds % 3600) % 60 != 0:
             time_string += f"{', ' if bool(time_string) else ''}{(td.seconds % 3600) % 60} Second(s) "
-        embed = Embed(color="0xff0000")
-        embed.set_author(icon=event.member.avatar_url,
-                         name=f"[TIMEOUT] {event.member.username}#{event.member.discriminator}")
-        embed.add_field("User", event.member.mention, inline=True)
-        embed.add_field("Duration", time_string, inline=True)
-        await bot.rest.create_message(426016300439961601, embed=embed)
-        await create_task(event.member.communication_disabled_until(), event.guild_id, event.member.id)
+        embed = Embed(color=Color.red())
+        embed.set_author(name=f"[TIMEOUT] {after.name}#{after.discriminator}")
+        embed.add_field(name="User", value=after.mention, inline=True)
+        embed.add_field(name="Duration", value=time_string, inline=True)
+        await (await self.bot.fetch_channel(687817008355737606)).send(embed=embed)
+        self.timeouts.update({after.id: after.timed_out_until})
 
-    # noinspection PyBroadException
-    @bot.listen(hikari.MemberDeleteEvent)
-    async def on_member_leave(event: hikari.MemberDeleteEvent):  # pylint: disable=unused-variable
-        if event.old_member:
-            delta = time.time() - time.mktime(event.old_member.joined_at.utctimetuple())
-            time_string = await time_string_from_seconds(delta)
-        else:
-            channel = await bot.rest.fetch_channel(430197357100138497)
-            messages: iterators.LazyIterator[Message] = await channel.fetch_history(before=datetime.utcnow())
-            try:
-                messages = messages.filter(("message.author.is_bot", True))
-            except:  # pylint: disable=bare-except
-                None  # pylint: disable=pointless-statement
-            try:
-                messages = messages.reversed()
-            except:  # pylint: disable=bare-except
-                try:
-                    messages = messages.reverse()
-                except:  # pylint: disable=bare-except
-                    None  # pylint: disable=pointless-statement
-            time_string = "None Found"
-            try:
-                async for item in messages:
-                    mentions = item.mentions.get_members()
-                    if event.user_id in mentions.keys:
-                        delta = time.time() - time.mktime(item.created_at.utctimetuple())
-                        time_string = await time_string_from_seconds(delta)
-            except TypeError:
-                print("Unable to calculate time.")
-        await bot.rest.create_message(430197357100138497,
-                                      f"**{event.user.username}#{event.user.discriminator}** has left the server. "
-                                      f"ID:{event.user_id}. Time on Server: {time_string}")
 
-    async def time_string_from_seconds(delta: float) -> str:
-        minutes, sec = divmod(delta, 60)
-        hour, minutes = divmod(minutes, 60)
-        day, hour = divmod(hour, 24)
-        year, day = divmod(day, 365)
-        return f"{year} Year(s), {day} Day(s), {hour} Hour(s), {minutes} Min(s), {sec} Sec(s)"
+# noinspection PyBroadException
+def main():  # pylint: disable=too-many-statements
+    """Main"""
+    if os.name != "nt":
+        import uvloop  # pylint: disable=import-outside-toplevel
+        uvloop.install()
 
-    # Run the bot
-    # Note that this is blocking meaning no code after this line will run
-    # until the bot is shut off
+    with open('token2.json', encoding='utf8') as file:
+        token = json.load(file)['token']
+    logger = logging.getLogger('discord')
+    logger.setLevel(logging.INFO)
+    handler = RotatingFileHandler(filename='Char2.log', encoding='utf-8', mode='w', maxBytes=2000000, backupCount=10)
+    handler.setFormatter(logging.Formatter('%(asctime)s:%(levelname)s:%(name)s: %(message)s'))
+    logger.addHandler(handler)
 
-    def remove_retry():
-        """Removes a Retry"""
-        global RETRIES   # pylint: disable=global-statement
-        RETRIES -= 1
+    bot = commands.Bot(command_prefix="c?", owner_ids=[225344348903047168, 363095569515806722],
+                       case_insensitive=True, intents=discord.Intents.all(), help_command=None)
 
-    try:
-        bot.run()
-    except KeyboardInterrupt:
-        traceback.print_exc()
-        sys.exit()
-    except hikari.ComponentStateConflictError:
-        traceback.print_exc()
-        sys.exit()
-    except TypeError:
-        traceback.print_exc()
-        sys.exit()
-    except:  # pylint: disable=bare-except
-        if RETRIES < 11:
-            time.sleep(10)
-            RETRIES += 1
-            scheduler.add_job(remove_retry, DateTrigger(datetime.utcnow() + timedelta(minutes=30)))
-            print(f"Bot Closed, Trying to restart, try {RETRIES}/10")
-            main()
-        else:
-            traceback.print_exc()
-            sys.exit()
+    async def on_connect():
+        print("Logged In!")
+
+    bot.load_extension('jishaku')
+    bot.add_cog(PrimaryFunctions(bot))
+    bot.on_connect = on_connect
+    bot.run(token)
 
 
 if __name__ == "__main__":

@@ -1,122 +1,41 @@
+# coding=utf-8
 # pylint: disable=invalid-name
 import json
+import logging
 import os
-import sys
-import traceback
-from datetime import datetime, timedelta
-from time import sleep
+from logging.handlers import RotatingFileHandler
 
-import hikari
-import lightbulb
-from apscheduler.schedulers.background import BackgroundScheduler
-from apscheduler.triggers.date import DateTrigger
-from hikari.intents import Intents
-from hikari.presences import Activity, ActivityType
-from lightbulb import commands
-
-RETRIES = 0
+import discord
+from discord.ext import commands
 
 
 # noinspection PyBroadException
 def main():
     """Main"""
-    global RETRIES  # pylint: disable=global-statement
     if os.name != "nt":
         import uvloop  # pylint: disable=import-outside-toplevel
         uvloop.install()
 
     with open('bottoken.json', encoding='utf8') as file:
         token = json.load(file)['Token']
-
+    logger = logging.getLogger('discord')
+    logger.setLevel(logging.INFO)
+    handler = RotatingFileHandler(filename='CharBot.log', encoding='utf-8', mode='w', maxBytes=2000000, backupCount=10)
+    handler.setFormatter(logging.Formatter('%(asctime)s:%(levelname)s:%(name)s: %(message)s'))
+    logger.addHandler(handler)
     # Instantiate a Bot instance
-    bot = lightbulb.BotApp(
-        token=token, prefix="!", help_slash_command=True,
-        owner_ids=[225344348903047168, 363095569515806722], logs={
-            "version": 1,
-            "incremental": True,
-            "loggers": {
-                "hikari": {"level": "INFO"},
-                "hikari.ratelimits": {"level": "TRACE_HIKARI"},
-                "lightbulb": {"level": "INFO"},
-            }, }, case_insensitive_prefix_commands=True, intents=Intents.ALL)
-    bot.load_extensions("lightbulb.ext.filament.exts.superuser")
+    bot = commands.Bot(command_prefix="!", owner_ids=[225344348903047168, 363095569515806722],
+                       case_insensitive=True, intents=discord.Intents.all(), help_command=None,
+                       activity=discord.Activity(type=discord.ActivityType.watching, name="over the server"))
 
-    @bot.command()
-    @lightbulb.option("module", "module to reload", required=True)
-    @lightbulb.add_checks(lightbulb.owner_only)
-    @lightbulb.command("reload", "reloads extensions")
-    @lightbulb.implements(commands.PrefixCommand)
-    async def reload(ctx) -> None:  # pylint: disable=unused-variable
-        """Live Module Reloading Command"""
-        # Send a message to the channel the command was used in
-        bot.reload_extensions("extensions." + ctx.options.module)
-        await ctx.respond("Reloaded!")
-
-    @bot.command()
-    @lightbulb.option("module", "module to load", required=True)
-    @lightbulb.add_checks(lightbulb.owner_only)
-    @lightbulb.command("load", "loads given extensions")
-    @lightbulb.implements(commands.PrefixCommand)
-    async def load(ctx) -> None:  # pylint: disable=unused-variable
-        """Live Module Loading Command"""
-        # Send a message to the channel the command was used in
-        bot.load_extensions("extensions." + ctx.options.module)
-        await ctx.respond("Loaded!")
-
-    @bot.command()
-    @lightbulb.option("module", "module to unload", required=True)
-    @lightbulb.add_checks(lightbulb.owner_only)
-    @lightbulb.command("unload", "unloads given extensions")
-    @lightbulb.implements(commands.PrefixCommand)
-    async def unload(ctx) -> None:  # pylint: disable=unused-variable
-        """Live Module Unloading Command"""
-        # Send a message to the channel the command was used in
-        bot.unload_extensions("extensions." + ctx.options.module)
-        await ctx.respond("Unloaded!")
-
-    @bot.command()
-    @lightbulb.add_checks(lightbulb.owner_only)
-    @lightbulb.command("ping", "Checks that the bot is alive")
-    @lightbulb.implements(commands.PrefixCommand)
+    @commands.command
     async def ping(ctx):  # pylint: disable=unused-variable
         """Ping Command TO Check Bot Is Alive"""
         await ctx.event.message.delete()
-        await ctx.respond(f"Pong! Latency: {bot.heartbeat_latency * 1000:.2f}ms")
+        await ctx.respond(f"Pong! Latency: {bot.latency * 1000:.2f}ms")
 
-    bot.load_extensions_from("extensions")
-
-    # Run the bot
-    # Note that this is blocking meaning no code after this line will run
-    # until the bot is shut off
-    scheduler = BackgroundScheduler()
-    scheduler.start()
-
-    def remove_retry():
-        """Removes a Retry"""
-        global RETRIES  # pylint: disable=global-statement
-        RETRIES -= 1
-
-    try:
-        bot.run(activity=Activity(name="over the server", type=ActivityType.WATCHING))
-    except KeyboardInterrupt:
-        traceback.print_exc()
-        sys.exit()
-    except hikari.ComponentStateConflictError:
-        traceback.print_exc()
-        sys.exit()
-    except TypeError:
-        traceback.print_exc()
-        sys.exit()
-    except:  # pylint: disable=bare-except
-        if RETRIES < 11:
-            sleep(10)
-            RETRIES += 1
-            scheduler.add_job(remove_retry, DateTrigger(datetime.utcnow() + timedelta(minutes=30)))
-            print(f"Bot Closed, Trying to restart, try {RETRIES}/10")
-            main()
-        else:
-            traceback.print_exc()
-            sys.exit()
+    bot.load_extension('jishaku')
+    bot.run(token)
 
 
 if __name__ == "__main__":
