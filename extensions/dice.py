@@ -1,40 +1,38 @@
-import lightbulb
-from lightbulb import commands
-from lightbulb.checks import has_roles
+# coding=utf-8
+import discord
+from discord import app_commands, Interaction
+from discord.ext import commands
+from discord.ext.commands import Cog, Context
 
-from roller import roll
-
-dice_plugin = lightbulb.Plugin("DicePlugin", include_datastore=True)
-dice_plugin.d.roll_error = "Error invalid argument: specified dice can only be d2s, " \
-                           "d4s, d6s, d8s, d10s, d12s, d20s, or d100s, or if a constant modifier must be a perfect " \
-                           "integer, positive or negative, connexted with `+`, and no spaces. "
+from roller import roll as aroll
 
 
-@dice_plugin.command
-@lightbulb.add_checks(lightbulb.Check(
-    has_roles(338173415527677954, 253752685357039617, 225413350874546176, 914969502037467176, mode=any)))
-@lightbulb.command("roll", "roll group", guilds=[225345178955808768])
-@lightbulb.implements(commands.SlashCommandGroup)
-async def roll_group(ctx) -> None:
-    """Roll Group"""
-    await ctx.respond("invoked roll")
+class Dice(app_commands.Group):
+    """Dice parent"""
+
+    @app_commands.command(description="D&D Standard Array 7 Dice roller, plus coin flips")
+    @app_commands.describe(dice="Dice to roll, accpets d<int>s and integers")
+    async def roll(self, interaction: Interaction, dice: str):  # pylint: disable=unused-variable
+        """Dice roller"""
+        if any(role.id in (338173415527677954, 253752685357039617, 225413350874546176) for role in
+               interaction.user.roles):
+            await interaction.response.send_message(f"{interaction.user.mention} {aroll(dice)}")
+        else:
+            await interaction.response.send_message("You are not authorized to use this command")
 
 
-@roll_group.child
-@lightbulb.option("dice", "Dice to roll, accepts d2s, d4s, d6s, d8s, d10s, d12s, d20s, and d100s.", required=True)
-@lightbulb.command("standard", "D&D Standard Array 7 Dice roller, plus coin flips", inherit_checks=True,
-                   guilds=[225345178955808768])
-@lightbulb.implements(commands.SlashSubCommand)
-async def roll_comm(ctx: lightbulb.Context):  # pylint: disable=unused-variable
-    """Dice roller"""
-    await roll(ctx)
+class Roll(Cog):
+
+    # noinspection PyUnresolvedReferences
+    def __init__(self, bot: commands.Bot):
+        self.bot = bot
+        self.tree: app_commands.CommandTree = bot.tree
+        self.tree.add_command(Dice(), guild=discord.Object(id=225345178955808768))
+
+    def cog_check(self, ctx: Context) -> bool:
+        return any(role.id in (338173415527677954, 253752685357039617, 225413350874546176) for role in ctx.author.roles)
 
 
-def load(bot):
+def setup(bot: commands.Bot):
     """Loads Plugin"""
-    bot.add_plugin(dice_plugin)
-
-
-def unload(bot):
-    """Unloads Plugin"""
-    bot.remove_plugin(dice_plugin)
+    bot.add_cog(Roll(bot))

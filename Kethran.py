@@ -73,7 +73,7 @@ def main():  # pylint: disable = too-many-statements
     @bot.command()
     async def roll(ctx: commands.Context, *, arg: str):  # pylint: disable=unused-variable
         """Dice roller"""
-        await ctx.send(f"Kethran {aroll(arg)}")
+        await ctx.send(f"Kethran {aroll(arg)}", reference=ctx.message)
 
     @tasks.loop(minutes=1)
     async def friday_5() -> None:  # pylint: disable=unused-variable

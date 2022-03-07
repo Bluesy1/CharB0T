@@ -6,6 +6,7 @@ import os
 from logging.handlers import RotatingFileHandler
 
 import discord
+from discord import app_commands
 from discord.ext import commands
 
 
@@ -28,13 +29,15 @@ def main():
                        case_insensitive=True, intents=discord.Intents.all(), help_command=None,
                        activity=discord.Activity(type=discord.ActivityType.watching, name="over the server"))
 
-    @commands.command
-    async def ping(ctx):  # pylint: disable=unused-variable
-        """Ping Command TO Check Bot Is Alive"""
-        await ctx.event.message.delete()
-        await ctx.respond(f"Pong! Latency: {bot.latency * 1000:.2f}ms")
+    bot.tree = app_commands.CommandTree(bot)
+
+    async def on_connect():
+        print("Logged In!")
 
     bot.load_extension('jishaku')
+    bot.load_extension('.admin', package='extensions')
+    bot.load_extension('.dice', package='extensions')
+    bot.on_connect = on_connect
     bot.run(token)
 
 
