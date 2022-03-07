@@ -8,7 +8,7 @@ from discord.ext.commands import Cog, Context
 
 
 class Admin(Cog):
-
+    """Admin Cog"""
     def __init__(self, bot: commands.Bot):
         self.bot = bot
 
@@ -21,13 +21,14 @@ class Admin(Cog):
         await ctx.send(f"Pong! Latency: {self.bot.latency * 1000:.2f}ms")
 
     @commands.Group
-    async def sensitive(self, ctx: Context):
+    async def sensitive(self, ctx: Context):  # pylint: disable=no-self-use
+        """Sensitive command group"""
         if ctx.invoked_subcommand is None:
             await ctx.send("Invoked Sensitive words group - use `add` to add a word, `remove`"
                            " to remove a word, or `query` to get all words on the list.")
 
     @sensitive.command()
-    async def add(self, ctx: Context, *, word: str):
+    async def add(self, ctx: Context, *, word: str):  # pylint: disable=no-self-use
         """adds a word to the sensitive topics list"""
         with open('sensitive_settings.json', encoding='utf8') as json_dict:
             fulldict = json.load(json_dict)
@@ -44,7 +45,7 @@ class Admin(Cog):
                                        timestamp=datetime.now(tz=timezone.utc)))
 
     @sensitive.command()
-    async def remove(self, ctx: Context, *, word: str):
+    async def remove(self, ctx: Context, *, word: str):  # pylint: disable=no-self-use
         """removes a word from sensitive topics list"""
         with open('sensitive_settings.json', encoding='utf8') as file:
             fulldict = json.load(file)
@@ -61,7 +62,7 @@ class Admin(Cog):
                                        timestamp=datetime.now(tz=timezone.utc)))
 
     @sensitive.command()
-    async def query(self, ctx: Context):
+    async def query(self, ctx: Context):  # pylint: disable=no-self-use
         """queries the sensitive topics list"""
         with open('sensitive_settings.json', encoding='utf8') as json_dict:
             fulldict = json.load(json_dict)
