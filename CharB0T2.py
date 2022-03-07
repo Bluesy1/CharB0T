@@ -15,6 +15,7 @@ from discord.ext.commands import Cog
 
 
 async def time_string_from_seconds(delta: float) -> str:
+    """Converts time float to str"""
     minutes, sec = divmod(delta, 60)
     hour, minutes = divmod(minutes, 60)
     day, hour = divmod(hour, 24)
@@ -39,8 +40,8 @@ class PrimaryFunctions(Cog):
     async def log_untimeout(self) -> None:
         """Untimeout Report Method"""
         removeable = []
-        for i in self.timeouts:
-            if self.timeouts[i] < datetime.now(tz=timezone.utc):
+        for i, j in self.timeouts.items():
+            if j < datetime.now(tz=timezone.utc):
                 member = await (await self.bot.fetch_guild(225345178955808768)).fetch_member(i)
                 if not member.is_timed_out():
                     embed = Embed(color=Color.green())
@@ -108,6 +109,7 @@ class PrimaryFunctions(Cog):
     # noinspection PyBroadException
     @Cog.listener()
     async def on_member_update(self, before: discord.Member, after: discord.Member):  # pylint: disable=unused-variable
+        """On member update func"""
         try:
             if after.timed_out_until != before.timed_out_until:
                 if after.is_timed_out():
@@ -123,6 +125,7 @@ class PrimaryFunctions(Cog):
                 await self.parse_timeout(after)
 
     async def parse_timeout(self, after: discord.Member):
+        """parses timeouts"""
         td = after.timed_out_until + timedelta(seconds=1) - datetime.now(tz=timezone.utc)
         time_string = ""
         if td.days // 7 != 0:
