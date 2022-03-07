@@ -9,7 +9,7 @@ from discord.ext.commands import Cog, Context
 
 
 class Admin(Cog):
-
+    """Admin Cog"""
     def __init__(self, bot: commands.Bot):
         self.bot = bot
 
@@ -22,13 +22,14 @@ class Admin(Cog):
         await ctx.send(f"Pong! Latency: {self.bot.latency * 1000:.2f}ms")
 
     @commands.Group
-    async def slur(self, ctx: Context):
+    async def slur(self, ctx: Context):  # pylint: disable=no-self-use
+        """slur command group"""
         if ctx.invoked_subcommand is None:
             await ctx.send("Invoked slur words group - use `add` to add a word, `remove`"
                            " to remove a word, or `query` to get all words on the list.")
 
     @slur.command()
-    async def add(self, ctx: Context, *, word: str):
+    async def add(self, ctx: Context, *, word: str):  # pylint: disable=no-self-use
         """adds a word to the slur list"""
         if ctx.guild.id != 832521484340953088:
             return
@@ -48,27 +49,27 @@ class Admin(Cog):
                                        timestamp=datetime.now(tz=timezone.utc)))
 
     @slur.command()
-    async def remove(self, ctx: Context, *, word: str):
+    async def remove(self, ctx: Context, *, word: str):  # pylint: disable=no-self-use
         """removes a word from the slur list"""
         if ctx.guild.id != 832521484340953088:
             return
-        with open('UBCbot.json', encoding='utf8') as t:
-            fulldict = json.load(t)
+        with open('UBCbot.json', encoding='utf8') as file:
+            fulldict = json.load(file)
         joinstring = ", "
         if word.lower() in fulldict['Words']:
             fulldict['Words'].remove(word.lower()).sort()
             await ctx.send(embed=Embed(title="New list of words defined as slurs",
                                        description=f"||{joinstring.join(fulldict['Words'])}||",
                                        color=Color.green(), timestamp=datetime.now(tz=timezone.utc)))
-            with open('UBCbot.json', 'w', encoding='utf8') as t:
-                json.dump(fulldict, t)
+            with open('UBCbot.json', 'w', encoding='utf8') as file:
+                json.dump(fulldict, file)
         else:
             await ctx.send(embed=Embed(title="Word not in list of words defined as slurs",
                                        description=f"||{joinstring.join(fulldict['Words'])}||", color=Color.blue(),
                                        timestamp=datetime.now(tz=timezone.utc)))
 
     @slur.command()
-    async def query(self, ctx: Context):
+    async def query(self, ctx: Context):  # pylint: disable=no-self-use
         """queries the slur list"""
         if ctx.guild.id != 832521484340953088:
             return
@@ -81,10 +82,11 @@ class Admin(Cog):
 
     @Cog.listener()
     async def on_message(self, message: discord.Message):
+        """on_message func"""
         if message.guild.id != 832521484340953088 or message.content is None:
             return
-        with open('UBCbot.json', encoding='utf8') as t:
-            words: list[str] = json.load(t)['Words']
+        with open('UBCbot.json', encoding='utf8') as file:
+            words: list[str] = json.load(file)['Words']
         content = message.content.lower().split()
         used_slurs = set()
         joinstring = ", "
