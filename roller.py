@@ -6,7 +6,7 @@ def roll(arg: str) -> str:  # pylint: disable=unused-variable
     """Dice roller"""
     roll_error = ("Error invalid argument: specified dice can only be d<int>, or if a constant modifier must be a "
                   "perfect integer, positive or negative, "
-                  "connexted with `+`, and no spaces.")
+                  "connected with `+`, and no spaces.")
     if "+" in arg:
         dice = arg.split("+")
     else:
