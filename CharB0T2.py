@@ -16,8 +16,6 @@ def main():  # pylint: disable=too-many-statements
         import uvloop  # pylint: disable=import-outside-toplevel
         uvloop.install()
 
-    with open('token2.json', encoding='utf8') as file:
-        token = json.load(file)['token']
     logger = logging.getLogger('discord')
     logger.setLevel(logging.INFO)
     handler = RotatingFileHandler(filename='Char2.log', encoding='utf-8', mode='w', maxBytes=2000000, backupCount=10)
@@ -33,7 +31,8 @@ def main():  # pylint: disable=too-many-statements
     bot.load_extension('jishaku')
     bot.load_extension('.primary', package='char2ext')
     bot.on_connect = on_connect
-    bot.run(token)
+    with open('token2.json', encoding='utf8') as file:
+        bot.run(json.load(file)['token'])
 
 
 if __name__ == "__main__":

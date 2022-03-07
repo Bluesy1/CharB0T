@@ -17,8 +17,6 @@ def main():
         import uvloop  # pylint: disable=import-outside-toplevel
         uvloop.install()
 
-    with open('bottoken.json', encoding='utf8') as file:
-        token = json.load(file)['Token']
     logger = logging.getLogger('discord')
     logger.setLevel(logging.INFO)
     handler = RotatingFileHandler(filename='CharBot.log', encoding='utf-8', mode='w', maxBytes=2000000, backupCount=10)
@@ -38,7 +36,8 @@ def main():
     bot.load_extension('.admin', package='extensions')
     bot.load_extension('.dice', package='extensions')
     bot.on_connect = on_connect
-    bot.run(token)
+    with open('bottoken.json', encoding='utf8') as file:
+        bot.run(json.load(file)['Token'])
 
 
 if __name__ == "__main__":

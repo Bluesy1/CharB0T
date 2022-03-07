@@ -20,8 +20,6 @@ def main():  # pylint: disable = too-many-statements
         import uvloop  # pylint: disable=import-outside-toplevel
         uvloop.install()
 
-    with open("KethranToken.json", encoding='utf8') as file:
-        token = json.load(file)['Token']
     logger = logging.getLogger('discord')
     logger.setLevel(logging.WARNING)
     handler = RotatingFileHandler(filename='kethran.log', encoding='utf-8', mode='w', maxBytes=2000000, backupCount=10)
@@ -91,7 +89,8 @@ def main():  # pylint: disable = too-many-statements
     friday_5.start()
     bot.on_connect = on_connect
     bot.load_extension('jishaku')
-    bot.run(token)
+    with open("KethranToken.json", encoding='utf8') as file:
+        bot.run(json.load(file)['Token'])
 
 
 if __name__ == "__main__":
