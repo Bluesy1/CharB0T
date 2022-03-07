@@ -6,7 +6,7 @@ from datetime import datetime, timedelta, timezone
 import discord
 from discord import Embed, Color
 from discord.ext import commands, tasks
-from discord.ext.commands import Cog
+from discord.ext.commands import Cog, Context
 
 
 async def time_string_from_seconds(delta: float) -> str:
@@ -25,6 +25,9 @@ class PrimaryFunctions(Cog):
         """Init func"""
         self.bot = bot
         self.timeouts = {}
+
+    def cog_check(self, ctx: Context) -> bool:
+        return any(role.id in (338173415527677954, 253752685357039617, 225413350874546176) for role in ctx.author.roles)
 
     @commands.command()
     async def ping(self, ctx):  # pylint: disable=unused-variable
