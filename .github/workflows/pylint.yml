@@ -18,14 +18,7 @@ jobs:
       run: |
         python -m pip install --upgrade pip
         pip install pylint
-        pip install hikari-lightbulb
-        pip install lightbulb-ext-tungsten
-        pip install apscheduler
-        pip install uvloop
-        pip install seaborn
-        pip install cryptography
-        pip install asyncpg
-        pip install fpdf
+        pip install -r requirements.txt
     - name: Analysing the code with pylint
       run: |
         pylint $(git ls-files '*.py')

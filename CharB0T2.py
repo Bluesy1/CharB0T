@@ -62,7 +62,7 @@ class PrimaryFunctions(Cog):
                 "sadly. Please message <@406885177281871902> (CharB0T#3153) instead. We apologize for the confusion "
                 "of having 2 identically named bots, and hope you will still reach out if you were meaning to!")
         elif message.channel.id == 926532222398369812 and (len(message.mentions) == 1 or
-                                                           re.search("<@!?(\d+)>\B", message.content)):
+                                                           re.search(r"<@!?(\d+)>\B", message.content)):
             return
             print(message.content, message.mentions)
             member = message.mentions[0] if message.mentions else None
@@ -76,8 +76,8 @@ class PrimaryFunctions(Cog):
             else:
                 channel = await self.bot.fetch_channel(430197357100138497)
                 messages = channel.history(before=datetime.utcnow())
-                if re.search("<@!?(\d+)>\B", message.content) and not member:
-                    mentioned_id = int(re.search("<@!?(\d+)>\B", message.content).groups()[0])
+                if re.search(r"<@!?(\d+)>\B", message.content) and not member:
+                    mentioned_id = int(re.search(r"<@!?(\d+)>\B", message.content).groups()[0])
                 print(mentioned_id)
                 try:
                     async for item in messages:
