@@ -53,6 +53,7 @@ class PrimaryFunctions(Cog):
 
     @Cog.listener()
     async def on_message(self, message: discord.Message) -> None:  # pylint: disable=unused-variable
+        """on message func"""
         if not message.author.bot and message.channel.type is discord.ChannelType.private:
             await message.channel.send(
                 "Hi! If this was an attempt to reach the mod team through modmail, you've messaged the wrong bot "
@@ -122,18 +123,18 @@ class PrimaryFunctions(Cog):
 
     async def parse_timeout(self, after: discord.Member):
         """parses timeouts"""
-        td = after.timed_out_until + timedelta(seconds=1) - datetime.now(tz=timezone.utc)
+        time_delta = after.timed_out_until + timedelta(seconds=1) - datetime.now(tz=timezone.utc)
         time_string = ""
-        if td.days // 7 != 0:
-            time_string += f"{td.days // 7} Week{'s' if td.days // 7 > 1 else ''}"
-        if td.days % 7 != 0:
-            time_string += f"{', ' if bool(time_string) else ''}{td.days % 7} Day(s) "
-        if td.seconds // 3600 > 0:
-            time_string += f"{', ' if bool(time_string) else ''}{td.seconds // 3600} Hour(s) "
-        if (td.seconds % 3600) // 60 != 0:
-            time_string += f"{', ' if bool(time_string) else ''}{(td.seconds % 3600) // 60} Minute(s) "
-        if (td.seconds % 3600) % 60 != 0:
-            time_string += f"{', ' if bool(time_string) else ''}{(td.seconds % 3600) % 60} Second(s) "
+        if time_delta.days // 7 != 0:
+            time_string += f"{time_delta.days // 7} Week{'s' if time_delta.days // 7 > 1 else ''}"
+        if time_delta.days % 7 != 0:
+            time_string += f"{', ' if bool(time_string) else ''}{time_delta.days % 7} Day(s) "
+        if time_delta.seconds // 3600 > 0:
+            time_string += f"{', ' if bool(time_string) else ''}{time_delta.seconds // 3600} Hour(s) "
+        if (time_delta.seconds % 3600) // 60 != 0:
+            time_string += f"{', ' if bool(time_string) else ''}{(time_delta.seconds % 3600) // 60} Minute(s) "
+        if (time_delta.seconds % 3600) % 60 != 0:
+            time_string += f"{', ' if bool(time_string) else ''}{(time_delta.seconds % 3600) % 60} Second(s) "
         embed = Embed(color=Color.red())
         embed.set_author(name=f"[TIMEOUT] {after.name}#{after.discriminator}")
         embed.add_field(name="User", value=after.mention, inline=True)

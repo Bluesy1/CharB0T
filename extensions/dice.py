@@ -12,7 +12,7 @@ class Dice(app_commands.Group):
 
     @app_commands.command(description="D&D Standard Array 7 Dice roller, plus coin flips")
     @app_commands.describe(dice="Dice to roll, accpets d<int>s and integers")
-    async def roll(self, interaction: Interaction, dice: str):  # pylint: disable=unused-variable
+    async def roll(self, interaction: Interaction, dice: str):  # pylint: disable=unused-variable,no-self-use
         """Dice roller"""
         if any(role.id in (338173415527677954, 253752685357039617, 225413350874546176) for role in
                interaction.user.roles):
@@ -22,7 +22,7 @@ class Dice(app_commands.Group):
 
 
 class Roll(Cog):
-
+    """Roll cog"""
     # noinspection PyUnresolvedReferences
     def __init__(self, bot: commands.Bot):
         self.bot = bot
