@@ -90,6 +90,7 @@ def main():  # pylint: disable = too-many-statements
 
     friday_5.start()
     bot.on_connect = on_connect
+    bot.load_extension('jishaku')
     bot.run(token)
 
 
