@@ -1,22 +1,10 @@
 # coding=utf-8
 import json
 
+import discord
 import hikari
-import lightbulb
+from discord import ui
 from hikari import Permissions, PermissionOverwrite, PermissionOverwriteType
-
-
-def _punished(context: lightbulb.Context):
-    """Checks if command user is punished"""
-    for role in context.member.role_ids:
-        print(role)
-        if role in [684936661745795088, 676250179929636886]:
-            print(False)
-            raise lightbulb.errors.CheckFailure
-    return True
-
-
-punished = lightbulb.Check(_punished)
 
 MOD_SENSITIVE = PermissionOverwrite(
     id=338173415527677954,
@@ -47,54 +35,38 @@ def user_perms(user_id: hikari.Snowflakeish):
     )
 
 
-def make_modmail_buttons(plugin: lightbulb.Plugin):
+_MOD_SUPPORT_PRIVATE_OPTIONS = [
+    discord.SelectOption(label="Admins Only", value="146285543146127361"),
+    discord.SelectOption(label="Bluesy", value="363095569515806722"),
+    discord.SelectOption(label="Krios", value="138380316095021056"),
+    discord.SelectOption(label="Mike Takumi", value="162833689196101632"),
+    discord.SelectOption(label="Kaitlin", value="82495450153750528"),
+]
+
+
+class ModSupportButtons(ui.View):
     """Creates a button row"""
-    return [
-        (plugin.bot.rest.build_action_row().add_button(hikari.ButtonStyle.SUCCESS, "Modmail_General")
-         .set_label("General").set_emoji("❔").add_to_container()
-         .add_button(hikari.ButtonStyle.PRIMARY, "Modmail_Important")
-         .set_label("Imporant").set_emoji("❗").add_to_container()
-         .add_button(hikari.ButtonStyle.DANGER, "Modmail_Emergency")
-         .set_label("Emergency").set_emoji("‼").add_to_container()),
-        (plugin.bot.rest.build_action_row().add_select_menu("Modmail_Private")
-         .set_placeholder("Private").set_max_values(5)
-         .add_option("Admins Only", "146285543146127361").add_to_menu()
-         .add_option("Bluesy", "363095569515806722").add_to_menu()
-         .add_option("Krios", "138380316095021056").add_to_menu()
-         .add_option("Mike Takumi", "162833689196101632").add_to_menu()
-         .add_option("Kaitlin", "82495450153750528").add_to_menu()
-         .add_to_container()
-         )]
 
+    def __init__(self):
+        super().__init__(timeout=None)
 
-def blacklist_user(user_id: hikari.Snowflakeish) -> bool:
-    """Adds a user to the blacklist"""
-    with open("modmail_blacklist.json", "r", encoding="utf8") as file:
-        modmail_blacklist = json.load(file)
-    if user_id not in modmail_blacklist["blacklisted"]:
-        modmail_blacklist["blacklisted"].append(user_id)
-        with open("modmail_blacklist.json", "w", encoding="utf8") as file:
-            json.dump(modmail_blacklist, file)
-        return True
-    return False
+    @ui.button(label="General", style=discord.ButtonStyle.success, custom_id="Modmail_General", emoji="❔", row=0)
+    async def general(self, button: discord.ui.Button, interaction: discord.Interaction):
+        await interaction.response.send_message('This is green.', ephemeral=True)
 
+    @ui.button(label="Important", style=discord.ButtonStyle.primary, custom_id="Modmail_Important", emoji="❗", row=0)
+    async def important(self, button: discord.ui.Button, interaction: discord.Interaction):
+        await interaction.response.send_message('This is green.', ephemeral=True)
 
-def un_blacklist_user(user_id: hikari.Snowflakeish) -> bool:
-    """Removes a user from the blacklist"""
-    with open("modmail_blacklist.json", "r", encoding="utf8") as file:
-        modmail_blacklist = json.load(file)
-    if user_id in modmail_blacklist["blacklisted"]:
-        modmail_blacklist["blacklisted"].remove(user_id)
-        with open("modmail_blacklist.json", "w", encoding="utf8") as file:
-            json.dump(modmail_blacklist, file)
-        return True
-    return False
+    @ui.button(label="Emergency", style=discord.ButtonStyle.danger, custom_id="Modmail_Emergency", emoji="‼", row=0)
+    async def emergency(self, button: discord.ui.Button, interaction: discord.Interaction):
+        await interaction.response.send_message('This is green.', ephemeral=True)
 
+    @ui.select(placeholder="Private", custom_id="Modmail_Private", max_values=5, options=_MOD_SUPPORT_PRIVATE_OPTIONS,
+               row=1)
+    async def private(self, select: discord.ui.Select, interaction: discord.Interaction):
+        await interaction.response.send_message('This is green.', ephemeral=True)
 
-def get_blacklist() -> list[hikari.Snowflakeish]:
-    """Returns the User Blacklist"""
-    with open("modmail_blacklist.json", "r", encoding="utf8") as file:
-        return json.load(file)["blacklisted"]
 
 
 def check_not_modmail_blacklisted(user_id: hikari.Snowflakeish) -> bool:

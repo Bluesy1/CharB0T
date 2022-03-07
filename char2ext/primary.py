@@ -59,9 +59,8 @@ class PrimaryFunctions(Cog):
         """on message func"""
         if not message.author.bot and message.channel.type is discord.ChannelType.private:
             await message.channel.send(
-                "Hi! If this was an attempt to reach the mod team through modmail, you've messaged the wrong bot "
-                "sadly. Please message <@406885177281871902> (CharB0T#3153) instead. We apologize for the confusion "
-                "of having 2 identically named bots, and hope you will still reach out if you were meaning to!")
+                "Hi! If this was an attempt to reach the mod team through modmail, that has been removed, in favor of "
+                "mod support, which you can find in <#398949472840712192>")
         elif message.channel.id == 430197357100138497 and (len(message.mentions) == 1 or
                                                            re.search(r"<@!?(\d+)>\B", message.content)):
             member = message.mentions[0] if message.mentions else None
