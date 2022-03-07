@@ -46,7 +46,7 @@ class PrimaryFunctions(Cog):
                     embed = Embed(color=Color.green())
                     embed.set_author(name=f"[UNTIMEOUT] {member.name}#{member.discriminator}")
                     embed.add_field(name="User", value=member.mention, inline=True)
-                    await (await self.bot.fetch_channel(687817008355737606)).send(embed=embed)
+                    await (await self.bot.fetch_channel(426016300439961601)).send(embed=embed)
                     removeable.append(i)
                 elif member.is_timed_out():
                     self.timeouts.update({i: member.timed_out_until})
@@ -61,10 +61,8 @@ class PrimaryFunctions(Cog):
                 "Hi! If this was an attempt to reach the mod team through modmail, you've messaged the wrong bot "
                 "sadly. Please message <@406885177281871902> (CharB0T#3153) instead. We apologize for the confusion "
                 "of having 2 identically named bots, and hope you will still reach out if you were meaning to!")
-        elif message.channel.id == 926532222398369812 and (len(message.mentions) == 1 or
+        elif message.channel.id == 430197357100138497 and (len(message.mentions) == 1 or
                                                            re.search(r"<@!?(\d+)>\B", message.content)):
-            return
-            print(message.content, message.mentions)
             member = message.mentions[0] if message.mentions else None
             print(member)
             time_string = "None Found"
@@ -74,7 +72,7 @@ class PrimaryFunctions(Cog):
                 time_string = await time_string_from_seconds(delta)
 
             else:
-                channel = await self.bot.fetch_channel(430197357100138497)
+                channel = await self.bot.fetch_channel(225345178955808768)
                 messages = channel.history(before=datetime.utcnow())
                 if re.search(r"<@!?(\d+)>\B", message.content) and not member:
                     mentioned_id = int(re.search(r"<@!?(\d+)>\B", message.content).groups()[0])
@@ -102,7 +100,7 @@ class PrimaryFunctions(Cog):
             member = member if member else await self.bot.fetch_user(mentioned_id) if mentioned_id else None
             print(member)
             if member:
-                await (await self.bot.fetch_channel(926532222398369812)).send(
+                await (await self.bot.fetch_channel(430197357100138497)).send(
                     f"**{member.name}#{member.discriminator}** has left the server. "
                     f"ID:{member.id}. Time on Server: {time_string}")
                 await message.delete()
@@ -118,7 +116,7 @@ class PrimaryFunctions(Cog):
                     embed = Embed(color=Color.green())
                     embed.set_author(name=f"[UNTIMEOUT] {after.name}#{after.discriminator}")
                     embed.add_field(name="User", value=after.mention, inline=True)
-                    await (await self.bot.fetch_channel(687817008355737606)).send(embed=embed)
+                    await (await self.bot.fetch_channel(426016300439961601)).send(embed=embed)
                     self.bot.timeouts.pop(after.id)
         except:  # pylint: disable=bare-except
             if after.is_timed_out():
@@ -141,7 +139,7 @@ class PrimaryFunctions(Cog):
         embed.set_author(name=f"[TIMEOUT] {after.name}#{after.discriminator}")
         embed.add_field(name="User", value=after.mention, inline=True)
         embed.add_field(name="Duration", value=time_string, inline=True)
-        await (await self.bot.fetch_channel(687817008355737606)).send(embed=embed)
+        await (await self.bot.fetch_channel(426016300439961601)).send(embed=embed)
         self.timeouts.update({after.id: after.timed_out_until})
 
 
