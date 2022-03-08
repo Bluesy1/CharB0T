@@ -35,6 +35,9 @@ def main():
     bot.load_extension('jishaku')
     bot.load_extension('.admin', package='extensions')
     bot.load_extension('.dice', package='extensions')
+    bot.load_extension('.events', package='extensions')
+    bot.load_extension('.mod_support', package='extensions')
+    bot.load_extension('.query', package='extensions')
     bot.on_connect = on_connect
     with open('bottoken.json', encoding='utf8') as file:
         bot.run(json.load(file)['Token'])
