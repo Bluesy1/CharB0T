@@ -71,7 +71,7 @@ class Modsupport(app_commands.Group):
     @app_commands.command(name="edit", description="adds or removes a user from the list of users banned from mod"
                                                    " support")
     @app_commands.describe(add="True to add to blacklist, False to remove",
-                           user="user to change")
+                           user="user to change")  # pylint: disable=no-self-use
     async def edit(self, interaction: Interaction, add: bool, user: discord.Member):  # pylint: disable=no-self-use
         """Modmail edit blacklist command"""
         if any(role.id in (225413350874546176, 253752685357039617, 725377514414932030, 338173415527677954) for role in
@@ -132,7 +132,8 @@ class ModSupportButtons(ui.View):
         with open("modmail_blacklist.json", "r", encoding="utf8") as file:
             return interaction.user.id not in json.load(file)["blacklisted"]
 
-    @ui.button(label="General", style=discord.ButtonStyle.success, custom_id="Modmail_General", emoji="❔", row=0)
+    @ui.button(label="General", style=discord.ButtonStyle.success, custom_id="Modmail_General", emoji="❔",
+               row=0)  # pylint: disable=no-self-use
     async def general(self, button: discord.ui.Button, interaction: discord.Interaction):
         """General mod support callback"""
         await interaction.response.send_modal(ModSupportModal({

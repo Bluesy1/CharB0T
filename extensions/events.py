@@ -73,16 +73,13 @@ class Events(Cog):
                     await channel.send(embed=embed)
             if message.author.bot or not message.content:
                 return
-            if False and re.search(r"bruh", message.content,
-                                   re.IGNORECASE):  # pylint: disable=condition-evals-to-constant
-                await message.delete()
             elif (re.search(r"~~:.|:;~~", message.content, re.MULTILINE | re.IGNORECASE)
                   or re.search(r"tilde tilde colon dot vertical bar colon semicolon tilde tilde",
                                message.content, re.MULTILINE | re.IGNORECASE)):
                 await message.delete()
 
     @Cog.listener()
-    async def on_command_error(self, ctx, error):
+    async def on_command_error(self, ctx, error):  # pylint: disable=no-self-use
         """The event triggered when an error is raised while invoking a command.
         Parameters
         ------------
@@ -99,7 +96,7 @@ class Events(Cog):
         # This prevents any cogs with an overwritten cog_command_error being handled here.
         cog: Cog = ctx.cog
         if cog:
-            if cog._get_overridden_method(cog.cog_command_error) is not None:
+            if cog._get_overridden_method(cog.cog_command_error) is not None:  # pylint: disable=protected-access
                 return
 
         ignored = (commands.CommandNotFound, )
@@ -127,7 +124,7 @@ class Events(Cog):
 
         else:
             # All other Errors not returned come here. And we can just print the default TraceBack.
-            print('Ignoring exception in command {}:'.format(ctx.command), file=sys.stderr)
+            print(f"Ignoring exception in command {ctx.command}:", file=sys.stderr)
             traceback.print_exception(type(error), error, error.__traceback__, file=sys.stderr)
 
 
