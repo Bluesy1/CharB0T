@@ -38,7 +38,7 @@ class Query(Cog):
                any(role.id in (338173415527677954, 253752685357039617, 225413350874546176) for role in ctx.author.roles)
 
     @commands.command()
-    async def time(self, ctx: Context):
+    async def time(self, ctx: Context):  # pylint: disable=no-self-use
         """Returns eastern time"""
         os.environ['TZ'] = 'US/Eastern'
         time.tzset()
