@@ -10,32 +10,32 @@ from discord.ext import commands, tasks
 from discord.ext.commands import Cog
 
 
+@tasks.loop(hours=24)
+async def check_modmail_channels(bot: commands.Bot):
+    """Remove stale modmail channels"""
+    channels = (await bot.fetch_guild(225345178955808768)).channels
+    cared = []
+    for channel in channels:
+        if channel.category.category_id == 942578610336837632 and channel.id != 906578081496584242:
+            cared.append(channel)
+    for channel in cared:
+        # noinspection PyBroadException
+        try:
+            if channel.history(after=(datetime.now() - timedelta(days=3))) == 0:
+                await channel.send("Deleting now")
+                await channel.delete()
+        except:  # pylint: disable=bare-except
+            print("Error")
+
+
 class ModSupport(Cog):
     """Mod Support Cog"""
+
     def __init__(self, bot: commands.Bot):
         self.bot = bot
         # noinspection PyUnresolvedReferences
         self.tree: app_commands = bot.tree
         self.mod_support_buttons_added = False
-
-    @tasks.loop(hours=24)
-    async def check_modmail_channels(self):
-        """Remove stale modmail channels"""
-        channels = (await self.bot.fetch_guild(225345178955808768)).channels
-        cared = []
-        for channel in channels:
-            if channel.category.category_id == 942578610336837632 and channel.id != 906578081496584242:
-                cared.append(channel)
-        for channel in cared:
-            # noinspection PyBroadException
-            try:
-                if channel.history(after=(datetime.now() - timedelta(days=3))) == 0:
-                    await channel.send("Deleting now")
-                    await channel.delete()
-            except:  # pylint: disable=bare-except
-                print("Error")
-
-    check_modmail_channels.start()
 
     @Cog.listener()
     async def on_ready(self):
@@ -61,7 +61,7 @@ class Modsupport(app_commands.Group):
         """Modmail blacklist query command"""
         if any(role.id in (225413350874546176, 253752685357039617, 725377514414932030, 338173415527677954) for role in
                interaction.user.roles):
-            with open("modmail_blacklist.json", "r", encoding="utf8") as file:
+            with open("mod_support_blacklist.json", "r", encoding="utf8") as file:
                 blacklisted = [f"<@{item}>" for item in json.load(file)["blacklisted"]]
             await interaction.response.send_message(embed=Embed(title="Blacklisted users",
                                                                 description="\n".join(blacklisted)), ephemeral=True)
@@ -78,20 +78,20 @@ class Modsupport(app_commands.Group):
                interaction.user.roles):
             if add:
                 successful = False
-                with open("modmail_blacklist.json", "r", encoding="utf8") as file:
+                with open("mod_support_blacklist.json", "r", encoding="utf8") as file:
                     modmail_blacklist = json.load(file)
                 if user.id not in modmail_blacklist["blacklisted"]:
                     modmail_blacklist["blacklisted"].append(user.id)
-                    with open("modmail_blacklist.json", "w", encoding="utf8") as file:
+                    with open("mod_support_blacklist.json", "w", encoding="utf8") as file:
                         json.dump(modmail_blacklist, file)
                     successful = True
             else:
                 successful = False
-                with open("modmail_blacklist.json", "r", encoding="utf8") as file:
+                with open("mod_support_blacklist.json", "r", encoding="utf8") as file:
                     modmail_blacklist = json.load(file)
                 if user.id in modmail_blacklist["blacklisted"]:
                     modmail_blacklist["blacklisted"].remove(user.id)
-                    with open("modmail_blacklist.json", "w", encoding="utf8") as file:
+                    with open("mod_support_blacklist.json", "w", encoding="utf8") as file:
                         json.dump(modmail_blacklist, file)
                     successful = True
             if add and successful:
@@ -129,7 +129,7 @@ class ModSupportButtons(ui.View):
         super().__init__(timeout=None)
 
     async def interaction_check(self, interaction: Interaction) -> bool:  # pylint: disable=no-self-use
-        with open("modmail_blacklist.json", "r", encoding="utf8") as file:
+        with open("mod_support_blacklist.json", "r", encoding="utf8") as file:
             return interaction.user.id not in json.load(file)["blacklisted"]
 
     @ui.button(label="General", style=discord.ButtonStyle.success, custom_id="Modmail_General", emoji="❔",
@@ -229,11 +229,17 @@ class ModSupportModal(ui.Modal, title="Mod Support Form"):
 
     async def on_error(self, error: Exception, interaction: Interaction) -> None:
         await interaction.response.send_message("Oh no! Something went wrong. Please ask for a mod's help in this "
-                                                "channel and let Bluesy know.")
+                                                "channel and let Bluesy know.", ephemeral=True)
         print(f'Ignoring exception in modal {self}:', file=sys.stderr)
         traceback.print_exception(error.__class__, error, error.__traceback__, file=sys.stderr)
 
 
 def setup(bot: commands.Bot):
     """Loads Plugin"""
+    check_modmail_channels.start(bot)
     bot.add_cog(ModSupport(bot))
+
+
+def teardown(bot: commands.Bot):
+    """Unloads Plugin"""
+    check_modmail_channels.stop()

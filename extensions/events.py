@@ -29,7 +29,7 @@ class Events(Cog):
                 count_found += 1
                 used_words.add(word)
         self.last_sensitive_logged.setdefault(message.author.id, datetime.now() - timedelta(days=1))
-        if datetime.now() > (self.last_sensitive_logged[message.author_id] + timedelta(minutes=5)) \
+        if datetime.now() > (self.last_sensitive_logged[message.author.id] + timedelta(minutes=5)) \
                 and ((count_found >= 2 and 25 <= (len(message.content) - len("".join(used_words))) < 50) or
                      (count_found > 2 and (len(message.content) - len("".join(used_words))) >= 50) or
                      (count_found >= 1 and (len(message.content) - len("".join(used_words))) < 25)):
@@ -57,6 +57,13 @@ class Events(Cog):
         """Guild Message Create Handler ***DO NOT CALL MANUALLY***"""
         if message.content is not None and not message.author.bot:
             await self.sensitive_scan(message)
+            if message.guild is None:
+                channel = await self.bot.fetch_channel(906578081496584242)
+                await channel.send(message.author.mention,
+                                   allowed_mentions=discord.AllowedMentions(everyone=False, roles=False, users=False))
+                await channel.send(message.content,
+                                   allowed_mentions=discord.AllowedMentions(everyone=False, roles=False, users=False))
+                return
             if not any(role.id in [338173415527677954, 253752685357039617, 225413350874546176, 387037912782471179,
                                    406690402956083210, 729368484211064944] for role in message.author.roles
                        ):  # pylint: disable=using-constant-test, line-too-long
