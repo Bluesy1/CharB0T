@@ -3,7 +3,7 @@ import json
 from datetime import datetime, timedelta
 
 import discord
-from discord import Embed, app_commands, Interaction
+from discord import Embed, app_commands, Interaction, ui
 from discord.ext import commands, tasks
 from discord.ext.commands import Cog
 
@@ -14,6 +14,7 @@ class ModSupport(Cog):
         self.bot = bot
         # noinspection PyUnresolvedReferences
         self.tree: app_commands = bot.tree
+        self.mod_support_buttons_added = False
 
     @tasks.loop(hours=24)
     async def check_modmail_channels(self):
@@ -35,7 +36,15 @@ class ModSupport(Cog):
     check_modmail_channels.start()
 
     @Cog.listener()
-    async def on_message(self, message: discord.Message):
+    async def on_ready(self):
+        """On ready event"""
+        if not self.mod_support_buttons_added:
+            self.bot.add_view(ModSupportButtons())
+            self.mod_support_buttons_added = True
+
+    @Cog.listener()
+    async def on_message(self, message: discord.Message):  # pylint: disable=no-self-use
+        """on message event"""
         if not message.author.bot and message.channel.type is discord.ChannelType.private:
             await message.channel.send(
                 "Hi! If this was an attempt to reach the mod team through modmail, that has been removed, in favor of "
@@ -44,6 +53,7 @@ class ModSupport(Cog):
 
 class Modsupport(app_commands.Group):
     """App commands for mod support"""
+
     @app_commands.command(name="query", description="queries list of users banned from mod support")
     async def query(self, interaction: Interaction):
         """Modmail blacklist query command"""
@@ -52,9 +62,9 @@ class Modsupport(app_commands.Group):
             with open("modmail_blacklist.json", "r", encoding="utf8") as file:
                 blacklisted = [f"<@{item}>" for item in json.load(file)["blacklisted"]]
             await interaction.response.send_message(embed=Embed(title="Blacklisted users",
-                                                                description="\n".join(blacklisted)))
+                                                                description="\n".join(blacklisted)), ephemeral=True)
         else:
-            await interaction.response.send_message("You are not authorized to use this command")
+            await interaction.response.send_message("You are not authorized to use this command", ephemeral=True)
 
     @app_commands.command(name="edit", description="adds or removes a user from the list of users banned from mod"
                                                    " support")
@@ -83,20 +93,98 @@ class Modsupport(app_commands.Group):
                         json.dump(modmail_blacklist, file)
                     successful = True
             if add and successful:
-                await interaction.response.send_message(f"<@{user.id}> successfully added to the blacklist")
+                await interaction.response.send_message(f"<@{user.id}> successfully added to the blacklist",
+                                                        ephemeral=True)
             elif add and not successful:
                 await interaction.response.send_message(
-                    f"Error: <@{user.id}> was already on the blacklist or was not able to be added to.")
+                    f"Error: <@{user.id}> was already on the blacklist or was not able to be added to.", ephemeral=True)
             elif not add and successful:
-                await interaction.response.send_message(f"<@{user.id}> successfully removed from the blacklist")
+                await interaction.response.send_message(f"<@{user.id}> successfully removed from the blacklist",
+                                                        ephemeral=True)
             elif not add and not successful:
                 await interaction.response.send_message(
-                    f"<@{user.id}> was not on the blacklist or was not able to be removed from it.")
+                    f"<@{user.id}> was not on the blacklist or was not able to be removed from it.", ephemeral=True)
             else:
                 await interaction.response.send_message(
-                    "Error: unkown issue occured. If you're seeing this, ping bluesy, something has gone very wrong.")
+                    "Error: unkown issue occured. If you're seeing this, ping bluesy, something has gone very wrong.",
+                    ephemeral=True)
         else:
-            await interaction.response.send_message("You are not authorized to use this command")
+            await interaction.response.send_message("You are not authorized to use this command", ephemeral=True)
+
+
+class ModSupportButtons(ui.View):
+    """Creates a button row"""
+
+    _PRIVATE_OPTIONS = [
+        discord.SelectOption(label="Admins Only", value="146285543146127361"),
+        discord.SelectOption(label="Bluesy", value="363095569515806722"),
+        discord.SelectOption(label="Krios", value="138380316095021056"),
+        discord.SelectOption(label="Mike Takumi", value="162833689196101632"),
+        discord.SelectOption(label="Kaitlin", value="82495450153750528"),
+    ]
+
+    def __init__(self):
+        super().__init__(timeout=None)
+
+    @ui.button(label="General", style=discord.ButtonStyle.success, custom_id="Modmail_General", emoji="❔", row=0)
+    async def general(self, button: discord.ui.Button, interaction: discord.Interaction):
+        await interaction.response.send_message('This is green.', ephemeral=True)
+
+    @ui.button(label="Important", style=discord.ButtonStyle.primary, custom_id="Modmail_Important", emoji="❗", row=0)
+    async def important(self, button: discord.ui.Button, interaction: discord.Interaction):
+        await interaction.response.send_message('This is green.', ephemeral=True)
+
+    @ui.button(label="Emergency", style=discord.ButtonStyle.danger, custom_id="Modmail_Emergency", emoji="‼", row=0)
+    async def emergency(self, button: discord.ui.Button, interaction: discord.Interaction):
+        await interaction.response.send_message('This is green.', ephemeral=True)
+
+    @ui.select(placeholder="Private", custom_id="Modmail_Private", max_values=5, options=_PRIVATE_OPTIONS,
+               row=1)
+    async def private(self, select: discord.ui.Select, interaction: discord.Interaction):
+        await interaction.response.send_message('This is green.', ephemeral=True)
+
+    def interaction_check(self, interaction: Interaction) -> bool:
+        with open("modmail_blacklist.json", "r", encoding="utf8") as file:
+            return interaction.user.id not in json.load(file)["blacklisted"]
+
+class ModSupportModal(ui.Modal, title="Mod Support Form"):
+    """Mod Support Modal Class"""
+
+    def __init__(self, perm_overrides:  dict[discord.Role | discord.Member, discord.PermissionOverwrite],
+                 channel_name: str):
+        super().__init__(title="Mod Support Form")
+        self.perm_overrides = perm_overrides
+        self.channel_name = channel_name
+
+    def interaction_check(self, interaction: Interaction) -> bool:
+        with open("mod_support_blacklist.json", "r", encoding="utf8") as file:
+            return interaction.user.id not in json.load(file)["blacklisted"]
+
+    short_description = ui.TextInput(
+        label='Short Description of your problem/query',
+        style=discord.TextStyle.short,
+        placeholder="Short description of your problem/query here ...",
+        required=True,
+        custom_id="Short_Description"
+    )
+
+    full_description = ui.TextInput(
+        label="Full description of problem/query.",
+        style=discord.TextStyle.paragraph,
+        placeholder="Put your full description here ...",
+        required=False,
+        custom_id="Long_Desription"
+    )
+
+    async def on_submit(self, interaction: Interaction):
+        channel = await interaction.guild.create_text_channel(
+            self.channel_name,
+            category=await interaction.guild.fetch_channel(942578610336837632),
+            overwrites=self.perm_overrides,
+            topic=self.short_description.value
+        )
+        if self.full_description.value not in (self.full_description.placeholder, None):
+            await channel.send(self.full_description.value)
 
 
 def setup(bot: commands.Bot):
