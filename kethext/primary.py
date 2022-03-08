@@ -92,6 +92,6 @@ def setup(bot: commands.Bot):
     bot.add_cog(Primary(bot))
 
 
-def teardown(bot: commands.Bot):
+def teardown(bot: commands.Bot):  # pylint: disable=unused-argument
     """Unloads Plugin"""
     friday_5.stop()
