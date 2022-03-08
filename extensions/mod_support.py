@@ -203,9 +203,10 @@ class ModSupportModal(ui.Modal, title="Mod Support Form"):
     short_description = ui.TextInput(
         label='Short Description of your problem/query',
         style=discord.TextStyle.short,
-        placeholder="Short description of your problem/query here ...",
+        placeholder="Short description here ...",
         required=True,
-        custom_id="Short_Description"
+        custom_id="Short_Description",
+        max_length=100
     )
 
     full_description = ui.TextInput(
