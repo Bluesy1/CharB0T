@@ -73,7 +73,7 @@ class Events(Cog):
                     await channel.send(embed=embed)
             if message.author.bot or not message.content:
                 return
-            elif (re.search(r"~~:.|:;~~", message.content, re.MULTILINE | re.IGNORECASE)
+            if (re.search(r"~~:.|:;~~", message.content, re.MULTILINE | re.IGNORECASE)
                   or re.search(r"tilde tilde colon dot vertical bar colon semicolon tilde tilde",
                                message.content, re.MULTILINE | re.IGNORECASE)):
                 await message.delete()

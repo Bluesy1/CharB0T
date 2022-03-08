@@ -134,7 +134,7 @@ class ModSupportButtons(ui.View):
 
     @ui.button(label="General", style=discord.ButtonStyle.success, custom_id="Modmail_General", emoji="❔",
                row=0)  # pylint: disable=no-self-use
-    async def general(self, button: discord.ui.Button, interaction: discord.Interaction):
+    async def general(self, button: discord.ui.Button, interaction: discord.Interaction):  # pylint: disable=no-self-use
         """General mod support callback"""
         await interaction.response.send_modal(ModSupportModal({
             discord.Object(id=338173415527677954): PermissionOverwrite(view_channel=True, send_messages=True,
