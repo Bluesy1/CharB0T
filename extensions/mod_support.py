@@ -41,7 +41,17 @@ class ModSupport(Cog):
     async def on_ready(self):
         """On ready event"""
         if not self.mod_support_buttons_added:
-            self.bot.add_view(ModSupportButtons())
+            guild = await self.bot.fetch_guild(225345178955808768)
+            everyone = guild.default_role
+            mod_roles = guild.get_role(338173415527677954)
+            mods = {
+                "146285543146127361": await guild.fetch_member(146285543146127361),
+                "363095569515806722": await guild.fetch_member(363095569515806722),
+                "138380316095021056": await guild.fetch_member(138380316095021056),
+                "162833689196101632": await guild.fetch_member(162833689196101632),
+                "82495450153750528": await guild.fetch_member(82495450153750528)
+            }
+            self.bot.add_view(ModSupportButtons(everyone, mod_roles, mods))
             self.mod_support_buttons_added = True
 
     @Cog.listener()
@@ -125,8 +135,11 @@ class ModSupportButtons(ui.View):
         discord.SelectOption(label="Kaitlin", value="82495450153750528"),
     ]
 
-    def __init__(self):
+    def __init__(self, everyone: discord.Role, mod_role: discord.Role, mods: dict[str, discord.Member]):
         super().__init__(timeout=None)
+        self.everyone = everyone
+        self.mod_role = mod_role
+        self.mods = mods
 
     async def interaction_check(self, interaction: Interaction) -> bool:  # pylint: disable=no-self-use
         with open("mod_support_blacklist.json", "r", encoding="utf8") as file:
@@ -137,10 +150,8 @@ class ModSupportButtons(ui.View):
     async def general(self, button: discord.ui.Button, interaction: discord.Interaction):  # pylint: disable=no-self-use
         """General mod support callback"""
         await interaction.response.send_modal(ModSupportModal({
-            discord.Object(id=338173415527677954): PermissionOverwrite(view_channel=True, send_messages=True,
-                                                                       read_messages=True),
-            discord.Object(id=225345178955808768): PermissionOverwrite(view_channel=False, send_messages=False,
-                                                                       read_messages=False),
+            self.mod_role: PermissionOverwrite(view_channel=True, send_messages=True, read_messages=True),
+            self.everyone: PermissionOverwrite(view_channel=False, send_messages=False, read_messages=False),
             interaction.user: PermissionOverwrite(view_channel=True, send_messages=True, read_messages=True)
         }, f"{button.label}-{interaction.user.name}"))
 
@@ -148,10 +159,8 @@ class ModSupportButtons(ui.View):
     async def important(self, button: discord.ui.Button, interaction: Interaction):  # pylint: disable=no-self-use
         """Important mod support callback"""
         await interaction.response.send_modal(ModSupportModal({
-            discord.Object(id=338173415527677954): PermissionOverwrite(view_channel=True, send_messages=True,
-                                                                       read_messages=True),
-            discord.Object(id=225345178955808768): PermissionOverwrite(view_channel=False, send_messages=False,
-                                                                       read_messages=False),
+            self.mod_role: PermissionOverwrite(view_channel=True, send_messages=True, read_messages=True),
+            self.everyone: PermissionOverwrite(view_channel=False, send_messages=False, read_messages=False),
             interaction.user: PermissionOverwrite(view_channel=True, send_messages=True, read_messages=True)
         }, f"{button.label}-{interaction.user.name}"))
 
@@ -159,10 +168,8 @@ class ModSupportButtons(ui.View):
     async def emergency(self, button: discord.ui.Button, interaction: Interaction):  # pylint: disable=no-self-use
         """Emergency mod support callback"""
         await interaction.response.send_modal(ModSupportModal({
-            discord.Object(id=338173415527677954): PermissionOverwrite(view_channel=True, send_messages=True,
-                                                                       read_messages=True),
-            discord.Object(id=225345178955808768): PermissionOverwrite(view_channel=False, send_messages=False,
-                                                                       read_messages=False),
+            self.mod_role: PermissionOverwrite(view_channel=True, send_messages=True, read_messages=True),
+            self.everyone: PermissionOverwrite(view_channel=False, send_messages=False, read_messages=False),
             interaction.user: PermissionOverwrite(view_channel=True, send_messages=True, read_messages=True)
         }, f"{button.label}-{interaction.user.name}"))
 
@@ -171,14 +178,12 @@ class ModSupportButtons(ui.View):
     async def private(self, select: discord.ui.Select, interaction: Interaction):  # pylint: disable=no-self-use
         """Private mod support callback"""
         perms = {
-            discord.Object(id=338173415527677954): PermissionOverwrite(view_channel=False, send_messages=False,
-                                                                       read_messages=False),
-            discord.Object(id=225345178955808768): PermissionOverwrite(view_channel=False, send_messages=False,
-                                                                       read_messages=False),
+            self.mod_role: PermissionOverwrite(view_channel=False, send_messages=False, read_messages=False),
+            self.everyone: PermissionOverwrite(view_channel=False, send_messages=False, read_messages=False),
             interaction.user: PermissionOverwrite(view_channel=True, send_messages=True, read_messages=True)}
         for uid in select.values:
-            perms.update({discord.Object(id=int(uid)): PermissionOverwrite(view_channel=True, send_messages=True,
-                                                                           read_messages=True)})
+            perms.update({self.mods[uid]: PermissionOverwrite(view_channel=True, send_messages=True, read_messages=True)
+                          })
         await interaction.response.send_modal(ModSupportModal(perms, f"{select.placeholder}-{interaction.user.name}"))
 
 
