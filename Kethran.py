@@ -27,7 +27,6 @@ def main():  # pylint: disable = too-many-statements
     async def on_connect():
         print("Logged In!")
 
-    friday_5.start()
     bot.on_connect = on_connect
     bot.load_extension('jishaku')
     with open("KethranToken.json", encoding='utf8') as file:
