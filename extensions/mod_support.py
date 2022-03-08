@@ -1,15 +1,17 @@
 # coding=utf-8
 import json
+import sys
+import traceback
 from datetime import datetime, timedelta
 
 import discord
-from discord import Embed, app_commands, Interaction, ui
+from discord import Embed, app_commands, Interaction, ui, PermissionOverwrite
 from discord.ext import commands, tasks
 from discord.ext.commands import Cog
 
 
 class ModSupport(Cog):
-
+    """Mod Support Cog"""
     def __init__(self, bot: commands.Bot):
         self.bot = bot
         # noinspection PyUnresolvedReferences
@@ -55,7 +57,7 @@ class Modsupport(app_commands.Group):
     """App commands for mod support"""
 
     @app_commands.command(name="query", description="queries list of users banned from mod support")
-    async def query(self, interaction: Interaction):
+    async def query(self, interaction: Interaction):  # pylint: disable=no-self-use
         """Modmail blacklist query command"""
         if any(role.id in (225413350874546176, 253752685357039617, 725377514414932030, 338173415527677954) for role in
                interaction.user.roles):
@@ -70,7 +72,7 @@ class Modsupport(app_commands.Group):
                                                    " support")
     @app_commands.describe(add="True to add to blacklist, False to remove",
                            user="user to change")
-    async def edit(self, interaction: Interaction, add: bool, user: discord.Member):
+    async def edit(self, interaction: Interaction, add: bool, user: discord.Member):  # pylint: disable=no-self-use
         """Modmail edit blacklist command"""
         if any(role.id in (225413350874546176, 253752685357039617, 725377514414932030, 338173415527677954) for role in
                interaction.user.roles):
@@ -126,37 +128,69 @@ class ModSupportButtons(ui.View):
     def __init__(self):
         super().__init__(timeout=None)
 
+    async def interaction_check(self, interaction: Interaction) -> bool:  # pylint: disable=no-self-use
+        with open("modmail_blacklist.json", "r", encoding="utf8") as file:
+            return interaction.user.id not in json.load(file)["blacklisted"]
+
     @ui.button(label="General", style=discord.ButtonStyle.success, custom_id="Modmail_General", emoji="❔", row=0)
     async def general(self, button: discord.ui.Button, interaction: discord.Interaction):
-        await interaction.response.send_message('This is green.', ephemeral=True)
+        """General mod support callback"""
+        await interaction.response.send_modal(ModSupportModal({
+            discord.Object(id=338173415527677954): PermissionOverwrite(view_channel=True, send_messages=True,
+                                                                       read_messages=True),
+            discord.Object(id=225345178955808768): PermissionOverwrite(view_channel=False, send_messages=False,
+                                                                       read_messages=False),
+            interaction.user: PermissionOverwrite(view_channel=True, send_messages=True, read_messages=True)
+        }, f"{button.label}-{interaction.user.name}"))
 
     @ui.button(label="Important", style=discord.ButtonStyle.primary, custom_id="Modmail_Important", emoji="❗", row=0)
-    async def important(self, button: discord.ui.Button, interaction: discord.Interaction):
-        await interaction.response.send_message('This is green.', ephemeral=True)
+    async def important(self, button: discord.ui.Button, interaction: Interaction):  # pylint: disable=no-self-use
+        """Important mod support callback"""
+        await interaction.response.send_modal(ModSupportModal({
+            discord.Object(id=338173415527677954): PermissionOverwrite(view_channel=True, send_messages=True,
+                                                                       read_messages=True),
+            discord.Object(id=225345178955808768): PermissionOverwrite(view_channel=False, send_messages=False,
+                                                                       read_messages=False),
+            interaction.user: PermissionOverwrite(view_channel=True, send_messages=True, read_messages=True)
+        }, f"{button.label}-{interaction.user.name}"))
 
     @ui.button(label="Emergency", style=discord.ButtonStyle.danger, custom_id="Modmail_Emergency", emoji="‼", row=0)
-    async def emergency(self, button: discord.ui.Button, interaction: discord.Interaction):
-        await interaction.response.send_message('This is green.', ephemeral=True)
+    async def emergency(self, button: discord.ui.Button, interaction: Interaction):  # pylint: disable=no-self-use
+        """Emergency mod support callback"""
+        await interaction.response.send_modal(ModSupportModal({
+            discord.Object(id=338173415527677954): PermissionOverwrite(view_channel=True, send_messages=True,
+                                                                       read_messages=True),
+            discord.Object(id=225345178955808768): PermissionOverwrite(view_channel=False, send_messages=False,
+                                                                       read_messages=False),
+            interaction.user: PermissionOverwrite(view_channel=True, send_messages=True, read_messages=True)
+        }, f"{button.label}-{interaction.user.name}"))
 
     @ui.select(placeholder="Private", custom_id="Modmail_Private", max_values=5, options=_PRIVATE_OPTIONS,
                row=1)
-    async def private(self, select: discord.ui.Select, interaction: discord.Interaction):
-        await interaction.response.send_message('This is green.', ephemeral=True)
+    async def private(self, select: discord.ui.Select, interaction: Interaction):  # pylint: disable=no-self-use
+        """Private mod support callback"""
+        perms = {
+            discord.Object(id=338173415527677954): PermissionOverwrite(view_channel=False, send_messages=False,
+                                                                       read_messages=False),
+            discord.Object(id=225345178955808768): PermissionOverwrite(view_channel=False, send_messages=False,
+                                                                       read_messages=False),
+            interaction.user: PermissionOverwrite(view_channel=True, send_messages=True, read_messages=True)}
+        for uid in select.values:
+            perms.update({discord.Object(id=int(uid)): PermissionOverwrite(view_channel=True, send_messages=True,
+                                                                           read_messages=True)})
+        await interaction.response.send_modal(ModSupportModal(perms, f"{select.placeholder}-{interaction.user.name}"))
 
-    def interaction_check(self, interaction: Interaction) -> bool:
-        with open("modmail_blacklist.json", "r", encoding="utf8") as file:
-            return interaction.user.id not in json.load(file)["blacklisted"]
 
 class ModSupportModal(ui.Modal, title="Mod Support Form"):
     """Mod Support Modal Class"""
 
-    def __init__(self, perm_overrides:  dict[discord.Role | discord.Member, discord.PermissionOverwrite],
+    def __init__(self, perm_overrides: dict[discord.Role | discord.Member, discord.PermissionOverwrite],
                  channel_name: str):
         super().__init__(title="Mod Support Form")
         self.perm_overrides = perm_overrides
         self.channel_name = channel_name
 
-    def interaction_check(self, interaction: Interaction) -> bool:
+    async def interaction_check(self, interaction: Interaction) -> bool:  # pylint: disable=no-self-use
         with open("mod_support_blacklist.json", "r", encoding="utf8") as file:
             return interaction.user.id not in json.load(file)["blacklisted"]
 
@@ -183,8 +217,20 @@ class ModSupportModal(ui.Modal, title="Mod Support Form"):
             overwrites=self.perm_overrides,
             topic=self.short_description.value
         )
-        if self.full_description.value not in (self.full_description.placeholder, None):
+        long_desc = self.full_description.value not in (self.full_description.placeholder, None)
+        await channel.send(f"{interaction.user.mention} has a new issue/question/request:\n"
+                           f"{self.short_description.value}."
+                           f"{'     They supplied a longer description: ' if long_desc else ''}",
+                           allowed_mentions=discord.AllowedMentions(users=True))
+        if long_desc:
             await channel.send(self.full_description.value)
+        await interaction.response.send_message(f"Channel Created: {channel.mention}", ephemeral=True)
+
+    async def on_error(self, error: Exception, interaction: Interaction) -> None:
+        await interaction.response.send_message("Oh no! Something went wrong. Please ask for a mod's help in this "
+                                                "channel and let Bluesy know.")
+        print(f'Ignoring exception in modal {self}:', file=sys.stderr)
+        traceback.print_exception(error.__class__, error, error.__traceback__, file=sys.stderr)
 
 
 def setup(bot: commands.Bot):
