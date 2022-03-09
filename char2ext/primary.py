@@ -41,7 +41,7 @@ class PrimaryFunctions(Cog):
     async def log_untimeout(self) -> None:
         """Untimeout Report Method"""
         removeable = []
-        for i, j in self.timeouts.items():
+        for i, j in self.timeouts.copy().items():
             if j < datetime.now(tz=timezone.utc):
                 member = await (
                     await self.bot.fetch_guild(225345178955808768)
