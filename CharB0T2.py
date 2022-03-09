@@ -26,29 +26,40 @@ def main():  # pylint: disable=too-many-statements
     global RETRIES  # pylint: disable=global-statement
     if os.name != "nt":
         import uvloop  # pylint: disable=import-outside-toplevel
+
         uvloop.install()
 
-    with open('token2.json', encoding='utf8') as file:
-        token = json.load(file)['token']
+    with open("token2.json", encoding="utf8") as file:
+        token = json.load(file)["token"]
     # Instantiate a Bot instance
     bot = lightbulb.BotApp(
-        token=token, prefix="c?", default_enabled_guilds=225345178955808768,
-        owner_ids=[225344348903047168, 363095569515806722], logs={
+        token=token,
+        prefix="c?",
+        default_enabled_guilds=225345178955808768,
+        owner_ids=[225344348903047168, 363095569515806722],
+        logs={
             "version": 1,
             "incremental": True,
             "loggers": {
                 "hikari": {"level": "INFO"},
                 "hikari.ratelimits": {"level": "TRACE_HIKARI"},
                 "lightbulb": {"level": "INFO"},
-            }, }, case_insensitive_prefix_commands=True,
-        delete_unbound_commands=False, intents=Intents.ALL)
+            },
+        },
+        case_insensitive_prefix_commands=True,
+        delete_unbound_commands=False,
+        intents=Intents.ALL,
+    )
     scheduler = AsyncIOScheduler()
     scheduler.start()
 
     bot.load_extensions("lightbulb.ext.filament.exts.superuser")
 
-    async def create_task(run_time: datetime,
-                          guild_id: snowflakes.Snowflakeish, member_id: snowflakes.Snowflakeish):
+    async def create_task(
+        run_time: datetime,
+        guild_id: snowflakes.Snowflakeish,
+        member_id: snowflakes.Snowflakeish,
+    ):
         """Creates a Scheduled Untimeout"""
 
         async def log_untimeout() -> None:
@@ -56,16 +67,24 @@ def main():  # pylint: disable=too-many-statements
             member = await bot.rest.fetch_member(guild_id, member_id)
             timeout_still = member.communication_disabled_until()
             if not timeout_still:
-                await bot.rest.create_message(426016300439961601,
-                                              embed=Embed(color="0x00ff00")
-                                              .set_author(icon=member.avatar_url,
-                                                          name=f"[UNTIMEOUT] {member.username}#{member.discriminator}")
-                                              .add_field("User", member.mention, inline=True))
+                await bot.rest.create_message(
+                    426016300439961601,
+                    embed=Embed(color="0x00ff00")
+                    .set_author(
+                        icon=member.avatar_url,
+                        name=f"[UNTIMEOUT] {member.username}#{member.discriminator}",
+                    )
+                    .add_field("User", member.mention, inline=True),
+                )
             elif timeout_still:
                 await create_task(timeout_still, member.guild_id, member.id)
 
-        scheduler.add_job(log_untimeout, DateTrigger(run_date=run_time),
-                          id=f"{guild_id}-{member_id}", replace_existing=True)
+        scheduler.add_job(
+            log_untimeout,
+            DateTrigger(run_date=run_time),
+            id=f"{guild_id}-{member_id}",
+            replace_existing=True,
+        )
 
     @bot.command()
     @lightbulb.add_checks(lightbulb.owner_only)
@@ -76,23 +95,33 @@ def main():  # pylint: disable=too-many-statements
         await ctx.respond(f"Pong! Latency: {bot.heartbeat_latency * 1000:.2f}ms")
 
     @bot.listen(hikari.DMMessageCreateEvent)
-    async def on_dm_message(event: hikari.DMMessageCreateEvent) -> None:  # pylint: disable=unused-variable
+    async def on_dm_message(
+        event: hikari.DMMessageCreateEvent,
+    ) -> None:  # pylint: disable=unused-variable
         if event.is_human:
             await event.author.send(
                 "Hi! If this was an attempt to reach the mod team through modmail, you've messaged the wrong bot "
                 "sadly. Please message <@406885177281871902> (CharB0T#3153) instead. We apologize for the confusion "
-                "of having 2 identically named bots, and hope you will still reach out if you were meaning to!")
+                "of having 2 identically named bots, and hope you will still reach out if you were meaning to!"
+            )
 
     @bot.listen(hikari.MemberUpdateEvent)
-    async def on_member_update(event: hikari.MemberUpdateEvent):  # pylint: disable=unused-variable
+    async def on_member_update(
+        event: hikari.MemberUpdateEvent,
+    ):  # pylint: disable=unused-variable
         try:
-            if event.member.communication_disabled_until() != event.old_member.communication_disabled_until():
+            if (
+                event.member.communication_disabled_until()
+                != event.old_member.communication_disabled_until()
+            ):
                 if event.member.raw_communication_disabled_until is not None:
                     await parse_timeout(event)
                 else:
                     embed = Embed(color="0x00ff00")
-                    embed.set_author(icon=event.member.avatar_url,
-                                     name=f"[UNTIMEOUT] {event.member.username}#{event.member.discriminator}")
+                    embed.set_author(
+                        icon=event.member.avatar_url,
+                        name=f"[UNTIMEOUT] {event.member.username}#{event.member.discriminator}",
+                    )
                     embed.add_field("User", event.member.mention, inline=True)
                     await bot.rest.create_message(426016300439961601, embed=embed)
                     scheduler.remove_job(f"{event.guild_id}-{event.member.id}")
@@ -101,35 +130,49 @@ def main():  # pylint: disable=too-many-statements
                 await parse_timeout(event)
 
     async def parse_timeout(event):
-        td = event.member.communication_disabled_until() + timedelta(seconds=1) - utc_datetime()
+        td = (
+            event.member.communication_disabled_until()
+            + timedelta(seconds=1)
+            - utc_datetime()
+        )
         time_string = ""
         if td.days // 7 != 0:
             time_string += f"{td.days // 7} Week{'s' if td.days // 7 > 1 else ''}"
         if td.days % 7 != 0:
             time_string += f"{', ' if bool(time_string) else ''}{td.days % 7} Day(s) "
         if td.seconds // 3600 > 0:
-            time_string += f"{', ' if bool(time_string) else ''}{td.seconds // 3600} Hour(s) "
+            time_string += (
+                f"{', ' if bool(time_string) else ''}{td.seconds // 3600} Hour(s) "
+            )
         if (td.seconds % 3600) // 60 != 0:
             time_string += f"{', ' if bool(time_string) else ''}{(td.seconds % 3600) // 60} Minute(s) "
         if (td.seconds % 3600) % 60 != 0:
             time_string += f"{', ' if bool(time_string) else ''}{(td.seconds % 3600) % 60} Second(s) "
         embed = Embed(color="0xff0000")
-        embed.set_author(icon=event.member.avatar_url,
-                         name=f"[TIMEOUT] {event.member.username}#{event.member.discriminator}")
+        embed.set_author(
+            icon=event.member.avatar_url,
+            name=f"[TIMEOUT] {event.member.username}#{event.member.discriminator}",
+        )
         embed.add_field("User", event.member.mention, inline=True)
         embed.add_field("Duration", time_string, inline=True)
         await bot.rest.create_message(426016300439961601, embed=embed)
-        await create_task(event.member.communication_disabled_until(), event.guild_id, event.member.id)
+        await create_task(
+            event.member.communication_disabled_until(), event.guild_id, event.member.id
+        )
 
     # noinspection PyBroadException
     @bot.listen(hikari.MemberDeleteEvent)
-    async def on_member_leave(event: hikari.MemberDeleteEvent):  # pylint: disable=unused-variable
+    async def on_member_leave(
+        event: hikari.MemberDeleteEvent,
+    ):  # pylint: disable=unused-variable
         if event.old_member:
             delta = time.time() - time.mktime(event.old_member.joined_at.utctimetuple())
             time_string = await time_string_from_seconds(delta)
         else:
             channel = await bot.rest.fetch_channel(430197357100138497)
-            messages: iterators.LazyIterator[Message] = await channel.fetch_history(before=datetime.utcnow())
+            messages: iterators.LazyIterator[Message] = await channel.fetch_history(
+                before=datetime.utcnow()
+            )
             try:
                 messages = messages.filter(("message.author.is_bot", True))
             except:  # pylint: disable=bare-except
@@ -146,13 +189,17 @@ def main():  # pylint: disable=too-many-statements
                 async for item in messages:
                     mentions = item.mentions.get_members()
                     if event.user_id in mentions.keys:
-                        delta = time.time() - time.mktime(item.created_at.utctimetuple())
+                        delta = time.time() - time.mktime(
+                            item.created_at.utctimetuple()
+                        )
                         time_string = await time_string_from_seconds(delta)
             except TypeError:
                 print("Unable to calculate time.")
-        await bot.rest.create_message(430197357100138497,
-                                      f"**{event.user.username}#{event.user.discriminator}** has left the server. "
-                                      f"ID:{event.user_id}. Time on Server: {time_string}")
+        await bot.rest.create_message(
+            430197357100138497,
+            f"**{event.user.username}#{event.user.discriminator}** has left the server. "
+            f"ID:{event.user_id}. Time on Server: {time_string}",
+        )
 
     async def time_string_from_seconds(delta: float) -> str:
         minutes, sec = divmod(delta, 60)
@@ -167,7 +214,7 @@ def main():  # pylint: disable=too-many-statements
 
     def remove_retry():
         """Removes a Retry"""
-        global RETRIES   # pylint: disable=global-statement
+        global RETRIES  # pylint: disable=global-statement
         RETRIES -= 1
 
     try:
@@ -185,7 +232,9 @@ def main():  # pylint: disable=too-many-statements
         if RETRIES < 11:
             time.sleep(10)
             RETRIES += 1
-            scheduler.add_job(remove_retry, DateTrigger(datetime.utcnow() + timedelta(minutes=30)))
+            scheduler.add_job(
+                remove_retry, DateTrigger(datetime.utcnow() + timedelta(minutes=30))
+            )
             print(f"Bot Closed, Trying to restart, try {RETRIES}/10")
             main()
         else:

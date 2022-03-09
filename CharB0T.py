@@ -23,22 +23,30 @@ def main():
     global RETRIES  # pylint: disable=global-statement
     if os.name != "nt":
         import uvloop  # pylint: disable=import-outside-toplevel
+
         uvloop.install()
 
-    with open('bottoken.json', encoding='utf8') as file:
-        token = json.load(file)['Token']
+    with open("bottoken.json", encoding="utf8") as file:
+        token = json.load(file)["Token"]
 
     # Instantiate a Bot instance
     bot = lightbulb.BotApp(
-        token=token, prefix="!", help_slash_command=True,
-        owner_ids=[225344348903047168, 363095569515806722], logs={
+        token=token,
+        prefix="!",
+        help_slash_command=True,
+        owner_ids=[225344348903047168, 363095569515806722],
+        logs={
             "version": 1,
             "incremental": True,
             "loggers": {
                 "hikari": {"level": "INFO"},
                 "hikari.ratelimits": {"level": "TRACE_HIKARI"},
                 "lightbulb": {"level": "INFO"},
-            }, }, case_insensitive_prefix_commands=True, intents=Intents.ALL)
+            },
+        },
+        case_insensitive_prefix_commands=True,
+        intents=Intents.ALL,
+    )
     bot.load_extensions("lightbulb.ext.filament.exts.superuser")
 
     @bot.command()
@@ -111,7 +119,9 @@ def main():
         if RETRIES < 11:
             sleep(10)
             RETRIES += 1
-            scheduler.add_job(remove_retry, DateTrigger(datetime.utcnow() + timedelta(minutes=30)))
+            scheduler.add_job(
+                remove_retry, DateTrigger(datetime.utcnow() + timedelta(minutes=30))
+            )
             print(f"Bot Closed, Trying to restart, try {RETRIES}/10")
             main()
         else:

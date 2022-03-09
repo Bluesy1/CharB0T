@@ -15,9 +15,9 @@ QueryPlugin = lightbulb.Plugin("QueryPlugin")
 @lightbulb.implements(commands.SlashCommand)
 async def command(ctx):
     """Returns eastern time"""
-    os.environ['TZ'] = 'US/Eastern'
+    os.environ["TZ"] = "US/Eastern"
     time.tzset()
-    await ctx.respond("Charlie's time is: " + time.strftime('%X %x %Z'))
+    await ctx.respond("Charlie's time is: " + time.strftime("%X %x %Z"))
 
 
 def load(bot):
