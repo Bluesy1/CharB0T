@@ -103,8 +103,7 @@ class Events(Cog):
                     ),
                 )
                 return
-            if (
-                not any(
+            if not any(
                 role.id
                 in [
                     338173415527677954,
@@ -115,12 +114,10 @@ class Events(Cog):
                     729368484211064944,
                 ]
                 for role in message.author.roles
-            )
-                and (
+            ) and (
                 f"<@&{message.guild.id}>" in message.content
                 or "@everyone" in message.content
                 or "@here" in message.content
-            )
             ):
                 await message.author.add_roles(
                     discord.Object(id=676250179929636886),
@@ -165,12 +162,7 @@ class Events(Cog):
 
         # This prevents any cogs with an overwritten cog_command_error being handled here.
         cog: Cog = ctx.cog
-        if (
-            cog
-            and (
-            cog._get_overridden_method(cog.cog_command_error) is not None
-        )
-        ):
+        if cog and (cog._get_overridden_method(cog.cog_command_error) is not None):
             return
 
         ignored = (commands.CommandNotFound,)
