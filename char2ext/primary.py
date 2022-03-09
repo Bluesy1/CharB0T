@@ -34,7 +34,7 @@ class PrimaryFunctions(Cog):
 
     @commands.command()
     async def ping(self, ctx):
-        """ping command"""
+        """Ping command"""
         await ctx.send(f"Pong! Latency: {self.bot.latency * 1000:.2f}ms")
 
     @tasks.loop(seconds=30)
@@ -65,7 +65,7 @@ class PrimaryFunctions(Cog):
 
     @Cog.listener()
     async def on_message(self, message: discord.Message) -> None:
-        """on message func"""
+        """On message func"""
         if (
             not message.author.bot
             and message.channel.type is discord.ChannelType.private
@@ -148,12 +148,12 @@ class PrimaryFunctions(Cog):
                         embed=embed
                     )
                     self.bot.timeouts.pop(after.id)
-        except:
+        except Exception:  # skipcq: PYL-W0613
             if after.is_timed_out():
                 await self.parse_timeout(after)
 
     async def parse_timeout(self, after: discord.Member):
-        """parses timeouts"""
+        """Parses timeouts"""
         time_delta = (
             after.timed_out_until + timedelta(seconds=1) - datetime.now(tz=timezone.utc)
         )

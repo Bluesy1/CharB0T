@@ -154,14 +154,13 @@ class Events(Cog):
         error: commands.CommandError
             The Exception raised.
         """
-
         # This prevents any commands with local handlers being handled here in on_command_error.
         if hasattr(ctx.command, "on_error"):
             return
 
         # This prevents any cogs with an overwritten cog_command_error being handled here.
         cog: Cog = ctx.cog
-        if cog and (cog._get_overridden_method(cog.cog_command_error) is not None):
+        if cog and (cog._get_overridden_method(cog.cog_command_error) is not None):  # skipcq: PYL-W0212
             return
 
         ignored = (commands.CommandNotFound,)

@@ -267,6 +267,6 @@ def setup(bot: commands.Bot):
     bot.add_cog(Primary(bot))
 
 
-def teardown(bot: commands.Bot):
+def teardown(bot: commands.Bot):  # skipcq: PYL-W0613
     """Unloads Plugin"""
     friday_5.stop()

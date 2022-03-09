@@ -27,7 +27,7 @@ async def check_modmail_channels(bot: commands.Bot):
             if channel.history(after=(datetime.now() - timedelta(days=3))) == 0:
                 await channel.send("Deleting now")
                 await channel.delete()
-        except:
+        except Exception:  # skipcq: PYL-W0613
             print("Error")
 
 
@@ -59,7 +59,7 @@ class ModSupport(Cog):
 
     @Cog.listener()
     async def on_message(self, message: discord.Message):
-        """on message event"""
+        """On message event"""
         if (
             not message.author.bot
             and message.channel.type is discord.ChannelType.private
@@ -402,6 +402,6 @@ def setup(bot: commands.Bot):
     bot.add_cog(ModSupport(bot))
 
 
-def teardown(bot: commands.Bot):
+def teardown(bot: commands.Bot):  # skipcq: PYL-W0613
     """Unloads Plugin"""
     check_modmail_channels.stop()

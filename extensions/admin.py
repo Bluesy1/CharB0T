@@ -35,7 +35,7 @@ class Admin(Cog):
 
     @sensitive.command()
     async def add(self, ctx: Context, *, word: str):
-        """adds a word to the sensitive topics list"""
+        """Adds a word to the sensitive topics list"""
         with open("sensitive_settings.json", encoding="utf8") as json_dict:
             fulldict = json.load(json_dict)
         if word.lower() not in fulldict["words"]:
@@ -62,7 +62,7 @@ class Admin(Cog):
 
     @sensitive.command()
     async def remove(self, ctx: Context, *, word: str):
-        """removes a word from sensitive topics list"""
+        """Removes a word from sensitive topics list"""
         with open("sensitive_settings.json", encoding="utf8") as file:
             fulldict = json.load(file)
         if word.lower() in fulldict["words"]:
@@ -89,7 +89,7 @@ class Admin(Cog):
 
     @sensitive.command()
     async def query(self, ctx: Context):
-        """queries the sensitive topics list"""
+        """Queries the sensitive topics list"""
         with open("sensitive_settings.json", encoding="utf8") as json_dict:
             fulldict = json.load(json_dict)
         await ctx.send(

@@ -39,5 +39,5 @@ def roll(arg: str) -> str:
             output += str(roll1) + ", "
         output = output[:-2]
         return f"rolled `{arg}` got {output}` for a total value of: {str(sums)}"
-    except Exception:
+    except Exception:  # skipcq: PYL-W0703
         return roll_error

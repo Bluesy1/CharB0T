@@ -27,7 +27,7 @@ class Admin(Cog):
 
     @commands.Group
     async def slur(self, ctx: Context):
-        """slur command group"""
+        """Slur command group"""
         if ctx.invoked_subcommand is None:
             await ctx.send(
                 "Invoked slur words group - use `add` to add a word, `remove`"
@@ -36,7 +36,7 @@ class Admin(Cog):
 
     @slur.command()
     async def add(self, ctx: Context, *, word: str):
-        """adds a word to the slur list"""
+        """Adds a word to the slur list"""
         if ctx.guild.id != 832521484340953088:
             return
         with open("UBCbot.json", encoding="utf8") as json_dict:
@@ -66,7 +66,7 @@ class Admin(Cog):
 
     @slur.command()
     async def remove(self, ctx: Context, *, word: str):
-        """removes a word from the slur list"""
+        """Removes a word from the slur list"""
         if ctx.guild.id != 832521484340953088:
             return
         with open("UBCbot.json", encoding="utf8") as file:
@@ -113,7 +113,7 @@ class Admin(Cog):
 
     @Cog.listener()
     async def on_message(self, message: discord.Message):
-        """on_message func"""
+        """On_message func"""
         if message.guild.id != 832521484340953088 or message.content is None:
             return
         with open("UBCbot.json", encoding="utf8") as file:
