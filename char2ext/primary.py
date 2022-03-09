@@ -27,7 +27,10 @@ class PrimaryFunctions(Cog):
         self.timeouts = {}
 
     def cog_check(self, ctx: Context) -> bool:
-        return any(role.id in (338173415527677954, 253752685357039617, 225413350874546176) for role in ctx.author.roles)
+        return any(
+            role.id in (338173415527677954, 253752685357039617, 225413350874546176)
+            for role in ctx.author.roles
+        )
 
     @commands.command()
     async def ping(self, ctx):  # pylint: disable=unused-variable
@@ -40,12 +43,18 @@ class PrimaryFunctions(Cog):
         removeable = []
         for i, j in self.timeouts.items():
             if j < datetime.now(tz=timezone.utc):
-                member = await (await self.bot.fetch_guild(225345178955808768)).fetch_member(i)
+                member = await (
+                    await self.bot.fetch_guild(225345178955808768)
+                ).fetch_member(i)
                 if not member.is_timed_out():
                     embed = Embed(color=Color.green())
-                    embed.set_author(name=f"[UNTIMEOUT] {member.name}#{member.discriminator}")
+                    embed.set_author(
+                        name=f"[UNTIMEOUT] {member.name}#{member.discriminator}"
+                    )
                     embed.add_field(name="User", value=member.mention, inline=True)
-                    await (await self.bot.fetch_channel(426016300439961601)).send(embed=embed)
+                    await (await self.bot.fetch_channel(426016300439961601)).send(
+                        embed=embed
+                    )
                     removeable.append(i)
                 elif member.is_timed_out():
                     self.timeouts.update({i: member.timed_out_until})
@@ -55,14 +64,21 @@ class PrimaryFunctions(Cog):
     log_untimeout.start()
 
     @Cog.listener()
-    async def on_message(self, message: discord.Message) -> None:  # pylint: disable=unused-variable
+    async def on_message(
+        self, message: discord.Message
+    ) -> None:  # pylint: disable=unused-variable
         """on message func"""
-        if not message.author.bot and message.channel.type is discord.ChannelType.private:
+        if (
+            not message.author.bot
+            and message.channel.type is discord.ChannelType.private
+        ):
             await message.channel.send(
                 "Hi! If this was an attempt to reach the mod team through modmail, that has been removed, in favor of "
-                "mod support, which you can find in <#398949472840712192>")
-        elif message.channel.id == 430197357100138497 and (len(message.mentions) == 1 or
-                                                           re.search(r"<@!?(\d+)>\B", message.content)):
+                "mod support, which you can find in <#398949472840712192>"
+            )
+        elif message.channel.id == 430197357100138497 and (
+            len(message.mentions) == 1 or re.search(r"<@!?(\d+)>\B", message.content)
+        ):
             member = message.mentions[0] if message.mentions else None
             print(member)
             time_string = "None Found"
@@ -75,7 +91,9 @@ class PrimaryFunctions(Cog):
                 channel = await self.bot.fetch_channel(225345178955808768)
                 messages = channel.history(before=datetime.utcnow())
                 if re.search(r"<@!?(\d+)>\B", message.content) and not member:
-                    mentioned_id = int(re.search(r"<@!?(\d+)>\B", message.content).groups()[0])
+                    mentioned_id = int(
+                        re.search(r"<@!?(\d+)>\B", message.content).groups()[0]
+                    )
                 print(mentioned_id)
                 try:
                     async for item in messages:
@@ -92,22 +110,33 @@ class PrimaryFunctions(Cog):
                                 if mentioned_id == mention.id:
                                     is_mentioned = True
                         if is_mentioned:
-                            delta = time.time() - time.mktime(item.created_at.utctimetuple())
+                            delta = time.time() - time.mktime(
+                                item.created_at.utctimetuple()
+                            )
                             time_string = await time_string_from_seconds(delta)
                 except TypeError:
                     print(time_string := "Unable to calculate time.")
             print(mentioned_id, member)
-            member = member if member else await self.bot.fetch_user(mentioned_id) if mentioned_id else None
+            member = (
+                member
+                if member
+                else await self.bot.fetch_user(mentioned_id)
+                if mentioned_id
+                else None
+            )
             print(member)
             if member:
                 await (await self.bot.fetch_channel(430197357100138497)).send(
                     f"**{member.name}#{member.discriminator}** has left the server. "
-                    f"ID:{member.id}. Time on Server: {time_string}")
+                    f"ID:{member.id}. Time on Server: {time_string}"
+                )
                 await message.delete()
 
     # noinspection PyBroadException
     @Cog.listener()
-    async def on_member_update(self, before: discord.Member, after: discord.Member):  # pylint: disable=unused-variable
+    async def on_member_update(
+        self, before: discord.Member, after: discord.Member
+    ):  # pylint: disable=unused-variable
         """On member update func"""
         try:
             if after.timed_out_until != before.timed_out_until:
@@ -115,9 +144,13 @@ class PrimaryFunctions(Cog):
                     await self.parse_timeout(after)
                 else:
                     embed = Embed(color=Color.green())
-                    embed.set_author(name=f"[UNTIMEOUT] {after.name}#{after.discriminator}")
+                    embed.set_author(
+                        name=f"[UNTIMEOUT] {after.name}#{after.discriminator}"
+                    )
                     embed.add_field(name="User", value=after.mention, inline=True)
-                    await (await self.bot.fetch_channel(426016300439961601)).send(embed=embed)
+                    await (await self.bot.fetch_channel(426016300439961601)).send(
+                        embed=embed
+                    )
                     self.bot.timeouts.pop(after.id)
         except:  # pylint: disable=bare-except
             if after.is_timed_out():
@@ -125,12 +158,18 @@ class PrimaryFunctions(Cog):
 
     async def parse_timeout(self, after: discord.Member):
         """parses timeouts"""
-        time_delta = after.timed_out_until + timedelta(seconds=1) - datetime.now(tz=timezone.utc)
+        time_delta = (
+            after.timed_out_until + timedelta(seconds=1) - datetime.now(tz=timezone.utc)
+        )
         time_string = ""
         if time_delta.days // 7 != 0:
-            time_string += f"{time_delta.days // 7} Week{'s' if time_delta.days // 7 > 1 else ''}"
+            time_string += (
+                f"{time_delta.days // 7} Week{'s' if time_delta.days // 7 > 1 else ''}"
+            )
         if time_delta.days % 7 != 0:
-            time_string += f"{', ' if bool(time_string) else ''}{time_delta.days % 7} Day(s) "
+            time_string += (
+                f"{', ' if bool(time_string) else ''}{time_delta.days % 7} Day(s) "
+            )
         if time_delta.seconds // 3600 > 0:
             time_string += f"{', ' if bool(time_string) else ''}{time_delta.seconds // 3600} Hour(s) "
         if (time_delta.seconds % 3600) // 60 != 0:
