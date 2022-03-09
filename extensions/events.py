@@ -114,27 +114,25 @@ class Events(Cog):
                     729368484211064944,
                 ]
                 for role in message.author.roles
+            ) and any(
+                item in message.content
+                for item in [f"<@&{message.guild.id}>", "@everyone", "@here"]
             ):
-                if (
-                    f"<@&{message.guild.id}>" in message.content
-                    or "@everyone" in message.content
-                    or "@here" in message.content
-                ):
-                    await message.author.add_roles(
-                        discord.Object(id=676250179929636886),
-                        discord.Object(id=684936661745795088),
-                    )
-                    await message.delete()
-                    channel = await self.bot.fetch_channel(426016300439961601)
-                    embed = Embed(
-                        description=message.content,
-                        title="Mute: Everyone/Here Ping sent by non mod",
-                        color=Color.red(),
-                    ).set_footer(
-                        text=f"Sent by {message.author.display_name}-{message.author.id}",
-                        icon_url=message.author.avatar.url,
-                    )
-                    await channel.send(embed=embed)
+                await message.author.add_roles(
+                    discord.Object(id=676250179929636886),
+                    discord.Object(id=684936661745795088),
+                )
+                await message.delete()
+                channel = await self.bot.fetch_channel(426016300439961601)
+                embed = Embed(
+                    description=message.content,
+                    title="Mute: Everyone/Here Ping sent by non mod",
+                    color=Color.red(),
+                ).set_footer(
+                    text=f"Sent by {message.author.display_name}-{message.author.id}",
+                    icon_url=message.author.avatar.url,
+                )
+                await channel.send(embed=embed)
             if message.author.bot or not message.content:
                 return
             if re.search(
@@ -163,11 +161,8 @@ class Events(Cog):
 
         # This prevents any cogs with an overwritten cog_command_error being handled here.
         cog: Cog = ctx.cog
-        if cog:
-            if (
-                cog._get_overridden_method(cog.cog_command_error) is not None
-            ):
-                return
+        if cog and (cog._get_overridden_method(cog.cog_command_error) is not None):
+            return
 
         ignored = (commands.CommandNotFound,)
 

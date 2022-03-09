@@ -236,29 +236,27 @@ class Primary(Cog):
         ]
 
     @Cog.listener()
-    async def on_message(
-        self, message: discord.Message
-    ):
+    async def on_message(self, message: discord.Message):
         """Checks guild messages in correct channels for regex trigger"""
         if (
             not message.author.bot
             and message.channel.type is not discord.ChannelType.private
         ):
-            if message.channel.id in [901325983838244865, 878434694713188362]:
-                if "kethran" in message.content.lower():
-                    await message.channel.send(
-                        random.choice(self.responses),
-                        reference=message,
-                        mention_author=True,
-                    )
+            if (
+                message.channel.id in [901325983838244865, 878434694713188362]
+                and "kethran" in message.content.lower()
+            ):
+                await message.channel.send(
+                    random.choice(self.responses),
+                    reference=message,
+                    mention_author=True,
+                )
         elif message.author.id == 184524255197659136:
             channel = await self.bot.fetch_channel(878434694713188362)
             await channel.send(message.content)
 
     @commands.command()
-    async def roll(
-        self, ctx: commands.Context, *, arg: str
-    ):
+    async def roll(self, ctx: commands.Context, *, arg: str):
         """Dice roller"""
         await ctx.send(f"Kethran {roller.roll(arg)}", reference=ctx.message)
 
