@@ -21,12 +21,12 @@ class Admin(Cog):
         )
 
     @commands.command()
-    async def ping(self, ctx: Context):  # pylint: disable=unused-variable
+    async def ping(self, ctx: Context):
         """Ping Command TO Check Bot Is Alive"""
         await ctx.send(f"Pong! Latency: {self.bot.latency * 1000:.2f}ms")
 
     @commands.Group
-    async def slur(self, ctx: Context):  # pylint: disable=no-self-use
+    async def slur(self, ctx: Context):
         """slur command group"""
         if ctx.invoked_subcommand is None:
             await ctx.send(
@@ -35,7 +35,7 @@ class Admin(Cog):
             )
 
     @slur.command()
-    async def add(self, ctx: Context, *, word: str):  # pylint: disable=no-self-use
+    async def add(self, ctx: Context, *, word: str):
         """adds a word to the slur list"""
         if ctx.guild.id != 832521484340953088:
             return
@@ -65,7 +65,7 @@ class Admin(Cog):
             )
 
     @slur.command()
-    async def remove(self, ctx: Context, *, word: str):  # pylint: disable=no-self-use
+    async def remove(self, ctx: Context, *, word: str):
         """removes a word from the slur list"""
         if ctx.guild.id != 832521484340953088:
             return
@@ -95,8 +95,8 @@ class Admin(Cog):
             )
 
     @slur.command()
-    async def query(self, ctx: Context):  # pylint: disable=no-self-use
-        """queries the slur list"""
+    async def query(self, ctx: Context):
+        """Queries the slur list"""
         if ctx.guild.id != 832521484340953088:
             return
         with open("UBCbot.json", encoding="utf8") as json_dict:

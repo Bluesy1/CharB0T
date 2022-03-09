@@ -33,7 +33,7 @@ class PrimaryFunctions(Cog):
         )
 
     @commands.command()
-    async def ping(self, ctx):  # pylint: disable=unused-variable
+    async def ping(self, ctx):
         """ping command"""
         await ctx.send(f"Pong! Latency: {self.bot.latency * 1000:.2f}ms")
 
@@ -66,7 +66,7 @@ class PrimaryFunctions(Cog):
     @Cog.listener()
     async def on_message(
         self, message: discord.Message
-    ) -> None:  # pylint: disable=unused-variable
+    ) -> None:
         """on message func"""
         if (
             not message.author.bot
@@ -136,7 +136,7 @@ class PrimaryFunctions(Cog):
     @Cog.listener()
     async def on_member_update(
         self, before: discord.Member, after: discord.Member
-    ):  # pylint: disable=unused-variable
+    ):
         """On member update func"""
         try:
             if after.timed_out_until != before.timed_out_until:
@@ -152,7 +152,7 @@ class PrimaryFunctions(Cog):
                         embed=embed
                     )
                     self.bot.timeouts.pop(after.id)
-        except:  # pylint: disable=bare-except
+        except:
             if after.is_timed_out():
                 await self.parse_timeout(after)
 

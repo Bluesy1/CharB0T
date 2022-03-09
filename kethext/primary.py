@@ -10,7 +10,7 @@ import roller
 
 
 @tasks.loop(minutes=1)
-async def friday_5(bot: commands.Bot) -> None:  # pylint: disable=unused-variable
+async def friday_5(bot: commands.Bot) -> None:
     """IDK, it's a thing"""
     if (
         datetime.datetime.now(tz=datetime.timezone.utc).date().weekday() == 6
@@ -238,7 +238,7 @@ class Primary(Cog):
     @Cog.listener()
     async def on_message(
         self, message: discord.Message
-    ):  # pylint: disable=unused-variable
+    ):
         """Checks guild messages in correct channels for regex trigger"""
         if (
             not message.author.bot
@@ -258,7 +258,7 @@ class Primary(Cog):
     @commands.command()
     async def roll(
         self, ctx: commands.Context, *, arg: str
-    ):  # pylint: disable=unused-variable,no-self-use
+    ):
         """Dice roller"""
         await ctx.send(f"Kethran {roller.roll(arg)}", reference=ctx.message)
 
@@ -269,6 +269,6 @@ def setup(bot: commands.Bot):
     bot.add_cog(Primary(bot))
 
 
-def teardown(bot: commands.Bot):  # pylint: disable=unused-argument
+def teardown(bot: commands.Bot):
     """Unloads Plugin"""
     friday_5.stop()

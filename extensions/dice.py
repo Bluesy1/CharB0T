@@ -21,7 +21,7 @@ class Roll(Cog):
     @commands.command()
     async def roll(
         self, ctx: Context, *, dice: str
-    ):  # pylint: disable=unused-variable,no-self-use
+    ):
         """Dice roller"""
         if any(
             role.id in (338173415527677954, 253752685357039617, 225413350874546176)

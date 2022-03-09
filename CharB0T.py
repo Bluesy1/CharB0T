@@ -1,5 +1,4 @@
 # coding=utf-8
-# pylint: disable=invalid-name
 import json
 import logging
 import os
@@ -14,7 +13,7 @@ from discord.ext import commands
 def main():
     """Main"""
     if os.name != "nt":
-        import uvloop  # pylint: disable=import-outside-toplevel
+        import uvloop
 
         uvloop.install()
 

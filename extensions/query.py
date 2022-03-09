@@ -23,7 +23,7 @@ class Query(Cog):
         )
 
     @commands.command()
-    async def time(self, ctx: Context):  # pylint: disable=no-self-use
+    async def time(self, ctx: Context):
         """Returns eastern time"""
         os.environ["TZ"] = "US/Eastern"
         time.tzset()

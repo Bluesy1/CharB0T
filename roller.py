@@ -2,7 +2,7 @@
 import random
 
 
-def roll(arg: str) -> str:  # pylint: disable=unused-variable
+def roll(arg: str) -> str:
     """Dice roller"""
     roll_error = (
         "Error invalid argument: specified dice can only be d<int>, or if a constant modifier must be a "
@@ -39,5 +39,5 @@ def roll(arg: str) -> str:  # pylint: disable=unused-variable
             output += str(roll1) + ", "
         output = output[:-2]
         return f"rolled `{arg}` got {output}` for a total value of: {str(sums)}"
-    except Exception:  # pylint: disable=broad-except
+    except Exception:
         return roll_error

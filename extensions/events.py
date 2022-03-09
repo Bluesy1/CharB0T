@@ -114,7 +114,7 @@ class Events(Cog):
                     729368484211064944,
                 ]
                 for role in message.author.roles
-            ):  # pylint: disable=using-constant-test, line-too-long
+            ):
                 if (
                     f"<@&{message.guild.id}>" in message.content
                     or "@everyone" in message.content
@@ -147,7 +147,7 @@ class Events(Cog):
                 await message.delete()
 
     @Cog.listener()
-    async def on_command_error(self, ctx, error):  # pylint: disable=no-self-use
+    async def on_command_error(self, ctx, error):
         """The event triggered when an error is raised while invoking a command.
         Parameters
         ------------
@@ -166,7 +166,7 @@ class Events(Cog):
         if cog:
             if (
                 cog._get_overridden_method(cog.cog_command_error) is not None
-            ):  # pylint: disable=protected-access
+            ):
                 return
 
         ignored = (commands.CommandNotFound,)

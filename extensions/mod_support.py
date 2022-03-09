@@ -27,7 +27,7 @@ async def check_modmail_channels(bot: commands.Bot):
             if channel.history(after=(datetime.now() - timedelta(days=3))) == 0:
                 await channel.send("Deleting now")
                 await channel.delete()
-        except:  # pylint: disable=bare-except
+        except:
             print("Error")
 
 
@@ -58,7 +58,7 @@ class ModSupport(Cog):
             self.mod_support_buttons_added = True
 
     @Cog.listener()
-    async def on_message(self, message: discord.Message):  # pylint: disable=no-self-use
+    async def on_message(self, message: discord.Message):
         """on message event"""
         if (
             not message.author.bot
@@ -76,7 +76,7 @@ class Modsupport(app_commands.Group):
     @app_commands.command(
         name="query", description="queries list of users banned from mod support"
     )
-    async def query(self, interaction: Interaction):  # pylint: disable=no-self-use
+    async def query(self, interaction: Interaction):
         """Modmail blacklist query command"""
         if any(
             role.id
@@ -108,10 +108,10 @@ class Modsupport(app_commands.Group):
     )
     @app_commands.describe(
         add="True to add to blacklist, False to remove", user="user to change"
-    )  # pylint: disable=no-self-use
+    )
     async def edit(
         self, interaction: Interaction, add: bool, user: discord.Member
-    ):  # pylint: disable=no-self-use
+    ):
         """Modmail edit blacklist command"""
         if any(
             role.id
@@ -196,11 +196,12 @@ class ModSupportButtons(ui.View):
         self.everyone = everyone
         self.mod_role = mod_role
         self.mods = mods
+        self.filename = "mod_support_blacklist.json"
 
     async def interaction_check(
         self, interaction: Interaction
-    ) -> bool:  # pylint: disable=no-self-use
-        with open("mod_support_blacklist.json", "r", encoding="utf8") as file:
+    ) -> bool:
+        with open(self.filename, "r", encoding="utf8") as file:
             return interaction.user.id not in json.load(file)["blacklisted"]
 
     @ui.button(
@@ -209,10 +210,10 @@ class ModSupportButtons(ui.View):
         custom_id="Modmail_General",
         emoji="❔",
         row=0,
-    )  # pylint: disable=no-self-use
+    )
     async def general(
         self, button: discord.ui.Button, interaction: discord.Interaction
-    ):  # pylint: disable=no-self-use
+    ):
         """General mod support callback"""
         await interaction.response.send_modal(
             ModSupportModal(
@@ -240,7 +241,7 @@ class ModSupportButtons(ui.View):
     )
     async def important(
         self, button: discord.ui.Button, interaction: Interaction
-    ):  # pylint: disable=no-self-use
+    ):
         """Important mod support callback"""
         await interaction.response.send_modal(
             ModSupportModal(
@@ -268,7 +269,7 @@ class ModSupportButtons(ui.View):
     )
     async def emergency(
         self, button: discord.ui.Button, interaction: Interaction
-    ):  # pylint: disable=no-self-use
+    ):
         """Emergency mod support callback"""
         await interaction.response.send_modal(
             ModSupportModal(
@@ -296,7 +297,7 @@ class ModSupportButtons(ui.View):
     )
     async def private(
         self, select: discord.ui.Select, interaction: Interaction
-    ):  # pylint: disable=no-self-use
+    ):
         """Private mod support callback"""
         perms = {
             self.mod_role: PermissionOverwrite(
@@ -335,11 +336,12 @@ class ModSupportModal(ui.Modal, title="Mod Support Form"):
         super().__init__(title="Mod Support Form")
         self.perm_overrides = perm_overrides
         self.channel_name = channel_name
+        self.filename = "mod_support_blacklist.json"
 
     async def interaction_check(
         self, interaction: Interaction
-    ) -> bool:  # pylint: disable=no-self-use
-        with open("mod_support_blacklist.json", "r", encoding="utf8") as file:
+    ) -> bool:
+        with open(self.filename, "r", encoding="utf8") as file:
             return interaction.user.id not in json.load(file)["blacklisted"]
 
     short_description = ui.TextInput(
@@ -400,6 +402,6 @@ def setup(bot: commands.Bot):
     bot.add_cog(ModSupport(bot))
 
 
-def teardown(bot: commands.Bot):  # pylint: disable=unused-argument
+def teardown(bot: commands.Bot):
     """Unloads Plugin"""
     check_modmail_channels.stop()

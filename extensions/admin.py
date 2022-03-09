@@ -20,12 +20,12 @@ class Admin(Cog):
         )
 
     @commands.command()
-    async def ping(self, ctx: Context):  # pylint: disable=unused-variable
+    async def ping(self, ctx: Context):
         """Ping Command TO Check Bot Is Alive"""
         await ctx.send(f"Pong! Latency: {self.bot.latency * 1000:.2f}ms")
 
     @commands.Group
-    async def sensitive(self, ctx: Context):  # pylint: disable=no-self-use
+    async def sensitive(self, ctx: Context):
         """Sensitive command group"""
         if ctx.invoked_subcommand is None:
             await ctx.send(
@@ -34,7 +34,7 @@ class Admin(Cog):
             )
 
     @sensitive.command()
-    async def add(self, ctx: Context, *, word: str):  # pylint: disable=no-self-use
+    async def add(self, ctx: Context, *, word: str):
         """adds a word to the sensitive topics list"""
         with open("sensitive_settings.json", encoding="utf8") as json_dict:
             fulldict = json.load(json_dict)
@@ -61,7 +61,7 @@ class Admin(Cog):
             )
 
     @sensitive.command()
-    async def remove(self, ctx: Context, *, word: str):  # pylint: disable=no-self-use
+    async def remove(self, ctx: Context, *, word: str):
         """removes a word from sensitive topics list"""
         with open("sensitive_settings.json", encoding="utf8") as file:
             fulldict = json.load(file)
@@ -88,7 +88,7 @@ class Admin(Cog):
             )
 
     @sensitive.command()
-    async def query(self, ctx: Context):  # pylint: disable=no-self-use
+    async def query(self, ctx: Context):
         """queries the sensitive topics list"""
         with open("sensitive_settings.json", encoding="utf8") as json_dict:
             fulldict = json.load(json_dict)
