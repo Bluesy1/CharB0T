@@ -236,9 +236,7 @@ class Primary(Cog):
         ]
 
     @Cog.listener()
-    async def on_message(
-        self, message: discord.Message
-    ):
+    async def on_message(self, message: discord.Message):
         """Checks guild messages in correct channels for regex trigger"""
         if (
             not message.author.bot
@@ -256,9 +254,7 @@ class Primary(Cog):
             await channel.send(message.content)
 
     @commands.command()
-    async def roll(
-        self, ctx: commands.Context, *, arg: str
-    ):
+    async def roll(self, ctx: commands.Context, *, arg: str):
         """Dice roller"""
         await ctx.send(f"Kethran {roller.roll(arg)}", reference=ctx.message)
 
