@@ -164,9 +164,7 @@ class Events(Cog):
         # This prevents any cogs with an overwritten cog_command_error being handled here.
         cog: Cog = ctx.cog
         if cog:
-            if (
-                cog._get_overridden_method(cog.cog_command_error) is not None
-            ):
+            if cog._get_overridden_method(cog.cog_command_error) is not None:
                 return
 
         ignored = (commands.CommandNotFound,)
