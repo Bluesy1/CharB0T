@@ -41,7 +41,7 @@ class PrimaryFunctions(Cog):
     async def log_untimeout(self) -> None:
         """Untimeout Report Method"""
         removeable = []
-        for i, j in self.timeouts.items():
+        for i, j in self.timeouts.copy().items():
             if j < datetime.now(tz=timezone.utc):
                 member = await (
                     await self.bot.fetch_guild(225345178955808768)
@@ -64,9 +64,7 @@ class PrimaryFunctions(Cog):
     log_untimeout.start()
 
     @Cog.listener()
-    async def on_message(
-        self, message: discord.Message
-    ) -> None:
+    async def on_message(self, message: discord.Message) -> None:
         """on message func"""
         if (
             not message.author.bot
@@ -134,9 +132,7 @@ class PrimaryFunctions(Cog):
 
     # noinspection PyBroadException
     @Cog.listener()
-    async def on_member_update(
-        self, before: discord.Member, after: discord.Member
-    ):
+    async def on_member_update(self, before: discord.Member, after: discord.Member):
         """On member update func"""
         try:
             if after.timed_out_until != before.timed_out_until:
