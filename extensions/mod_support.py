@@ -109,9 +109,7 @@ class Modsupport(app_commands.Group):
     @app_commands.describe(
         add="True to add to blacklist, False to remove", user="user to change"
     )
-    async def edit(
-        self, interaction: Interaction, add: bool, user: discord.Member
-    ):
+    async def edit(self, interaction: Interaction, add: bool, user: discord.Member):
         """Modmail edit blacklist command"""
         if any(
             role.id
@@ -198,9 +196,7 @@ class ModSupportButtons(ui.View):
         self.mods = mods
         self.filename = "mod_support_blacklist.json"
 
-    async def interaction_check(
-        self, interaction: Interaction
-    ) -> bool:
+    async def interaction_check(self, interaction: Interaction) -> bool:
         with open(self.filename, "r", encoding="utf8") as file:
             return interaction.user.id not in json.load(file)["blacklisted"]
 
@@ -239,9 +235,7 @@ class ModSupportButtons(ui.View):
         emoji="❗",
         row=0,
     )
-    async def important(
-        self, button: discord.ui.Button, interaction: Interaction
-    ):
+    async def important(self, button: discord.ui.Button, interaction: Interaction):
         """Important mod support callback"""
         await interaction.response.send_modal(
             ModSupportModal(
@@ -267,9 +261,7 @@ class ModSupportButtons(ui.View):
         emoji="‼",
         row=0,
     )
-    async def emergency(
-        self, button: discord.ui.Button, interaction: Interaction
-    ):
+    async def emergency(self, button: discord.ui.Button, interaction: Interaction):
         """Emergency mod support callback"""
         await interaction.response.send_modal(
             ModSupportModal(
@@ -295,9 +287,7 @@ class ModSupportButtons(ui.View):
         options=_PRIVATE_OPTIONS,
         row=1,
     )
-    async def private(
-        self, select: discord.ui.Select, interaction: Interaction
-    ):
+    async def private(self, select: discord.ui.Select, interaction: Interaction):
         """Private mod support callback"""
         perms = {
             self.mod_role: PermissionOverwrite(
@@ -338,9 +328,7 @@ class ModSupportModal(ui.Modal, title="Mod Support Form"):
         self.channel_name = channel_name
         self.filename = "mod_support_blacklist.json"
 
-    async def interaction_check(
-        self, interaction: Interaction
-    ) -> bool:
+    async def interaction_check(self, interaction: Interaction) -> bool:
         with open(self.filename, "r", encoding="utf8") as file:
             return interaction.user.id not in json.load(file)["blacklisted"]
 
