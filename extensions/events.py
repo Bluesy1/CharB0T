@@ -115,13 +115,8 @@ class Events(Cog):
                 ]
                 for role in message.author.roles
             ) and any(
-                item
-                in message.content
-                for item in [
-                    f"<@&{message.guild.id}>",
-                    "@everyone",
-                    "@here"
-                ]
+                item in message.content
+                for item in [f"<@&{message.guild.id}>", "@everyone", "@here"]
             ):
                 await message.author.add_roles(
                     discord.Object(id=676250179929636886),
