@@ -9,11 +9,15 @@ from discord.ext.commands import Cog, Context
 
 class Admin(Cog):
     """Admin Cog"""
+
     def __init__(self, bot: commands.Bot):
         self.bot = bot
 
     def cog_check(self, ctx: Context) -> bool:
-        return any(role.id in (338173415527677954, 253752685357039617, 225413350874546176) for role in ctx.author.roles)
+        return any(
+            role.id in (338173415527677954, 253752685357039617, 225413350874546176)
+            for role in ctx.author.roles
+        )
 
     @commands.command()
     async def ping(self, ctx: Context):  # pylint: disable=unused-variable
@@ -24,51 +28,78 @@ class Admin(Cog):
     async def sensitive(self, ctx: Context):  # pylint: disable=no-self-use
         """Sensitive command group"""
         if ctx.invoked_subcommand is None:
-            await ctx.send("Invoked Sensitive words group - use `add` to add a word, `remove`"
-                           " to remove a word, or `query` to get all words on the list.")
+            await ctx.send(
+                "Invoked Sensitive words group - use `add` to add a word, `remove`"
+                " to remove a word, or `query` to get all words on the list."
+            )
 
     @sensitive.command()
     async def add(self, ctx: Context, *, word: str):  # pylint: disable=no-self-use
         """adds a word to the sensitive topics list"""
-        with open('sensitive_settings.json', encoding='utf8') as json_dict:
+        with open("sensitive_settings.json", encoding="utf8") as json_dict:
             fulldict = json.load(json_dict)
-        if word.lower() not in fulldict['words']:
-            fulldict['words'].append(word.lower()).sort()
-            with open('sensitive_settings.json', 'w', encoding='utf8') as json_dict:
+        if word.lower() not in fulldict["words"]:
+            fulldict["words"].append(word.lower()).sort()
+            with open("sensitive_settings.json", "w", encoding="utf8") as json_dict:
                 json.dump(fulldict, json_dict)
-            await ctx.send(embed=Embed(title="New list of words defined as sensitive",
-                                       description=", ".join(fulldict['words']), color=Color.green(),
-                                       timestamp=datetime.now(tz=timezone.utc)))
+            await ctx.send(
+                embed=Embed(
+                    title="New list of words defined as sensitive",
+                    description=", ".join(fulldict["words"]),
+                    color=Color.green(),
+                    timestamp=datetime.now(tz=timezone.utc),
+                )
+            )
         else:
-            await ctx.send(embed=Embed(title="Word already in list of words defined as sensitive",
-                                       description=", ".join(fulldict['words']), color=Color.blue(),
-                                       timestamp=datetime.now(tz=timezone.utc)))
+            await ctx.send(
+                embed=Embed(
+                    title="Word already in list of words defined as sensitive",
+                    description=", ".join(fulldict["words"]),
+                    color=Color.blue(),
+                    timestamp=datetime.now(tz=timezone.utc),
+                )
+            )
 
     @sensitive.command()
     async def remove(self, ctx: Context, *, word: str):  # pylint: disable=no-self-use
         """removes a word from sensitive topics list"""
-        with open('sensitive_settings.json', encoding='utf8') as file:
+        with open("sensitive_settings.json", encoding="utf8") as file:
             fulldict = json.load(file)
-        if word.lower() in fulldict['words']:
-            fulldict['words'].remove(word.lower()).sort()
-            await ctx.send(embed=Embed(title="New list of words defined as sensitive",
-                                       description=", ".join(fulldict['words']),
-                                       color=Color.green(), timestamp=datetime.now(tz=timezone.utc)))
-            with open('sensitive_settings.json', 'w', encoding='utf8') as file:
+        if word.lower() in fulldict["words"]:
+            fulldict["words"].remove(word.lower()).sort()
+            await ctx.send(
+                embed=Embed(
+                    title="New list of words defined as sensitive",
+                    description=", ".join(fulldict["words"]),
+                    color=Color.green(),
+                    timestamp=datetime.now(tz=timezone.utc),
+                )
+            )
+            with open("sensitive_settings.json", "w", encoding="utf8") as file:
                 json.dump(fulldict, file)
         else:
-            await ctx.send(embed=Embed(title="Word not in list of words defined as sensitive",
-                                       description=", ".join(fulldict['words']), color=Color.blue(),
-                                       timestamp=datetime.now(tz=timezone.utc)))
+            await ctx.send(
+                embed=Embed(
+                    title="Word not in list of words defined as sensitive",
+                    description=", ".join(fulldict["words"]),
+                    color=Color.blue(),
+                    timestamp=datetime.now(tz=timezone.utc),
+                )
+            )
 
     @sensitive.command()
     async def query(self, ctx: Context):  # pylint: disable=no-self-use
         """queries the sensitive topics list"""
-        with open('sensitive_settings.json', encoding='utf8') as json_dict:
+        with open("sensitive_settings.json", encoding="utf8") as json_dict:
             fulldict = json.load(json_dict)
-        await ctx.send(embed=Embed(
-            title="List of words defined as sensitive", description=", ".join(fulldict['words'].sort()),
-            color=Color.blue(), timestamp=datetime.now(tz=timezone.utc)))
+        await ctx.send(
+            embed=Embed(
+                title="List of words defined as sensitive",
+                description=", ".join(fulldict["words"].sort()),
+                color=Color.blue(),
+                timestamp=datetime.now(tz=timezone.utc),
+            )
+        )
 
 
 def setup(bot: commands.Bot):
