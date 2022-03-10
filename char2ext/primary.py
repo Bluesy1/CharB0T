@@ -66,7 +66,6 @@ class PrimaryFunctions(Cog):
         for i in removeable:
             self.timeouts.pop(i)
 
-
     @Cog.listener()
     async def on_message(self, message: discord.Message) -> None:
         """On message func"""
