@@ -65,7 +65,8 @@ class ModSupport(Cog):
             and message.channel.type is discord.ChannelType.private
         ):
             await message.channel.send(
-                "Hi! If this was an attempt to reach the mod team through modmail, that has been removed, in favor of "
+                "Hi! If this was an attempt to reach the mod team through modmail,"
+                " that has been removed, in favor of "
                 "mod support, which you can find in <#398949472840712192>"
             )
 
