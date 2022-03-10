@@ -394,7 +394,7 @@ def setup(bot: commands.Bot):
     """Loads Plugin"""
     check_modmail_channels.start(bot)
     bot.add_cog(
-        ModSupport(bot), overwrite=True, guild=discord.Object(id=225345178955808768)
+        ModSupport(bot), override=True, guild=discord.Object(id=225345178955808768)
     )
 
 
