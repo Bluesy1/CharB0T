@@ -27,7 +27,7 @@ async def check_modmail_channels(bot: commands.Bot):
             if channel.history(after=(datetime.now() - timedelta(days=3))) == 0:
                 await channel.send("Deleting now")
                 await channel.delete()
-        except Exception:  # skipcq: PYL-W0613
+        except Exception:  # skipcq: PYL-W0703
             print("Error")
 
 

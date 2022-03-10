@@ -39,6 +39,7 @@ def main():
     )
 
     async def on_connect():
+        """Function called on bot connect"""
         print("Logged In!")
 
     bot.load_extension("jishaku")

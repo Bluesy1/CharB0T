@@ -38,6 +38,7 @@ def main():
     )
 
     async def on_connect():
+        """Function called on bot connect"""
         print("Logged In!")
 
     bot.on_connect = on_connect

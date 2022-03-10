@@ -45,6 +45,7 @@ def main():
     bot.tree = app_commands.CommandTree(bot)
 
     async def on_connect():
+        """Function called on bot connect"""
         print("Logged In!")
 
     bot.load_extension("jishaku")

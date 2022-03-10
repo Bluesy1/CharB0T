@@ -153,7 +153,7 @@ class PrimaryFunctions(Cog):
                         embed=embed
                     )
                     self.bot.timeouts.pop(after.id)
-        except Exception:  # skipcq: PYL-W0613
+        except Exception:  # skipcq: PYL-W0703
             if after.is_timed_out():
                 await self.parse_timeout(after)
 
