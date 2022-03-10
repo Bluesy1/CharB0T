@@ -162,10 +162,9 @@ class Events(Cog):
         # This prevents any cogs with an overwritten
         # cog_command_error being handled here.
         cog: Cog = ctx.cog
-        if (
-                cog and
-                (cog._get_overridden_method(cog.cog_command_error)
-                 is not None)):  # skipcq: PYL-W0212
+        if cog and (
+            cog._get_overridden_method(cog.cog_command_error) is not None
+        ):  # skipcq: PYL-W0212
             return
 
         ignored = (commands.CommandNotFound,)
