@@ -31,7 +31,9 @@ async def check_modmail_channels(bot: commands.Bot):
             print("Error")
 
 
-class ModSupport(Cog, app_commands.Group, name="modsupport", description="mod support command group"):
+class ModSupport(
+    Cog, app_commands.Group, name="modsupport", description="mod support command group"
+):
     """Mod Support Cog"""
 
     def __init__(self, bot: commands.Bot):
@@ -391,7 +393,9 @@ class ModSupportModal(ui.Modal, title="Mod Support Form"):
 def setup(bot: commands.Bot):
     """Loads Plugin"""
     check_modmail_channels.start(bot)
-    bot.add_cog(ModSupport(bot), overwrite=True, guild=discord.Object(id=225345178955808768))
+    bot.add_cog(
+        ModSupport(bot), overwrite=True, guild=discord.Object(id=225345178955808768)
+    )
 
 
 def teardown(bot: commands.Bot):  # skipcq: PYL-W0613
