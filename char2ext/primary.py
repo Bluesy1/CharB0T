@@ -28,6 +28,7 @@ class PrimaryFunctions(Cog):
         """Init func"""
         self.bot = bot
         self.timeouts = {}
+        self.log_untimeout.start()
 
     def cog_check(self, ctx: Context) -> bool:
         """Check to run for all cog commands"""
@@ -64,8 +65,6 @@ class PrimaryFunctions(Cog):
                     self.timeouts.update({i: member.timed_out_until})
         for i in removeable:
             self.timeouts.pop(i)
-
-    log_untimeout.start()
 
     @Cog.listener()
     async def on_message(self, message: discord.Message) -> None:
