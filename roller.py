@@ -5,7 +5,8 @@ import random
 def roll(arg: str) -> str:
     """Dice roller"""
     roll_error = (
-        "Error invalid argument: specified dice can only be d<int>, or if a constant modifier must be a "
+        "Error invalid argument: specified dice can only be d<int>,"
+        " or if a constant modifier must be a "
         "perfect integer, positive or negative, "
         "connected with `+`, and no spaces."
     )

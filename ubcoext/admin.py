@@ -15,6 +15,7 @@ class Admin(Cog):
         self.bot = bot
 
     def cog_check(self, ctx: Context) -> bool:
+        """Check to run for all cog commands"""
         return any(
             role.id in (832521484378308660, 832521484378308659, 832521484378308658)
             for role in ctx.author.roles
@@ -136,7 +137,8 @@ class Admin(Cog):
             )
             await (await self.bot.fetch_channel(832521484828147741)).send(
                 embed=Embed(
-                    title=f"[SLUR] {message.author.name}#{message.author.discriminator}",
+                    title=f"[SLUR] {message.author.name}#"
+                    f"{message.author.discriminator}",
                     color=Color.red(),
                     timestamp=datetime.now(tz=timezone.utc),
                 )

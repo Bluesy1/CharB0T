@@ -151,7 +151,8 @@ class Modsupport(app_commands.Group):
                 )
             elif add and not successful:
                 await interaction.response.send_message(
-                    f"Error: <@{user.id}> was already on the blacklist or was not able to be added to.",
+                    f"Error: <@{user.id}> was already on the blacklist"
+                    f" or was not able to be added to.",
                     ephemeral=True,
                 )
             elif not add and successful:
@@ -161,12 +162,14 @@ class Modsupport(app_commands.Group):
                 )
             elif not add and not successful:
                 await interaction.response.send_message(
-                    f"<@{user.id}> was not on the blacklist or was not able to be removed from it.",
+                    f"<@{user.id}> was not on the blacklist or was"
+                    f" not able to be removed from it.",
                     ephemeral=True,
                 )
             else:
                 await interaction.response.send_message(
-                    "Error: unkown issue occured. If you're seeing this, ping bluesy, something has gone very wrong.",
+                    "Error: unkown issue occured. If you're seeing this,"
+                    " ping bluesy, something has gone very wrong.",
                     ephemeral=True,
                 )
         else:
@@ -201,6 +204,7 @@ class ModSupportButtons(ui.View):
     async def interaction_check(
         self, interaction: Interaction
     ) -> bool:
+        """Check to run for all interaction instances"""
         with open(self.filename, "r", encoding="utf8") as file:
             return interaction.user.id not in json.load(file)["blacklisted"]
 
@@ -341,6 +345,7 @@ class ModSupportModal(ui.Modal, title="Mod Support Form"):
     async def interaction_check(
         self, interaction: Interaction
     ) -> bool:
+        """Check to run for all interaction instances"""
         with open(self.filename, "r", encoding="utf8") as file:
             return interaction.user.id not in json.load(file)["blacklisted"]
 
@@ -362,6 +367,7 @@ class ModSupportModal(ui.Modal, title="Mod Support Form"):
     )
 
     async def on_submit(self, interaction: Interaction):
+        """Callback for when a modal is submitted"""
         channel = await interaction.guild.create_text_channel(
             self.channel_name,
             category=await interaction.guild.fetch_channel(942578610336837632),
@@ -385,6 +391,7 @@ class ModSupportModal(ui.Modal, title="Mod Support Form"):
         )
 
     async def on_error(self, error: Exception, interaction: Interaction) -> None:
+        """Callback for when an error happens on a modal"""
         await interaction.response.send_message(
             "Oh no! Something went wrong. Please ask for a mod's help in this "
             "channel and let Bluesy know.",

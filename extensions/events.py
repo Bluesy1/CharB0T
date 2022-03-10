@@ -154,18 +154,24 @@ class Events(Cog):
         error: commands.CommandError
             The Exception raised.
         """
-        # This prevents any commands with local handlers being handled here in on_command_error.
+        # This prevents any commands with local handlers being
+        # handled here in on_command_error.
         if hasattr(ctx.command, "on_error"):
             return
 
-        # This prevents any cogs with an overwritten cog_command_error being handled here.
+        # This prevents any cogs with an overwritten
+        # cog_command_error being handled here.
         cog: Cog = ctx.cog
-        if cog and (cog._get_overridden_method(cog.cog_command_error) is not None):  # skipcq: PYL-W0212
+        if (
+                cog and
+                (cog._get_overridden_method(cog.cog_command_error)
+                 is not None)):  # skipcq: PYL-W0212
             return
 
         ignored = (commands.CommandNotFound,)
 
-        # Allows us to check for original exceptions raised and sent to CommandInvokeError.
+        # Allows us to check for original exceptions
+        # raised and sent to CommandInvokeError.
         # If nothing is found. We keep the exception passed to on_command_error.
         error = getattr(error, "original", error)
 
@@ -189,7 +195,8 @@ class Events(Cog):
             await ctx.send("Bad Argument.")
 
         else:
-            # All other Errors not returned come here. And we can just print the default TraceBack.
+            # All other Errors not returned come here.
+            # And we can just print the default TraceBack.
             print(f"Ignoring exception in command {ctx.command}:", file=sys.stderr)
             traceback.print_exception(
                 type(error), error, error.__traceback__, file=sys.stderr

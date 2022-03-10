@@ -14,6 +14,7 @@ class Query(Cog):
         self.bot = bot
 
     def cog_check(self, ctx: Context) -> bool:
+        """Check to run for all cog commands"""
         return not any(
             role.id in (684936661745795088, 676250179929636886)
             for role in ctx.author.roles
