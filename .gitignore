@@ -21,5 +21,6 @@ UBCbot.json
 embeder.py
 /KethranToken.json
 /bottest.py
-modmail_blacklist.json
+mod_support_blacklist.json
 sensitive_settings.json
+*.log*
