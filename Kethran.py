@@ -34,7 +34,7 @@ def main():
         owner_id=363095569515806722,
         case_insensitive=True,
         help_command=None,
-        intents=discord.Intents.message_content,
+        intents=discord.Intents.all(),
     )
 
     async def on_connect():
