@@ -5,7 +5,6 @@ import os
 from logging.handlers import RotatingFileHandler
 
 import discord
-from discord import app_commands
 from discord.ext import commands
 
 
@@ -41,8 +40,6 @@ def main():
             type=discord.ActivityType.watching, name="over the server"
         ),
     )
-
-    bot.tree = app_commands.CommandTree(bot)
 
     async def on_connect():
         """Function called on bot connect"""

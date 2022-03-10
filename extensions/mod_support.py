@@ -31,13 +31,13 @@ async def check_modmail_channels(bot: commands.Bot):
             print("Error")
 
 
-class ModSupport(Cog):
+class ModSupport(Cog, app_commands.Group, name="modsupport", description="mod support command group"):
     """Mod Support Cog"""
 
     def __init__(self, bot: commands.Bot):
+        super().__init__(name="modsupport", description="mod support command group")
         self.bot = bot
         # noinspection PyUnresolvedReferences
-        self.tree: app_commands = bot.tree
         self.mod_support_buttons_added = False
 
     @Cog.listener()
@@ -69,10 +69,6 @@ class ModSupport(Cog):
                 " that has been removed, in favor of "
                 "mod support, which you can find in <#398949472840712192>"
             )
-
-
-class Modsupport(app_commands.Group):
-    """App commands for mod support"""
 
     @app_commands.command(
         name="query", description="queries list of users banned from mod support"
