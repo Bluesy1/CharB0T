@@ -15,8 +15,10 @@ async def time_string_from_seconds(delta: float) -> str:
     hour, minutes = divmod(minutes, 60)
     day, hour = divmod(hour, 24)
     year, day = divmod(day, 365)
-    return f"{year} Year(s), {day} Day(s), {hour} Hour(s)," \
-           f" {minutes} Min(s), {sec:.2f} Sec(s)"
+    return (
+        f"{year} Year(s), {day} Day(s), {hour} Hour(s),"
+        f" {minutes} Min(s), {sec:.2f} Sec(s)"
+    )
 
 
 class PrimaryFunctions(Cog):
@@ -170,14 +172,20 @@ class PrimaryFunctions(Cog):
                 f"{', ' if bool(time_string) else ''}{time_delta.days % 7} Day(s) "
             )
         if time_delta.seconds // 3600 > 0:
-            time_string += f"{', ' if bool(time_string) else ''}" \
-                           f"{time_delta.seconds // 3600} Hour(s) "
+            time_string += (
+                f"{', ' if bool(time_string) else ''}"
+                f"{time_delta.seconds // 3600} Hour(s) "
+            )
         if (time_delta.seconds % 3600) // 60 != 0:
-            time_string += f"{', ' if bool(time_string) else ''}" \
-                           f"{(time_delta.seconds % 3600) // 60} Minute(s) "
+            time_string += (
+                f"{', ' if bool(time_string) else ''}"
+                f"{(time_delta.seconds % 3600) // 60} Minute(s) "
+            )
         if (time_delta.seconds % 3600) % 60 != 0:
-            time_string += f"{', ' if bool(time_string) else ''}" \
-                           f"{(time_delta.seconds % 3600) % 60} Second(s) "
+            time_string += (
+                f"{', ' if bool(time_string) else ''}"
+                f"{(time_delta.seconds % 3600) % 60} Second(s) "
+            )
         embed = Embed(color=Color.red())
         embed.set_author(name=f"[TIMEOUT] {after.name}#{after.discriminator}")
         embed.add_field(name="User", value=after.mention, inline=True)

@@ -20,9 +20,7 @@ class Roll(Cog):
         )
 
     @commands.command()
-    async def roll(
-        self, ctx: Context, *, dice: str
-    ):
+    async def roll(self, ctx: Context, *, dice: str):
         """Dice roller"""
         if any(
             role.id in (338173415527677954, 253752685357039617, 225413350874546176)
