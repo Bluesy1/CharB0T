@@ -163,8 +163,9 @@ class Events(Cog):
         # cog_command_error being handled here.
         cog: Cog = ctx.cog
         if cog and (
+            # skipcq: PYL-W0212
             cog._get_overridden_method(cog.cog_command_error)
-            is not None  # skipcq: PYL-W0212
+            is not None
         ):
             return
 
