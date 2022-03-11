@@ -78,6 +78,7 @@ class Calendar(commands.Cog):
 
     @tasks.loop()
     async def calendar(self):
+        """Calendar update loop"""
         mindatetime = datetime.now(tz=timezone("US/Eastern")) + timedelta(weeks=0)
         maxdatetime = datetime.now(tz=timezone("US/Eastern")) + timedelta(weeks=1)
         callUrl = getUrl(mindatetime, maxdatetime)
@@ -87,9 +88,8 @@ class Calendar(commands.Cog):
             timestamp=discord.utils.utcnow(),
             url="https://cpry.net/calendar",
         )
-        async with aiohttp.ClientSession() as session:
-            async with session.get(callUrl) as response:
-                items = await response.json()
+        async with aiohttp.ClientSession() as session, session.get(callUrl) as response:
+            items = await response.json()
         pprint.pprint(items)
         fields = {}
         tz = utcnow().astimezone().timetz()
@@ -105,7 +105,8 @@ class Calendar(commands.Cog):
                 fields.update(
                     {
                         round(time.mktime(sub_time.timetuple())): {
-                            "value": f"[<t:{round(time.mktime(sub_time.timetuple()))}:F>]({ytLink})",
+                            "value": f"[<t:{round(time.mktime(sub_time.timetuple()))}"
+                            f":F>]({ytLink})",
                             "name": item["summary"],
                             "inline": True,
                         }
@@ -116,7 +117,8 @@ class Calendar(commands.Cog):
                     {
                         round(time.mktime(sub_time.timetuple())): {
                             "name": f"<t:{item['summary']}:F>",
-                            "value": f"[{round(time.mktime(sub_time.timetuple()))}]({item['description']})",
+                            "value": f"[{round(time.mktime(sub_time.timetuple()))}"
+                            f"]({item['description']})",
                             "inline": True,
                         }
                     }
@@ -125,7 +127,8 @@ class Calendar(commands.Cog):
                 fields.update(
                     {
                         round(time.mktime(sub_time.timetuple())): {
-                            "value": f"[<t:{round(time.mktime(sub_time.timetuple()))}:F>]({ytLink})",
+                            "value": f"[<t:{round(time.mktime(sub_time.timetuple()))}"
+                            f":F>]({ytLink})",
                             "name": item["summary"],
                             "inline": True,
                         }
