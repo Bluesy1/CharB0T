@@ -9,3 +9,5 @@ charbot/mod_support_blacklist.json
 charbot/sensitive_settings.json
 *.log*
 *.env*
+/backup/
+/.idea/
