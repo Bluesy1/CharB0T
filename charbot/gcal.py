@@ -76,7 +76,7 @@ class Calendar(commands.Cog):
     @tasks.loop()
     async def calendar(self):
         """Calendar update loop"""
-        if self.webhook is int:
+        if self.webhook is None:
             self.webhook = await self.bot.fetch_webhook(self.webhook)
         mindatetime = datetime.now(tz=timezone("US/Eastern"))
         maxdatetime = datetime.now(tz=timezone("US/Eastern")) + timedelta(weeks=1)
