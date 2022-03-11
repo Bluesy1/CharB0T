@@ -1,5 +1,4 @@
 # coding=utf-8
-import asyncio
 import os
 import pprint
 import time
@@ -9,8 +8,8 @@ from typing import Optional
 import aiohttp
 import discord
 from discord.utils import utcnow
-from dotenv import load_dotenv
 from discord.ext import commands, tasks
+from dotenv import load_dotenv
 from pytz import timezone
 from validators import url
 
@@ -55,10 +54,7 @@ class Calendar(commands.Cog):
         )
         self.webhook = await bot.fetch_webhook(int(os.getenv("WEBHOOK")))
         current = ceil_dt(utcnow(), timedelta(minutes=30))
-        timeline = [
-            item
-            for item in datetime_range(current, self.week_end, timedelta(minutes=30))
-        ]
+        timeline = list(datetime_range(current, self.week_end, timedelta(minutes=30)))
         timeline.append(
             (
                 ceil_dt(
