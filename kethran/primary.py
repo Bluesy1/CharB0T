@@ -2,11 +2,11 @@
 import datetime
 import random
 
-import
 import discord
 from discord.ext import commands, tasks
 from discord.ext.commands import Cog
-..roller
+
+import .roller
 
 
 @tasks.loop(minutes=1)
