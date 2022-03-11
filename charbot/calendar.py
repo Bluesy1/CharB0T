@@ -43,7 +43,7 @@ def ceil_dt(dt: datetime, delta: timedelta):
 
 
 class Calendar(commands.Cog):
-    """ "Calendar task cog"""
+    """Calendar task cog"""
 
     def __init__(self, bot: commands.Bot):
         self.bot = bot
