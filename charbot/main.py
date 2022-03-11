@@ -47,9 +47,9 @@ def main():
 
     bot.load_extension("jishaku")
     bot.load_extension("admin")
-    bot.load_extension("calendar")
     bot.load_extension("dice")
     bot.load_extension("events")
+    bot.load_extension("gcal")
     bot.load_extension("mod_support")
     bot.load_extension("query")
     bot.on_connect = on_connect
