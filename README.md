@@ -1,4 +1,4 @@
-[![Pylint](https://github.com/Bluesy1/CharB0T/actions/workflows/pylint.yml/badge.svg)](https://github.com/Bluesy1/CharB0T/actions/workflows/pylint.yml)
+[![DeepSource](https://deepsource.io/gh/Bluesy1/CharB0T.svg/?label=active+issues&show_trend=true&token=wb08Mu693aFli6scALkkEmql)](https://deepsource.io/gh/Bluesy1/CharB0T/?ref=repository-badge)
 [![CodeQL](https://github.com/Bluesy1/CharB0T/actions/workflows/codeql-analysis.yml/badge.svg)](https://github.com/Bluesy1/CharB0T/actions/workflows/codeql-analysis.yml)
 
 
