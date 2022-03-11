@@ -69,7 +69,6 @@ class Calendar(commands.Cog):
         self.calendar.change_interval(time=timeline)
         self.calendar.start()
 
-
     def cog_unload(self) -> None:
         """Unload function"""
         self.calendar.cancel()
