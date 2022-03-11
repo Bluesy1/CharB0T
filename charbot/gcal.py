@@ -2,6 +2,7 @@
 import os
 import pprint
 import time
+import datetime as _datetime
 from datetime import datetime, timedelta
 from typing import Optional
 
@@ -38,7 +39,7 @@ def datetime_range(start: datetime, end: datetime, delta: timedelta):
 
 def ceil_dt(dt: datetime, delta: timedelta):
     """Rounds a datetime up to the nearest x minutes"""
-    return dt + (datetime(MINYEAR, 1, 1, tzinfo=timezone('UTC')) - dt) % delta
+    return dt + (datetime(_datetime.MINYEAR, 1, 1, tzinfo=timezone('UTC')) - dt) % delta
 
 
 class Calendar(commands.Cog):
