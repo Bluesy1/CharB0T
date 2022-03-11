@@ -53,7 +53,7 @@ class Calendar(commands.Cog):
             - timedelta(days=utcnow().weekday())
             + timedelta(days=7)
         )
-        self.webhook: discord.Webhook | int = int(os.getenv("WEBHOOK"))
+        self.webhook: Optional[discord.Webhook] = None
         current = ceil_dt(utcnow(), timedelta(minutes=30))
         timeline = list(datetime_range(current, self.week_end, timedelta(minutes=30)))
         timeline.append(
