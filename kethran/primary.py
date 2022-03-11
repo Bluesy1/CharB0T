@@ -1,12 +1,14 @@
 # coding=utf-8
 import datetime
 import random
+import sys
 
 import discord
 from discord.ext import commands, tasks
 from discord.ext.commands import Cog
 
-from ..helpers import roller
+sys.path.append("..")
+from helpers import roller
 
 
 @tasks.loop(minutes=1)
@@ -267,4 +269,5 @@ def setup(bot: commands.Bot):
 
 def teardown(bot: commands.Bot):  # skipcq: PYL-W0613
     """Unloads Plugin"""
+    bot.remove_cog("Primary")
     friday_5.stop()
