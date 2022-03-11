@@ -30,6 +30,10 @@ class PrimaryFunctions(Cog):
         self.timeouts = {}
         self.log_untimeout.start()
 
+    def cog_unload(self) -> None:
+        """Cog close function"""
+        self.log_untimeout.cancel()
+
     def cog_check(self, ctx: Context) -> bool:
         """Check to run for all cog commands"""
         return any(
