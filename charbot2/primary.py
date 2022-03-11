@@ -82,7 +82,6 @@ class PrimaryFunctions(Cog):
             len(message.mentions) == 1 or re.search(r"<@!?(\d+)>\B", message.content)
         ):
             member = message.mentions[0] if message.mentions else None
-            print(member)
             time_string = "None Found"
             mentioned_id = None
             if member and member.joined_at:
@@ -96,7 +95,6 @@ class PrimaryFunctions(Cog):
                     mentioned_id = int(
                         re.search(r"<@!?(\d+)>\B", message.content).groups()[0]
                     )
-                print(mentioned_id)
                 try:
                     async for item in messages:
                         if not item.author.bot:
@@ -117,8 +115,7 @@ class PrimaryFunctions(Cog):
                             )
                             time_string = await time_string_from_seconds(delta)
                 except TypeError:
-                    print(time_string := "Unable to calculate time.")
-            print(mentioned_id, member)
+                    pass
             member = (
                 member
                 if member
@@ -126,7 +123,6 @@ class PrimaryFunctions(Cog):
                 if mentioned_id
                 else None
             )
-            print(member)
             if member:
                 await (await self.bot.fetch_channel(430197357100138497)).send(
                     f"**{member.name}#{member.discriminator}** has left the server. "
