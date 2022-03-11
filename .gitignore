@@ -20,6 +20,6 @@ embeder.py
 /KethranToken.json
 /bottest.py
 charbot/mod_support_blacklist.json
-sensitive_settings.json
+charbot/sensitive_settings.json
 *.log*
 *.env*
