@@ -47,6 +47,7 @@ def main():
 
     bot.load_extension("jishaku")
     bot.load_extension("admin")
+    bot.load_extension("calendar")
     bot.load_extension("dice")
     bot.load_extension("events")
     bot.load_extension("mod_support")
