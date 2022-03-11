@@ -69,6 +69,7 @@ class Calendar(commands.Cog):
         self.calendar.change_interval(time=timeline)
         self.calendar.start()
 
+
     def cog_unload(self) -> None:
         """Unload function"""
         self.calendar.cancel()
@@ -77,7 +78,7 @@ class Calendar(commands.Cog):
     async def calendar(self):
         """Calendar update loop"""
         if self.webhook is None:
-            self.webhook = await self.bot.fetch_webhook(self.webhook)
+            self.webhook = await self.bot.fetch_webhook(int(os.getenv("WEBHOOK")))
         mindatetime = datetime.now(tz=timezone("US/Eastern"))
         maxdatetime = datetime.now(tz=timezone("US/Eastern")) + timedelta(weeks=1)
         callUrl = getUrl(mindatetime, maxdatetime)
