@@ -2,7 +2,7 @@
 from discord.ext import commands
 from discord.ext.commands import Cog, Context
 
-from roller import roll as aroll
+from helpers.roller import roll as aroll
 
 
 class Roll(Cog):

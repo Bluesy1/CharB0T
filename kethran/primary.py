@@ -1,12 +1,14 @@
 # coding=utf-8
 import datetime
 import random
+import sys
 
 import discord
 from discord.ext import commands, tasks
 from discord.ext.commands import Cog
 
-import .roller
+sys.path.append("..")
+from helpers import roller
 
 
 @tasks.loop(minutes=1)
