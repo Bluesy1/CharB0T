@@ -1,11 +1,11 @@
 # coding=utf-8
-import json
 import logging
 import os
 from logging.handlers import RotatingFileHandler
 
 import discord
 from discord.ext import commands
+from dotenv import load_dotenv
 
 
 # noinspection PyBroadException
@@ -17,9 +17,9 @@ def main():
         uvloop.install()
 
     logger = logging.getLogger("discord")
-    logger.setLevel(logging.INFO)
+    logger.setLevel(logging.WARNING)
     handler = RotatingFileHandler(
-        filename="Char2.log",
+        filename="kethran.log",
         encoding="utf-8",
         mode="w",
         maxBytes=2000000,
@@ -29,24 +29,23 @@ def main():
         logging.Formatter("%(asctime)s:%(levelname)s:%(name)s: %(message)s")
     )
     logger.addHandler(handler)
-
     bot = commands.Bot(
-        command_prefix="c?",
-        owner_ids=[225344348903047168, 363095569515806722],
+        command_prefix="k",
+        owner_id=363095569515806722,
         case_insensitive=True,
-        intents=discord.Intents.all(),
         help_command=None,
+        intents=discord.Intents.all(),
     )
 
     async def on_connect():
         """Function called on bot connect"""
         print("Logged In!")
 
-    bot.load_extension("jishaku")
-    bot.load_extension(".primary", package="char2ext")
     bot.on_connect = on_connect
-    with open("token2.json", encoding="utf8") as file:
-        bot.run(json.load(file)["token"])
+    bot.load_extension("jishaku")
+    bot.load_extension("primary")
+    load_dotenv()
+    bot.run(os.getenv("Token"))
 
 
 if __name__ == "__main__":

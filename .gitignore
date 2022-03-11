@@ -1,6 +1,5 @@
 credentials.json
 token.json
-bottoken.json
 Test.py
 .vscode/launch.json
 filekey.key
@@ -14,13 +13,13 @@ server.code-workspace
 .vscode/settings.json
 tickets.json
 extensions/token2.json
-token2.json
 sqlinfo.json
 *.code-workspace
-UBCbot.json
+ubcobot/UBCbot.json
 embeder.py
 /KethranToken.json
 /bottest.py
-mod_support_blacklist.json
+charbot/mod_support_blacklist.json
 sensitive_settings.json
 *.log*
+*.env*

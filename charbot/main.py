@@ -1,11 +1,11 @@
 # coding=utf-8
-import json
 import logging
 import os
 from logging.handlers import RotatingFileHandler
 
 import discord
 from discord.ext import commands
+from dotenv import load_dotenv
 
 
 # noinspection PyBroadException
@@ -19,7 +19,7 @@ def main():
     logger = logging.getLogger("discord")
     logger.setLevel(logging.INFO)
     handler = RotatingFileHandler(
-        filename="UBCO.log",
+        filename="../CharBot.log",
         encoding="utf-8",
         mode="w",
         maxBytes=2000000,
@@ -31,22 +31,29 @@ def main():
     logger.addHandler(handler)
     # Instantiate a Bot instance
     bot = commands.Bot(
-        command_prefix=";",
-        owner_id=363095569515806722,
+        command_prefix="!",
+        owner_ids=[225344348903047168, 363095569515806722],
         case_insensitive=True,
         intents=discord.Intents.all(),
         help_command=None,
+        activity=discord.Activity(
+            type=discord.ActivityType.watching, name="over the server"
+        ),
     )
 
     async def on_connect():
-        """Function to be called on connect"""
+        """Function called on bot connect"""
         print("Logged In!")
 
     bot.load_extension("jishaku")
-    bot.load_extension(".admin", package="ubcoext")
+    bot.load_extension("admin")
+    bot.load_extension("dice")
+    bot.load_extension("events")
+    bot.load_extension("mod_support")
+    bot.load_extension("query")
     bot.on_connect = on_connect
-    with open("UBCbot.json", encoding="utf8") as file:
-        bot.run(json.load(file)["Token"])
+    load_dotenv()
+    bot.run(os.getenv("TOKEN"))
 
 
 if __name__ == "__main__":
