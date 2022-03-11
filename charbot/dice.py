@@ -5,7 +5,7 @@ from discord.ext import commands
 from discord.ext.commands import Cog, Context
 
 sys.path.append("..")
-from helpers.roller import roll as aroll
+from helpers.roller import roll as aroll  # skipcq: FLK-E402
 
 
 class Roll(Cog):

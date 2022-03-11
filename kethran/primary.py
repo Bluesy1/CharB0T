@@ -8,7 +8,7 @@ from discord.ext import commands, tasks
 from discord.ext.commands import Cog
 
 sys.path.append("..")
-from helpers import roller
+from helpers import roller  # skipcq: FLK-E402
 
 
 @tasks.loop(minutes=1)
