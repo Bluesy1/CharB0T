@@ -128,9 +128,9 @@ class Primary(Cog):
     async def friday_5(self) -> None:
         """IDK, it's a thing"""
         if (
-                utcnow().date().weekday() == 6
-                and utcnow().hour == 1
-                and utcnow().minute == 0
+            utcnow().date().weekday() == 6
+            and utcnow().hour == 1
+            and utcnow().minute == 0
         ):
             await (await self.bot.fetch_channel(878434694713188362)).send(
                 random.choice(self.responses)
@@ -140,12 +140,12 @@ class Primary(Cog):
     async def on_message(self, message: discord.Message):
         """Checks guild messages in correct channels for regex trigger"""
         if (
-                not message.author.bot
-                and message.channel.type is not discord.ChannelType.private
+            not message.author.bot
+            and message.channel.type is not discord.ChannelType.private
         ):
             if (
-                    message.channel.id in [901325983838244865, 878434694713188362]
-                    and "kethran" in message.content.lower()
+                message.channel.id in [901325983838244865, 878434694713188362]
+                and "kethran" in message.content.lower()
             ):
                 await message.channel.send(
                     random.choice(self.responses),

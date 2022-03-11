@@ -43,17 +43,32 @@ def ceil_dt(dt: datetime, delta: timedelta):
 
 
 class Calendar(commands.Cog):
-    """"Calendar task cog"""
+    """ "Calendar task cog"""
 
     def __init__(self, bot: commands.Bot):
         self.bot = bot
         self.message: Optional[discord.WebhookMessage] = None
-        self.week_end = utcnow().replace(hour=0, minute=0, second=0, microsecond=0) - timedelta(days=utcnow().weekday()) + timedelta(days=7)
+        self.week_end = (
+            utcnow().replace(hour=0, minute=0, second=0, microsecond=0)
+            - timedelta(days=utcnow().weekday())
+            + timedelta(days=7)
+        )
         self.webhook = await bot.fetch_webhook(int(os.getenv("WEBHOOK")))
         current = ceil_dt(utcnow(), timedelta(minutes=30))
-        timeline = [item for item in datetime_range(current, self.week_end, timedelta(minutes=30))]
-        timeline.append((ceil_dt(self.week_end + timedelta(minutes=30), timedelta(minutes=30)).time()))
-        timeline.append((ceil_dt(self.week_end + timedelta(hours=1), timedelta(minutes=30)).time()))
+        timeline = [
+            item
+            for item in datetime_range(current, self.week_end, timedelta(minutes=30))
+        ]
+        timeline.append(
+            (
+                ceil_dt(
+                    self.week_end + timedelta(minutes=30), timedelta(minutes=30)
+                ).time()
+            )
+        )
+        timeline.append(
+            (ceil_dt(self.week_end + timedelta(hours=1), timedelta(minutes=30)).time())
+        )
         self.calendar.change_interval(time=timeline)
         self.calendar.start()
 
@@ -63,12 +78,15 @@ class Calendar(commands.Cog):
 
     @tasks.loop()
     async def calendar(self):
-        mindatetime = datetime.now(tz=timezone('US/Eastern')) + timedelta(weeks=0)
-        maxdatetime = datetime.now(tz=timezone('US/Eastern')) + timedelta(weeks=1)
+        mindatetime = datetime.now(tz=timezone("US/Eastern")) + timedelta(weeks=0)
+        maxdatetime = datetime.now(tz=timezone("US/Eastern")) + timedelta(weeks=1)
         callUrl = getUrl(mindatetime, maxdatetime)
-        embed = discord.Embed(title="List of streams in the next 7 days",
-                              color=discord.Color.dark_blue(), timestamp=discord.utils.utcnow(),
-                              url="https://cpry.net/calendar")
+        embed = discord.Embed(
+            title="List of streams in the next 7 days",
+            color=discord.Color.dark_blue(),
+            timestamp=discord.utils.utcnow(),
+            url="https://cpry.net/calendar",
+        )
         async with aiohttp.ClientSession() as session:
             async with session.get(callUrl) as response:
                 items = await response.json()
@@ -78,45 +96,63 @@ class Calendar(commands.Cog):
         for item in items["items"]:
             if item["status"] == "cancelled":
                 continue
-            sub_time = datetime.fromisoformat((item['start']['dateTime'])).astimezone(tz.tzinfo)
+            sub_time = datetime.fromisoformat((item["start"]["dateTime"])).astimezone(
+                tz.tzinfo
+            )
             if mindatetime < sub_time > maxdatetime:
                 continue
             if "description" not in item.keys():
                 fields.update(
-                    {round(time.mktime(sub_time.timetuple())):
-                         {"value": f"[<t:{round(time.mktime(sub_time.timetuple()))}:F>]({ytLink})",
-                          "name": item['summary'],
-                          "inline": True}}
+                    {
+                        round(time.mktime(sub_time.timetuple())): {
+                            "value": f"[<t:{round(time.mktime(sub_time.timetuple()))}:F>]({ytLink})",
+                            "name": item["summary"],
+                            "inline": True,
+                        }
+                    }
                 )
-            elif url(item['description']):
+            elif url(item["description"]):
                 fields.update(
-                    {round(time.mktime(sub_time.timetuple())):
-                         {"name": f"<t:{item['summary']}:F>",
-                          "value": f"[{round(time.mktime(sub_time.timetuple()))}]({item['description']})",
-                          "inline": True}}
+                    {
+                        round(time.mktime(sub_time.timetuple())): {
+                            "name": f"<t:{item['summary']}:F>",
+                            "value": f"[{round(time.mktime(sub_time.timetuple()))}]({item['description']})",
+                            "inline": True,
+                        }
+                    }
                 )
             else:
                 fields.update(
-                    {round(time.mktime(sub_time.timetuple())):
-                         {"value": f"[<t:{round(time.mktime(sub_time.timetuple()))}:F>]({ytLink})",
-                          "name": item['summary'],
-                          "inline": True}}
+                    {
+                        round(time.mktime(sub_time.timetuple())): {
+                            "value": f"[<t:{round(time.mktime(sub_time.timetuple()))}:F>]({ytLink})",
+                            "name": item["summary"],
+                            "inline": True,
+                        }
+                    }
                 )
         # noinspection PyTypeChecker
         fields = dict(sorted(fields.items()))
 
         for field in fields:
             field = fields[field]
-            embed.add_field(name=field["name"], value=field["value"], inline=field["inline"])
+            embed.add_field(
+                name=field["name"], value=field["value"], inline=field["inline"]
+            )
 
         if not embed.fields:
-            embed = discord.Embed(title="List of streams in the next 7 days",
-                                  description="There are no streams registered in the next 7 days.",
-                                  color=discord.Color.dark_blue(), timestamp=discord.utils.utcnow(),
-                                  url="https://cpry.net/calendar")
-        embed.set_author(name="Charlie",
-                         icon_url="https://cdn.discordapp.com/avatars/225344348903047168/"
-                                  "c093900592dfcd9b9e5c711f4e1c627d.webp?size=160")
+            embed = discord.Embed(
+                title="List of streams in the next 7 days",
+                description="There are no streams registered in the next 7 days.",
+                color=discord.Color.dark_blue(),
+                timestamp=discord.utils.utcnow(),
+                url="https://cpry.net/calendar",
+            )
+        embed.set_author(
+            name="Charlie",
+            icon_url="https://cdn.discordapp.com/avatars/225344348903047168/"
+            "c093900592dfcd9b9e5c711f4e1c627d.webp?size=160",
+        )
         embed.set_footer(text="Last Updated")
 
         if self.message is None:
@@ -130,12 +166,26 @@ class Calendar(commands.Cog):
 
     async def schedule(self):
         """Scedules a week of messages"""
-        self.week_end = utcnow().replace(hour=0, minute=0, second=0, microsecond=0) - timedelta(
-            days=utcnow().weekday()) + timedelta(days=7)
+        self.week_end = (
+            utcnow().replace(hour=0, minute=0, second=0, microsecond=0)
+            - timedelta(days=utcnow().weekday())
+            + timedelta(days=7)
+        )
         current = ceil_dt(utcnow(), timedelta(minutes=30))
-        timeline = [item.time() for item in datetime_range(current, self.week_end, timedelta(minutes=30))]
-        timeline.append((ceil_dt(self.week_end + timedelta(minutes=30), timedelta(minutes=30)).time()))
-        timeline.append((ceil_dt(self.week_end + timedelta(hours=1), timedelta(minutes=30)).time()))
+        timeline = [
+            item.time()
+            for item in datetime_range(current, self.week_end, timedelta(minutes=30))
+        ]
+        timeline.append(
+            (
+                ceil_dt(
+                    self.week_end + timedelta(minutes=30), timedelta(minutes=30)
+                ).time()
+            )
+        )
+        timeline.append(
+            (ceil_dt(self.week_end + timedelta(hours=1), timedelta(minutes=30)).time())
+        )
         self.calendar.change_interval(time=timeline)
         self.calendar.restart()
 
