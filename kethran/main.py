@@ -45,7 +45,7 @@ def main():
     bot.load_extension("jishaku")
     bot.load_extension("primary")
     load_dotenv()
-    bot.run(os.getenv("Token"))
+    bot.run(os.getenv("TOKEN"))
 
 
 if __name__ == "__main__":
