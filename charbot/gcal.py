@@ -53,7 +53,7 @@ class Calendar(commands.Cog):
             - timedelta(days=utcnow().weekday())
             + timedelta(days=7)
         )
-        self.webhook: Webhook | int = int(os.getenv("WEBHOOK"))
+        self.webhook: discord.Webhook | int = int(os.getenv("WEBHOOK"))
         current = ceil_dt(utcnow(), timedelta(minutes=30))
         timeline = list(datetime_range(current, self.week_end, timedelta(minutes=30)))
         timeline.append(
@@ -77,7 +77,7 @@ class Calendar(commands.Cog):
     async def calendar(self):
         """Calendar update loop"""
         if self.webhook is int:
-            self.webhook = await bot.fetch_webhook(self.webhook)
+            self.webhook = await self.bot.fetch_webhook(self.webhook)
         mindatetime = datetime.now(tz=timezone("US/Eastern"))
         maxdatetime = datetime.now(tz=timezone("US/Eastern")) + timedelta(weeks=1)
         callUrl = getUrl(mindatetime, maxdatetime)
@@ -174,10 +174,7 @@ class Calendar(commands.Cog):
             + timedelta(days=7)
         )
         current = ceil_dt(utcnow(), timedelta(minutes=30))
-        timeline = [
-            item.time()
-            for item in datetime_range(current, self.week_end, timedelta(minutes=30))
-        ]
+        timeline = list(datetime_range(current, self.week_end, timedelta(minutes=30)))
         timeline.append(
             (
                 ceil_dt(
