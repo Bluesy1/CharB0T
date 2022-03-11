@@ -24,3 +24,4 @@ embeder.py
 mod_support_blacklist.json
 sensitive_settings.json
 *.log*
+*.env*
