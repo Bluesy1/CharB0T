@@ -1,7 +1,10 @@
 # coding=utf-8
+import sys
+
 from discord.ext import commands
 from discord.ext.commands import Cog, Context
 
+sys.path.append("..")
 from helpers.roller import roll as aroll
 
 
