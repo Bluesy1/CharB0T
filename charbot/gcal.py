@@ -38,7 +38,7 @@ def datetime_range(start: datetime, end: datetime, delta: timedelta):
 
 def ceil_dt(dt: datetime, delta: timedelta):
     """Rounds a datetime up to the nearest x minutes"""
-    return dt + (datetime.min - dt) % delta
+    return dt + (datetime(MINYEAR, 1, 1, tzinfo=timezone('UTC')) - dt) % delta
 
 
 class Calendar(commands.Cog):
