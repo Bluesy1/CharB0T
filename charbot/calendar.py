@@ -75,7 +75,7 @@ class Calendar(commands.Cog):
     @tasks.loop()
     async def calendar(self):
         """Calendar update loop"""
-        mindatetime = datetime.now(tz=timezone("US/Eastern")) + timedelta(weeks=0)
+        mindatetime = datetime.now(tz=timezone("US/Eastern"))
         maxdatetime = datetime.now(tz=timezone("US/Eastern")) + timedelta(weeks=1)
         callUrl = getUrl(mindatetime, maxdatetime)
         embed = discord.Embed(
