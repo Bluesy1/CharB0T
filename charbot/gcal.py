@@ -1,8 +1,8 @@
 # coding=utf-8
 import os
 import pprint
-import time
 import datetime as _datetime
+from calendar import timegm
 from datetime import datetime, timedelta
 from typing import Optional
 
@@ -87,16 +87,14 @@ class Calendar(commands.Cog):
         for item in items["items"]:
             if item["status"] == "cancelled":
                 continue
-            sub_time = datetime.fromisoformat((item["start"]["dateTime"])).astimezone(
-                tz.tzinfo
-            )
+            sub_time = datetime.fromisoformat((item["start"]["dateTime"]))
             if mindatetime < sub_time > maxdatetime:
                 continue
             if "description" not in item.keys():
                 fields.update(
                     {
-                        round(time.mktime(sub_time.timetuple())): {
-                            "value": f"[<t:{round(time.mktime(sub_time.timetuple()))}"
+                        timegm(sub_time.utctimetuple()): {
+                            "value": f"[<t:{timegm(sub_time.utctimetuple())}"
                             f":F>]({ytLink})",
                             "name": item["summary"],
                             "inline": True,
@@ -106,9 +104,9 @@ class Calendar(commands.Cog):
             elif url(item["description"]):
                 fields.update(
                     {
-                        round(time.mktime(sub_time.timetuple())): {
+                        timegm(sub_time.utctimetuple()): {
                             "name": f"<t:{item['summary']}:F>",
-                            "value": f"[{round(time.mktime(sub_time.timetuple()))}"
+                            "value": f"[{timegm(sub_time.utctimetuple())}"
                             f"]({item['description']})",
                             "inline": True,
                         }
@@ -117,8 +115,8 @@ class Calendar(commands.Cog):
             else:
                 fields.update(
                     {
-                        round(time.mktime(sub_time.timetuple())): {
-                            "value": f"[<t:{round(time.mktime(sub_time.timetuple()))}"
+                        timegm(sub_time.utctimetuple()): {
+                            "value": f"[<t:{timegm(sub_time.utctimetuple())}"
                             f":F>]({ytLink})",
                             "name": item["summary"],
                             "inline": True,
