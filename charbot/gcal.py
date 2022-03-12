@@ -55,16 +55,8 @@ class Calendar(commands.Cog):
         )
         self.webhook: Optional[discord.Webhook] = None
         current = ceil_dt(utcnow(), timedelta(minutes=30))
-        timeline = list(datetime_range(current, self.week_end, timedelta(minutes=30)))
-        timeline.append(
-            (
-                ceil_dt(
-                    self.week_end + timedelta(minutes=30), timedelta(minutes=30)
-                ).time()
-            )
-        )
-        timeline.append(
-            (ceil_dt(self.week_end + timedelta(hours=1), timedelta(minutes=30)).time())
+        timeline = list(
+            set(datetime_range(current, self.week_end, timedelta(minutes=30)))
         )
         self.calendar.change_interval(time=timeline)
         self.calendar.start()
@@ -162,31 +154,8 @@ class Calendar(commands.Cog):
         elif utcnow() > self.week_end:
             await self.message.delete()
             self.message = await self.webhook.send(embed=embed, wait=True)
-            await self.schedule()
         else:
             self.message = await self.message.edit(embed=embed)
-
-    async def schedule(self):
-        """Scedules a week of messages"""
-        self.week_end = (
-            utcnow().replace(hour=0, minute=0, second=0, microsecond=0)
-            - timedelta(days=utcnow().weekday())
-            + timedelta(days=7)
-        )
-        current = ceil_dt(utcnow(), timedelta(minutes=30))
-        timeline = list(datetime_range(current, self.week_end, timedelta(minutes=30)))
-        timeline.append(
-            (
-                ceil_dt(
-                    self.week_end + timedelta(minutes=30), timedelta(minutes=30)
-                ).time()
-            )
-        )
-        timeline.append(
-            (ceil_dt(self.week_end + timedelta(hours=1), timedelta(minutes=30)).time())
-        )
-        self.calendar.change_interval(time=timeline)
-        self.calendar.restart()
 
 
 def setup(bot: commands.Bot):
