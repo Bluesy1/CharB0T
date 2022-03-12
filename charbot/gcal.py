@@ -150,10 +150,20 @@ class Calendar(commands.Cog):
         embed.set_footer(text="Last Updated")
 
         if self.message is None:
-            self.message = await self.webhook.send(embed=embed, wait=True)
+            self.message = await self.webhook.send(
+                username=self.bot.user.name,
+                avatar_url=self.bot.user.avatar.url,
+                embed=embed,
+                wait=True,
+            )
         elif utcnow() > self.week_end:
             await self.message.delete()
-            self.message = await self.webhook.send(embed=embed, wait=True)
+            self.message = await self.webhook.send(
+                username=self.bot.user.name,
+                avatar_url=self.bot.user.avatar.url,
+                embed=embed,
+                wait=True,
+            )
         else:
             self.message = await self.message.edit(embed=embed)
 
