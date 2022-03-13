@@ -128,7 +128,7 @@ class Primary(Cog):
     async def friday_5(self) -> None:
         """IDK, it's a thing"""
         if (
-            utcnow().date().weekday() == 6
+            utcnow().date().weekday() == 5
             and utcnow().hour == 1
             and utcnow().minute == 0
         ):
