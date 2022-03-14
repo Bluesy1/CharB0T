@@ -10,27 +10,6 @@ from discord.ext import commands, tasks
 from discord.ext.commands import Cog
 
 
-@tasks.loop(hours=24)
-async def check_modmail_channels(bot: commands.Bot):
-    """Remove stale modmail channels"""
-    channels = (await bot.fetch_guild(225345178955808768)).channels
-    cared = []
-    for channel in channels:
-        if (
-            channel.category.category_id == 942578610336837632
-            and channel.id != 906578081496584242
-        ):
-            cared.append(channel)
-    for channel in cared:
-        # noinspection PyBroadException
-        try:
-            if channel.history(after=(datetime.now() - timedelta(days=3))) == 0:
-                await channel.send("Deleting now")
-                await channel.delete()
-        except Exception:  # skipcq: PYL-W0703
-            print("Error")
-
-
 class ModSupport(
     Cog, app_commands.Group, name="modsupport", description="mod support command group"
 ):
@@ -41,6 +20,31 @@ class ModSupport(
         self.bot = bot
         # noinspection PyUnresolvedReferences
         self.mod_support_buttons_added = False
+        self.check_modmail_channels.start()
+
+    async def cog_unload(self) -> None:
+        """unload func"""
+        self.check_modmail_channels.cancel()
+
+    @tasks.loop(hours=24)
+    async def check_modmail_channels(self):
+        """Remove stale modmail channels"""
+        channels = (await self.bot.fetch_guild(225345178955808768)).channels
+        cared = []
+        for channel in channels:
+            if (
+                    channel.category.category_id == 942578610336837632
+                    and channel.id != 906578081496584242
+            ):
+                cared.append(channel)
+        for channel in cared:
+            # noinspection PyBroadException
+            try:
+                if channel.history(after=(datetime.now() - timedelta(days=3))) == 0:
+                    await channel.send("Deleting now")
+                    await channel.delete()
+            except Exception:  # skipcq: PYL-W0703
+                print("Error")
 
     @Cog.listener()
     async def on_ready(self):
@@ -392,12 +396,6 @@ class ModSupportModal(ui.Modal, title="Mod Support Form"):
 
 def setup(bot: commands.Bot):
     """Loads Plugin"""
-    check_modmail_channels.start(bot)
     bot.add_cog(
         ModSupport(bot), override=True, guild=discord.Object(id=225345178955808768)
     )
-
-
-def teardown(bot: commands.Bot):  # skipcq: PYL-W0613
-    """Unloads Plugin"""
-    check_modmail_channels.stop()

@@ -162,6 +162,7 @@ class Calendar(commands.Cog):
                 embed=embed,
                 wait=True,
             )
+            self.week_end += timedelta(days=7)
         else:
             self.message = await self.message.edit(embed=embed)
 
