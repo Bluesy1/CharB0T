@@ -33,8 +33,8 @@ class ModSupport(
         cared = []
         for channel in channels:
             if (
-                    channel.category.category_id == 942578610336837632
-                    and channel.id != 906578081496584242
+                channel.category.category_id == 942578610336837632
+                and channel.id != 906578081496584242
             ):
                 cared.append(channel)
         for channel in cared:
