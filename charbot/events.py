@@ -204,6 +204,6 @@ class Events(Cog):
             )
 
 
-def setup(bot: commands.Bot):
+async def setup(bot: commands.Bot):
     """Loads Plugin"""
-    bot.add_cog(Events(bot))
+    await bot.add_cog(Events(bot))

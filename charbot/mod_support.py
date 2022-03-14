@@ -19,12 +19,25 @@ class ModSupport(
         super().__init__(name="modsupport", description="mod support command group")
         self.bot = bot
         # noinspection PyUnresolvedReferences
-        self.mod_support_buttons_added = False
-        self.check_modmail_channels.start()
 
     async def cog_unload(self) -> None:
-        """unload func"""
+        """Unload func"""
         self.check_modmail_channels.cancel()
+
+    async def cog_load(self) -> None:
+        """Cog load func"""
+        self.check_modmail_channels.start()
+        guild = await self.bot.fetch_guild(225345178955808768)
+        everyone = guild.default_role
+        mod_roles = guild.get_role(338173415527677954)
+        mods = {
+            "146285543146127361": await guild.fetch_member(146285543146127361),
+            "363095569515806722": await guild.fetch_member(363095569515806722),
+            "138380316095021056": await guild.fetch_member(138380316095021056),
+            "162833689196101632": await guild.fetch_member(162833689196101632),
+            "82495450153750528": await guild.fetch_member(82495450153750528),
+        }
+        self.bot.add_view(ModSupportButtons(everyone, mod_roles, mods))
 
     @tasks.loop(hours=24)
     async def check_modmail_channels(self):
@@ -33,8 +46,8 @@ class ModSupport(
         cared = []
         for channel in channels:
             if (
-                    channel.category.category_id == 942578610336837632
-                    and channel.id != 906578081496584242
+                channel.category.category_id == 942578610336837632
+                and channel.id != 906578081496584242
             ):
                 cared.append(channel)
         for channel in cared:
@@ -45,23 +58,6 @@ class ModSupport(
                     await channel.delete()
             except Exception:  # skipcq: PYL-W0703
                 print("Error")
-
-    @Cog.listener()
-    async def on_ready(self):
-        """On ready event"""
-        if not self.mod_support_buttons_added:
-            guild = await self.bot.fetch_guild(225345178955808768)
-            everyone = guild.default_role
-            mod_roles = guild.get_role(338173415527677954)
-            mods = {
-                "146285543146127361": await guild.fetch_member(146285543146127361),
-                "363095569515806722": await guild.fetch_member(363095569515806722),
-                "138380316095021056": await guild.fetch_member(138380316095021056),
-                "162833689196101632": await guild.fetch_member(162833689196101632),
-                "82495450153750528": await guild.fetch_member(82495450153750528),
-            }
-            self.bot.add_view(ModSupportButtons(everyone, mod_roles, mods))
-            self.mod_support_buttons_added = True
 
     @Cog.listener()
     async def on_message(self, message: discord.Message):
@@ -394,8 +390,8 @@ class ModSupportModal(ui.Modal, title="Mod Support Form"):
         )
 
 
-def setup(bot: commands.Bot):
+async def setup(bot: commands.Bot):
     """Loads Plugin"""
-    bot.add_cog(
+    await bot.add_cog(
         ModSupport(bot), override=True, guild=discord.Object(id=225345178955808768)
     )

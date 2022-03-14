@@ -155,6 +155,6 @@ class Admin(Cog):
             )
 
 
-def setup(bot: commands.Bot):
+async def setup(bot: commands.Bot):
     """Loads Plugin"""
-    bot.add_cog(Admin(bot))
+    await bot.add_cog(Admin(bot))

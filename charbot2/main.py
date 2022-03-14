@@ -8,6 +8,18 @@ from discord.ext import commands
 from dotenv import load_dotenv
 
 
+class C2Bot(commands.Bot):
+    """Custom bot class. extends discord.ext.commands.Bot"""
+
+    async def setup_hook(self):
+        """Setup hook"""
+        print("Setup started")
+        await self.load_extension("jishaku")
+        await self.load_extension("primary")
+        print("Extensions loaded")
+        print(f"Logged in as {self.user.name}#{self.user.discriminator}")
+
+
 # noinspection PyBroadException
 def main():
     """Main"""
@@ -30,7 +42,7 @@ def main():
     )
     logger.addHandler(handler)
 
-    bot = commands.Bot(
+    bot = C2Bot(
         command_prefix="c?",
         owner_ids=[225344348903047168, 363095569515806722],
         case_insensitive=True,
@@ -42,8 +54,6 @@ def main():
         """Function called on bot connect"""
         print("Logged In!")
 
-    bot.load_extension("jishaku")
-    bot.load_extension("primary")
     bot.on_connect = on_connect
     load_dotenv()
     bot.run(os.getenv("TOKEN"))

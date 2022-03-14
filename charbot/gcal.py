@@ -59,11 +59,15 @@ class Calendar(commands.Cog):
             set(datetime_range(current, self.week_end, timedelta(minutes=30)))
         )
         self.calendar.change_interval(time=timeline)
-        self.calendar.start()
 
     async def cog_unload(self) -> None:
         """Unload function"""
         self.calendar.cancel()
+
+    async def cog_load(self) -> None:
+        """Cog setup hook"""
+        self.webhook = await self.bot.fetch_webhook(int(os.getenv("WEBHOOK")))
+        self.calendar.start()
 
     @tasks.loop()
     async def calendar(self):
@@ -167,6 +171,6 @@ class Calendar(commands.Cog):
             self.message = await self.message.edit(embed=embed)
 
 
-def setup(bot: commands.Bot):
+async def setup(bot: commands.Bot):
     """Loads extension"""
-    bot.add_cog(Calendar(bot))
+    await bot.add_cog(Calendar(bot))

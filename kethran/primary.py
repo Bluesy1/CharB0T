@@ -118,6 +118,9 @@ class Primary(Cog):
             "pants",
             "**HOLY SHIT!** \n**HOLY SHIT!**\n**HOLY SHIT!**",
         ]
+
+    async def cog_load(self) -> None:
+        """load hook"""
         self.friday_5.start()
 
     async def cog_unload(self) -> None:
@@ -162,6 +165,6 @@ class Primary(Cog):
         await ctx.send(f"Kethran {roller.roll(arg)}", reference=ctx.message)
 
 
-def setup(bot: commands.Bot):
+async def setup(bot: commands.Bot):
     """Loads Plugin"""
-    bot.add_cog(Primary(bot))
+    await bot.add_cog(Primary(bot))

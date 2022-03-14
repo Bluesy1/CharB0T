@@ -8,6 +8,23 @@ from discord.ext import commands
 from dotenv import load_dotenv
 
 
+class CBot(commands.Bot):
+    """Custom bot class. extends discord.ext.commands.Bot"""
+
+    async def setup_hook(self):
+        """Setup hook"""
+        print("Setup started")
+        await self.load_extension("jishaku")
+        await self.load_extension("admin")
+        await self.load_extension("dice")
+        await self.load_extension("events")
+        await self.load_extension("gcal")
+        await self.load_extension("mod_support")
+        await self.load_extension("query")
+        print("Extensions loaded")
+        print(f"Logged in as {self.user.name}#{self.user.discriminator}")
+
+
 # noinspection PyBroadException
 def main():
     """Main"""
@@ -30,7 +47,7 @@ def main():
     )
     logger.addHandler(handler)
     # Instantiate a Bot instance
-    bot = commands.Bot(
+    bot = CBot(
         command_prefix="!",
         owner_ids=[225344348903047168, 363095569515806722],
         case_insensitive=True,
@@ -45,13 +62,6 @@ def main():
         """Function called on bot connect"""
         print("Logged In!")
 
-    bot.load_extension("jishaku")
-    bot.load_extension("admin")
-    bot.load_extension("dice")
-    bot.load_extension("events")
-    bot.load_extension("gcal")
-    bot.load_extension("mod_support")
-    bot.load_extension("query")
     bot.on_connect = on_connect
     load_dotenv()
     bot.run(os.getenv("TOKEN"))

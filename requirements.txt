@@ -3,6 +3,7 @@ cryptography>=36.0.1
 disrank>=0.0.2
 fpdf2==2.5.1
 git+https://github.com/Rapptz/discord.py@master#egg=discord-py
+git+https://github.com/Gorialis/jishaku@g27284df#egg=jishaku
 matplotlib>=3.5.1
 numpy>=1.22.3
 pandas==1.4.1

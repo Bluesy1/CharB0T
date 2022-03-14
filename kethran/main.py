@@ -8,6 +8,18 @@ from discord.ext import commands
 from dotenv import load_dotenv
 
 
+class Kethran(commands.Bot):
+    """Custom bot class. extends discord.ext.commands.Bot"""
+
+    async def setup_hook(self):
+        """Setup hook"""
+        print("Setup started")
+        await self.load_extension("jishaku")
+        await self.load_extension("primary")
+        print("Extensions loaded")
+        print(f"Logged in as {self.user.name}#{self.user.discriminator}")
+
+
 # noinspection PyBroadException
 def main():
     """Main"""
@@ -29,7 +41,7 @@ def main():
         logging.Formatter("%(asctime)s:%(levelname)s:%(name)s: %(message)s")
     )
     logger.addHandler(handler)
-    bot = commands.Bot(
+    bot = Kethran(
         command_prefix="k",
         owner_id=363095569515806722,
         case_insensitive=True,
@@ -42,8 +54,6 @@ def main():
         print("Logged In!")
 
     bot.on_connect = on_connect
-    bot.load_extension("jishaku")
-    bot.load_extension("primary")
     load_dotenv()
     bot.run(os.getenv("TOKEN"))
 

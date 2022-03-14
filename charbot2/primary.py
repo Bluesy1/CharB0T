@@ -28,6 +28,9 @@ class PrimaryFunctions(Cog):
         """Init func"""
         self.bot = bot
         self.timeouts = {}
+
+    async def cog_load(self) -> None:
+        """Cog load hook"""
         self.log_untimeout.start()
 
     async def cog_unload(self) -> None:
@@ -193,6 +196,6 @@ class PrimaryFunctions(Cog):
         self.timeouts.update({after.id: after.timed_out_until})
 
 
-def setup(bot: commands.Bot):
+async def setup(bot: commands.Bot):
     """Setup"""
-    bot.add_cog(PrimaryFunctions(bot))
+    await bot.add_cog(PrimaryFunctions(bot))

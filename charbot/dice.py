@@ -42,6 +42,6 @@ class Roll(Cog):
             )
 
 
-def setup(bot: commands.Bot):
+async def setup(bot: commands.Bot):
     """Loads Plugin"""
-    bot.add_cog(Roll(bot))
+    await bot.add_cog(Roll(bot))
