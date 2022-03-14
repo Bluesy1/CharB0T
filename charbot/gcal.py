@@ -73,11 +73,11 @@ class Calendar(commands.Cog):
         )
         self.calendar.change_interval(time=timeline)
 
-    async def cog_unload(self) -> None:
+    async def cog_unload(self) -> None:  # skipcq: PYL-W0236
         """Unload function"""
         self.calendar.cancel()
 
-    async def cog_load(self) -> None:  # skipcq: PYL-W0236
+    async def cog_load(self) -> None:
         """Cog setup hook"""
         self.webhook = await self.bot.fetch_webhook(int(os.getenv("WEBHOOK")))
         self.calendar.start()
