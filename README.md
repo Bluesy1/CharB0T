@@ -3,6 +3,7 @@
 [![CodeQL](https://github.com/Bluesy1/CharB0T/actions/workflows/codeql-analysis.yml/badge.svg)](https://github.com/Bluesy1/CharB0T/actions/workflows/codeql-analysis.yml)
 [![Lint](https://github.com/Bluesy1/CharB0T/actions/workflows/black.yml/badge.svg)](https://github.com/Bluesy1/CharB0T/actions/workflows/black.yml)
 [![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
+[![CodeFactor](https://www.codefactor.io/repository/github/bluesy1/charb0t/badge)](https://www.codefactor.io/repository/github/bluesy1/charb0t)
 
 # CharB0T
 Personal Bots, And Ones made for Charlie.
