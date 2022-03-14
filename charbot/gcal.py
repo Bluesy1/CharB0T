@@ -47,8 +47,7 @@ def default_field(dictionary: dict, add_time: datetime, item: dict[str, any]) ->
     dictionary.update(
         {
             timegm(add_time.utctimetuple()): {
-                "value": f"[<t:{timegm(add_time.utctimetuple())}"
-                         f":F>]({ytLink})",
+                "value": f"[<t:{timegm(add_time.utctimetuple())}" f":F>]({ytLink})",
                 "name": item["summary"],
                 "inline": True,
             }

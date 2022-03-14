@@ -200,9 +200,8 @@ class ModSupportButtons(ui.View):
             return interaction.user.id not in json.load(file)["blacklisted"]
 
     async def standard_callback(
-            self,
-            button: discord.ui.Button,
-            interaction: Interaction):
+        self, button: discord.ui.Button, interaction: Interaction
+    ):
         """Just general and important and ememgrency callback helper"""
         await interaction.response.send_modal(
             ModSupportModal(
