@@ -30,7 +30,7 @@ class PrimaryFunctions(Cog):
         self.timeouts = {}
         self.log_untimeout.start()
 
-    def cog_unload(self) -> None:
+    async def cog_unload(self) -> None:
         """Cog close function"""
         self.log_untimeout.cancel()
 

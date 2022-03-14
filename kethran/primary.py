@@ -120,7 +120,7 @@ class Primary(Cog):
         ]
         self.friday_5.start()
 
-    def cog_unload(self) -> None:
+    async def cog_unload(self) -> None:
         """Cog unload handling"""
         self.friday_5.cancel()
 
