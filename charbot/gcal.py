@@ -42,6 +42,20 @@ def ceil_dt(dt: datetime, delta: timedelta):
     return dt + (datetime(_datetime.MINYEAR, 1, 1, tzinfo=timezone("UTC")) - dt) % delta
 
 
+def default_field(dictionary: dict, add_time: datetime, item: dict[str, any]) -> None:
+    """Adds the default dict field"""
+    dictionary.update(
+        {
+            timegm(add_time.utctimetuple()): {
+                "value": f"[<t:{timegm(add_time.utctimetuple())}"
+                         f":F>]({ytLink})",
+                "name": item["summary"],
+                "inline": True,
+            }
+        }
+    )
+
+
 class Calendar(commands.Cog):
     """Calendar task cog"""
 
@@ -95,16 +109,7 @@ class Calendar(commands.Cog):
             if mindatetime < sub_time > maxdatetime:
                 continue
             if "description" not in item.keys():
-                fields.update(
-                    {
-                        timegm(sub_time.utctimetuple()): {
-                            "value": f"[<t:{timegm(sub_time.utctimetuple())}"
-                            f":F>]({ytLink})",
-                            "name": item["summary"],
-                            "inline": True,
-                        }
-                    }
-                )
+                default_field(fields, sub_time, item)
             elif url(item["description"]):
                 fields.update(
                     {
@@ -117,16 +122,7 @@ class Calendar(commands.Cog):
                     }
                 )
             else:
-                fields.update(
-                    {
-                        timegm(sub_time.utctimetuple()): {
-                            "value": f"[<t:{timegm(sub_time.utctimetuple())}"
-                            f":F>]({ytLink})",
-                            "name": item["summary"],
-                            "inline": True,
-                        }
-                    }
-                )
+                default_field(fields, sub_time, item)
         # noinspection PyTypeChecker
         fields = dict(sorted(fields.items()))
 

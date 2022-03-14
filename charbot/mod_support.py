@@ -10,6 +10,20 @@ from discord.ext import commands, tasks
 from discord.ext.commands import Cog
 
 
+async def edit_check(interaction: Interaction) -> bool:
+    """Check for if a user is allowed to edit the blacklist"""
+    return any(
+        role.id
+        in (
+            225413350874546176,
+            253752685357039617,
+            725377514414932030,
+            338173415527677954,
+        )
+        for role in interaction.user.roles
+    )
+
+
 class ModSupport(
     Cog, app_commands.Group, name="modsupport", description="mod support command group"
 ):
@@ -77,16 +91,7 @@ class ModSupport(
     )
     async def query(self, interaction: Interaction):
         """Modmail blacklist query command"""
-        if any(
-            role.id
-            in (
-                225413350874546176,
-                253752685357039617,
-                725377514414932030,
-                338173415527677954,
-            )
-            for role in interaction.user.roles
-        ):
+        if await edit_check(interaction):
             with open("mod_support_blacklist.json", "r", encoding="utf8") as file:
                 blacklisted = [f"<@{item}>" for item in json.load(file)["blacklisted"]]
             await interaction.response.send_message(
@@ -110,16 +115,7 @@ class ModSupport(
     )
     async def edit(self, interaction: Interaction, add: bool, user: discord.Member):
         """Modmail edit blacklist command"""
-        if any(
-            role.id
-            in (
-                225413350874546176,
-                253752685357039617,
-                725377514414932030,
-                338173415527677954,
-            )
-            for role in interaction.user.roles
-        ):
+        if await edit_check(interaction):
             if add:
                 successful = False
                 with open("mod_support_blacklist.json", "r", encoding="utf8") as file:
@@ -203,6 +199,28 @@ class ModSupportButtons(ui.View):
         with open(self.filename, "r", encoding="utf8") as file:
             return interaction.user.id not in json.load(file)["blacklisted"]
 
+    async def standard_callback(
+            self,
+            button: discord.ui.Button,
+            interaction: Interaction):
+        """Just general and important and ememgrency callback helper"""
+        await interaction.response.send_modal(
+            ModSupportModal(
+                {
+                    self.mod_role: PermissionOverwrite(
+                        view_channel=True, send_messages=True, read_messages=True
+                    ),
+                    self.everyone: PermissionOverwrite(
+                        view_channel=False, send_messages=False, read_messages=False
+                    ),
+                    interaction.user: PermissionOverwrite(
+                        view_channel=True, send_messages=True, read_messages=True
+                    ),
+                },
+                f"{button.label}-{interaction.user.name}",
+            )
+        )
+
     @ui.button(
         label="General",
         style=discord.ButtonStyle.success,
@@ -214,22 +232,7 @@ class ModSupportButtons(ui.View):
         self, button: discord.ui.Button, interaction: discord.Interaction
     ):
         """General mod support callback"""
-        await interaction.response.send_modal(
-            ModSupportModal(
-                {
-                    self.mod_role: PermissionOverwrite(
-                        view_channel=True, send_messages=True, read_messages=True
-                    ),
-                    self.everyone: PermissionOverwrite(
-                        view_channel=False, send_messages=False, read_messages=False
-                    ),
-                    interaction.user: PermissionOverwrite(
-                        view_channel=True, send_messages=True, read_messages=True
-                    ),
-                },
-                f"{button.label}-{interaction.user.name}",
-            )
-        )
+        await self.standard_callback(button, interaction)
 
     @ui.button(
         label="Important",
@@ -240,22 +243,7 @@ class ModSupportButtons(ui.View):
     )
     async def important(self, button: discord.ui.Button, interaction: Interaction):
         """Important mod support callback"""
-        await interaction.response.send_modal(
-            ModSupportModal(
-                {
-                    self.mod_role: PermissionOverwrite(
-                        view_channel=True, send_messages=True, read_messages=True
-                    ),
-                    self.everyone: PermissionOverwrite(
-                        view_channel=False, send_messages=False, read_messages=False
-                    ),
-                    interaction.user: PermissionOverwrite(
-                        view_channel=True, send_messages=True, read_messages=True
-                    ),
-                },
-                f"{button.label}-{interaction.user.name}",
-            )
-        )
+        await self.standard_callback(button, interaction)
 
     @ui.button(
         label="Emergency",
@@ -266,22 +254,7 @@ class ModSupportButtons(ui.View):
     )
     async def emergency(self, button: discord.ui.Button, interaction: Interaction):
         """Emergency mod support callback"""
-        await interaction.response.send_modal(
-            ModSupportModal(
-                {
-                    self.mod_role: PermissionOverwrite(
-                        view_channel=True, send_messages=True, read_messages=True
-                    ),
-                    self.everyone: PermissionOverwrite(
-                        view_channel=False, send_messages=False, read_messages=False
-                    ),
-                    interaction.user: PermissionOverwrite(
-                        view_channel=True, send_messages=True, read_messages=True
-                    ),
-                },
-                f"{button.label}-{interaction.user.name}",
-            )
-        )
+        await self.standard_callback(button, interaction)
 
     @ui.select(
         placeholder="Private",

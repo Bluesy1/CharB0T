@@ -73,12 +73,45 @@ class PrimaryFunctions(Cog):
         for i in removeable:
             self.timeouts.pop(i)
 
+    async def uncached_time_search(
+            self,
+            message: discord.Message,
+            member: discord.Member) -> str:
+        """Tries to find a join time by channel"""
+        channel = await self.bot.fetch_channel(225345178955808768)
+        messages = channel.history(before=datetime.utcnow())
+        if re.search(r"<@!?(\d+)>\B", message.content) and not member:
+            mentioned_id = int(
+                re.search(r"<@!?(\d+)>\B", message.content).groups()[0]
+            )
+        try:
+            async for item in messages:
+                if not item.author.bot:
+                    continue
+                mentions = item.mentions
+                is_mentioned = False
+                if member:
+                    for mention in mentions:
+                        if member.id == mention.id:
+                            is_mentioned = True
+                elif mentioned_id:
+                    for mention in mentions:
+                        if mentioned_id == mention.id:
+                            is_mentioned = True
+                if is_mentioned:
+                    delta = time.time() - time.mktime(
+                        item.created_at.utctimetuple()
+                    )
+                    return await time_string_from_seconds(delta)
+        except TypeError:
+            return "None Found"
+
     @Cog.listener()
     async def on_message(self, message: discord.Message) -> None:
         """On message func"""
         if (
-            not message.author.bot
-            and message.channel.type is discord.ChannelType.private
+                not message.author.bot
+                and message.channel.type is discord.ChannelType.private
         ):
             await message.channel.send(
                 "Hi! If this was an attempt to reach the mod team through modmail,"
@@ -86,43 +119,15 @@ class PrimaryFunctions(Cog):
                 "mod support, which you can find in <#398949472840712192>"
             )
         elif message.channel.id == 430197357100138497 and (
-            len(message.mentions) == 1 or re.search(r"<@!?(\d+)>\B", message.content)
+                len(message.mentions) == 1 or re.search(r"<@!?(\d+)>\B", message.content)
         ):
             member = message.mentions[0] if message.mentions else None
-            time_string = "None Found"
             mentioned_id = None
             if member and member.joined_at:
                 delta = time.time() - time.mktime(member.joined_at.utctimetuple())
                 time_string = await time_string_from_seconds(delta)
-
             else:
-                channel = await self.bot.fetch_channel(225345178955808768)
-                messages = channel.history(before=datetime.utcnow())
-                if re.search(r"<@!?(\d+)>\B", message.content) and not member:
-                    mentioned_id = int(
-                        re.search(r"<@!?(\d+)>\B", message.content).groups()[0]
-                    )
-                try:
-                    async for item in messages:
-                        if not item.author.bot:
-                            continue
-                        mentions = item.mentions
-                        is_mentioned = False
-                        if member:
-                            for mention in mentions:
-                                if member.id == mention.id:
-                                    is_mentioned = True
-                        elif mentioned_id:
-                            for mention in mentions:
-                                if mentioned_id == mention.id:
-                                    is_mentioned = True
-                        if is_mentioned:
-                            delta = time.time() - time.mktime(
-                                item.created_at.utctimetuple()
-                            )
-                            time_string = await time_string_from_seconds(delta)
-                except TypeError:
-                    pass
+                time_string = await self.uncached_time_search(message, member)
             member = (
                 member
                 if member
@@ -162,7 +167,7 @@ class PrimaryFunctions(Cog):
     async def parse_timeout(self, after: discord.Member):
         """Parses timeouts"""
         time_delta = (
-            after.timed_out_until + timedelta(seconds=1) - datetime.now(tz=timezone.utc)
+                after.timed_out_until + timedelta(seconds=1) - datetime.now(tz=timezone.utc)
         )
         time_string = ""
         if time_delta.days // 7 != 0:
