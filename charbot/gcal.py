@@ -77,7 +77,7 @@ class Calendar(commands.Cog):
         """Unload function"""
         self.calendar.cancel()
 
-    async def cog_load(self) -> None:
+    async def cog_load(self) -> None:  # skipcq: PYL-W0236
         """Cog setup hook"""
         self.webhook = await self.bot.fetch_webhook(int(os.getenv("WEBHOOK")))
         self.calendar.start()
@@ -100,7 +100,6 @@ class Calendar(commands.Cog):
             items = await response.json()
         pprint.pprint(items)
         fields = {}
-        tz = utcnow().astimezone().timetz()
         for item in items["items"]:
             if item["status"] == "cancelled":
                 continue

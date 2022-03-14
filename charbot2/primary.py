@@ -33,7 +33,7 @@ class PrimaryFunctions(Cog):
         """Cog load hook"""
         self.log_untimeout.start()
 
-    async def cog_unload(self) -> None:
+    async def cog_unload(self) -> None:  # skipcq: PYL-W0236
         """Cog close function"""
         self.log_untimeout.cancel()
 

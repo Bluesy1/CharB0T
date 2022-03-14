@@ -120,10 +120,10 @@ class Primary(Cog):
         ]
 
     async def cog_load(self) -> None:
-        """load hook"""
+        """Load hook"""
         self.friday_5.start()
 
-    async def cog_unload(self) -> None:
+    async def cog_unload(self) -> None:  # skipcq: PYL-W0236
         """Cog unload handling"""
         self.friday_5.cancel()
 

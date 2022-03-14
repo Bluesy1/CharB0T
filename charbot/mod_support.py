@@ -34,7 +34,7 @@ class ModSupport(
         self.bot = bot
         # noinspection PyUnresolvedReferences
 
-    async def cog_unload(self) -> None:
+    async def cog_unload(self) -> None:  # skipcq: PYL-W0236
         """Unload func"""
         self.check_modmail_channels.cancel()
 

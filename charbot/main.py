@@ -62,7 +62,7 @@ def main():
         """Function called on bot connect"""
         print("Logged In!")
 
-    bot.on_connect = on_connect
+    bot.on_connect = on_connect  # skipcq: PYL-W0201
     load_dotenv()
     bot.run(os.getenv("TOKEN"))
 
