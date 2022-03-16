@@ -49,8 +49,8 @@ def default_field(dictionary: dict, add_time: datetime, item: dict[str, any]) ->
     dictionary.update(
         {
             timegm(add_time.utctimetuple()): {
-                "value": f"[<t:{timegm(add_time.utctimetuple())}:F>]({ytLink})\n"
-                f"(sub_time.astimezone(chartime).strftime('%X %x %Z'))",
+                "value": f"<t:{timegm(add_time.utctimetuple())}:F>\n"
+                f"[({add_time.astimezone(chartime).strftime('%X %x %Z')})]({ytLink})",
                 "name": item["summary"],
                 "inline": True,
             }
@@ -116,8 +116,8 @@ class Calendar(commands.Cog):
                     {
                         timegm(sub_time.utctimetuple()): {
                             "name": f"<t:{item['summary']}:F>",
-                            "value": f"[{timegm(sub_time.utctimetuple())}\n"
-                            f"(sub_time.astimezone(chartime).strftime('%X %x %Z'))"
+                            "value": f"<t:{timegm(sub_time.utctimetuple())}:F>\n"
+                            f"[({sub_time.astimezone(chartime).strftime('%X %x %Z')})"
                             f"]({item['description']})",
                             "inline": True,
                         }
