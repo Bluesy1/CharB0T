@@ -24,7 +24,7 @@ async def time_string_from_seconds(delta: float) -> str:
 class PrimaryFunctions(Cog):
     """Primary CharBot2 class"""
 
-    def __init__(self, bot):
+    def __init__(self, bot: commands.Bot):
         """Init func"""
         self.bot = bot
         self.timeouts = {}
@@ -79,24 +79,22 @@ class PrimaryFunctions(Cog):
         """Tries to find a join time by channel"""
         channel = await self.bot.fetch_channel(225345178955808768)
         messages = channel.history(before=datetime.utcnow())
+        mentioned_id = None
         if re.search(r"<@!?(\d+)>\B", message.content) and not member:
             mentioned_id = int(re.search(r"<@!?(\d+)>\B", message.content).groups()[0])
         try:
             async for item in messages:
                 if not item.author.bot:
                     continue
-                mentions = item.mentions
                 is_mentioned = False
                 if member:
-                    for mention in mentions:
-                        if member.id == mention.id:
-                            is_mentioned = True
+                    if str(member.id) in message.content:
+                        is_mentioned = True
                 elif mentioned_id:
-                    for mention in mentions:
-                        if mentioned_id == mention.id:
-                            is_mentioned = True
+                    if str(mentioned_id) in message.content:
+                        is_mentioned = True
                 if is_mentioned:
-                    delta = time.time() - time.mktime(item.created_at.utctimetuple())
+                    delta = time.mktime(item.created_at.utctimetuple()) - time.time()
                     return await time_string_from_seconds(delta)
         except TypeError:
             return "None Found"
@@ -116,13 +114,18 @@ class PrimaryFunctions(Cog):
         elif message.channel.id == 430197357100138497 and (
             len(message.mentions) == 1 or re.search(r"<@!?(\d+)>\B", message.content)
         ):
+            print("detected")
             member = message.mentions[0] if message.mentions else None
             mentioned_id = None
             if member and member.joined_at:
                 delta = time.time() - time.mktime(member.joined_at.utctimetuple())
                 time_string = await time_string_from_seconds(delta)
             else:
+                print("not cached")
                 time_string = await self.uncached_time_search(message, member)
+            print(member)
+            if re.search(r"<@!?(\d+)>\B", message.content):
+                mentioned_id = int(re.search(r"<@!?(\d+)>\B", message.content).groups()[0])
             member = (
                 member
                 if member
@@ -130,6 +133,7 @@ class PrimaryFunctions(Cog):
                 if mentioned_id
                 else None
             )
+            print(member)
             if member:
                 await (await self.bot.fetch_channel(430197357100138497)).send(
                     f"**{member.name}#{member.discriminator}** has left the server. "
