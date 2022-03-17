@@ -125,7 +125,9 @@ class PrimaryFunctions(Cog):
                 time_string = await self.uncached_time_search(message, member)
             print(member)
             if re.search(r"<@!?(\d+)>\B", message.content):
-                mentioned_id = int(re.search(r"<@!?(\d+)>\B", message.content).groups()[0])
+                mentioned_id = int(
+                    re.search(r"<@!?(\d+)>\B", message.content).groups()[0]
+                )
             member = (
                 member
                 if member
