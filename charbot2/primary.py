@@ -94,7 +94,7 @@ class PrimaryFunctions(Cog):
                     if str(mentioned_id) in message.content:
                         is_mentioned = True
                 if is_mentioned:
-                    delta = time.mktime(item.created_at.utctimetuple()) - time.time()
+                    delta = time.time() - time.mktime(item.created_at.utctimetuple())
                     return await time_string_from_seconds(delta)
         except TypeError:
             return "None Found"
