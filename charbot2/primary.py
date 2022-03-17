@@ -90,9 +90,8 @@ class PrimaryFunctions(Cog):
                 if member:
                     if str(member.id) in message.content:
                         is_mentioned = True
-                elif mentioned_id:
-                    if str(mentioned_id) in message.content:
-                        is_mentioned = True
+                elif mentioned_id and str(mentioned_id) in message.content:
+                    is_mentioned = True
                 if is_mentioned:
                     delta = time.time() - time.mktime(item.created_at.utctimetuple())
                     return await time_string_from_seconds(delta)
