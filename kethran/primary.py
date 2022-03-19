@@ -132,7 +132,7 @@ class Primary(Cog):
         """IDK, it's a thing"""
         if (
             utcnow().date().weekday() == 5
-            and utcnow().hour == 1
+            and utcnow().hour == 0
             and utcnow().minute == 0
         ):
             await (await self.bot.fetch_channel(878434694713188362)).send(
