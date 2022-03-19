@@ -90,9 +90,8 @@ class PrimaryFunctions(Cog):
                 if member:
                     if str(member.id) in message.content:
                         is_mentioned = True
-                elif mentioned_id:
-                    if str(mentioned_id) in message.content:
-                        is_mentioned = True
+                elif mentioned_id and str(mentioned_id) in message.content:
+                    is_mentioned = True
                 if is_mentioned:
                     delta = time.time() - time.mktime(item.created_at.utctimetuple())
                     return await time_string_from_seconds(delta)
@@ -125,7 +124,9 @@ class PrimaryFunctions(Cog):
                 time_string = await self.uncached_time_search(message, member)
             print(member)
             if re.search(r"<@!?(\d+)>\B", message.content):
-                mentioned_id = int(re.search(r"<@!?(\d+)>\B", message.content).groups()[0])
+                mentioned_id = int(
+                    re.search(r"<@!?(\d+)>\B", message.content).groups()[0]
+                )
             member = (
                 member
                 if member
