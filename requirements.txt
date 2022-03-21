@@ -1,5 +1,5 @@
 asyncpg==0.25.0
-cryptography==36.0.1
+cryptography==36.0.2
 disrank==0.0.2
 fpdf2==2.5.1
 git+https://github.com/Rapptz/discord.py@master#egg=discord-py
