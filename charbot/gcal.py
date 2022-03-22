@@ -115,7 +115,7 @@ class Calendar(commands.Cog):
                 fields.update(
                     {
                         timegm(sub_time.utctimetuple()): {
-                            "name": f"<t:{item['summary']}:F>",
+                            "name": f"{item['summary']}",
                             "value": f"<t:{timegm(sub_time.utctimetuple())}:F>\n"
                             f"[({sub_time.astimezone(chartime).strftime('%X %x %Z')})"
                             f"]({item['description']})",
