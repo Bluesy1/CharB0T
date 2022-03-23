@@ -59,11 +59,15 @@ class ModSupport(
         channels = (await self.bot.fetch_guild(225345178955808768)).channels
         cared: list[discord.TextChannel] = []
         for channel in channels:
-            if channel.name.endswith("mod-support") and isinstance(channel, discord.TextChannel):
+            if channel.name.endswith("mod-support") and isinstance(
+                channel, discord.TextChannel
+            ):
                 cared.append(channel)
         for channel in cared:
             finished_channel = True
-            async for message in channel.history(after=datetime.now() - timedelta(days=3)):
+            async for message in channel.history(
+                after=datetime.now() - timedelta(days=3)
+            ):
                 if message.author.bot:
                     continue
                 if not message.author.bot:
