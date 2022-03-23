@@ -36,11 +36,11 @@ class ModSupport(
 
     async def cog_unload(self) -> None:  # skipcq: PYL-W0236
         """Unload func"""
-        self.check_modmail_channels.cancel()
+        self.check_mod_support_channels.cancel()
 
     async def cog_load(self) -> None:
         """Cog load func"""
-        self.check_modmail_channels.start()
+        self.check_mod_support_channels.start()
         guild = await self.bot.fetch_guild(225345178955808768)
         everyone = guild.default_role
         mod_roles = guild.get_role(338173415527677954)
@@ -53,25 +53,24 @@ class ModSupport(
         }
         self.bot.add_view(ModSupportButtons(everyone, mod_roles, mods))
 
-    @tasks.loop(hours=24)
-    async def check_modmail_channels(self):
+    @tasks.loop(hours=8)
+    async def check_mod_support_channels(self):
         """Remove stale modmail channels"""
         channels = (await self.bot.fetch_guild(225345178955808768)).channels
-        cared = []
+        cared: list[discord.TextChannel] = []
         for channel in channels:
-            if (
-                channel.category.category_id == 942578610336837632
-                and channel.id != 906578081496584242
-            ):
+            if channel.name.endswith("mod-support") and isinstance(channel, discord.TextChannel):
                 cared.append(channel)
         for channel in cared:
-            # noinspection PyBroadException
-            try:
-                if channel.history(after=(datetime.now() - timedelta(days=3))) == 0:
-                    await channel.send("Deleting now")
-                    await channel.delete()
-            except Exception:  # skipcq: PYL-W0703
-                print("Error")
+            finished_channel = True
+            async for message in channel.history(after=datetime.now() - timedelta(days=3)):
+                if message.author.bot:
+                    continue
+                if not message.author.bot:
+                    finished_channel = False
+                    break
+            if finished_channel:
+                await channel.delete()
 
     @Cog.listener()
     async def on_message(self, message: discord.Message):
@@ -216,7 +215,7 @@ class ModSupportButtons(ui.View):
                         view_channel=True, send_messages=True, read_messages=True
                     ),
                 },
-                f"{button.label}-{interaction.user.name}",
+                f"{button.label}-{interaction.user.name}-mod-support",
             )
         )
 
