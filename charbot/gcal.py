@@ -9,7 +9,7 @@ from zoneinfo import ZoneInfo
 
 import aiohttp
 import discord
-from discord.utils import utcnow
+from discord.utils import utcnow, format_dt
 from discord.ext import commands, tasks
 from dotenv import load_dotenv
 from pytz import timezone
@@ -49,7 +49,7 @@ def default_field(dictionary: dict, add_time: datetime, item: dict[str, any]) ->
     dictionary.update(
         {
             timegm(add_time.utctimetuple()): {
-                "value": f"<t:{timegm(add_time.utctimetuple())}:F>\n"
+                "value": f"{format_dt(add_time, 'F')}\n"
                 f"[({add_time.astimezone(chartime).strftime('%X %x %Z')})]({ytLink})",
                 "name": item["summary"],
                 "inline": True,
@@ -93,20 +93,26 @@ class Calendar(commands.Cog):
         mindatetime = datetime.now(tz=timezone("US/Eastern"))
         maxdatetime = datetime.now(tz=timezone("US/Eastern")) + timedelta(weeks=1)
         callUrl = getUrl(mindatetime, maxdatetime)
-        embed = discord.Embed(
-            title="List of streams in the next 7 days",
-            color=discord.Color.dark_blue(),
-            timestamp=discord.utils.utcnow(),
-            url="https://cpry.net/calendar",
-        )
         async with aiohttp.ClientSession() as session, session.get(callUrl) as response:
             items = await response.json()
         pprint.pprint(items)
         fields = {}
+        next_event: datetime = ...
         for item in items["items"]:
             if item["status"] == "cancelled":
                 continue
             sub_time = datetime.fromisoformat((item["start"]["dateTime"]))
+            if mindatetime < sub_time + timedelta(hours=2):
+                next_event = sub_time
+            while sub_time < utcnow():
+                sub_time = sub_time + timedelta(days=7)
+            next_event = (
+                sub_time
+                if next_event is None
+                else sub_time
+                if next_event > sub_time
+                else next_event
+            )
             if mindatetime < sub_time > maxdatetime:
                 continue
             if "description" not in item.keys():
@@ -116,7 +122,7 @@ class Calendar(commands.Cog):
                     {
                         timegm(sub_time.utctimetuple()): {
                             "name": f"{item['summary']}",
-                            "value": f"<t:{timegm(sub_time.utctimetuple())}:F>\n"
+                            "value": f"{format_dt(sub_time, 'F')}\n"
                             f"[({sub_time.astimezone(chartime).strftime('%X %x %Z')})"
                             f"]({item['description']})",
                             "inline": True,
@@ -127,21 +133,26 @@ class Calendar(commands.Cog):
                 default_field(fields, sub_time, item)
         # noinspection PyTypeChecker
         fields = dict(sorted(fields.items()))
-
+        embed = discord.Embed(
+            title="List of streams in the next 7 days",
+            color=discord.Color.dark_blue(),
+            timestamp=discord.utils.utcnow(),
+            url="https://cpry.net/calendar",
+            description=f"Click on the following links to go to Charlie's Calender, YouTube"
+            f" channel, Twitch, or click on the times to go to the corresponding"
+            f" streams. The blue time is the time of the stream in Charlie's timezone, and"
+            f" they link to the platform where the stream is being broadcast.\n"
+            f" [Calendar](https://cpry.net/calendar)\n"
+            f" [YouTube](https://www.youtube.com/charliepryor/live)\n"
+            f" [Twitch](https://www.twitch.tv/charliepryor)\n Next stream: "
+            f"{format_dt(next_event, 'R') if next_event else 'No streams scheduled'}",
+        )
         for field in fields:
             field = fields[field]
             embed.add_field(
                 name=field["name"], value=field["value"], inline=field["inline"]
             )
 
-        if not embed.fields:
-            embed = discord.Embed(
-                title="List of streams in the next 7 days",
-                description="There are no streams registered in the next 7 days.",
-                color=discord.Color.dark_blue(),
-                timestamp=discord.utils.utcnow(),
-                url="https://cpry.net/calendar",
-            )
         embed.set_author(
             name="Charlie",
             icon_url="https://cdn.discordapp.com/avatars/225344348903047168/"
