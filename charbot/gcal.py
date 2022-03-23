@@ -97,7 +97,7 @@ class Calendar(commands.Cog):
             items = await response.json()
         pprint.pprint(items)
         fields = {}
-        next_event: datetime = ...
+        next_event = None
         for item in items["items"]:
             if item["status"] == "cancelled":
                 continue
