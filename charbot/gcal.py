@@ -134,7 +134,7 @@ class Calendar(commands.Cog):
         for item in items["items"]:
             if item["status"] == "cancelled":
                 sub_time = datetime.fromisoformat((item["originalStartTime"]["dateTime"]))
-                fields.pop(timegm(sub_time.utctimetuple()))
+                fields.pop(timegm(sub_time.utctimetuple()), None)
         # noinspection PyTypeChecker
         fields = dict(sorted(fields.items()))
         embed = discord.Embed(
