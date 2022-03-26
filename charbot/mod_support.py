@@ -87,16 +87,13 @@ class ModSupport(
             ):
                 cared.append(channel)
         for channel in cared:
-            finished_channel = True
-            async for message in channel.history(
-                after=datetime.now() - timedelta(days=3)
-            ):
-                if message.author.bot:
+            temp = False
+            async for message in channel.history(after=utcnow() - timedelta(days=3)):
+                if message.author.id == self.bot.user.id:
                     continue
-                if not message.author.bot:
-                    finished_channel = False
-                    break
-            if finished_channel:
+                temp = True
+                break
+            if temp:
                 await channel.delete()
 
     @Cog.listener()
