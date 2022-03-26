@@ -309,7 +309,9 @@ class ModSupportButtons(ui.View):
                 }
             )
         await interaction.response.send_modal(
-            ModSupportModal(perms, f"{select.placeholder}-{interaction.user.name}")
+            ModSupportModal(
+                perms, f"{select.placeholder}-{interaction.user.name}-mod-support"
+            )
         )
 
 
