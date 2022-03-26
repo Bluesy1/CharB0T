@@ -167,10 +167,11 @@ class Calendar(commands.Cog):
             color=discord.Color.dark_blue(),
             timestamp=discord.utils.utcnow(),
             url="https://cpry.net/calendar",
-            description=f"Click on the following links to go to Charlie's Calender, YouTube"
-            f" channel, Twitch, or click on the times to go to the corresponding"
-            f" streams. The blue time is the time of the stream in Charlie's timezone, and"
-            f" they link to the platform where the stream is being broadcast.\n"
+            description=f"Click on the following links to go to Charlie's Calender,"
+            f" YouTube channel, Twitch, or click on the times to go to the"
+            f" corresponding streams. The blue time is the time of the stream in"
+            f" Charlie's timezone, and they link to the platform where the stream is "
+            f"being broadcast.\n"
             f" [Calendar](https://cpry.net/calendar)\n"
             f" [YouTube](https://www.youtube.com/charliepryor/live)\n"
             f" [Twitch](https://www.twitch.tv/charliepryor)\n Next stream: "
