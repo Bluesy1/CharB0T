@@ -89,11 +89,11 @@ class ModSupport(
             ):
                 cared.append(channel)
         for channel in cared:
-            temp = False
+            temp = True
             async for message in channel.history(after=utcnow() - timedelta(days=3)):
                 if message.author.id == self.bot.user.id:
                     continue
-                temp = True
+                temp = False
                 break
             if temp:
                 await channel.delete()
