@@ -360,10 +360,11 @@ class ModSupportModal(ui.Modal, title="Mod Support Form"):
             overwrites=self.perm_overrides,
             topic=self.short_description.value,
         )
+        long = "     They supplied a longer description: "
         await channel.send(
             f"{interaction.user.mention} has a new issue/question/request:\n"
             f"{self.short_description.value}."
-            f"{'     They supplied a longer description: ' if long_desc else ''}",
+            f"{long if self.full_description.value else ''}",
             allowed_mentions=discord.AllowedMentions(users=True),
         )
         if self.full_description.value:
