@@ -80,7 +80,8 @@ class ModSupport(
     @tasks.loop(hours=8)
     async def check_mod_support_channels(self):
         """Remove stale modmail channels"""
-        channels = (await self.bot.fetch_guild(225345178955808768)).channels
+        guild = await self.bot.fetch_guild(225345178955808768)
+        channels = await guild.fetch_channels()
         cared: list[discord.TextChannel] = []
         for channel in channels:
             if channel.name.endswith("mod-support") and isinstance(
