@@ -23,7 +23,6 @@
 # SOFTWARE.
 #  ----------------------------------------------------------------------------
 import re
-import time
 from datetime import datetime, timedelta, timezone
 
 import discord
@@ -52,10 +51,14 @@ class PrimaryFunctions(Cog):
         """Init func"""
         self.bot = bot
         self.timeouts = {}
+        self.members: dict[int, datetime] = {}
 
     async def cog_load(self) -> None:
         """Cog load hook"""
         self.log_untimeout.start()
+        guild = self.bot.get_guild(225345178955808768)
+        generator = guild.fetch_members(limit=None)
+        self.members = {user.id: user.joined_at async for user in generator}
 
     async def cog_unload(self) -> None:  # skipcq: PYL-W0236
         """Cog close function"""
@@ -97,32 +100,11 @@ class PrimaryFunctions(Cog):
         for i in removeable:
             self.timeouts.pop(i)
 
-    async def uncached_time_search(
-        self, message: discord.Message, member: discord.Member
-    ) -> str:
-        """Tries to find a join time by channel"""
-        channel = await self.bot.fetch_channel(225345178955808768)
-        messages = channel.history(before=datetime.utcnow())
-        mentioned_id = None
-        if re.search(r"<@!?(\d+)>\B", message.content) and not member:
-            mentioned_id = int(re.search(r"<@!?(\d+)>\B", message.content).groups()[0])
-        try:
-            async for item in messages:
-                if not item.author.bot:
-                    continue
-                if "welcome" not in item.content.lower():
-                    continue
-                is_mentioned = False
-                if member:
-                    if str(member.id) in message.content:
-                        is_mentioned = True
-                elif mentioned_id and str(mentioned_id) in message.content:
-                    is_mentioned = True
-                if is_mentioned:
-                    delta = utcnow() - item.created_at
-                    return await time_string_from_seconds(abs(delta.total_seconds()))
-        except TypeError:
-            return "None Found"
+    @Cog.listener()
+    async def on_member_join(self, member: discord.Member) -> None:
+        """Member Join Event"""
+        if member.guild.id == 225345178955808768:
+            self.members.update({member.id: member.joined_at})
 
     @Cog.listener()
     async def on_message(self, message: discord.Message) -> None:
@@ -139,20 +121,25 @@ class PrimaryFunctions(Cog):
         elif message.channel.id == 430197357100138497 and (
             len(message.mentions) == 1 or re.search(r"<@!?(\d+)>\B", message.content)
         ):
-            print("detected")
             member = message.mentions[0] if message.mentions else None
             mentioned_id = None
-            if member and member.joined_at:
-                delta = utcnow() - member.joined_at
-                time_string = await time_string_from_seconds(abs(delta.total_seconds()))
-            else:
-                print("not cached")
-                time_string = await self.uncached_time_search(message, member)
-            print(member)
             if re.search(r"<@!?(\d+)>\B", message.content):
                 mentioned_id = int(
                     re.search(r"<@!?(\d+)>\B", message.content).groups()[0]
                 )
+            if member and member.joined_at:
+                delta = (utcnow() - member.joined_at).total_seconds()
+                time_string = await time_string_from_seconds(abs(delta))
+                self.members.pop(member.id, None)
+            elif member and member.id in self.members:
+                delta = (utcnow() - self.members.pop(mentioned_id)).total_seconds()
+                time_string = await time_string_from_seconds(abs(delta))
+            elif mentioned_id in self.members:
+                delta = (utcnow() - self.members.pop(mentioned_id)).total_seconds()
+                time_string = await time_string_from_seconds(abs(delta))
+            else:
+                time_string = "None Found"
+            print(member)
             member = (
                 member
                 if member
@@ -185,7 +172,7 @@ class PrimaryFunctions(Cog):
                     await (await self.bot.fetch_channel(426016300439961601)).send(
                         embed=embed
                     )
-                    self.bot.timeouts.pop(after.id)
+                    self.timeouts.pop(after.id)
         except Exception:  # skipcq: PYL-W0703
             if after.is_timed_out():
                 await self.parse_timeout(after)
