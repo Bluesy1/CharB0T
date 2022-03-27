@@ -30,6 +30,7 @@ import discord
 from discord import Embed, Color
 from discord.ext import commands, tasks
 from discord.ext.commands import Cog, Context
+from discord.utils import utcnow
 
 
 async def time_string_from_seconds(delta: float) -> str:
@@ -109,6 +110,8 @@ class PrimaryFunctions(Cog):
             async for item in messages:
                 if not item.author.bot:
                     continue
+                if "welcome" not in item.content.lower():
+                    continue
                 is_mentioned = False
                 if member:
                     if str(member.id) in message.content:
@@ -116,8 +119,8 @@ class PrimaryFunctions(Cog):
                 elif mentioned_id and str(mentioned_id) in message.content:
                     is_mentioned = True
                 if is_mentioned:
-                    delta = time.time() - time.mktime(item.created_at.utctimetuple())
-                    return await time_string_from_seconds(delta)
+                    delta = utcnow() - item.created_at
+                    return await time_string_from_seconds(abs(delta.total_seconds()))
         except TypeError:
             return "None Found"
 
@@ -140,8 +143,8 @@ class PrimaryFunctions(Cog):
             member = message.mentions[0] if message.mentions else None
             mentioned_id = None
             if member and member.joined_at:
-                delta = time.time() - time.mktime(member.joined_at.utctimetuple())
-                time_string = await time_string_from_seconds(delta)
+                delta = utcnow() - member.joined_at
+                time_string = await time_string_from_seconds(abs(delta.total_seconds()))
             else:
                 print("not cached")
                 time_string = await self.uncached_time_search(message, member)
