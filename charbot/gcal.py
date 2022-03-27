@@ -23,7 +23,6 @@
 # SOFTWARE.
 #  ----------------------------------------------------------------------------
 import os
-import pprint
 import datetime as _datetime
 from calendar import timegm
 from datetime import datetime, timedelta
@@ -67,7 +66,7 @@ def ceil_dt(dt: datetime, delta: timedelta):
     return dt + (datetime(_datetime.MINYEAR, 1, 1, tzinfo=timezone("UTC")) - dt) % delta
 
 
-def default_field(dictionary: dict, add_time: datetime, item: dict[str, any]) -> None:
+def default_field(dictionary: dict, add_time: datetime, item: dict) -> None:
     """Adds the default dict field"""
     dictionary.update(
         {
@@ -105,20 +104,21 @@ class Calendar(commands.Cog):
 
     async def cog_load(self) -> None:
         """Cog setup hook"""
-        self.webhook = await self.bot.fetch_webhook(int(os.getenv("WEBHOOK")))
+        webhook_id = int(os.getenv("WEBHOOK_ID"))  # type: ignore
+        self.webhook = await self.bot.fetch_webhook(webhook_id)
         self.calendar.start()
 
     @tasks.loop()
     async def calendar(self):
         """Calendar update loop"""
         if self.webhook is None:
-            self.webhook = await self.bot.fetch_webhook(int(os.getenv("WEBHOOK")))
+            webhook_id = int(os.getenv("WEBHOOK_ID"))  # type: ignore
+            self.webhook = await self.bot.fetch_webhook(webhook_id)
         mindatetime = datetime.now(tz=timezone("US/Eastern"))
         maxdatetime = datetime.now(tz=timezone("US/Eastern")) + timedelta(weeks=1)
         callUrl = getUrl(mindatetime, maxdatetime)
         async with aiohttp.ClientSession() as session, session.get(callUrl) as response:
             items = await response.json()
-        pprint.pprint(items)
         fields = {}
         next_event = None
         for item in items["items"]:
@@ -192,16 +192,16 @@ class Calendar(commands.Cog):
 
         if self.message is None:
             self.message = await self.webhook.send(
-                username=self.bot.user.name,
-                avatar_url=self.bot.user.avatar.url,
+                username=self.bot.user.name,  # type: ignore
+                avatar_url=self.bot.user.avatar.url,  # type: ignore
                 embed=embed,
                 wait=True,
             )
         elif utcnow() > self.week_end:
             await self.message.delete()
             self.message = await self.webhook.send(
-                username=self.bot.user.name,
-                avatar_url=self.bot.user.avatar.url,
+                username=self.bot.user.name,  # type: ignore
+                avatar_url=self.bot.user.avatar.url,  # type: ignore
                 embed=embed,
                 wait=True,
             )

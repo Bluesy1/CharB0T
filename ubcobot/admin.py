@@ -39,9 +39,11 @@ class Admin(Cog):
 
     def cog_check(self, ctx: Context) -> bool:
         """Check to run for all cog commands"""
+        if ctx.guild is None:
+            return False
         return any(
             role.id in (832521484378308660, 832521484378308659, 832521484378308658)
-            for role in ctx.author.roles
+            for role in ctx.author.roles  # type: ignore
         )
 
     @commands.command()
@@ -61,7 +63,7 @@ class Admin(Cog):
     @slur.command()
     async def add(self, ctx: Context, *, word: str):
         """Adds a word to the slur list"""
-        if ctx.guild.id != 832521484340953088:
+        if ctx.guild.id != 832521484340953088:  # type: ignore
             return
         with open("UBCbot.json", encoding="utf8") as json_dict:
             fulldict = json.load(json_dict)
@@ -91,7 +93,7 @@ class Admin(Cog):
     @slur.command()
     async def remove(self, ctx: Context, *, word: str):
         """Removes a word from the slur list"""
-        if ctx.guild.id != 832521484340953088:
+        if ctx.guild.id != 832521484340953088:  # type: ignore
             return
         with open("UBCbot.json", encoding="utf8") as file:
             fulldict = json.load(file)
@@ -121,7 +123,7 @@ class Admin(Cog):
     @slur.command()
     async def query(self, ctx: Context):
         """Queries the slur list"""
-        if ctx.guild.id != 832521484340953088:
+        if ctx.guild.id != 832521484340953088:  # type: ignore
             return
         with open("UBCbot.json", encoding="utf8") as json_dict:
             fulldict = json.load(json_dict)
@@ -138,7 +140,10 @@ class Admin(Cog):
     @Cog.listener()
     async def on_message(self, message: discord.Message):
         """On_message func"""
-        if message.guild.id != 832521484340953088 or message.content is None:
+        if (
+            message.guild.id != 832521484340953088  # type: ignore
+            or message.content is None
+        ):
             return
         with open("UBCbot.json", encoding="utf8") as file:
             words: list[str] = json.load(file)["Words"]
@@ -150,15 +155,17 @@ class Admin(Cog):
                 used_slurs.add(word)
         if used_slurs != set() and not any(
             role.id in [832521484378308660, 832521484378308659, 832521484378308658]
-            for role in message.author.roles
+            for role in message.author.roles  # type: ignore
         ):
             await message.delete()
-            await message.author.add_roles(
+            await message.author.add_roles(  # type: ignore
                 discord.Object(id=900612423332028416),
                 discord.Object(id=930953847411736598),
                 reason="Used a Slur",
             )
-            await (await self.bot.fetch_channel(832521484828147741)).send(
+            await (
+                await self.bot.fetch_channel(832521484828147741)
+            ).send(  # type: ignore
                 embed=Embed(
                     title=f"[SLUR] {message.author.name}#"
                     f"{message.author.discriminator}",

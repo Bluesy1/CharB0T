@@ -33,11 +33,13 @@ from discord import Embed, Color
 from discord.ext import commands
 from discord.ext.commands import Cog
 
+from main import CBot
+
 
 class Events(Cog):
     """Events Cog"""
 
-    def __init__(self, bot: discord.ext.commands.Bot):
+    def __init__(self, bot: CBot):
         self.bot = bot
         self.last_sensitive_logged = {}
 
@@ -89,12 +91,12 @@ class Events(Cog):
             )
             embed.add_field(
                 name="Message Link:",
-                value=f"[Link]({message.message.make_link(message.guild_id)})",
+                value=f"[Link]({message.jump_url})",
                 inline=True,
             )
-            if message.message.channel_id == 926532222398369812:
+            if message.channel.id == 926532222398369812:
                 await message.channel.send(embed=embed)
-            if message.channel.category.category_id in (
+            if message.channel.category.category_id in (  # type: ignore
                 360818916861280256,
                 942578610336837632,
             ):
@@ -102,7 +104,9 @@ class Events(Cog):
             if message.channel.id == 837816311722803260:
                 return
             await webhook.send(
-                username=bot_user.name, avatar_url=bot_user.avatar.url, embed=embed
+                username=bot_user.name,  # type: ignore
+                avatar_url=bot_user.avatar.url,  # type: ignore
+                embed=embed,
             )
             self.last_sensitive_logged[message.author.id] = datetime.now()
 
@@ -113,13 +117,13 @@ class Events(Cog):
             await self.sensitive_scan(message)
             if message.guild is None:
                 channel = await self.bot.fetch_channel(906578081496584242)
-                await channel.send(
+                await channel.send(  # type: ignore
                     message.author.mention,
                     allowed_mentions=discord.AllowedMentions(
                         everyone=False, roles=False, users=False
                     ),
                 )
-                await channel.send(
+                await channel.send(  # type: ignore
                     message.content,
                     allowed_mentions=discord.AllowedMentions(
                         everyone=False, roles=False, users=False
@@ -136,12 +140,12 @@ class Events(Cog):
                     406690402956083210,
                     729368484211064944,
                 ]
-                for role in message.author.roles
+                for role in message.author.roles  # type: ignore
             ) and any(
                 item in message.content
                 for item in [f"<@&{message.guild.id}>", "@everyone", "@here"]
             ):
-                await message.author.add_roles(
+                await message.author.add_roles(  # type: ignore
                     discord.Object(id=676250179929636886),
                     discord.Object(id=684936661745795088),
                 )
@@ -153,9 +157,9 @@ class Events(Cog):
                     color=Color.red(),
                 ).set_footer(
                     text=f"Sent by {message.author.display_name}-{message.author.id}",
-                    icon_url=message.author.avatar.url,
+                    icon_url=message.author.avatar.url,  # type: ignore
                 )
-                await channel.send(embed=embed)
+                await channel.send(embed=embed)  # type: ignore
             if message.author.bot or not message.content:
                 return
             if re.search(
@@ -223,10 +227,10 @@ class Events(Cog):
             # And we can just print the default TraceBack.
             print(f"Ignoring exception in command {ctx.command}:", file=sys.stderr)
             traceback.print_exception(
-                type(error), error, error.__traceback__, file=sys.stderr
+                type(error), error, error.__traceback__, file=sys.stderr  # type: ignore
             )
 
 
-async def setup(bot: commands.Bot):
+async def setup(bot: CBot):
     """Loads Plugin"""
     await bot.add_cog(Events(bot))

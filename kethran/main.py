@@ -40,7 +40,7 @@ class Kethran(commands.Bot):
         await self.load_extension("jishaku")
         await self.load_extension("primary")
         print("Extensions loaded")
-        print(f"Logged in as {self.user.name}#{self.user.discriminator}")
+        print(f"Logged in:{self.user.name}#{self.user.discriminator}")  # type: ignore
 
 
 # noinspection PyBroadException
@@ -72,11 +72,6 @@ def main():
         intents=discord.Intents.all(),
     )
 
-    async def on_connect():
-        """Function called on bot connect"""
-        print("Logged In!")
-
-    bot.on_connect = on_connect  # skipcq: PYL-W0201
     load_dotenv()
     bot.run(os.getenv("TOKEN"))
 

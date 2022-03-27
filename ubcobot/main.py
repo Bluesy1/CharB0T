@@ -40,7 +40,7 @@ class UBCOBot(commands.Bot):
         await self.load_extension("jishaku")
         await self.load_extension("admin")
         print("Extensions loaded")
-        print(f"Logged in as {self.user.name}#{self.user.discriminator}")
+        print(f"Logged in: {self.user.name}#{self.user.discriminator}")  # type: ignore
 
 
 # noinspection PyBroadException
@@ -73,11 +73,6 @@ def main():
         help_command=None,
     )
 
-    async def on_connect():
-        """Function to be called on connect"""
-        print("Logged In!")
-
-    bot.on_connect = on_connect  # skipcq: PYL-W0201
     load_dotenv()
     bot.run(os.getenv("TOKEN"))
 

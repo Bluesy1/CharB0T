@@ -56,9 +56,11 @@ class PrimaryFunctions(Cog):
     async def cog_load(self) -> None:
         """Cog load hook"""
         self.log_untimeout.start()
-        guild = self.bot.get_guild(225345178955808768)
+        guild = await self.bot.fetch_guild(225345178955808768)
         generator = guild.fetch_members(limit=None)
-        self.members = {user.id: user.joined_at async for user in generator}
+        self.members.update(
+            {user.id: user.joined_at async for user in generator}  # type: ignore
+        )
 
     async def cog_unload(self) -> None:  # skipcq: PYL-W0236
         """Cog close function"""
@@ -68,7 +70,7 @@ class PrimaryFunctions(Cog):
         """Check to run for all cog commands"""
         return any(
             role.id in (338173415527677954, 253752685357039617, 225413350874546176)
-            for role in ctx.author.roles
+            for role in ctx.author.roles  # type: ignore
         )
 
     @commands.command()
@@ -91,9 +93,10 @@ class PrimaryFunctions(Cog):
                         name=f"[UNTIMEOUT] {member.name}#{member.discriminator}"
                     )
                     embed.add_field(name="User", value=member.mention, inline=True)
-                    await (await self.bot.fetch_channel(426016300439961601)).send(
+                    channel = await self.bot.fetch_channel(426016300439961601)
+                    await channel.send(  # type: ignore
                         embed=embed
-                    )
+                    )  # type: ignore
                     removeable.append(i)
                 elif member.is_timed_out():
                     self.timeouts.update({i: member.timed_out_until})
@@ -104,7 +107,7 @@ class PrimaryFunctions(Cog):
     async def on_member_join(self, member: discord.Member) -> None:
         """Member Join Event"""
         if member.guild.id == 225345178955808768:
-            self.members.update({member.id: member.joined_at})
+            self.members.update({member.id: utcnow()})
 
     @Cog.listener()
     async def on_message(self, message: discord.Message) -> None:
@@ -123,19 +126,19 @@ class PrimaryFunctions(Cog):
         ):
             member = message.mentions[0] if message.mentions else None
             mentioned_id = None
-            if re.search(r"<@!?(\d+)>\B", message.content):
-                mentioned_id = int(
-                    re.search(r"<@!?(\d+)>\B", message.content).groups()[0]
-                )
-            if member and member.joined_at:
-                delta = (utcnow() - member.joined_at).total_seconds()
+            search = re.search(r"<@!?(\d+)>\B", message.content)
+            if search:
+                mentioned_id = int(search.groups()[0])  # type: ignore
+            if member and member.joined_at:  # type: ignore
+                delta = (utcnow() - member.joined_at).total_seconds()  # type: ignore
                 time_string = await time_string_from_seconds(abs(delta))
                 self.members.pop(member.id, None)
             elif member and member.id in self.members:
-                delta = (utcnow() - self.members.pop(mentioned_id)).total_seconds()
+                delta = (utcnow() - self.members.pop(member.id)).total_seconds()
                 time_string = await time_string_from_seconds(abs(delta))
-            elif mentioned_id in self.members:
-                delta = (utcnow() - self.members.pop(mentioned_id)).total_seconds()
+            elif mentioned_id and mentioned_id in self.members:
+                time = self.members.pop(mentioned_id)  # type: ignore
+                delta = (utcnow() - time).total_seconds()
                 time_string = await time_string_from_seconds(abs(delta))
             else:
                 time_string = "None Found"
@@ -149,7 +152,9 @@ class PrimaryFunctions(Cog):
             )
             print(member)
             if member:
-                await (await self.bot.fetch_channel(430197357100138497)).send(
+                await (
+                    await self.bot.fetch_channel(430197357100138497)
+                ).send(  # type: ignore
                     f"**{member.name}#{member.discriminator}** has left the server. "
                     f"ID:{member.id}. Time on Server: {time_string}"
                 )
@@ -169,9 +174,10 @@ class PrimaryFunctions(Cog):
                         name=f"[UNTIMEOUT] {after.name}#{after.discriminator}"
                     )
                     embed.add_field(name="User", value=after.mention, inline=True)
-                    await (await self.bot.fetch_channel(426016300439961601)).send(
+                    channel = await self.bot.fetch_channel(426016300439961601)
+                    await channel.send(  # type: ignore
                         embed=embed
-                    )
+                    )  # type: ignore
                     self.timeouts.pop(after.id)
         except Exception:  # skipcq: PYL-W0703
             if after.is_timed_out():
@@ -180,7 +186,9 @@ class PrimaryFunctions(Cog):
     async def parse_timeout(self, after: discord.Member):
         """Parses timeouts"""
         time_delta = (
-            after.timed_out_until + timedelta(seconds=1) - datetime.now(tz=timezone.utc)
+            after.timed_out_until  # type: ignore
+            + timedelta(seconds=1)
+            - datetime.now(tz=timezone.utc)
         )
         time_string = ""
         if time_delta.days // 7 != 0:
@@ -210,7 +218,8 @@ class PrimaryFunctions(Cog):
         embed.set_author(name=f"[TIMEOUT] {after.name}#{after.discriminator}")
         embed.add_field(name="User", value=after.mention, inline=True)
         embed.add_field(name="Duration", value=time_string, inline=True)
-        await (await self.bot.fetch_channel(426016300439961601)).send(embed=embed)
+        channel = await self.bot.fetch_channel(426016300439961601)
+        await channel.send(embed=embed)  # type: ignore
         self.timeouts.update({after.id: after.timed_out_until})
 
 

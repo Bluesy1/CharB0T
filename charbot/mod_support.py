@@ -44,7 +44,7 @@ async def edit_check(interaction: Interaction) -> bool:
             725377514414932030,
             338173415527677954,
         )
-        for role in interaction.user.roles
+        for role in interaction.user.roles  # type: ignore
     )
 
 
@@ -75,7 +75,7 @@ class ModSupport(
             "162833689196101632": await guild.fetch_member(162833689196101632),
             "82495450153750528": await guild.fetch_member(82495450153750528),
         }
-        self.bot.add_view(ModSupportButtons(everyone, mod_roles, mods))
+        self.bot.add_view(ModSupportButtons(everyone, mod_roles, mods))  # type: ignore
 
     @tasks.loop(hours=8)
     async def check_mod_support_channels(self):
@@ -91,7 +91,7 @@ class ModSupport(
         for channel in cared:
             temp = True
             async for message in channel.history(after=utcnow() - timedelta(days=3)):
-                if message.author.id == self.bot.user.id:
+                if message.author.id == self.bot.user.id:  # type: ignore
                     continue
                 temp = False
                 break
@@ -252,9 +252,7 @@ class ModSupportButtons(ui.View):
         emoji="❔",
         row=0,
     )
-    async def general(
-        self, button: discord.ui.Button, interaction: discord.Interaction
-    ):
+    async def general(self, interaction: Interaction, button: discord.ui.Button):
         """General mod support callback"""
         await self.standard_callback(button, interaction)
 
@@ -265,7 +263,7 @@ class ModSupportButtons(ui.View):
         emoji="❗",
         row=0,
     )
-    async def important(self, button: discord.ui.Button, interaction: Interaction):
+    async def important(self, interaction: Interaction, button: discord.ui.Button):
         """Important mod support callback"""
         await self.standard_callback(button, interaction)
 
@@ -276,7 +274,7 @@ class ModSupportButtons(ui.View):
         emoji="‼",
         row=0,
     )
-    async def emergency(self, button: discord.ui.Button, interaction: Interaction):
+    async def emergency(self, interaction: Interaction, button: discord.ui.Button):
         """Emergency mod support callback"""
         await self.standard_callback(button, interaction)
 
@@ -287,7 +285,7 @@ class ModSupportButtons(ui.View):
         options=_PRIVATE_OPTIONS,
         row=1,
     )
-    async def private(self, select: discord.ui.Select, interaction: Interaction):
+    async def private(self, interaction: Interaction, select: discord.ui.Select):
         """Private mod support callback"""
         perms = {
             self.mod_role: PermissionOverwrite(
@@ -321,7 +319,7 @@ class ModSupportModal(ui.Modal, title="Mod Support Form"):
     def __init__(
         self,
         perm_overrides: dict[
-            discord.Role | discord.Member, discord.PermissionOverwrite
+            discord.Role | discord.Member | discord.User, discord.PermissionOverwrite
         ],
         channel_name: str,
     ):
@@ -354,11 +352,12 @@ class ModSupportModal(ui.Modal, title="Mod Support Form"):
 
     async def on_submit(self, interaction: Interaction):
         """Callback for when a modal is submitted"""
-        channel = await interaction.guild.create_text_channel(
+        _channel = await interaction.client.fetch_channel(942578610336837632)
+        channel = await interaction.guild.create_text_channel(  # type: ignore
             self.channel_name,
-            category=await interaction.guild.fetch_channel(942578610336837632),
-            overwrites=self.perm_overrides,
-            topic=self.short_description.value,
+            category=_channel,  # type: ignore
+            overwrites=self.perm_overrides,  # type: ignore
+            topic=self.short_description.value,  # type: ignore
         )
         long = "     They supplied a longer description: "
         await channel.send(

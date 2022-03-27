@@ -39,9 +39,11 @@ class Admin(Cog):
 
     def cog_check(self, ctx: Context) -> bool:
         """Check to run for all cog commands"""
+        if ctx.guild is None:
+            return False
         return any(
             role.id in (338173415527677954, 253752685357039617, 225413350874546176)
-            for role in ctx.author.roles
+            for role in ctx.author.roles  # type: ignore
         )
 
     @commands.command()

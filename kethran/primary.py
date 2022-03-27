@@ -158,9 +158,8 @@ class Primary(Cog):
             and utcnow().hour == 0
             and utcnow().minute == 0
         ):
-            await (await self.bot.fetch_channel(878434694713188362)).send(
-                random.choice(self.responses)
-            )
+            channel = await self.bot.fetch_channel(878434694713188362)
+            await channel.send(random.choice(self.responses))  # type: ignore
 
     @Cog.listener()
     async def on_message(self, message: discord.Message):
@@ -180,7 +179,7 @@ class Primary(Cog):
                 )
         elif message.author.id == 184524255197659136:
             channel = await self.bot.fetch_channel(878434694713188362)
-            await channel.send(message.content)
+            await channel.send(message.content)  # type: ignore
 
     @commands.command()
     async def roll(self, ctx: commands.Context, *, arg: str):
