@@ -94,7 +94,11 @@ class Calendar(commands.Cog):
         self.webhook: Optional[discord.Webhook] = None
         current = ceil_dt(utcnow(), timedelta(minutes=30))
         timeline = list(
-            set(datetime_range(current, self.week_end, timedelta(minutes=30)))
+            set(
+                datetime_range(
+                    current, current + timedelta(hours=24), timedelta(minutes=30)
+                )
+            )
         )
         self.calendar.change_interval(time=timeline)
 
