@@ -134,6 +134,8 @@ class Calendar(commands.Cog):
                 cancelled_times.append(sub_time)
                 continue
         for item in items["items"]:
+            if item["status"] == "cancelled":
+                continue
             temp = datetime.fromisoformat((item["start"]["dateTime"]))
             while temp < utcnow():
                 temp = temp + timedelta(days=7)
