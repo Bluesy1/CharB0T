@@ -133,6 +133,7 @@ class Calendar(commands.Cog):
                     sub_time = sub_time + timedelta(days=7)
                 cancelled_times.append(sub_time)
                 continue
+        for item in items["items"]:
             temp = datetime.fromisoformat((item["start"]["dateTime"]))
             while temp < utcnow():
                 temp = temp + timedelta(days=7)
