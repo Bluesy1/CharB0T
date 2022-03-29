@@ -125,8 +125,18 @@ class Calendar(commands.Cog):
             items = await response.json()
         fields = {}
         next_event = None
+        cancelled_times = []
         for item in items["items"]:
             if item["status"] == "cancelled":
+                sub_time = datetime.fromisoformat((item["start"]["dateTime"]))
+                while sub_time < utcnow():
+                    sub_time = sub_time + timedelta(days=7)
+                cancelled_times.append(sub_time)
+                continue
+            temp = datetime.fromisoformat((item["start"]["dateTime"]))
+            while temp < utcnow():
+                temp = temp + timedelta(days=7)
+            if temp in cancelled_times:
                 continue
             sub_time = datetime.fromisoformat((item["start"]["dateTime"]))
             if mindatetime < sub_time + timedelta(hours=2):
