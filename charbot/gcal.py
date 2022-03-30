@@ -124,8 +124,8 @@ class Calendar(commands.Cog):
         async with aiohttp.ClientSession() as session, session.get(callUrl) as response:
             items = await response.json()
         fields = {}
-        next_event = None
         cancelled_times = []
+        times = set()
         for item in items["items"]:
             if item["status"] == "cancelled":
                 sub_time = datetime.fromisoformat(item["originalStartTime"]["dateTime"])
@@ -133,26 +133,15 @@ class Calendar(commands.Cog):
                     sub_time = sub_time + timedelta(days=7)
                 cancelled_times.append(sub_time)
                 continue
-        for item in items["items"]:
-            if item["status"] == "cancelled":
-                continue
-            temp = datetime.fromisoformat((item["start"]["dateTime"]))
-            while temp < utcnow():
-                temp = temp + timedelta(days=7)
-            if temp in cancelled_times:
-                continue
             sub_time = datetime.fromisoformat((item["start"]["dateTime"]))
+            flag = True
             if mindatetime < sub_time + timedelta(hours=2):
-                next_event = sub_time
+                times.add(sub_time)
+                flag = False
             while sub_time < utcnow():
                 sub_time = sub_time + timedelta(days=7)
-            next_event = (
-                sub_time
-                if next_event is None
-                else sub_time
-                if next_event > sub_time
-                else next_event
-            )
+            if flag:
+                times.add(sub_time)
             if mindatetime < sub_time > maxdatetime:
                 continue
             if "description" not in item.keys():
@@ -171,12 +160,10 @@ class Calendar(commands.Cog):
                 )
             else:
                 default_field(fields, sub_time, item)
-        for item in items["items"]:
-            if item["status"] == "cancelled":
-                sub_time = datetime.fromisoformat(
-                    (item["originalStartTime"]["dateTime"])
-                )
+            for sub_time in cancelled_times:
                 fields.pop(timegm(sub_time.utctimetuple()), None)
+                times.discard(sub_time)
+        next_event = min(times, default=None)
         # noinspection PyTypeChecker
         fields = dict(sorted(fields.items()))
         embed = discord.Embed(
