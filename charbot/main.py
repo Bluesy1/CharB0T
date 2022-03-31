@@ -86,7 +86,7 @@ async def main():
     async with bot:
         with ThreadPoolExecutor(max_workers=25) as executor:
             bot.executor = executor
-            await bot.start(os.getenv("DISCORD_TOKEN"))  # type: ignore
+            await bot.start(os.getenv("TOKEN"))  # type: ignore
 
 
 if __name__ == "__main__":

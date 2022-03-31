@@ -32,7 +32,7 @@ import yfinance as yf
 from discord import app_commands
 from discord.ext import commands, tasks
 
-from main import CBot
+from .main import CBot
 
 
 def fifteen_min_interval_generator():
@@ -396,10 +396,10 @@ class Stocks(app_commands.Group, commands.Cog):
     def __init__(self, bot: CBot):
         super().__init__(name="Stocks", description="Stocks commands")
         self.bot = bot
-        self.stocks: StockDict = StockDict.empty()
+        self._stocks: StockDict = StockDict.empty()
 
     async def get_stocks(self) -> dict[str, Stock]:
-        """Get stocks"""
+        """Get _stocks"""
         _tasks = [
             await self.bot.loop.run_in_executor(self.bot.executor, get_stock, symbol)
             for symbol in STOCKS
@@ -408,7 +408,7 @@ class Stocks(app_commands.Group, commands.Cog):
 
     async def cog_load(self) -> None:
         """Cog load callback"""
-        self.stocks = StockDict(**await self.get_stocks())
+        self._stocks = StockDict(**await self.get_stocks())
         self.update_stocks.start()
 
     async def cog_unload(self) -> None:
@@ -417,8 +417,8 @@ class Stocks(app_commands.Group, commands.Cog):
 
     @tasks.loop(time=list(fifteen_min_interval_generator()))
     async def update_stocks(self) -> None:
-        """Update stocks"""
-        self.stocks = StockDict(**await self.get_stocks())
+        """Update _stocks"""
+        self._stocks = StockDict(**await self.get_stocks())
 
 
 async def setup(bot: CBot):
