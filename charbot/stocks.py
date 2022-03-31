@@ -396,7 +396,7 @@ class Stocks(app_commands.Group, commands.Cog):
     """Stocks"""
 
     def __init__(self, bot: CBot):
-        super().__init__(name="Stocks", description="Stocks commands")
+        super().__init__(name="stocks", description="Stocks commands")
         self.bot = bot
         self._stocks: StockDict = StockDict.empty()
 
