@@ -33,7 +33,7 @@ from discord.ext import tasks
 from discord.ext.commands import Cog
 from discord.utils import utcnow
 
-from .main import CBot
+from main import CBot
 
 
 async def edit_check(interaction: Interaction) -> bool:

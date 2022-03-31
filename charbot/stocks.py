@@ -32,7 +32,7 @@ import yfinance as yf
 from discord import app_commands
 from discord.ext import commands, tasks
 
-from .main import CBot
+from main import CBot
 
 
 def fifteen_min_interval_generator():
