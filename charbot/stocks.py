@@ -371,25 +371,36 @@ class StockDict:
 def get_stock(symbol: str) -> tuple[str, Stock]:
     """Gets the stock data from the API."""
     data = yf.download(symbol, period="1d", interval="15m")
-    return symbol, Stock(
-        **{
-            "name": tickers[symbol.replace("-", "_")].value,
-            "price": Decimal(str(data.iloc[-2]["Close"])),
-            "change": (
-                Decimal(str(data.iloc[-2]["Close"]))
-                - Decimal(str(data.iloc[-3]["Close"]))
-            ),
-            "change_percent": (
-                100
-                * (
+    try:
+        return symbol, Stock(
+            **{
+                "name": tickers[symbol.replace("-", "_")].value,
+                "price": Decimal(str(data.iloc[-2]["Close"])),
+                "change": (
                     Decimal(str(data.iloc[-2]["Close"]))
                     - Decimal(str(data.iloc[-3]["Close"]))
-                )
-                / Decimal(str(data.iloc[-3]["Close"]))
-            ),
-            "volume": Decimal(str(data.iloc[-3]["Volume"])),
-        }
-    )
+                ),
+                "change_percent": (
+                    100
+                    * (
+                        Decimal(str(data.iloc[-2]["Close"]))
+                        - Decimal(str(data.iloc[-3]["Close"]))
+                    )
+                    / Decimal(str(data.iloc[-3]["Close"]))
+                ),
+                "volume": Decimal(str(data.iloc[-3]["Volume"])),
+            }
+        )
+    except KeyError:
+        return symbol, Stock(
+            **{
+                "name": "Unknown",
+                "price": Decimal("NaN"),
+                "change": Decimal("NaN"),
+                "change_percent": Decimal("NaN"),
+                "volume": Decimal("NaN"),
+            }
+        )
 
 
 class Stocks(app_commands.Group, commands.Cog):
