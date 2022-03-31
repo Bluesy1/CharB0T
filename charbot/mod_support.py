@@ -33,6 +33,8 @@ from discord.ext import commands, tasks
 from discord.ext.commands import Cog
 from discord.utils import utcnow
 
+from .main import CBot
+
 
 async def edit_check(interaction: Interaction) -> bool:
     """Check for if a user is allowed to edit the blacklist"""
@@ -53,7 +55,7 @@ class ModSupport(
 ):
     """Mod Support Cog"""
 
-    def __init__(self, bot: commands.Bot):
+    def __init__(self, bot: CBot):
         super().__init__(name="modsupport", description="mod support command group")
         self.bot = bot
         # noinspection PyUnresolvedReferences
@@ -385,7 +387,7 @@ class ModSupportModal(ui.Modal, title="Mod Support Form"):
         )
 
 
-async def setup(bot: commands.Bot):
+async def setup(bot: CBot):
     """Loads Plugin"""
     await bot.add_cog(
         ModSupport(bot), override=True, guild=discord.Object(id=225345178955808768)

@@ -1,0 +1,6 @@
+[build-system]
+requires = ["setuptools>=40.8.0", "git+https://github.com/Rapptz/discord.py@master#egg=discord.py"]
+
+[tool.pyright]
+pythonPlatform = "Linux"
+exclude = ["**/__pycache__/**"]

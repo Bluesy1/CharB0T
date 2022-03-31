@@ -24,8 +24,10 @@
 #  ----------------------------------------------------------------------------
 import logging
 import os
+from concurrent.futures import ThreadPoolExecutor
 from logging.handlers import RotatingFileHandler
 
+import asyncio
 import discord
 from discord.ext import commands
 from dotenv import load_dotenv
@@ -33,6 +35,10 @@ from dotenv import load_dotenv
 
 class CBot(commands.Bot):
     """Custom bot class. extends discord.ext.commands.Bot"""
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.executor = ThreadPoolExecutor(max_workers=25)
 
     async def setup_hook(self):
         """Setup hook"""
@@ -49,13 +55,8 @@ class CBot(commands.Bot):
 
 
 # noinspection PyBroadException
-def main():
+async def main():
     """Main"""
-    if os.name != "nt":
-        import uvloop
-
-        uvloop.install()
-
     logger = logging.getLogger("discord")
     logger.setLevel(logging.INFO)
     handler = RotatingFileHandler(
@@ -82,8 +83,16 @@ def main():
     )
 
     load_dotenv()
-    bot.run(os.getenv("TOKEN"))
+    async with bot:
+        with ThreadPoolExecutor(max_workers=25) as executor:
+            bot.executor = executor
+            await bot.start(os.getenv("DISCORD_TOKEN"))  # type: ignore
 
 
 if __name__ == "__main__":
-    main()
+    if os.name != "nt":
+        import uvloop
+
+        uvloop.install()
+
+    asyncio.run(main())

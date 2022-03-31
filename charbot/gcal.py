@@ -25,7 +25,7 @@
 import os
 import datetime as _datetime
 from calendar import timegm
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, time
 from typing import Optional
 from zoneinfo import ZoneInfo
 
@@ -41,6 +41,7 @@ load_dotenv()
 
 ytLink = "https://www.youtube.com/charliepryor/live"
 chartime = ZoneInfo("US/Michigan")
+time_format = "%H:%M %x %Z"
 
 
 def getUrl(mintime: datetime, maxtime: datetime):
@@ -53,12 +54,11 @@ def getUrl(mintime: datetime, maxtime: datetime):
     return f"{baseUrl}/{calendar}/events?{key}&{minTime}&{maxTime}"
 
 
-def datetime_range(start: datetime, end: datetime, delta: timedelta):
-    """Timelist range generator"""
-    current = start
-    while current < end:
-        yield current.time()
-        current += delta
+def half_hour_intervals():
+    """Generator for 30 min intervals for a day from 00:00 to 23:30 as time objects"""
+    for hour in range(24):
+        for minute in range(0, 60, 30):
+            yield time(hour, minute)
 
 
 def ceil_dt(dt: datetime, delta: timedelta):
@@ -72,7 +72,7 @@ def default_field(dictionary: dict, add_time: datetime, item: dict) -> None:
         {
             timegm(add_time.utctimetuple()): {
                 "value": f"{format_dt(add_time, 'F')}\n"
-                f"[({add_time.astimezone(chartime).strftime('%H:%M %x %Z')})]({ytLink})",
+                f"[({add_time.astimezone(chartime).strftime(time_format)})]({ytLink})",
                 "name": item["summary"],
                 "inline": True,
             }
@@ -92,15 +92,7 @@ class Calendar(commands.Cog):
             + timedelta(days=7)
         )
         self.webhook: Optional[discord.Webhook] = None
-        current = ceil_dt(utcnow(), timedelta(minutes=30))
-        timeline = list(
-            set(
-                datetime_range(
-                    current, current + timedelta(hours=24), timedelta(minutes=30)
-                )
-            )
-        )
-        self.calendar.change_interval(time=timeline)
+        self.calendar.change_interval(time=list(half_hour_intervals()))
 
     async def cog_unload(self) -> None:  # skipcq: PYL-W0236
         """Unload function"""
@@ -152,7 +144,7 @@ class Calendar(commands.Cog):
                         timegm(sub_time.utctimetuple()): {
                             "name": f"{item['summary']}",
                             "value": f"{format_dt(sub_time, 'F')}\n"
-                            f"[({sub_time.astimezone(chartime).strftime('%H:%M %x %Z')})"
+                            f"[({sub_time.astimezone(chartime).strftime(time_format)})"
                             f"]({item['description']})",
                             "inline": True,
                         }
