@@ -50,6 +50,7 @@ class CBot(commands.Bot):
         await self.load_extension("gcal")
         await self.load_extension("mod_support")
         await self.load_extension("query")
+        await self.load_extension("stocks")
         print("Extensions loaded")
         print(f"Logged in: {self.user.name}#{self.user.discriminator}")  # type: ignore
 
