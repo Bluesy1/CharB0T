@@ -83,7 +83,7 @@ async def main():
     )
 
     load_dotenv()
-    async with bot:
+    async with bot:  # skipcq: PYL-PYL-E1701
         with ThreadPoolExecutor(max_workers=25) as executor:
             bot.executor = executor
             await bot.start(os.getenv("TOKEN"))  # type: ignore

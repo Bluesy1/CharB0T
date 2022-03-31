@@ -74,6 +74,8 @@ class tickers(Enum):
 
 @dataclass
 class Stock:
+    """Data class for stock data"""
+
     name: str
     price: Decimal
     change: Decimal
@@ -411,11 +413,11 @@ class Stocks(app_commands.Group, commands.Cog):
         self._stocks = StockDict(**await self.get_stocks())
         self.update_stocks.start()
 
-    async def cog_unload(self) -> None:
+    async def cog_unload(self) -> None:  # skipcq: PYL-W0236
         """Cog unload callback"""
         self.update_stocks.cancel()
 
-    @tasks.loop(time=list(fifteen_min_interval_generator()))
+    @tasks.loop(time=list(fifteen_min_interval_generator()))  # skipcq: PYL-E1123
     async def update_stocks(self) -> None:
         """Update _stocks"""
         self._stocks = StockDict(**await self.get_stocks())
