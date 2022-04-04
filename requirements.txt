@@ -5,7 +5,7 @@ disrank==0.0.2
 git+https://github.com/Gorialis/jishaku@master#egg=jishaku
 matplotlib==3.5.1
 numpy==1.22.3
-pandas==1.4.1
+pandas==1.4.2
 python-dotenv~=0.20.0
 pytz~=2022.1
 scipy==1.8.0
