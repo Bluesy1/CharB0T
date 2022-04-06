@@ -38,7 +38,25 @@ class Admin(Cog):
         self.bot = bot
 
     def cog_check(self, ctx: Context) -> bool:
-        """Check to run for all cog commands"""
+        """Check to make sure runner is a moderator
+
+        Parameters
+        ----------
+        self : Admin
+            The Admin cog object.
+        ctx : Context
+            The context of the command.
+
+        Returns
+        -------
+        bool
+            True if the user is a moderator, False otherwise.
+
+        Raises
+        ------
+        commands.CheckFailure
+            If the user is not a moderator.
+        """
         if ctx.guild is None:
             return False
         return any(
@@ -48,12 +66,30 @@ class Admin(Cog):
 
     @commands.command()
     async def ping(self, ctx: Context):
-        """Ping Command TO Check Bot Is Alive"""
+        """Ping Command TO Check Bot Is Alive
+
+        This command is used to check if the bot is alive.
+
+        Parameters
+        ----------
+        self : Admin
+            The Admin cog object.
+        ctx : Context
+            The context of the command.
+        """
         await ctx.send(f"Pong! Latency: {self.bot.latency * 1000:.2f}ms")
 
     @commands.Group
     async def sensitive(self, ctx: Context):
-        """Sensitive command group"""
+        """Command group for configuring the sensitive words filter.
+
+        Parameters
+        ----------
+        self : Admin
+            The Admin cog object.
+        ctx : Context
+            The context of the command.
+        """
         if ctx.invoked_subcommand is None:
             await ctx.send(
                 "Invoked Sensitive words group - use `add` to add a word, `remove`"
@@ -62,7 +98,17 @@ class Admin(Cog):
 
     @sensitive.command()
     async def add(self, ctx: Context, *, word: str):
-        """Adds a word to the sensitive topics list"""
+        """Add a word to the sensitive words filter.
+
+        Parameters
+        ----------
+        self : Admin
+            The Admin cog object.
+        ctx : Context
+            The context of the command.
+        word : str
+            The word to add to the filter.
+        """
         with open("sensitive_settings.json", encoding="utf8") as json_dict:
             fulldict = json.load(json_dict)
         if word.lower() not in fulldict["words"]:
@@ -89,7 +135,17 @@ class Admin(Cog):
 
     @sensitive.command()
     async def remove(self, ctx: Context, *, word: str):
-        """Removes a word from sensitive topics list"""
+        """Remove a word from the sensitive words filter.
+
+        Parameters
+        ----------
+        self : Admin
+            The Admin cog object.
+        ctx : Context
+            The context of the command.
+        word : str
+            The word to remove from the filter.
+        """
         with open("sensitive_settings.json", encoding="utf8") as file:
             fulldict = json.load(file)
         if word.lower() in fulldict["words"]:
@@ -116,7 +172,15 @@ class Admin(Cog):
 
     @sensitive.command()
     async def query(self, ctx: Context):
-        """Queries the sensitive topics list"""
+        """Retrieve the list of words defined as sensitive.
+
+        Parameters
+        ----------
+        self : Admin
+            The Admin cog object.
+        ctx : Context
+            The context of the command.
+        """
         with open("sensitive_settings.json", encoding="utf8") as json_dict:
             fulldict = json.load(json_dict)
         await ctx.send(
@@ -130,5 +194,11 @@ class Admin(Cog):
 
 
 async def setup(bot: commands.Bot):
-    """Loads Plugin"""
+    """Add the Admin cog to the bot.
+
+    Parameters
+    ----------
+    bot : commands.Bot
+        The bot object.
+    """
     await bot.add_cog(Admin(bot))

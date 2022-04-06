@@ -4,3 +4,7 @@ requires = ["setuptools>=40.8.0", "git+https://github.com/Rapptz/discord.py@mast
 [tool.pyright]
 pythonPlatform = "Linux"
 exclude = ["**/__pycache__/**"]
+
+[tool.black]
+lineLength = 120
+target-version = ['py310']

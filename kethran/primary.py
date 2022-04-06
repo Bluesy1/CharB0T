@@ -22,9 +22,7 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 #  ----------------------------------------------------------------------------
-"""
-This module contains the primary functions for the Kethran Bot.
-"""
+"""This module contains the primary functions for the Kethran Bot."""
 import datetime
 import random
 import sys
@@ -173,7 +171,7 @@ class Primary(Cog):
         self.friday_5.cancel()
 
     @tasks.loop(
-        time=datetime.time(
+        time=datetime.time(  # skipcq: PYL-E1123
             hour=17,
             minute=0,
             second=0,

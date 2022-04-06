@@ -22,6 +22,7 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 #  ----------------------------------------------------------------------------
+"""Rolls dice."""
 import sys
 
 from discord.ext import commands
@@ -32,14 +33,38 @@ from helpers.roller import roll as aroll  # skipcq: FLK-E402
 
 
 class Roll(Cog):
-    """Roll cog"""
+    """Roll cog
+
+    Parameters
+    ----------
+    bot : Bot
+        The bot object to bind the cog to.
+
+    Attributes
+    ----------
+    bot : Bot
+        The bot object the cog is attached to.
+
+    Methods
+    -------
+    cog_check(ctx)
+        Checks if the user has the required permissions to use the cog.
+    roll(ctx, *, dice: str)
+        Rolls dice.
+    """
 
     # noinspection PyUnresolvedReferences
     def __init__(self, bot: commands.Bot):
         self.bot = bot
 
     def cog_check(self, ctx: Context) -> bool:
-        """Check to run for all cog commands"""
+        """Check to run for all cog commands
+
+        Parameters
+        ----------
+        ctx : Context
+            The context of the command.
+        """
         if ctx.guild is None:
             return False
         return any(
@@ -49,10 +74,24 @@ class Roll(Cog):
 
     @commands.command()
     async def roll(self, ctx: Context, *, dice: str):
-        """Dice roller"""
+        """Dice roller
+
+        Parameters
+        ----------
+        ctx : Context
+            The context of the command.
+        dice : str
+            The dice to roll.
+        """
         await ctx.reply(f"{ctx.author.mention} {aroll(dice)}", mention_author=True)
 
 
 async def setup(bot: commands.Bot):
-    """Loads Plugin"""
+    """Loads Roll cog
+
+    Parameters
+    ----------
+    bot : Bot
+        The bot object to bind the cog to.
+    """
     await bot.add_cog(Roll(bot))

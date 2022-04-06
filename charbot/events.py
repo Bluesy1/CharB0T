@@ -22,6 +22,7 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 #  ----------------------------------------------------------------------------
+"""Event handling for Charbot."""
 import json
 import re
 import sys
@@ -44,7 +45,17 @@ class Events(Cog):
         self.last_sensitive_logged = {}
 
     async def sensitive_scan(self, message: discord.Message) -> None:
-        """Scans for sensitive topics"""
+        """Check and take action if a message contains sensitive content.
+
+        It uses the list of words defined in the sensitive_settings.json file.
+
+        Parameters
+        ----------
+        self : Events
+            The Events cog.
+        message : discord.Message
+            The message to check.
+        """
         with open("sensitive_settings.json", encoding="utf8") as json_dict:
             fulldict = json.load(json_dict)
         used_words = set()
@@ -112,7 +123,20 @@ class Events(Cog):
 
     @Cog.listener()
     async def on_message(self, message: discord.Message) -> None:
-        """Guild Message Create Handler ***DO NOT CALL MANUALLY***"""
+        """Listens for messages sent that the bot can see
+
+        If the message is sent by a non-mod user, it will check for an unallowed ping
+        and will delete the message if it is found, and log it.
+        Scans guild messages for sensitive content
+        If the message is a dm, it logs it in the dm_logs channel and redirects them to the new mod support method.
+
+        Parameters
+        ----------
+        self : Events
+            The Events cog.
+        message : discord.Message
+            The message sent to the websocket from discord.
+        """
         if message.content is not None and not message.author.bot:
             await self.sensitive_scan(message)
             if message.guild is None:
@@ -128,6 +152,11 @@ class Events(Cog):
                     allowed_mentions=discord.AllowedMentions(
                         everyone=False, roles=False, users=False
                     ),
+                )
+                await message.channel.send(
+                    "Hi! If this was an attempt to reach the mod team through modmail,"
+                    " that has been removed, in favor of "
+                    "mod support, which you can find in <#398949472840712192>"
                 )
                 return
             if not any(
@@ -176,6 +205,8 @@ class Events(Cog):
         """The event triggered when an error is raised while invoking a command.
         Parameters
         ------------
+        self : Events
+            The Events cog.
         ctx: commands.Context
             The context used for command invocation.
         error: commands.CommandError
@@ -232,5 +263,10 @@ class Events(Cog):
 
 
 async def setup(bot: CBot):
-    """Loads Plugin"""
+    """Loads the event handler for the bot.
+    Parameters
+    ------------
+    bot : CBot
+        The bot to load the event handler for.
+    """
     await bot.add_cog(Events(bot))

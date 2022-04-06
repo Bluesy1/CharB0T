@@ -22,9 +22,7 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 #  ----------------------------------------------------------------------------
-"""
-Kethran main module.
-"""
+"""Kethran main module."""
 import logging
 import os
 from logging.handlers import RotatingFileHandler

@@ -22,9 +22,7 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 #  ----------------------------------------------------------------------------
-"""
-This is the main file of the charbot2 project.
-"""
+"""This is the main file of the charbot2 project."""
 import logging
 import os
 from logging.handlers import RotatingFileHandler

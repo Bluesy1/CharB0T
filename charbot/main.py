@@ -22,6 +22,7 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 #  ----------------------------------------------------------------------------
+"""This is the main file of the charbot bot."""
 import logging
 import os
 from concurrent.futures import ThreadPoolExecutor
@@ -41,7 +42,16 @@ class CBot(commands.Bot):
         self.executor = ThreadPoolExecutor(max_workers=25)
 
     async def setup_hook(self):
-        """Setup hook"""
+        """Setup hook for the bot.
+        This is called when the bot is logged in but before connecting to the websocket.
+        It provides an opportunity to perform some initialisation before the websocket is connected.
+        Also loads the cogs, and prints who the bot is logged in as
+
+        Parameters
+        ----------
+        self : CBot
+            The CBot instance.
+        """
         print("Setup started")
         await self.load_extension("jishaku")
         await self.load_extension("admin")

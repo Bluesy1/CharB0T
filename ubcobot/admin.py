@@ -22,9 +22,7 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 #  ----------------------------------------------------------------------------
-"""
-This module contains the admin commands for the bot.
-"""
+"""This module contains the admin commands for the bot."""
 import json
 from datetime import datetime, timezone
 

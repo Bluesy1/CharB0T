@@ -22,6 +22,7 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 #  ----------------------------------------------------------------------------
+"""Dynamic stream calendar generator for the next week."""
 import os
 import datetime as _datetime
 from calendar import timegm
@@ -45,7 +46,20 @@ time_format = "%H:%M %x %Z"
 
 
 def getUrl(mintime: datetime, maxtime: datetime):
-    """Creates gcal API url"""
+    """Creates an url for the Google calendar API query.
+
+    Parameters
+    ----------
+    mintime : datetime
+        The minimum time to search for.
+    maxtime : datetime
+        The maximum time to search for.
+
+    Returns
+    -------
+    str
+        The url to query the Google calendar API.
+    """
     baseUrl = "https://www.googleapis.com/calendar/v3/calendars"
     key = f"key={os.getenv('CALKEY')}"
     calendar = "u8n1onpbv9pb5du7gssv2md58s@group.calendar.google.com"
@@ -55,19 +69,50 @@ def getUrl(mintime: datetime, maxtime: datetime):
 
 
 def half_hour_intervals():
-    """Generator for 30 min intervals for a day from 00:00 to 23:30 as time objects"""
+    """Generates a list of half-hour intervals.
+
+    Yields
+    ------
+    time
+        The times for the interval.
+    """
     for hour in range(24):
         for minute in range(0, 60, 30):
             yield time(hour, minute)
 
 
-def ceil_dt(dt: datetime, delta: timedelta):
-    """Rounds a datetime up to the nearest x minutes"""
+def ceil_dt(dt: datetime, delta: timedelta) -> datetime:
+    """Rounds a datetime up to the nearest x minutes
+
+    Parameters
+    ----------
+    dt : datetime
+        The datetime to round up.
+    delta : timedelta
+        The timedelta to round up to.
+
+    Returns
+    -------
+    datetime
+        The rounded datetime.
+    """
     return dt + (datetime(_datetime.MINYEAR, 1, 1, tzinfo=timezone("UTC")) - dt) % delta
 
 
-def default_field(dictionary: dict, add_time: datetime, item: dict) -> None:
-    """Adds the default dict field"""
+def default_field(
+    dictionary: dict[int, dict[str, str | bool]], add_time: datetime, item: dict
+) -> None:
+    """Adds the default dict field for a specific time.
+
+    Parameters
+    ----------
+    dictionary : dict[int, dict[str, str | bool]]
+        The dictionary to add the field to.
+    add_time : datetime
+        The time to add the field to.
+    item : dict
+        The item to add to the dictionary.
+    """
     dictionary.update(
         {
             timegm(add_time.utctimetuple()): {
@@ -80,8 +125,36 @@ def default_field(dictionary: dict, add_time: datetime, item: dict) -> None:
     )
 
 
+# noinspection GrazieInspection
 class Calendar(commands.Cog):
-    """Calendar task cog"""
+    """
+    Calendar cog for the bot.
+
+    Parameters
+    ----------
+    bot : commands.Bot
+        The bot the cog is attached to.
+
+    Attributes
+    ----------
+    bot : commands.Bot
+        The bot the cog is attached to.
+    message : discord.WebhookMessage
+        The message the bot is editing.
+    week_end : datetime
+        The end of the week.
+    webhook : discord.Webhook
+        Webhook the bot is posting to.
+
+    Methods
+    -------
+    get_calendar()
+        Gets the calendar for the next week.
+    cog_unload()
+        Unloads the cog.
+    cog_load()
+        Loads the cog.
+    """
 
     def __init__(self, bot: commands.Bot):
         self.bot = bot
@@ -95,18 +168,23 @@ class Calendar(commands.Cog):
         self.calendar.change_interval(time=list(half_hour_intervals()))
 
     async def cog_unload(self) -> None:  # skipcq: PYL-W0236
-        """Unload function"""
+        """Function called on unload."""
         self.calendar.cancel()
 
     async def cog_load(self) -> None:
-        """Cog setup hook"""
+        """Function called on load."""
         webhook_id = int(os.getenv("WEBHOOK_ID"))  # type: ignore
         self.webhook = await self.bot.fetch_webhook(webhook_id)
         self.calendar.start()
 
     @tasks.loop()
     async def calendar(self):
-        """Calendar update loop"""
+        """Calendar loop.
+
+        This loop is responsible for posting the calendar every half hour.
+        It queries the Google calendar API and posts the results to the
+        webhook, after parding and formatting the results.
+        """
         if self.webhook is None:
             webhook_id = int(os.getenv("WEBHOOK_ID"))  # type: ignore
             self.webhook = await self.bot.fetch_webhook(webhook_id)
@@ -207,5 +285,11 @@ class Calendar(commands.Cog):
 
 
 async def setup(bot: commands.Bot):
-    """Loads extension"""
+    """Loads the cog to the bot.
+
+    Parameters
+    ----------
+    bot : commands.Bot
+        The bot to load the cog to.
+    """
     await bot.add_cog(Calendar(bot))

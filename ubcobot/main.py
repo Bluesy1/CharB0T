@@ -22,9 +22,7 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 #  ----------------------------------------------------------------------------
-"""
-This is the main file for the ubcobot.
-"""
+"""This is the main file for the ubcobot."""
 import logging
 import os
 from logging.handlers import RotatingFileHandler
