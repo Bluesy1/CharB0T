@@ -22,6 +22,9 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 #  ----------------------------------------------------------------------------
+"""
+Kethran main module.
+"""
 import logging
 import os
 from logging.handlers import RotatingFileHandler
@@ -35,7 +38,7 @@ class Kethran(commands.Bot):
     """Custom bot class. extends discord.ext.commands.Bot"""
 
     async def setup_hook(self):
-        """Setup hook"""
+        """Loads all the extensions and tells us the name and discriminator of the bot"""
         print("Setup started")
         await self.load_extension("jishaku")
         await self.load_extension("primary")
@@ -45,7 +48,9 @@ class Kethran(commands.Bot):
 
 # noinspection PyBroadException
 def main():
-    """Main"""
+    """Main Function for Kethran.
+    This function instantiates the bot and runs it.
+    """
     if os.name != "nt":
         import uvloop
 

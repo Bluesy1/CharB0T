@@ -22,6 +22,9 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 #  ----------------------------------------------------------------------------
+"""
+This module contains the admin commands for the bot.
+"""
 import json
 from datetime import datetime, timezone
 
@@ -38,7 +41,25 @@ class Admin(Cog):
         self.bot = bot
 
     def cog_check(self, ctx: Context) -> bool:
-        """Check to run for all cog commands"""
+        """Check if the user has the admin role
+
+        Parameters
+        ----------
+        self : Admin
+            The Admin cog
+        ctx : Context
+            The context of the command
+
+        Returns
+        -------
+        bool
+            True if the user has the admin role, False otherwise
+
+        Raises
+        ------
+        commands.CheckFailure
+            If the user does not have an admin role
+        """
         if ctx.guild is None:
             return False
         return any(
@@ -48,12 +69,28 @@ class Admin(Cog):
 
     @commands.command()
     async def ping(self, ctx: Context):
-        """Ping Command TO Check Bot Is Alive"""
+        """Ping command - pong!
+
+        Parameters
+        ----------
+        self : Admin
+            The Admin cog
+        ctx : Context
+            The context of the command
+        """
         await ctx.send(f"Pong! Latency: {self.bot.latency * 1000:.2f}ms")
 
     @commands.Group
     async def slur(self, ctx: Context):
-        """Slur command group"""
+        """Slur command group
+
+        Parameters
+        ----------
+        self : Admin
+            The Admin cog
+        ctx : Context
+            The context of the command
+        """
         if ctx.invoked_subcommand is None:
             await ctx.send(
                 "Invoked slur words group - use `add` to add a word, `remove`"
@@ -62,7 +99,17 @@ class Admin(Cog):
 
     @slur.command()
     async def add(self, ctx: Context, *, word: str):
-        """Adds a word to the slur list"""
+        """Adds a word to the slur list
+
+        Parameters
+        ----------
+        self : Admin
+            The Admin cog
+        ctx : Context
+            The context of the command
+        word : str
+            The word to add to the slur list
+        """
         if ctx.guild.id != 832521484340953088:  # type: ignore
             return
         with open("UBCbot.json", encoding="utf8") as json_dict:
@@ -92,7 +139,17 @@ class Admin(Cog):
 
     @slur.command()
     async def remove(self, ctx: Context, *, word: str):
-        """Removes a word from the slur list"""
+        """Removes a word from the slur list
+
+        Parameters
+        ----------
+        self : Admin
+            The Admin cog
+        ctx : Context
+            The context of the command
+        word : str
+            The word to remove from the slur list
+        """
         if ctx.guild.id != 832521484340953088:  # type: ignore
             return
         with open("UBCbot.json", encoding="utf8") as file:
@@ -122,7 +179,15 @@ class Admin(Cog):
 
     @slur.command()
     async def query(self, ctx: Context):
-        """Queries the slur list"""
+        """Queries the slur list
+
+        Parameters
+        ----------
+        self : Admin
+            The Admin cog
+        ctx : Context
+            The context of the command
+        """
         if ctx.guild.id != 832521484340953088:  # type: ignore
             return
         with open("UBCbot.json", encoding="utf8") as json_dict:
@@ -139,7 +204,15 @@ class Admin(Cog):
 
     @Cog.listener()
     async def on_message(self, message: discord.Message):
-        """On_message func"""
+        """Checks messages to see if they contain any words in the slur list
+
+        Parameters
+        ----------
+        self : Admin
+            The Admin cog
+        message : discord.Message
+            The message to check
+        """
         if (
             message.guild.id != 832521484340953088  # type: ignore
             or message.content is None
@@ -186,5 +259,11 @@ class Admin(Cog):
 
 
 async def setup(bot: commands.Bot):
-    """Loads Plugin"""
+    """Sets up the Admin cog
+
+    Parameters
+    ----------
+    bot : commands.Bot
+        The bot to add the cog to
+    """
     await bot.add_cog(Admin(bot))

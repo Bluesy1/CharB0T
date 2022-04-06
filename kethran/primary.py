@@ -22,10 +22,15 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 #  ----------------------------------------------------------------------------
+"""
+This module contains the primary functions for the Kethran Bot.
+"""
+import datetime
 import random
 import sys
 
 import discord
+import pytz
 from discord.ext import commands, tasks
 from discord.ext.commands import Cog
 from discord.utils import utcnow
@@ -35,7 +40,12 @@ from helpers import roller  # skipcq: FLK-E402
 
 
 class Primary(Cog):
-    """Kethran's Primary Functions"""
+    """Kethran's Primary Functions
+    This is the primary functions that Kethran uses.
+    It has the following functions:
+    - Dice Roller
+    - Automated message every friday at 5:00pm Pacific Time
+    """
 
     def __init__(self, bot: commands.Bot):
         self.bot = bot
@@ -143,27 +153,60 @@ class Primary(Cog):
         ]
 
     async def cog_load(self) -> None:
-        """Load hook"""
+        """Starts the automated message every friday at 5:00pm Pacific Time
+
+        Parameters
+        ----------
+        self: Primary
+            An instance of the Primary class
+        """
         self.friday_5.start()
 
     async def cog_unload(self) -> None:  # skipcq: PYL-W0236
-        """Cog unload handling"""
+        """Cancels the automated message every friday at 5:00pm Pacific Time
+
+        Parameters
+        ----------
+        self: Primary
+            An instance of the Primary class
+        """
         self.friday_5.cancel()
 
-    @tasks.loop(minutes=1)
+    @tasks.loop(
+        time=datetime.time(
+            hour=17,
+            minute=0,
+            second=0,
+            microsecond=0,
+            tzinfo=pytz.timezone("US/Pacific"),
+        )
+    )
     async def friday_5(self) -> None:
-        """IDK, it's a thing"""
-        if (
-            utcnow().date().weekday() == 5
-            and utcnow().hour == 0
-            and utcnow().minute == 0
-        ):
+        """Automated message every friday at 5:00pm Pacific Time
+
+        Parameters
+        ----------
+        self: Primary
+            An instance of the Primary class
+        """
+        if utcnow().date().weekday() == 5:
             channel = await self.bot.fetch_channel(878434694713188362)
             await channel.send(random.choice(self.responses))  # type: ignore
 
     @Cog.listener()
     async def on_message(self, message: discord.Message):
-        """Checks guild messages in correct channels for regex trigger"""
+        """Checks for the word kethran being in a message and
+        responds with a random response if in the correct channels.
+        If the message is a dm and from a specific user
+        the bot will forward the message to a specific channel.
+
+        Parameters
+        ----------
+        self: Primary
+            An instance of the Primary class
+        message: discord.Message
+            The message that was sent
+        """
         if (
             not message.author.bot
             and message.channel.type is not discord.ChannelType.private
@@ -183,10 +226,26 @@ class Primary(Cog):
 
     @commands.command()
     async def roll(self, ctx: commands.Context, *, arg: str):
-        """Dice roller"""
+        """Command to roll a dice.
+
+        Parameters
+        ----------
+        self: Primary
+            An instance of the Primary class
+        ctx: commands.Context
+            The context of the command
+        arg: str
+            The dice to roll
+        """
         await ctx.send(f"Kethran {roller.roll(arg)}", reference=ctx.message)
 
 
 async def setup(bot: commands.Bot):
-    """Loads Plugin"""
+    """Loads the Primary cog into the bot
+
+    Parameters
+    ----------
+    bot: commands.Bot
+        The bot to load the cog into
+    """
     await bot.add_cog(Primary(bot))

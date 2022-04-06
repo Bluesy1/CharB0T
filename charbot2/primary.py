@@ -22,6 +22,9 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 #  ----------------------------------------------------------------------------
+"""
+This is the primary module for charbot2.
+"""
 import re
 from datetime import datetime, timedelta, timezone
 
@@ -33,7 +36,13 @@ from discord.utils import utcnow
 
 
 async def time_string_from_seconds(delta: float) -> str:
-    """Converts time float to str"""
+    """Convert seconds to a string
+
+    Parameters
+    ----------
+    delta : float
+        The number of seconds to convert to a string
+    """
     minutes, sec = divmod(delta, 60)
     hour, minutes = divmod(minutes, 60)
     day, hour = divmod(hour, 24)
@@ -48,13 +57,21 @@ class PrimaryFunctions(Cog):
     """Primary CharBot2 class"""
 
     def __init__(self, bot: commands.Bot):
-        """Init func"""
         self.bot = bot
         self.timeouts = {}
         self.members: dict[int, datetime] = {}
 
     async def cog_load(self) -> None:
-        """Cog load hook"""
+        """Cog load function
+
+        This is called when the cog is loaded, and initializes the
+        log_untimeout task and the members cache
+
+        Parameters
+        ----------
+        self : PrimaryFunctions
+            The PrimaryFunctions object
+        """
         self.log_untimeout.start()
         guild = await self.bot.fetch_guild(225345178955808768)
         generator = guild.fetch_members(limit=None)
@@ -63,11 +80,39 @@ class PrimaryFunctions(Cog):
         )
 
     async def cog_unload(self) -> None:  # skipcq: PYL-W0236
-        """Cog close function"""
+        """Called when cog is unloaded
+
+        This stops the log_untimeout task
+
+        Parameters
+        ----------
+        self : PrimaryFunctions
+            The PrimaryFunctions object
+        """
         self.log_untimeout.cancel()
 
     def cog_check(self, ctx: Context) -> bool:
-        """Check to run for all cog commands"""
+        """Check to run for all cog commands
+
+        This checks if the runner is a moderator
+
+        Parameters
+        ----------
+        self : PrimaryFunctions
+            The PrimaryFunctions object
+        ctx : Context
+            The context of the command
+
+        Returns
+        -------
+        bool
+            Whether the command should be run
+
+        Raises
+        ------
+        commands.CheckFailure
+            If the user is not a moderator
+        """
         return any(
             role.id in (338173415527677954, 253752685357039617, 225413350874546176)
             for role in ctx.author.roles  # type: ignore
@@ -75,12 +120,29 @@ class PrimaryFunctions(Cog):
 
     @commands.command()
     async def ping(self, ctx):
-        """Ping command"""
+        """Ping command to check if the bot is alive
+
+        Parameters
+        ----------
+        self : PrimaryFunctions
+            The PrimaryFunctions object
+        ctx : Context
+            The context of the command
+        """
         await ctx.send(f"Pong! Latency: {self.bot.latency * 1000:.2f}ms")
 
     @tasks.loop(seconds=30)
     async def log_untimeout(self) -> None:
-        """Untimeout Report Method"""
+        """Untimeout Report Task
+
+        This task runs every 30 seconds and checks if any users that have been timed out have had their timeouts
+        expired. If they have, it will send a message to the mod channel.
+
+        Parameters
+        ----------
+        self : PrimaryFunctions
+            The PrimaryFunctions object
+        """
         removeable = []
         for i, j in self.timeouts.copy().items():
             if j < datetime.now(tz=timezone.utc):
@@ -105,13 +167,32 @@ class PrimaryFunctions(Cog):
 
     @Cog.listener()
     async def on_member_join(self, member: discord.Member) -> None:
-        """Member Join Event"""
+        """Processes when a member joins the server and adds them to the members cache
+
+        Parameters
+        ----------
+        self : PrimaryFunctions
+            The PrimaryFunctions object
+        member : discord.Member
+            The member that joined the server
+        """
         if member.guild.id == 225345178955808768:
             self.members.update({member.id: utcnow()})
 
     @Cog.listener()
     async def on_message(self, message: discord.Message) -> None:
-        """On message func"""
+        """Handles when a message is sent
+        If the message is a dm, it redirects them to the mod support page
+        If the message is a ping in the #goodbye channel, it deletes the message and
+        sends a message to that channel with the goodbye message
+
+        Parameters
+        ----------
+        self : PrimaryFunctions
+            The PrimaryFunctions object
+        message : discord.Message
+            The message that was sent
+        """
         if (
             not message.author.bot
             and message.channel.type is discord.ChannelType.private
@@ -163,7 +244,21 @@ class PrimaryFunctions(Cog):
     # noinspection PyBroadException
     @Cog.listener()
     async def on_member_update(self, before: discord.Member, after: discord.Member):
-        """On member update func"""
+        """
+        Processes when a member is timed out or untimed out
+        If the member is timed out, it adds them to the timeouts cache
+        If the member is untimed out, it removes them from the timeouts cache
+        In both cases, it logs the action to the mod log
+
+        Parameters
+        ----------
+        self : PrimaryFunctions
+            The PrimaryFunctions object
+        before : discord.Member
+            The member before the update
+        after : discord.Member
+            The member after the update
+        """
         try:
             if after.timed_out_until != before.timed_out_until:
                 if after.is_timed_out():
@@ -184,7 +279,15 @@ class PrimaryFunctions(Cog):
                 await self.parse_timeout(after)
 
     async def parse_timeout(self, after: discord.Member):
-        """Parses timeouts"""
+        """Parse the timeout and logs it to the mod log
+
+        Parameters
+        ----------
+        self : PrimaryFunctions
+            The PrimaryFunctions object
+        after : discord.Member
+            The member after the update
+        """
         time_delta = (
             after.timed_out_until  # type: ignore
             + timedelta(seconds=1)
@@ -224,5 +327,11 @@ class PrimaryFunctions(Cog):
 
 
 async def setup(bot: commands.Bot):
-    """Setup"""
+    """Sets up the cog
+
+    Parameters
+    ----------
+    bot : commands.Bot
+        The bot object
+    """
     await bot.add_cog(PrimaryFunctions(bot))

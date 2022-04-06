@@ -22,6 +22,9 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 #  ----------------------------------------------------------------------------
+"""
+This is the main file of the charbot2 project.
+"""
 import logging
 import os
 from logging.handlers import RotatingFileHandler
@@ -35,7 +38,14 @@ class C2Bot(commands.Bot):
     """Custom bot class. extends discord.ext.commands.Bot"""
 
     async def setup_hook(self):
-        """Setup hook"""
+        """Set up the bot and load all extensions.
+        This is called by the bot.run() method.
+
+        Parameters
+        ----------
+        self : C2Bot
+            The C2Bot instance.
+        """
         print("Setup started")
         await self.load_extension("jishaku")
         await self.load_extension("primary")
@@ -45,7 +55,7 @@ class C2Bot(commands.Bot):
 
 # noinspection PyBroadException
 def main():
-    """Main"""
+    """Main function"""
     if os.name != "nt":
         import uvloop
 

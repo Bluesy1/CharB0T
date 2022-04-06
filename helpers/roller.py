@@ -22,11 +22,20 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 #  ----------------------------------------------------------------------------
+"""
+Roller Module
+"""
 import random
 
 
 def roll(arg: str) -> str:
-    """Dice roller"""
+    """Dice roller
+
+    Parameters
+    ----------
+    arg : str
+        Dice roll string
+    """
     roll_error = (
         "Error invalid argument: specified dice can only be d<int>,"
         " or if a constant modifier must be a "
