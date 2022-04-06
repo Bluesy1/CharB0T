@@ -170,8 +170,8 @@ class Primary(Cog):
         """
         self.friday_5.cancel()
 
-    @tasks.loop(
-        time=datetime.time(  # skipcq: PYL-E1123
+    @tasks.loop(  # skipcq: PYL-E1123
+        time=datetime.time(
             hour=17,
             minute=0,
             second=0,
