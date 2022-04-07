@@ -88,7 +88,7 @@ class Query(Cog):
         name="source",
         description="Returns a reference to the source code for the bot and its liscense",
     )
-    async def app_source(self, interaction: app_commands.Interaction):
+    async def app_source(self, interaction: discord.Interaction):
         """Returns a reference to the source code for the bot and its liscense
 
         References
@@ -101,7 +101,7 @@ class Query(Cog):
 
         Parameters
         ----------
-        interaction: app_commands.Interaction
+        interaction: discord.Interaction
             The interaction of the command
         """
         await interaction.response.send_message(__source__)
