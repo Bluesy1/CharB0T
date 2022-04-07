@@ -25,8 +25,16 @@
 import os
 import time
 
+import discord
+from discord import app_commands
 from discord.ext import commands
 from discord.ext.commands import Cog, Context
+
+__source__ = (
+    "You can find my source code here: https://www.github.com/Bluesy1/CharB0T/charbot \n"
+    "I'm liscensed under the MIT liscense. See the license file for more information: "
+    "https://www.github.com/Bluesy1/CharB0T/blob/master/LICENSE \n Creator: Bluesy#8150"
+)
 
 
 class Query(Cog):
@@ -57,7 +65,50 @@ class Query(Cog):
             "Charlie's time is: " + time.strftime("%X %x %Z"), reference=ctx.message
         )
 
+    @commands.command()
+    async def source(self, ctx: Context):
+        """Returns a reference to the source code for the bot and its liscense
+
+        References
+        ----------
+        Repository:
+        https://github.com/Bluesy1/CharB0T/charbot
+
+        Licence:
+        MIT - https://github.com/Bluesy1/CharB0T/blob/master/LICENSE
+
+        Parameters
+        ----------
+        ctx: discord.ext.commands.Context
+            The context of the command
+        """
+        await ctx.reply(__source__)
+
+    @app_commands.command(
+        name="source",
+        description="Returns a reference to the source code for the bot and its liscense",
+    )
+    async def app_source(self, interaction: app_commands.Interaction):
+        """Returns a reference to the source code for the bot and its liscense
+
+        References
+        ----------
+        Repository:
+        https://www.github.com/Bluesy1/CharB0T/charbot
+
+        Licence:
+        MIT - https://www.github.com/Bluesy1/CharB0T/blob/master/LICENSE
+
+        Parameters
+        ----------
+        interaction: app_commands.Interaction
+            The interaction of the command
+        """
+        await interaction.response.send_message(__source__)
+
 
 async def setup(bot: commands.Bot):
     """Loads Plugin"""
-    await bot.add_cog(Query(bot))
+    await bot.add_cog(
+        Query(bot), override=True, guild=discord.Object(id=225345178955808768)
+    )
