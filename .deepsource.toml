@@ -8,6 +8,9 @@ enabled = true
   runtime_version = "3.x.x"
   max_line_length = 120
 
+[[analyzers]]
+name = "secrets"
+enabled = true
 
 [[transformers]]
 name = "black"
