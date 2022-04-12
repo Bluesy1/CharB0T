@@ -106,6 +106,20 @@ class Query(Cog):
         """
         await interaction.response.send_message(__source__)
 
+    @commands.command()
+    async def imgscam(self, ctx: Context):
+        """Sends the image scam info url"""
+        await ctx.reply("https://blog.hyperphish.com/articles/001-loading/")
+
+    @app_commads.command(
+        name="imgscam", description="Info about the semi fake image scam on discord"
+    )
+    async def img_scam(self, interaction: discord.Interaction):
+        """Sends the image scam info url"""
+        await interaction.response.send_message(
+            "https://blog.hyperphish.com/articles/001-loading/"
+        )
+
 
 async def setup(bot: commands.Bot):
     """Loads Plugin"""
