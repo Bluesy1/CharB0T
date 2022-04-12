@@ -111,7 +111,7 @@ class Query(Cog):
         """Sends the image scam info url"""
         await ctx.reply("https://blog.hyperphish.com/articles/001-loading/")
 
-    @app_commads.command(
+    @app_commands.command(
         name="imgscam", description="Info about the semi fake image scam on discord"
     )
     async def img_scam(self, interaction: discord.Interaction):
