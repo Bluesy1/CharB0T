@@ -1,4 +1,4 @@
-name: lint
+name: pyright
 
 on:
   push:
@@ -6,11 +6,6 @@ on:
     types: [ opened, synchronize ]
 
 jobs:
-  black:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v2
-      - uses: psf/black@stable
   pyright:
     runs-on: ubuntu-latest
     steps:
