@@ -18,3 +18,8 @@ jobs:
         uses: jakebailey/pyright-action@v1.1.0
         with:
           warnings: false
+          working-directory: .
+          python-platform: Linux
+          python-version: 3.10
+          project: pyproject.toml
+          lib: true
