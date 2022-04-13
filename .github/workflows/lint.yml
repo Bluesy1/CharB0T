@@ -25,3 +25,4 @@ jobs:
         with:
           warnings: false
           lib: true
+          python-version: '3.10'
