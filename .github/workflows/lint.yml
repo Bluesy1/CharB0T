@@ -18,4 +18,7 @@ jobs:
         uses: jakebailey/pyright-action@v1
         with:
           warnings: false
-          working-directory: ..
+          working-directory: ../
+          python-platform: Linux
+          python-version: '3.10'
+          lib: true
