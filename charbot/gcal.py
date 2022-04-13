@@ -230,9 +230,9 @@ class Calendar(commands.Cog):
                 )
             else:
                 default_field(fields, sub_time, item)
-            for sub_time in cancelled_times:
-                fields.pop(timegm(sub_time.utctimetuple()), None)
-                times.discard(sub_time)
+        for sub_time in cancelled_times:
+            fields.pop(timegm(sub_time.utctimetuple()), None)
+            times.discard(sub_time)
         next_event = min(times, default=None)
         # noinspection PyTypeChecker
         fields = dict(sorted(fields.items()))
