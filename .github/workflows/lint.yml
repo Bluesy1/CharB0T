@@ -18,5 +18,4 @@ jobs:
         uses: jakebailey/pyright-action@v1
         with:
           warnings: false
-          working-directory: ../
           lib: true
