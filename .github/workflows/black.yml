@@ -1,9 +1,6 @@
 name: black
 
-on:
-  push:
-  pull_request:
-    types: [ opened, synchronize ]
+on: [push, pull_request]
 
 jobs:
   black:
