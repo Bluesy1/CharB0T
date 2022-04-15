@@ -188,7 +188,7 @@ class Admin(Cog):
         await ctx.send(
             embed=Embed(
                 title="List of words defined as sensitive",
-                description=", ".join(fulldict["words"].sort()),
+                description=", ".join(sorted(fulldict["words"])),
                 color=Color.blue(),
                 timestamp=datetime.now(tz=timezone.utc),
             )
