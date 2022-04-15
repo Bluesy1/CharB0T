@@ -6,5 +6,5 @@ pythonPlatform = "Linux"
 exclude = ["**/__pycache__/**"]
 
 [tool.black]
-lineLength = 120
+line-length = 120
 target-version = ['py310']

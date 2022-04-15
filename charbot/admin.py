@@ -26,7 +26,8 @@
 import json
 from datetime import datetime, timezone
 
-from discord import Embed, Color
+import discord
+from discord import Embed, Color, app_commands
 from discord.ext import commands
 from discord.ext.commands import Cog, Context
 
@@ -79,7 +80,8 @@ class Admin(Cog):
         """
         await ctx.send(f"Pong! Latency: {self.bot.latency * 1000:.2f}ms")
 
-    @commands.Group
+    @commands.hybrid_group(name="sensitive")
+    @app_commands.guilds(225345178955808768)
     async def sensitive(self, ctx: Context):
         """Command group for configuring the sensitive words filter.
 
@@ -96,7 +98,7 @@ class Admin(Cog):
                 " to remove a word, or `query` to get all words on the list."
             )
 
-    @sensitive.command()
+    @sensitive.command(name="add")
     async def add(self, ctx: Context, *, word: str):
         """Add a word to the sensitive words filter.
 
@@ -133,7 +135,7 @@ class Admin(Cog):
                 )
             )
 
-    @sensitive.command()
+    @sensitive.command(name="remove")
     async def remove(self, ctx: Context, *, word: str):
         """Remove a word from the sensitive words filter.
 
@@ -170,7 +172,7 @@ class Admin(Cog):
                 )
             )
 
-    @sensitive.command()
+    @sensitive.command(name="query")
     async def query(self, ctx: Context):
         """Retrieve the list of words defined as sensitive.
 
@@ -201,4 +203,4 @@ async def setup(bot: commands.Bot):
     bot : commands.Bot
         The bot object.
     """
-    await bot.add_cog(Admin(bot))
+    await bot.add_cog(Admin(bot), guild=discord.Object(id=225345178955808768))

@@ -49,8 +49,7 @@ class Query(Cog):
         if ctx.guild is None:
             return False
         return not any(
-            role.id in (684936661745795088, 676250179929636886)
-            for role in ctx.author.roles  # type: ignore
+            role.id in (684936661745795088, 676250179929636886) for role in ctx.author.roles  # type: ignore
         ) or any(
             role.id in (338173415527677954, 253752685357039617, 225413350874546176)
             for role in ctx.author.roles  # type: ignore
@@ -61,11 +60,10 @@ class Query(Cog):
         """Returns eastern time"""
         os.environ["TZ"] = "US/Eastern"
         time.tzset()
-        await ctx.send(
-            "Charlie's time is: " + time.strftime("%X %x %Z"), reference=ctx.message
-        )
+        await ctx.send("Charlie's time is: " + time.strftime("%X %x %Z"), reference=ctx.message)
 
-    @commands.command()
+    @commands.hybrid_command(name="source", description="Info about the source code")
+    @app_commands.guilds(225345178955808768)
     async def source(self, ctx: Context):
         """Returns a reference to the source code for the bot and its liscense
 
@@ -84,45 +82,13 @@ class Query(Cog):
         """
         await ctx.reply(__source__)
 
-    @app_commands.command(
-        name="source",
-        description="Returns a reference to the source code for the bot and its liscense",
-    )
-    async def app_source(self, interaction: discord.Interaction):
-        """Returns a reference to the source code for the bot and its liscense
-
-        References
-        ----------
-        Repository:
-        https://www.github.com/Bluesy1/CharB0T/charbot
-
-        Licence:
-        MIT - https://www.github.com/Bluesy1/CharB0T/blob/master/LICENSE
-
-        Parameters
-        ----------
-        interaction: discord.Interaction
-            The interaction of the command
-        """
-        await interaction.response.send_message(__source__)
-
-    @commands.command()
+    @commands.hybrid_command(name="imgscam", description="Info about the semi fake image scam on discord")
+    @app_commands.guilds(225345178955808768)
     async def imgscam(self, ctx: Context):
         """Sends the image scam info url"""
         await ctx.reply("https://blog.hyperphish.com/articles/001-loading/")
 
-    @app_commands.command(
-        name="imgscam", description="Info about the semi fake image scam on discord"
-    )
-    async def img_scam(self, interaction: discord.Interaction):
-        """Sends the image scam info url"""
-        await interaction.response.send_message(
-            "https://blog.hyperphish.com/articles/001-loading/"
-        )
-
 
 async def setup(bot: commands.Bot):
     """Loads Plugin"""
-    await bot.add_cog(
-        Query(bot), override=True, guild=discord.Object(id=225345178955808768)
-    )
+    await bot.add_cog(Query(bot), override=True, guild=discord.Object(id=225345178955808768))

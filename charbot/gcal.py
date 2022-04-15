@@ -99,9 +99,7 @@ def ceil_dt(dt: datetime, delta: timedelta) -> datetime:
     return dt + (datetime(_datetime.MINYEAR, 1, 1, tzinfo=timezone("UTC")) - dt) % delta
 
 
-def default_field(
-    dictionary: dict[int, dict[str, str | bool]], add_time: datetime, item: dict
-) -> None:
+def default_field(dictionary: dict[int, dict[str, str | bool]], add_time: datetime, item: dict) -> None:
     """Adds the default dict field for a specific time.
 
     Parameters
@@ -190,8 +188,7 @@ class Calendar(commands.Cog):
             self.webhook = await self.bot.fetch_webhook(webhook_id)
         mindatetime = datetime.now(tz=timezone("US/Eastern"))
         maxdatetime = datetime.now(tz=timezone("US/Eastern")) + timedelta(weeks=1)
-        callUrl = getUrl(mindatetime, maxdatetime)
-        async with aiohttp.ClientSession() as session, session.get(callUrl) as response:
+        async with aiohttp.ClientSession() as session, session.get(getUrl(mindatetime, maxdatetime)) as response:
             items = await response.json()
         fields = {}
         cancelled_times = []
@@ -253,9 +250,7 @@ class Calendar(commands.Cog):
         )
         for field in fields:
             field = fields[field]
-            embed.add_field(
-                name=field["name"], value=field["value"], inline=field["inline"]
-            )
+            embed.add_field(name=field["name"], value=field["value"], inline=field["inline"])
 
         embed.set_author(
             name="Charlie",

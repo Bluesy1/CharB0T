@@ -77,20 +77,16 @@ async def main():
         maxBytes=2000000,
         backupCount=10,
     )
-    handler.setFormatter(
-        logging.Formatter("%(asctime)s:%(levelname)s:%(name)s: %(message)s")
-    )
+    handler.setFormatter(logging.Formatter("%(asctime)s:%(levelname)s:%(name)s: %(message)s"))
     logger.addHandler(handler)
     # Instantiate a Bot instance
     bot = CBot(
-        command_prefix="!",
+        command_prefix="t!",
         owner_ids=[225344348903047168, 363095569515806722],
         case_insensitive=True,
         intents=discord.Intents.all(),
         help_command=None,
-        activity=discord.Activity(
-            type=discord.ActivityType.watching, name="over the server"
-        ),
+        activity=discord.Activity(type=discord.ActivityType.watching, name="over the server"),
     )
 
     load_dotenv()
