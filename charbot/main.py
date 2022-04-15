@@ -81,7 +81,7 @@ async def main():
     logger.addHandler(handler)
     # Instantiate a Bot instance
     bot = CBot(
-        command_prefix="t!",
+        command_prefix="!",
         owner_ids=[225344348903047168, 363095569515806722],
         case_insensitive=True,
         intents=discord.Intents.all(),
