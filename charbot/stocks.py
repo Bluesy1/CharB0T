@@ -87,9 +87,7 @@ class Stock:
         self.name = data["name"]
         self.price = Decimal(data["price"], Context(prec=2, rounding=ROUND_HALF_UP))
         self.change = Decimal(data["change"], Context(prec=2, rounding=ROUND_HALF_UP))
-        self.change_percent = Decimal(
-            data["change_percent"], Context(prec=2, rounding=ROUND_HALF_UP)
-        )
+        self.change_percent = Decimal(data["change_percent"], Context(prec=2, rounding=ROUND_HALF_UP))
         self.volume = Decimal(data["volume"], Context(prec=2, rounding=ROUND_HALF_UP))
 
     def as_dict(self):
@@ -196,9 +194,7 @@ class StockDict:
     def empty(cls):
         """Returns an empty StockDict object."""
         return cls(
-            AAPL=Stock(
-                name="Apple Inc.", price=0, change=0, change_percent=0, volume=0
-            ),
+            AAPL=Stock(name="Apple Inc.", price=0, change=0, change_percent=0, volume=0),
             MSFT=Stock(
                 name="Microsoft Corporation",
                 price=0,
@@ -206,30 +202,14 @@ class StockDict:
                 change_percent=0,
                 volume=0,
             ),
-            GOOG=Stock(
-                name="Alphabet Inc.", price=0, change=0, change_percent=0, volume=0
-            ),
-            FB=Stock(
-                name="Facebook Inc.", price=0, change=0, change_percent=0, volume=0
-            ),
-            AMZN=Stock(
-                name="Amazon.com Inc.", price=0, change=0, change_percent=0, volume=0
-            ),
-            TSLA=Stock(
-                name="Tesla Inc.", price=0, change=0, change_percent=0, volume=0
-            ),
-            INTC=Stock(
-                name="Intel Corporation", price=0, change=0, change_percent=0, volume=0
-            ),
-            CSCO=Stock(
-                name="Cisco Systems Inc.", price=0, change=0, change_percent=0, volume=0
-            ),
-            NVDA=Stock(
-                name="NVIDIA Corporation", price=0, change=0, change_percent=0, volume=0
-            ),
-            ORCL=Stock(
-                name="Oracle Corporation", price=0, change=0, change_percent=0, volume=0
-            ),
+            GOOG=Stock(name="Alphabet Inc.", price=0, change=0, change_percent=0, volume=0),
+            FB=Stock(name="Facebook Inc.", price=0, change=0, change_percent=0, volume=0),
+            AMZN=Stock(name="Amazon.com Inc.", price=0, change=0, change_percent=0, volume=0),
+            TSLA=Stock(name="Tesla Inc.", price=0, change=0, change_percent=0, volume=0),
+            INTC=Stock(name="Intel Corporation", price=0, change=0, change_percent=0, volume=0),
+            CSCO=Stock(name="Cisco Systems Inc.", price=0, change=0, change_percent=0, volume=0),
+            NVDA=Stock(name="NVIDIA Corporation", price=0, change=0, change_percent=0, volume=0),
+            ORCL=Stock(name="Oracle Corporation", price=0, change=0, change_percent=0, volume=0),
             PYPL=Stock(
                 name="PayPal Holdings Inc.",
                 price=0,
@@ -237,9 +217,7 @@ class StockDict:
                 change_percent=0,
                 volume=0,
             ),
-            QCOM=Stock(
-                name="Qualcomm Inc.", price=0, change=0, change_percent=0, volume=0
-            ),
+            QCOM=Stock(name="Qualcomm Inc.", price=0, change=0, change_percent=0, volume=0),
             CMCSA=Stock(
                 name="Comcast Corporation",
                 price=0,
@@ -247,22 +225,14 @@ class StockDict:
                 change_percent=0,
                 volume=0,
             ),
-            GPRO=Stock(
-                name="GoPro Inc.", price=0, change=0, change_percent=0, volume=0
-            ),
-            TWTR=Stock(
-                name="Twitter Inc.", price=0, change=0, change_percent=0, volume=0
-            ),
-            GME=Stock(
-                name="GameStop Corp.", price=0, change=0, change_percent=0, volume=0
-            ),
+            GPRO=Stock(name="GoPro Inc.", price=0, change=0, change_percent=0, volume=0),
+            TWTR=Stock(name="Twitter Inc.", price=0, change=0, change_percent=0, volume=0),
+            GME=Stock(name="GameStop Corp.", price=0, change=0, change_percent=0, volume=0),
             BTC=Stock(name="Bitcoin", price=0, change=0, change_percent=0, volume=0),
             ETH=Stock(name="Ethereum", price=0, change=0, change_percent=0, volume=0),
             LTC=Stock(name="Litecoin", price=0, change=0, change_percent=0, volume=0),
             XRP=Stock(name="Ripple", price=0, change=0, change_percent=0, volume=0),
-            BCH=Stock(
-                name="Bitcoin Cash", price=0, change=0, change_percent=0, volume=0
-            ),
+            BCH=Stock(name="Bitcoin Cash", price=0, change=0, change_percent=0, volume=0),
             ADA=Stock(name="Cardano", price=0, change=0, change_percent=0, volume=0),
             XMR=Stock(name="Monero", price=0, change=0, change_percent=0, volume=0),
             DASH=Stock(name="Dash", price=0, change=0, change_percent=0, volume=0),
@@ -376,16 +346,10 @@ def get_stock(symbol: str) -> tuple[str, Stock]:
             **{
                 "name": tickers[symbol.replace("-", "_")].value,
                 "price": Decimal(str(data.iloc[-2]["Close"])),
-                "change": (
-                    Decimal(str(data.iloc[-2]["Close"]))
-                    - Decimal(str(data.iloc[-3]["Close"]))
-                ),
+                "change": (Decimal(str(data.iloc[-2]["Close"])) - Decimal(str(data.iloc[-3]["Close"]))),
                 "change_percent": (
                     100
-                    * (
-                        Decimal(str(data.iloc[-2]["Close"]))
-                        - Decimal(str(data.iloc[-3]["Close"]))
-                    )
+                    * (Decimal(str(data.iloc[-2]["Close"])) - Decimal(str(data.iloc[-3]["Close"])))
                     / Decimal(str(data.iloc[-3]["Close"]))
                 ),
                 "volume": Decimal(str(data.iloc[-3]["Volume"])),
@@ -413,10 +377,7 @@ class Stocks(app_commands.Group, commands.Cog):
 
     async def get_stocks(self) -> dict[str, Stock]:
         """Get _stocks"""
-        _tasks = [
-            await self.bot.loop.run_in_executor(self.bot.executor, get_stock, symbol)
-            for symbol in STOCKS
-        ]
+        _tasks = [await self.bot.loop.run_in_executor(self.bot.executor, get_stock, symbol) for symbol in STOCKS]
         return {result[0].split("-")[0]: result[1] for result in _tasks}
 
     async def cog_load(self) -> None:
@@ -436,6 +397,4 @@ class Stocks(app_commands.Group, commands.Cog):
 
 async def setup(bot: CBot):
     """Setup"""
-    await bot.add_cog(
-        Stocks(bot), override=True, guild=discord.Object(id=225345178955808768)
-    )
+    await bot.add_cog(Stocks(bot), override=True, guild=discord.Object(id=225345178955808768))

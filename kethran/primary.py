@@ -158,7 +158,8 @@ class Primary(Cog):
         self: Primary
             An instance of the Primary class
         """
-        self.friday_5.start()
+        pass
+        # self.friday_5.start()
 
     async def cog_unload(self) -> None:  # skipcq: PYL-W0236
         """Cancels the automated message every friday at 5:00pm Pacific Time
@@ -168,7 +169,8 @@ class Primary(Cog):
         self: Primary
             An instance of the Primary class
         """
-        self.friday_5.cancel()
+        pass
+        # self.friday_5.cancel()
 
     @tasks.loop(  # skipcq: PYL-E1123
         time=datetime.time(
@@ -205,14 +207,8 @@ class Primary(Cog):
         message: discord.Message
             The message that was sent
         """
-        if (
-            not message.author.bot
-            and message.channel.type is not discord.ChannelType.private
-        ):
-            if (
-                message.channel.id in [901325983838244865, 878434694713188362]
-                and "kethran" in message.content.lower()
-            ):
+        if not message.author.bot and message.channel.type is not discord.ChannelType.private:
+            if message.channel.id in [901325983838244865, 878434694713188362] and "kethran" in message.content.lower():
                 await message.channel.send(
                     random.choice(self.responses),
                     reference=message,

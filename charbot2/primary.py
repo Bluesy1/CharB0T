@@ -45,10 +45,7 @@ async def time_string_from_seconds(delta: float) -> str:
     hour, minutes = divmod(minutes, 60)
     day, hour = divmod(hour, 24)
     year, day = divmod(day, 365)
-    return (
-        f"{year} Year(s), {day} Day(s), {hour} Hour(s),"
-        f" {minutes} Min(s), {sec:.2f} Sec(s)"
-    )
+    return f"{year} Year(s), {day} Day(s), {hour} Hour(s)," f" {minutes} Min(s), {sec:.2f} Sec(s)"
 
 
 class PrimaryFunctions(Cog):
@@ -73,9 +70,7 @@ class PrimaryFunctions(Cog):
         self.log_untimeout.start()
         guild = await self.bot.fetch_guild(225345178955808768)
         generator = guild.fetch_members(limit=None)
-        self.members.update(
-            {user.id: user.joined_at async for user in generator}  # type: ignore
-        )
+        self.members.update({user.id: user.joined_at async for user in generator})  # type: ignore
 
     async def cog_unload(self) -> None:  # skipcq: PYL-W0236
         """Called when cog is unloaded
@@ -144,14 +139,10 @@ class PrimaryFunctions(Cog):
         removeable = []
         for i, j in self.timeouts.copy().items():
             if j < datetime.now(tz=timezone.utc):
-                member = await (
-                    await self.bot.fetch_guild(225345178955808768)
-                ).fetch_member(i)
+                member = await (await self.bot.fetch_guild(225345178955808768)).fetch_member(i)
                 if not member.is_timed_out():
                     embed = Embed(color=Color.green())
-                    embed.set_author(
-                        name=f"[UNTIMEOUT] {member.name}#{member.discriminator}"
-                    )
+                    embed.set_author(name=f"[UNTIMEOUT] {member.name}#{member.discriminator}")
                     embed.add_field(name="User", value=member.mention, inline=True)
                     channel = await self.bot.fetch_channel(426016300439961601)
                     await channel.send(  # type: ignore
@@ -191,10 +182,7 @@ class PrimaryFunctions(Cog):
         message : discord.Message
             The message that was sent
         """
-        if (
-            not message.author.bot
-            and message.channel.type is discord.ChannelType.private
-        ):
+        if not message.author.bot and message.channel.type is discord.ChannelType.private:
             await message.channel.send(
                 "Hi! If this was an attempt to reach the mod team through modmail,"
                 " that has been removed, in favor of "
@@ -222,18 +210,10 @@ class PrimaryFunctions(Cog):
             else:
                 time_string = "None Found"
             print(member)
-            member = (
-                member
-                if member
-                else await self.bot.fetch_user(mentioned_id)
-                if mentioned_id
-                else None
-            )
+            member = member if member else await self.bot.fetch_user(mentioned_id) if mentioned_id else None
             print(member)
             if member:
-                await (
-                    await self.bot.fetch_channel(430197357100138497)
-                ).send(  # type: ignore
+                await (await self.bot.fetch_channel(430197357100138497)).send(  # type: ignore
                     f"**{member.name}#{member.discriminator}** has left the server. "
                     f"ID:{member.id}. Time on Server: {time_string}"
                 )
@@ -263,9 +243,7 @@ class PrimaryFunctions(Cog):
                     await self.parse_timeout(after)
                 else:
                     embed = Embed(color=Color.green())
-                    embed.set_author(
-                        name=f"[UNTIMEOUT] {after.name}#{after.discriminator}"
-                    )
+                    embed.set_author(name=f"[UNTIMEOUT] {after.name}#{after.discriminator}")
                     embed.add_field(name="User", value=after.mention, inline=True)
                     channel = await self.bot.fetch_channel(426016300439961601)
                     await channel.send(  # type: ignore
@@ -286,35 +264,18 @@ class PrimaryFunctions(Cog):
         after : discord.Member
             The member after the update
         """
-        time_delta = (
-            after.timed_out_until  # type: ignore
-            + timedelta(seconds=1)
-            - datetime.now(tz=timezone.utc)
-        )
+        time_delta = after.timed_out_until + timedelta(seconds=1) - datetime.now(tz=timezone.utc)  # type: ignore
         time_string = ""
         if time_delta.days // 7 != 0:
-            time_string += (
-                f"{time_delta.days // 7} Week{'s' if time_delta.days // 7 > 1 else ''}"
-            )
+            time_string += f"{time_delta.days // 7} Week{'s' if time_delta.days // 7 > 1 else ''}"
         if time_delta.days % 7 != 0:
-            time_string += (
-                f"{', ' if bool(time_string) else ''}{time_delta.days % 7} Day(s) "
-            )
+            time_string += f"{', ' if bool(time_string) else ''}{time_delta.days % 7} Day(s) "
         if time_delta.seconds // 3600 > 0:
-            time_string += (
-                f"{', ' if bool(time_string) else ''}"
-                f"{time_delta.seconds // 3600} Hour(s) "
-            )
+            time_string += f"{', ' if bool(time_string) else ''}" f"{time_delta.seconds // 3600} Hour(s) "
         if (time_delta.seconds % 3600) // 60 != 0:
-            time_string += (
-                f"{', ' if bool(time_string) else ''}"
-                f"{(time_delta.seconds % 3600) // 60} Minute(s) "
-            )
+            time_string += f"{', ' if bool(time_string) else ''}" f"{(time_delta.seconds % 3600) // 60} Minute(s) "
         if (time_delta.seconds % 3600) % 60 != 0:
-            time_string += (
-                f"{', ' if bool(time_string) else ''}"
-                f"{(time_delta.seconds % 3600) % 60} Second(s) "
-            )
+            time_string += f"{', ' if bool(time_string) else ''}" f"{(time_delta.seconds % 3600) % 60} Second(s) "
         embed = Embed(color=Color.red())
         embed.set_author(name=f"[TIMEOUT] {after.name}#{after.discriminator}")
         embed.add_field(name="User", value=after.mention, inline=True)

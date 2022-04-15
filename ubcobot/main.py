@@ -70,9 +70,7 @@ def main():
         maxBytes=2000000,
         backupCount=10,
     )
-    handler.setFormatter(
-        logging.Formatter("%(asctime)s:%(levelname)s:%(name)s: %(message)s")
-    )
+    handler.setFormatter(logging.Formatter("%(asctime)s:%(levelname)s:%(name)s: %(message)s"))
     logger.addHandler(handler)
     # Instantiate a Bot instance
     bot = UBCOBot(

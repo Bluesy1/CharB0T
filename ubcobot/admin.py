@@ -211,10 +211,7 @@ class Admin(Cog):
         message : discord.Message
             The message to check
         """
-        if (
-            message.guild.id != 832521484340953088  # type: ignore
-            or message.content is None
-        ):
+        if message.guild.id != 832521484340953088 or message.content is None:  # type: ignore
             return
         with open("UBCbot.json", encoding="utf8") as file:
             words: list[str] = json.load(file)["Words"]
@@ -234,12 +231,9 @@ class Admin(Cog):
                 discord.Object(id=930953847411736598),
                 reason="Used a Slur",
             )
-            await (
-                await self.bot.fetch_channel(832521484828147741)
-            ).send(  # type: ignore
+            await (await self.bot.fetch_channel(832521484828147741)).send(  # type: ignore
                 embed=Embed(
-                    title=f"[SLUR] {message.author.name}#"
-                    f"{message.author.discriminator}",
+                    title=f"[SLUR] {message.author.name}#" f"{message.author.discriminator}",
                     color=Color.red(),
                     timestamp=datetime.now(tz=timezone.utc),
                 )
@@ -249,9 +243,7 @@ class Admin(Cog):
                     value=f"||{joinstring.join(used_slurs)}||",
                     inline=True,
                 )
-                .add_field(
-                    name="Channel", value=f"<#{message.channel.id}>", inline=True
-                )
+                .add_field(name="Channel", value=f"<#{message.channel.id}>", inline=True)
                 .add_field(name="Message", value=message.content, inline=True)
             )
 

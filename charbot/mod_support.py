@@ -50,9 +50,7 @@ async def edit_check(interaction: Interaction) -> bool:
     )
 
 
-class ModSupport(
-    Cog, app_commands.Group, name="modsupport", description="mod support command group"
-):
+class ModSupport(Cog, app_commands.Group, name="modsupport", description="mod support command group"):
     """Mod Support Cog"""
 
     def __init__(self, bot: CBot):
@@ -86,9 +84,7 @@ class ModSupport(
         channels = await guild.fetch_channels()
         cared: list[discord.TextChannel] = []
         for channel in channels:
-            if channel.name.endswith("mod-support") and isinstance(
-                channel, discord.TextChannel
-            ):
+            if channel.name.endswith("mod-support") and isinstance(channel, discord.TextChannel):
                 cared.append(channel)
         for channel in cared:
             temp = True
@@ -103,43 +99,31 @@ class ModSupport(
     @Cog.listener()
     async def on_message(self, message: discord.Message):
         """On message event"""
-        if (
-            not message.author.bot
-            and message.channel.type is discord.ChannelType.private
-        ):
+        if not message.author.bot and message.channel.type is discord.ChannelType.private:
             await message.channel.send(
                 "Hi! If this was an attempt to reach the mod team through modmail,"
                 " that has been removed, in favor of "
                 "mod support, which you can find in <#398949472840712192>"
             )
 
-    @app_commands.command(
-        name="query", description="queries list of users banned from mod support"
-    )
+    @app_commands.command(name="query", description="queries list of users banned from mod support")
     async def query(self, interaction: Interaction):
         """Modmail blacklist query command"""
         if await edit_check(interaction):
             with open("mod_support_blacklist.json", "r", encoding="utf8") as file:
                 blacklisted = [f"<@{item}>" for item in json.load(file)["blacklisted"]]
             await interaction.response.send_message(
-                embed=Embed(
-                    title="Blacklisted users", description="\n".join(blacklisted)
-                ),
+                embed=Embed(title="Blacklisted users", description="\n".join(blacklisted)),
                 ephemeral=True,
             )
         else:
-            await interaction.response.send_message(
-                "You are not authorized to use this command", ephemeral=True
-            )
+            await interaction.response.send_message("You are not authorized to use this command", ephemeral=True)
 
     @app_commands.command(
         name="edit",
-        description="adds or removes a user from the list of users banned from mod"
-        " support",
+        description="adds or removes a user from the list of users banned from mod" " support",
     )
-    @app_commands.describe(
-        add="True to add to blacklist, False to remove", user="user to change"
-    )
+    @app_commands.describe(add="True to add to blacklist, False to remove", user="user to change")
     async def edit(self, interaction: Interaction, add: bool, user: discord.Member):
         """Modmail edit blacklist command"""
         if await edit_check(interaction):
@@ -149,9 +133,7 @@ class ModSupport(
                     modmail_blacklist = json.load(file)
                 if user.id not in modmail_blacklist["blacklisted"]:
                     modmail_blacklist["blacklisted"].append(user.id)
-                    with open(
-                        "mod_support_blacklist.json", "w", encoding="utf8"
-                    ) as file:
+                    with open("mod_support_blacklist.json", "w", encoding="utf8") as file:
                         json.dump(modmail_blacklist, file)
                     successful = True
             else:
@@ -160,9 +142,7 @@ class ModSupport(
                     modmail_blacklist = json.load(file)
                 if user.id in modmail_blacklist["blacklisted"]:
                     modmail_blacklist["blacklisted"].remove(user.id)
-                    with open(
-                        "mod_support_blacklist.json", "w", encoding="utf8"
-                    ) as file:
+                    with open("mod_support_blacklist.json", "w", encoding="utf8") as file:
                         json.dump(modmail_blacklist, file)
                     successful = True
             if add and successful:
@@ -171,8 +151,7 @@ class ModSupport(
                 )
             elif add and not successful:
                 await interaction.response.send_message(
-                    f"Error: <@{user.id}> was already on the blacklist"
-                    f" or was not able to be added to.",
+                    f"Error: <@{user.id}> was already on the blacklist" f" or was not able to be added to.",
                     ephemeral=True,
                 )
             elif not add and successful:
@@ -182,8 +161,7 @@ class ModSupport(
                 )
             elif not add and not successful:
                 await interaction.response.send_message(
-                    f"<@{user.id}> was not on the blacklist or was"
-                    f" not able to be removed from it.",
+                    f"<@{user.id}> was not on the blacklist or was" f" not able to be removed from it.",
                     ephemeral=True,
                 )
             else:
@@ -193,9 +171,7 @@ class ModSupport(
                     ephemeral=True,
                 )
         else:
-            await interaction.response.send_message(
-                "You are not authorized to use this command", ephemeral=True
-            )
+            await interaction.response.send_message("You are not authorized to use this command", ephemeral=True)
 
 
 class ModSupportButtons(ui.View):
@@ -226,22 +202,14 @@ class ModSupportButtons(ui.View):
         with open(self.filename, "r", encoding="utf8") as file:
             return interaction.user.id not in json.load(file)["blacklisted"]
 
-    async def standard_callback(
-        self, button: discord.ui.Button, interaction: Interaction
-    ):
+    async def standard_callback(self, button: discord.ui.Button, interaction: Interaction):
         """Just general and important and ememgrency callback helper"""
         await interaction.response.send_modal(
             ModSupportModal(
                 {
-                    self.mod_role: PermissionOverwrite(
-                        view_channel=True, send_messages=True, read_messages=True
-                    ),
-                    self.everyone: PermissionOverwrite(
-                        view_channel=False, send_messages=False, read_messages=False
-                    ),
-                    interaction.user: PermissionOverwrite(
-                        view_channel=True, send_messages=True, read_messages=True
-                    ),
+                    self.mod_role: PermissionOverwrite(view_channel=True, send_messages=True, read_messages=True),
+                    self.everyone: PermissionOverwrite(view_channel=False, send_messages=False, read_messages=False),
+                    interaction.user: PermissionOverwrite(view_channel=True, send_messages=True, read_messages=True),
                 },
                 f"{button.label}-{interaction.user.name}-mod-support",
             )
@@ -290,28 +258,16 @@ class ModSupportButtons(ui.View):
     async def private(self, interaction: Interaction, select: discord.ui.Select):
         """Private mod support callback"""
         perms = {
-            self.mod_role: PermissionOverwrite(
-                view_channel=False, send_messages=False, read_messages=False
-            ),
-            self.everyone: PermissionOverwrite(
-                view_channel=False, send_messages=False, read_messages=False
-            ),
-            interaction.user: PermissionOverwrite(
-                view_channel=True, send_messages=True, read_messages=True
-            ),
+            self.mod_role: PermissionOverwrite(view_channel=False, send_messages=False, read_messages=False),
+            self.everyone: PermissionOverwrite(view_channel=False, send_messages=False, read_messages=False),
+            interaction.user: PermissionOverwrite(view_channel=True, send_messages=True, read_messages=True),
         }
         for uid in select.values:
             perms.update(
-                {
-                    self.mods[uid]: PermissionOverwrite(
-                        view_channel=True, send_messages=True, read_messages=True
-                    )
-                }
+                {self.mods[uid]: PermissionOverwrite(view_channel=True, send_messages=True, read_messages=True)}
             )
         await interaction.response.send_modal(
-            ModSupportModal(
-                perms, f"{select.placeholder}-{interaction.user.name}-mod-support"
-            )
+            ModSupportModal(perms, f"{select.placeholder}-{interaction.user.name}-mod-support")
         )
 
 
@@ -320,9 +276,7 @@ class ModSupportModal(ui.Modal, title="Mod Support Form"):
 
     def __init__(
         self,
-        perm_overrides: dict[
-            discord.Role | discord.Member | discord.User, discord.PermissionOverwrite
-        ],
+        perm_overrides: dict[discord.Role | discord.Member | discord.User, discord.PermissionOverwrite],
         channel_name: str,
     ):
         super().__init__(title="Mod Support Form")
@@ -370,25 +324,18 @@ class ModSupportModal(ui.Modal, title="Mod Support Form"):
         )
         if self.full_description.value:
             await channel.send(self.full_description.value)
-        await interaction.response.send_message(
-            f"Channel Created: {channel.mention}", ephemeral=True
-        )
+        await interaction.response.send_message(f"Channel Created: {channel.mention}", ephemeral=True)
 
     async def on_error(self, error: Exception, interaction: Interaction) -> None:
         """Callback for when an error happens on a modal"""
         await interaction.response.send_message(
-            "Oh no! Something went wrong. Please ask for a mod's help in this "
-            "channel and let Bluesy know.",
+            "Oh no! Something went wrong. Please ask for a mod's help in this " "channel and let Bluesy know.",
             ephemeral=True,
         )
         print(f"Ignoring exception in modal {self}:", file=sys.stderr)
-        traceback.print_exception(
-            error.__class__, error, error.__traceback__, file=sys.stderr
-        )
+        traceback.print_exception(error.__class__, error, error.__traceback__, file=sys.stderr)
 
 
 async def setup(bot: CBot):
     """Loads Plugin"""
-    await bot.add_cog(
-        ModSupport(bot), override=True, guild=discord.Object(id=225345178955808768)
-    )
+    await bot.add_cog(ModSupport(bot), override=True, guild=discord.Object(id=225345178955808768))

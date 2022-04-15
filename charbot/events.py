@@ -64,24 +64,11 @@ class Events(Cog):
             if word in message.content.lower():
                 count_found += 1
                 used_words.add(word)
-        self.last_sensitive_logged.setdefault(
-            message.author.id, datetime.now() - timedelta(days=1)
-        )
-        if datetime.now() > (
-            self.last_sensitive_logged[message.author.id] + timedelta(minutes=5)
-        ) and (
-            (
-                count_found >= 2
-                and 25 <= (len(message.content) - len("".join(used_words))) < 50
-            )
-            or (
-                count_found > 2
-                and (len(message.content) - len("".join(used_words))) >= 50
-            )
-            or (
-                count_found >= 1
-                and (len(message.content) - len("".join(used_words))) < 25
-            )
+        self.last_sensitive_logged.setdefault(message.author.id, datetime.now() - timedelta(days=1))
+        if datetime.now() > (self.last_sensitive_logged[message.author.id] + timedelta(minutes=5)) and (
+            (count_found >= 2 and 25 <= (len(message.content) - len("".join(used_words))) < 50)
+            or (count_found > 2 and (len(message.content) - len("".join(used_words))) >= 50)
+            or (count_found >= 1 and (len(message.content) - len("".join(used_words))) < 25)
         ):
             webhook = await self.bot.fetch_webhook(fulldict["webhook_id"])
             bot_user = await self.bot.fetch_user(406885177281871902)
@@ -91,13 +78,10 @@ class Events(Cog):
                 color=Color.red(),
                 timestamp=datetime.now(tz=timezone.utc),
             )
-            embed.add_field(
-                name="Words Found:", value=", ".join(used_words)[0:1024], inline=True
-            )
+            embed.add_field(name="Words Found:", value=", ".join(used_words)[0:1024], inline=True)
             embed.add_field(
                 name="Author:",
-                value=f"{message.author.display_name}: "
-                f"{message.author.name}#{message.author.discriminator}",
+                value=f"{message.author.display_name}: " f"{message.author.name}#{message.author.discriminator}",
                 inline=True,
             )
             embed.add_field(
@@ -143,15 +127,11 @@ class Events(Cog):
                 channel = await self.bot.fetch_channel(906578081496584242)
                 await channel.send(  # type: ignore
                     message.author.mention,
-                    allowed_mentions=discord.AllowedMentions(
-                        everyone=False, roles=False, users=False
-                    ),
+                    allowed_mentions=discord.AllowedMentions(everyone=False, roles=False, users=False),
                 )
                 await channel.send(  # type: ignore
                     message.content,
-                    allowed_mentions=discord.AllowedMentions(
-                        everyone=False, roles=False, users=False
-                    ),
+                    allowed_mentions=discord.AllowedMentions(everyone=False, roles=False, users=False),
                 )
                 await message.channel.send(
                     "Hi! If this was an attempt to reach the mod team through modmail,"
@@ -170,10 +150,7 @@ class Events(Cog):
                     729368484211064944,
                 ]
                 for role in message.author.roles  # type: ignore
-            ) and any(
-                item in message.content
-                for item in [f"<@&{message.guild.id}>", "@everyone", "@here"]
-            ):
+            ) and any(item in message.content for item in [f"<@&{message.guild.id}>", "@everyone", "@here"]):
                 await message.author.add_roles(  # type: ignore
                     discord.Object(id=676250179929636886),
                     discord.Object(id=684936661745795088),
@@ -191,9 +168,7 @@ class Events(Cog):
                 await channel.send(embed=embed)  # type: ignore
             if message.author.bot or not message.content:
                 return
-            if re.search(
-                r"~~:.|:;~~", message.content, re.MULTILINE | re.IGNORECASE
-            ) or re.search(
+            if re.search(r"~~:.|:;~~", message.content, re.MULTILINE | re.IGNORECASE) or re.search(
                 r"tilde tilde colon dot vertical bar colon semicolon tilde tilde",
                 message.content,
                 re.MULTILINE | re.IGNORECASE,
@@ -243,9 +218,7 @@ class Events(Cog):
 
         elif isinstance(error, commands.NoPrivateMessage):
             try:
-                await ctx.author.send(
-                    f"{ctx.command} can not be used in Private Messages."
-                )
+                await ctx.author.send(f"{ctx.command} can not be used in Private Messages.")
             except discord.HTTPException:
                 pass
 
@@ -257,9 +230,7 @@ class Events(Cog):
             # All other Errors not returned come here.
             # And we can just print the default TraceBack.
             print(f"Ignoring exception in command {ctx.command}:", file=sys.stderr)
-            traceback.print_exception(
-                type(error), error, error.__traceback__, file=sys.stderr  # type: ignore
-            )
+            traceback.print_exception(type(error), error, error.__traceback__, file=sys.stderr)  # type: ignore
 
 
 async def setup(bot: CBot):
