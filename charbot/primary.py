@@ -22,7 +22,7 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 #  ----------------------------------------------------------------------------
-"""This is the primary module for charbot2."""
+"""Timeout and leave log."""
 import re
 from datetime import datetime, timedelta, timezone
 
