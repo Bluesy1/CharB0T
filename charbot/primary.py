@@ -111,19 +111,6 @@ class PrimaryFunctions(Cog):
             for role in ctx.author.roles  # type: ignore
         )
 
-    @commands.command()
-    async def ping(self, ctx):
-        """Ping command to check if the bot is alive
-
-        Parameters
-        ----------
-        self : PrimaryFunctions
-            The PrimaryFunctions object
-        ctx : Context
-            The context of the command
-        """
-        await ctx.send(f"Pong! Latency: {self.bot.latency * 1000:.2f}ms")
-
     @tasks.loop(seconds=30)
     async def log_untimeout(self) -> None:
         """Untimeout Report Task
