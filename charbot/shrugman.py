@@ -167,7 +167,7 @@ class GuessModal(ui.Modal, title="Shrugman Guess"):
             await message.edit(
                 content=f"{self.game.author.mention} is dead. \nThe word was {self.game.word}.\nYou guessed "
                 f"{self.game.guess_count} times.\nYou guessed {', '.join(self.game.guesses)}.\nYou had "
-                f"{self.game.mistakes} mistakes.\nYou failed with {self.game.fail_enum(self.game.mistakes).value}.\n"
+                f"{self.game.mistakes} mistakes.\nYou failed with {self.game.fail_enum(self.game.mistakes).name}.\n"
                 f"Your final guess was {self.guess.value.lower()}, and you ended with this much solved:"  # type: ignore
                 f" `{''.join(self.game.guess_word_list)}`",
                 view=self.game,
@@ -184,7 +184,7 @@ class GuessModal(ui.Modal, title="Shrugman Guess"):
             f" {'has won!' if '_' not in self.game.guess_word_list else'is still alive'}.\n "
             f"You guessed {self.guess.value.lower()}. \n Word length: {len(word)}\n "  # type: ignore
             f"You've guessed {', '.join(self.game.guesses)}.\nYou've had {self.game.mistakes} mistakes.\n "
-            f"Your shrugman is currently at {self.game.fail_enum(self.game.mistakes).value}.\nYour current "
+            f"Your shrugman is currently at {self.game.fail_enum(self.game.mistakes).name}.\nYour current "
             f"guess is `{''.join(self.game.guess_word_list)}`, with {self.game.guess_count} guesses so far.",
             view=self.game,
         )
