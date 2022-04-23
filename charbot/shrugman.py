@@ -32,7 +32,11 @@ from discord.ext import commands
 
 from main import CBot
 
-FailStates = Enum("FailStates", r"ツ ¯ ¯\\ ¯\\_ ¯\\_( ¯\\_(ツ ¯\\_(ツ) ¯\\_(ツ)_ ¯\\_(ツ)_/ ¯\\_(ツ)_/¯", start=0)
+FailStates = Enum(
+    "FailStates",
+    r"<:KHattip:896043110717608009> ¯ ¯\\\ ¯\\_ ¯\\_( ¯\\_(ツ ¯\\_(ツ) ¯\\_(ツ)_ ¯\\_(ツ)_/ ¯\\_(ツ)_/¯",
+    start=0,
+)
 
 with open("hangman_words.csv") as f:
     __words__ = [word.replace("\n", "") for word in f.readlines()]
@@ -80,9 +84,9 @@ class Shrugman(commands.Cog):
         if not any(338173415527677954 == role.id for role in ctx.author.roles):  # type: ignore
             return
         word = random.choice(__words__)
-
         await ctx.send(
-            f"Try it out! (`{''.join(['_' for _ in word if _ != ' '])}`)", view=ShrugmanGame(self.bot, ctx, word)
+            f"Try it out! (`{''.join(['_' for _ in word if _ != ' '])}` {len(word)} letters)",
+            view=ShrugmanGame(self.bot, ctx, word),
         )
 
 
@@ -98,6 +102,7 @@ class ShrugmanGame(ui.View):
         self.mistakes = 0
         self.dead = False
         self.guess_word_list = ["_" for _ in self.word if _ != " "]
+        self.length = len(word)
 
     @ui.button(label="Guess", style=discord.ButtonStyle.success)
     async def guess_button(self, interaction: discord.Interaction, button: ui.Button):
@@ -160,9 +165,9 @@ class GuessModal(ui.Modal, title="Shrugman Guess"):
             message = await interaction.original_message()
             await self.game.disable()
             await message.edit(
-                content=f"{self.game.author.mention} is dead.\nThe word was {self.game.word}.\nYou guessed "
+                content=f"{self.game.author.mention} is dead. \nThe word was {self.game.word}.\nYou guessed "
                 f"{self.game.guess_count} times.\nYou guessed {', '.join(self.game.guesses)}.\nYou had "
-                f"{self.game.mistakes} mistakes.\nYou failed with {self.game.fail_enum(self.game.mistakes)}.\n"
+                f"{self.game.mistakes} mistakes.\nYou failed with {self.game.fail_enum(self.game.mistakes).value}.\n"
                 f"Your final guess was {self.guess.value.lower()}, and you ended with this much solved:"  # type: ignore
                 f" `{''.join(self.game.guess_word_list)}`",
                 view=self.game,
@@ -172,12 +177,16 @@ class GuessModal(ui.Modal, title="Shrugman Guess"):
             if letter == self.guess.value.lower():  # type: ignore
                 self.game.guess_word_list[i] = letter
         message = await interaction.original_message()
+        if "_" not in self.game.guess_word_list:
+            await self.game.disable()
         await message.edit(
-            content=f"{self.game.author.mention} is still alive.\n "
-            f"You guessed {self.guess.value.lower()}. \n"  # type: ignore
+            content=f"{self.game.author.mention}"
+            f" {'has won!' if '_' not in self.game.guess_word_list else'is still alive'}.\n "
+            f"You guessed {self.guess.value.lower()}. \n Word length: {len(word)}\n "  # type: ignore
             f"You've guessed {', '.join(self.game.guesses)}.\nYou've had {self.game.mistakes} mistakes.\n "
-            f"Your shrugman is currently at {self.game.fail_enum(self.game.mistakes)}.\nYour current "
+            f"Your shrugman is currently at {self.game.fail_enum(self.game.mistakes).value}.\nYour current "
             f"guess is `{''.join(self.game.guess_word_list)}`, with {self.game.guess_count} guesses so far.",
+            view=self.game,
         )
 
 
