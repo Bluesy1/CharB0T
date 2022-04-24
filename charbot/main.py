@@ -39,7 +39,7 @@ class CBot(commands.Bot):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.executor: ThreadPoolExecutor = ...
+        self.executor: ThreadPoolExecutor = ...  # type: ignore
 
     async def setup_hook(self):
         """Setup hook for the bot.
