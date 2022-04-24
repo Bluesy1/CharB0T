@@ -163,14 +163,12 @@ class GuessModal(ui.Modal, title="Shrugman Guess"):
 
     # noinspection DuplicatedCode
     async def on_submit(self, interaction: discord.Interaction) -> None:
+        await interaction.response.defer(ephemeral=True)
         if self.guess.value.lower() not in __valid_guesses__:  # type: ignore
-            await interaction.response.send_message("Invalid guess.", ephmeral=True)  # type: ignore
+            await interaction.followup.send("Invalid guess.")
             return
         if self.guess.value.lower() in self.game.guesses:  # type: ignore
-            await interaction.response.send_message(
-                f"You already guessed {self.guess.value.lower()}.", ephmeral=True  # type: ignore
-            )
-            return
+            await interaction.followup.send(f"You already guessed {self.guess.value.lower()}.")  # type: ignore
         self.game.guesses.append(self.guess.value.lower())  # type: ignore
         self.game.guess_count += 1
         if self.guess.value.lower() not in self.game.word:  # type: ignore
@@ -190,7 +188,8 @@ class GuessModal(ui.Modal, title="Shrugman Guess"):
             embed.add_field(name="Mistakes", value=f"{self.game.mistakes}", inline=True)
             embed.add_field(name="Word", value=f"{self.game.word}", inline=True)
             embed.add_field(name="Guesses", value=f"{', '.join(self.game.guesses)}", inline=True)
-            await interaction.message.edit(embed=embed, view=self)
+            message = await interaction.original_message()
+            await message.edit(embed=embed, view=self)
             return
         for i, letter in enumerate(self.game.word):
             if letter == self.guess.value.lower():  # type: ignore
@@ -217,7 +216,8 @@ class GuessModal(ui.Modal, title="Shrugman Guess"):
             inline=True,
         )
         embed.add_field(name="Guesses", value=f"{', '.join(self.game.guesses)}", inline=True)
-        await interaction.message.edit(embed=embed, view=self)
+        message = await interaction.original_message()
+        await message.edit(embed=embed, view=self)
 
 
 async def setup(bot: CBot):
