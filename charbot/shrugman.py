@@ -164,7 +164,7 @@ class GuessModal(ui.Modal, title="Shrugman Guess"):
     # noinspection DuplicatedCode
     async def on_submit(self, interaction: discord.Interaction) -> None:
         if self.guess.value.lower() not in __valid_guesses__:  # type: ignore
-            await interaction.response.send_message("Invalid guess.", ephmeral=True)
+            await interaction.response.send_message("Invalid guess.", ephmeral=True)  # type: ignore
             return
         if self.guess.value.lower() in self.game.guesses:  # type: ignore
             await interaction.response.send_message(
@@ -213,7 +213,7 @@ class GuessModal(ui.Modal, title="Shrugman Guess"):
         embed.add_field(name="Mistakes", value=f"{self.game.mistakes}", inline=True)
         embed.add_field(
             name="Word",
-            value=f"{self.game.word if True or'-' not in self.game.guess_word_list else '???'}",
+            value=f"{self.game.word if '-' not in self.game.guess_word_list else '???'}",
             inline=True,
         )
         embed.add_field(name="Guesses", value=f"{', '.join(self.game.guesses)}", inline=True)
