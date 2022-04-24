@@ -163,12 +163,13 @@ class GuessModal(ui.Modal, title="Shrugman Guess"):
 
     # noinspection DuplicatedCode
     async def on_submit(self, interaction: discord.Interaction) -> None:
-        await interaction.response.defer(ephemeral=True)
         if self.guess.value.lower() not in __valid_guesses__:  # type: ignore
-            await interaction.followup.send("Invalid guess.")
+            await interaction.response.send_message("Invalid guess.", ephmeral=True)
             return
         if self.guess.value.lower() in self.game.guesses:  # type: ignore
-            await interaction.followup.send(f"You already guessed {self.guess.value.lower()}.")  # type: ignore
+            await interaction.response.send_message(
+                f"You already guessed {self.guess.value.lower()}.", ephmeral=True  # type: ignore
+            )
             return
         self.game.guesses.append(self.guess.value.lower())  # type: ignore
         self.game.guesses.sort()
@@ -177,7 +178,6 @@ class GuessModal(ui.Modal, title="Shrugman Guess"):
             self.game.mistakes += 1
         if self.game.mistakes >= len(self.game.fail_enum) - 1:
             self.game.dead = True
-            message = await interaction.original_message()
             await self.game.disable()
             embed = discord.Embed(
                 title="**Failed** Shrugman",
@@ -191,12 +191,11 @@ class GuessModal(ui.Modal, title="Shrugman Guess"):
             embed.add_field(name="Mistakes", value=f"{self.game.mistakes}", inline=True)
             embed.add_field(name="Word", value=f"{self.game.word}", inline=True)
             embed.add_field(name="Guesses", value=f"{', '.join(self.game.guesses)}", inline=True)
-            await message.edit(embed=embed, view=self.game)
+            await interaction.response.edit_message(embed=embed, view=self)
             return
         for i, letter in enumerate(self.game.word):
             if letter == self.guess.value.lower():  # type: ignore
                 self.game.guess_word_list[i] = letter
-        message = await interaction.original_message()
         if "-" not in self.game.guess_word_list:
             await self.game.disable()
         embed = discord.Embed(
@@ -219,7 +218,7 @@ class GuessModal(ui.Modal, title="Shrugman Guess"):
             inline=True,
         )
         embed.add_field(name="Guesses", value=f"{', '.join(self.game.guesses)}", inline=True)
-        await message.edit(embed=embed, view=self.game)
+        await interaction.response.edit_message(embed=embed, view=self)
 
 
 async def setup(bot: CBot):
