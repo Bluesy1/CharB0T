@@ -86,7 +86,7 @@ class Shrugman(commands.Cog):
         word = random.choice(__words__)
         embed = discord.Embed(
             title="Shrugman",
-            description=f"Guess the word: `{''.join(['-' for _ in word])}` {len(word)} letters",
+            description=f"Guess the word: `{''.join(['-' for _ in word])}`",
             color=discord.Color.dark_purple(),
         )
         embed.set_footer(text="Type !shrugman or !sm to play")
@@ -130,7 +130,7 @@ class ShrugmanGame(ui.View):
         await self.disable()
         embed = discord.Embed(
             title="**Cancelled** Shrugman",
-            description=f"Guess the word: `{''.join(self.guess_word_list)}` {self.length} letters",
+            description=f"Guess the word: `{''.join(self.guess_word_list)}`",
             color=discord.Color.dark_purple(),
         )
         embed.set_footer(text="Type !shrugman or !sm to play")
@@ -200,11 +200,11 @@ class GuessModal(ui.Modal, title="Shrugman Guess"):
         if "-" not in self.game.guess_word_list:
             await self.game.disable()
         embed = discord.Embed(
-            title=f"{f'**{self.game.author.display_name} Won!!!**' if '-' not in self.game.guess_word_list else ''}"
+            title=f"{f'**{self.game.author.display_name} Won!!!**  ' if '-' not in self.game.guess_word_list else ''}"
             f"Shrugman",
             description=f"{'Congrats!' if '-' not in self.game.guess_word_list else 'Guess the word:'}"
-            f" `{''.join(self.game.guess_word_list)}` {self.game.length} letters",
-            color=discord.Color.red(),
+            f" `{''.join(self.game.guess_word_list)}`",
+            color=discord.Color.green() if "-" not in self.game.guess_word_list else discord.Color.red(),
         )
         embed.set_footer(
             text=f"Type !shrugman or !sm to play {'again' if '-' not in self.game.guess_word_list else ''}"
