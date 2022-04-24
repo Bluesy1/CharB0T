@@ -172,7 +172,6 @@ class GuessModal(ui.Modal, title="Shrugman Guess"):
             )
             return
         self.game.guesses.append(self.guess.value.lower())  # type: ignore
-        self.game.guesses.sort()
         self.game.guess_count += 1
         if self.guess.value.lower() not in self.game.word:  # type: ignore
             self.game.mistakes += 1
