@@ -190,7 +190,7 @@ class GuessModal(ui.Modal, title="Shrugman Guess"):
             embed.add_field(name="Mistakes", value=f"{self.game.mistakes}", inline=True)
             embed.add_field(name="Word", value=f"{self.game.word}", inline=True)
             embed.add_field(name="Guesses", value=f"{', '.join(self.game.guesses)}", inline=True)
-            await interaction.edit_original_message(embed=embed, view=self)
+            await interaction.message.edit(embed=embed, view=self)
             return
         for i, letter in enumerate(self.game.word):
             if letter == self.guess.value.lower():  # type: ignore
@@ -217,7 +217,7 @@ class GuessModal(ui.Modal, title="Shrugman Guess"):
             inline=True,
         )
         embed.add_field(name="Guesses", value=f"{', '.join(self.game.guesses)}", inline=True)
-        await interaction.edit_original_message(embed=embed, view=self)
+        await interaction.message.edit(embed=embed, view=self)
 
 
 async def setup(bot: CBot):
