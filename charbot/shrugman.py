@@ -86,7 +86,7 @@ class Shrugman(commands.Cog):
         word = random.choice(__words__)
         embed = discord.Embed(
             title="Shrugman",
-            description=f"Guess the word: `{''.join(['_' for _ in word])}` {len(word)} letters",
+            description=f"Guess the word: `{''.join(['-' for _ in word])}` {len(word)} letters",
             color=discord.Color.dark_purple(),
         )
         embed.set_footer(text="Type !shrugman or !sm to play")
@@ -105,7 +105,7 @@ class ShrugmanGame(ui.View):
         self.guesses: list[str] = []
         self.mistakes = 0
         self.dead = False
-        self.guess_word_list = ["_" for _ in self.word]
+        self.guess_word_list = ["-" for _ in self.word]
         self.length = len(word)
 
     # noinspection PyUnusedLocal
@@ -197,17 +197,17 @@ class GuessModal(ui.Modal, title="Shrugman Guess"):
             if letter == self.guess.value.lower():  # type: ignore
                 self.game.guess_word_list[i] = letter
         message = await interaction.original_message()
-        if "_" not in self.game.guess_word_list:
+        if "-" not in self.game.guess_word_list:
             await self.game.disable()
         embed = discord.Embed(
-            title=f"{f'**{self.game.author.display_name} Won!!!**' if '_' not in self.game.guess_word_list else ''}"
+            title=f"{f'**{self.game.author.display_name} Won!!!**' if '-' not in self.game.guess_word_list else ''}"
             f"Shrugman",
-            description=f"{'Congrats!' if '_' not in self.game.guess_word_list else 'Guess the word:'}"
-            f" {''.join(self.game.guess_word_list)}` {self.game.length} letters",
+            description=f"{'Congrats!' if '-' not in self.game.guess_word_list else 'Guess the word:'}"
+            f" `{''.join(self.game.guess_word_list)}` {self.game.length} letters",
             color=discord.Color.red(),
         )
         embed.set_footer(
-            text=f"Type !shrugman or !sm to play {'again' if '_' not in self.game.guess_word_list else ''}"
+            text=f"Type !shrugman or !sm to play {'again' if '-' not in self.game.guess_word_list else ''}"
         )
         embed.set_author(name=self.game.author.display_name, icon_url=self.game.author.display_avatar.url)
         embed.add_field(name="Shrugman", value=self.game.fail_enum(self.game.mistakes).name, inline=True)
@@ -215,7 +215,7 @@ class GuessModal(ui.Modal, title="Shrugman Guess"):
         embed.add_field(name="Mistakes", value=f"{self.game.mistakes}", inline=True)
         embed.add_field(
             name="Word",
-            value=f"{self.game.word if True or'_' not in self.game.guess_word_list else '???'}",
+            value=f"{self.game.word if True or'-' not in self.game.guess_word_list else '???'}",
             inline=True,
         )
         embed.add_field(name="Guesses", value=f"{', '.join(self.game.guesses)}", inline=True)
