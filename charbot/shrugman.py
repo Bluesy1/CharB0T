@@ -139,7 +139,7 @@ class ShrugmanGame(ui.View):
         embed.add_field(name="Guesses", value=f"{self.guess_count}", inline=True)
         embed.add_field(name="Mistakes", value=f"{self.mistakes}", inline=True)
         embed.add_field(name="Word", value=f"{self.word}", inline=True)
-        embed.add_field(name="Guesses", value=f"{', '.join(self.guesses)}", inline=True)
+        embed.add_field(name="Guesses", value=f"{', '.join(self.guesses) or 'None'}", inline=True)
         await interaction.response.edit_message(embed=embed, view=self)
 
     async def disable(self):
@@ -213,7 +213,9 @@ class GuessModal(ui.Modal, title="Shrugman Guess"):
         embed.add_field(name="Shrugman", value=self.game.fail_enum(self.game.mistakes).name, inline=True)
         embed.add_field(name="Guesses", value=f"{self.game.guess_count}", inline=True)
         embed.add_field(name="Mistakes", value=f"{self.game.mistakes}", inline=True)
-        embed.add_field(name="Word", value=f"{self.game.word}", inline=True)
+        embed.add_field(
+            name="Word", value=f"{self.game.word if '_' not in self.game.guess_word_list else '???'}", inline=True
+        )
         embed.add_field(name="Guesses", value=f"{', '.join(self.game.guesses)}", inline=True)
         await message.edit(embed=embed, view=self.game)
 
