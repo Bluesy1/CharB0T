@@ -34,7 +34,7 @@ from main import CBot
 
 FailStates = Enum(
     "FailStates",
-    r"<:KHattip:896043110717608009> ¯ ¯\\\ ¯\\_ ¯\\_( ¯\\_(ツ ¯\\_(ツ) ¯\\_(ツ)_ ¯\\_(ツ)_/ ¯\\_(ツ)_/¯",
+    r"<:KHattip:896043110717608009> ¯ ¯\\ ¯\\_ ¯\\_( ¯\\_(ツ ¯\\_(ツ) ¯\\_(ツ)_ ¯\\_(ツ)_/ ¯\\_(ツ)_/¯",
     start=0,
 )
 
@@ -86,7 +86,7 @@ class Shrugman(commands.Cog):
         word = random.choice(__words__)
         embed = discord.Embed(
             title="Shrugman",
-            description=f"Guess the word: {''.join(['_' for _ in word])}` {len(word)} letters",
+            description=f"Guess the word: `{''.join(['_' for _ in word])}` {len(word)} letters",
             color=discord.Color.dark_purple(),
         )
         embed.set_footer(text="Type !shrugman or !sm to play")
@@ -130,7 +130,7 @@ class ShrugmanGame(ui.View):
         await self.disable()
         embed = discord.Embed(
             title="**Cancelled** Shrugman",
-            description=f"Guess the word: {''.join(self.guess_word_list)}` {self.length} letters",
+            description=f"Guess the word: `{''.join(self.guess_word_list)}` {self.length} letters",
             color=discord.Color.dark_purple(),
         )
         embed.set_footer(text="Type !shrugman or !sm to play")
@@ -181,7 +181,7 @@ class GuessModal(ui.Modal, title="Shrugman Guess"):
             await self.game.disable()
             embed = discord.Embed(
                 title="**Failed** Shrugman",
-                description=f"Guess the word: {''.join(self.game.guess_word_list)}` {self.game.length} letters",
+                description=f"You got: `{''.join(self.game.guess_word_list)}`",
                 color=discord.Color.red(),
             )
             embed.set_footer(text="Type !shrugman or !sm to play again")
@@ -214,7 +214,9 @@ class GuessModal(ui.Modal, title="Shrugman Guess"):
         embed.add_field(name="Guesses", value=f"{self.game.guess_count}", inline=True)
         embed.add_field(name="Mistakes", value=f"{self.game.mistakes}", inline=True)
         embed.add_field(
-            name="Word", value=f"{self.game.word if '_' not in self.game.guess_word_list else '???'}", inline=True
+            name="Word",
+            value=f"{self.game.word if True or'_' not in self.game.guess_word_list else '???'}",
+            inline=True,
         )
         embed.add_field(name="Guesses", value=f"{', '.join(self.game.guesses)}", inline=True)
         await message.edit(embed=embed, view=self.game)
