@@ -23,6 +23,7 @@
 # SOFTWARE.
 #  ----------------------------------------------------------------------------
 """Sudoko minigame."""
+import concurrent.futures
 import random
 from random import sample
 from itertools import islice
@@ -451,6 +452,7 @@ class SudokuGame(ui.View):
     def update_keypad(self):
         if self.level == "Puzzle":
             self.enable_keypad()
+            self.back.disabled = True
         elif self.level == "Block":
             self.disable_keypad()
             self.one.disabled = not self.block[0].editable  # type: ignore
@@ -462,7 +464,9 @@ class SudokuGame(ui.View):
             self.seven.disabled = not self.block[6].editable  # type: ignore
             self.eight.disabled = not self.block[7].editable  # type: ignore
             self.nine.disabled = not self.block[8].editable  # type: ignore
+            self.back.disabled = False
         elif self.level == "Cell":
+            self.back.disabled = False
             if self.cell.editable:  # type: ignore
                 self.enable_keypad()
             else:
@@ -477,13 +481,9 @@ class SudokuGame(ui.View):
             value="Use the keypad to choose a value",
             inline=True,
         )
-        embed.add_field(name="Block 1", value=f"```{self.block}```", inline=True)  # type: ignore
         embed.add_field(name="Disabled Buttons", value="Disabled buttons reference static cells", inline=True)
-        embed.add_field(name="Cell", value=f"```{self.cell}```", inline=True)  # type: ignore
-        embed.add_field(
-            name="Column", value=f"```{self.puzzle.column_of_cell(self.cell)}```", inline=True  # type: ignore
-        )
-        embed.add_field(name="Row", value=f"```{self.puzzle.row_of_cell(self.cell)}```", inline=True)  # type: ignore
+        embed.add_field(name="Cell", value=f"```{self.cell}```", inline=False)  # type: ignore
+        embed.add_field(name="Block 1", value=f"```{self.block}```", inline=False)  # type: ignore
         return embed
 
     def cell_choose_embed(self) -> discord.Embed:
@@ -495,12 +495,12 @@ class SudokuGame(ui.View):
             value="Use the keypad to choose a cell",
             inline=True,
         )
+        embed.add_field(name="Disabled Buttons", value="Disabled buttons reference static cells", inline=False)
         embed.add_field(
             name=f"Block {self.puzzle.block_index(self.block) + 1}",  # type: ignore
             value=f"```{self.block}```",  # type: ignore
-            inline=True,
+            inline=False,
         )
-        embed.add_field(name="Disabled Buttons", value="Disabled buttons reference static cells", inline=True)
         return embed
 
     def block_choose_embed(self) -> discord.Embed:
@@ -597,7 +597,7 @@ class SudokuGame(ui.View):
     async def placeholder_0(self, interaction: discord.Interaction, button: ui.Button):
         await interaction.response.send_message("This button is disabled", ephemeral=True)
 
-    @ui.button(label="Cancel", style=discord.ButtonStyle.red, row=1)
+    @ui.button(label="Stop", style=discord.ButtonStyle.red, row=1)
     async def cancel(self, interaction: discord.Interaction, button: ui.Button):
         solution = self.puzzle.solution
         embed = discord.Embed(
@@ -711,7 +711,8 @@ class Sudoku(commands.Cog):
             return
         if ctx.channel.id == 687817008355737606 and ctx.author.id != 363095569515806722:
             return
-        puzzle = Puzzle.new()
+        with concurrent.futures.ProcessPoolExecutor() as pool:
+            puzzle = await self.bot.loop.run_in_executor(pool, Puzzle.new)
         view = SudokuGame(puzzle, ctx.author)  # type: ignore
         await ctx.send(embed=view.block_choose_embed(), view=view)
 
