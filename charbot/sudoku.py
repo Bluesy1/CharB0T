@@ -275,8 +275,8 @@ class Puzzle:
 
         solution = deepcopy(board)
 
-        for line in board:
-            print(line)
+        """for line in board:
+            print(line)"""
 
         squares = side * side
         empties = squares * 3 // 4
@@ -284,8 +284,8 @@ class Puzzle:
             board[p // side][p % side] = 0
 
         num_size = len(str(side))
-        for line in board:
-            print("[" + "  ".join(f"{n or '.':{num_size}}" for n in line) + "]")
+        """for line in board:
+            print("[" + "  ".join(f"{n or '.':{num_size}}" for n in line) + "]")"""
 
         while True:
             solved = [*islice(cls.shortSudokuSolve(board), 2)]
@@ -635,7 +635,7 @@ class SudokuGame(ui.View):
 class Sudoku(commands.Cog):
     def __init__(self, bot: CBot):
         self.bot = bot
-        self.pool: concurrent.futures.ProcessPoolExecutor = concurrent.futures.ProcessPoolExecutor()
+        self.pool = lambda: concurrent.futures.ProcessPoolExecutor()
 
     @commands.command(name="sudoku", aliases=["sud"])
     async def sudoku(self, ctx: commands.Context):
@@ -650,7 +650,7 @@ class Sudoku(commands.Cog):
             return
         if ctx.channel.id == 687817008355737606 and ctx.author.id != 363095569515806722:
             return
-        with self.pool as pool:
+        with self.pool() as pool:
             puzzle = await self.bot.loop.run_in_executor(pool, Puzzle.new)
         view = SudokuGame(puzzle, ctx.author)  # type: ignore
         await ctx.send(embed=view.block_choose_embed(), view=view)
