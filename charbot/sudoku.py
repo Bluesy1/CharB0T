@@ -633,9 +633,9 @@ class SudokuGame(ui.View):
 
 
 class Sudoku(commands.Cog):
-    def __init__(self, bot: CBot, pool: concurrent.futures.ProcessPoolExecutor):
+    def __init__(self, bot: CBot):
         self.bot = bot
-        self.pool = pool
+        self.pool: concurrent.futures.ProcessPoolExecutor = concurrent.futures.ProcessPoolExecutor()
 
     @commands.command(name="sudoku", aliases=["sud"])
     async def sudoku(self, ctx: commands.Context):
@@ -650,11 +650,11 @@ class Sudoku(commands.Cog):
             return
         if ctx.channel.id == 687817008355737606 and ctx.author.id != 363095569515806722:
             return
-        puzzle = await self.bot.loop.run_in_executor(self.pool, Puzzle.new)
+        with self.pool as pool:
+            puzzle = await self.bot.loop.run_in_executor(pool, Puzzle.new)
         view = SudokuGame(puzzle, ctx.author)  # type: ignore
         await ctx.send(embed=view.block_choose_embed(), view=view)
 
 
 async def setup(bot):
-    with concurrent.futures.ProcessPoolExecutor() as pool:
-        await bot.add_cog(Sudoku(bot, pool))
+    await bot.add_cog(Sudoku(bot))
