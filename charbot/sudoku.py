@@ -426,6 +426,7 @@ class SudokuGame(ui.View):
             self.seven.disabled = not self.block[6].editable  # type: ignore
             self.eight.disabled = not self.block[7].editable  # type: ignore
             self.nine.disabled = not self.block[8].editable  # type: ignore
+            self.clear.disabled = False
             self.back.disabled = False
         elif self.level == "Cell":
             self.back.disabled = False
@@ -455,7 +456,7 @@ class SudokuGame(ui.View):
             value="Use the keypad to choose a cell",
             inline=True,
         )
-        embed.add_field(name="Disabled Buttons", value="Disabled buttons reference static cells", inline=False)
+        embed.add_field(name="Disabled Buttons", value="Disabled buttons reference static cells", inline=True)
         return embed
 
     def block_choose_embed(self) -> discord.Embed:
@@ -632,8 +633,9 @@ class SudokuGame(ui.View):
 
 
 class Sudoku(commands.Cog):
-    def __init__(self, bot: CBot):
+    def __init__(self, bot: CBot, pool: concurrent.futures.ProcessPoolExecutor):
         self.bot = bot
+        self.pool = pool
 
     @commands.command(name="sudoku", aliases=["sud"])
     async def sudoku(self, ctx: commands.Context):
@@ -648,11 +650,11 @@ class Sudoku(commands.Cog):
             return
         if ctx.channel.id == 687817008355737606 and ctx.author.id != 363095569515806722:
             return
-        with concurrent.futures.ProcessPoolExecutor() as pool:
-            puzzle = await self.bot.loop.run_in_executor(pool, Puzzle.new)
+        puzzle = await self.bot.loop.run_in_executor(self.pool, Puzzle.new)
         view = SudokuGame(puzzle, ctx.author)  # type: ignore
         await ctx.send(embed=view.block_choose_embed(), view=view)
 
 
 async def setup(bot):
-    await bot.add_cog(Sudoku(bot))
+    with concurrent.futures.ProcessPoolExecutor() as pool:
+        await bot.add_cog(Sudoku(bot, pool))
