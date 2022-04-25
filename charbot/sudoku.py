@@ -486,7 +486,7 @@ class Puzzle:
             if cell in column:
                 column_index = i
                 break
-        if row_index == -1 or column_index == -1:
+        if -1 in (row_index, column_index):
             raise ValueError("Cell not found in puzzle")
         return f"row {row_index + 1}, column {column_index + 1}"
 
