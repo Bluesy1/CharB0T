@@ -166,7 +166,7 @@ class Row:
 
     @property
     def solved(self):
-        return all(cell.value != 0 for cell in self.cells) and len(set(cell.value for cell in self.cells)) == 9
+        return all(cell.value != 0 for cell in self.cells) and len({cell.value for cell in self.cells}) == 9
 
     def clear(self):
         for cell in self.cells:
@@ -215,7 +215,7 @@ class Column:
 
     @property
     def solved(self):
-        return all(cell.value != 0 for cell in self.cells) and len(set(cell.value for cell in self.cells)) == 9
+        return all(cell.value != 0 for cell in self.cells) and len({cell.value for cell in self.cells}) == 9
 
     def clear(self):
         for cell in self.cells:
@@ -266,7 +266,7 @@ class Block:
 
     @property
     def solved(self):
-        return all(cell.value != 0 for cell in self.cells) and len(set(cell.value for cell in self.cells)) == 9
+        return all(cell.value != 0 for cell in self.cells) and len({cell.value for cell in self.cells}) == 9
 
     def clear(self):
         for cell in self.cells:
