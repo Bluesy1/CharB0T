@@ -717,4 +717,4 @@ class Sudoku(commands.Cog):
 
 
 async def setup(bot):
-    bot.add_cog(Sudoku(bot))
+    await bot.add_cog(Sudoku(bot))
