@@ -101,13 +101,6 @@ class Row:
     def cells(self):
         return self._cells
 
-    def __str__(self):
-        _c = [cell.value for cell in self.cells]
-        return f"""╔═══╤═══╤═══╦═══╤═══╤═══╦═══╤═══╤═══╗
-        ║ {_c[0]} ║ {_c[1]} ║ {_c[2]} ║ {_c[3]} ║ {_c[4]} ║ {_c[5]} ║ {_c[6]} ║ {_c[7]} ║ {_c[8]} ║
-        ╚═══╧═══╧═══╩═══╧═══╧═══╩═══╧═══╧═══╝
-        """
-
     def __repr__(self):
         return f"<Row cells={self.cells}>"
 
@@ -131,28 +124,6 @@ class Column:
     @property
     def cells(self):
         return self._cells
-
-    def __str__(self):
-        return f"""╔═══╗
-        ║ {self.cells[0].value} ║
-        ╟───╢
-        ║ {self.cells[1].value} ║
-        ╟───╢
-        ║ {self.cells[2].value} ║
-        ╟───╢
-        ║ {self.cells[3].value} ║
-        ╟───╢
-        ║ {self.cells[4].value} ║
-        ╟───╢
-        ║ {self.cells[5].value} ║
-        ╟───╢
-        ║ {self.cells[6].value} ║
-        ╟───╢
-        ║ {self.cells[7].value} ║
-        ╟───╢
-        ║ {self.cells[8].value} ║
-        ╚═══╝
-        """
 
     def __repr__(self):
         return f"<Column cells={self.cells}>"
@@ -181,14 +152,11 @@ class Block:
         return self._row1 + self._row2 + self._row3
 
     def __str__(self):
-        return f"""╔═══╤═══╤═══╗
-        ║ {self._row1[0]} │ {self._row1[1]} │ {self._row1[2]} ║
-        ╟───┼───┼───╢
-        ║ {self._row2[0]} │ {self._row2[1]} │ {self._row2[2]} ║
-        ╟───┼───┼───╢
-        ║ {self._row3[0]} │ {self._row3[1]} │ {self._row3[2]} ║
-        ╚═══╧═══╧═══╝
-        """
+        return (
+            f"╔═══╤═══╤═══╗\n║ {self._row1[0]} │ {self._row1[1]} │ {self._row1[2]} ║\n╟───┼───┼───╢\n║ "
+            f"{self._row2[0]} │ {self._row2[1]} │ {self._row2[2]} ║\n╟───┼───┼───╢\n║ {self._row3[0]} │ {self._row3[1]}"
+            f" │ {self._row3[2]} ║\n╚═══╧═══╧═══╝"
+        )
 
     def __getitem__(self, item):
         return self.cells[item]
@@ -453,6 +421,7 @@ class SudokuGame(ui.View):
         if self.level == "Puzzle":
             self.enable_keypad()
             self.back.disabled = True
+            self.enable_keypad()
         elif self.level == "Block":
             self.disable_keypad()
             self.one.disabled = not self.block[0].editable  # type: ignore
