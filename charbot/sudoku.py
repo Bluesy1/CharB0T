@@ -382,7 +382,7 @@ class Puzzle:
             solution = next(_solutions, None)
             if solution is None:
                 raise AttributeError("No solution found.")
-        return self.__class__(solution)
+        return Puzzle(solution)
 
     @classmethod
     def from_rows(cls, rows: list[Row]):
@@ -436,10 +436,10 @@ class Puzzle:
         return cls(board)
 
     @staticmethod
-    def shortSudokuSolve(board: list[list[int]]):
-        size = len(board)
+    def shortSudokuSolve(_board: list[list[int]]):
+        size = len(_board)
         block = int(size**0.5)
-        board = [n for row in board for n in row]
+        board = [n for row in _board for n in row]
         span = {
             (n, k): {
                 (g, n)
@@ -450,13 +450,13 @@ class Puzzle:
             for n in range(size + 1)
         }
         _empties = [i for i, n in enumerate(board) if n == 0]
-        used = set().union(*(span[n, _p] for _p, n in enumerate(board) if n))
+        used = set().union(*(span[n, _p] for _p, n in enumerate(board) if n))  # type: ignore
         empty = 0
         while 0 <= empty < len(_empties):
             pos = _empties[empty]
-            used -= span[board[pos], pos]
-            board[pos] = next((n for n in range(board[pos] + 1, size + 1) if not span[n, pos] & used), 0)
-            used |= span[board[pos], pos]
+            used -= span[board[pos], pos]  # type: ignore
+            board[pos] = next((n for n in range(board[pos] + 1, size + 1) if not span[n, pos] & used), 0)  # type: ignore
+            used |= span[board[pos], pos]  # type: ignore
             empty += 1 if board[pos] else -1
             if empty == len(_empties):
                 _solution = [board[r : r + size] for r in range(0, size * size, size)]
