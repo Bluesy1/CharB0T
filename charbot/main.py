@@ -62,7 +62,7 @@ class CBot(commands.Bot):
         await self.load_extension("primary")
         await self.load_extension("query")
         await self.load_extension("shrugman")
-        await self.load_extension("stocks")
+        await self.load_extension("sudoku")
         print("Extensions loaded")
         print(f"Logged in: {self.user.name}#{self.user.discriminator}")  # type: ignore
 
