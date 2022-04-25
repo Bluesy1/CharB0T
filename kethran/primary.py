@@ -22,7 +22,7 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 #  ----------------------------------------------------------------------------
-"""This module contains the primary functions for the Kethran Bot."""
+"""Primary functions for the Kethran Bot."""
 import datetime
 import random
 import sys
@@ -34,15 +34,28 @@ from discord.ext.commands import Cog
 from discord.utils import utcnow
 
 sys.path.append("..")
-from helpers import roller  # skipcq: FLK-E402
+from helpers import roller  # skipcq: FLK-E402  # noqa: E402
 
 
 class Primary(Cog):
-    """Kethran's Primary Functions
+    """Kethran's Primary Functions.
+
     This is the primary functions that Kethran uses.
     It has the following functions:
     - Dice Roller
     - Automated message every friday at 5:00pm Pacific Time
+
+    Parameters
+    ----------
+    bot: commands.Bot
+        The bot that the cog is attached to
+
+    Attributes
+    ----------
+    bot: commands.Bot
+        The bot that the cog is attached to
+    responses: list[str]
+        A list of responses that Kethran uses
     """
 
     def __init__(self, bot: commands.Bot):
@@ -151,7 +164,7 @@ class Primary(Cog):
         ]
 
     async def cog_load(self) -> None:
-        """Starts the automated message every friday at 5:00pm Pacific Time
+        """Start the automated message every friday at 5:00pm Pacific Time.
 
         Parameters
         ----------
@@ -162,7 +175,7 @@ class Primary(Cog):
         # self.friday_5.start()
 
     async def cog_unload(self) -> None:  # skipcq: PYL-W0236
-        """Cancels the automated message every friday at 5:00pm Pacific Time
+        """Cancel the automated message every friday at 5:00pm Pacific Time.
 
         Parameters
         ----------
@@ -182,7 +195,7 @@ class Primary(Cog):
         )
     )
     async def friday_5(self) -> None:
-        """Automated message every friday at 5:00pm Pacific Time
+        """Automated message every friday at 5:00pm Pacific Time.
 
         Parameters
         ----------
@@ -195,8 +208,9 @@ class Primary(Cog):
 
     @Cog.listener()
     async def on_message(self, message: discord.Message):
-        """Checks for the word kethran being in a message and
-        responds with a random response if in the correct channels.
+        """Check for the word kethran being in a message and respond accordingly.
+
+        Responds with a random response if in the correct channels.
         If the message is a dm and from a specific user
         the bot will forward the message to a specific channel.
 
@@ -235,7 +249,7 @@ class Primary(Cog):
 
 
 async def setup(bot: commands.Bot):
-    """Loads the Primary cog into the bot
+    """Load the Primary cog into the bot.
 
     Parameters
     ----------

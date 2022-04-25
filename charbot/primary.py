@@ -34,7 +34,7 @@ from discord.utils import utcnow
 
 
 async def time_string_from_seconds(delta: float) -> str:
-    """Convert seconds to a string
+    """Convert seconds to a string.
 
     Parameters
     ----------
@@ -49,7 +49,22 @@ async def time_string_from_seconds(delta: float) -> str:
 
 
 class PrimaryFunctions(Cog):
-    """Primary CharBot2 class"""
+    """Primary CharBot2 class.
+
+    Parameters
+    ----------
+    bot : commands.Bot
+        The bot object
+
+    Attributes
+    ----------
+    bot : commands.Bot
+        The bot object
+    timeouts : dict[int, datetime]
+        A dictionary of user id's and their timeouts, utcaware and timezone aware
+    members : dict[int, datetime]
+        A dictionary of user id's and their join datetime, utcaware and timezone aware
+    """
 
     def __init__(self, bot: commands.Bot):
         self.bot = bot
@@ -57,7 +72,7 @@ class PrimaryFunctions(Cog):
         self.members: dict[int, datetime] = {}
 
     async def cog_load(self) -> None:
-        """Cog load function
+        """Cog load function.
 
         This is called when the cog is loaded, and initializes the
         log_untimeout task and the members cache
@@ -73,7 +88,7 @@ class PrimaryFunctions(Cog):
         self.members.update({user.id: user.joined_at async for user in generator})  # type: ignore
 
     async def cog_unload(self) -> None:  # skipcq: PYL-W0236
-        """Called when cog is unloaded
+        """Call when cog is unloaded.
 
         This stops the log_untimeout task
 
@@ -85,7 +100,7 @@ class PrimaryFunctions(Cog):
         self.log_untimeout.cancel()
 
     def cog_check(self, ctx: Context) -> bool:
-        """Check to run for all cog commands
+        """Check to run for all cog commands.
 
         This checks if the runner is a moderator
 
@@ -111,9 +126,10 @@ class PrimaryFunctions(Cog):
             for role in ctx.author.roles  # type: ignore
         )
 
+    # noinspection DuplicatedCode
     @tasks.loop(seconds=30)
     async def log_untimeout(self) -> None:
-        """Untimeout Report Task
+        """Untimeout Report Task.
 
         This task runs every 30 seconds and checks if any users that have been timed out have had their timeouts
         expired. If they have, it will send a message to the mod channel.
@@ -143,7 +159,7 @@ class PrimaryFunctions(Cog):
 
     @Cog.listener()
     async def on_member_join(self, member: discord.Member) -> None:
-        """Processes when a member joins the server and adds them to the members cache
+        """Process when a member joins the server and adds them to the members cache.
 
         Parameters
         ----------
@@ -157,7 +173,8 @@ class PrimaryFunctions(Cog):
 
     @Cog.listener()
     async def on_message(self, message: discord.Message) -> None:
-        """Handles when a message is sent
+        """Handle when a message is sent.
+
         If the message is a dm, it redirects them to the mod support page
         If the message is a ping in the #goodbye channel, it deletes the message and
         sends a message to that channel with the goodbye message
@@ -206,11 +223,11 @@ class PrimaryFunctions(Cog):
                 )
                 await message.delete()
 
-    # noinspection PyBroadException
+    # noinspection PyBroadException,DuplicatedCode
     @Cog.listener()
     async def on_member_update(self, before: discord.Member, after: discord.Member):
-        """
-        Processes when a member is timed out or untimed out
+        """Process when a member is timed out or untimed out.
+
         If the member is timed out, it adds them to the timeouts cache
         If the member is untimed out, it removes them from the timeouts cache
         In both cases, it logs the action to the mod log
@@ -242,7 +259,7 @@ class PrimaryFunctions(Cog):
                 await self.parse_timeout(after)
 
     async def parse_timeout(self, after: discord.Member):
-        """Parse the timeout and logs it to the mod log
+        """Parse the timeout and logs it to the mod log.
 
         Parameters
         ----------
@@ -273,7 +290,7 @@ class PrimaryFunctions(Cog):
 
 
 async def setup(bot: commands.Bot):
-    """Sets up the cog
+    """Set up the cog.
 
     Parameters
     ----------

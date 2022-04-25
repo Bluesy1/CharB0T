@@ -38,7 +38,22 @@ from main import CBot
 
 
 class Events(Cog):
-    """Events Cog"""
+    """Event Cog.
+
+    This cog handles all events that occur in the server.
+
+    Parameters
+    ----------
+    bot : CBot
+        The bot instance.
+
+    Attributes
+    ----------
+    bot : CBot
+        The bot instance.
+    last_sensitive_logged : dict
+        A dictionary of the last time sensitive messages were logged.
+    """
 
     def __init__(self, bot: CBot):
         self.bot = bot
@@ -107,7 +122,7 @@ class Events(Cog):
 
     @Cog.listener()
     async def on_message(self, message: discord.Message) -> None:
-        """Listens for messages sent that the bot can see
+        """Listen for messages sent that the bot can see.
 
         If the message is sent by a non-mod user, it will check for an unallowed ping
         and will delete the message if it is found, and log it.
@@ -177,9 +192,10 @@ class Events(Cog):
 
     @Cog.listener()
     async def on_command_error(self, ctx, error):
-        """The event triggered when an error is raised while invoking a command.
+        """Trigger when an error is raised while invoking a command.
+
         Parameters
-        ------------
+        ----------
         self : Events
             The Events cog.
         ctx: commands.Context
@@ -234,9 +250,10 @@ class Events(Cog):
 
 
 async def setup(bot: CBot):
-    """Loads the event handler for the bot.
+    """Load the event handler for the bot.
+
     Parameters
-    ------------
+    ----------
     bot : CBot
         The bot to load the event handler for.
     """

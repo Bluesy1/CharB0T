@@ -455,11 +455,15 @@ class Puzzle:
         while 0 <= empty < len(_empties):
             pos = _empties[empty]
             used -= span[board[pos], pos]  # type: ignore
-            board[pos] = next((n for n in range(board[pos] + 1, size + 1) if not span[n, pos] & used), 0)  # type: ignore
+            board[pos] = next(  # type: ignore
+                (n for n in range(board[pos] + 1, size + 1) if not span[n, pos] & used), 0  # type: ignore
+            )
             used |= span[board[pos], pos]  # type: ignore
             empty += 1 if board[pos] else -1
             if empty == len(_empties):
-                _solution = [board[r : r + size] for r in range(0, size * size, size)]
+                # fmt: off
+                _solution = [board[r:r + size] for r in range(0, size * size, size)]
+                # fmt: on
                 yield _solution
                 empty -= 1
 
@@ -807,7 +811,7 @@ class Sudoku(commands.Cog):
 
     @commands.command(name="sudoku", aliases=["sud"])
     async def sudoku(self, ctx: commands.Context):
-        """Generates a sudoku puzzle.
+        """Generate a sudoku puzzle.
 
         Parameters
         ----------

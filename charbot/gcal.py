@@ -46,7 +46,7 @@ time_format = "%H:%M %x %Z"
 
 
 def getUrl(mintime: datetime, maxtime: datetime):
-    """Creates an url for the Google calendar API query.
+    """Create an url for the Google calendar API query.
 
     Parameters
     ----------
@@ -69,7 +69,7 @@ def getUrl(mintime: datetime, maxtime: datetime):
 
 
 def half_hour_intervals():
-    """Generates a list of half-hour intervals.
+    """Generate a list of half-hour intervals.
 
     Yields
     ------
@@ -82,7 +82,7 @@ def half_hour_intervals():
 
 
 def ceil_dt(dt: datetime, delta: timedelta) -> datetime:
-    """Rounds a datetime up to the nearest x minutes
+    """Round a datetime up to the nearest x minutes.
 
     Parameters
     ----------
@@ -100,7 +100,7 @@ def ceil_dt(dt: datetime, delta: timedelta) -> datetime:
 
 
 def default_field(dictionary: dict[int, dict[str, str | bool]], add_time: datetime, item: dict) -> None:
-    """Adds the default dict field for a specific time.
+    """Add the default dict field for a specific time.
 
     Parameters
     ----------
@@ -166,11 +166,11 @@ class Calendar(commands.Cog):
         self.calendar.change_interval(time=list(half_hour_intervals()))
 
     async def cog_unload(self) -> None:  # skipcq: PYL-W0236
-        """Function called on unload."""
+        """Unload hook."""
         self.calendar.cancel()
 
     async def cog_load(self) -> None:
-        """Function called on load."""
+        """Load hook."""
         webhook_id = int(os.getenv("WEBHOOK_ID"))  # type: ignore
         self.webhook = await self.bot.fetch_webhook(webhook_id)
         self.calendar.start()
@@ -280,7 +280,7 @@ class Calendar(commands.Cog):
 
 
 async def setup(bot: commands.Bot):
-    """Loads the cog to the bot.
+    """Load the cog to the bot.
 
     Parameters
     ----------

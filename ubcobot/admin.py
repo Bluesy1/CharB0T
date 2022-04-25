@@ -22,7 +22,7 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 #  ----------------------------------------------------------------------------
-"""This module contains the admin commands for the bot."""
+"""Admin commands for the bot."""
 import json
 from datetime import datetime, timezone
 
@@ -33,18 +33,29 @@ from discord.ext.commands import Cog, Context
 
 
 class Admin(Cog):
-    """Admin Cog"""
+    """Admin Cog.
+
+    This cog contains commands for managing the bot.
+
+    Parameters
+    ----------
+    bot : commands.Bot
+        The bot instance to bind to the cog.
+
+    Attributes
+    ----------
+    bot : commands.Bot
+        The bot instance using the cog.
+    """
 
     def __init__(self, bot: commands.Bot):
         self.bot = bot
 
     def cog_check(self, ctx: Context) -> bool:
-        """Check if the user has the admin role
+        """Check if the user has the admin role.
 
         Parameters
         ----------
-        self : Admin
-            The Admin cog
         ctx : Context
             The context of the command
 
@@ -67,12 +78,10 @@ class Admin(Cog):
 
     @commands.command()
     async def ping(self, ctx: Context):
-        """Ping command - pong!
+        """Ping command - pong!.
 
         Parameters
         ----------
-        self : Admin
-            The Admin cog
         ctx : Context
             The context of the command
         """
@@ -80,12 +89,10 @@ class Admin(Cog):
 
     @commands.Group
     async def slur(self, ctx: Context):
-        """Slur command group
+        """Slur command group.
 
         Parameters
         ----------
-        self : Admin
-            The Admin cog
         ctx : Context
             The context of the command
         """
@@ -97,12 +104,10 @@ class Admin(Cog):
 
     @slur.command()
     async def add(self, ctx: Context, *, word: str):
-        """Adds a word to the slur list
+        """Add a word to the slur list.
 
         Parameters
         ----------
-        self : Admin
-            The Admin cog
         ctx : Context
             The context of the command
         word : str
@@ -137,12 +142,10 @@ class Admin(Cog):
 
     @slur.command()
     async def remove(self, ctx: Context, *, word: str):
-        """Removes a word from the slur list
+        """Remove a word from the slur list.
 
         Parameters
         ----------
-        self : Admin
-            The Admin cog
         ctx : Context
             The context of the command
         word : str
@@ -177,12 +180,10 @@ class Admin(Cog):
 
     @slur.command()
     async def query(self, ctx: Context):
-        """Queries the slur list
+        """Query the slur list.
 
         Parameters
         ----------
-        self : Admin
-            The Admin cog
         ctx : Context
             The context of the command
         """
@@ -202,12 +203,10 @@ class Admin(Cog):
 
     @Cog.listener()
     async def on_message(self, message: discord.Message):
-        """Checks messages to see if they contain any words in the slur list
+        """Check messages to see if they contain any words in the slur list.
 
         Parameters
         ----------
-        self : Admin
-            The Admin cog
         message : discord.Message
             The message to check
         """
@@ -249,7 +248,7 @@ class Admin(Cog):
 
 
 async def setup(bot: commands.Bot):
-    """Sets up the Admin cog
+    """Initialize up the Admin cog.
 
     Parameters
     ----------

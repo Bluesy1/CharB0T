@@ -22,12 +22,12 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 #  ----------------------------------------------------------------------------
-"""Roller Module"""
+"""Roller Module."""
 import random
 
 
 def roll(arg: str) -> str:
-    """Dice roller
+    """Dice roller.
 
     Parameters
     ----------
@@ -55,7 +55,9 @@ def roll(arg: str) -> str:
                     num_rolls = 1
                 i = 1
                 while i <= num_rolls:
-                    roll1 = random.randint(1, int(die[die.find("d") + 1 :]))
+                    # fmt: off
+                    roll1 = random.randint(1, int(die[die.find("d") + 1:]))
+                    # fmt: on
                     rolls.append(roll1)
                     sums += roll1
                     i += 1

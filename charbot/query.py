@@ -22,6 +22,7 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 #  ----------------------------------------------------------------------------
+"""Query extension."""
 import os
 import time
 
@@ -38,14 +39,36 @@ __source__ = (
 
 
 class Query(Cog):
-    """Query cog"""
+    """Query cog.
+
+    Parameters
+    ----------
+    bot : Bot
+        The bot object to bind the cog to.
+
+    Attributes
+    ----------
+    bot : Bot
+        The bot object the cog is attached to.
+    """
 
     # noinspection PyUnresolvedReferences
     def __init__(self, bot: commands.Bot):
         self.bot = bot
 
     def cog_check(self, ctx: Context) -> bool:
-        """Check to run for all cog commands"""
+        """Check to run for all cog commands.
+
+        Parameters
+        ----------
+        ctx : Context
+            The context of the command.
+
+        Returns
+        -------
+        bool
+            True if the user has the required permissions to use the cog.
+        """
         if ctx.guild is None:
             return False
         return not any(
@@ -57,7 +80,13 @@ class Query(Cog):
 
     @commands.command()
     async def time(self, ctx: Context):
-        """Returns eastern time"""
+        """Return eastern time.
+
+        Parameters
+        ----------
+        ctx : Context
+            The context of the command.
+        """
         os.environ["TZ"] = "US/Eastern"
         time.tzset()
         await ctx.send("Charlie's time is: " + time.strftime("%X %x %Z"), reference=ctx.message)
@@ -65,7 +94,7 @@ class Query(Cog):
     @commands.hybrid_command(name="source", description="Info about the source code")
     @app_commands.guilds(225345178955808768)
     async def source(self, ctx: Context):
-        """Returns a reference to the source code for the bot and its liscense
+        """Return a reference to the source code for the bot and its liscense.
 
         References
         ----------
@@ -85,10 +114,22 @@ class Query(Cog):
     @commands.hybrid_command(name="imgscam", description="Info about the semi fake image scam on discord")
     @app_commands.guilds(225345178955808768)
     async def imgscam(self, ctx: Context):
-        """Sends the image scam info url"""
+        """Send the image scam info url.
+
+        Parameters
+        ----------
+        ctx: discord.ext.commands.Context
+            The context of the command
+        """
         await ctx.reply("https://blog.hyperphish.com/articles/001-loading/")
 
 
 async def setup(bot: commands.Bot):
-    """Loads Plugin"""
+    """Load Plugin.
+
+    Parameters
+    ----------
+    bot : commands.Bot
+        The bot object to bind the cog to.
+    """
     await bot.add_cog(Query(bot), override=True, guild=discord.Object(id=225345178955808768))

@@ -33,10 +33,10 @@ from dotenv import load_dotenv
 
 
 class Kethran(commands.Bot):
-    """Custom bot class. extends discord.ext.commands.Bot"""
+    """Custom bot class. extends discord.ext.commands.Bot."""
 
     async def setup_hook(self):
-        """Loads all the extensions and tells us the name and discriminator of the bot"""
+        """Load all the extensions and tells us the name and discriminator of the bot."""
         print("Setup started")
         await self.load_extension("jishaku")
         await self.load_extension("primary")
@@ -46,7 +46,8 @@ class Kethran(commands.Bot):
 
 # noinspection PyBroadException
 def main():
-    """Main Function for Kethran.
+    """Run Kethran.
+
     This function instantiates the bot and runs it.
     """
     if os.name != "nt":

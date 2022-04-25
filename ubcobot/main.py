@@ -22,7 +22,7 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 #  ----------------------------------------------------------------------------
-"""This is the main file for the ubcobot."""
+"""Run the ubcobot."""
 import logging
 import os
 from logging.handlers import RotatingFileHandler
@@ -33,18 +33,13 @@ from dotenv import load_dotenv
 
 
 class UBCOBot(commands.Bot):
-    """Custom bot class. extends discord.ext.commands.Bot"""
+    """Custom bot class. extends discord.ext.commands.Bot."""
 
     async def setup_hook(self):
-        """Setup hook for bot.
+        """Initialize hook for bot.
 
         This is called before the bot is ready.
         It supplies a space for async code to be run before the bot is ready.
-
-        Parameters
-        ----------
-        self : UBCOBot
-            The bot object.
         """
         print("Setup started")
         await self.load_extension("jishaku")
@@ -55,7 +50,7 @@ class UBCOBot(commands.Bot):
 
 # noinspection PyBroadException
 def main():
-    """Main function"""
+    """Run the bot."""
     if os.name != "nt":
         import uvloop
 

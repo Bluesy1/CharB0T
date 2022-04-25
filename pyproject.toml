@@ -10,8 +10,8 @@ line-length = 120
 target-version = ['py310']
 
 [tool.bandit]
-skips = ["B101"]
+skips = ["B101", "B311"]
 
 [tool.pydocstyle]
 convention = "numpy"
-match = '(?!test_)(?!tests).*\.py'
+match = '(?!backup/)(?!test)(?!test_)(?!tests).*\.py'

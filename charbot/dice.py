@@ -29,11 +29,11 @@ from discord.ext import commands
 from discord.ext.commands import Cog, Context
 
 sys.path.append("..")
-from helpers.roller import roll as aroll  # skipcq: FLK-E402
+from helpers import roller  # skipcq: FLK-E402  # noqa: E402
 
 
 class Roll(Cog):
-    """Roll cog
+    """Roll cog.
 
     Parameters
     ----------
@@ -58,7 +58,7 @@ class Roll(Cog):
         self.bot = bot
 
     def cog_check(self, ctx: Context) -> bool:
-        """Check to run for all cog commands
+        """Check to run for all cog commands.
 
         Parameters
         ----------
@@ -74,7 +74,7 @@ class Roll(Cog):
 
     @commands.command()
     async def roll(self, ctx: Context, *, dice: str):
-        """Dice roller
+        """Dice roller.
 
         Parameters
         ----------
@@ -83,11 +83,11 @@ class Roll(Cog):
         dice : str
             The dice to roll.
         """
-        await ctx.reply(f"{ctx.author.mention} {aroll(dice)}", mention_author=True)
+        await ctx.reply(f"{ctx.author.mention} {roller.roll(dice)}", mention_author=True)
 
 
 async def setup(bot: commands.Bot):
-    """Loads Roll cog
+    """Load Roll cog.
 
     Parameters
     ----------

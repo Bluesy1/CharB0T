@@ -22,7 +22,7 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 #  ----------------------------------------------------------------------------
-"""This is the main file of the charbot bot."""
+"""Charbot discord bot."""
 import logging
 import os
 from concurrent.futures import ThreadPoolExecutor, ProcessPoolExecutor
@@ -35,7 +35,19 @@ from dotenv import load_dotenv
 
 
 class CBot(commands.Bot):
-    """Custom bot class. extends discord.ext.commands.Bot"""
+    """Custom bot class. extends discord.ext.commands.Bot.
+
+    This class is used to create the bot instance.
+
+    Attributes
+    ----------
+    executor : ThreadPoolExecutor
+        The executor used to run IO tasks in the background, must be set after opening bot in an async manager,
+         before connecting to the websocket.
+    process_pool : ProcessPoolExecutor
+        The executor used to run CPU tasks in the background, must be set after opening bot in an async manager,
+         before connecting to the websocket.
+    """
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -43,7 +55,8 @@ class CBot(commands.Bot):
         self.process_pool: ProcessPoolExecutor = ...  # type: ignore
 
     async def setup_hook(self):
-        """Setup hook for the bot.
+        """Initialize hook for the bot.
+
         This is called when the bot is logged in but before connecting to the websocket.
         It provides an opportunity to perform some initialisation before the websocket is connected.
         Also loads the cogs, and prints who the bot is logged in as
@@ -70,7 +83,7 @@ class CBot(commands.Bot):
 
 # noinspection PyBroadException
 async def main():
-    """Main"""
+    """Run charbot."""
     logger = logging.getLogger("discord")
     logger.setLevel(logging.INFO)
     handler = RotatingFileHandler(

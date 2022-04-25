@@ -33,13 +33,13 @@ from discord.ext.commands import Cog, Context
 
 
 class Admin(Cog):
-    """Admin Cog"""
+    """Admin Cog."""
 
     def __init__(self, bot: commands.Bot):
         self.bot = bot
 
     def cog_check(self, ctx: Context) -> bool:
-        """Check to make sure runner is a moderator
+        """Check to make sure runner is a moderator.
 
         Parameters
         ----------
@@ -67,7 +67,7 @@ class Admin(Cog):
 
     @commands.command()
     async def ping(self, ctx: Context):
-        """Ping Command TO Check Bot Is Alive
+        """Ping Command TO Check Bot Is Alive.
 
         This command is used to check if the bot is alive.
 

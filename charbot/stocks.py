@@ -22,6 +22,7 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 #  ----------------------------------------------------------------------------
+"""Stock market game."""
 from datetime import time
 from dataclasses import dataclass
 from decimal import Decimal, Context, ROUND_HALF_UP
@@ -36,14 +37,14 @@ from main import CBot
 
 
 def fifteen_min_interval_generator():
-    """Generator for 15 min intervals for a day from 00:00 to 23:45 as time objects"""
+    """Generate 15-min intervals for a day from 00:00 to 23:45 as time objects."""
     for hour in range(24):
         for minute in range(0, 60, 15):
             yield time(hour, minute)
 
 
 class tickers(Enum):
-    """Enum of tickers to be used in the stock commands"""
+    """Enum of tickers to be used in the stock commands."""
 
     AAPL = "Apple Inc."
     MSFT = "Microsoft Corporation"
@@ -74,7 +75,21 @@ class tickers(Enum):
 
 @dataclass
 class Stock:
-    """Data class for stock data"""
+    """Represents a stock.
+
+    Attributes
+    ----------
+    name : str
+        The name of the stock.
+    price : Decimal
+        The current price of the stock.
+    change : Decimal
+        The change in price of the stock.
+    change_percent : Decimal
+        The change in price of the stock as a percentage.
+    volume : Decimal
+        The volume of the stock.
+    """
 
     name: str
     price: Decimal
@@ -83,7 +98,6 @@ class Stock:
     volume: Decimal
 
     def __init__(self, **data):
-        """Initializes a stock object."""
         self.name = data["name"]
         self.price = Decimal(data["price"], Context(prec=2, rounding=ROUND_HALF_UP))
         self.change = Decimal(data["change"], Context(prec=2, rounding=ROUND_HALF_UP))
@@ -91,7 +105,7 @@ class Stock:
         self.volume = Decimal(data["volume"], Context(prec=2, rounding=ROUND_HALF_UP))
 
     def as_dict(self):
-        """Returns a dict representation of the stock."""
+        """Return a dict representation of the stock."""
         return {
             "name": self.name,
             "price": str(self.price),
@@ -131,9 +145,67 @@ STOCKS = [
 
 @dataclass
 class StockDict:
-    """
-    A dictionary of stock objects, with the stock symbol as the key.
+    """A dictionary of stock objects, with the stock symbol as the key.
+
     Has a variety of methods to update, create, and export the stock objects.
+
+    Parameters
+    ----------
+    **data : dict[str, Stock]
+        The dictionary of stock objects.
+
+    Attributes
+    ----------
+    AAPL : Stock
+        The Apple stock object.
+    MSFT : Stock
+        The Microsoft stock object.
+    GOOG : Stock
+        The Google stock object.
+    FB : Stock
+        The Facebook stock object.
+    AMZN : Stock
+        The Amazon stock object.
+    TSLA : Stock
+        The Tesla stock object.
+    INTC : Stock
+        The Intel stock object.
+    CSCO : Stock
+        The Cisco stock object.
+    NVDA : Stock
+        The Nvidia stock object.
+    ORCL : Stock
+        The Oracle stock object.
+    PYPL : Stock
+        The PayPal stock object.
+    QCOM : Stock
+        The Qualcomm stock object.
+    CMCSA : Stock
+        The Comcast stock object.
+    GPRO : Stock
+        The GoPro stock object.
+    TWTR : Stock
+        The Twitter stock object.
+    GME : Stock
+        The GameStop stock object.
+    BTC : Stock
+        The Bitcoin stock object.
+    ETH : Stock
+        The Ethereum stock object.
+    LTC : Stock
+        The Litecoin stock object.
+    XRP : Stock
+        The Ripple stock object.
+    BCH : Stock
+        The Bitcoin Cash stock object.
+    ADA : Stock
+        The Cardano stock object.
+    XMR : Stock
+        The Monero stock object.
+    DASH : Stock
+        The Dash stock object.
+    EOS : Stock
+        The EOS stock object.
     """
 
     AAPL: Stock
@@ -163,7 +235,6 @@ class StockDict:
     EOS: Stock
 
     def __init__(self, **data: Stock):
-        """Initializes a StockDict object."""
         self.AAPL = data["AAPL"]
         self.MSFT = data["MSFT"]
         self.GOOG = data["GOOG"]
@@ -192,7 +263,7 @@ class StockDict:
 
     @classmethod
     def empty(cls):
-        """Returns an empty StockDict object."""
+        """Return an empty StockDict object."""
         return cls(
             AAPL=Stock(name="Apple Inc.", price=0, change=0, change_percent=0, volume=0),
             MSFT=Stock(
@@ -240,7 +311,7 @@ class StockDict:
         )
 
     async def update(self, stock: tuple[str, Stock]):
-        """Updates a stock object with the given stock."""
+        """Update a stock object with the given stock."""
         if any(
             item.is_nan()
             for item in [
@@ -304,11 +375,11 @@ class StockDict:
 
     @classmethod
     def from_dict(cls, data: dict[str, dict[str, str | Decimal]]):
-        """Initializes a StockDict object from a dict."""
+        """Initialize a StockDict object from a dict."""
         return cls(**data)
 
     async def export(self):
-        """Exports the stock objects to a dictionary."""
+        """Export the stock objects to a dictionary."""
         return {
             "AAPL": self.AAPL.as_dict(),
             "MSFT": self.MSFT.as_dict(),
@@ -339,7 +410,18 @@ class StockDict:
 
 
 def get_stock(symbol: str) -> tuple[str, Stock]:
-    """Gets the stock data from the API."""
+    """Get the stock data from the API.
+
+    Parameters
+    ----------
+    symbol : str
+        The stock symbol.
+
+    Returns
+    -------
+    tuple[str, Stock]
+        The stock symbol and the stock object.
+    """
     data = yf.download(symbol, period="1d", interval="15m")
     try:
         return symbol, Stock(
@@ -368,7 +450,20 @@ def get_stock(symbol: str) -> tuple[str, Stock]:
 
 
 class Stocks(app_commands.Group, commands.Cog):
-    """Stocks"""
+    """Stocks cog.
+
+    This cog contains commands for getting stock data.
+
+    Parameters
+    ----------
+    bot : CBot
+        The bot object.
+
+    Attributes
+    ----------
+    bot : CBot
+        The bot object.
+    """
 
     def __init__(self, bot: CBot):
         super().__init__(name="stocks", description="Stocks commands")
@@ -376,25 +471,31 @@ class Stocks(app_commands.Group, commands.Cog):
         self._stocks: StockDict = StockDict.empty()
 
     async def get_stocks(self) -> dict[str, Stock]:
-        """Get _stocks"""
+        """Get _stocks."""
         _tasks = [await self.bot.loop.run_in_executor(self.bot.executor, get_stock, symbol) for symbol in STOCKS]
         return {result[0].split("-")[0]: result[1] for result in _tasks}
 
     async def cog_load(self) -> None:
-        """Cog load callback"""
+        """Cog load callback."""
         self._stocks = StockDict(**await self.get_stocks())
         self.update_stocks.start()
 
     async def cog_unload(self) -> None:  # skipcq: PYL-W0236
-        """Cog unload callback"""
+        """Cog unload callback."""
         self.update_stocks.cancel()
 
     @tasks.loop(time=list(fifteen_min_interval_generator()))  # skipcq: PYL-E1123
     async def update_stocks(self) -> None:
-        """Update _stocks"""
+        """Update _stocks."""
         self._stocks = StockDict(**await self.get_stocks())
 
 
 async def setup(bot: CBot):
-    """Setup"""
+    """Load the cog.
+
+    Parameters
+    ----------
+    bot : CBot
+        The bot object
+    """
     await bot.add_cog(Stocks(bot), override=True, guild=discord.Object(id=225345178955808768))
