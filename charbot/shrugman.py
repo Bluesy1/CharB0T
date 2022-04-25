@@ -110,7 +110,7 @@ class ShrugmanGame(ui.View):
 
     # noinspection PyUnusedLocal
     @ui.button(label="Guess", style=discord.ButtonStyle.success)
-    async def guess_button(self, interaction: discord.Interaction, button: ui.Button):
+    async def guess_button(self, interaction: discord.Interaction, button: ui.Button):  # skipcq: PYL-W0613
         if interaction.user.id != self.author.id:
             await interaction.response.send_message("Only the invoker of the game can guess.", ephemeral=True)
             return
@@ -123,7 +123,7 @@ class ShrugmanGame(ui.View):
 
     # noinspection PyUnusedLocal
     @ui.button(label="Stop", style=discord.ButtonStyle.danger)
-    async def stop_button(self, interaction: discord.Interaction, button: ui.Button):
+    async def stop_button(self, interaction: discord.Interaction, button: ui.Button):  # skipcq: PYL-W0613
         if interaction.user.id != self.author.id:
             await interaction.response.send_message("Only the invoker of the game can stop it.", ephemeral=True)
             return

@@ -36,6 +36,7 @@ from discord.ext import commands
 from main import CBot
 
 
+# noinspection GrazieInspection
 class Cell:
     """Represents a cell in the sudoku board.
 
@@ -426,17 +427,10 @@ class Puzzle:
 
         solution = deepcopy(board)
 
-        """for line in board:
-            print(line)"""
-
         squares = side * side
         empties = squares * 3 // 4
         for p in sample(range(squares), empties):
             board[p // side][p % side] = 0
-
-        """num_size = len(str(side))
-        for line in board:
-            print("[" + "  ".join(f"{n or '.':{num_size}}" for n in line) + "]")"""
 
         while True:
             solved = [*islice(cls.shortSudokuSolve(board), 2)]
@@ -527,6 +521,7 @@ class Puzzle:
         ]
 
 
+# noinspection GrazieInspection
 class SudokuGame(ui.View):
     """View for playing Sudoku.
 
@@ -655,7 +650,7 @@ class SudokuGame(ui.View):
                 self.update_keypad()
                 await interaction.response.edit_message(embed=self.change_cell_prompt_embed(), view=self)
         elif self.level == "Cell":
-            if self.cell is not None:
+            if self.cell is not None:  # skipcq: PTC-W0048
                 if self.cell.editable and not self.noting_mode:
                     self.cell.value = int(button.label)  # type: ignore
                     self.level = "Block"
@@ -727,12 +722,14 @@ class SudokuGame(ui.View):
     async def three(self, interaction: discord.Interaction, button: ui.Button):
         await self.keypad_callback(interaction, button, 2)
 
+    # noinspection PyUnusedLocal
     @ui.button(label=" ", style=discord.ButtonStyle.grey, row=0, disabled=True)
-    async def placeholder_0(self, interaction: discord.Interaction, button: ui.Button):
+    async def placeholder_0(self, interaction: discord.Interaction, button: ui.Button):  # skipcq: PYL-W0613
         await interaction.response.send_message("This button is disabled", ephemeral=True)
 
+    # noinspection PyUnusedLocal
     @ui.button(label="Stop", style=discord.ButtonStyle.red, row=1)
-    async def cancel(self, interaction: discord.Interaction, button: ui.Button):
+    async def cancel(self, interaction: discord.Interaction, button: ui.Button):  # skipcq: PYL-W0613
         solution = self.puzzle.solution
         embed = discord.Embed(
             title="**FAILED** Sudoku", description=f"The solution was\n```{solution}```", color=discord.Color.red()
@@ -758,12 +755,14 @@ class SudokuGame(ui.View):
     async def six(self, interaction: discord.Interaction, button: ui.Button):
         await self.keypad_callback(interaction, button, 5)
 
+    # noinspection PyUnusedLocal
     @ui.button(label=" ", style=discord.ButtonStyle.grey, row=1, disabled=True)
-    async def placeholder_1(self, interaction: discord.Interaction, button: ui.Button):
+    async def placeholder_1(self, interaction: discord.Interaction, button: ui.Button):  # skipcq: PYL-W0613
         await interaction.response.send_message("This button is disabled", ephemeral=True)
 
+    # noinspection PyUnusedLocal
     @ui.button(label="Clear", style=discord.ButtonStyle.red, row=2)
-    async def clear(self, interaction: discord.Interaction, button: ui.Button):
+    async def clear(self, interaction: discord.Interaction, button: ui.Button):  # skipcq: PYL-W0613
         if self.level == "Puzzle":
             self.puzzle.reset()
             await interaction.response.edit_message(embed=self.block_choose_embed(), view=self)
@@ -772,9 +771,8 @@ class SudokuGame(ui.View):
                 self.block.clear()
             await interaction.response.edit_message(embed=self.cell_choose_embed(), view=self)
         elif self.level == "Cell":
-            if self.cell is not None:
-                if self.cell.editable:
-                    self.cell.clear()
+            if self.cell is not None and self.cell.editable:
+                self.cell.clear()
             await interaction.response.edit_message(embed=self.change_cell_prompt_embed(), view=self)
 
     @ui.button(label="7", style=discord.ButtonStyle.blurple, row=2)
@@ -789,8 +787,9 @@ class SudokuGame(ui.View):
     async def nine(self, interaction: discord.Interaction, button: ui.Button):
         await self.keypad_callback(interaction, button, 8)
 
+    # noinspection PyUnusedLocal
     @ui.button(label=" ", style=discord.ButtonStyle.grey, row=2, disabled=True)
-    async def placeholder_3(self, interaction: discord.Interaction, button: ui.Button):
+    async def placeholder_3(self, interaction: discord.Interaction, button: ui.Button):  # skipcq: PYL-W0613
         await interaction.response.send_message("This button is disabled", ephemeral=True)
 
     @ui.select(
@@ -814,8 +813,12 @@ class Sudoku(commands.Cog):
 
     @commands.command(name="sudoku", aliases=["sud"])
     async def sudoku(self, ctx: commands.Context):
-        """
-        Generates a sudoku puzzle.
+        """Generates a sudoku puzzle.
+
+        Parameters
+        ----------
+        ctx : commands.Context
+            The context of the command.
         """
         if ctx.guild is None:
             return
