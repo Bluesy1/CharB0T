@@ -80,12 +80,6 @@ class Cell:
         self._editable = editable
         self._possible_values: set[int] = set(range(1, 10)) if editable else {value}
 
-    def __str__(self):
-        return f"""╔═══╗
-        ║ {self.value} ║
-        ╚═══╝
-        """
-
     def __repr__(self):
         return f"<Cell value={self.value} possible_values={self.possible_values}>"
 
