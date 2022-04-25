@@ -151,13 +151,6 @@ class Block:
     def cells(self):
         return self._row1 + self._row2 + self._row3
 
-    def __str__(self):
-        return (
-            f"╔═══╤═══╤═══╗\n║ {self._row1[0]} │ {self._row1[1]} │ {self._row1[2]} ║\n╟───┼───┼───╢\n║ "
-            f"{self._row2[0]} │ {self._row2[1]} │ {self._row2[2]} ║\n╟───┼───┼───╢\n║ {self._row3[0]} │ {self._row3[1]}"
-            f" │ {self._row3[2]} ║\n╚═══╧═══╧═══╝"
-        )
-
     def __getitem__(self, item):
         return self.cells[item]
 
@@ -451,8 +444,6 @@ class SudokuGame(ui.View):
             inline=True,
         )
         embed.add_field(name="Disabled Buttons", value="Disabled buttons reference static cells", inline=True)
-        embed.add_field(name="Cell", value=f"```{self.cell}```", inline=False)  # type: ignore
-        embed.add_field(name="Block 1", value=f"```{self.block}```", inline=False)  # type: ignore
         return embed
 
     def cell_choose_embed(self) -> discord.Embed:
@@ -465,11 +456,6 @@ class SudokuGame(ui.View):
             inline=True,
         )
         embed.add_field(name="Disabled Buttons", value="Disabled buttons reference static cells", inline=False)
-        embed.add_field(
-            name=f"Block {self.puzzle.block_index(self.block) + 1}",  # type: ignore
-            value=f"```{self.block}```",  # type: ignore
-            inline=False,
-        )
         return embed
 
     def block_choose_embed(self) -> discord.Embed:
@@ -539,10 +525,12 @@ class SudokuGame(ui.View):
     async def back(self, interaction: discord.Interaction, button: ui.Button):
         if self.level == "Puzzle":
             button.disabled = True
+            self.enable_keypad()
             await interaction.response.edit_message(view=self)
         elif self.level == "Block":
             self.level = "Puzzle"
             button.disabled = True
+            self.enable_keypad()
             await interaction.response.edit_message(embed=self.block_choose_embed(), view=self)
         elif self.level == "Cell":
             self.level = "Block"
@@ -597,9 +585,20 @@ class SudokuGame(ui.View):
     async def placeholder_1(self, interaction: discord.Interaction, button: ui.Button):
         await interaction.response.send_message("This button is disabled", ephemeral=True)
 
-    @ui.button(label=" ", style=discord.ButtonStyle.grey, row=2, disabled=True)
-    async def placeholder_2(self, interaction: discord.Interaction, button: ui.Button):
-        await interaction.response.send_message("This button is disabled", ephemeral=True)
+    @ui.button(label="Clear", style=discord.ButtonStyle.red, row=2)
+    async def clear(self, interaction: discord.Interaction, button: ui.Button):
+        if self.level == "Puzzle":
+            self.puzzle.reset()
+            await interaction.response.edit_message(embed=self.block_choose_embed(), view=self)
+        elif self.level == "Block":
+            if self.block is not None:
+                self.block.clear()
+            await interaction.response.edit_message(embed=self.cell_choose_embed(), view=self)
+        elif self.level == "Cell":
+            if self.cell is not None:
+                if self.cell.editable:
+                    self.cell.clear()
+            await interaction.response.edit_message(embed=self.change_cell_prompt_embed(), view=self)
 
     @ui.button(label="7", style=discord.ButtonStyle.blurple, row=2)
     async def seven(self, interaction: discord.Interaction, button: ui.Button):
@@ -617,40 +616,9 @@ class SudokuGame(ui.View):
     async def placeholder_3(self, interaction: discord.Interaction, button: ui.Button):
         await interaction.response.send_message("This button is disabled", ephemeral=True)
 
-    @ui.button(label=" ", style=discord.ButtonStyle.grey, row=3, disabled=True)
-    async def placeholder_4(self, interaction: discord.Interaction, button: ui.Button):
-        await interaction.response.send_message("This button is disabled", ephemeral=True)
-
-    @ui.button(label=" ", style=discord.ButtonStyle.grey, row=3, disabled=True)
-    async def placeholder_5(self, interaction: discord.Interaction, button: ui.Button):
-        await interaction.response.send_message("This button is disabled", ephemeral=True)
-
-    @ui.button(label="Clear", style=discord.ButtonStyle.red, row=3)
-    async def clear(self, interaction: discord.Interaction, button: ui.Button):
-        if self.level == "Puzzle":
-            self.puzzle.reset()
-            await interaction.response.edit_message(embed=self.block_choose_embed(), view=self)
-        elif self.level == "Block":
-            if self.block is not None:
-                self.block.clear()
-            await interaction.response.edit_message(embed=self.cell_choose_embed(), view=self)
-        elif self.level == "Cell":
-            if self.cell is not None:
-                if self.cell.editable:
-                    self.cell.clear()
-            await interaction.response.edit_message(embed=self.change_cell_prompt_embed(), view=self)
-
-    @ui.button(label=" ", style=discord.ButtonStyle.grey, row=3, disabled=True)
-    async def placeholder_6(self, interaction: discord.Interaction, button: ui.Button):
-        await interaction.response.send_message("This button is disabled", ephemeral=True)
-
-    @ui.button(label=" ", style=discord.ButtonStyle.grey, row=3, disabled=True)
-    async def placeholder_7(self, interaction: discord.Interaction, button: ui.Button):
-        await interaction.response.send_message("This button is disabled", ephemeral=True)
-
     @ui.select(
         placeholder="Mode",
-        row=4,
+        row=3,
         disabled=True,
         options=[
             discord.SelectOption(label="Solve Mode", value="Solve", description="Mode to solve the puzzle in"),
