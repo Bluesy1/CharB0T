@@ -566,7 +566,7 @@ class SudokuGame(ui.View):
         else:
             await super().on_error(interaction, error, item)
 
-    @ui.button(label="Back", emoji="⬅", disabled=True, style=discord.ButtonStyle.green, row=0)
+    @ui.button(label="Back", disabled=True, style=discord.ButtonStyle.green, row=0)
     async def back(self, interaction: discord.Interaction, button: ui.Button):
         if self.level == "Puzzle":
             button.disabled = True
@@ -597,7 +597,7 @@ class SudokuGame(ui.View):
     async def placeholder_0(self, interaction: discord.Interaction, button: ui.Button):
         await interaction.response.send_message("This button is disabled", ephemeral=True)
 
-    @ui.button(label="Cancel", emoji="❌", style=discord.ButtonStyle.red, row=1)
+    @ui.button(label="Cancel", style=discord.ButtonStyle.red, row=1)
     async def cancel(self, interaction: discord.Interaction, button: ui.Button):
         solution = self.puzzle.solution
         embed = discord.Embed(
