@@ -23,7 +23,6 @@
 # SOFTWARE.
 #  ----------------------------------------------------------------------------
 """Sudoko minigame."""
-import concurrent.futures
 import random
 from random import sample
 from itertools import islice
@@ -38,6 +37,41 @@ from main import CBot
 
 
 class Cell:
+    """Represents a cell in the sudoku board.
+
+    Parameters
+    ----------
+    value : int
+        The value of the cell.
+    editable : bool
+        Whether the cell is editable.
+
+    Attributes
+    ----------
+    value : int
+        The value of the cell.
+    editable : bool
+        Whether the cell is editable.
+    possible_values : set[int]
+        The possible values for the cell, as thought by the user.
+
+    Methods
+    -------
+    clear()
+        Clears the cell.
+
+    See Also
+    --------
+    Row
+        Row of cells.
+    Column
+        Column of cells.
+    Box
+        Box of cells.
+    Puzzle
+        The sudoku board.
+    """
+
     def __init__(self, value: int, editable: bool):
         if 9 < value < 0:
             raise ValueError("Value must be between 0 and 9.")
@@ -92,14 +126,30 @@ class Cell:
 
 
 class Row:
+    """Represents a row of cells in the sudoku board.
+
+    Parameters
+    ----------
+    cells : list[Cell]
+        The cells in the row.
+
+    Attributes
+    ----------
+    cells : list[Cell]
+        The cells in the row.
+    solved : bool
+        Whether the row is solved.
+
+    Methods
+    -------
+    clear()
+        Resets the row.
+    """
+
     def __init__(self, cells: list[Cell]):
         if len(cells) != 9:
             raise ValueError("Row must have exactly 9 cells.")
         self._cells = cells
-
-    @property
-    def cells(self):
-        return self._cells
 
     def __repr__(self):
         return f"<Row cells={self.cells}>"
@@ -111,19 +161,44 @@ class Row:
         return self.cells[item]
 
     @property
+    def cells(self):
+        return self._cells
+
+    @property
     def solved(self):
         return all(cell.value != 0 for cell in self.cells) and len(set(cell.value for cell in self.cells)) == 9
 
+    def clear(self):
+        for cell in self.cells:
+            if cell.editable:
+                cell.clear()
+
 
 class Column:
+    """Represents a column of cells in the sudoku board.
+
+    Parameters
+    ----------
+    cells : list[Cell]
+        The cells in the column.
+
+    Attributes
+    ----------
+    cells : list[Cell]
+        The cells in the column.
+    solved : bool
+        Whether the column is solved.
+
+    Methods
+    -------
+    clear()
+        Resets the column.
+    """
+
     def __init__(self, cells: list[Cell]):
         if len(cells) != 9:
             raise ValueError("Column must have exactly 9 cells.")
         self._cells = cells
-
-    @property
-    def cells(self):
-        return self._cells
 
     def __repr__(self):
         return f"<Column cells={self.cells}>"
@@ -135,21 +210,46 @@ class Column:
         return self.cells == other.cells
 
     @property
+    def cells(self):
+        return self._cells
+
+    @property
     def solved(self):
         return all(cell.value != 0 for cell in self.cells) and len(set(cell.value for cell in self.cells)) == 9
 
+    def clear(self):
+        for cell in self.cells:
+            if cell.editable:
+                cell.clear()
+
 
 class Block:
+    """Represents a block of cells in the sudoku board.
+
+    Parameters
+    ----------
+    cells : list[Cell]
+        The cells in the block.
+
+    Attributes
+    ----------
+    cells : list[Cell]
+        The cells in the block.
+    solved : bool
+        Whether the block is solved.
+
+    Methods
+    -------
+    clear()
+        Resets the block.
+    """
+
     def __init__(self, cells: list[Cell]):
         if len(cells) != 9:
             raise ValueError("Block must have exactly 9 cells.")
         self._row1 = cells[0:3]
         self._row2 = cells[3:6]
         self._row3 = cells[6:9]
-
-    @property
-    def cells(self):
-        return self._row1 + self._row2 + self._row3
 
     def __getitem__(self, item):
         return self.cells[item]
@@ -159,6 +259,10 @@ class Block:
 
     def __eq__(self, other):
         return self.cells == other.cells
+
+    @property
+    def cells(self):
+        return self._row1 + self._row2 + self._row3
 
     @property
     def solved(self):
@@ -171,7 +275,54 @@ class Block:
                 cell.possible_values = set(range(1, 10))
 
 
+# noinspection PyUnresolvedReferences
 class Puzzle:
+    """Represents a sudoku board.
+
+    Parameters
+    ----------
+    puzzle : list[list[int]]
+        The sudoku board represented as a list of lists of ints.
+
+    Attributes
+    ----------
+    rows : list[Row]
+        The rows of the sudoku board.
+    columns : list[Column]
+        The columns of the sudoku board.
+    blocks : list[Block]
+        The blocks of the sudoku board.
+    is_solved : bool
+        Whether the puzzle is solved.
+    solution : Puzzle
+        A solution to the puzzle.
+
+    Methods
+    -------
+    from_rows(rows: list[Row])
+        Creates a puzzle from a list of rows. .. note:: This is a class method.
+    from_columns(columns: list[Column])
+        Creates a puzzle from a list of columns. .. note:: This is a class method.
+    new()
+        Creates a new puzzle randomly. .. note:: This is a class method.
+    shortSudokuSolve(board: list[list[int]])
+        Generator for solutions to a sudoku puzzle. .. note:: This is a static method.
+    location_of_cell(cell: Cell)
+        Returns the location of a cell in the puzzle.
+    row_of_cell(cell: Cell)
+        Returns the row of a cell in the puzzle.
+    column_of_cell(cell: Cell)
+        Returns the column of a cell in the puzzle.
+    block_of_cell(cell: Cell)
+        Returns the block of a cell in the puzzle.
+    block_index(block: Block)
+        Returns the index of a block in the puzzle.
+    as_list()
+        Returns the puzzle as a list of lists of ints.
+    reset()
+        Resets the puzzle.
+    """
+
     def __init__(self, puzzle: list[list[int]]):
         self._rows = [Row([Cell(cell, editable=(cell == 0)) for cell in cells]) for cells in puzzle]
         self._columns = [Column([row.cells[i] for row in self.rows]) for i in range(9)]
@@ -283,8 +434,8 @@ class Puzzle:
         for p in sample(range(squares), empties):
             board[p // side][p % side] = 0
 
-        num_size = len(str(side))
-        """for line in board:
+        """num_size = len(str(side))
+        for line in board:
             print("[" + "  ".join(f"{n or '.':{num_size}}" for n in line) + "]")"""
 
         while True:
@@ -297,10 +448,10 @@ class Puzzle:
         return cls(board)
 
     @staticmethod
-    def shortSudokuSolve(_board):
-        size = len(_board)
+    def shortSudokuSolve(board: list[list[int]]):
+        size = len(board)
         block = int(size**0.5)
-        _board = [n for row in _board for n in row]
+        board = [n for row in board for n in row]
         span = {
             (n, k): {
                 (g, n)
@@ -310,17 +461,17 @@ class Puzzle:
             for k in range(size * size)
             for n in range(size + 1)
         }
-        _empties = [i for i, n in enumerate(_board) if n == 0]
-        used = set().union(*(span[n, _p] for _p, n in enumerate(_board) if n))
+        _empties = [i for i, n in enumerate(board) if n == 0]
+        used = set().union(*(span[n, _p] for _p, n in enumerate(board) if n))
         empty = 0
         while 0 <= empty < len(_empties):
             pos = _empties[empty]
-            used -= span[_board[pos], pos]
-            _board[pos] = next((n for n in range(_board[pos] + 1, size + 1) if not span[n, pos] & used), 0)
-            used |= span[_board[pos], pos]
-            empty += 1 if _board[pos] else -1
+            used -= span[board[pos], pos]
+            board[pos] = next((n for n in range(board[pos] + 1, size + 1) if not span[n, pos] & used), 0)
+            used |= span[board[pos], pos]
+            empty += 1 if board[pos] else -1
             if empty == len(_empties):
-                _solution = [_board[r : r + size] for r in range(0, size * size, size)]
+                _solution = [board[r : r + size] for r in range(0, size * size, size)]
                 yield _solution
                 empty -= 1
 
@@ -377,6 +528,31 @@ class Puzzle:
 
 
 class SudokuGame(ui.View):
+    """View for playing Sudoku.
+
+    Parameters
+    ----------
+    puzzle : Puzzle
+        Puzzle to be played.
+    author: discord.Member
+        Member who created the puzzle.
+
+    Attributes
+    ----------
+    puzzle : Puzzle
+        Puzzle being played.
+    author: discord.Member
+        Member playing the puzzle.
+    level: Literal["Puzzle", "Block", "Cell"]
+        Level of focus on the puzzle
+    block: Optional[Block]
+        Block being focused on.
+    cell: Optional[Cell]
+        Cell being focused on.
+    noting_mode: bool
+        Whether or not the user is in noting mode.
+    """
+
     def __init__(self, puzzle: Puzzle, author: discord.Member):
         super().__init__(timeout=600)
         self.puzzle = puzzle

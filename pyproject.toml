@@ -8,3 +8,10 @@ exclude = ["**/__pycache__/**"]
 [tool.black]
 line-length = 120
 target-version = ['py310']
+
+[tool.bandit]
+skips = ["B101"]
+
+[tool.pydocstyle]
+convention = "numpy"
+match = '(?!test_)(?!tests).*\.py'
