@@ -656,7 +656,7 @@ class SudokuGame(ui.View):
     async def placeholder_5(self, interaction: discord.Interaction, button: ui.Button):
         await interaction.response.send_message("This button is disabled", ephemeral=True)
 
-    @ui.button(label="Clear", emoji="⌫", style=discord.ButtonStyle.red, row=3)
+    @ui.button(label="Clear", style=discord.ButtonStyle.red, row=3)
     async def clear(self, interaction: discord.Interaction, button: ui.Button):
         if self.level == "Puzzle":
             self.puzzle.reset()
