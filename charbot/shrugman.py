@@ -81,7 +81,7 @@ class Shrugman(commands.Cog):
             return
         if ctx.guild is None:
             return
-        if not any(338173415527677954 == role.id for role in ctx.author.roles):  # type: ignore
+        if not any(role.id == 338173415527677954 for role in ctx.author.roles):  # type: ignore
             return
         word = random.choice(__words__)
         embed = discord.Embed(

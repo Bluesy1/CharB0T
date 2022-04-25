@@ -821,7 +821,7 @@ class Sudoku(commands.Cog):
             return
         if ctx.channel.id not in (839690221083820032, 687817008355737606):
             return
-        if not any(338173415527677954 == role.id for role in ctx.author.roles):  # type: ignore
+        if not any(role.id == 338173415527677954 for role in ctx.author.roles):  # type: ignore
             return
         if ctx.channel.id == 687817008355737606 and ctx.author.id != 363095569515806722:
             return
