@@ -25,7 +25,7 @@
 """This is the main file of the charbot bot."""
 import logging
 import os
-from concurrent.futures import ThreadPoolExecutor
+from concurrent.futures import ThreadPoolExecutor, ProcessPoolExecutor
 from logging.handlers import RotatingFileHandler
 
 import asyncio
@@ -40,6 +40,7 @@ class CBot(commands.Bot):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.executor: ThreadPoolExecutor = ...  # type: ignore
+        self.process_pool: ProcessPoolExecutor = ...  # type: ignore
 
     async def setup_hook(self):
         """Setup hook for the bot.
@@ -93,8 +94,9 @@ async def main():
 
     load_dotenv()
     async with bot:  # skipcq: PYL-PYL-E1701
-        with ThreadPoolExecutor(max_workers=25) as executor:
+        with ThreadPoolExecutor(max_workers=25) as executor, ProcessPoolExecutor(max_workers=5) as process_pool:
             bot.executor = executor
+            bot.process_pool = process_pool
             await bot.start(os.getenv("TOKEN"))  # type: ignore
 
 
