@@ -643,7 +643,7 @@ class SudokuGame(ui.View):
                 self.level = "Cell"
                 self.update_keypad()
                 await interaction.response.edit_message(embed=self.change_cell_prompt_embed(), view=self)
-        elif self.level == "Cell":
+        elif self.level == "Cell":  # skipcq: PTC-W0048
             if self.cell is not None:  # skipcq: PTC-W0048
                 if self.cell.editable and not self.noting_mode:
                     self.cell.value = int(button.label)  # type: ignore
