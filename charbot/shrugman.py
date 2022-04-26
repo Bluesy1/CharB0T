@@ -72,11 +72,43 @@ __valid_guesses__ = (
 
 
 class Shrugman(commands.Cog):
+    """Shrugman minigame cog.
+
+    This cog contains the commands for the shrugman minigame.
+
+    Parameters
+    ----------
+    bot : CBot
+        The bot instance.
+
+    Attributes
+    ----------
+    bot : CBot
+        The bot instance.
+    """
+
     def __init__(self, bot: CBot):
         self.bot = bot
 
     @commands.command(name="shrugman", aliases=["sm"])
     async def shrugman(self, ctx: commands.Context):
+        """Play a game of Shrugman.
+
+        This game is a hangman-like game.
+
+        The game is played by guessing letters.
+
+        The game ends when the word is guessed or the player runs out of guesses.
+
+        The game is won by guessing the word.
+
+        The game is lost by running out of guesses.
+
+        Parameters
+        ----------
+        ctx: commands.Context
+            The context of the command.
+        """
         if ctx.channel.id != 839690221083820032:
             return
         if ctx.guild is None:
@@ -95,7 +127,44 @@ class Shrugman(commands.Cog):
 
 
 class ShrugmanGame(ui.View):
-    def __init__(self, bot: CBot, ctx: commands.Context, word, *, fail_enum=FailStates):
+    """View subclass that represents a game of shrugman.
+
+    Parameters
+    ----------
+    bot : CBot
+        The bot instance.
+    ctx : commands.Context
+        The context of the command.
+    word : str
+        The word to guess.
+    fail_enum : enum = FailStates
+        The enum to use for the fail state.
+
+    Attributes
+    ----------
+    bot : CBot
+        The bot instance.
+    author : discord.User | discord.Member
+        The author of the command.
+    word : str
+        The word to guess.
+    fail_enum : enum = FailStates
+        The enum to use for the fail state.
+    guess_count : int
+        The number of guesses the player has made.
+    guesses : list[str]
+        The list of guesses the player has made.
+    mistakes : int
+        The number of mistakes the player has made.
+    dead : bool
+        Whether the player is dead.
+    guess_word_list : list[str]
+        The word to guess represented as a list of characters, with hyphens replacing unguessed letters.
+    length : int
+        The length of the word to guess.
+    """
+
+    def __init__(self, bot: CBot, ctx: commands.Context, word: str, *, fail_enum=FailStates):
         super().__init__(timeout=None)
         self.bot = bot
         self.author = ctx.author
@@ -111,6 +180,17 @@ class ShrugmanGame(ui.View):
     # noinspection PyUnusedLocal
     @ui.button(label="Guess", style=discord.ButtonStyle.success)
     async def guess_button(self, interaction: discord.Interaction, button: ui.Button):  # skipcq: PYL-W0613
+        """Guess a letter.
+
+        If the letter is in the word, it will be added to the right spots in the guess word list.
+
+        Parameters
+        ----------
+        interaction : discord.Interaction
+            The interaction object.
+        button : ui.Button
+            The button that was pressed.
+        """
         if interaction.user.id != self.author.id:
             await interaction.response.send_message("Only the invoker of the game can guess.", ephemeral=True)
             return
@@ -124,6 +204,17 @@ class ShrugmanGame(ui.View):
     # noinspection PyUnusedLocal
     @ui.button(label="Stop", style=discord.ButtonStyle.danger)
     async def stop_button(self, interaction: discord.Interaction, button: ui.Button):  # skipcq: PYL-W0613
+        """Stop the game.
+
+        This will also disable the buttons.
+
+        Parameters
+        ----------
+        interaction : discord.Interaction
+            The interaction object.
+        button : ui.Button
+            The button that was pressed.
+        """
         if interaction.user.id != self.author.id:
             await interaction.response.send_message("Only the invoker of the game can stop it.", ephemeral=True)
             return
@@ -143,12 +234,28 @@ class ShrugmanGame(ui.View):
         await interaction.response.edit_message(embed=embed, view=self)
 
     async def disable(self):
+        """Disable the buttons and stop the view."""
         self.guess_button.disabled = True
         self.stop_button.disabled = True
         self.stop()
 
 
 class GuessModal(ui.Modal, title="Shrugman Guess"):
+    """Letter input for shrugman game.
+
+    This modal is used to input a letter for the game.
+
+    Parameters
+    ----------
+    game : ShrugmanGame
+        The game to use for the modal.
+
+    Attributes
+    ----------
+    game: ShrugmanGame
+        The game the modal is used for.
+    """
+
     guess = ui.TextInput(
         label="What letter are you guessing?",
         style=discord.TextStyle.short,
@@ -163,6 +270,13 @@ class GuessModal(ui.Modal, title="Shrugman Guess"):
 
     # noinspection DuplicatedCode
     async def on_submit(self, interaction: discord.Interaction) -> None:
+        """Invoke when the user submits the modal.
+
+        Parameters
+        ----------
+        interaction : discord.Interaction
+            The interaction object.
+        """
         if self.guess.value.lower() not in __valid_guesses__:  # type: ignore
             await interaction.response.send_message("Invalid guess.", ephmeral=True)  # type: ignore
             return
@@ -221,4 +335,11 @@ class GuessModal(ui.Modal, title="Shrugman Guess"):
 
 
 async def setup(bot: CBot):
+    """Load the shrugman cog.
+
+    Parameters
+    ----------
+    bot : CBot
+        The bot object
+    """
     await bot.add_cog(Shrugman(bot))

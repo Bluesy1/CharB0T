@@ -35,3 +35,11 @@ repos:
     - id: bandit
       args:
           - -s=B101,B311
+
+-   repo: https://github.com/pycqa/pydocstyle
+    rev: 6.1.1
+    hooks:
+    -   id: pydocstyle
+        args:
+            - --match='(?!backup/)(?!test)(?!test_)(?!tests).*\.py'
+            - --convention=numpy

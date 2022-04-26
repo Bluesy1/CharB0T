@@ -27,7 +27,7 @@ import random
 from random import sample
 from itertools import islice
 from copy import deepcopy
-from typing import Callable, Literal, Optional, Any
+from typing import Callable, Literal, Optional, Any, Generator
 
 import discord
 from discord import ui
@@ -50,11 +50,8 @@ class Cell:
     Attributes
     ----------
     value : int
-        The value of the cell.
     editable : bool
-        Whether the cell is editable.
     possible_values : set[int]
-        The possible values for the cell, as thought by the user.
 
     Methods
     -------
@@ -81,17 +78,32 @@ class Cell:
         self._possible_values: set[int] = set(range(1, 10)) if editable else {value}
 
     def __repr__(self):
+        """Return a string representation of the cell."""
         return f"<Cell value={self.value} possible_values={self.possible_values}>"
 
     def __eq__(self, other):
-        return self.value == other.value
+        """Two cells are equal if they have the same value and editability."""
+        return self.value == other.value and self.editable == other.editable
 
     @property
-    def value(self):
+    def value(self) -> int:
+        """Calue of the cell."""
         return self._value
 
     @value.setter
-    def value(self, value):
+    def value(self, value: int) -> None:
+        """Set the value of the cell.
+
+        Parameters
+        ----------
+        value : int
+            The value to set the cell to.
+
+        Raises
+        ------
+        ValueError
+            If the value is not between 0 and 9, or if the cell is not editable.
+        """
         if not self._editable:
             raise ValueError("Cannot set value of non-editable cell.")
         if 9 < value < 0:
@@ -100,20 +112,43 @@ class Cell:
         self._possible_values = {value}
 
     @property
-    def possible_values(self):
+    def possible_values(self) -> set[int]:
+        """Possible values for the cell, as thought by the user."""
+        if not self._editable:
+            return set()
         return self._possible_values
 
     @possible_values.setter
-    def possible_values(self, values: set[int]):
+    def possible_values(self, values: set[int]) -> None:
+        """Set the possible values for the cell.
+
+        Parameters
+        ----------
+        values : set[int]
+            The possible values for the cell.
+
+        Raises
+        ------
+        ValueError
+            If the cell is not editable.
+        """
         if not self._editable:
             raise ValueError("Cannot set possible values of non-editable cell.")
         self._possible_values = values.intersection(set(range(1, 10)))
 
     @property
-    def editable(self):
+    def editable(self) -> bool:
+        """Whether the cell is editable."""
         return self._editable
 
-    def clear(self):
+    def clear(self) -> None:
+        """Clear the cell.
+
+        Raises
+        ------
+        ValueError
+            If the cell is not editable.
+        """
         if not self.editable:
             raise ValueError("Cannot clear non-editable cell.")
         self.value = 0
@@ -131,9 +166,7 @@ class Row:
     Attributes
     ----------
     cells : list[Cell]
-        The cells in the row.
     solved : bool
-        Whether the row is solved.
 
     Methods
     -------
@@ -147,23 +180,29 @@ class Row:
         self._cells = cells
 
     def __repr__(self):
+        """Return a string representation of the row."""
         return f"<Row cells={self.cells}>"
 
     def __eq__(self, other):
+        """Two rows are equal if they have the same cells."""
         return self.cells == other.cells
 
     def __getitem__(self, item):
+        """Get cell(s) in the row."""
         return self.cells[item]
 
     @property
-    def cells(self):
+    def cells(self) -> list[Cell]:
+        """Cells in the row."""
         return self._cells
 
     @property
-    def solved(self):
+    def solved(self) -> bool:
+        """Whether the row is solved."""
         return all(cell.value != 0 for cell in self.cells) and len({cell.value for cell in self.cells}) == 9
 
-    def clear(self):
+    def clear(self) -> None:
+        """Reset the row."""
         for cell in self.cells:
             if cell.editable:
                 cell.clear()
@@ -180,9 +219,7 @@ class Column:
     Attributes
     ----------
     cells : list[Cell]
-        The cells in the column.
     solved : bool
-        Whether the column is solved.
 
     Methods
     -------
@@ -196,23 +233,29 @@ class Column:
         self._cells = cells
 
     def __repr__(self):
+        """Return a string representation of the column."""
         return f"<Column cells={self.cells}>"
 
     def __getitem__(self, item):
+        """Get cell(s) in the column."""
         return self.cells[item]
 
     def __eq__(self, other):
+        """Two columns are equal if they have the same cells."""
         return self.cells == other.cells
 
     @property
-    def cells(self):
+    def cells(self) -> list[Cell]:
+        """Cells in the column."""
         return self._cells
 
     @property
-    def solved(self):
+    def solved(self) -> bool:
+        """Whether the column is solved."""
         return all(cell.value != 0 for cell in self.cells) and len({cell.value for cell in self.cells}) == 9
 
-    def clear(self):
+    def clear(self) -> None:
+        """Reset the column."""
         for cell in self.cells:
             if cell.editable:
                 cell.clear()
@@ -229,9 +272,7 @@ class Block:
     Attributes
     ----------
     cells : list[Cell]
-        The cells in the block.
     solved : bool
-        Whether the block is solved.
 
     Methods
     -------
@@ -247,27 +288,32 @@ class Block:
         self._row3 = cells[6:9]
 
     def __getitem__(self, item):
+        """Get cell(s) in the block."""
         return self.cells[item]
 
     def __repr__(self):
+        """Represent the block as a string."""
         return f"<Block cells={self.cells}>"
 
     def __eq__(self, other):
+        """Two blocks are equal if they have the same cells."""
         return self.cells == other.cells
 
     @property
-    def cells(self):
+    def cells(self) -> list[Cell]:
+        """Cells in the block."""
         return self._row1 + self._row2 + self._row3
 
     @property
-    def solved(self):
+    def solved(self) -> bool:
+        """Whether the block is solved."""
         return all(cell.value != 0 for cell in self.cells) and len({cell.value for cell in self.cells}) == 9
 
-    def clear(self):
+    def clear(self) -> None:
+        """Reset the block."""
         for cell in self.cells:
             if cell.editable:
-                cell.value = 0
-                cell.possible_values = set(range(1, 10))
+                cell.clear()
 
 
 # noinspection PyUnresolvedReferences
@@ -282,15 +328,10 @@ class Puzzle:
     Attributes
     ----------
     rows : list[Row]
-        The rows of the sudoku board.
     columns : list[Column]
-        The columns of the sudoku board.
     blocks : list[Block]
-        The blocks of the sudoku board.
     is_solved : bool
-        Whether the puzzle is solved.
     solution : Puzzle
-        A solution to the puzzle.
 
     Methods
     -------
@@ -329,6 +370,7 @@ class Puzzle:
         self._initial_puzzle = puzzle
 
     def __str__(self):
+        """Return the puzzle as a string."""
         base = 3
         side = base * base
         expand_line: Callable[[str], str] = lambda x: x[0] + x[5:9].join([x[1:5] * (base - 1)] * base) + x[9:13]
@@ -348,25 +390,31 @@ class Puzzle:
         return string
 
     def __repr__(self):
+        """Return a string representation of the puzzle."""
         return f"<Puzzle rows={self.rows} columns={self.columns} blocks={self.blocks}>"
 
     def __eq__(self, other):
+        """Two puzzles are equal if they have the same rows, columns, and blocks."""
         return self.rows == other.rows and self.columns == other.columns and self.blocks == other.blocks
 
     @property
-    def rows(self):
+    def rows(self) -> list[Row]:
+        """Rows of the puzzle."""
         return self._rows
 
     @property
-    def columns(self):
+    def columns(self) -> list[Column]:
+        """Columns of the puzzle."""
         return self._columns
 
     @property
-    def blocks(self):
+    def blocks(self) -> list[Block]:
+        """Blocks of the puzzle."""
         return self._blocks
 
     @property
-    def is_solved(self):
+    def is_solved(self) -> bool:
+        """Whether the puzzle is solved."""
         return (
             all(row.solved for row in self.rows)
             and all(column.solved for column in self.columns)
@@ -375,6 +423,7 @@ class Puzzle:
 
     @property
     def solution(self):
+        """Solution to the puzzle."""
         solutions = self.shortSudokuSolve(self.as_list())
         solution = next(solutions, None)
         if solution is None:
@@ -386,10 +435,34 @@ class Puzzle:
 
     @classmethod
     def from_rows(cls, rows: list[Row]):
+        """Create a puzzle from a list of rows.
+
+        Parameters
+        ----------
+        rows: list[Row]
+            The rows of the puzzle.
+
+        Returns
+        -------
+        Puzzle
+            The puzzle created from the rows.
+        """
         return cls([[cell.value for cell in row] for row in rows])
 
     @classmethod
     def from_columns(cls, columns: list[Column]):
+        """Create a puzzle from a list of columns.
+
+        Parameters
+        ----------
+        columns: list[Column]
+            The columns of the puzzle.
+
+        Returns
+        -------
+        Puzzle
+            The puzzle created from the columns.
+        """
         rows = []
         for i in range(9):
             row = []
@@ -400,6 +473,13 @@ class Puzzle:
 
     @classmethod
     def new(cls):
+        """Create a new puzzle randomly.
+
+        Returns
+        -------
+        Puzzle
+            A new puzzle.
+        """
         base = 3
         side = base * base
 
@@ -436,7 +516,20 @@ class Puzzle:
         return cls(board)
 
     @staticmethod
-    def shortSudokuSolve(_board: list[list[int]]):
+    def shortSudokuSolve(_board: list[list[int]]) -> Generator[list[list[int]], Any, None]:
+        """Solutions to a sudoku puzzle.
+
+        Parameters
+        ----------
+        _board: list[list[int]]
+            The board to solve as a list of lists of ints.
+
+        Yields
+        ------
+        list[list[int]]
+            A solution to the puzzle as a list of lists of ints.
+
+        """
         size = len(_board)
         block = int(size**0.5)
         board = [n for row in _board for n in row]
@@ -467,7 +560,28 @@ class Puzzle:
                 yield _solution
                 empty -= 1
 
-    def location_of_cell(self, cell: Cell):
+    def location_of_cell(self, cell: Cell) -> str:
+        """Return the location of a cell in the puzzle.
+
+        Parameters
+        ----------
+        cell: Cell
+            The cell to find the location of.
+
+        Returns
+        -------
+        str
+            The location of the cell.
+
+        Raises
+        ------
+        ValueError
+            If the cell is not in the puzzle.
+        TypeError
+            If the cell is not a Cell.
+        """
+        if not isinstance(cell, Cell):
+            raise TypeError("cell must be of type Cell")
         row_index = -1
         for i, row in enumerate(self.rows):
             if cell in row:
@@ -482,34 +596,126 @@ class Puzzle:
             raise ValueError("Cell not found in puzzle")
         return f"row {row_index + 1}, column {column_index + 1}"
 
-    def row_of_cell(self, cell: Cell):
+    def row_of_cell(self, cell: Cell) -> Row:
+        """Return the row that contains the cell.
+
+        Parameters
+        ----------
+        cell: Cell
+            The cell to find the row of.
+
+        Returns
+        -------
+        Row
+            The row that contains the cell.
+
+        Raises
+        ------
+        TypeError
+            If cell is not of type Cell.
+        ValueError
+            If cell is not found in the puzzle.
+        """
+        if not isinstance(cell, Cell):
+            raise TypeError("cell must be of type Cell")
         for row in self.rows:
             if cell in row:
                 return row
         raise ValueError("Cell not found in puzzle")
 
-    def column_of_cell(self, cell: Cell):
+    def column_of_cell(self, cell: Cell) -> Column:
+        """Return the column that contains the cell.
+
+        Parameters
+        ----------
+        cell: Cell
+            The cell to find the column of.
+
+        Returns
+        -------
+        Column
+            The column that contains the cell.
+
+        Raises
+        ------
+        TypeError
+            If cell is not of type Cell.
+        ValueError
+            If cell is not found in the puzzle.
+        """
+        if not isinstance(cell, Cell):
+            raise TypeError("cell must be of type Cell")
         for column in self.columns:
             if cell in column:
                 return column
         raise ValueError("Cell not found in puzzle")
 
-    def block_of_cell(self, cell: Cell):
+    def block_of_cell(self, cell: Cell) -> Block:
+        """Return the block that contains the cell.
+
+        Parameters
+        ----------
+        cell: Cell
+            The cell to find the block of.
+
+        Returns
+        -------
+        Block
+            The block that contains the cell.
+
+        Raises
+        ------
+        TypeError
+            If cell is not of type Cell.
+        ValueError
+            If cell is not found in the puzzle.
+        """
+        if not isinstance(cell, Cell):
+            raise TypeError("cell must be of type Cell")
         for block in self.blocks:
             if cell in block:
                 return block
         raise ValueError("Cell not found in puzzle")
 
-    def block_index(self, block: Block):
+    def block_index(self, block: Block) -> int:
+        """Return the index of the block if it is in the puzzle.
+
+        Parameters
+        ----------
+        block: Block
+            The block to find.
+
+        Returns
+        -------
+        int
+            The index of the block.
+
+        Raises
+        ------
+        ValueError
+            If the block is not in the puzzle.
+        TypeError
+            If the block is not of type Block.
+        """
+        if not isinstance(block, Block):
+            raise TypeError("block must be a Block")
         for i, b in enumerate(self.blocks):
             if block is b:
                 return i
         raise ValueError("Block not found in puzzle")
 
-    def as_list(self):
+    def as_list(self) -> list[list[int]]:
+        """Serialize puzzle as list of lists.
+
+        Returns
+        -------
+        list[list[int]]
+            The puzzle as a list of lists of integers.
+        """
         return [[cell.value for cell in row] for row in self.rows]
 
-    def reset(self):
+    def reset(self) -> None:
+        """Reset the puzzle to the initial state."""
         self._rows = [Row([Cell(cell, editable=(cell == 0)) for cell in cells]) for cells in self._initial_puzzle]
         self._columns = [Column([row.cells[i] for row in self.rows]) for i in range(9)]
         self._blocks = [
@@ -556,6 +762,7 @@ class SudokuGame(ui.View):
         self.noting_mode = False
 
     def enable_keypad(self):
+        """Enable all keypad buttons."""
         self.one.disabled = False
         self.two.disabled = False
         self.three.disabled = False
@@ -568,6 +775,7 @@ class SudokuGame(ui.View):
         self.clear.disabled = False
 
     def disable_keypad(self):
+        """Disable all keypad buttons."""
         self.one.disabled = True
         self.two.disabled = True
         self.three.disabled = True
@@ -580,6 +788,7 @@ class SudokuGame(ui.View):
         self.clear.disabled = True
 
     def update_keypad(self):
+        """Update the keypad dynamically to reflect the current focus."""
         if self.level == "Puzzle":
             self.enable_keypad()
             self.back.disabled = True
@@ -605,6 +814,13 @@ class SudokuGame(ui.View):
                 self.disable_keypad()
 
     def change_cell_prompt_embed(self) -> discord.Embed:
+        """Embed for when the user is changing a cell.
+
+        Returns
+        -------
+        discord.Embed
+            Embed to send for when the user is changing a cell.
+        """
         embed = discord.Embed(title="Sudoku", description=f"```{self.puzzle}```", color=discord.Color.blurple())
         embed.set_author(name=self.author.display_name, icon_url=self.author.display_avatar.url)
         embed.set_footer(text="Play Sudoku by Typing !sudoku")
@@ -617,6 +833,13 @@ class SudokuGame(ui.View):
         return embed
 
     def cell_choose_embed(self) -> discord.Embed:
+        """Embed for when the user is choosing a cell.
+
+        Returns
+        -------
+        discord.Embed
+            Embed to send for when the user is choosing a cell.
+        """
         embed = discord.Embed(title="Sudoku", description=f"```{self.puzzle}```", color=discord.Color.blurple())
         embed.set_author(name=self.author.display_name, icon_url=self.author.display_avatar.url)
         embed.set_footer(text="Play Sudoku by Typing !sudoku")
@@ -629,6 +852,13 @@ class SudokuGame(ui.View):
         return embed
 
     def block_choose_embed(self) -> discord.Embed:
+        """Embed for choosing a block.
+
+        Returns
+        -------
+        discord.Embed
+            The embed to send for choosing a block.
+        """
         embed = discord.Embed(title="Sudoku", description=f"```{self.puzzle}```", color=discord.Color.blurple())
         embed.set_author(name=self.author.display_name, icon_url=self.author.display_avatar.url)
         embed.set_footer(text="Play Sudoku by Typing !sudoku")
@@ -636,6 +866,24 @@ class SudokuGame(ui.View):
         return embed
 
     async def keypad_callback(self, interaction: discord.Interaction, button: ui.Button, key: int):
+        """Keypad buttons callback.
+
+        It will change the cell, block, or puzzle depending on the level of focus.
+
+        Parameters
+        ----------
+        interaction: discord.Interaction
+            Interaction object.
+        button: ui.Button
+            Button that was pressed.
+        key: int
+            index key for the item to change.
+
+        Raises
+        ------
+        NotImplementedError
+            If a cell level change is triggered and the puzzle is in noting mode.
+        """
         if self.level == "Puzzle":
             self.block = self.puzzle.blocks[key]
             self.level = "Block"
@@ -683,9 +931,32 @@ class SudokuGame(ui.View):
                     await interaction.response.edit_message(embed=self.cell_choose_embed(), view=self)
 
     async def interaction_check(self, interaction: discord.Interaction) -> bool:
+        """Make sure the interaction user is the same as the initial invoker.
+
+        Parameters
+        ----------
+        interaction : discord.Interaction
+            The interaction to check.
+
+        Returns
+        -------
+        bool
+            Whether or not the interaction user is the same as the initial invoker.
+        """
         return interaction.user.id == self.author.id
 
     async def on_error(self, interaction: discord.Interaction, error: Exception, item: ui.Item[Any]) -> None:
+        """Call when an item's callback or :meth:`interaction_check` fails with an error.
+
+        Parameters
+        ----------
+        interaction: :class:`~discord.Interaction`
+            The interaction that led to the failure.
+        error: :class:`Exception`
+            The exception that was raised.
+        item: :class:`~discord.ui.Item`
+            The item that failed the dispatch.
+        """
         if isinstance(error, discord.app_commands.CheckFailure):
             await interaction.response.send_message("Only the invoker can play this instance of Sudoku", ephemeral=True)
         else:
@@ -693,6 +964,17 @@ class SudokuGame(ui.View):
 
     @ui.button(label="Back", disabled=True, style=discord.ButtonStyle.green, row=0)
     async def back(self, interaction: discord.Interaction, button: ui.Button):
+        """Back to the previous level of the puzzle.
+
+        This acts dynamically based on the current focus level of the puzzle.
+
+        Parameters
+        ----------
+        interaction : discord.Interaction
+            The interaction object.
+        button : ui.Button
+            The button that was pressed.
+        """
         if self.level == "Puzzle":
             button.disabled = True
             self.enable_keypad()
@@ -710,24 +992,57 @@ class SudokuGame(ui.View):
 
     @ui.button(label="1", style=discord.ButtonStyle.blurple, row=0)
     async def one(self, interaction: discord.Interaction, button: ui.Button):
+        """Keypad callback for the 1 button.
+
+        Parameters
+        ----------
+        interaction : discord.Interaction
+            The interaction object.
+        button : ui.Button
+            The button that was pressed.
+        """
         await self.keypad_callback(interaction, button, 0)
 
     @ui.button(label="2", style=discord.ButtonStyle.blurple, row=0)
     async def two(self, interaction: discord.Interaction, button: ui.Button):
+        """Keypad callback for the 2 button.
+
+        Parameters
+        ----------
+        interaction : discord.Interaction
+            The interaction object.
+        button : ui.Button
+            The button that was pressed.
+        """
         await self.keypad_callback(interaction, button, 1)
 
     @ui.button(label="3", style=discord.ButtonStyle.blurple, row=0)
     async def three(self, interaction: discord.Interaction, button: ui.Button):
-        await self.keypad_callback(interaction, button, 2)
+        """Keypad callback for the 3 button.
 
-    # noinspection PyUnusedLocal
-    @ui.button(label=" ", style=discord.ButtonStyle.grey, row=0, disabled=True)
-    async def placeholder_0(self, interaction: discord.Interaction, button: ui.Button):  # skipcq: PYL-W0613
-        await interaction.response.send_message("This button is disabled", ephemeral=True)
+        Parameters
+        ----------
+        interaction : discord.Interaction
+            The interaction object.
+        button : ui.Button
+            The button that was pressed.
+        """
+        await self.keypad_callback(interaction, button, 2)
 
     # noinspection PyUnusedLocal
     @ui.button(label="Stop", style=discord.ButtonStyle.red, row=1)
     async def cancel(self, interaction: discord.Interaction, button: ui.Button):  # skipcq: PYL-W0613
+        """Cancel/Stop button callback.
+
+        This button displays a solution and turns off the view.
+
+        Parameters
+        ----------
+        interaction : discord.Interaction
+            The interaction object.
+        button : ui.Button
+            The button that was pressed.
+        """
         solution = self.puzzle.solution
         embed = discord.Embed(
             title="**FAILED** Sudoku", description=f"The solution was\n```{solution}```", color=discord.Color.red()
@@ -743,24 +1058,57 @@ class SudokuGame(ui.View):
 
     @ui.button(label="4", style=discord.ButtonStyle.blurple, row=1)
     async def four(self, interaction: discord.Interaction, button: ui.Button):
+        """Keypad callback for the 4 button.
+
+        Parameters
+        ----------
+        interaction : discord.Interaction
+            The interaction object.
+        button : ui.Button
+            The button that was pressed.
+        """
         await self.keypad_callback(interaction, button, 3)
 
     @ui.button(label="5", style=discord.ButtonStyle.blurple, row=1)
     async def five(self, interaction: discord.Interaction, button: ui.Button):
+        """Keypad callback for the 5 button.
+
+        Parameters
+        ----------
+        interaction : discord.Interaction
+            The interaction object.
+        button : ui.Button
+            The button that was pressed.
+        """
         await self.keypad_callback(interaction, button, 4)
 
     @ui.button(label="6", style=discord.ButtonStyle.blurple, row=1)
     async def six(self, interaction: discord.Interaction, button: ui.Button):
-        await self.keypad_callback(interaction, button, 5)
+        """Keypad callback for the 6 button.
 
-    # noinspection PyUnusedLocal
-    @ui.button(label=" ", style=discord.ButtonStyle.grey, row=1, disabled=True)
-    async def placeholder_1(self, interaction: discord.Interaction, button: ui.Button):  # skipcq: PYL-W0613
-        await interaction.response.send_message("This button is disabled", ephemeral=True)
+        Parameters
+        ----------
+        interaction : discord.Interaction
+            The interaction object.
+        button : ui.Button
+            The button that was pressed.
+        """
+        await self.keypad_callback(interaction, button, 5)
 
     # noinspection PyUnusedLocal
     @ui.button(label="Clear", style=discord.ButtonStyle.red, row=2)
     async def clear(self, interaction: discord.Interaction, button: ui.Button):  # skipcq: PYL-W0613
+        """Clear button callback.
+
+        Clears the current cell, block or resets the puzzle depending on the current state.
+
+        Parameters
+        ----------
+        interaction : discord.Interaction
+            The interaction object.
+        button : ui.Button
+            The button that was pressed.
+        """
         if self.level == "Puzzle":
             self.puzzle.reset()
             await interaction.response.edit_message(embed=self.block_choose_embed(), view=self)
@@ -775,20 +1123,42 @@ class SudokuGame(ui.View):
 
     @ui.button(label="7", style=discord.ButtonStyle.blurple, row=2)
     async def seven(self, interaction: discord.Interaction, button: ui.Button):
+        """Keypad callback for the 7 button.
+
+        Parameters
+        ----------
+        interaction : discord.Interaction
+            The interaction object.
+        button : ui.Button
+            The button that was pressed.
+        """
         await self.keypad_callback(interaction, button, 6)
 
     @ui.button(label="8", style=discord.ButtonStyle.blurple, row=2)
     async def eight(self, interaction: discord.Interaction, button: ui.Button):
+        """Keypad callback for the 8 button.
+
+        Parameters
+        ----------
+        interaction : discord.Interaction
+            The interaction object.
+        button : ui.Button
+            The button that was pressed.
+        """
         await self.keypad_callback(interaction, button, 7)
 
     @ui.button(label="9", style=discord.ButtonStyle.blurple, row=2)
     async def nine(self, interaction: discord.Interaction, button: ui.Button):
-        await self.keypad_callback(interaction, button, 8)
+        """Keypad callback for the 9 button.
 
-    # noinspection PyUnusedLocal
-    @ui.button(label=" ", style=discord.ButtonStyle.grey, row=2, disabled=True)
-    async def placeholder_3(self, interaction: discord.Interaction, button: ui.Button):  # skipcq: PYL-W0613
-        await interaction.response.send_message("This button is disabled", ephemeral=True)
+        Parameters
+        ----------
+        interaction : discord.Interaction
+            The interaction object.
+        button : ui.Button
+            The button that was pressed.
+        """
+        await self.keypad_callback(interaction, button, 8)
 
     @ui.select(
         placeholder="Mode",
@@ -802,10 +1172,41 @@ class SudokuGame(ui.View):
         ],
     )
     async def mode(self, interaction: discord.Interaction, select: ui.Select):
+        """Switch between solve and note mode.
+
+        When in solve mode, the user can solve the puzzle by entering numbers into the cells.
+        When in note mode, the user can note individual cells of the puzzle by entering numbers into the cells.
+
+        Parameters
+        ----------
+        interaction : discord.Interaction
+            The interaction object.
+        select : ui.Select
+            The select object.
+
+        Raises
+        ------
+        NotImplementedError
+            This function is not implemented yet
+
+        Notes
+        -----
+        This function is not implemented yet.
+        """
         raise NotImplementedError("Only solve mode is implemented currently")
 
 
 class Sudoku(commands.Cog):
+    """Sudoku commands.
+
+    This cog contains commands for playing Sudoku.
+
+    Parameters
+    ----------
+    bot : CBot
+        The bot instance.
+    """
+
     def __init__(self, bot: CBot):
         self.bot = bot
 
@@ -831,5 +1232,11 @@ class Sudoku(commands.Cog):
         await ctx.send(embed=view.block_choose_embed(), view=view)
 
 
-async def setup(bot):
+async def setup(bot: CBot):
+    """Load the cog.
+
+    Parameters
+    ----------
+    bot : CBot
+    """
     await bot.add_cog(Sudoku(bot))
