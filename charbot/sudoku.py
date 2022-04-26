@@ -484,12 +484,10 @@ class Puzzle:
         side = base * base
 
         # pattern for a baseline valid solution
-        def pattern(r, c):
-            return (base * (r % base) + r // base + c) % side
+        pattern = lambda r, c: (base * (r % base) + r // base + c) % side  # noqa: E731
 
         # randomize rows, columns and numbers (of valid base pattern)
-        def shuffle(s):
-            return sample(s, len(s))
+        shuffle = lambda s: sample(s, len(s))  # noqa: E731
 
         r_base = range(base)
         rows = [g * base + r for g in shuffle(r_base) for r in shuffle(r_base)]
