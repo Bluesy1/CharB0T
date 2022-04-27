@@ -105,7 +105,7 @@ class GiveawayView(ui.View):
         self.embed.clear_fields()
         async with self.bot.pool.acquire() as conn:  # type: asyncpg.Connection
             bidders = await conn.fetch("SELECT * FROM bids WHERE bid > 0 ORDER BY bid DESC")
-        if bidders:
+        if len(bidders) > 0:
             self.bidders = bidders.copy()
             bids: list[list[int]] = [[], []]
             for bid in bidders:
@@ -125,6 +125,7 @@ class GiveawayView(ui.View):
                     winners.append(new_winner[0])
         else:
             winners = []
+            avg_bid = 0
         if winners:
             winner = await self.channel.guild.fetch_member(winners[0])  # type: ignore
         else:
