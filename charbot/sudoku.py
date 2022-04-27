@@ -877,6 +877,7 @@ class SudokuGame(ui.View):
         embed.add_field(name="Choose a block", value="Use the keypad to choose a block", inline=True)
         return embed
 
+    # noinspection DuplicatedCode
     async def keypad_callback(self, interaction: discord.Interaction, button: ui.Button, key: int):
         """Keypad buttons callback.
 
@@ -929,7 +930,8 @@ class SudokuGame(ui.View):
                         )
                         embed.set_author(name=self.author.display_name, icon_url=self.author.display_avatar.url)
                         embed.set_footer(text="Play Sudoku by Typing !sudoku")
-                        embed.add_field(name="Time Taken", value=f"{(utcnow() - self.start_time)}", inline=True)
+                        time_taken = utcnow().replace(microsecond=0) - self.start_time.replace(microsecond=0)
+                        embed.add_field(name="Time Taken", value=f"{time_taken}", inline=True)
                         embed.add_field(
                             name="Points gained",
                             value=f"{await self.bot.give_game_points(self.author.id, 2, 3)} Points",
@@ -983,6 +985,7 @@ class SudokuGame(ui.View):
         else:
             await super().on_error(interaction, error, item)
 
+    # noinspection DuplicatedCode
     async def on_timeout(self) -> None:
         """Call when the interaction times out."""
         solution = self.puzzle.solution
@@ -991,7 +994,8 @@ class SudokuGame(ui.View):
         )
         embed.set_author(name=self.author.display_name, icon_url=self.author.display_avatar.url)
         embed.set_footer(text="Play Sudoku by Typing !sudoku")
-        embed.add_field(name="Time Taken", value=f"{(utcnow() - self.start_time)}", inline=True)
+        time_taken = utcnow().replace(microsecond=0) - self.start_time.replace(microsecond=0)
+        embed.add_field(name="Time Taken", value=f"{time_taken}", inline=True)
         embed.add_field(name="Points gained", value="0 Points", inline=True)
         self.disable_keypad()
         self.mode.disabled = True
@@ -1069,7 +1073,7 @@ class SudokuGame(ui.View):
         """
         await self.keypad_callback(interaction, button, 2)
 
-    # noinspection PyUnusedLocal
+    # noinspection PyUnusedLocal,DuplicatedCode
     @ui.button(label="Stop", style=discord.ButtonStyle.red, row=1)
     async def cancel(self, interaction: discord.Interaction, button: ui.Button):  # skipcq: PYL-W0613
         """Cancel/Stop button callback.
@@ -1091,7 +1095,8 @@ class SudokuGame(ui.View):
         )
         embed.set_author(name=self.author.display_name, icon_url=self.author.display_avatar.url)
         embed.set_footer(text="Play Sudoku by Typing !sudoku")
-        embed.add_field(name="Time Taken", value=f"{(utcnow() - self.start_time)}", inline=True)
+        time_taken = utcnow().replace(microsecond=0) - self.start_time.replace(microsecond=0)
+        embed.add_field(name="Time Taken", value=f"{time_taken}", inline=True)
         if (utcnow() - self.start_time) > datetime.timedelta(minutes=3) and self.moves > 10:
             embed.add_field(
                 name="Points gained",
