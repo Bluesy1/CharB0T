@@ -428,7 +428,7 @@ class Giveaway(commands.Cog):
         ctx : commands.Context
             The context of the command invocation.
         """
-        points = await self.bot.pool.fetchval("SELECT points from users where id = $1", 363095569515806722) or 0
+        points = await self.bot.pool.fetchval("SELECT points from users where id = $1", ctx.author.id) or 0
         if ctx.interaction is not None:
             await ctx.send(f"You have {points} points.", ephemeral=True)
         else:
