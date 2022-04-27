@@ -427,7 +427,7 @@ class Giveaway(commands.Cog):
         if self.current_giveaway is not None:
             self.yesterdays_giveaway = self.current_giveaway
             await self.yesterdays_giveaway.end(self.giveaway_webhook, self.report_webhook)
-        if self.charlie is None:
+        if not isinstance(self.charlie, discord.Member):
             self.charlie = await (await self.bot.fetch_guild(225345178955808768)).fetch_member(225344348903047168)
         # TODO: Do Whatever i have to do to get the game, and optionally URL for the new giveaway  # skipcq: PYL-W0511
         game = "Placeholder untill charlie gets me a list of games"
