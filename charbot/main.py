@@ -140,6 +140,7 @@ class CBot(commands.Bot):
                     points,
                     bonus,
                 )
+                await conn.execute("INSERT INTO bids (id, bid) VALUES ($1, 0)", user_id)
                 return points + bonus
         else:
             if user["particip_dt"] < __TIME__():
