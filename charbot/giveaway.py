@@ -322,7 +322,7 @@ class Giveaway(commands.Cog):
         self.report_webhook = await self.bot.fetch_webhook(int(os.getenv("GIVEAWAY_WIN_WEBHOOK")))  # type: ignore
         await self.daily_giveaway.start()
 
-    async def cog_unload(self) -> None:
+    async def cog_unload(self) -> None:  # skipcq: PYL-W0236
         """Call when the cog is unloaded."""
         self.daily_giveaway.cancel()
 
@@ -417,13 +417,13 @@ class Giveaway(commands.Cog):
         else:
             await ctx.author.send(f"You have {points} points.")
 
-    @tasks.loop(time=datetime.time(hour=0, minute=0, second=0, tzinfo=__ZONEINFO__))
+    @tasks.loop(time=datetime.time(hour=0, minute=0, second=0, tzinfo=__ZONEINFO__))  # skipcq: PYL-E1123
     async def daily_giveaway(self):
         """Run the daily giveaway."""
         if self.current_giveaway is not None:
             self.yesterdays_giveaway = self.current_giveaway
             await self.yesterdays_giveaway.end(self.giveaway_webhook, self.report_webhook)
-        # TODO: Do Whatever i have to do to get the game, and optionally URL for the new giveaway
+        # TODO: Do Whatever i have to do to get the game, and optionally URL for the new giveaway  # skipcq: PYL-W0511
         game = "Placeholder untill charlie gets me a list of games"
         url = "https://discord.com/developers/docs/intro"
         embed = discord.Embed(

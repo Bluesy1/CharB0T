@@ -207,6 +207,7 @@ def check_giveaway(roles: list[discord.Role]) -> bool:
     return True
 
 
+# skipcq: FLK-D202
 def giveaway_command_check():
     """Command Decorator to check if a user is allowed to participate in a giveaway.
 

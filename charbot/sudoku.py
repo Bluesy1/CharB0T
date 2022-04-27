@@ -1282,7 +1282,7 @@ class Sudoku(commands.Cog):
         if ctx.channel.id == 687817008355737606 and ctx.author.id != 363095569515806722:
             return
         puzzle = await self.bot.loop.run_in_executor(self.bot.process_pool, Puzzle.new)
-        view = SudokuGame(puzzle, ctx.author)  # type: ignore
+        view = SudokuGame(puzzle, ctx.author, self.bot)  # type: ignore
         view.message = await ctx.send(embed=view.block_choose_embed(), view=view)
 
 
