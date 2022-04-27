@@ -112,11 +112,13 @@ class Shrugman(commands.Cog):
         ctx: commands.Context
             The context of the command.
         """
-        if ctx.channel.id != 839690221083820032:
-            return
         if ctx.guild is None:
             return
-        if not any(role.id == 338173415527677954 for role in ctx.author.roles):  # type: ignore
+        if not any(role.id in (338173415527677954, 928481483742670971) for role in ctx.author.roles):  # type: ignore
+            return
+        if ctx.channel.id not in (839690221083820032, 687817008355737606, 926532222398369812):
+            return
+        if ctx.channel.id == 687817008355737606 and ctx.author.id != 363095569515806722:
             return
         word = random.choice(__words__)
         embed = discord.Embed(
