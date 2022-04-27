@@ -31,6 +31,7 @@ from statistics import mean
 
 import asyncpg
 import discord
+import pandas as pd
 from discord import app_commands, ui
 from discord.ext import commands, tasks
 from discord.utils import utcnow
@@ -103,7 +104,7 @@ class GiveawayView(ui.View):
         self.embed.set_footer(text="Giveaway ended")
         self.embed.timestamp = utcnow()
         self.embed.clear_fields()
-        async with self.bot.pool.acquire() as conn:  # type: asyncpg.Connection
+        async with self.bot.pool.acquire() as conn:
             bidders = await conn.fetch("SELECT * FROM bids WHERE bid > 0 ORDER BY bid DESC")
         if len(bidders) > 0:
             self.bidders = bidders.copy()
@@ -205,7 +206,7 @@ class GiveawayView(ui.View):
         if not check_giveaway(interaction.user.roles):  # type: ignore
             await interaction.response.send_message("You must be at least level 5 to participate in the giveaways!")
             return
-        async with self.bot.pool.acquire() as conn:  # type: asyncpg.Connection
+        async with self.bot.pool.acquire() as conn:
             last_win = await conn.fetchval(
                 "SELECT expiry FROM winners WHERE id = $1", interaction.user.id
             ) or __TIME__() - datetime.timedelta(days=1)
@@ -273,7 +274,7 @@ class BidModal(ui.Modal, title="Bid"):
             await interaction.response.send_message("Please enter a valid integer between 0 and 32768.", ephemeral=True)
             return self.stop()
         await interaction.response.defer(ephemeral=True, thinking=True)
-        async with self.bot.pool.acquire() as conn:  # type: asyncpg.Connection
+        async with self.bot.pool.acquire() as conn:
             points: int | None = await conn.fetchval("SELECT points FROM users WHERE id = $1", interaction.user.id)
             if points is None or points == 0:
                 await interaction.followup.send("You either have never gathered points or have 0.")
@@ -337,6 +338,8 @@ class Giveaway(commands.Cog):
         The giveaway view for the current giveaway.
     charlie: discord.Member
         The member object for charlie.
+    games: pandas.DataFrame
+        The games dataframe, with the index date in the form (m)m/(d)d/yyyy., and columns game, url, and source.
     """
 
     def __init__(self, bot: CBot):
@@ -344,6 +347,7 @@ class Giveaway(commands.Cog):
         self.yesterdays_giveaway: GiveawayView | None = None
         self.current_giveaway: GiveawayView | None = None
         self.charlie: discord.Member = ...  # type: ignore
+        self.games: pd.DataFrame = self.load_game_csv()
 
     async def cog_load(self) -> None:
         """Call when the cog is loaded."""
@@ -376,6 +380,19 @@ class Giveaway(commands.Cog):
             await ctx.send(error.message, ephemeral=True)
         else:
             raise error
+
+    @staticmethod
+    def load_game_csv() -> pd.DataFrame:
+        """Load the game CSV file.
+
+        This loads the game CSV file into the games list variable as a dataframe.
+
+        Returns
+        -------
+        pd.DataFrame
+            The games dataframe, with the index date in the form (m)m/(d)d/yyyy., and columns game, url, and source.
+        """
+        return pd.read_csv("giveaway.csv", index_col=0, usecols=[0, 1, 2, 4], names=["date", "game", "url", "source"])
 
     @commands.hybrid_group(name="giveaway", description="Giveaway commands.")
     @giveaway_command_check()
@@ -472,9 +489,12 @@ class Giveaway(commands.Cog):
             await self.yesterdays_giveaway.end()
         if not isinstance(self.charlie, discord.Member):
             self.charlie = await (await self.bot.fetch_guild(225345178955808768)).fetch_member(225344348903047168)
-        # TODO: Do Whatever i have to do to get the game, and optionally URL for the new giveaway  # skipcq: PYL-W0511
-        game = "Placeholder until charlie gets me a list of games"
-        url = "https://discord.com/developers/docs/intro"
+        try:
+            gameinfo: dict[str, str] = {k: v for k, v in self.games.loc[__TIME__().strftime("%-m/%-d/%Y")].items()}
+        except KeyError:
+            gameinfo: dict[str, str] = {"game": "Charlie Didn't Give me one", "url": "None", "source": "Charlie"}
+        game = gameinfo["game"]
+        url = gameinfo["url"] if gameinfo["url"] != "None" else None
         embed = discord.Embed(
             title="Daily Giveaway",
             description=f"Today's Game: [{game}]({url})",
