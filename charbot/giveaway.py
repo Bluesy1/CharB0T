@@ -217,7 +217,7 @@ class BidModal(ui.Modal, title="Bid"):
         self.view = view
 
     bid_str = ui.TextInput(
-        label="Increase bid by. If the value you enter is larger than your point balance, all your points will be bid.",
+        label="How much to increase your bid by?",
         placeholder="Enter your bid (Must be an integer between 0 and 32768)",
         style=discord.TextStyle.short,
         min_length=1,
