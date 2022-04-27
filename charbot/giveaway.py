@@ -322,10 +322,9 @@ class Giveaway(commands.Cog):
 
     async def cog_load(self) -> None:
         """Call when the cog is loaded."""
-        self.charlie = await (await self.bot.fetch_guild(225345178955808768)).fetch_member(225344348903047168)
         self.giveaway_webhook = await self.bot.fetch_webhook(int(os.getenv("GIVEAWAY_WEBHOOK")))  # type: ignore
         self.report_webhook = await self.bot.fetch_webhook(int(os.getenv("GIVEAWAY_WIN_WEBHOOK")))  # type: ignore
-        await self.daily_giveaway.start()
+        self.daily_giveaway.start()
 
     async def cog_unload(self) -> None:  # skipcq: PYL-W0236
         """Call when the cog is unloaded."""
@@ -428,6 +427,8 @@ class Giveaway(commands.Cog):
         if self.current_giveaway is not None:
             self.yesterdays_giveaway = self.current_giveaway
             await self.yesterdays_giveaway.end(self.giveaway_webhook, self.report_webhook)
+        if self.charlie is None:
+            self.charlie = await (await self.bot.fetch_guild(225345178955808768)).fetch_member(225344348903047168)
         # TODO: Do Whatever i have to do to get the game, and optionally URL for the new giveaway  # skipcq: PYL-W0511
         game = "Placeholder untill charlie gets me a list of games"
         url = "https://discord.com/developers/docs/intro"
