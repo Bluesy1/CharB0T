@@ -936,7 +936,7 @@ class SudokuGame(ui.View):
                         embed.add_field(name="Time Taken", value=f"{time_taken}", inline=True)
                         embed.add_field(
                             name="Points gained",
-                            value=f"{await self.bot.give_game_points(self.author.id, 2, 3)} Points",
+                            value=f"{await self.bot.give_game_points(self.author.id, 2, 6)} Points",
                             inline=True,
                         )
                         await interaction.response.edit_message(embed=embed, view=self)
