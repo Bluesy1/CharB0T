@@ -104,6 +104,9 @@ class GiveawayView(ui.View):
         self.embed.set_footer(text="Giveaway ended")
         self.embed.timestamp = utcnow()
         self.embed.clear_fields()
+        if self.total_entries == 0:
+            await self.message.edit(content="No entries", embed=None, view=self)
+            return
         async with self.bot.pool.acquire() as conn:  # type: asyncpg.Connection
             bidders = await conn.fetch("SELECT * FROM bids ORDER BY bid DESC")
         self.bidders = copy.deepcopy(bidders)
