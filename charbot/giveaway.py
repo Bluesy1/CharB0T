@@ -491,7 +491,7 @@ class Giveaway(commands.Cog):
         embed.add_field(name="How to Win", value="The winner will be chosen at random.", inline=True)
         embed.add_field(
             name="How to get points",
-            value="You get points by using the giveaway daily command and by playing the minigames.",
+            value="You get points by using the `giveaway daily` command and by playing the minigames.",
             inline=True,
         )
         embed.add_field(name="Total Points Bid", value="0", inline=True)
