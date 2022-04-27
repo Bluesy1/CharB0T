@@ -48,6 +48,8 @@ class GiveawayView(ui.View):
     ----------
     bot : CBot
         The bot instance.
+    channel : discord.TextChannel
+        The channel the giveaway is in.
     embed : discord.Embed
         The embed of the giveaway.
     game : str
@@ -59,6 +61,8 @@ class GiveawayView(ui.View):
     ----------
     bot : CBot
         The bot instance.
+    channel : discord.TextChannel
+        The channel the giveaway is in.
     embed : discord.Embed
         The embed of the giveaway.
     total_entries : int
@@ -75,9 +79,12 @@ class GiveawayView(ui.View):
         The list of bidders. Only filled when the end() method is called.
     """
 
-    def __init__(self, bot: CBot, embed: discord.Embed, game: str, url: str | None = None):
+    def __init__(
+        self, bot: CBot, channel: discord.TextChannel, embed: discord.Embed, game: str, url: str | None = None
+    ):
         super().__init__(timeout=None)
         self.bot = bot
+        self.channel = channel
         self.embed = embed
         self.total_entries = 0
         self.top_bid = 0
@@ -88,16 +95,8 @@ class GiveawayView(ui.View):
         if url is not None:
             self.add_item(ui.Button(label=game, style=discord.ButtonStyle.link, url=url))
 
-    async def end(self, webhook: discord.Webhook, report_hook: discord.Webhook):
-        """End the giveaway.
-
-        Parameters
-        ----------
-        webhook: discord.Webhook
-            The webhook to send the giveaway message to.
-        report_hook: discord.Webhook
-            The webhook to send the report message to.
-        """
+    async def end(self):
+        """End the giveaway."""
         self.bid.disabled = True
         self.bid.label = "Giveaway ended"
         self.check.disabled = True
@@ -112,6 +111,7 @@ class GiveawayView(ui.View):
         for bid in bidders:
             bids[0].append(bid["id"])
             bids[1].append(bid["bid"])
+        avg_bid = mean(bids[1])
         _winners = random.sample(bids[0], k=6, counts=bids[1])
         winners = []
         for win in _winners:
@@ -123,29 +123,21 @@ class GiveawayView(ui.View):
             new_winner = random.sample(bids[0], k=1, counts=bids[1])
             if new_winner[0] not in winners:
                 winners.append(new_winner[0])
-        winner = await webhook.channel.guild.fetch_member(winners[0])  # type: ignore
+        winner = await self.channel.guild.fetch_member(winners[0])  # type: ignore
         async with self.bot.pool.acquire() as conn:  # type: asyncpg.Connection
             winning_bid = await conn.fetchval("SELECT bid FROM bids WHERE id = $1", winners[0])
         self.embed.title = f"{winner.display_name} won the {self.game} giveaway!"
         self.embed.add_field(name="Winner", value=f"{winner.mention} with {winning_bid} points bid.", inline=True)
-        self.embed.add_field(name="Bidders", value=f"{len(bids[0])}", inline=True)
-        self.embed.add_field(name="Average Bid", value=f"{mean(bids[1]):.2f}", inline=True)
-        self.embed.add_field(
-            name="Average Win Chance", value=f"{(mean(bids[1])*100/self.total_entries):.2f}", inline=True
-        )
+        self.embed.add_field(name="Bidders", value=f"{len(bidders[0])}", inline=True)
+        self.embed.add_field(name="Average Bid", value=f"{avg_bid:.2f}", inline=True)
+        self.embed.add_field(name="Average Win Chance", value=f"{(avg_bid*100/self.total_entries):.2f}", inline=True)
         self.embed.add_field(name="Top Bid", value=f"{self.top_bid:.2f}", inline=True)
         self.embed.add_field(name="Total Entries", value=f"{self.total_entries}", inline=True)
-        self.embed.add_field(name="Winners", value="4 Backup winners selected if ", inline=True)
+        self.embed.add_field(name="Winners", value=f"{', '.join(f'<@{uid}>' for uid in winners)}", inline=True)
         await self.message.edit(embed=self.embed, view=self)  # type: ignore
-        await webhook.send(
-            f"Congrats to {winner.mention} for winning the {self.game} giveaway!",
-            allowed_mentions=discord.AllowedMentions(users=True),
-        )
-        await report_hook.send(
-            f"{winner.mention} won the {self.game} giveaway!\nBackup winners: {winners[1:]}. all winner ids:"
-            f" {winners}\nBidders: {len(bids[0])}\nAverage bid: {mean(bids[1]):.2f}\nAverage win chance:"
-            f" {(mean(bids[1])*100/self.total_entries):.2f}\nTop bid: {self.top_bid:.2f}\nTotal entries: "
-            f"{self.total_entries}\n ***BIDS WIPED AND PREPPING FOR NEW GIVEAWAY***",
+        await self.channel.send(
+            f"Congrats to {winner.mention} for winning the {self.game} giveaway! If you're also listed under winners,"
+            f" stay tuned for if the first winner does not reach out to redeem their prize.",
             allowed_mentions=discord.AllowedMentions(users=True),
         )
         async with self.bot.pool.acquire() as conn:  # type: asyncpg.Connection
@@ -310,10 +302,6 @@ class Giveaway(commands.Cog):
         The giveaway view for the current giveaway.
     charlie: discord.Member
         The member object for charlie.
-    giveaway_webhook: discord.Webhook
-        The webhook for the giveaway.
-    report_webhook: discord.Webhook
-        The webhook for the giveaway report.
     """
 
     def __init__(self, bot: CBot):
@@ -321,8 +309,6 @@ class Giveaway(commands.Cog):
         self.yesterdays_giveaway: GiveawayView | None = None
         self.current_giveaway: GiveawayView | None = None
         self.charlie: discord.Member = ...  # type: ignore
-        self.giveaway_webhook: discord.Webhook = ...  # type: ignore
-        self.report_webhook: discord.Webhook = ...  # type: ignore
 
     async def cog_load(self) -> None:
         """Call when the cog is loaded."""
@@ -423,19 +409,35 @@ class Giveaway(commands.Cog):
         else:
             await ctx.author.send(f"You have {points} points.")
 
+    @giveaway.command(name="confirm", description="[Charlie only] confirm a winner")
+    @app_commands.guilds(225345178955808768)
+    async def confirm(self, ctx: commands.Context, user: discord.Member):
+        """Confirm a winner.
+
+        Parameters
+        ----------
+        ctx : commands.Context
+            The context of the command invocation.
+        user : discord.Member
+            The user to confirm.
+        """
+        if user.id != 225344348903047168:
+            await ctx.send("Only Charlie can confirm a winner.")
+            return
+        async with self.bot.pool.acquire() as conn:  # type: asyncpg.Connection
+            await conn.execute(
+                "INSERT INTO winners (id, expiry) VALUES ($1, $2)", user.id, __TIME__() + datetime.timedelta(days=30)
+            )
+        await ctx.send("Confirmed.")
+
     @tasks.loop(time=datetime.time(hour=0, minute=0, second=0, tzinfo=__ZONEINFO__))  # skipcq: PYL-E1123
     async def daily_giveaway(self):
         """Run the daily giveaway."""
         if self.current_giveaway is not None:
             self.yesterdays_giveaway = self.current_giveaway
-            await self.yesterdays_giveaway.end(self.giveaway_webhook, self.report_webhook)
+            await self.yesterdays_giveaway.end()
         if not isinstance(self.charlie, discord.Member):
             self.charlie = await (await self.bot.fetch_guild(225345178955808768)).fetch_member(225344348903047168)
-        if not isinstance(self.giveaway_webhook, discord.Webhook):
-            self.giveaway_webhook = await self.bot.fetch_webhook(int(os.getenv("GIVEAWAY_WEBHOOK")))  # type: ignore
-        if not isinstance(self.report_webhook, discord.Webhook):
-            _id = int(os.getenv("GIVEAWAY_WIN_WEBHOOK"))  # type: ignore
-            self.report_webhook = await self.bot.fetch_webhook(_id)  # type: ignore
         # TODO: Do Whatever i have to do to get the game, and optionally URL for the new giveaway  # skipcq: PYL-W0511
         game = "Placeholder until charlie gets me a list of games"
         url = "https://discord.com/developers/docs/intro"
@@ -457,10 +459,9 @@ class Giveaway(commands.Cog):
         )
         embed.add_field(name="Total Points Bid", value="0", inline=True)
         embed.add_field(name="Largest Bid", value="0", inline=True)
-        self.current_giveaway = GiveawayView(self.bot, embed, game, url)
-        self.current_giveaway.message = await self.giveaway_webhook.send(
-            embed=embed, view=self.current_giveaway, wait=True
-        )
+        channel = await self.bot.fetch_channel(int(os.getenv("GIVEAWAY_ID")))  # type: ignore
+        self.current_giveaway = GiveawayView(self.bot, channel, embed, game, url)  # type: ignore
+        self.current_giveaway.message = await channel.send(embed=embed, view=self.current_giveaway)  # type: ignore
 
 
 async def setup(bot: CBot):
