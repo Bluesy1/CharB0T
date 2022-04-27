@@ -261,7 +261,7 @@ class BidModal(ui.Modal, title="Bid"):
         if 32768 < bid_int < 0:
             await interaction.response.send_message("Please enter a valid integer between 0 and 32768.", ephemeral=True)
             return self.stop()
-        await interaction.response.defer(ephemeral=True)
+        await interaction.response.defer(ephemeral=True, thinking=True)
         async with self.bot.pool.acquire() as conn:  # type: asyncpg.Connection
             points: int | None = await conn.fetchval("SELECT points FROM users WHERE id = $1", interaction.user.id)
             if points is None or points == 0:
