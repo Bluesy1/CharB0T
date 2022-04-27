@@ -105,24 +105,27 @@ class GiveawayView(ui.View):
         self.embed.clear_fields()
         async with self.bot.pool.acquire() as conn:  # type: asyncpg.Connection
             bidders = await conn.fetch("SELECT * FROM bids ORDER BY bid DESC")
-        self.bidders = bidders.copy()
-        bids: list[list[int]] = [[], []]
-        for bid in bidders:
-            bids[0].append(bid["id"])
-            bids[1].append(bid["bid"])
-        avg_bid = mean(bids[1])
-        _winners = random.sample(bids[0], k=min(6, len(bidders)), counts=bids[1])
-        winners = []
-        for win in _winners:
-            if len(winners) >= 3:
-                break
-            if win not in winners:
-                winners.append(win)
-        while len(winners) < min(3, len(bids[0])):
-            new_winner = random.sample(bids[0], k=1, counts=bids[1])
-            if new_winner[0] not in winners:
-                winners.append(new_winner[0])
-        if winners[0]:
+        if bidders:
+            self.bidders = bidders.copy()
+            bids: list[list[int]] = [[], []]
+            for bid in bidders:
+                bids[0].append(bid["id"])
+                bids[1].append(bid["bid"])
+            avg_bid = mean(bids[1])
+            _winners = random.sample(bids[0], k=min(6, len(bidders)), counts=bids[1])
+            winners = []
+            for win in _winners:
+                if len(winners) >= 3:
+                    break
+                if win not in winners:
+                    winners.append(win)
+            while len(winners) < min(3, len(bids[0])):
+                new_winner = random.sample(bids[0], k=1, counts=bids[1])
+                if new_winner[0] not in winners:
+                    winners.append(new_winner[0])
+        else:
+            winners = []
+        if winners:
             winner = await self.channel.guild.fetch_member(winners[0])  # type: ignore
         else:
             winner = None
