@@ -934,9 +934,11 @@ class SudokuGame(ui.View):
                         embed.set_footer(text="Play Sudoku by Typing !sudoku")
                         time_taken = utcnow().replace(microsecond=0) - self.start_time.replace(microsecond=0)
                         embed.add_field(name="Time Taken", value=f"{time_taken}", inline=True)
+                        embed.add_field(name="Time Taken", value=f"{time_taken}", inline=True)
+                        points = await self.bot.give_game_points(self.author.id, 5, 10)
                         embed.add_field(
                             name="Points gained",
-                            value=f"{await self.bot.give_game_points(self.author.id, 2, 6)} Points",
+                            value="15 Points" if points == 15 else f"{points} Points (Daily Cap Hit)",
                             inline=True,
                         )
                         await interaction.response.edit_message(embed=embed, view=self)
@@ -1100,9 +1102,11 @@ class SudokuGame(ui.View):
         time_taken = utcnow().replace(microsecond=0) - self.start_time.replace(microsecond=0)
         embed.add_field(name="Time Taken", value=f"{time_taken}", inline=True)
         if (utcnow() - self.start_time) > datetime.timedelta(minutes=3) and self.moves > 10:
+            embed.add_field(name="Time Taken", value=f"{time_taken}", inline=True)
+            points = await self.bot.give_game_points(self.author.id, 5, 0)
             embed.add_field(
                 name="Points gained",
-                value=f"{await self.bot.give_game_points(self.author.id, 2, 0)} Points",
+                value="5 Points" if points == 5 else f"{points} Points (Daily Cap Hit)",
                 inline=True,
             )
         else:

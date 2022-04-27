@@ -155,18 +155,17 @@ class CBot(commands.Bot):
                     await conn.execute("UPDATE users SET points = points + $1 WHERE id = $2", points + bonus, user_id)
             if user["particip_dt"] == __TIME__():
                 if user["particip"] + points > 10:
-                    pass
-                else:
-                    async with self.pool.acquire() as conn:
-                        await conn.execute(
-                            "UPDATE daily_points SET particip = $1, won = $2 WHERE id = $3",
-                            points,
-                            bonus,
-                            user_id,
-                        )
-                        await conn.execute(
-                            "UPDATE users SET points = points + $1 WHERE id = $2", points + bonus, user_id
-                        )
+                    real_points = 10 - user["particip"]
+                    bonus = -(-(real_points * bonus) // points)
+                    points = real_points
+                async with self.pool.acquire() as conn:
+                    await conn.execute(
+                        "UPDATE daily_points SET particip = $1, won = $2 WHERE id = $3",
+                        points,
+                        bonus,
+                        user_id,
+                    )
+                    await conn.execute("UPDATE users SET points = points + $1 WHERE id = $2", points + bonus, user_id)
         return points + bonus
 
 
