@@ -104,7 +104,7 @@ class GiveawayView(ui.View):
         self.embed.timestamp = utcnow()
         self.embed.clear_fields()
         async with self.bot.pool.acquire() as conn:  # type: asyncpg.Connection
-            bidders = await conn.fetch("SELECT * FROM bids ORDER BY bid DESC")
+            bidders = await conn.fetch("SELECT * FROM bids WHERE bid > 0 ORDER BY bid DESC")
         if bidders:
             self.bidders = bidders.copy()
             bids: list[list[int]] = [[], []]
