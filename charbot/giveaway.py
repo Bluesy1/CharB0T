@@ -152,9 +152,6 @@ class GiveawayView(ui.View):
                 f" winners, stay tuned for if the first winner does not reach out to redeem their prize.",
                 allowed_mentions=discord.AllowedMentions(users=True),
             )
-        else:
-            await self.channel.send("No entries were recieved, the game has been recycled for a later giveaway.")
-        # noinspection SqlWithoutWhere
         await self.bot.pool.execute("UPDATE bids SET bid = 0 WHERE bid > 0")
 
     # noinspection PyUnusedLocal
