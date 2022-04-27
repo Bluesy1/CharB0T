@@ -104,9 +104,6 @@ class GiveawayView(ui.View):
         self.embed.set_footer(text="Giveaway ended")
         self.embed.timestamp = utcnow()
         self.embed.clear_fields()
-        if self.total_entries == 0:
-            await self.message.edit(content="No entries", embed=None, view=self)  # type: ignore
-            return
         async with self.bot.pool.acquire() as conn:  # type: asyncpg.Connection
             bidders = await conn.fetch("SELECT * FROM bids ORDER BY bid DESC")
         self.bidders = copy.deepcopy(bidders)
@@ -115,7 +112,7 @@ class GiveawayView(ui.View):
             bids[0].append(bid["id"])
             bids[1].append(bid["bid"])
         avg_bid = mean(bids[1])
-        _winners = random.sample(bids[0], k=6, counts=bids[1])
+        _winners = random.sample(bids[0], k=min(6, len(bidders)), counts=bids[1])
         winners = []
         for win in _winners:
             if len(winners) >= 3:
@@ -293,7 +290,9 @@ class BidModal(ui.Modal, title="Bid"):
                 warnings.warn("Bid should not be None at this code.", RuntimeWarning)
                 new_bid = bid_int
                 await conn.execute(
-                    "INSERT INTO bids (bid,id) values ($1, $2), ON CONFLICT DO UPDATE ", bid_int, interaction.user.id
+                    "INSERT INTO bids (bid,id) values ($1, $2) ON CONFLICT DO UPDATE SET bid = $1",
+                    bid_int,
+                    interaction.user.id,
                 )
             self.view.total_entries += bid_int
             chance = new_bid * 100 / self.view.total_entries  # type: ignore
@@ -447,13 +446,12 @@ class Giveaway(commands.Cog):
             The user to confirm.
         """
         if user.id != 225344348903047168:
-            await ctx.send("Only Charlie can confirm a winner.")
+            await ctx.send("Only Charlie can confirm a winner.", ephemeral=True)
             return
-        async with self.bot.pool.acquire() as conn:  # type: asyncpg.Connection
-            await conn.execute(
-                "INSERT INTO winners (id, expiry) VALUES ($1, $2)", user.id, __TIME__() + datetime.timedelta(days=30)
-            )
-        await ctx.send("Confirmed.")
+        await self.bot.pool.execute(
+            "INSERT INTO winners (id, expiry) VALUES ($1, $2)", user.id, __TIME__() + datetime.timedelta(days=30)
+        )
+        await ctx.send("Confirmed.", ephemeral=True)
 
     @tasks.loop(time=datetime.time(hour=0, minute=0, second=0, tzinfo=__ZONEINFO__))  # skipcq: PYL-E1123
     async def daily_giveaway(self):
