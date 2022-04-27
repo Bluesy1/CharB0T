@@ -112,14 +112,14 @@ class GiveawayView(ui.View):
         for bid in bidders:
             bids[0].append(bid["id"])
             bids[1].append(bid["bid"])
-        _winners = random.sample(bids[0], k=10, counts=bids[1])
+        _winners = random.sample(bids[0], k=6, counts=bids[1])
         winners = []
         for win in _winners:
-            if len(winners) >= 5:
+            if len(winners) >= 3:
                 break
             if win not in winners:
                 winners.append(win)
-        while len(winners) < min(5, len(bids[0])):
+        while len(winners) < min(3, len(bids[0])):
             new_winner = random.sample(bids[0], k=1, counts=bids[1])
             if new_winner[0] not in winners:
                 winners.append(new_winner[0])
@@ -250,6 +250,11 @@ class BidModal(ui.Modal):
             points: int | None = await conn.fetchval("SELECT points FROM users WHERE id = $1", interaction.user.id)
             if points is None or points == 0:
                 await interaction.followup.send("You either have never gathered points or have 0.")
+                return self.stop()
+            if points < bid_int:
+                await interaction.followup.send(
+                    f"You do not have enough points to bid {bid_int} more. You have {points} points."
+                )
                 return self.stop()
             bid_int = min(bid_int, points)
             current_bid = await conn.fetchval("SELECT bid FROM bids WHERE id = $1", interaction.user.id) or 0

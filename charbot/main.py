@@ -76,6 +76,7 @@ class CBot(commands.Bot):
         await self.load_extension("dice")
         await self.load_extension("events")
         await self.load_extension("gcal")
+        await self.load_extension("giveaway")
         await self.load_extension("mod_support")
         await self.load_extension("primary")
         await self.load_extension("query")
