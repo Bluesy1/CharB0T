@@ -185,7 +185,7 @@ class GiveawayView(ui.View):
         modal = BidModal(self.bot, self)
         await interaction.response.send_modal(modal)
         await modal.wait()
-        if self.total_entries >= 0:
+        if self.total_entries > 0:
             self.check.disabled = False
         self.embed.set_field_at(3, name="Total Points Bidded", value=f"{self.total_entries}")
         self.embed.set_field_at(4, name="Largest Bid", value=f"{self.top_bid}")
