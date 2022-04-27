@@ -187,7 +187,8 @@ class GiveawayView(ui.View):
         modal = BidModal(self.bot, self)
         await interaction.response.send_modal(modal)
         await modal.wait()
-        self.check.disabled = False
+        if self.total_entries >= 0:
+            self.check.disabled = False
         self.embed.set_field_at(3, name="Total Points Bidded", value=f"{self.total_entries}")
         self.embed.set_field_at(4, name="Largest Bid", value=f"{self.top_bid}")
         await self.message.edit(embed=self.embed, view=self)  # type: ignore
@@ -490,7 +491,7 @@ class Giveaway(commands.Cog):
         embed.add_field(name="How to Win", value="The winner will be chosen at random.", inline=True)
         embed.add_field(
             name="How to get points",
-            value="You get points by using the `!daily` command and by playing the minigames.",
+            value="You get points by using the giveaway daily command and by playing the minigames.",
             inline=True,
         )
         embed.add_field(name="Total Points Bid", value="0", inline=True)
