@@ -23,7 +23,6 @@
 # SOFTWARE.
 #  ----------------------------------------------------------------------------
 """Game giveaway extension."""
-import copy
 import datetime
 import os
 import random
@@ -106,7 +105,7 @@ class GiveawayView(ui.View):
         self.embed.clear_fields()
         async with self.bot.pool.acquire() as conn:  # type: asyncpg.Connection
             bidders = await conn.fetch("SELECT * FROM bids ORDER BY bid DESC")
-        self.bidders = copy.deepcopy(bidders)
+        self.bidders = bidders.copy()
         bids: list[list[int]] = [[], []]
         for bid in bidders:
             bids[0].append(bid["id"])
@@ -123,26 +122,36 @@ class GiveawayView(ui.View):
             new_winner = random.sample(bids[0], k=1, counts=bids[1])
             if new_winner[0] not in winners:
                 winners.append(new_winner[0])
-        winner = await self.channel.guild.fetch_member(winners[0])  # type: ignore
+        if winners[0]:
+            winner = await self.channel.guild.fetch_member(winners[0])  # type: ignore
+        else:
+            winner = None
         async with self.bot.pool.acquire() as conn:  # type: asyncpg.Connection
             winning_bid = await conn.fetchval("SELECT bid FROM bids WHERE id = $1", winners[0])
-        self.embed.title = f"{winner.display_name} won the {self.game} giveaway!"
-        self.embed.add_field(name="Winner", value=f"{winner.mention} with {winning_bid} points bid.", inline=True)
-        self.embed.add_field(name="Bidders", value=f"{len(bidders[0])}", inline=True)
-        self.embed.add_field(name="Average Bid", value=f"{avg_bid:.2f}", inline=True)
-        self.embed.add_field(name="Average Win Chance", value=f"{(avg_bid*100/self.total_entries):.2f}", inline=True)
-        self.embed.add_field(name="Top Bid", value=f"{self.top_bid:.2f}", inline=True)
-        self.embed.add_field(name="Total Entries", value=f"{self.total_entries}", inline=True)
-        self.embed.add_field(name="Winners", value=f"{', '.join(f'<@{uid}>' for uid in winners)}", inline=True)
+        if winner is not None:
+            self.embed.title = f"{winner.display_name} won the {self.game} giveaway!"
+            self.embed.add_field(name="Winner", value=f"{winner.mention} with {winning_bid} points bid.", inline=True)
+            self.embed.add_field(name="Bidders", value=f"{len(bidders[0])}", inline=True)
+            self.embed.add_field(name="Average Bid", value=f"{avg_bid:.2f}", inline=True)
+            self.embed.add_field(
+                name="Average Win Chance", value=f"{(avg_bid * 100 / self.total_entries):.2f}", inline=True
+            )
+            self.embed.add_field(name="Top Bid", value=f"{self.top_bid:.2f}", inline=True)
+            self.embed.add_field(name="Total Entries", value=f"{self.total_entries}", inline=True)
+            self.embed.add_field(name="Winners", value=f"{', '.join(f'<@{uid}>' for uid in winners)}", inline=True)
+        else:
+            self.embed.add_field(name="No Winners", value="No bids were made.", inline=True)
         await self.message.edit(embed=self.embed, view=self)  # type: ignore
-        await self.channel.send(
-            f"Congrats to {winner.mention} for winning the {self.game} giveaway! If you're also listed under winners,"
-            f" stay tuned for if the first winner does not reach out to redeem their prize.",
-            allowed_mentions=discord.AllowedMentions(users=True),
-        )
-        async with self.bot.pool.acquire() as conn:  # type: asyncpg.Connection
-            # noinspection SqlWithoutWhere
-            await conn.execute("DELETE FROM bids")
+        if winner is not None:
+            await self.channel.send(
+                f"Congrats to {winner.mention} for winning the {self.game} giveaway! If you're also listed under"
+                f" winners, stay tuned for if the first winner does not reach out to redeem their prize.",
+                allowed_mentions=discord.AllowedMentions(users=True),
+            )
+        else:
+            await self.channel.send("No entries were recieved, the game has been recycled for a later giveaway.")
+        # noinspection SqlWithoutWhere
+        await self.bot.pool.execute("DELETE FROM bids")
 
     # noinspection PyUnusedLocal
     @ui.button(label="Bid", style=discord.ButtonStyle.green)
