@@ -32,7 +32,7 @@ from discord.ext import commands
 from discord.ext.commands import Cog, Context
 
 __source__ = (
-    "You can find my source code here: https://www.github.com/Bluesy1/CharB0T/charbot \n"
+    "You can find my source code here: https://github.com/Bluesy1/CharB0T/tree/main/charbot \n"
     "I'm liscensed under the MIT liscense. See the license file for more information: "
     "https://www.github.com/Bluesy1/CharB0T/blob/master/LICENSE \n Creator: Bluesy#8150"
 )
@@ -99,7 +99,7 @@ class Query(Cog):
         References
         ----------
         Repository:
-        https://github.com/Bluesy1/CharB0T/charbot
+        https://github.com/Bluesy1/CharB0T/tree/main/charbot
 
         Licence:
         MIT - https://github.com/Bluesy1/CharB0T/blob/master/LICENSE
