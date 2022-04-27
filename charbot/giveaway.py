@@ -105,7 +105,7 @@ class GiveawayView(ui.View):
         self.embed.timestamp = utcnow()
         self.embed.clear_fields()
         if self.total_entries == 0:
-            await self.message.edit(content="No entries", embed=None, view=self)
+            await self.message.edit(content="No entries", embed=None, view=self)  # type: ignore
             return
         async with self.bot.pool.acquire() as conn:  # type: asyncpg.Connection
             bidders = await conn.fetch("SELECT * FROM bids ORDER BY bid DESC")
@@ -164,6 +164,16 @@ class GiveawayView(ui.View):
         if not check_giveaway(interaction.user.roles):  # type: ignore
             await interaction.response.send_message("You must be at least level 5 to participate in the giveaways!")
             return
+        last_win = await self.bot.pool.fetchval(
+            "SELECT expiry FROM winners WHERE id = $1", interaction.user.id
+        ) or __TIME__() - datetime.timedelta(days=1)
+        if last_win > __TIME__():
+            await interaction.response.send_message(
+                f"You have won a giveaway recently, please wait until {last_win.strftime('%a %d %B %Y')}"
+                f" to bid again.",
+                ephemeral=True,
+            )
+            return
         modal = BidModal(self.bot, self)
         await interaction.response.send_modal(modal)
         await modal.wait()
@@ -187,7 +197,17 @@ class GiveawayView(ui.View):
         if not check_giveaway(interaction.user.roles):  # type: ignore
             await interaction.response.send_message("You must be at least level 5 to participate in the giveaways!")
             return
-        async with self.bot.pool.acquire() as conn:
+        async with self.bot.pool.acquire() as conn:  # type: asyncpg.Connection
+            last_win = await conn.fetchval(
+                "SELECT expiry FROM winners WHERE id = $1", interaction.user.id
+            ) or __TIME__() - datetime.timedelta(days=1)
+            if last_win > __TIME__():
+                await interaction.response.send_message(
+                    f"You have won a giveaway recently, please wait until {last_win.strftime('%a %d %B %Y')}"
+                    f" to bid again.",
+                    ephemeral=True,
+                )
+                return
             record = await conn.fetchval("SELECT bid FROM bids WHERE id = $1", interaction.user.id)
             bid: int = record if record is not None else 0
         chance = bid * 100 / self.total_entries
@@ -272,7 +292,9 @@ class BidModal(ui.Modal, title="Bid"):
             if new_bid is None:
                 warnings.warn("Bid should not be None at this code.", RuntimeWarning)
                 new_bid = bid_int
-                await conn.execute("UPDATE bids SET bid = $1 WHERE id = $2", bid_int, interaction.user.id)
+                await conn.execute(
+                    "INSERT INTO bids (bid,id) values ($1, $2), ON CONFLICT DO UPDATE ", bid_int, interaction.user.id
+                )
             self.view.total_entries += bid_int
             chance = new_bid * 100 / self.view.total_entries  # type: ignore
             await interaction.followup.send(
@@ -384,15 +406,16 @@ class Giveaway(commands.Cog):
                     __TIME__(),
                     __TIME__() - datetime.timedelta(days=1),
                 )
-                await ctx.send("You got your daily reward of 20 points!")
+                await conn.execute("INSERT INTO bids (id, bid) VALUES ($1, 0)", ctx.author.id)
+                await ctx.send("You got your daily reward of 20 points!", ephemeral=True)
             return
         if user["daily"] == __TIME__():
-            await ctx.send("You already got your daily reward.")
+            await ctx.send("You already got your daily reward.", ephemeral=True)
             return
         async with self.bot.pool.acquire() as conn:
             await conn.execute("UPDATE users SET points = points + 20 WHERE id = $1", ctx.author.id)
             await conn.execute("UPDATE daily_points SET last_claim = $1 WHERE id = $2", __TIME__(), ctx.author.id)
-        await ctx.send("You got your daily reward of 20 points!")
+        await ctx.send("You got your daily reward of 20 points!", ephemeral=True)
 
     @giveaway.command(name="query", description="Query your points")
     @giveaway_command_check()
@@ -405,8 +428,7 @@ class Giveaway(commands.Cog):
         ctx : commands.Context
             The context of the command invocation.
         """
-        user = await self.bot.giveaway_user(ctx.author.id)
-        points = user["points"] if user is not None else 0
+        points = await self.bot.pool.fetchval("SELECT points from users where id = $1", 363095569515806722) or 0
         if ctx.interaction is not None:
             await ctx.send(f"You have {points} points.", ephemeral=True)
         else:
