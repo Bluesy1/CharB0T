@@ -23,12 +23,15 @@
 # SOFTWARE.
 #  ----------------------------------------------------------------------------
 """Shrugman minigame."""
+import datetime
 import random
 from enum import Enum
+from typing import Optional
 
 import discord
 from discord import ui
 from discord.ext import commands
+from discord.utils import utcnow
 
 from main import CBot
 
@@ -123,7 +126,8 @@ class Shrugman(commands.Cog):
         )
         embed.set_footer(text="Type !shrugman or !sm to play")
         embed.set_author(name=ctx.author.display_name, icon_url=ctx.author.display_avatar.url)
-        await ctx.send(embed=embed, view=ShrugmanGame(self.bot, ctx, word))
+        view = ShrugmanGame(self.bot, ctx, word)
+        view.message = await ctx.send(embed=embed, view=view)
 
 
 class ShrugmanGame(ui.View):
@@ -162,10 +166,14 @@ class ShrugmanGame(ui.View):
         The word to guess represented as a list of characters, with hyphens replacing unguessed letters.
     length : int
         The length of the word to guess.
+    start_time : datetime.datetime
+        The time the game started. Timzone aware.
+    message : discord.Message, optional
+        The message that the view is attached to.
     """
 
     def __init__(self, bot: CBot, ctx: commands.Context, word: str, *, fail_enum=FailStates):
-        super().__init__(timeout=None)
+        super().__init__(timeout=600)
         self.bot = bot
         self.author = ctx.author
         self.word = word or random.choice(__words__)
@@ -176,6 +184,8 @@ class ShrugmanGame(ui.View):
         self.dead = False
         self.guess_word_list = ["-" for _ in self.word]
         self.length = len(word)
+        self.start_time = utcnow()
+        self.message: Optional[discord.Message] = None
 
     # noinspection PyUnusedLocal
     @ui.button(label="Guess", style=discord.ButtonStyle.success)
@@ -191,6 +201,8 @@ class ShrugmanGame(ui.View):
         button : ui.Button
             The button that was pressed.
         """
+        if self.message is None and interaction.message is not None:
+            self.message = interaction.message
         if interaction.user.id != self.author.id:
             await interaction.response.send_message("Only the invoker of the game can guess.", ephemeral=True)
             return
@@ -201,7 +213,7 @@ class ShrugmanGame(ui.View):
             return
         await interaction.response.send_modal(GuessModal(self))
 
-    # noinspection PyUnusedLocal
+    # noinspection PyUnusedLocal,DuplicatedCode
     @ui.button(label="Stop", style=discord.ButtonStyle.danger)
     async def stop_button(self, interaction: discord.Interaction, button: ui.Button):  # skipcq: PYL-W0613
         """Stop the game.
@@ -215,6 +227,8 @@ class ShrugmanGame(ui.View):
         button : ui.Button
             The button that was pressed.
         """
+        if self.message is None and interaction.message is not None:
+            self.message = interaction.message
         if interaction.user.id != self.author.id:
             await interaction.response.send_message("Only the invoker of the game can stop it.", ephemeral=True)
             return
@@ -231,7 +245,38 @@ class ShrugmanGame(ui.View):
         embed.add_field(name="Mistakes", value=f"{self.mistakes}", inline=True)
         embed.add_field(name="Word", value=f"{self.word}", inline=True)
         embed.add_field(name="Guesses", value=f"{', '.join(self.guesses) or 'None'}", inline=True)
+        embed.add_field(name="Time Taken", value=f"{(utcnow() - self.start_time)}", inline=True)
+        if (utcnow() - self.start_time) > datetime.timedelta(seconds=60) and self.guess_count > 5:
+            embed.add_field(
+                name="Points gained",
+                value=f"{await self.bot.give_game_points(self.author.id, 2, 0)} Points",
+                inline=True,
+            )
+        else:
+            embed.add_field(name="Points gained", value="0 Points", inline=True)
         await interaction.response.edit_message(embed=embed, view=self)
+
+    # noinspection DuplicatedCode
+    async def on_timeout(self) -> None:
+        """Call when the view times out.
+
+        This will disable the buttons.
+        """
+        await self.disable()
+        embed = discord.Embed(
+            title="**Timed out** Shrugman",
+            description=f"Guess the word: `{''.join(self.guess_word_list)}`",
+            color=discord.Color.dark_purple(),
+        )
+        embed.set_footer(text="Type !shrugman or !sm to play")
+        embed.set_author(name=self.author.display_name, icon_url=self.author.display_avatar.url)
+        embed.add_field(name="Shrugman", value=self.fail_enum(self.mistakes).name, inline=True)
+        embed.add_field(name="Guesses", value=f"{self.guess_count}", inline=True)
+        embed.add_field(name="Mistakes", value=f"{self.mistakes}", inline=True)
+        embed.add_field(name="Word", value=f"{self.word}", inline=True)
+        embed.add_field(name="Guesses", value=f"{', '.join(self.guesses) or 'None'}", inline=True)
+        embed.add_field(name="Time Taken", value=f"{(utcnow() - self.start_time)}", inline=True)
+        await self.message.edit(embed=embed, view=self)  # type: ignore
 
     async def disable(self):
         """Disable the buttons and stop the view."""
@@ -304,13 +349,17 @@ class GuessModal(ui.Modal, title="Shrugman Guess"):
             embed.add_field(name="Mistakes", value=f"{self.game.mistakes}", inline=True)
             embed.add_field(name="Word", value=f"{self.game.word}", inline=True)
             embed.add_field(name="Guesses", value=f"{', '.join(self.game.guesses)}", inline=True)
+            embed.add_field(name="Time Taken", value=f"{(utcnow() - self.game.start_time)}", inline=True)
+            embed.add_field(
+                name="Points gained",
+                value=f"{await self.game.bot.give_game_points(self.game.author.id, 2, 0)} Points",
+                inline=True,
+            )
             await interaction.response.edit_message(embed=embed, view=self.game)
             return
         for i, letter in enumerate(self.game.word):
             if letter == self.guess.value.lower():  # type: ignore
                 self.game.guess_word_list[i] = letter
-        if "-" not in self.game.guess_word_list:
-            await self.game.disable()
         embed = discord.Embed(
             title=f"{f'**{self.game.author.display_name} Won!!!**  ' if '-' not in self.game.guess_word_list else ''}"
             f"Shrugman",
@@ -331,6 +380,15 @@ class GuessModal(ui.Modal, title="Shrugman Guess"):
             inline=True,
         )
         embed.add_field(name="Guesses", value=f"{', '.join(self.game.guesses)}", inline=True)
+        if "-" not in self.game.guess_word_list:
+            await self.game.disable()
+            embed.add_field(name="Time Taken", value=f"{(utcnow() - self.game.start_time)}", inline=True)
+            bonus = -(-((len(self.game.fail_enum) - 1) - self.game.mistakes) // 2)
+            embed.add_field(
+                name="Points gained",
+                value=f"{await self.game.bot.give_game_points(self.game.author.id, 2, bonus)} Points",
+                inline=True,
+            )
         await interaction.response.edit_message(embed=embed, view=self.game)
 
 

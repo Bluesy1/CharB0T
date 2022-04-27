@@ -23,6 +23,7 @@
 # SOFTWARE.
 #  ----------------------------------------------------------------------------
 """Sudoko minigame."""
+import datetime
 import random
 from random import sample
 from itertools import islice
@@ -32,6 +33,7 @@ from typing import Callable, Literal, Optional, Any, Generator
 import discord
 from discord import ui
 from discord.ext import commands
+from discord.utils import utcnow
 
 from main import CBot
 
@@ -733,6 +735,8 @@ class SudokuGame(ui.View):
         Puzzle to be played.
     author: discord.Member
         Member who created the puzzle.
+    bot: CBot
+        The bot instance.
 
     Attributes
     ----------
@@ -740,6 +744,8 @@ class SudokuGame(ui.View):
         Puzzle being played.
     author: discord.Member
         Member playing the puzzle.
+    bot: CBot
+        The bot instance.
     level: Literal["Puzzle", "Block", "Cell"]
         Level of focus on the puzzle
     block: Optional[Block]
@@ -748,16 +754,24 @@ class SudokuGame(ui.View):
         Cell being focused on.
     noting_mode: bool
         Whether or not the user is in noting mode.
+    start_time: datetime.datetime
+        Time the game started, used for calculating time taken. Timezone aware.
+    message: discord.Message, optional
+        Message that the game was started in.
     """
 
-    def __init__(self, puzzle: Puzzle, author: discord.Member):
+    def __init__(self, puzzle: Puzzle, author: discord.Member, bot: CBot):
         super().__init__(timeout=600)
         self.puzzle = puzzle
         self.author = author
+        self.bot = bot
         self.level: Literal["Puzzle", "Block", "Cell"] = "Puzzle"
         self.block: Optional[Block] = None
         self.cell: Optional[Cell] = None
         self.noting_mode = False
+        self.start_time = utcnow()
+        self.moves = 0
+        self.message: Optional[discord.Message] = None
 
     def enable_keypad(self):
         """Enable all keypad buttons."""
@@ -882,6 +896,8 @@ class SudokuGame(ui.View):
         NotImplementedError
             If a cell level change is triggered and the puzzle is in noting mode.
         """
+        if self.message is None and interaction.message is not None:
+            self.message = interaction.message
         if self.level == "Puzzle":
             self.block = self.puzzle.blocks[key]
             self.level = "Block"
@@ -896,6 +912,7 @@ class SudokuGame(ui.View):
         elif self.level == "Cell":  # skipcq: PTC-W0048
             if self.cell is not None:  # skipcq: PTC-W0048
                 if self.cell.editable and not self.noting_mode:
+                    self.moves += 1
                     self.cell.value = int(button.label)  # type: ignore
                     self.level = "Block"
                     self.cell.possible_values.clear()
@@ -912,6 +929,12 @@ class SudokuGame(ui.View):
                         )
                         embed.set_author(name=self.author.display_name, icon_url=self.author.display_avatar.url)
                         embed.set_footer(text="Play Sudoku by Typing !sudoku")
+                        embed.add_field(name="Time Taken", value=f"{(utcnow() - self.start_time)}", inline=True)
+                        embed.add_field(
+                            name="Points gained",
+                            value=f"{await self.bot.give_game_points(self.author.id, 2, 3)} Points",
+                            inline=True,
+                        )
                         await interaction.response.edit_message(embed=embed, view=self)
                     else:
                         self.update_keypad()
@@ -960,6 +983,23 @@ class SudokuGame(ui.View):
         else:
             await super().on_error(interaction, error, item)
 
+    async def on_timeout(self) -> None:
+        """Call when the interaction times out."""
+        solution = self.puzzle.solution
+        embed = discord.Embed(
+            title="**Timed Out** Sudoku", description=f"The solution was\n```{solution}```", color=discord.Color.red()
+        )
+        embed.set_author(name=self.author.display_name, icon_url=self.author.display_avatar.url)
+        embed.set_footer(text="Play Sudoku by Typing !sudoku")
+        embed.add_field(name="Time Taken", value=f"{(utcnow() - self.start_time)}", inline=True)
+        embed.add_field(name="Points gained", value="0 Points", inline=True)
+        self.disable_keypad()
+        self.mode.disabled = True
+        self.cancel.disabled = True
+        self.back.disabled = True
+        self.stop()
+        await self.message.edit(embed=embed, view=self)  # type: ignore
+
     @ui.button(label="Back", disabled=True, style=discord.ButtonStyle.green, row=0)
     async def back(self, interaction: discord.Interaction, button: ui.Button):
         """Back to the previous level of the puzzle.
@@ -973,6 +1013,8 @@ class SudokuGame(ui.View):
         button : ui.Button
             The button that was pressed.
         """
+        if self.message is None and interaction.message is not None:
+            self.message = interaction.message
         if self.level == "Puzzle":
             button.disabled = True
             self.enable_keypad()
@@ -1041,12 +1083,23 @@ class SudokuGame(ui.View):
         button : ui.Button
             The button that was pressed.
         """
+        if self.message is None and interaction.message is not None:
+            self.message = interaction.message
         solution = self.puzzle.solution
         embed = discord.Embed(
             title="**FAILED** Sudoku", description=f"The solution was\n```{solution}```", color=discord.Color.red()
         )
         embed.set_author(name=self.author.display_name, icon_url=self.author.display_avatar.url)
         embed.set_footer(text="Play Sudoku by Typing !sudoku")
+        embed.add_field(name="Time Taken", value=f"{(utcnow() - self.start_time)}", inline=True)
+        if (utcnow() - self.start_time) > datetime.timedelta(minutes=3) and self.moves > 10:
+            embed.add_field(
+                name="Points gained",
+                value=f"{await self.bot.give_game_points(self.author.id, 2, 0)} Points",
+                inline=True,
+            )
+        else:
+            embed.add_field(name="Points gained", value="0 Points", inline=True)
         self.disable_keypad()
         self.mode.disabled = True
         self.cancel.disabled = True
@@ -1107,6 +1160,9 @@ class SudokuGame(ui.View):
         button : ui.Button
             The button that was pressed.
         """
+        if self.message is None and interaction.message is not None:
+            self.message = interaction.message
+        self.moves += 1
         if self.level == "Puzzle":
             self.puzzle.reset()
             await interaction.response.edit_message(embed=self.block_choose_embed(), view=self)
@@ -1227,7 +1283,7 @@ class Sudoku(commands.Cog):
             return
         puzzle = await self.bot.loop.run_in_executor(self.bot.process_pool, Puzzle.new)
         view = SudokuGame(puzzle, ctx.author)  # type: ignore
-        await ctx.send(embed=view.block_choose_embed(), view=view)
+        view.message = await ctx.send(embed=view.block_choose_embed(), view=view)
 
 
 async def setup(bot: CBot):
