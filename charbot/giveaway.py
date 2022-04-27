@@ -128,10 +128,10 @@ class GiveawayView(ui.View):
             avg_bid = 0
         if winners:
             winner = await self.channel.guild.fetch_member(winners[0])  # type: ignore
+            winning_bid = await self.bot.pool.fetchval("SELECT bid FROM bids WHERE id = $1", winners[0])
         else:
             winner = None
-        async with self.bot.pool.acquire() as conn:  # type: asyncpg.Connection
-            winning_bid = await conn.fetchval("SELECT bid FROM bids WHERE id = $1", winners[0])
+            winning_bid = 0
         if winner is not None:
             self.embed.title = f"{winner.display_name} won the {self.game} giveaway!"
             self.embed.add_field(name="Winner", value=f"{winner.mention} with {winning_bid} points bid.", inline=True)
@@ -155,7 +155,7 @@ class GiveawayView(ui.View):
         else:
             await self.channel.send("No entries were recieved, the game has been recycled for a later giveaway.")
         # noinspection SqlWithoutWhere
-        await self.bot.pool.execute("DELETE FROM bids")
+        await self.bot.pool.execute("UPDATE bids SET bid = 0 WHERE bid > 0")
 
     # noinspection PyUnusedLocal
     @ui.button(label="Bid", style=discord.ButtonStyle.green)
