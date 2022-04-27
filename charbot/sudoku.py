@@ -25,6 +25,7 @@
 """Sudoko minigame."""
 import datetime
 import random
+import uuid
 from random import sample
 from itertools import islice
 from copy import deepcopy
@@ -78,14 +79,15 @@ class Cell:
         self._value = value
         self._editable = editable
         self._possible_values: set[int] = set(range(1, 10)) if editable else {value}
+        self.id = uuid.uuid4()
 
     def __repr__(self):
         """Return a string representation of the cell."""
         return f"<Cell value={self.value} possible_values={self.possible_values}>"
 
     def __eq__(self, other):
-        """Two cells are equal if they have the same value and editability."""
-        return self.value == other.value and self.editable == other.editable
+        """Two cells are equal if they have the same value, editability, and uuid."""
+        return self.value == other.value and self.editable == other.editable and self.id == other.id
 
     @property
     def value(self) -> int:
@@ -588,9 +590,9 @@ class Puzzle:
                 row_index = i
                 break
         column_index = -1
-        for i, column in enumerate(self.columns):
+        for j, column in enumerate(self.columns):
             if cell in column:
-                column_index = i
+                column_index = j
                 break
         if -1 in (row_index, column_index):
             raise ValueError("Cell not found in puzzle")
