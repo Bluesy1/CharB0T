@@ -270,7 +270,7 @@ class BidModal(ui.Modal, title="Bid"):
         except ValueError:
             await interaction.response.send_message("Please enter a valid integer between 0 and 32768.", ephemeral=True)
             return self.stop()
-        if 32768 < bid_int < 0:
+        if 0 > bid_int < 32768:
             await interaction.response.send_message("Please enter a valid integer between 0 and 32768.", ephemeral=True)
             return self.stop()
         await interaction.response.defer(ephemeral=True, thinking=True)
