@@ -136,7 +136,7 @@ class GiveawayView(ui.View):
         if winner is not None:
             self.embed.title = f"{winner.display_name} won the {self.game} giveaway!"
             self.embed.add_field(name="Winner", value=f"{winner.mention} with {winning_bid} points bid.", inline=True)
-            self.embed.add_field(name="Bidders", value=f"{len(bidders[0])}", inline=True)
+            self.embed.add_field(name="Bidders", value=f"{len(bidders)}", inline=True)
             self.embed.add_field(name="Average Bid", value=f"{avg_bid:.2f}", inline=True)
             self.embed.add_field(
                 name="Average Win Chance", value=f"{(avg_bid * 100 / self.total_entries):.2f}", inline=True
