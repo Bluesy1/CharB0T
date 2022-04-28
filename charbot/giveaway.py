@@ -187,7 +187,7 @@ class GiveawayView(ui.View):
         await modal.wait()
         if self.total_entries > 0:
             self.check.disabled = False
-        self.embed.set_field_at(3, name="Total Points Bidded", value=f"{self.total_entries}")
+        self.embed.set_field_at(3, name="Total Points Bid", value=f"{self.total_entries}")
         self.embed.set_field_at(4, name="Largest Bid", value=f"{self.top_bid}")
         await self.message.edit(embed=self.embed, view=self)  # type: ignore
 
@@ -313,8 +313,7 @@ class BidModal(ui.Modal, title="Bid"):
                 f" {chance:.2f}% chance of winning! You now have {points} points left.",
                 ephemeral=True,
             )
-            if new_bid > self.view.top_bid:  # type: ignore
-                self.view.top_bid = new_bid  # type: ignore
+            self.view.top_bid = max(new_bid, self.view.top_bid)  # type: ignore
             self.stop()
 
 
