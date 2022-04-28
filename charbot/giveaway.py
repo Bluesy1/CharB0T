@@ -480,7 +480,7 @@ class Giveaway(commands.Cog):
         )
         await ctx.send("Confirmed.", ephemeral=True)
 
-    @tasks.loop(time=datetime.time(hour=0, minute=0, second=0, tzinfo=__ZONEINFO__))  # skipcq: PYL-E1123
+    @tasks.loop(time=datetime.time(hour=8, minute=0, second=0, tzinfo=__ZONEINFO__))  # skipcq: PYL-E1123
     async def daily_giveaway(self):
         """Run the daily giveaway."""
         if self.current_giveaway is not None:
