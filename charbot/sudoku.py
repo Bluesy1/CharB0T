@@ -1267,6 +1267,31 @@ class SudokuGame(ui.View):
         raise NotImplementedError("Only solve mode is implemented currently")
 
 
+@app_commands.command(name="sudoku", description="Play a Sudoku puzzle")
+@app_commands.guilds(225345178955808768)
+async def sudoku(interaction: discord.Interaction):
+    """Generate a sudoku puzzle.
+
+    Parameters
+    ----------
+    interaction: discord.Interaction
+        The interaction of the command.
+    """
+    if (
+        interaction.guild is None
+        or not any(role.id in ALLOWED_ROLES for role in interaction.user.roles)  # type: ignore
+        or interaction.channel_id != CHANNEL_ID
+    ):
+        await interaction.response.send_message(
+            "You must be at least level 5 to participate in the giveaways system and be in <#969972085445238784>.",
+            ephemeral=True,
+        )
+        return
+    puzzle = await interaction.client.loop.run_in_executor(interaction.client.process_pool, Puzzle.new)  # type: ignore
+    view = SudokuGame(puzzle, interaction.user, interaction.client)  # type: ignore
+    await interaction.response.send_message(embed=view.block_choose_embed(), view=view, ephemeral=True)
+
+
 class Sudoku(commands.Cog):
     """Sudoku commands.
 
@@ -1280,31 +1305,11 @@ class Sudoku(commands.Cog):
 
     def __init__(self, bot: CBot):
         self.bot = bot
+        self.bot.tree.add_command(sudoku, guild=discord.Object(id=225345178955808768))
 
-    @commands.hybrid_command(name="sudoku", description="Play a Sudoku puzzle")
-    @app_commands.guilds(225345178955808768)
-    async def sudoku(self, ctx: commands.Context):
-        """Generate a sudoku puzzle.
-
-        Parameters
-        ----------
-        ctx: commands.Context
-            The interaction of the command.
-        """
-        if (
-            ctx.guild is None
-            or not any(role.id in ALLOWED_ROLES for role in ctx.author.roles)  # type: ignore
-            or ctx.channel.id != CHANNEL_ID
-        ):
-            await ctx.send(
-                "You must be at least level 5 to participate in the giveaways system and be in <#969972085445238784>.",
-                ephemeral=True,
-            )
-            return
-        if ctx.interaction is not None:
-            puzzle = await self.bot.loop.run_in_executor(self.bot.process_pool, Puzzle.new)
-            view = SudokuGame(puzzle, ctx.author, self.bot)  # type: ignore
-            await ctx.send(embed=view.block_choose_embed(), view=view, ephemeral=True)
+    async def cog_unload(self) -> None:
+        """Unload the cog."""
+        self.bot.tree.remove_command("sudoku", guild=discord.Object(id=225345178955808768))
 
 
 async def setup(bot: CBot):
