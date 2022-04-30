@@ -189,7 +189,7 @@ class GiveawayView(ui.View):
             or interaction.channel_id != 969972085445238784
         ):
             await interaction.response.send_message(
-                "You must be at least level 5 to participate in the giveaways system in <#969972085445238784> .",
+                "You must be at least level 5 to participate in the giveaways system and be in <#969972085445238784>.",
                 ephemeral=True,
             )
             return
@@ -229,7 +229,7 @@ class GiveawayView(ui.View):
             or interaction.channel_id != 969972085445238784
         ):
             await interaction.response.send_message(
-                "You must be at least level 5 to participate in the giveaways system in <#969972085445238784> .",
+                "You must be at least level 5 to participate in the giveaways system and be in <#969972085445238784>.",
                 ephemeral=True,
             )
             return
@@ -416,7 +416,7 @@ class Giveaway(commands.Cog):
             or ctx.channel.id != CHANNEL_ID
         ):
             await ctx.send(
-                "You must be at least level 5 to participate in the giveaways system in <#969972085445238784> .",
+                "You must be at least level 5 to participate in the giveaways system and be in <#969972085445238784>.",
                 ephemeral=True,
             )
             return
@@ -438,7 +438,7 @@ class Giveaway(commands.Cog):
             or ctx.channel.id != CHANNEL_ID
         ):
             await ctx.send(
-                "You must be at least level 5 to participate in the giveaways system in <#969972085445238784> .",
+                "You must be at least level 5 to participate in the giveaways system and be in <#969972085445238784>.",
                 ephemeral=True,
             )
             return
@@ -480,7 +480,7 @@ class Giveaway(commands.Cog):
             or ctx.channel.id != CHANNEL_ID
         ):
             await ctx.send(
-                "You must be at least level 5 to participate in the giveaways system in <#969972085445238784> .",
+                "You must be at least level 5 to participate in the giveaways system and be in <#969972085445238784>.",
                 ephemeral=True,
             )
             return

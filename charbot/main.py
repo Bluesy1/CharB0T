@@ -39,7 +39,7 @@ from dotenv import load_dotenv
 
 
 __ZONEINFO__ = ZoneInfo("America/Detroit")
-__TIME__ = lambda: datetime.datetime.now(__ZONEINFO__).replace(microsecond=0, second=0, minute=0, hour=0)  # noqa: E731
+__TIME__ = lambda: datetime.datetime.now(__ZONEINFO__).replace(microsecond=0, second=0, minute=0, hour=9)  # noqa: E731
 
 
 class CBot(commands.Bot):

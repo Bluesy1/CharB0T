@@ -132,7 +132,7 @@ class Shrugman(commands.Cog):
             or ctx.channel.id != CHANNEL_ID
         ):
             await ctx.send(
-                "You must be at least level 5 to participate in the giveaways system in <#969972085445238784> .",
+                "You must be at least level 5 to participate in the giveaways system and be in <#969972085445238784>.",
                 ephemeral=True,
             )
             return
