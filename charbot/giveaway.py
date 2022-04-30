@@ -519,7 +519,7 @@ class Giveaway(commands.Cog):
         if not isinstance(self.charlie, discord.Member):
             self.charlie = await (await self.bot.fetch_guild(225345178955808768)).fetch_member(225344348903047168)
         try:
-            gameinfo: dict[str, str] = {k: v for k, v in self.games.loc[__TIME__().strftime("%-m/%-d/%Y")].items()}
+            gameinfo: dict[str, str] = dict(self.games.loc[__TIME__().strftime("%-m/%-d/%Y")])
         except KeyError:
             gameinfo: dict[str, str] = {"game": "Charlie Didn't Give me one", "url": "None", "source": "Charlie"}
         game = gameinfo["game"]
