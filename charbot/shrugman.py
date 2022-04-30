@@ -136,17 +136,16 @@ class Shrugman(commands.Cog):
                 ephemeral=True,
             )
             return
-        if ctx.interaction is not None:
-            word = random.choice(__words__)
-            embed = discord.Embed(
-                title="Shrugman",
-                description=f"Guess the word: `{''.join(['-' for _ in word])}`",
-                color=discord.Color.dark_purple(),
-            )
-            embed.set_footer(text="Type !shrugman or !sm to play")
-            embed.set_author(name=ctx.author.display_name, icon_url=ctx.author.display_avatar.url)
-            view = ShrugmanGame(self.bot, ctx.author, word)  # type: ignore
-            await ctx.send(embed=embed, view=view, ephemeral=True)
+        word = random.choice(__words__)
+        embed = discord.Embed(
+            title="Shrugman",
+            description=f"Guess the word: `{''.join(['-' for _ in word])}`",
+            color=discord.Color.dark_purple(),
+        )
+        embed.set_footer(text="Type !shrugman or !sm to play")
+        embed.set_author(name=ctx.author.display_name, icon_url=ctx.author.display_avatar.url)
+        view = ShrugmanGame(self.bot, ctx.author, word)  # type: ignore
+        await ctx.send(embed=embed, view=view, ephemeral=True)
 
 
 class ShrugmanGame(ui.View):
