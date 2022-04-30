@@ -28,6 +28,7 @@ import os
 import random
 import warnings
 from statistics import mean
+from typing import Final
 
 import asyncpg
 import discord
@@ -36,7 +37,21 @@ from discord import app_commands, ui
 from discord.ext import commands, tasks
 from discord.utils import utcnow
 
-from main import CBot, NoGiveawayRole, giveaway_command_check, check_giveaway, __TIME__, __ZONEINFO__
+from main import CBot, __TIME__, __ZONEINFO__
+
+ALLOWED_ROLES: Final = (
+    225345178955808768,  # GRACE PERIOD ROLE
+    337743478190637077,
+    685331877057658888,
+    969629622453039104,
+    969629628249563166,
+    969629632028614699,
+    969629637984522240,
+    969628342733119518,
+    969627321239760967,
+)
+
+CHANNEL_ID: Final[int] = 969972085445238784
 
 
 class GiveawayView(ui.View):
@@ -169,8 +184,14 @@ class GiveawayView(ui.View):
         """
         if self.message is None:
             self.message = interaction.message
-        if not check_giveaway(interaction.user.roles):  # type: ignore
-            await interaction.response.send_message("You must be at least level 5 to participate in the giveaways!")
+        if (
+            not any(role.id in ALLOWED_ROLES for role in interaction.user.roles)  # type: ignore
+            or interaction.channel_id != 969972085445238784
+        ):
+            await interaction.response.send_message(
+                "You must be at least level 5 to participate in the giveaways system in <#969972085445238784> .",
+                ephemeral=True,
+            )
             return
         last_win = await self.bot.pool.fetchval(
             "SELECT expiry FROM winners WHERE id = $1", interaction.user.id
@@ -203,8 +224,14 @@ class GiveawayView(ui.View):
         button : ui.Button
             The button that was pressed.
         """
-        if not check_giveaway(interaction.user.roles):  # type: ignore
-            await interaction.response.send_message("You must be at least level 5 to participate in the giveaways!")
+        if (
+            not any(role.id in ALLOWED_ROLES for role in interaction.user.roles)  # type: ignore
+            or interaction.channel_id != 969972085445238784
+        ):
+            await interaction.response.send_message(
+                "You must be at least level 5 to participate in the giveaways system in <#969972085445238784> .",
+                ephemeral=True,
+            )
             return
         async with self.bot.pool.acquire() as conn:
             last_win = await conn.fetchval(
@@ -356,30 +383,6 @@ class Giveaway(commands.Cog):
         """Call when the cog is unloaded."""
         self.daily_giveaway.cancel()
 
-    async def cog_command_error(self, ctx: commands.Context, error: Exception) -> None:
-        """Handle errors in commands.
-
-        This is called when an error is raised while running a command.
-
-        This only handles one specific error, :class:`NoGiveawayRole`, and otherwise re raises the error.
-
-        Parameters
-        ----------
-        ctx : commands.Context
-            The context of the command.
-        error : Exception
-            The error that was raised.
-
-        Raises
-        ------
-        Exception
-            The error that was raised, it wasn't NoGiveawayRole.
-        """
-        if isinstance(error, NoGiveawayRole):
-            await ctx.send(error.message, ephemeral=True)
-        else:
-            raise error
-
     @staticmethod
     def load_game_csv() -> pd.DataFrame:
         """Load the game CSV file.
@@ -394,7 +397,6 @@ class Giveaway(commands.Cog):
         return pd.read_csv("giveaway.csv", index_col=0, usecols=[0, 1, 2, 4], names=["date", "game", "url", "source"])
 
     @commands.hybrid_group(name="giveaway", description="Giveaway commands.")
-    @giveaway_command_check()
     @app_commands.guilds(225345178955808768)
     async def giveaway(self, ctx: commands.Context) -> None:
         """Giveaway commands.
@@ -408,10 +410,19 @@ class Giveaway(commands.Cog):
         ctx : commands.Context
             The context of the command invocation.
         """
+        if (
+            ctx.guild is None
+            or not any(role.id in ALLOWED_ROLES for role in ctx.author.roles)  # type: ignore
+            or ctx.channel.id != CHANNEL_ID
+        ):
+            await ctx.send(
+                "You must be at least level 5 to participate in the giveaways system in <#969972085445238784> .",
+                ephemeral=True,
+            )
+            return
         await ctx.send("The subcommanf options for `giveaway` are `query` and `daily`.")
 
     @giveaway.command(name="daily", description="Claim your daily points")
-    @giveaway_command_check()
     @app_commands.guilds(225345178955808768)
     async def daily(self, ctx: commands.Context):
         """Get a daily reward.
@@ -421,6 +432,16 @@ class Giveaway(commands.Cog):
         ctx : commands.Context
             The context of the command invocation.
         """
+        if (
+            ctx.guild is None
+            or not any(role.id in ALLOWED_ROLES for role in ctx.author.roles)  # type: ignore
+            or ctx.channel.id != CHANNEL_ID
+        ):
+            await ctx.send(
+                "You must be at least level 5 to participate in the giveaways system in <#969972085445238784> .",
+                ephemeral=True,
+            )
+            return
         user = await self.bot.giveaway_user(ctx.author.id)
         if user is None:
             async with self.bot.pool.acquire() as conn:
@@ -444,7 +465,6 @@ class Giveaway(commands.Cog):
         await ctx.send("You got your daily reward of 20 points!", ephemeral=True)
 
     @giveaway.command(name="query", description="Query your points")
-    @giveaway_command_check()
     @app_commands.guilds(225345178955808768)
     async def query_points(self, ctx: commands.Context):
         """Query your points.
@@ -454,6 +474,16 @@ class Giveaway(commands.Cog):
         ctx : commands.Context
             The context of the command invocation.
         """
+        if (
+            ctx.guild is None
+            or not any(role.id in ALLOWED_ROLES for role in ctx.author.roles)  # type: ignore
+            or ctx.channel.id != CHANNEL_ID
+        ):
+            await ctx.send(
+                "You must be at least level 5 to participate in the giveaways system in <#969972085445238784> .",
+                ephemeral=True,
+            )
+            return
         points = await self.bot.pool.fetchval("SELECT points from users where id = $1", ctx.author.id) or 0
         if ctx.interaction is not None:
             await ctx.send(f"You have {points} points.", ephemeral=True)

@@ -29,7 +29,7 @@ import uuid
 from random import sample
 from itertools import islice
 from copy import deepcopy
-from typing import Callable, Literal, Optional, Any, Generator
+from typing import Callable, Literal, Optional, Any, Generator, Final
 
 import discord
 from discord import ui
@@ -37,6 +37,21 @@ from discord.ext import commands
 from discord.utils import utcnow
 
 from main import CBot
+
+
+ALLOWED_ROLES: Final = (
+    225345178955808768,  # GRACE PERIOD ROLE
+    337743478190637077,
+    685331877057658888,
+    969629622453039104,
+    969629628249563166,
+    969629632028614699,
+    969629637984522240,
+    969628342733119518,
+    969627321239760967,
+)
+
+CHANNEL_ID: Final[int] = 969972085445238784
 
 
 # noinspection GrazieInspection
@@ -1284,13 +1299,15 @@ class Sudoku(commands.Cog):
         ctx : commands.Context
             The context of the command.
         """
-        if ctx.guild is None:
-            return
-        if ctx.channel.id not in (839690221083820032, 687817008355737606, 926532222398369812):
-            return
-        if not any(role.id in (338173415527677954, 928481483742670971) for role in ctx.author.roles):  # type: ignore
-            return
-        if ctx.channel.id == 687817008355737606 and ctx.author.id != 363095569515806722:
+        if (
+            ctx.guild is None
+            or not any(role.id in ALLOWED_ROLES for role in ctx.author.roles)  # type: ignore
+            or ctx.channel.id != CHANNEL_ID
+        ):
+            await ctx.send(
+                "You must be at least level 5 to participate in the giveaways system in <#969972085445238784> .",
+                ephemeral=True,
+            )
             return
         puzzle = await self.bot.loop.run_in_executor(self.bot.process_pool, Puzzle.new)
         view = SudokuGame(puzzle, ctx.author, self.bot)  # type: ignore
