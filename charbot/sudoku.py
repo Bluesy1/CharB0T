@@ -1281,8 +1281,8 @@ class Sudoku(commands.Cog):
     def __init__(self, bot: CBot):
         self.bot = bot
 
-    @app_commands.command(name="sudoku", description="Play a Sudoku puzzle")
     @app_commands.guilds(225345178955808768)
+    @app_commands.command(name="sudoku", description="Play a Sudoku puzzle")
     async def sudoku(self, interaction: discord.Interaction):
         """Generate a sudoku puzzle.
 
