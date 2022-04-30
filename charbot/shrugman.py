@@ -106,9 +106,9 @@ class Shrugman(commands.Cog):
     def __init__(self, bot: CBot):
         self.bot = bot
 
-    @app_commands.command(name="shrugman", description="Play the shrugman minigame. (Hangman clone)")
+    @commands.hybrid_command(name="shrugman", description="Play the shrugman minigame. (Hangman clone)")
     @app_commands.guilds(225345178955808768)
-    async def shrugman(self, interaction: discord.Interaction) -> None:
+    async def shrugman(self, ctx: commands.Context) -> None:
         """Play a game of Shrugman.
 
         This game is a hangman-like game.
@@ -123,29 +123,30 @@ class Shrugman(commands.Cog):
 
         Parameters
         ----------
-        interaction : discord.Interaction
+        ctx: commands.Context
             The interaction of the command.
         """
         if (
-            interaction.guild is None
-            or not any(role.id in ALLOWED_ROLES for role in interaction.user.roles)  # type: ignore
-            or interaction.channel_id != CHANNEL_ID
+            ctx.guild is None
+            or not any(role.id in ALLOWED_ROLES for role in ctx.author.roles)  # type: ignore
+            or ctx.channel.id != CHANNEL_ID
         ):
-            await interaction.response.send_message(
+            await ctx.send(
                 "You must be at least level 5 to participate in the giveaways system and be in <#969972085445238784>.",
                 ephemeral=True,
             )
             return
-        word = random.choice(__words__)
-        embed = discord.Embed(
-            title="Shrugman",
-            description=f"Guess the word: `{''.join(['-' for _ in word])}`",
-            color=discord.Color.dark_purple(),
-        )
-        embed.set_footer(text="Type !shrugman or !sm to play")
-        embed.set_author(name=interaction.user.display_name, icon_url=interaction.user.display_avatar.url)
-        view = ShrugmanGame(self.bot, interaction.user, word)  # type: ignore
-        await interaction.response.send_message(embed=embed, view=view, ephemeral=True)
+        if ctx.interaction is not None:
+            word = random.choice(__words__)
+            embed = discord.Embed(
+                title="Shrugman",
+                description=f"Guess the word: `{''.join(['-' for _ in word])}`",
+                color=discord.Color.dark_purple(),
+            )
+            embed.set_footer(text="Type !shrugman or !sm to play")
+            embed.set_author(name=ctx.author.display_name, icon_url=ctx.author.display_avatar.url)
+            view = ShrugmanGame(self.bot, ctx.author, word)  # type: ignore
+            await ctx.send(embed=embed, view=view, ephemeral=True)
 
 
 class ShrugmanGame(ui.View):
