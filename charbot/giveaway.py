@@ -432,7 +432,7 @@ class Giveaway(commands.Cog):
                 await ctx.send("You got your rep today inmate", ephemeral=True)
             return
         if user["daily"] >= __TIME__():
-            await ctx.send("You got your rep today inmate", ephemeral=True)
+            await ctx.send("You already got your rep today inmate", ephemeral=True)
             return
         async with self.bot.pool.acquire() as conn:
             await conn.execute("UPDATE users SET points = points + 20 WHERE id = $1", ctx.author.id)
