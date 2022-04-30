@@ -26,10 +26,10 @@
 import datetime
 import random
 from enum import Enum
-from typing import Optional, Final
+from typing import Final
 
 import discord
-from discord import ui
+from discord import app_commands, ui
 from discord.ext import commands
 from discord.utils import utcnow
 
@@ -106,8 +106,9 @@ class Shrugman(commands.Cog):
     def __init__(self, bot: CBot):
         self.bot = bot
 
-    @commands.command(name="shrugman", aliases=["sm"])
-    async def shrugman(self, ctx: commands.Context):
+    @app_commands.command(name="shrugman", description="Play the shrugman minigame. (Hangman clone)")
+    @app_commands.guilds(225345178955808768)
+    async def shrugman(self, interaction: discord.Interaction) -> None:
         """Play a game of Shrugman.
 
         This game is a hangman-like game.
@@ -122,15 +123,15 @@ class Shrugman(commands.Cog):
 
         Parameters
         ----------
-        ctx: commands.Context
-            The context of the command.
+        interaction : discord.Interaction
+            The interaction of the command.
         """
         if (
-            ctx.guild is None
-            or not any(role.id in ALLOWED_ROLES for role in ctx.author.roles)  # type: ignore
-            or ctx.channel.id != CHANNEL_ID
+            interaction.guild is None
+            or not any(role.id in ALLOWED_ROLES for role in interaction.user.roles)  # type: ignore
+            or interaction.channel_id != CHANNEL_ID
         ):
-            await ctx.send(
+            await interaction.response.send_message(
                 "You must be at least level 5 to participate in the giveaways system and be in <#969972085445238784>.",
                 ephemeral=True,
             )
@@ -142,9 +143,9 @@ class Shrugman(commands.Cog):
             color=discord.Color.dark_purple(),
         )
         embed.set_footer(text="Type !shrugman or !sm to play")
-        embed.set_author(name=ctx.author.display_name, icon_url=ctx.author.display_avatar.url)
-        view = ShrugmanGame(self.bot, ctx, word)
-        view.message = await ctx.send(embed=embed, view=view)
+        embed.set_author(name=interaction.user.display_name, icon_url=interaction.user.display_avatar.url)
+        view = ShrugmanGame(self.bot, interaction.user, word)  # type: ignore
+        await interaction.response.send_message(embed=embed, view=view, ephemeral=True)
 
 
 class ShrugmanGame(ui.View):
@@ -154,8 +155,8 @@ class ShrugmanGame(ui.View):
     ----------
     bot : CBot
         The bot instance.
-    ctx : commands.Context
-        The context of the command.
+    author : discord.Member
+        The member that invoked the command.
     word : str
         The word to guess.
     fail_enum : enum = FailStates
@@ -165,7 +166,7 @@ class ShrugmanGame(ui.View):
     ----------
     bot : CBot
         The bot instance.
-    author : discord.User | discord.Member
+    author : discord.Member
         The author of the command.
     word : str
         The word to guess.
@@ -185,14 +186,12 @@ class ShrugmanGame(ui.View):
         The length of the word to guess.
     start_time : datetime.datetime
         The time the game started. Timzone aware.
-    message : discord.Message, optional
-        The message that the view is attached to.
     """
 
-    def __init__(self, bot: CBot, ctx: commands.Context, word: str, *, fail_enum=FailStates):
+    def __init__(self, bot: CBot, author: discord.Member, word: str, *, fail_enum=FailStates):
         super().__init__(timeout=600)
         self.bot = bot
-        self.author = ctx.author
+        self.author = author
         self.word = word or random.choice(__words__)
         self.fail_enum = fail_enum
         self.guess_count = 0
@@ -202,7 +201,6 @@ class ShrugmanGame(ui.View):
         self.guess_word_list = ["-" for _ in self.word]
         self.length = len(word)
         self.start_time = utcnow()
-        self.message: Optional[discord.Message] = None
 
     # noinspection PyUnusedLocal
     @ui.button(label="Guess", style=discord.ButtonStyle.success)
@@ -218,8 +216,6 @@ class ShrugmanGame(ui.View):
         button : ui.Button
             The button that was pressed.
         """
-        if self.message is None and interaction.message is not None:
-            self.message = interaction.message
         if interaction.user.id != self.author.id:
             await interaction.response.send_message("Only the invoker of the game can guess.", ephemeral=True)
             return
@@ -244,8 +240,6 @@ class ShrugmanGame(ui.View):
         button : ui.Button
             The button that was pressed.
         """
-        if self.message is None and interaction.message is not None:
-            self.message = interaction.message
         if interaction.user.id != self.author.id:
             await interaction.response.send_message("Only the invoker of the game can stop it.", ephemeral=True)
             return
@@ -268,12 +262,12 @@ class ShrugmanGame(ui.View):
             embed.add_field(name="Time Taken", value=f"{time_taken}", inline=True)
             points = await self.bot.give_game_points(self.author.id, 2, 0)
             embed.add_field(
-                name="Points gained",
-                value="2 Points" if points == 2 else f"{points} Points (Daily Cap Hit)",
+                name="Reputation gained",
+                value="2 Reputation" if points == 2 else f"{points} Reputation (Daily Cap Hit)",
                 inline=True,
             )
         else:
-            embed.add_field(name="Points gained", value="0 Points", inline=True)
+            embed.add_field(name="Reputation gained", value="0 Reputation", inline=True)
         await interaction.response.edit_message(embed=embed, view=self)
 
     # noinspection DuplicatedCode
@@ -297,7 +291,10 @@ class ShrugmanGame(ui.View):
         embed.add_field(name="Guesses", value=f"{', '.join(self.guesses) or 'None'}", inline=True)
         time_taken = utcnow().replace(microsecond=0) - self.start_time.replace(microsecond=0)
         embed.add_field(name="Time Taken", value=f"{time_taken}", inline=True)
-        await self.message.edit(embed=embed, view=self)  # type: ignore
+        try:
+            await self.author.send("Your game timed out", embed=embed)
+        except discord.DiscordException:
+            pass
 
     async def disable(self):
         """Disable the buttons and stop the view."""
@@ -374,8 +371,8 @@ class GuessModal(ui.Modal, title="Shrugman Guess"):
             embed.add_field(name="Time Taken", value=f"{time_taken}", inline=True)
             points = await self.game.bot.give_game_points(self.game.author.id, 2, 0)
             embed.add_field(
-                name="Points gained",
-                value="2 Points" if points == 2 else f"{points} Points (Daily Cap Hit)",
+                name="Reputation gained",
+                value="2 Reputation" if points == 2 else f"{points} Reputation (Daily Cap Hit)",
                 inline=True,
             )
             await interaction.response.edit_message(embed=embed, view=self.game)
@@ -410,8 +407,8 @@ class GuessModal(ui.Modal, title="Shrugman Guess"):
             bonus = -(-((len(self.game.fail_enum) - 1) - self.game.mistakes) // 2)
             points = await self.game.bot.give_game_points(self.game.author.id, 2, bonus)
             embed.add_field(
-                name="Points gained",
-                value=f"{points} Points" if points == (2 + bonus) else f"{points} Points (Daily Cap Hit)",
+                name="Reputation gained",
+                value=f"{points} Reputation" if points == (2 + bonus) else f"{points} Reputation (Daily Cap Hit)",
                 inline=True,
             )
         await interaction.response.edit_message(embed=embed, view=self.game)
@@ -425,4 +422,4 @@ async def setup(bot: CBot):
     bot : CBot
         The bot object
     """
-    await bot.add_cog(Shrugman(bot))
+    await bot.add_cog(Shrugman(bot), guild=discord.Object(id=225345178955808768), override=True)

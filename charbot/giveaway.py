@@ -149,7 +149,9 @@ class GiveawayView(ui.View):
             winning_bid = 0
         if winner is not None:
             self.embed.title = f"{winner.display_name} won the {self.game} giveaway!"
-            self.embed.add_field(name="Winner", value=f"{winner.mention} with {winning_bid} points bid.", inline=True)
+            self.embed.add_field(
+                name="Winner", value=f"{winner.mention} with {winning_bid} reputation bid.", inline=True
+            )
             self.embed.add_field(name="Bidders", value=f"{len(bidders)}", inline=True)
             self.embed.add_field(name="Average Bid", value=f"{avg_bid:.2f}", inline=True)
             self.embed.add_field(
@@ -207,7 +209,7 @@ class GiveawayView(ui.View):
         await modal.wait()
         if self.total_entries > 0:
             self.check.disabled = False
-        self.embed.set_field_at(3, name="Total Points Bid", value=f"{self.total_entries}")
+        self.embed.set_field_at(3, name="Total Reputation Bid", value=f"{self.total_entries}")
         self.embed.set_field_at(4, name="Largest Bid", value=f"{self.top_bid}")
         await self.message.edit(embed=self.embed, view=self)  # type: ignore
 
@@ -303,11 +305,11 @@ class BidModal(ui.Modal, title="Bid"):
         async with self.bot.pool.acquire() as conn:
             points: int | None = await conn.fetchval("SELECT points FROM users WHERE id = $1", interaction.user.id)
             if points is None or points == 0:
-                await interaction.followup.send("You either have never gathered points or have 0.")
+                await interaction.followup.send("You either have never gained reputation or have 0.")
                 return self.stop()
             if points < bid_int:
                 await interaction.followup.send(
-                    f"You do not have enough points to bid {bid_int} more. You have {points} points."
+                    f"You do not have enough reputation to bid {bid_int} more. You have {points} reputation."
                 )
                 return self.stop()
             bid_int = min(bid_int, points)
@@ -336,7 +338,7 @@ class BidModal(ui.Modal, title="Bid"):
             chance = new_bid * 100 / self.view.total_entries  # type: ignore
             await interaction.followup.send(
                 f"You have bid {bid_int} more entries, for a total of {new_bid} entries, giving you a"
-                f" {chance:.2f}% chance of winning! You now have {points} points left.",
+                f" {chance:.2f}% chance of winning! You now have {points} reputation left.",
                 ephemeral=True,
             )
             self.view.top_bid = max(new_bid, self.view.top_bid)  # type: ignore
@@ -395,36 +397,10 @@ class Giveaway(commands.Cog):
         """
         return pd.read_csv("giveaway.csv", index_col=0, usecols=[0, 1, 2, 4], names=["date", "game", "url", "source"])
 
-    @commands.hybrid_group(name="giveaway", description="Giveaway commands.")
+    @commands.hybrid_command(name="rollcall", description="Claim your daily reputation bonus")
     @app_commands.guilds(225345178955808768)
-    async def giveaway(self, ctx: commands.Context) -> None:
-        """Giveaway commands.
-
-        This command group is used to manage giveaways.
-
-        Invoking the base group as a prefix command is informs the invoker of the subcommands.
-
-        Parameters
-        ----------
-        ctx : commands.Context
-            The context of the command invocation.
-        """
-        if (
-            ctx.guild is None
-            or not any(role.id in ALLOWED_ROLES for role in ctx.author.roles)  # type: ignore
-            or ctx.channel.id != CHANNEL_ID
-        ):
-            await ctx.send(
-                "You must be at least level 5 to participate in the giveaways system and be in <#969972085445238784>.",
-                ephemeral=True,
-            )
-            return
-        await ctx.send("The subcommanf options for `giveaway` are `query` and `daily`.")
-
-    @giveaway.command(name="daily", description="Claim your daily points")
-    @app_commands.guilds(225345178955808768)
-    async def daily(self, ctx: commands.Context):
-        """Get a daily reward.
+    async def rollcall(self, ctx: commands.Context):
+        """Get a daily reputation bonus.
 
         Parameters
         ----------
@@ -453,20 +429,20 @@ class Giveaway(commands.Cog):
                     __TIME__() - datetime.timedelta(days=1),
                 )
                 await conn.execute("INSERT INTO bids (id, bid) VALUES ($1, 0)", ctx.author.id)
-                await ctx.send("You got your daily reward of 20 points!", ephemeral=True)
+                await ctx.send("You got your daily reputation bonus of 20!", ephemeral=True)
             return
         if user["daily"] == __TIME__():
-            await ctx.send("You already got your daily reward.", ephemeral=True)
+            await ctx.send("You already got your reputation bonus today.", ephemeral=True)
             return
         async with self.bot.pool.acquire() as conn:
             await conn.execute("UPDATE users SET points = points + 20 WHERE id = $1", ctx.author.id)
             await conn.execute("UPDATE daily_points SET last_claim = $1 WHERE id = $2", __TIME__(), ctx.author.id)
-        await ctx.send("You got your daily reward of 20 points!", ephemeral=True)
+        await ctx.send("You got your daily reputation bonus of 20!", ephemeral=True)
 
-    @giveaway.command(name="query", description="Query your points")
+    @commands.hybrid_command(name="reputation", description="Check your reputation", aliases=["rep"])
     @app_commands.guilds(225345178955808768)
     async def query_points(self, ctx: commands.Context):
-        """Query your points.
+        """Query your reputation.
 
         Parameters
         ----------
@@ -485,29 +461,30 @@ class Giveaway(commands.Cog):
             return
         points = await self.bot.pool.fetchval("SELECT points from users where id = $1", ctx.author.id) or 0
         if ctx.interaction is not None:
-            await ctx.send(f"You have {points} points.", ephemeral=True)
+            await ctx.send(f"You have {points} reputation.", ephemeral=True)
         else:
-            await ctx.author.send(f"You have {points} points.")
+            await ctx.author.send(f"You have {points} reputation.")
 
-    @giveaway.command(name="confirm", description="[Charlie only] confirm a winner")
+    @app_commands.command(name="confirm", description="[Charlie only] confirm a winner")
+    @app_commands.describe(user="The user to confirm as a winner.")
     @app_commands.guilds(225345178955808768)
-    async def confirm(self, ctx: commands.Context, user: discord.Member):
+    async def confirm(self, interaction: discord.Interaction, user: discord.Member):
         """Confirm a winner.
 
         Parameters
         ----------
-        ctx : commands.Context
-            The context of the command invocation.
+        interaction: discord.Interaction
+            The interaction of the command invocation.
         user : discord.Member
             The user to confirm.
         """
         if user.id != 225344348903047168:
-            await ctx.send("Only Charlie can confirm a winner.", ephemeral=True)
+            await interaction.response.send_message("Only Charlie can confirm a winner.", ephemeral=True)
             return
         await self.bot.pool.execute(
             "INSERT INTO winners (id, expiry) VALUES ($1, $2)", user.id, __TIME__() + datetime.timedelta(days=30)
         )
-        await ctx.send("Confirmed.", ephemeral=True)
+        await interaction.response.send_message("Confirmed.", ephemeral=True)
 
     @tasks.loop(time=datetime.time(hour=9, minute=0, second=0, tzinfo=__ZONEINFO__))  # skipcq: PYL-E1123
     async def daily_giveaway(self):
@@ -535,11 +512,11 @@ class Giveaway(commands.Cog):
         embed.add_field(name="How to Participate", value="Select bid and enter your bid in the popup.", inline=True)
         embed.add_field(name="How to Win", value="The winner will be chosen at random.", inline=True)
         embed.add_field(
-            name="How to get points",
-            value="You get points by using the `giveaway daily` command and by playing the minigames.",
+            name="How to get reputation",
+            value="You get reputation by attending `rollcall` command and by playing the minigames.",
             inline=True,
         )
-        embed.add_field(name="Total Points Bid", value="0", inline=True)
+        embed.add_field(name="Total Reputation Bid", value="0", inline=True)
         embed.add_field(name="Largest Bid", value="0", inline=True)
         channel = await self.bot.fetch_channel(int(os.getenv("GIVEAWAY_ID")))  # type: ignore
         self.current_giveaway = GiveawayView(self.bot, channel, embed, game, url)  # type: ignore

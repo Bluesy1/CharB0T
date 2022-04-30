@@ -32,7 +32,7 @@ from copy import deepcopy
 from typing import Callable, Literal, Optional, Any, Generator, Final
 
 import discord
-from discord import ui
+from discord import app_commands, ui
 from discord.ext import commands
 from discord.utils import utcnow
 
@@ -772,8 +772,6 @@ class SudokuGame(ui.View):
         Whether or not the user is in noting mode.
     start_time: datetime.datetime
         Time the game started, used for calculating time taken. Timezone aware.
-    message: discord.Message, optional
-        Message that the game was started in.
     """
 
     def __init__(self, puzzle: Puzzle, author: discord.Member, bot: CBot):
@@ -787,7 +785,6 @@ class SudokuGame(ui.View):
         self.noting_mode = False
         self.start_time = utcnow()
         self.moves = 0
-        self.message: Optional[discord.Message] = None
 
     def enable_keypad(self):
         """Enable all keypad buttons."""
@@ -913,8 +910,6 @@ class SudokuGame(ui.View):
         NotImplementedError
             If a cell level change is triggered and the puzzle is in noting mode.
         """
-        if self.message is None and interaction.message is not None:
-            self.message = interaction.message
         if self.level == "Puzzle":
             self.block = self.puzzle.blocks[key]
             self.level = "Block"
@@ -951,8 +946,8 @@ class SudokuGame(ui.View):
                         embed.add_field(name="Time Taken", value=f"{time_taken}", inline=True)
                         points = await self.bot.give_game_points(self.author.id, 5, 10)
                         embed.add_field(
-                            name="Points gained",
-                            value="15 Points" if points == 15 else f"{points} Points (Daily Cap Hit)",
+                            name="Reputation gained",
+                            value="15 Reputation" if points == 15 else f"{points} Reputation (Daily Cap Hit)",
                             inline=True,
                         )
                         await interaction.response.edit_message(embed=embed, view=self)
@@ -1014,13 +1009,16 @@ class SudokuGame(ui.View):
         embed.set_footer(text="Play Sudoku by Typing !sudoku")
         time_taken = utcnow().replace(microsecond=0) - self.start_time.replace(microsecond=0)
         embed.add_field(name="Time Taken", value=f"{time_taken}", inline=True)
-        embed.add_field(name="Points gained", value="0 Points", inline=True)
+        embed.add_field(name="Reputation gained", value="0 Reputation", inline=True)
         self.disable_keypad()
         self.mode.disabled = True
         self.cancel.disabled = True
         self.back.disabled = True
         self.stop()
-        await self.message.edit(embed=embed, view=self)  # type: ignore
+        try:
+            await self.author.send("Your game timed out", embed=embed)
+        except discord.DiscordException:
+            pass
 
     @ui.button(label="Back", disabled=True, style=discord.ButtonStyle.green, row=0)
     async def back(self, interaction: discord.Interaction, button: ui.Button):
@@ -1035,8 +1033,6 @@ class SudokuGame(ui.View):
         button : ui.Button
             The button that was pressed.
         """
-        if self.message is None and interaction.message is not None:
-            self.message = interaction.message
         if self.level == "Puzzle":
             button.disabled = True
             self.enable_keypad()
@@ -1105,8 +1101,6 @@ class SudokuGame(ui.View):
         button : ui.Button
             The button that was pressed.
         """
-        if self.message is None and interaction.message is not None:
-            self.message = interaction.message
         solution = self.puzzle.solution
         embed = discord.Embed(
             title="**FAILED** Sudoku", description=f"The solution was\n```{solution}```", color=discord.Color.red()
@@ -1119,12 +1113,12 @@ class SudokuGame(ui.View):
             embed.add_field(name="Time Taken", value=f"{time_taken}", inline=True)
             points = await self.bot.give_game_points(self.author.id, 5, 0)
             embed.add_field(
-                name="Points gained",
-                value="5 Points" if points == 5 else f"{points} Points (Daily Cap Hit)",
+                name="Reputation gained",
+                value="5 Reputation" if points == 5 else f"{points} Reputation (Daily Cap Hit)",
                 inline=True,
             )
         else:
-            embed.add_field(name="Points gained", value="0 Points", inline=True)
+            embed.add_field(name="Reputation gained", value="0 Reputation", inline=True)
         self.disable_keypad()
         self.mode.disabled = True
         self.cancel.disabled = True
@@ -1185,8 +1179,6 @@ class SudokuGame(ui.View):
         button : ui.Button
             The button that was pressed.
         """
-        if self.message is None and interaction.message is not None:
-            self.message = interaction.message
         self.moves += 1
         if self.level == "Puzzle":
             self.puzzle.reset()
@@ -1289,28 +1281,29 @@ class Sudoku(commands.Cog):
     def __init__(self, bot: CBot):
         self.bot = bot
 
-    @commands.command(name="sudoku", aliases=["sud"])
-    async def sudoku(self, ctx: commands.Context):
+    @app_commands.command(name="sudoku", description="Play a Sudoku puzzle")
+    @app_commands.guilds(225345178955808768)
+    async def sudoku(self, interaction: discord.Interaction):
         """Generate a sudoku puzzle.
 
         Parameters
         ----------
-        ctx : commands.Context
-            The context of the command.
+        interaction: discord.Interaction
+            The interaction of the command.
         """
         if (
-            ctx.guild is None
-            or not any(role.id in ALLOWED_ROLES for role in ctx.author.roles)  # type: ignore
-            or ctx.channel.id != CHANNEL_ID
+            interaction.guild is None
+            or not any(role.id in ALLOWED_ROLES for role in interaction.user.roles)  # type: ignore
+            or interaction.channel_id != CHANNEL_ID
         ):
-            await ctx.send(
+            await interaction.response.send_message(
                 "You must be at least level 5 to participate in the giveaways system and be in <#969972085445238784>.",
                 ephemeral=True,
             )
             return
         puzzle = await self.bot.loop.run_in_executor(self.bot.process_pool, Puzzle.new)
-        view = SudokuGame(puzzle, ctx.author, self.bot)  # type: ignore
-        view.message = await ctx.send(embed=view.block_choose_embed(), view=view)
+        view = SudokuGame(puzzle, interaction.user, self.bot)  # type: ignore
+        await interaction.response.send_message(embed=view.block_choose_embed(), view=view, ephemeral=True)
 
 
 async def setup(bot: CBot):
@@ -1320,4 +1313,4 @@ async def setup(bot: CBot):
     ----------
     bot : CBot
     """
-    await bot.add_cog(Sudoku(bot))
+    await bot.add_cog(Sudoku(bot), guild=discord.Object(id=225345178955808768), override=True)
