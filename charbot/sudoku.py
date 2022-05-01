@@ -505,7 +505,7 @@ class Puzzle:
             solution = next(_solutions, None)
             if solution is None:
                 raise AttributeError("No solution found.")
-        return Puzzle(solution)
+        return Puzzle(solution, self._mobile)
 
     @classmethod
     def from_rows(cls, rows: list[Row]):
