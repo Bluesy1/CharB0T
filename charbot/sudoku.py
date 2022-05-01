@@ -546,7 +546,7 @@ class Puzzle:
         return cls(rows)
 
     @classmethod
-    def new(cls, mobile):
+    def random(cls, mobile: bool):
         """Create a new puzzle randomly.
 
         Returns
@@ -1351,7 +1351,7 @@ class Sudoku(commands.Cog):
             return
         await ctx.defer(ephemeral=True)
         puzzle = await self.bot.loop.run_in_executor(
-            self.bot.process_pool, functools.partial(Puzzle.new, ctx.author.mobile_status != "offline")
+            self.bot.process_pool, functools.partial(Puzzle.random, ctx.author.mobile_status != "offline")
         )
         view = SudokuGame(puzzle, ctx.author, self.bot)
         await ctx.send(embed=view.block_choose_embed(), view=view, ephemeral=True)
