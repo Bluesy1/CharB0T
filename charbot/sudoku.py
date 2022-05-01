@@ -546,7 +546,7 @@ class Puzzle:
         return cls(rows)
 
     @classmethod
-    def new(cls, mobile: bool = False):
+    def new(cls, *, mobile: bool = False):
         """Create a new puzzle randomly.
 
         Returns
