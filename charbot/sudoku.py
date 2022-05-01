@@ -24,6 +24,7 @@
 #  ----------------------------------------------------------------------------
 """Sudoko minigame."""
 import datetime
+import functools
 import random
 import uuid
 from random import sample
@@ -420,7 +421,7 @@ class Puzzle:
         Resets the puzzle.
     """
 
-    def __init__(self, puzzle: list[list[int]]):
+    def __init__(self, puzzle: list[list[int]], mobile: bool = False):
         self._rows = [Row([Cell(cell, editable=(cell == 0)) for cell in cells]) for cells in puzzle]
         self._columns = [Column([row.cells[i] for row in self.rows]) for i in range(9)]
         self._blocks = [
@@ -429,6 +430,7 @@ class Puzzle:
             for j in range(3)
         ]
         self._initial_puzzle = puzzle
+        self._mobile = mobile
 
     def __str__(self):
         """Return the puzzle as a string."""
@@ -443,9 +445,9 @@ class Puzzle:
         line4 = expand_line("╚═══╧═══╩═══╝")
 
         symbol = " 1234567890ABCDEFGHIJKLMNOPQRSTUVWXYZ"
-        static = "\u001b[1;37m"
-        selected = "\u001b[4;40m"
-        clear = "\u001b[0m"
+        static = "\u001b[1;37m" if not self._mobile else ""
+        selected = "\u001b[4;40m" if not self._mobile else ""
+        clear = "\u001b[0m" if not self._mobile else ""
         symbols = [
             [""]
             + [
@@ -544,7 +546,7 @@ class Puzzle:
         return cls(rows)
 
     @classmethod
-    def new(cls):
+    def new(cls, mobile: bool = False):
         """Create a new puzzle randomly.
 
         Returns
@@ -583,7 +585,7 @@ class Puzzle:
             diff_pos = [(r, c) for r in range(9) for c in range(9) if solved[0][r][c] != solved[1][r][c]]
             r, c = random.choice(diff_pos)
             board[r][c] = solution[r][c]
-        return cls(board)
+        return cls(board, mobile)
 
     @staticmethod
     def shortSudokuSolve(_board: list[list[int]]) -> Generator[list[list[int]], Any, None]:
@@ -973,6 +975,8 @@ class SudokuGame(ui.View):
             if self.block is not None:
                 self.cell = self.block[key]
                 self.level = "Cell"
+                self.block.selected = False
+                self.cell.selected = True
                 self.update_keypad()
                 await interaction.response.edit_message(embed=self.change_cell_prompt_embed(), view=self)
         elif self.level == "Cell":  # skipcq: PTC-W0048
@@ -982,12 +986,16 @@ class SudokuGame(ui.View):
                     self.cell.value = int(button.label)  # type: ignore
                     self.level = "Block"
                     self.cell.possible_values.clear()
+                    if self.cell is not None:
+                        self.cell.selected = False
+                    self.block.selected = True
                     self.cell = None
                     if self.puzzle.is_solved:
                         self.disable_keypad()
                         self.back.disabled = True
                         self.cancel.disabled = True
                         self.mode.disabled = True
+                        self.cell.selected = False
                         embed = discord.Embed(
                             title="**Solved!!** Sudoku",
                             description=f"```ansi\n{self.puzzle}```",
@@ -1015,6 +1023,10 @@ class SudokuGame(ui.View):
                         self.cell.possible_values.remove(int(button.label))  # type: ignore
                     raise NotImplementedError("Noting mode not implemented")
                 else:
+                    if self.cell is not None:
+                        self.cell.selected = False
+                    if self.block is not None:
+                        self.block.selected = False
                     self.cell = None
                     self.level = "Block"
                     self.update_keypad()
@@ -1338,8 +1350,10 @@ class Sudoku(commands.Cog):
         if ctx.interaction is None:
             return
         await ctx.defer(ephemeral=True)
-        puzzle = await self.bot.loop.run_in_executor(self.bot.process_pool, Puzzle.new)
-        view = SudokuGame(puzzle, ctx.author, self.bot)  # type: ignore
+        puzzle = await self.bot.loop.run_in_executor(
+            self.bot.process_pool, functools.partial(Puzzle.new, mobile=ctx.author.mobile_status != "offline")
+        )
+        view = SudokuGame(puzzle, ctx.author, self.bot)
         await ctx.send(embed=view.block_choose_embed(), view=view, ephemeral=True)
 
 
