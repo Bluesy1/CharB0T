@@ -1329,14 +1329,17 @@ class Sudoku(commands.Cog):
         self.bot = bot
 
     @commands.hybrid_command(name="sudoku", description="Play a Sudoku puzzle")
+    @app_commands.describe(mobile="Set this to true on mobile to turn off formatting that only works on desktop")
     @app_commands.guilds(225345178955808768)
-    async def sudoku(self, ctx: commands.Context):
+    async def sudoku(self, ctx: commands.Context, mobile: bool = False):
         """Generate a sudoku puzzle.
 
         Parameters
         ----------
         ctx: commands.Context
             The interaction of the command.
+        mobile: bool
+            Whether to turn off formatting that only works on desktop.
         """
         # noinspection DuplicatedCode
         if (
@@ -1353,10 +1356,7 @@ class Sudoku(commands.Cog):
         if ctx.interaction is None:
             return
         await ctx.defer(ephemeral=True)
-        puzzle = await self.bot.loop.run_in_executor(
-            self.bot.process_pool,
-            functools.partial(Puzzle.random, ctx.author.mobile_status != "offline"),  # type: ignore
-        )
+        puzzle = await self.bot.loop.run_in_executor(self.bot.process_pool, functools.partial(Puzzle.random, mobile))
         view = SudokuGame(puzzle, ctx.author, self.bot)  # type: ignore
         await ctx.send(embed=view.block_choose_embed(), view=view, ephemeral=True)
 
