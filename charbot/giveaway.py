@@ -402,11 +402,7 @@ class Giveaway(commands.Cog):
         ctx : commands.Context
             The context of the command invocation.
         """
-        if (
-            ctx.guild is None
-            or not any(role.id in ALLOWED_ROLES for role in ctx.author.roles)  # type: ignore
-            or not ctx.channel.id == CHANNEL_ID
-        ):
+        if ctx.guild is None or not any(role.id in ALLOWED_ROLES for role in ctx.author.roles):  # type: ignore
             await ctx.send(
                 "You must be at least level 5 to participate in the giveaways system and be in "
                 "a thread of <#969972085445238784>.",
@@ -448,11 +444,7 @@ class Giveaway(commands.Cog):
         ctx : commands.Context
             The context of the command invocation.
         """
-        if (
-            ctx.guild is None
-            or not any(role.id in ALLOWED_ROLES for role in ctx.author.roles)  # type: ignore
-            or not ctx.channel.id == CHANNEL_ID
-        ):
+        if ctx.guild is None or not any(role.id in ALLOWED_ROLES for role in ctx.author.roles):  # type: ignore
             await ctx.send(
                 "You must be at least level 5 to participate in the giveaways system and be in "
                 "a thread of <#969972085445238784>.",
