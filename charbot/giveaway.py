@@ -410,10 +410,11 @@ class Giveaway(commands.Cog):
         if (
             ctx.guild is None
             or not any(role.id in ALLOWED_ROLES for role in ctx.author.roles)  # type: ignore
-            or ctx.channel.id != CHANNEL_ID
+            or (isinstance(ctx.channel, discord.Thread) and ctx.channel.parent_id != CHANNEL_ID)
         ):
             await ctx.send(
-                "You must be at least level 5 to participate in the giveaways system and be in <#969972085445238784>.",
+                "You must be at least level 5 to participate in the giveaways system and be in "
+                "a thread of <#969972085445238784>.",
                 ephemeral=True,
             )
             return
@@ -452,7 +453,8 @@ class Giveaway(commands.Cog):
         if (
             ctx.guild is None
             or not any(role.id in ALLOWED_ROLES for role in ctx.author.roles)  # type: ignore
-            or ctx.channel.id != CHANNEL_ID
+            or (isinstance(ctx.channel, discord.TextChannel) and ctx.channel.id != CHANNEL_ID)
+            or (isinstance(ctx.channel, discord.Thread) and ctx.channel.parent_id != CHANNEL_ID)
         ):
             await ctx.send(
                 "You must be at least level 5 to participate in the giveaways system and be in <#969972085445238784>.",
