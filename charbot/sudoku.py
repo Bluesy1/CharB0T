@@ -1294,7 +1294,7 @@ class Sudoku(commands.Cog):
         if (
             ctx.guild is None
             or not any(role.id in ALLOWED_ROLES for role in ctx.author.roles)  # type: ignore
-            or (isinstance(ctx.channel, discord.Thread) and ctx.channel.parent_id != CHANNEL_ID)
+            or not ctx.channel.id == CHANNEL_ID
         ):
             await ctx.send(
                 "You must be at least level 5 to participate in the giveaways system and be in "
@@ -1302,6 +1302,9 @@ class Sudoku(commands.Cog):
                 ephemeral=True,
             )
             return
+        if ctx.interaction is None:
+            return
+        await ctx.defer(ephemeral=True)
         puzzle = await self.bot.loop.run_in_executor(self.bot.process_pool, Puzzle.new)
         view = SudokuGame(puzzle, ctx.author, self.bot)  # type: ignore
         await ctx.send(embed=view.block_choose_embed(), view=view, ephemeral=True)

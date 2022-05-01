@@ -410,7 +410,7 @@ class Giveaway(commands.Cog):
         if (
             ctx.guild is None
             or not any(role.id in ALLOWED_ROLES for role in ctx.author.roles)  # type: ignore
-            or (isinstance(ctx.channel, discord.Thread) and ctx.channel.parent_id != CHANNEL_ID)
+            or not ctx.channel.id == CHANNEL_ID
         ):
             await ctx.send(
                 "You must be at least level 5 to participate in the giveaways system and be in "
@@ -418,6 +418,9 @@ class Giveaway(commands.Cog):
                 ephemeral=True,
             )
             return
+        if ctx.interaction is None:
+            return
+        await ctx.defer(ephemeral=True)
         user = await self.bot.giveaway_user(ctx.author.id)
         if user is None:
             async with self.bot.pool.acquire() as conn:
@@ -453,14 +456,15 @@ class Giveaway(commands.Cog):
         if (
             ctx.guild is None
             or not any(role.id in ALLOWED_ROLES for role in ctx.author.roles)  # type: ignore
-            or (isinstance(ctx.channel, discord.TextChannel) and ctx.channel.id != CHANNEL_ID)
-            or (isinstance(ctx.channel, discord.Thread) and ctx.channel.parent_id != CHANNEL_ID)
+            or not ctx.channel.id == CHANNEL_ID
         ):
             await ctx.send(
-                "You must be at least level 5 to participate in the giveaways system and be in <#969972085445238784>.",
+                "You must be at least level 5 to participate in the giveaways system and be in "
+                "a thread of <#969972085445238784>.",
                 ephemeral=True,
             )
             return
+        await ctx.defer(ephemeral=True)
         points = await self.bot.pool.fetchval("SELECT points from users where id = $1", ctx.author.id) or 0
         if ctx.interaction is not None:
             await ctx.send(f"You have {points} reputation.", ephemeral=True)

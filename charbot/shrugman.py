@@ -129,7 +129,7 @@ class Shrugman(commands.Cog):
         if (
             ctx.guild is None
             or not any(role.id in ALLOWED_ROLES for role in ctx.author.roles)  # type: ignore
-            or (isinstance(ctx.channel, discord.Thread) and ctx.channel.parent_id != CHANNEL_ID)
+            or not ctx.channel.id == CHANNEL_ID
         ):
             await ctx.send(
                 "You must be at least level 5 to participate in the giveaways system and be in "
@@ -137,6 +137,9 @@ class Shrugman(commands.Cog):
                 ephemeral=True,
             )
             return
+        if ctx.interaction is None:
+            return
+        await ctx.defer(ephemeral=True)
         word = random.choice(__words__)
         embed = discord.Embed(
             title="Shrugman",
