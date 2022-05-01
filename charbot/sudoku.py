@@ -775,7 +775,7 @@ class SudokuGame(ui.View):
     """
 
     def __init__(self, puzzle: Puzzle, author: discord.Member, bot: CBot):
-        super().__init__(timeout=600)
+        super().__init__(timeout=None)
         self.puzzle = puzzle
         self.author = author
         self.bot = bot
