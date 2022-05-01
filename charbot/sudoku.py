@@ -429,8 +429,8 @@ class Puzzle:
             for i in range(3)
             for j in range(3)
         ]
-        self._initial_puzzle = puzzle
         self._mobile = mobile
+        self._initial_puzzle = puzzle
 
     def __str__(self):
         """Return the puzzle as a string."""
