@@ -346,7 +346,7 @@ class GuessModal(ui.Modal, title="Shrugman Guess"):
             The interaction object.
         """
         if self.guess.value.lower() not in __valid_guesses__:  # type: ignore
-            await interaction.response.send_message("Invalid guess.", ephemeral=True)  # type: ignore
+            await interaction.response.send_message("Invalid guess.", ephemeral=True)
             return
         if self.guess.value.lower() in self.game.guesses:  # type: ignore
             await interaction.response.send_message(
