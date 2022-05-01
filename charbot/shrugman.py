@@ -50,7 +50,7 @@ CHANNEL_ID: Final[int] = 969972085445238784
 
 FailStates = Enum(
     "FailStates",
-    r"<:KHattip:896043110717608009> `¯` `¯\\` `¯\\_` `¯\\_(` `¯\\_(ツ` `¯\\_(ツ)` `¯\\_(ツ)_` `¯\\_(ツ)_/` `¯\\_(ツ)_/¯`",
+    r"<:KHattip:896043110717608009> `¯` `¯\` `¯\_` `¯\_(` `¯\_(ツ` `¯\_(ツ)` `¯\_(ツ)_` `¯\_(ツ)_/` `¯\_(ツ)_/¯`",
     start=0,
 )
 
@@ -367,7 +367,7 @@ class GuessModal(ui.Modal, title="Shrugman Guess"):
             )
             embed.set_footer(text="Type !shrugman or !sm to play again")
             embed.set_author(name=self.game.author.display_name, icon_url=self.game.author.display_avatar.url)
-            embed.add_field(name="Shrugman", value=self.game.fail_enum(self.game.mistakes).name, inline=True)
+            embed.add_field(name="Shrugman", value=self.game.fail_enum(min(9, self.game.mistakes)).name, inline=True)
             embed.add_field(name="Guesses", value=f"{self.game.guess_count}", inline=True)
             embed.add_field(name="Mistakes", value=f"{self.game.mistakes}", inline=True)
             embed.add_field(name="Word", value=f"{self.game.word}", inline=True)
@@ -396,7 +396,7 @@ class GuessModal(ui.Modal, title="Shrugman Guess"):
             text=f"Type !shrugman or !sm to play {'again' if '-' not in self.game.guess_word_list else ''}"
         )
         embed.set_author(name=self.game.author.display_name, icon_url=self.game.author.display_avatar.url)
-        embed.add_field(name="Shrugman", value=self.game.fail_enum(self.game.mistakes).name, inline=True)
+        embed.add_field(name="Shrugman", value=self.game.fail_enum(min(9, self.game.mistakes)).name, inline=True)
         embed.add_field(name="Guesses", value=f"{self.game.guess_count}", inline=True)
         embed.add_field(name="Mistakes", value=f"{self.game.mistakes}", inline=True)
         embed.add_field(
