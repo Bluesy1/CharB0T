@@ -998,28 +998,6 @@ class SudokuGame(ui.View):
         else:
             await super().on_error(interaction, error, item)
 
-    # noinspection DuplicatedCode
-    async def on_timeout(self) -> None:
-        """Call when the interaction times out."""
-        solution = self.puzzle.solution
-        embed = discord.Embed(
-            title="**Timed Out** Sudoku", description=f"The solution was\n```{solution}```", color=discord.Color.red()
-        )
-        embed.set_author(name=self.author.display_name, icon_url=self.author.display_avatar.url)
-        embed.set_footer(text="Play Sudoku by Typing !sudoku")
-        time_taken = utcnow().replace(microsecond=0) - self.start_time.replace(microsecond=0)
-        embed.add_field(name="Time Taken", value=f"{time_taken}", inline=True)
-        embed.add_field(name="Reputation gained", value="0 Reputation", inline=True)
-        self.disable_keypad()
-        self.mode.disabled = True
-        self.cancel.disabled = True
-        self.back.disabled = True
-        self.stop()
-        try:
-            await self.author.send("Your game timed out", embed=embed)
-        except discord.DiscordException:
-            pass
-
     @ui.button(label="Back", disabled=True, style=discord.ButtonStyle.green, row=0)
     async def back(self, interaction: discord.Interaction, button: ui.Button):
         """Back to the previous level of the puzzle.
@@ -1291,6 +1269,7 @@ class Sudoku(commands.Cog):
         ctx: commands.Context
             The interaction of the command.
         """
+        # noinspection DuplicatedCode
         if (
             ctx.guild is None
             or not any(role.id in ALLOWED_ROLES for role in ctx.author.roles)  # type: ignore

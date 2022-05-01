@@ -160,7 +160,7 @@ class CBot(commands.Bot):
                     points = real_points
                 async with self.pool.acquire() as conn:
                     await conn.execute(
-                        "UPDATE daily_points SET particip = $1, won = $2 WHERE id = $3",
+                        "UPDATE daily_points SET particip = particip + $1, won = won + $2 WHERE id = $3",
                         points,
                         bonus,
                         user_id,

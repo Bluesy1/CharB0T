@@ -50,7 +50,7 @@ CHANNEL_ID: Final[int] = 969972085445238784
 
 FailStates = Enum(
     "FailStates",
-    r"<:KHattip:896043110717608009> ¯ ¯\\ ¯\\_ ¯\\_( ¯\\_(ツ ¯\\_(ツ) ¯\\_(ツ)_ ¯\\_(ツ)_/ ¯\\_(ツ)_/¯",
+    r"<:KHattip:896043110717608009> `¯` `¯\\` `¯\\_` `¯\\_(` `¯\\_(ツ` `¯\\_(ツ)` `¯\\_(ツ)_` `¯\\_(ツ)_/` `¯\\_(ツ)_/¯`",
     start=0,
 )
 
@@ -106,6 +106,7 @@ class Shrugman(commands.Cog):
     def __init__(self, bot: CBot):
         self.bot = bot
 
+    # noinspection DuplicatedCode
     @commands.hybrid_command(name="shrugman", description="Play the shrugman minigame. (Hangman clone)")
     @app_commands.guilds(225345178955808768)
     async def shrugman(self, ctx: commands.Context) -> None:
