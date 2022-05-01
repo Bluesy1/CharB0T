@@ -986,16 +986,17 @@ class SudokuGame(ui.View):
                     self.cell.value = int(button.label)  # type: ignore
                     self.level = "Block"
                     self.cell.possible_values.clear()
-                    if self.cell is not None:
-                        self.cell.selected = False
-                    self.block.selected = True
+                    self.cell.selected = False
+                    if self.block is not None:
+                        self.block.selected = True
                     self.cell = None
                     if self.puzzle.is_solved:
                         self.disable_keypad()
                         self.back.disabled = True
                         self.cancel.disabled = True
                         self.mode.disabled = True
-                        self.cell.selected = False
+                        if self.cell is not None:
+                            self.cell.selected = False
                         embed = discord.Embed(
                             title="**Solved!!** Sudoku",
                             description=f"```ansi\n{self.puzzle}```",
@@ -1147,7 +1148,9 @@ class SudokuGame(ui.View):
         """
         solution = self.puzzle.solution
         embed = discord.Embed(
-            title="**FAILED** Sudoku", description=f"The solution was\n```{solution}```", color=discord.Color.red()
+            title="**FAILED** Sudoku",
+            description=f"The solution was\n```ansi\n{solution}```",
+            color=discord.Color.red(),
         )
         embed.set_author(name=self.author.display_name, icon_url=self.author.display_avatar.url)
         embed.set_footer(text="Play Sudoku by Typing !sudoku")
@@ -1351,9 +1354,10 @@ class Sudoku(commands.Cog):
             return
         await ctx.defer(ephemeral=True)
         puzzle = await self.bot.loop.run_in_executor(
-            self.bot.process_pool, functools.partial(Puzzle.random, ctx.author.mobile_status != "offline")
+            self.bot.process_pool,
+            functools.partial(Puzzle.random, ctx.author.mobile_status != "offline"),  # type: ignore
         )
-        view = SudokuGame(puzzle, ctx.author, self.bot)
+        view = SudokuGame(puzzle, ctx.author, self.bot)  # type: ignore
         await ctx.send(embed=view.block_choose_embed(), view=view, ephemeral=True)
 
 
