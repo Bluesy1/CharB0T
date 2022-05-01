@@ -185,10 +185,7 @@ class GiveawayView(ui.View):
         """
         if self.message is None:
             self.message = interaction.message
-        if (
-            not any(role.id in ALLOWED_ROLES for role in interaction.user.roles)  # type: ignore
-            or interaction.channel_id != 969972085445238784
-        ):
+        if not any(role.id in ALLOWED_ROLES for role in interaction.user.roles):  # type: ignore
             await interaction.response.send_message(
                 "You must be at least level 5 to participate in the giveaways system and be in <#969972085445238784>.",
                 ephemeral=True,
@@ -225,10 +222,7 @@ class GiveawayView(ui.View):
         button : ui.Button
             The button that was pressed.
         """
-        if (
-            not any(role.id in ALLOWED_ROLES for role in interaction.user.roles)  # type: ignore
-            or interaction.channel_id != 969972085445238784
-        ):
+        if not any(role.id in ALLOWED_ROLES for role in interaction.user.roles):  # type: ignore
             await interaction.response.send_message(
                 "You must be at least level 5 to participate in the giveaways system and be in <#969972085445238784>.",
                 ephemeral=True,
@@ -397,6 +391,7 @@ class Giveaway(commands.Cog):
         """
         return pd.read_csv("giveaway.csv", index_col=0, usecols=[0, 1, 2, 4], names=["date", "game", "url", "source"])
 
+    # noinspection DuplicatedCode
     @commands.hybrid_command(name="rollcall", description="Claim your daily reputation bonus")
     @app_commands.guilds(225345178955808768)
     async def rollcall(self, ctx: commands.Context):
