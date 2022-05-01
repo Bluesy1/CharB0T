@@ -69,6 +69,7 @@ class Cell:
     value : int
     editable : bool
     possible_values : set[int]
+    selected : bool
 
     Methods
     -------
@@ -93,15 +94,20 @@ class Cell:
         self._value = value
         self._editable = editable
         self._possible_values: set[int] = set(range(1, 10)) if editable else {value}
+        self._selected = False
         self.id = uuid.uuid4()
 
     def __repr__(self):
         """Return a string representation of the cell."""
-        return f"<Cell value={self.value} possible_values={self.possible_values}>"
+        return f"<Cell value={self.value} possible_values={self.possible_values} id={self.id}>"
 
     def __eq__(self, other):
-        """Two cells are equal if they have the same value, editability, and uuid."""
-        return self.value == other.value and self.editable == other.editable and self.id == other.id
+        """Two cells are equal if they have the same value, and editibility."""
+        return self.value == other.value and self.editable == other.editable
+
+    def __hash__(self):
+        """Return the hash of the cell."""
+        return hash(f"{self.value}{self.editable}")
 
     @property
     def value(self) -> int:
@@ -159,6 +165,24 @@ class Cell:
         """Whether the cell is editable."""
         return self._editable
 
+    @property
+    def selected(self) -> bool:
+        """Whether the cell is selected."""
+        return self._selected
+
+    @selected.setter
+    def selected(self, value: bool) -> None:
+        """Set the selected state of the cell.
+
+        Parameters
+        ----------
+        value : bool
+            Whether the cell is selected.
+        """
+        if not isinstance(value, bool):
+            raise TypeError("Selected must be a bool.")
+        self._selected = value
+
     def clear(self) -> None:
         """Clear the cell.
 
@@ -203,7 +227,7 @@ class Row:
 
     def __eq__(self, other):
         """Two rows are equal if they have the same cells."""
-        return self.cells == other.cells
+        return [cell.id for cell in self.cells] == [cell.id for cell in other.cells]
 
     def __getitem__(self, item):
         """Get cell(s) in the row."""
@@ -260,7 +284,7 @@ class Column:
 
     def __eq__(self, other):
         """Two columns are equal if they have the same cells."""
-        return self.cells == other.cells
+        return [cell.id for cell in self.cells] == [cell.id for cell in other.cells]
 
     @property
     def cells(self) -> list[Cell]:
@@ -315,7 +339,7 @@ class Block:
 
     def __eq__(self, other):
         """Two blocks are equal if they have the same cells."""
-        return self.cells == other.cells
+        return [cell.id for cell in self.cells] == [cell.id for cell in other.cells]
 
     @property
     def cells(self) -> list[Cell]:
@@ -326,6 +350,25 @@ class Block:
     def solved(self) -> bool:
         """Whether the block is solved."""
         return all(cell.value != 0 for cell in self.cells) and len({cell.value for cell in self.cells}) == 9
+
+    @property
+    def selected(self) -> bool:
+        """Whether the block is selected."""
+        return all(n.selected for n in self.cells)
+
+    @selected.setter
+    def selected(self, value: bool) -> None:
+        """Set the selected state of the block.
+
+        Parameters
+        ----------
+        value : bool
+            Whether the block is selected.
+        """
+        if not isinstance(value, bool):
+            raise TypeError("Selected must be a bool.")
+        for cell in self.cells:
+            cell.selected = value
 
     def clear(self) -> None:
         """Reset the block."""
@@ -400,7 +443,18 @@ class Puzzle:
         line4 = expand_line("╚═══╧═══╩═══╝")
 
         symbol = " 1234567890ABCDEFGHIJKLMNOPQRSTUVWXYZ"
-        symbols = [[""] + [symbol[n.value] for n in row] for row in self.rows]
+        static = "\u001b[1;37m"
+        selected = "\u001b[4;40m"
+        clear = "\u001b[0m"
+        symbols = [
+            [""]
+            + [
+                f"{'' if n.editable else static}{selected if n.selected else ''}"
+                f"{symbol[n.value]}{clear if not n.editable or n.selected else ''}"
+                for n in row
+            ]
+            for row in self.rows
+        ]
         string = line0
         for r in range(1, side + 1):
             string += "\n" + "".join(n + s for n, s in zip(symbols[r - 1], line1.split(".")))
@@ -600,12 +654,12 @@ class Puzzle:
             raise TypeError("cell must be of type Cell")
         row_index = -1
         for i, row in enumerate(self.rows):
-            if cell in row:
+            if cell.id in [cell.id for cell in row.cells]:
                 row_index = i
                 break
         column_index = -1
         for j, column in enumerate(self.columns):
-            if cell in column:
+            if cell.id in [cell.id for cell in column.cells]:
                 column_index = j
                 break
         if -1 in (row_index, column_index):
@@ -635,7 +689,7 @@ class Puzzle:
         if not isinstance(cell, Cell):
             raise TypeError("cell must be of type Cell")
         for row in self.rows:
-            if cell in row:
+            if cell.id in [cell.id for cell in row.cells]:
                 return row
         raise ValueError("Cell not found in puzzle")
 
@@ -662,7 +716,7 @@ class Puzzle:
         if not isinstance(cell, Cell):
             raise TypeError("cell must be of type Cell")
         for column in self.columns:
-            if cell in column:
+            if cell.id in [cell.id for cell in column.cells]:
                 return column
         raise ValueError("Cell not found in puzzle")
 
