@@ -900,7 +900,7 @@ class SudokuGame(ui.View):
         discord.Embed
             Embed to send for when the user is changing a cell.
         """
-        embed = discord.Embed(title="Sudoku", description=f"```{self.puzzle}```", color=discord.Color.blurple())
+        embed = discord.Embed(title="Sudoku", description=f"```ansi\n{self.puzzle}```", color=discord.Color.blurple())
         embed.set_author(name=self.author.display_name, icon_url=self.author.display_avatar.url)
         embed.set_footer(text="Play Sudoku by Typing !sudoku")
         embed.add_field(
@@ -919,7 +919,7 @@ class SudokuGame(ui.View):
         discord.Embed
             Embed to send for when the user is choosing a cell.
         """
-        embed = discord.Embed(title="Sudoku", description=f"```{self.puzzle}```", color=discord.Color.blurple())
+        embed = discord.Embed(title="Sudoku", description=f"```ansi\n{self.puzzle}```", color=discord.Color.blurple())
         embed.set_author(name=self.author.display_name, icon_url=self.author.display_avatar.url)
         embed.set_footer(text="Play Sudoku by Typing !sudoku")
         embed.add_field(
@@ -938,7 +938,7 @@ class SudokuGame(ui.View):
         discord.Embed
             The embed to send for choosing a block.
         """
-        embed = discord.Embed(title="Sudoku", description=f"```{self.puzzle}```", color=discord.Color.blurple())
+        embed = discord.Embed(title="Sudoku", description=f"```ansi\n{self.puzzle}```", color=discord.Color.blurple())
         embed.set_author(name=self.author.display_name, icon_url=self.author.display_avatar.url)
         embed.set_footer(text="Play Sudoku by Typing !sudoku")
         embed.add_field(name="Choose a block", value="Use the keypad to choose a block", inline=True)
@@ -990,7 +990,7 @@ class SudokuGame(ui.View):
                         self.mode.disabled = True
                         embed = discord.Embed(
                             title="**Solved!!** Sudoku",
-                            description=f"```{self.puzzle}```",
+                            description=f"```ansi\n{self.puzzle}```",
                             color=discord.Color.green(),
                         )
                         embed.set_author(name=self.author.display_name, icon_url=self.author.display_avatar.url)
