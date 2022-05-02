@@ -506,7 +506,8 @@ class Giveaway(commands.Cog):
         embed.add_field(name="How to Win", value="The winner will be chosen at random.", inline=True)
         embed.add_field(
             name="How to get reputation",
-            value="You get reputation by attending `rollcall` command and by playing the minigames.",
+            value="You get reputation by attending `rollcall` and by "
+            "participating in programs (games) in <#969972085445238784>.",
             inline=True,
         )
         embed.add_field(name="Total Reputation Bid", value="0", inline=True)
