@@ -165,8 +165,9 @@ class GiveawayView(ui.View):
         await self.message.edit(embed=self.embed, view=self)  # type: ignore
         if winner is not None:
             await self.channel.send(
-                f"Congrats to {winner.mention} for winning the {self.game} giveaway! If you're also listed under"
-                f" winners, stay tuned for if the first winner does not reach out to redeem their prize.",
+                f"Congrats to {winner.mention} for winning the {self.game} giveaway! Please DM Charlie to claim it."
+                f" If you're also listed under winners, stay tuned for if the first winner does not reach out to redeem"
+                f" their prize.",
                 allowed_mentions=discord.AllowedMentions(users=True),
             )
         await self.bot.pool.execute("UPDATE bids SET bid = 0 WHERE bid > 0")
@@ -475,7 +476,7 @@ class Giveaway(commands.Cog):
             await interaction.response.send_message("Only Charlie can confirm a winner.", ephemeral=True)
             return
         await self.bot.pool.execute(
-            "INSERT INTO winners (id, expiry) VALUES ($1, $2)", user.id, __TIME__() + datetime.timedelta(days=30)
+            "INSERT INTO winners (id, expiry) VALUES ($1, $2)", user.id, __TIME__() + datetime.timedelta(days=7)
         )
         await interaction.response.send_message("Confirmed.", ephemeral=True)
 
