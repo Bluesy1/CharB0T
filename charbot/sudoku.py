@@ -968,6 +968,7 @@ class SudokuGame(ui.View):
         """
         if self.level == "Puzzle":
             self.block = self.puzzle.blocks[key]
+            self.block.selected = True
             self.level = "Block"
             self.update_keypad()
             await interaction.response.edit_message(embed=self.cell_choose_embed(), view=self)
