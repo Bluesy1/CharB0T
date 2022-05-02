@@ -353,6 +353,7 @@ class GuessModal(ui.Modal, title="Shrugman Guess"):
                 f"You already guessed {self.guess.value.lower()}.", ephemeral=True  # type: ignore
             )
             return
+        await interaction.response.defer()
         self.game.guesses.append(self.guess.value.lower())  # type: ignore
         self.game.guess_count += 1
         if self.guess.value.lower() not in self.game.word:  # type: ignore
@@ -384,7 +385,7 @@ class GuessModal(ui.Modal, title="Shrugman Guess"):
                 value="2 Reputation" if points == 2 else f"{points} Reputation (Daily Cap Hit)",
                 inline=True,
             )
-            await interaction.response.edit_message(embed=embed, view=self.game)
+            await interaction.edit_original_message(embed=embed, view=self.game)
             return
         for i, letter in enumerate(self.game.word):
             if letter == self.guess.value.lower():  # type: ignore
@@ -424,7 +425,7 @@ class GuessModal(ui.Modal, title="Shrugman Guess"):
                 value=f"{points} Reputation" if points == (2 + bonus) else f"{points} Reputation (Daily Cap Hit)",
                 inline=True,
             )
-        await interaction.response.edit_message(embed=embed, view=self.game)
+        await interaction.edit_original_message(embed=embed, view=self.game)
 
 
 async def setup(bot: CBot):
