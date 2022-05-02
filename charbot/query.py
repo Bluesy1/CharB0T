@@ -91,6 +91,18 @@ class Query(Cog):
         time.tzset()
         await ctx.send("Charlie's time is: " + time.strftime("%X %x %Z"), reference=ctx.message)
 
+    @commands.command()
+    async def objection(self, ctx: Context):
+        """Return the objection.
+
+        Parameters
+        ----------
+        ctx : Context
+            The context of the command.
+        """
+        await ctx.send("Objection! Hearsay.")
+        await ctx.message.delete()
+
     @commands.hybrid_command(name="source", description="Info about the source code")
     @app_commands.guilds(225345178955808768)
     async def source(self, ctx: Context):
