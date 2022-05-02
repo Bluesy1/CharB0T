@@ -1086,10 +1086,17 @@ class SudokuGame(ui.View):
         elif self.level == "Block":
             self.level = "Puzzle"
             button.disabled = True
+            if self.block is not None:
+                self.block.selected = False
+            self.block = None
             self.enable_keypad()
             await interaction.response.edit_message(embed=self.block_choose_embed(), view=self)
         elif self.level == "Cell":
             self.level = "Block"
+            if self.cell is not None:
+                self.cell.selected = False
+            if self.block is not None:
+                self.block.selected = True
             self.cell = None
             self.enable_keypad()
             await interaction.response.edit_message(embed=self.cell_choose_embed(), view=self)
