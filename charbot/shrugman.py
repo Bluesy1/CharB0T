@@ -351,10 +351,10 @@ class GuessModal(ui.Modal, title="Shrugman Guess"):
         if value not in __valid_guesses__:  # type: ignore
             await interaction.response.send_message("Invalid guess.", ephemeral=True)
             return
-        await interaction.response.defer()
         if value in self.game.guesses:
             await interaction.response.send_message(f"You already guessed {value}.", ephemeral=True)
             return
+        await interaction.response.defer()
         self.game.guesses.append(value)
         self.game.guess_count += 1
         if value not in self.game.word:
