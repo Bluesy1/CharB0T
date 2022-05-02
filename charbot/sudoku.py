@@ -1332,7 +1332,7 @@ class Sudoku(commands.Cog):
     @app_commands.command(name="sudoku", description="Play a Sudoku puzzle")
     @app_commands.describe(mobile="Set this to true on mobile to turn off formatting that only works on desktop")
     @app_commands.guilds(225345178955808768)
-    async def sudoku(self, interaction: discord.Interaction, mobile: bool = False):
+    async def sudoku(self, interaction: discord.Interaction, mobile: bool):
         """Generate a sudoku puzzle.
 
         Parameters
