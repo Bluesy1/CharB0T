@@ -92,6 +92,7 @@ class Query(Cog):
         await ctx.send("Charlie's time is: " + time.strftime("%X %x %Z"), reference=ctx.message)
 
     @commands.command()
+    @commands.cooldown(1, 60, commands.BucketType.channel)
     async def objection(self, ctx: Context):
         """Return the objection.
 
