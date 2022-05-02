@@ -904,7 +904,7 @@ class SudokuGame(ui.View):
         """
         embed = discord.Embed(title="Sudoku", description=f"```ansi\n{self.puzzle}```", color=discord.Color.blurple())
         embed.set_author(name=self.author.display_name, icon_url=self.author.display_avatar.url)
-        embed.set_footer(text="Play Sudoku by Typing !sudoku")
+        embed.set_footer(text="Play Sudoku by Typing /sudoku")
         embed.add_field(
             name=f"Choose a value for the cell at {self.puzzle.location_of_cell(self.cell)}",  # type: ignore
             value="Use the keypad to choose a value",
@@ -923,7 +923,7 @@ class SudokuGame(ui.View):
         """
         embed = discord.Embed(title="Sudoku", description=f"```ansi\n{self.puzzle}```", color=discord.Color.blurple())
         embed.set_author(name=self.author.display_name, icon_url=self.author.display_avatar.url)
-        embed.set_footer(text="Play Sudoku by Typing !sudoku")
+        embed.set_footer(text="Play Sudoku by Typing /sudoku")
         embed.add_field(
             name=f"Choose a cell from block {self.puzzle.block_index(self.block) + 1}",  # type: ignore
             value="Use the keypad to choose a cell",
@@ -942,7 +942,7 @@ class SudokuGame(ui.View):
         """
         embed = discord.Embed(title="Sudoku", description=f"```ansi\n{self.puzzle}```", color=discord.Color.blurple())
         embed.set_author(name=self.author.display_name, icon_url=self.author.display_avatar.url)
-        embed.set_footer(text="Play Sudoku by Typing !sudoku")
+        embed.set_footer(text="Play Sudoku by Typing /sudoku")
         embed.add_field(name="Choose a block", value="Use the keypad to choose a block", inline=True)
         return embed
 
@@ -1003,7 +1003,7 @@ class SudokuGame(ui.View):
                             color=discord.Color.green(),
                         )
                         embed.set_author(name=self.author.display_name, icon_url=self.author.display_avatar.url)
-                        embed.set_footer(text="Play Sudoku by Typing !sudoku")
+                        embed.set_footer(text="Play Sudoku by Typing /sudoku")
                         time_taken = utcnow().replace(microsecond=0) - self.start_time.replace(microsecond=0)
                         embed.add_field(name="Time Taken", value=f"{time_taken}", inline=True)
                         embed.add_field(name="Time Taken", value=f"{time_taken}", inline=True)
@@ -1153,7 +1153,7 @@ class SudokuGame(ui.View):
             color=discord.Color.red(),
         )
         embed.set_author(name=self.author.display_name, icon_url=self.author.display_avatar.url)
-        embed.set_footer(text="Play Sudoku by Typing !sudoku")
+        embed.set_footer(text="Play Sudoku by Typing /sudoku")
         time_taken = utcnow().replace(microsecond=0) - self.start_time.replace(microsecond=0)
         embed.add_field(name="Time Taken", value=f"{time_taken}", inline=True)
         if (utcnow() - self.start_time) > datetime.timedelta(minutes=3) and self.moves > 10:
@@ -1328,37 +1328,37 @@ class Sudoku(commands.Cog):
     def __init__(self, bot: CBot):
         self.bot = bot
 
-    @commands.hybrid_command(name="sudoku", description="Play a Sudoku puzzle")
+    @app_commands.command(name="sudoku", description="Play a Sudoku puzzle")
     @app_commands.describe(mobile="Set this to true on mobile to turn off formatting that only works on desktop")
     @app_commands.guilds(225345178955808768)
-    async def sudoku(self, ctx: commands.Context, mobile: bool = False):
+    async def sudoku(self, interaction: discord.Interaction, mobile: bool = False):
         """Generate a sudoku puzzle.
 
         Parameters
         ----------
-        ctx: commands.Context
+        interaction: discord.Interaction
             The interaction of the command.
         mobile: bool
             Whether to turn off formatting that only works on desktop.
         """
         # noinspection DuplicatedCode
+        channel = interaction.channel
+        assert isinstance(channel, discord.TextChannel)
         if (
-            ctx.guild is None
-            or not any(role.id in ALLOWED_ROLES for role in ctx.author.roles)  # type: ignore
-            or not ctx.channel.id == CHANNEL_ID
+            interaction.guild is None
+            or not any(role.id in ALLOWED_ROLES for role in interaction.user.roles)  # type: ignore
+            or not channel.id == CHANNEL_ID
         ):
-            await ctx.send(
+            await interaction.response.send_message(
                 "You must be at least level 5 to participate in the giveaways system and be in "
                 "a thread of <#969972085445238784>.",
                 ephemeral=True,
             )
             return
-        if ctx.interaction is None:
-            return
-        await ctx.defer(ephemeral=True)
+        await interaction.response.defer(ephemeral=True)
         puzzle = await self.bot.loop.run_in_executor(self.bot.process_pool, functools.partial(Puzzle.random, mobile))
-        view = SudokuGame(puzzle, ctx.author, self.bot)  # type: ignore
-        await ctx.send(embed=view.block_choose_embed(), view=view, ephemeral=True)
+        view = SudokuGame(puzzle, interaction.user, self.bot)  # type: ignore
+        await interaction.followup.send(embed=view.block_choose_embed(), view=view)
 
 
 async def setup(bot: CBot):

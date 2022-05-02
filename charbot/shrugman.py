@@ -107,9 +107,9 @@ class Shrugman(commands.Cog):
         self.bot = bot
 
     # noinspection DuplicatedCode
-    @commands.hybrid_command(name="shrugman", description="Play the shrugman minigame. (Hangman clone)")
+    @app_commands.command(name="shrugman", description="Play the shrugman minigame. (Hangman clone)")
     @app_commands.guilds(225345178955808768)
-    async def shrugman(self, ctx: commands.Context) -> None:
+    async def shrugman(self, interaction: discord.Interaction) -> None:
         """Play a game of Shrugman.
 
         This game is a hangman-like game.
@@ -124,33 +124,33 @@ class Shrugman(commands.Cog):
 
         Parameters
         ----------
-        ctx: commands.Context
+        interaction: discord.Interaction
             The interaction of the command.
         """
+        channel = interaction.channel
+        assert isinstance(channel, discord.TextChannel)
         if (
-            ctx.guild is None
-            or not any(role.id in ALLOWED_ROLES for role in ctx.author.roles)  # type: ignore
-            or not ctx.channel.id == CHANNEL_ID
+            interaction.guild is None
+            or not any(role.id in ALLOWED_ROLES for role in interaction.user.roles)  # type: ignore
+            or not channel.id == CHANNEL_ID
         ):
-            await ctx.send(
+            await interaction.response.send_message(
                 "You must be at least level 5 to participate in the giveaways system and be in "
                 "a thread of <#969972085445238784>.",
                 ephemeral=True,
             )
             return
-        if ctx.interaction is None:
-            return
-        await ctx.defer(ephemeral=True)
+        await interaction.response.defer(ephemeral=True)
         word = random.choice(__words__)
         embed = discord.Embed(
             title="Shrugman",
             description=f"Guess the word: `{''.join(['-' for _ in word])}`",
             color=discord.Color.dark_purple(),
         )
-        embed.set_footer(text="Type !shrugman or !sm to play")
-        embed.set_author(name=ctx.author.display_name, icon_url=ctx.author.display_avatar.url)
-        view = ShrugmanGame(self.bot, ctx.author, word)  # type: ignore
-        await ctx.send(embed=embed, view=view, ephemeral=True)
+        embed.set_footer(text="Type /shrugman to play")
+        embed.set_author(name=interaction.user.display_name, icon_url=interaction.user.display_avatar.url)
+        view = ShrugmanGame(self.bot, interaction.user, word)  # type: ignore
+        await interaction.followup.send(embed=embed, view=view)
 
 
 class ShrugmanGame(ui.View):
@@ -254,7 +254,7 @@ class ShrugmanGame(ui.View):
             description=f"Guess the word: `{''.join(self.guess_word_list)}`",
             color=discord.Color.dark_purple(),
         )
-        embed.set_footer(text="Type !shrugman or !sm to play")
+        embed.set_footer(text="Type /shrugman to play")
         embed.set_author(name=self.author.display_name, icon_url=self.author.display_avatar.url)
         embed.add_field(name="Shrugman", value=self.fail_enum(self.mistakes).name, inline=True)
         embed.add_field(name="Guesses", value=f"{self.guess_count}", inline=True)
@@ -287,7 +287,7 @@ class ShrugmanGame(ui.View):
             description=f"Guess the word: `{''.join(self.guess_word_list)}`",
             color=discord.Color.dark_purple(),
         )
-        embed.set_footer(text="Type !shrugman or !sm to play")
+        embed.set_footer(text="Type /shrugman to play")
         embed.set_author(name=self.author.display_name, icon_url=self.author.display_avatar.url)
         embed.add_field(name="Shrugman", value=self.fail_enum(self.mistakes).name, inline=True)
         embed.add_field(name="Guesses", value=f"{self.guess_count}", inline=True)
@@ -345,18 +345,19 @@ class GuessModal(ui.Modal, title="Shrugman Guess"):
         interaction : discord.Interaction
             The interaction object.
         """
-        if self.guess.value.lower() not in __valid_guesses__:  # type: ignore
+        _value = self.guess.value
+        assert isinstance(_value, str)
+        value: str = _value.lower()
+        if value not in __valid_guesses__:  # type: ignore
             await interaction.response.send_message("Invalid guess.", ephemeral=True)
             return
-        if self.guess.value.lower() in self.game.guesses:  # type: ignore
-            await interaction.response.send_message(
-                f"You already guessed {self.guess.value.lower()}.", ephemeral=True  # type: ignore
-            )
-            return
         await interaction.response.defer()
-        self.game.guesses.append(self.guess.value.lower())  # type: ignore
+        if value in self.game.guesses:
+            await interaction.response.send_message(f"You already guessed {value}.", ephemeral=True)
+            return
+        self.game.guesses.append(value)
         self.game.guess_count += 1
-        if self.guess.value.lower() not in self.game.word:  # type: ignore
+        if value not in self.game.word:
             self.game.mistakes += 1
         if self.game.mistakes >= len(self.game.fail_enum) - 1:
             self.game.dead = True
@@ -366,7 +367,7 @@ class GuessModal(ui.Modal, title="Shrugman Guess"):
                 description=f"You got: `{''.join(self.game.guess_word_list)}`",
                 color=discord.Color.red(),
             )
-            embed.set_footer(text="Type !shrugman or !sm to play again")
+            embed.set_footer(text="Type /shrugman to play")
             embed.set_author(name=self.game.author.display_name, icon_url=self.game.author.display_avatar.url)
             embed.add_field(
                 name="Shrugman",
@@ -388,7 +389,7 @@ class GuessModal(ui.Modal, title="Shrugman Guess"):
             await interaction.edit_original_message(embed=embed, view=self.game)
             return
         for i, letter in enumerate(self.game.word):
-            if letter == self.guess.value.lower():  # type: ignore
+            if letter == value:
                 self.game.guess_word_list[i] = letter
         embed = discord.Embed(
             title=f"{f'**{self.game.author.display_name} Won!!!**  ' if '-' not in self.game.guess_word_list else ''}"
@@ -397,9 +398,7 @@ class GuessModal(ui.Modal, title="Shrugman Guess"):
             f" `{''.join(self.game.guess_word_list)}`",
             color=discord.Color.green() if "-" not in self.game.guess_word_list else discord.Color.red(),
         )
-        embed.set_footer(
-            text=f"Type !shrugman or !sm to play {'again' if '-' not in self.game.guess_word_list else ''}"
-        )
+        embed.set_footer(text=f"Type /shrugman to play {'again' if '-' not in self.game.guess_word_list else ''}")
         embed.set_author(name=self.game.author.display_name, icon_url=self.game.author.display_avatar.url)
         embed.add_field(
             name="Shrugman",
