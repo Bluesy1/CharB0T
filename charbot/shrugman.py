@@ -128,7 +128,7 @@ class Shrugman(commands.Cog):
             The interaction of the command.
         """
         channel = interaction.channel
-        assert isinstance(channel, discord.TextChannel)
+        assert isinstance(channel, discord.TextChannel)  # skipcq: BAN-B101
         if (
             interaction.guild is None
             or not any(role.id in ALLOWED_ROLES for role in interaction.user.roles)  # type: ignore
@@ -346,7 +346,7 @@ class GuessModal(ui.Modal, title="Shrugman Guess"):
             The interaction object.
         """
         _value = self.guess.value
-        assert isinstance(_value, str)
+        assert isinstance(_value, str)  # skipcq: BAN-B101
         value: str = _value.lower()
         if value not in __valid_guesses__:  # type: ignore
             await interaction.response.send_message("Invalid guess.", ephemeral=True)

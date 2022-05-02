@@ -1344,7 +1344,7 @@ class Sudoku(commands.Cog):
         """
         # noinspection DuplicatedCode
         channel = interaction.channel
-        assert isinstance(channel, discord.TextChannel)
+        assert isinstance(channel, discord.TextChannel)  # skipcq: BAN-B101
         if (
             interaction.guild is None
             or not any(role.id in ALLOWED_ROLES for role in interaction.user.roles)  # type: ignore
