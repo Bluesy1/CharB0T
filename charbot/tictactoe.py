@@ -734,7 +734,7 @@ class TicTacView(ui.View):
         self.display()
         self._buttons[move[0] * 3 + move[1]].disabled = True
         image = await self.bot.loop.run_in_executor(self.bot.executor, self.puzzle.display)
-        if move == (-1, -1):
+        if self.puzzle.check_win() == -1 and all(button.disabled for button in self._buttons):
             points = self.puzzle.points
             gained_points = await self.bot.give_game_points(interaction.user.id, points.participation, points.bonus)
             max_points = points.participation + points.bonus
