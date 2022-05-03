@@ -23,6 +23,7 @@
 # SOFTWARE.
 #  ----------------------------------------------------------------------------
 """Sudoko minigame."""
+import asyncio
 import datetime
 import functools
 import random
@@ -70,7 +71,6 @@ class Cell:
     value : int
     editable : bool
     possible_values : set[int]
-    selected : bool
 
     Methods
     -------
@@ -855,6 +855,7 @@ class SudokuGame(ui.View):
         self.nine.disabled = False
         self.clear.disabled = False
 
+    # noinspection DuplicatedCode
     def disable_keypad(self):
         """Disable all keypad buttons."""
         self.one.disabled = True
@@ -1377,3 +1378,16 @@ async def setup(bot: CBot):
     bot : CBot
     """
     await bot.add_cog(Sudoku(bot), guild=discord.Object(id=225345178955808768), override=True)
+
+
+async def teardown(bot: CBot):
+    """Unload the cog.
+
+    Parameters
+    ----------
+    bot : CBot
+    """
+    # noinspection PyProtectedMember
+    while bot.process_pool._shutdown_lock.locked():
+        await asyncio.sleep(1)
+    await bot.remove_cog("Sudoku", guild=discord.Object(id=225345178955808768))
