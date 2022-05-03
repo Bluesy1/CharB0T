@@ -36,7 +36,6 @@ from discord.utils import utcnow
 from main import CBot
 
 ALLOWED_ROLES: Final = (
-    225345178955808768,  # GRACE PERIOD ROLE
     337743478190637077,
     685331877057658888,
     969629622453039104,
