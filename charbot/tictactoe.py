@@ -234,8 +234,8 @@ class TicTacHard(TicTacABC):
         win_state = self.check_win()
         if win_state == 1:
             return Points(participation=1, bonus=3)
-        if win_state == -1:
-            return Points(participation=1, bonus=1)
+        if win_state == 0:
+            return Points(participation=1, bonus=0)
         return Points(participation=1, bonus=2)
 
     # noinspection DuplicatedCode
@@ -245,9 +245,9 @@ class TicTacHard(TicTacABC):
         Returns
         -------
         int
-            0 if no one has won.
+            -1 if no one has won.
             1 if the player has won.
-            -1 if the computer has won.
+            0 if the computer has won.
         """
         # 1 you won, 0 computer won, -1 tie
         # Flag syntax -> first player no. ,
@@ -415,19 +415,19 @@ class TicTacHard(TicTacABC):
         comp_pick = "O"
         if self.pick == "O":
             comp_pick = "X"
-        for j in range(0, self.dim_sz):
+        for i in range(0, self.dim_sz):
             for j in range(0, self.dim_sz):
 
-                if self.board[j][j] == "blur":  # BLANK
-                    t = (j, j)
+                if self.board[i][j] == "blur":  # BLANK
+                    t = (i, j)
                     available_moves.append(t)  # add it to available moves
-                    self.board[j][j] = comp_pick  # Check if I (Computer can win)
+                    self.board[i][j] = comp_pick  # Check if I (Computer can win)
                     if self.check_win() == 0:  # Best Case I(Computer) win!
-                        return j, j
-                    self.board[j][j] = self.pick
+                        return i, j
+                    self.board[i][j] = self.pick
                     if self.check_win() == 1:  # Second Best Case, he (player) didn't won
                         player_win_spot.append(t)
-                    self.board[j][j] = "blur"
+                    self.board[i][j] = "blur"
 
         if len(player_win_spot) != 0:
             self.board[player_win_spot[0][0]][player_win_spot[0][1]] = comp_pick
@@ -442,8 +442,8 @@ class TicTacHard(TicTacABC):
         if (c1, c2) in available_moves:  # CENTER
             self.board[c1][c2] = comp_pick
             return c1, c2
-        for j in range(c1 - 1, -1, -1):  # IN TO OUT
-            gap = c1 - j
+        for i in range(c1 - 1, -1, -1):  # IN TO OUT
+            gap = c1 - i
             # checking  - 4 possibilities at max
             # EDGES
             if (c1 - gap, c2 - gap) in available_moves:
@@ -521,7 +521,7 @@ class TicTacEasy(TicTacHard):
         win_state = self.check_win()
         if win_state == 1:
             return Points(participation=1, bonus=2)
-        if win_state == -1:
+        if win_state == 0:
             return Points(participation=1, bonus=0)
         return Points(participation=1, bonus=1)
 
