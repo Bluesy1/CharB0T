@@ -450,7 +450,7 @@ class TicTacHard(TicTacABC):
                 if other_player == max_player
                 else -1 * (self._empty_squares() + 1),
             }
-        elif len(self._available_moves()) == 0:
+        if len(self._available_moves()) == 0:
             return {"position": None, "score": 0}
 
         if player == max_player:
@@ -969,7 +969,7 @@ class TicTacCog(commands.Cog):
         game = TicTacView(self.bot, letter.value, not hard)
         move = await self.bot.loop.run_in_executor(None, game.puzzle.next)
         # noinspection PyProtectedMember
-        game._buttons[move[0] * 3 + move[1]].disabled = True
+        game._buttons[move[0] * 3 + move[1]].disabled = True  # skipcq: PYL-W0212
         image = await self.bot.loop.run_in_executor(None, game.puzzle.display)
         await interaction.followup.send(file=image, view=game)
 
