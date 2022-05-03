@@ -965,6 +965,9 @@ class TicTacCog(commands.Cog):
             return
         await interaction.response.defer(ephemeral=True)
         game = TicTacView(self.bot, letter.value, not hard)
+        move = await self.bot.loop.run_in_executor(None, game.puzzle.next)
+        # noinspection PyProtectedMember
+        game._buttons[move[0] * 3 + move[1]].disabled = True
         image = await self.bot.loop.run_in_executor(None, game.puzzle.display)
         await interaction.followup.send(file=image, view=game)
 
