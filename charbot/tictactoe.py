@@ -503,7 +503,7 @@ class TicTacEasy(TicTacHard):
         available_moves = [
             (i, j) for i in range(0, self.dim_sz) for j in range(0, self.dim_sz) if self.board[i][j] == "blur"
         ]  # will carry all available moves
-        if len(available_moves) % 4 == 0:
+        if len(available_moves) in (8, 9):
             move = random.choice(available_moves)
             self.board[move[0]][move[1]] = "X" if self.pick == "O" else "O"
             return move
