@@ -493,6 +493,7 @@ class TicTacEasy(TicTacHard):
 
     def next(self) -> tuple[int, int]:
         """Make a move, and return the cell that was played.
+
         Returns
         -------
         tuple[int, int]
@@ -509,6 +510,7 @@ class TicTacEasy(TicTacHard):
 
     def _next_move_easy(self) -> tuple[int, int] | tuple[list[int], list[int]]:
         """Make a move, and return the cell that was played.
+
         Returns
         -------
         tuple[int, int] | tuple[list[int], list[int]]
