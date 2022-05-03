@@ -585,7 +585,7 @@ class TicTacView(ui.View):
         self.bot_right.disabled = True
         self.stop()
 
-    async def move(self, interaction: discord.Interaction, button: ui.Button):
+    async def move(self, interaction: discord.Interaction, button: ui.Button, x: int, y: int) -> None:
         """Call this to handle a move button press.
 
         Parameters
@@ -594,9 +594,13 @@ class TicTacView(ui.View):
             The interaction that triggered this event
         button : ui.Button
             The button that was pressed
+        x : int
+            The x coordinate of the button
+        y : int
+            The y coordinate of the button
         """
         await interaction.response.defer()
-        self.puzzle.move(0, 0)
+        self.puzzle.move(x, y)
         button.disabled = True
         if self.puzzle.check_win() == 1:
             points = self.puzzle.points
@@ -653,6 +657,45 @@ class TicTacView(ui.View):
         await interaction.edit_original_message(attachments=[], view=self)
         await interaction.edit_original_message(attachments=[image])
 
+    @ui.button(style=ButtonStyle.green, emoji="✅")
+    async def top_left(self, interaction: discord.Interaction, button: ui.Button):
+        """Call when top left button is pressed.
+
+        Parameters
+        ----------
+        interaction : discord.Interaction
+            The interaction object.
+        button : ui.Button
+            The button that was pressed.
+        """
+        await self.move(interaction, button, 0, 0)
+
+    @ui.button(style=ButtonStyle.green, emoji="✅")
+    async def top_mid(self, interaction: discord.Interaction, button: ui.Button):
+        """Call when top middle button is pressed.
+
+        Parameters
+        ----------
+        interaction : discord.Interaction
+            The interaction object.
+        button : ui.Button
+            The button that was pressed.
+        """
+        await self.move(interaction, button, 0, 1)
+
+    @ui.button(style=ButtonStyle.green, emoji="✅")
+    async def top_right(self, interaction: discord.Interaction, button: ui.Button):
+        """Call when top right button is pressed.
+
+        Parameters
+        ----------
+        interaction : discord.Interaction
+            The interaction object.
+        button : ui.Button
+            The button that was pressed.
+        """
+        await self.move(interaction, button, 0, 2)
+
     # noinspection PyUnusedLocal
     @ui.button(label="Cancel", style=ButtonStyle.danger)
     async def cancel(self, interaction: discord.Interaction, button: ui.Button):  # skipcq: PYL-W0613
@@ -673,60 +716,6 @@ class TicTacView(ui.View):
         )
         await interaction.edit_original_message(embed=embed)
 
-    @ui.button(style=ButtonStyle.green, emoji="✅")
-    async def top_left(self, interaction: discord.Interaction, button: ui.Button):
-        """Call when top left button is pressed.
-
-        Parameters
-        ----------
-        interaction : discord.Interaction
-            The interaction object.
-        button : ui.Button
-            The button that was pressed.
-        """
-        await self.move(interaction, button)
-
-    @ui.button(style=ButtonStyle.green, emoji="✅")
-    async def top_mid(self, interaction: discord.Interaction, button: ui.Button):
-        """Call when top middle button is pressed.
-
-        Parameters
-        ----------
-        interaction : discord.Interaction
-            The interaction object.
-        button : ui.Button
-            The button that was pressed.
-        """
-        await self.move(interaction, button)
-
-    @ui.button(style=ButtonStyle.green, emoji="✅")
-    async def top_right(self, interaction: discord.Interaction, button: ui.Button):
-        """Call when top right button is pressed.
-
-        Parameters
-        ----------
-        interaction : discord.Interaction
-            The interaction object.
-        button : ui.Button
-            The button that was pressed.
-        """
-        await self.move(interaction, button)
-
-    @ui.button(label="᲼᲼᲼᲼᲼", style=ButtonStyle.grey, row=1, disabled=True)
-    async def placeholder(self, interaction: discord.Interaction, button: ui.Button):
-        """Call when placeholer button is pressed.
-
-        Parameters
-        ----------
-        interaction : discord.Interaction
-            The interaction object.
-        button : ui.Button
-            The button that was pressed.
-        """
-        await interaction.response.send_message(
-            f"You shouldn't be able to press `{button.label}`. This button is disabled.", ephemeral=True
-        )
-
     @ui.button(style=ButtonStyle.green, emoji="✅", row=1)
     async def mid_left(self, interaction: discord.Interaction, button: ui.Button):
         """Call when middle left button is pressed.
@@ -738,7 +727,7 @@ class TicTacView(ui.View):
         button : ui.Button
             The button that was pressed.
         """
-        await self.move(interaction, button)
+        await self.move(interaction, button, 1, 0)
 
     @ui.button(style=ButtonStyle.green, emoji="✅", row=1)
     async def mid_mid(self, interaction: discord.Interaction, button: ui.Button):
@@ -751,7 +740,7 @@ class TicTacView(ui.View):
         button : ui.Button
             The button that was pressed.
         """
-        await self.move(interaction, button)
+        await self.move(interaction, button, 1, 1)
 
     @ui.button(style=ButtonStyle.green, emoji="✅", row=1)
     async def mid_right(self, interaction: discord.Interaction, button: ui.Button):
@@ -764,22 +753,7 @@ class TicTacView(ui.View):
         button : ui.Button
             The button that was pressed.
         """
-        await self.move(interaction, button)
-
-    @ui.button(label="᲼᲼᲼᲼᲼", style=ButtonStyle.grey, row=2, disabled=True)
-    async def placeholder1(self, interaction: discord.Interaction, button: ui.Button):
-        """Call when placeholder button is pressed.
-
-        Parameters
-        ----------
-        interaction : discord.Interaction
-            The interaction object.
-        button : ui.Button
-            The button that was pressed.
-        """
-        await interaction.response.send_message(
-            f"You shouldn't be able to press `{button.label}`. This button is disabled.", ephemeral=True
-        )
+        await self.move(interaction, button, 1, 2)
 
     @ui.button(style=ButtonStyle.green, emoji="✅", row=2)
     async def bot_left(self, interaction: discord.Interaction, button: ui.Button):
@@ -792,7 +766,7 @@ class TicTacView(ui.View):
         button : ui.Button
             The button that was pressed.
         """
-        await self.move(interaction, button)
+        await self.move(interaction, button, 2, 0)
 
     @ui.button(style=ButtonStyle.green, emoji="✅", row=2)
     async def bot_mid(self, interaction: discord.Interaction, button: ui.Button):
@@ -805,7 +779,7 @@ class TicTacView(ui.View):
         button : ui.Button
             The button that was pressed.
         """
-        await self.move(interaction, button)
+        await self.move(interaction, button, 2, 1)
 
     @ui.button(style=ButtonStyle.green, emoji="✅", row=2)
     async def bot_right(self, interaction: discord.Interaction, button: ui.Button):
@@ -818,7 +792,7 @@ class TicTacView(ui.View):
         button : ui.Button
             The button that was pressed.
         """
-        await self.move(interaction, button)
+        await self.move(interaction, button, 2, 2)
 
 
 class TicTacCog(commands.Cog):
