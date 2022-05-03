@@ -726,7 +726,10 @@ class TicTacView(ui.View):
             await interaction.edit_original_message(attachments=[])
             await interaction.edit_original_message(attachments=[image], embed=embed, view=self)
             return
-        move = self.puzzle.next()
+        if isinstance(self.puzzle, TicTacEasy):
+            move = self.puzzle.next()
+        else:
+            move = await self.bot.loop.run_in_executor(None, self.puzzle.next)
         print("Computer:")
         self.display()
         self._buttons[move[0] * 3 + move[1]].disabled = True
