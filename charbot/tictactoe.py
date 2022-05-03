@@ -468,16 +468,12 @@ class TicTacHard(TicTacABC):
             if player == max_player:  # X is max player
                 sim_score_val = sim_score["score"]
                 best_val = best["score"]
-                assert isinstance(sim_score_val, float)  # skipcq: BAN-B101
-                assert isinstance(best_val, float)  # skipcq: BAN-B101
-                if sim_score_val > best_val:
+                if sim_score_val > best_val:  # type: ignore
                     best = sim_score
             else:
                 sim_score_val = sim_score["score"]
                 best_val = best["score"]
-                assert isinstance(sim_score_val, float)  # skipcq: BAN-B101
-                assert isinstance(best_val, float)  # skipcq: BAN-B101
-                if sim_score_val < best_val:
+                if sim_score_val < best_val:  # type: ignore
                     best = sim_score
         return best
 
