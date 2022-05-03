@@ -105,13 +105,11 @@ class TicTacABC(abc.ABC):
     @abc.abstractmethod
     def letter(self) -> str:
         """Return the letter of the player."""
-        pass
 
     @property
     @abc.abstractmethod
     def points(self) -> Points:
         """Return the points of the player."""
-        pass
 
     @abc.abstractmethod
     def display(self) -> discord.File:
@@ -122,7 +120,6 @@ class TicTacABC(abc.ABC):
         discord.File
             The image of the board, represented as a discord.File object.
         """
-        pass
 
     @abc.abstractmethod
     def move(self, x: int, y: int) -> bool:
@@ -135,7 +132,6 @@ class TicTacABC(abc.ABC):
         y : int
             The y position of the move.
         """
-        pass
 
     @abc.abstractmethod
     def check_win(self) -> int:
@@ -148,7 +144,6 @@ class TicTacABC(abc.ABC):
             1 if the player has won.
             -1 if the computer has won.
         """
-        pass
 
     @abc.abstractmethod
     def next(self) -> tuple[int, int]:
@@ -159,7 +154,6 @@ class TicTacABC(abc.ABC):
         tuple[int, int]
             The x and y position of the move.
         """
-        pass
 
 
 class TicTacHard(TicTacABC):
