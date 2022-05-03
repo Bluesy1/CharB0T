@@ -271,7 +271,7 @@ class TicTacHard(TicTacABC):
                     flag11 = False
                     flag21 = False
                 else:
-                    flag11 = False  # else i didn't make it
+                    flag11 = False  # else I didn't make it
 
                 if ch2 == self.pick:  # Same but for Col
                     flag22 = False
@@ -417,7 +417,6 @@ class TicTacHard(TicTacABC):
             comp_pick = "X"
         for i in range(0, self.dim_sz):
             for j in range(0, self.dim_sz):
-
                 if self.board[i][j] == "blur":  # BLANK
                     t = (i, j)
                     available_moves.append(t)  # add it to available moves
@@ -429,6 +428,20 @@ class TicTacHard(TicTacABC):
                         player_win_spot.append(t)
                     self.board[i][j] = "blur"
 
+        if self.board[0][0] == self.pick and self.board[2][2] == self.pick:
+            if self.board[0][2] == "blur":
+                self.board[0][2] = comp_pick
+                return 0, 2
+            if self.board[2][0] == "blur":
+                self.board[2][0] = comp_pick
+                return 2, 0
+        if self.board[0][2] == self.pick and self.board[2][0] == self.pick:
+            if self.board[0][0] == "blur":
+                self.board[0][0] = comp_pick
+                return 0, 0
+            if self.board[2][2] == "blur":
+                self.board[2][2] = comp_pick
+                return 2, 2
         if len(player_win_spot) != 0:
             self.board[player_win_spot[0][0]][player_win_spot[0][1]] = comp_pick
             return player_win_spot[0][0], player_win_spot[0][1]
