@@ -69,13 +69,13 @@ class GridPositions(Enum):
     """Enum for Grid Positions."""
 
     TOP_LEFT = "(0, 0)"
-    TOP_MIDDLE = "(1, 0)"
-    TOP_RIGHT = "(2, 0)"
-    MIDDLE_LEFT = "(0, 1)"
+    TOP_MIDDLE = "(0, 1)"
+    TOP_RIGHT = "(0, 2)"
+    MIDDLE_LEFT = "(1, 0)"
     MIDDLE_MIDDLE = "(1, 1)"
-    MIDDLE_RIGHT = "(2, 1)"
-    BOTTOM_LEFT = "(0, 2)"
-    BOTTM_MIDDLE = "(1, 2)"
+    MIDDLE_RIGHT = "(1, 2)"
+    BOTTOM_LEFT = "(2, 0)"
+    BOTTOM_MIDDLE = "(2, 1)"
     BOTTOM_RIGHT = "(2, 2)"
 
 
@@ -586,6 +586,7 @@ class TicTacView(ui.View):
         self.stop()
 
     def display(self) -> None:
+        """DOCSTRING."""
         line1 = ""
         for i in range(0, 3):
             for j in range(0, 2):
@@ -732,7 +733,7 @@ class TicTacView(ui.View):
             description=f"Cancelled, time taken: {utcnow().replace(microsecond=0) - self.time.replace(microsecond=0)}",
             color=discord.Color.red(),
         )
-        await interaction.edit_original_message(embed=embed)
+        await interaction.response.edit_message(embed=embed)
 
     @ui.button(style=ButtonStyle.green, emoji="✅", row=1)
     async def mid_left(self, interaction: discord.Interaction, button: ui.Button):
