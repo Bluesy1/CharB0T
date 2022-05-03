@@ -35,11 +35,17 @@ import asyncpg
 
 import discord
 from discord.ext import commands
+from discord.utils import utcnow
 from dotenv import load_dotenv
 
 
 __ZONEINFO__ = ZoneInfo("America/Detroit")
-__TIME__ = lambda: datetime.datetime.now(__ZONEINFO__).replace(microsecond=0, second=0, minute=0, hour=9)  # noqa: E731
+__TIME__ = (
+    lambda: datetime.datetime.now(__ZONEINFO__).replace(microsecond=0, second=0, minute=0, hour=9)
+    if datetime.datetime.now(__ZONEINFO__).replace(microsecond=0, second=0, minute=0, hour=9) < utcnow()
+    else datetime.datetime.now(__ZONEINFO__).replace(microsecond=0, second=0, minute=0, hour=9)
+    - datetime.timedelta(days=1)
+)  # noqa: E731
 
 
 class CBot(commands.Bot):
