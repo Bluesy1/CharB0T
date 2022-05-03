@@ -639,7 +639,7 @@ class TicTacView(ui.View):
         move = self.puzzle.next()
         print("Computer:")
         self.display()
-        self._buttons[move[1] * 3 + move[0]].disabled = True
+        self._buttons[move[0] * 3 + move[1]].disabled = True
         image = await self.bot.loop.run_in_executor(self.bot.executor, self.puzzle.display)
         if move == (-1, -1):
             points = self.puzzle.points
