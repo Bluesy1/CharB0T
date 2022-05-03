@@ -626,8 +626,8 @@ class TicTacView(ui.View):
             embed = discord.Embed(
                 title="You Won!",
                 description=f"You won the game in "
-                f"{utcnow().replace(microsecond=0) - self.time.replace(microsecond=0)} seconds!"
-                f"you gained {gained_points} reputation. "
+                f"{utcnow().replace(microsecond=0) - self.time.replace(microsecond=0)} seconds! "
+                f"You gained {gained_points} reputation. "
                 f"{'(Daily Cap Reached)' if gained_points != max_points else ''}",
                 color=discord.Color.green(),
             )
@@ -648,8 +648,8 @@ class TicTacView(ui.View):
             embed = discord.Embed(
                 title="Draw!",
                 description=f"The game ended in a draw in "
-                f"{utcnow().replace(microsecond=0) - self.time.replace(microsecond=0)} seconds!"
-                f"you gained {gained_points} reputation. "
+                f"{utcnow().replace(microsecond=0) - self.time.replace(microsecond=0)} seconds! "
+                f"You gained {gained_points} reputation. "
                 f"{'(Daily Cap Reached)' if gained_points != max_points else ''}",
                 color=discord.Color.gold(),
             )
@@ -665,7 +665,7 @@ class TicTacView(ui.View):
                 title="You Lost!",
                 description=f"You lost the game in "
                 f"{utcnow().replace(microsecond=0) - self.time.replace(microsecond=0)} seconds!"
-                f"you gained {gained_points} reputation. "
+                f" You gained {gained_points} reputation. "
                 f"{'(Daily Cap Reached)' if gained_points != max_points else ''}",
                 color=discord.Color.red(),
             )
