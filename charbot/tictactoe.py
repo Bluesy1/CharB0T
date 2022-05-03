@@ -31,9 +31,9 @@ from typing import NamedTuple, Final
 
 import discord
 from discord import ui, ButtonStyle, app_commands
-from PIL import Image
 from discord.ext import commands
 from discord.utils import utcnow
+from PIL import Image
 
 from main import CBot
 
@@ -271,7 +271,7 @@ class TicTacHard(TicTacABC):
                     flag11 = False
                     flag21 = False
                 else:
-                    flag11 = False  # else I didn't make it
+                    flag11 = False  # else i didn't make it
 
                 if ch2 == self.pick:  # Same but for Col
                     flag22 = False
@@ -397,8 +397,8 @@ class TicTacHard(TicTacABC):
             return move  # type: ignore #IDK what pyright's on here'
         _move = move[0]
         __move = move[1]
-        assert isinstance(_move, list)
-        assert isinstance(__move, list)
+        assert isinstance(_move, list)  # skipcq: BAN-B101
+        assert isinstance(__move, list)  # skipcq: BAN-B101
         return _move[0], __move[0]
 
     # noinspection PyAssignmentToLoopOrWithParameter
@@ -415,19 +415,19 @@ class TicTacHard(TicTacABC):
         comp_pick = "O"
         if self.pick == "O":
             comp_pick = "X"
-        for i in range(0, self.dim_sz):
+        for j in range(0, self.dim_sz):
             for j in range(0, self.dim_sz):
 
-                if self.board[i][j] == "blur":  # BLANK
-                    t = (i, j)
+                if self.board[j][j] == "blur":  # BLANK
+                    t = (j, j)
                     available_moves.append(t)  # add it to available moves
-                    self.board[i][j] = comp_pick  # Check if I (Computer can win)
+                    self.board[j][j] = comp_pick  # Check if I (Computer can win)
                     if self.check_win() == 0:  # Best Case I(Computer) win!
-                        return i, j
-                    self.board[i][j] = self.pick
+                        return j, j
+                    self.board[j][j] = self.pick
                     if self.check_win() == 1:  # Second Best Case, he (player) didn't won
                         player_win_spot.append(t)
-                    self.board[i][j] = "blur"
+                    self.board[j][j] = "blur"
 
         if len(player_win_spot) != 0:
             self.board[player_win_spot[0][0]][player_win_spot[0][1]] = comp_pick
@@ -442,8 +442,8 @@ class TicTacHard(TicTacABC):
         if (c1, c2) in available_moves:  # CENTER
             self.board[c1][c2] = comp_pick
             return c1, c2
-        for i in range(c1 - 1, -1, -1):  # IN TO OUT
-            gap = c1 - i
+        for j in range(c1 - 1, -1, -1):  # IN TO OUT
+            gap = c1 - j
             # checking  - 4 possibilities at max
             # EDGES
             if (c1 - gap, c2 - gap) in available_moves:
@@ -461,25 +461,25 @@ class TicTacHard(TicTacABC):
 
             # Four Lines
 
-            for i in range(0, gap):
-                if (c1 - gap, c2 - gap + i) in available_moves:  # TOP LEFT TO TOP RIGHT
-                    self.board[c1 - gap][c2 - gap + i] = comp_pick
-                    return c1 - gap, c2 - gap + i
+            for j in range(0, gap):
+                if (c1 - gap, c2 - gap + j) in available_moves:  # TOP LEFT TO TOP RIGHT
+                    self.board[c1 - gap][c2 - gap + j] = comp_pick
+                    return c1 - gap, c2 - gap + j
                 if (
                     c1 + gap,
-                    c2 - gap + i,
+                    c2 - gap + j,
                 ) in available_moves:  # BOTTOM LEFT TO BOTTOM RIGHT
-                    self.board[c1 + gap][c2 - gap + i] = comp_pick
-                    return c1 + gap, c2 - gap + i
+                    self.board[c1 + gap][c2 - gap + j] = comp_pick
+                    return c1 + gap, c2 - gap + j
                 if (c1 - gap, c2 - gap) in available_moves:  # LEFT TOP TO LEFT BOTTOM
-                    self.board[c1 - gap + i][c2 - gap] = comp_pick
-                    return c1 - gap + i, c2 - gap
+                    self.board[c1 - gap + j][c2 - gap] = comp_pick
+                    return c1 - gap + j, c2 - gap
                 if (
-                    c1 - gap + i,
+                    c1 - gap + j,
                     c2 + gap,
                 ) in available_moves:  # RIGHT TOP TO RIGHT BOTTOM
-                    self.board[c1 - gap + i][c2 + gap] = comp_pick
-                    return c1 - gap + i, c2 + gap
+                    self.board[c1 - gap + j][c2 + gap] = comp_pick
+                    return c1 - gap + j, c2 + gap
         raise RuntimeError("No moves available")
 
 
@@ -634,7 +634,7 @@ class TicTacView(ui.View):
             await interaction.edit_original_message(attachments=[])
             await interaction.edit_original_message(attachments=[image], embed=embed, view=self)
             return
-        if self.puzzle.check_win() == -1:
+        if self.puzzle.check_win() == 0:
             points = self.puzzle.points
             gained_points = await self.bot.give_game_points(interaction.user.id, points.participation, points.bonus)
             max_points = points.participation + points.bonus
@@ -655,7 +655,7 @@ class TicTacView(ui.View):
 
     # noinspection PyUnusedLocal
     @ui.button(label="Cancel", style=ButtonStyle.danger)
-    async def cancel(self, interaction: discord.Interaction, button: ui.Button):
+    async def cancel(self, interaction: discord.Interaction, button: ui.Button):  # skipcq: PYL-W0613
         """Call when cancel button is pressed.
 
         Parameters
@@ -712,7 +712,7 @@ class TicTacView(ui.View):
         """
         await self.move(interaction, button)
 
-    @ui.button(label="᲼᲼᲼᲼᲼᲼", style=ButtonStyle.grey, row=1, disabled=True)
+    @ui.button(label="᲼᲼᲼᲼᲼", style=ButtonStyle.grey, row=1, disabled=True)
     async def placeholder(self, interaction: discord.Interaction, button: ui.Button):
         """Call when placeholer button is pressed.
 
@@ -766,7 +766,7 @@ class TicTacView(ui.View):
         """
         await self.move(interaction, button)
 
-    @ui.button(label="᲼᲼᲼᲼᲼᲼", style=ButtonStyle.grey, row=2, disabled=True)
+    @ui.button(label="᲼᲼᲼᲼᲼", style=ButtonStyle.grey, row=2, disabled=True)
     async def placeholder1(self, interaction: discord.Interaction, button: ui.Button):
         """Call when placeholder button is pressed.
 
