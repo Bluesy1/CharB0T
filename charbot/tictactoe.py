@@ -431,7 +431,7 @@ class TicTacHard(TicTacABC):
         return empty_squares
 
     # noinspection PyAssignmentToLoopOrWithParameter,DuplicatedCode
-    def _next_move(self, player: str) -> dict[str, tuple[int, int] | float | None]:
+    def _next_move(self, player: str) -> dict[str, tuple[int, int] | int | float | None]:
         """Make a move, and return the cell that was played.
 
         Returns
@@ -468,12 +468,16 @@ class TicTacHard(TicTacABC):
             if player == max_player:  # X is max player
                 sim_score_val = sim_score["score"]
                 best_val = best["score"]
-                if sim_score_val > best_val:  # type: ignore
+                assert isinstance(sim_score_val, (float, int))  # skipcq: BAN-B101
+                assert isinstance(best_val, (float, int))  # skipcq: BAN-B101
+                if sim_score_val > best_val:
                     best = sim_score
             else:
                 sim_score_val = sim_score["score"]
                 best_val = best["score"]
-                if sim_score_val < best_val:  # type: ignore
+                assert isinstance(sim_score_val, (float, int))  # skipcq: BAN-B101
+                assert isinstance(best_val, (float, int))  # skipcq: BAN-B101
+                if sim_score_val < best_val:
                     best = sim_score
         return best
 
