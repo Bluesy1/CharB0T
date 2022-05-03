@@ -240,10 +240,9 @@ class TicTacHard(TicTacABC):
         win_state = self.check_win()
         if win_state == 1:
             return Points(participation=1, bonus=3)
-        elif win_state == -1:
+        if win_state == -1:
             return Points(participation=1, bonus=1)
-        else:
-            return Points(participation=1, bonus=2)
+        return Points(participation=1, bonus=2)
 
     # noinspection DuplicatedCode
     def check_win(self) -> int:
@@ -345,8 +344,7 @@ class TicTacHard(TicTacABC):
         move = self._move_record(x, y)
         if isinstance(move, bool):
             return move
-        else:
-            return False
+        return False
 
     def display(self) -> discord.File:
         """Return an image of the board.
@@ -403,12 +401,11 @@ class TicTacHard(TicTacABC):
         move = self._next_move()
         if isinstance(move[0], int):
             return move  # type: ignore #IDK what pyright's on here'
-        else:
-            _move = move[0]
-            __move = move[1]
-            assert isinstance(_move, list)
-            assert isinstance(__move, list)
-            return _move[0], __move[0]
+        _move = move[0]
+        __move = move[1]
+        assert isinstance(_move, list)
+        assert isinstance(__move, list)
+        return _move[0], __move[0]
 
     # noinspection PyAssignmentToLoopOrWithParameter
     def _next_move(self) -> tuple[int, int] | tuple[list[int], list[int]]:
@@ -530,10 +527,9 @@ class TicTacEasy(TicTacHard):
         win_state = self.check_win()
         if win_state == 1:
             return Points(participation=1, bonus=2)
-        elif win_state == -1:
+        if win_state == -1:
             return Points(participation=1, bonus=0)
-        else:
-            return Points(participation=1, bonus=1)
+        return Points(participation=1, bonus=1)
 
 
 class TicTacView(ui.View):
