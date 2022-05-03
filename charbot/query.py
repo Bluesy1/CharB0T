@@ -116,23 +116,13 @@ class Query(Cog):
         """
         await ctx.reply(
             "**Frequently Asked Questions**\n\n"
+            "**Read the FAQ and the following channels before asking questions:**\n"
+            "**<#244635060144308224>, <#970138004947611710>, <#398949472840712192>, <#343806259319013378>**\n"
             "**Q:** What is the purpose of this bot?\n"
             "**A:** This bot is a tool for the Charlie's discord server. It is used to "
             "provide custom tools and communication for the server.\n\n"
             "**Q:** How do I use this bot?\n"
             "**A:** You can use the bot by using the prefix `!` and the command name, or slash commands. \n\n"
-            "**Q:** How do I get the bot?\n"
-            "**A:** You can get the bot's source from the source command.\n\n"
-            "**Q:** Why are so many things locked behind level 5?\n"
-            "**A:** This is to prevent people from abusing the bot, and Charlie's generousity.\n\n"
-            "**Q:** What level am I?\n"
-            "**A:** You can check your level by using the `rank` command.\n\n"
-            "**Q:** How much reputation can I earn from games every day?\n"
-            "**A:** You are limited globall across all games to an undisclosed amount.\n\n"
-            "**Q:** How do I get more reputation?\n"
-            "**A:** You can earn more reputation by playing games or the `rollcall` command.\n\n"
-            "**Q:** How much rep do i have?\n"
-            "**A:** You can check your reputation by using the `reputation` command.\n\n"
         )
 
     @commands.hybrid_command(name="source", description="Info about the source code")
