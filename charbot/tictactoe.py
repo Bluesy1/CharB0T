@@ -401,7 +401,7 @@ class TicTacHard(TicTacABC):
         assert isinstance(__move, list)  # skipcq: BAN-B101
         return _move[0], __move[0]
 
-    # noinspection PyAssignmentToLoopOrWithParameter
+    # noinspection PyAssignmentToLoopOrWithParameter,DuplicatedCode
     def _next_move(self) -> tuple[int, int] | tuple[list[int], list[int]]:
         """Make a move, and return the cell that was played.
 
@@ -428,6 +428,19 @@ class TicTacHard(TicTacABC):
                         player_win_spot.append(t)
                     self.board[i][j] = "blur"
 
+        if len(available_moves) == 8:
+            if self.board[0][0] == "blur":
+                self.board[0][0] = comp_pick
+                return 0, 0
+            if self.board[2][2] == "blur":
+                self.board[2][2] = comp_pick
+                return 2, 2
+            if self.board[0][2] == "blur":
+                self.board[0][2] = comp_pick
+                return 0, 2
+            if self.board[2][0] == "blur":
+                self.board[2][0] = comp_pick
+                return 2, 0
         if self.board[0][0] == self.pick and self.board[2][2] == self.pick:
             if self.board[0][2] == "blur":
                 self.board[0][2] = comp_pick
