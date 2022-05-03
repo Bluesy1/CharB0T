@@ -184,9 +184,18 @@ class GiveawayView(ui.View):
         button : ui.Button
             The button that was pressed.
         """
+        _ALLOWED_ROLES = (
+            337743478190637077,
+            685331877057658888,
+            969629622453039104,
+            969629628249563166,
+            969629632028614699,
+            969628342733119518,
+            969627321239760967,
+        )
         if self.message is None:
             self.message = interaction.message
-        if not any(role.id in ALLOWED_ROLES for role in interaction.user.roles):  # type: ignore
+        if not any(role.id in _ALLOWED_ROLES for role in interaction.user.roles):  # type: ignore
             await interaction.response.send_message(
                 "You must be at least level 5 to participate in the giveaways system and be in <#969972085445238784>.",
                 ephemeral=True,
