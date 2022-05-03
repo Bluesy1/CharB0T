@@ -555,7 +555,7 @@ class TicTacView(ui.View):
     def __init__(self, bot: CBot, letter: str = "X", easy: bool = True):
         super(TicTacView, self).__init__(timeout=300)
         self.letter = letter
-        self.puzzle: TicTacABC = TicTacEasy(self.letter) if easy else TicTacHard(self.letter)
+        self.puzzle: TicTacHard = TicTacEasy(self.letter) if easy else TicTacHard(self.letter)
         self.bot = bot
         self.time = utcnow()
         self._buttons = [
@@ -585,6 +585,20 @@ class TicTacView(ui.View):
         self.bot_right.disabled = True
         self.stop()
 
+    def display(self) -> None:
+        line1 = ""
+        for i in range(0, 3):
+            for j in range(0, 2):
+                if self.puzzle.board[i][j] == "blur":
+                    line1 = line1 + "    |"
+                else:
+                    line1 = line1 + "  " + self.puzzle.board[i][j] + " |"
+            if self.puzzle.board[i][3 - 1] == "blur":
+                line1 = line1 + "    \n"
+            else:
+                line1 = line1 + "  " + self.puzzle.board[i][3 - 1] + " \n"
+        print(line1, "\n\n")
+
     async def move(self, interaction: discord.Interaction, button: ui.Button, x: int, y: int) -> None:
         """Call this to handle a move button press.
 
@@ -601,6 +615,8 @@ class TicTacView(ui.View):
         """
         await interaction.response.defer()
         self.puzzle.move(x, y)
+        print("Player:")
+        self.display()
         button.disabled = True
         if self.puzzle.check_win() == 1:
             points = self.puzzle.points
@@ -620,6 +636,8 @@ class TicTacView(ui.View):
             await interaction.edit_original_message(attachments=[image], embed=embed, view=self)
             return
         move = self.puzzle.next()
+        print("Computer:")
+        self.display()
         self._buttons[move[1] * 3 + move[0]].disabled = True
         image = await self.bot.loop.run_in_executor(self.bot.executor, self.puzzle.display)
         if move == (-1, -1):
