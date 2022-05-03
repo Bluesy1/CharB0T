@@ -928,7 +928,7 @@ class TicTacCog(commands.Cog):
 
     @app_commands.command(name="tictactoe", description="Play a game of Tic Tac Toe!")
     @app_commands.describe(
-        hard="Set this to true for a harder variant of the AI.", letter="Do you want to play as X or O?"
+        easy="Set this to false for a harder variant of the AI.", letter="Do you want to play as X or O?"
     )
     @app_commands.choices(
         letter=[
@@ -937,7 +937,7 @@ class TicTacCog(commands.Cog):
         ]
     )
     @app_commands.guilds(225345178955808768)
-    async def tictaccommand(self, interaction: discord.Interaction, letter: app_commands.Choice[str], hard: bool):
+    async def tictaccommand(self, interaction: discord.Interaction, letter: app_commands.Choice[str], easy: bool):
         """Tic Tac Toe! command.
 
         This command is for playing a game of Tic Tac Toe.
@@ -966,7 +966,7 @@ class TicTacCog(commands.Cog):
             )
             return
         await interaction.response.defer(ephemeral=True)
-        game = TicTacView(self.bot, letter.value, not hard)
+        game = TicTacView(self.bot, letter.value, easy)
         move = await self.bot.loop.run_in_executor(None, game.puzzle.next)
         # noinspection PyProtectedMember
         game._buttons[move[0] * 3 + move[1]].disabled = True  # skipcq: PYL-W0212
