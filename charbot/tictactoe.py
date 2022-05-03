@@ -24,7 +24,7 @@
 #  ----------------------------------------------------------------------------
 """Tictactoe cog."""
 import abc
-import random
+import math
 from enum import Enum
 from io import BytesIO
 from typing import NamedTuple, Final
@@ -392,7 +392,113 @@ class TicTacHard(TicTacABC):
         tuple[int, int]
             The x and y position of the move.
         """
-        move = self._next_move()
+        move = self._next_move("O" if self.letter == "X" else "X")
+        if move["position"] is None:
+            return -1, -1
+        position = move["position"]
+        assert isinstance(position, tuple)  # skipcq: BAN-B101
+        self.board[position[0]][position[1]] = "O" if self.letter == "X" else "X"
+        return position
+
+    def _available_moves(self) -> list[tuple[int, int]]:
+        """Return a list of available moves.
+
+        Returns
+        -------
+        list[tuple[int, int]]
+            A list of available moves.
+        """
+        available_moves = []
+        for i in range(0, self.dim_sz):
+            for j in range(0, self.dim_sz):
+                if self.board[i][j] == "blur":
+                    available_moves.append((i, j))
+        return available_moves
+
+    def _empty_squares(self) -> int:
+        """Return the number of empty squares.
+
+        Returns
+        -------
+        int
+            The number of empty squares.
+        """
+        empty_squares = 0
+        for i in range(0, self.dim_sz):
+            for j in range(0, self.dim_sz):
+                if self.board[i][j] == "blur":
+                    empty_squares += 1
+        return empty_squares
+
+    # noinspection PyAssignmentToLoopOrWithParameter,DuplicatedCode
+    def _next_move(self, player: str) -> dict[str, tuple[int, int] | float | None]:
+        """Make a move, and return the cell that was played.
+
+        Returns
+        -------
+        tuple[int, int] | tuple[list[int], list[int]]
+            The cell that was played.
+        """
+        other_player = self.letter
+        max_player = "O" if self.letter == "X" else "X"  # yourself
+
+        # first we want to check if the previous move is a winner
+        if self.check_win() == 1:
+            return {
+                "position": None,
+                "score": 1 * (self._empty_squares() + 1)
+                if other_player == max_player
+                else -1 * (self._empty_squares() + 1),
+            }
+        elif len(self._available_moves()) == 0:
+            return {"position": None, "score": 0}
+
+        if player == max_player:
+            best = {"position": None, "score": -math.inf}  # each score should maximize
+        else:
+            best = {"position": None, "score": math.inf}  # each score should minimize
+        for possible_move in self._available_moves():
+            self.board[possible_move[0]][possible_move[1]] = player
+            sim_score = self._next_move(other_player)  # simulate a game after making that move
+
+            # undo move
+            self.board[possible_move[0]][possible_move[1]] = "blur"
+            sim_score["position"] = possible_move  # this represents the move optimal next move
+
+            if player == max_player:  # X is max player
+                sim_score_val = sim_score["score"]
+                best_val = best["score"]
+                assert isinstance(sim_score_val, float)  # skipcq: BAN-B101
+                assert isinstance(best_val, float)  # skipcq: BAN-B101
+                if sim_score_val > best_val:
+                    best = sim_score
+            else:
+                sim_score_val = sim_score["score"]
+                best_val = best["score"]
+                assert isinstance(sim_score_val, float)  # skipcq: BAN-B101
+                assert isinstance(best_val, float)  # skipcq: BAN-B101
+                if sim_score_val < best_val:
+                    best = sim_score
+        return best
+
+
+class TicTacEasy(TicTacHard):
+    """Adaptation of TicTacHard to an easier version.
+
+    See Also
+    --------
+    :class:`TicTacHard`
+        For the full documentation and implementation.
+    """
+
+    def next(self) -> tuple[int, int]:
+        """Make a move, and return the cell that was played.
+        Returns
+        -------
+        tuple[int, int]
+            The x and y position of the move.
+        """
+        move = self._next_move_easy()
         if isinstance(move[0], int):
             return move  # type: ignore #IDK what pyright's on here'
         _move = move[0]
@@ -401,10 +507,8 @@ class TicTacHard(TicTacABC):
         assert isinstance(__move, list)  # skipcq: BAN-B101
         return _move[0], __move[0]
 
-    # noinspection PyAssignmentToLoopOrWithParameter,DuplicatedCode
-    def _next_move(self) -> tuple[int, int] | tuple[list[int], list[int]]:
+    def _next_move_easy(self) -> tuple[int, int] | tuple[list[int], list[int]]:
         """Make a move, and return the cell that was played.
-
         Returns
         -------
         tuple[int, int] | tuple[list[int], list[int]]
@@ -428,19 +532,6 @@ class TicTacHard(TicTacABC):
                         player_win_spot.append(t)
                     self.board[i][j] = "blur"
 
-        if len(available_moves) == 8:
-            if self.board[0][0] == "blur":
-                self.board[0][0] = comp_pick
-                return 0, 0
-            if self.board[2][2] == "blur":
-                self.board[2][2] = comp_pick
-                return 2, 2
-            if self.board[0][2] == "blur":
-                self.board[0][2] = comp_pick
-                return 0, 2
-            if self.board[2][0] == "blur":
-                self.board[2][0] = comp_pick
-                return 2, 0
         if self.board[0][0] == self.pick and self.board[2][2] == self.pick:
             if self.board[0][2] == "blur":
                 self.board[0][2] = comp_pick
@@ -507,33 +598,6 @@ class TicTacHard(TicTacABC):
                     self.board[c1 - gap + j][c2 + gap] = comp_pick
                     return c1 - gap + j, c2 + gap
         raise RuntimeError("No moves available")
-
-
-class TicTacEasy(TicTacHard):
-    """Adaptation of TicTacHard to an easier version.
-
-    See Also
-    --------
-    :class:`TicTacHard`
-        For the full documentation and implementation.
-    """
-
-    def _next_move(self) -> tuple[int, int] | tuple[list[int], list[int]]:
-        """Make a move, and return the cell that was played.
-
-        Returns
-        -------
-        tuple[int, int] | tuple[list[int], list[int]]
-            The cell that was played.
-        """
-        available_moves = [
-            (i, j) for i in range(0, self.dim_sz) for j in range(0, self.dim_sz) if self.board[i][j] == "blur"
-        ]  # will carry all available moves
-        if len(available_moves) in (8, 9):
-            move = random.choice(available_moves)
-            self.board[move[0]][move[1]] = "X" if self.pick == "O" else "O"
-            return move
-        return super(TicTacEasy, self)._next_move()
 
     @property
     def points(self) -> Points:
