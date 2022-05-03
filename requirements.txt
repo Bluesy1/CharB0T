@@ -3,7 +3,7 @@ asyncpg==0.25.0
 git+https://github.com/Rapptz/discord.py@master#egg=discord.py
 disrank==0.0.2
 jishaku==2.5.0
-matplotlib==3.5.1
+matplotlib==3.5.2
 numpy==1.22.3
 pandas==1.4.2
 
