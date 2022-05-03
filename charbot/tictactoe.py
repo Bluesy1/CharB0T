@@ -367,6 +367,7 @@ class TicTacHard(TicTacABC):
                     grid.paste(circle, PilOffsets[GridPositions(f"({i}, {j})").name].value, circle)
         _bytes = BytesIO()
         grid.save(_bytes, format="PNG")
+        _bytes.seek(0)
         return discord.File(_bytes, filename="tictactoe.png")
 
     def _move_record(self, r, c) -> str | bool:
@@ -609,7 +610,7 @@ class TicTacView(ui.View):
         button.disabled = True
         if self.puzzle.check_win() == 1:
             points = self.puzzle.points
-            gained_points = self.bot.give_game_points(interaction.user.id, points.participation, points.bonus)
+            gained_points = await self.bot.give_game_points(interaction.user.id, points.participation, points.bonus)
             max_points = points.participation + points.bonus
             embed = discord.Embed(
                 title="You Won!",
@@ -629,7 +630,7 @@ class TicTacView(ui.View):
         image = await self.bot.loop.run_in_executor(self.bot.executor, self.puzzle.display)
         if move == (-1, -1):
             points = self.puzzle.points
-            gained_points = self.bot.give_game_points(interaction.user.id, points.participation, points.bonus)
+            gained_points = await self.bot.give_game_points(interaction.user.id, points.participation, points.bonus)
             max_points = points.participation + points.bonus
             embed = discord.Embed(
                 title="Draw!",
@@ -645,7 +646,7 @@ class TicTacView(ui.View):
             return
         if self.puzzle.check_win() == -1:
             points = self.puzzle.points
-            gained_points = self.bot.give_game_points(interaction.user.id, points.participation, points.bonus)
+            gained_points = await self.bot.give_game_points(interaction.user.id, points.participation, points.bonus)
             max_points = points.participation + points.bonus
             embed = discord.Embed(
                 title="You Lost!",
