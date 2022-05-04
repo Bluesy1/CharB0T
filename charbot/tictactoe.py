@@ -156,7 +156,7 @@ class TicTacABC(abc.ABC):
         """
 
 
-class TicTacHard(TicTacABC):
+class TicTacEasy(TicTacABC):
     """Hard AI implementation of TicTacToe.
 
     Parameters
@@ -233,10 +233,10 @@ class TicTacHard(TicTacABC):
         """
         win_state = self.check_win()
         if win_state == 1:
-            return Points(participation=1, bonus=3)
+            return Points(participation=1, bonus=2)
         if win_state == 0:
             return Points(participation=1, bonus=0)
-        return Points(participation=1, bonus=2)
+        return Points(participation=1, bonus=1)
 
     # noinspection DuplicatedCode
     def check_win(self) -> int:
@@ -482,7 +482,7 @@ class TicTacHard(TicTacABC):
         return best
 
 
-class TicTacEasy(TicTacHard):
+class TicTacHard(TicTacEasy):
     """Adaptation of TicTacHard to an easier version.
 
     See Also
@@ -600,22 +600,6 @@ class TicTacEasy(TicTacHard):
                     self.board[c1 - gap + j][c2 + gap] = comp_pick
                     return c1 - gap + j, c2 + gap
         raise RuntimeError("No moves available")
-
-    @property
-    def points(self) -> Points:
-        """Return the points of the game.
-
-        Returns
-        -------
-        Points
-            The points of the game.
-        """
-        win_state = self.check_win()
-        if win_state == 1:
-            return Points(participation=1, bonus=2)
-        if win_state == 0:
-            return Points(participation=1, bonus=0)
-        return Points(participation=1, bonus=1)
 
 
 class TicTacView(ui.View):
@@ -948,8 +932,8 @@ class TicTacCog(commands.Cog):
             The interaction object for the command.
         letter : app_commands.Choice[str]
             The letter to play as.
-        hard : bool
-            Whether to use the hard AI.
+        easy : bool
+            Whether to use the easy AI.
         """
         # noinspection DuplicatedCode
         channel = interaction.channel
