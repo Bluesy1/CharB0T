@@ -984,7 +984,9 @@ class SudokuGame(ui.View):
             if self.cell is not None:  # skipcq: PTC-W0048
                 if self.cell.editable and not self.noting_mode:
                     self.moves += 1
-                    self.cell.value = int(button.label)  # type: ignore
+                    val = button.label
+                    assert isinstance(val, str)  # skipcq: BAN-B101
+                    self.cell.value = int(val)
                     self.level = "Block"
                     self.cell.possible_values.clear()
                     self.cell.selected = False
@@ -1023,10 +1025,13 @@ class SudokuGame(ui.View):
                         self.update_keypad()
                         await interaction.response.edit_message(embed=self.cell_choose_embed(), view=self)
                 elif self.cell.editable and self.noting_mode:
-                    if int(button.label) not in self.cell.possible_values:  # type: ignore
-                        self.cell.possible_values.add(int(button.label))  # type: ignore
+                    val = button.label
+                    assert isinstance(val, str)  # skipcq: BAN-B101
+                    real_val = int(val)
+                    if real_val not in self.cell.possible_values:
+                        self.cell.possible_values.add(real_val)
                     else:
-                        self.cell.possible_values.remove(int(button.label))  # type: ignore
+                        self.cell.possible_values.remove(real_val)
                     raise NotImplementedError("Noting mode not implemented")
                 else:
                     if self.cell is not None:
