@@ -1007,7 +1007,6 @@ class SudokuGame(ui.View):
                         embed.set_footer(text="Play Sudoku by Typing /sudoku")
                         time_taken = utcnow().replace(microsecond=0) - self.start_time.replace(microsecond=0)
                         embed.add_field(name="Time Taken", value=f"{time_taken}", inline=True)
-                        embed.add_field(name="Time Taken", value=f"{time_taken}", inline=True)
                         points = await self.bot.give_game_points(self.author.id, 5, 10)
                         embed.add_field(
                             name="Reputation gained",
@@ -1015,6 +1014,11 @@ class SudokuGame(ui.View):
                             inline=True,
                         )
                         await interaction.response.edit_message(embed=embed, view=self)
+                        await self.bot.pool.execute(
+                            "UPDATE users SET sudoku_time = $1 WHERE id = $2 and sudoku_time > $1",
+                            time_taken,
+                            self.author.id,
+                        )
                     else:
                         self.update_keypad()
                         await interaction.response.edit_message(embed=self.cell_choose_embed(), view=self)
