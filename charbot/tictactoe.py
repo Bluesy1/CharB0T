@@ -501,14 +501,12 @@ class TicTacHard(TicTacEasy):
         tuple[int, int]
             The x and y position of the move.
         """
-        move = self._next_move_easy()
-        if isinstance(move[0], int):
-            return move  # type: ignore #IDK what pyright's on here'
-        _move = move[0]
-        __move = move[1]
-        assert isinstance(_move, list)  # skipcq: BAN-B101
-        assert isinstance(__move, list)  # skipcq: BAN-B101
-        return _move[0], __move[0]
+        move_x, move_y = self._next_move_easy()
+        if isinstance(move_x, int) and isinstance(move_y, int):
+            return move_x, move_y
+        assert isinstance(move_x, list)  # skipcq: BAN-B101
+        assert isinstance(move_y, list)  # skipcq: BAN-B101
+        return move_x[0], move_y[0]
 
     def _next_move_easy(self) -> tuple[int, int] | tuple[list[int], list[int]]:
         """Make a move, and return the cell that was played.

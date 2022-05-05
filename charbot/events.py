@@ -86,7 +86,6 @@ class Events(Cog):
             or (count_found >= 1 and (len(message.content) - len("".join(used_words))) < 25)
         ):
             webhook = await self.bot.fetch_webhook(fulldict["webhook_id"])
-            bot_user = await self.bot.fetch_user(406885177281871902)
             embed = Embed(
                 title="Probable Sensitive Topic Detected",
                 description=f"Content:\n {message.content}",
@@ -106,18 +105,16 @@ class Events(Cog):
             )
             if message.channel.id == 926532222398369812:
                 await message.channel.send(embed=embed)
-            if message.channel.category.category_id in (  # type: ignore
-                360818916861280256,
-                942578610336837632,
-            ):
-                return
+            channel = message.channel
+            if isinstance(channel, discord.abc.GuildChannel):
+                category = channel.category
+                if category is not None and category.id in (360818916861280256, 942578610336837632):
+                    return
             if message.channel.id == 837816311722803260:
                 return
-            await webhook.send(
-                username=bot_user.name,  # type: ignore
-                avatar_url=bot_user.avatar.url,  # type: ignore
-                embed=embed,
-            )
+            bot_user = self.bot.user
+            assert isinstance(bot_user, discord.ClientUser)
+            await webhook.send(username=bot_user.name, avatar_url=bot_user.display_avatar.url, embed=embed)
             self.last_sensitive_logged[message.author.id] = datetime.now()
 
     @Cog.listener()
@@ -140,20 +137,18 @@ class Events(Cog):
             await self.sensitive_scan(message)
             if message.guild is None:
                 channel = await self.bot.fetch_channel(906578081496584242)
-                await channel.send(  # type: ignore
-                    message.author.mention,
-                    allowed_mentions=discord.AllowedMentions(everyone=False, roles=False, users=False),
-                )
-                await channel.send(  # type: ignore
-                    message.content,
-                    allowed_mentions=discord.AllowedMentions(everyone=False, roles=False, users=False),
-                )
+                assert isinstance(channel, discord.TextChannel)  # skipcq: BAN-B101
+                mentions = discord.AllowedMentions(everyone=False, roles=False, users=False)
+                await channel.send(message.author.mention, allowed_mentions=mentions)
+                await channel.send(message.content, allowed_mentions=mentions)
                 await message.channel.send(
                     "Hi! If this was an attempt to reach the mod team through modmail,"
                     " that has been removed, in favor of "
                     "mod support, which you can find in <#398949472840712192>"
                 )
                 return
+            author = message.author
+            assert isinstance(author, discord.Member)  # skipcq: BAN-B101
             if not any(
                 role.id
                 in [
@@ -164,23 +159,26 @@ class Events(Cog):
                     406690402956083210,
                     729368484211064944,
                 ]
-                for role in message.author.roles  # type: ignore
+                for role in author.roles
             ) and any(item in message.content for item in [f"<@&{message.guild.id}>", "@everyone", "@here"]):
-                await message.author.add_roles(  # type: ignore
+                await author.add_roles(
                     discord.Object(id=676250179929636886),
                     discord.Object(id=684936661745795088),
                 )
                 await message.delete()
-                channel = await self.bot.fetch_channel(426016300439961601)
+                with open("sensitive_settings.json", encoding="utf8") as json_dict:
+                    webhook = await self.bot.fetch_webhook(json.load(json_dict)["webhook_id"])
                 embed = Embed(
                     description=message.content,
                     title="Mute: Everyone/Here Ping sent by non mod",
                     color=Color.red(),
                 ).set_footer(
                     text=f"Sent by {message.author.display_name}-{message.author.id}",
-                    icon_url=message.author.avatar.url,  # type: ignore
+                    icon_url=author.display_avatar.url,
                 )
-                await channel.send(embed=embed)  # type: ignore
+                bot_user = self.bot.user
+                assert isinstance(bot_user, discord.ClientUser)
+                await webhook.send(username=bot_user.name, avatar_url=bot_user.display_avatar.url, embed=embed)
             if message.author.bot or not message.content:
                 return
             if re.search(r"~~:.|:;~~", message.content, re.MULTILINE | re.IGNORECASE) or re.search(
@@ -245,8 +243,9 @@ class Events(Cog):
         else:
             # All other Errors not returned come here.
             # And we can just print the default TraceBack.
+            assert error is not None  # skipcq: BAN-B101
             print(f"Ignoring exception in command {ctx.command}:", file=sys.stderr)
-            traceback.print_exception(type(error), error, error.__traceback__, file=sys.stderr)  # type: ignore
+            traceback.print_exception(type(error), error, error.__traceback__, file=sys.stderr)
 
 
 async def setup(bot: CBot):

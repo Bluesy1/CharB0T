@@ -162,7 +162,9 @@ class ShrugmanGame(ui.View):
         if self.dead:
             await interaction.response.send_message("You're dead, you can't guess anymore.", ephemeral=True)
             await self.disable()
-            await interaction.message.edit(view=self)  # type: ignore
+            message = interaction.message
+            assert isinstance(message, discord.Message)  # skipcq: BAN-B101
+            await message.edit(view=self)
             return
         await interaction.response.send_modal(GuessModal(self))
 
@@ -283,7 +285,7 @@ class GuessModal(ui.Modal, title="Shrugman Guess"):
         _value = self.guess.value
         assert isinstance(_value, str)  # skipcq: BAN-B101
         value: str = _value.lower()
-        if value not in __valid_guesses__:  # type: ignore
+        if value not in __valid_guesses__:
             await interaction.response.send_message("Invalid guess.", ephemeral=True)
             return
         if value in self.game.guesses:
@@ -414,8 +416,12 @@ class Shrugman(commands.Cog):
             color=discord.Color.dark_purple(),
         )
         embed.set_footer(text="Type /shrugman to play")
-        embed.set_author(name=interaction.user.display_name, icon_url=interaction.user.display_avatar.url)
-        view = ShrugmanGame(self.bot, interaction.user, word)  # type: ignore
+        user = interaction.user
+        assert isinstance(user, discord.Member)  # skipcq: BAN-B101
+        embed.set_author(name=user.display_name, icon_url=user.display_avatar.url)
+        user = interaction.user
+        assert isinstance(user, discord.Member)  # skipcq: BAN-B101
+        view = ShrugmanGame(self.bot, user, word)
         await interaction.followup.send(embed=embed, view=view)
 
 

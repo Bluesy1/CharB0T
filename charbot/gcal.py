@@ -171,8 +171,9 @@ class Calendar(commands.Cog):
 
     async def cog_load(self) -> None:
         """Load hook."""
-        webhook_id = int(os.getenv("WEBHOOK_ID"))  # type: ignore
-        self.webhook = await self.bot.fetch_webhook(webhook_id)
+        webhook_id = os.getenv("WEBHOOK_ID")
+        assert isinstance(webhook_id, str)  # skipcq: BAN-B101
+        self.webhook = await self.bot.fetch_webhook(int(webhook_id))
         self.calendar.start()
 
     @tasks.loop()
@@ -184,8 +185,9 @@ class Calendar(commands.Cog):
         webhook, after parding and formatting the results.
         """
         if self.webhook is None:
-            webhook_id = int(os.getenv("WEBHOOK_ID"))  # type: ignore
-            self.webhook = await self.bot.fetch_webhook(webhook_id)
+            webhook_id = os.getenv("WEBHOOK_ID")
+            assert isinstance(webhook_id, str)  # skipcq: BAN-B101
+            self.webhook = await self.bot.fetch_webhook(int(webhook_id))
         mindatetime = datetime.now(tz=timezone("US/Eastern"))
         maxdatetime = datetime.now(tz=timezone("US/Eastern")) + timedelta(weeks=1)
         async with aiohttp.ClientSession() as session, session.get(getUrl(mindatetime, maxdatetime)) as response:
@@ -258,19 +260,20 @@ class Calendar(commands.Cog):
             "c093900592dfcd9b9e5c711f4e1c627d.webp?size=160",
         )
         embed.set_footer(text="Last Updated")
-
+        bot_user = self.bot.user
+        assert isinstance(bot_user, discord.ClientUser)  # skipcq: BAN-B101
         if self.message is None:
             self.message = await self.webhook.send(
-                username=self.bot.user.name,  # type: ignore
-                avatar_url=self.bot.user.avatar.url,  # type: ignore
+                username=bot_user.name,
+                avatar_url=bot_user.display_avatar.url,
                 embed=embed,
                 wait=True,
             )
         elif utcnow() > self.week_end:
             await self.message.delete()
             self.message = await self.webhook.send(
-                username=self.bot.user.name,  # type: ignore
-                avatar_url=self.bot.user.avatar.url,  # type: ignore
+                username=bot_user.name,
+                avatar_url=bot_user.display_avatar.url,
                 embed=embed,
                 wait=True,
             )

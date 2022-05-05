@@ -35,7 +35,7 @@ import asyncpg
 
 import discord
 from discord.ext import commands
-from discord.utils import utcnow
+from discord.utils import utcnow, MISSING
 from dotenv import load_dotenv
 
 
@@ -65,9 +65,9 @@ class CBot(commands.Bot):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.executor: ThreadPoolExecutor = ...  # type: ignore
-        self.process_pool: ProcessPoolExecutor = ...  # type: ignore
-        self.pool: asyncpg.Pool = ...  # type: ignore
+        self.executor: ThreadPoolExecutor = MISSING
+        self.process_pool: ProcessPoolExecutor = MISSING
+        self.pool: asyncpg.Pool = MISSING
 
     async def setup_hook(self):
         """Initialize hook for the bot.
@@ -89,7 +89,9 @@ class CBot(commands.Bot):
         await self.load_extension("shrugman")
         await self.load_extension("sudoku")
         print("Extensions loaded")
-        print(f"Logged in: {self.user.name}#{self.user.discriminator}")  # type: ignore
+        user = self.user
+        assert isinstance(user, discord.ClientUser)
+        print(f"Logged in: {user.name}#{user.discriminator}")
 
     async def giveaway_user(self, user: int) -> None | asyncpg.Record:
         """Return an asyncpg entry for the user, joined on all 3 tables for tthe giveaway.
@@ -214,7 +216,9 @@ async def main():
             bot.executor = executor
             bot.process_pool = process_pool
             bot.pool = pool
-            await bot.start(os.getenv("TOKEN"))  # type: ignore
+            token = os.getenv("TOKEN")
+            assert isinstance(token, str)  # skipcq: BAN-B101
+            await bot.start(token)
 
 
 if __name__ == "__main__":

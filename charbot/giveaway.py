@@ -35,7 +35,7 @@ import discord
 import pandas as pd
 from discord import app_commands, ui
 from discord.ext import commands, tasks
-from discord.utils import utcnow
+from discord.utils import utcnow, MISSING
 
 from main import CBot, __TIME__, __ZONEINFO__
 
@@ -143,7 +143,7 @@ class GiveawayView(ui.View):
             winners = []
             avg_bid = 0
         if winners:
-            winner = await self.channel.guild.fetch_member(winners[0])  # type: ignore
+            winner = await self.channel.guild.fetch_member(winners[0])
             winning_bid = await self.bot.pool.fetchval("SELECT bid FROM bids WHERE id = $1", winners[0])
         else:
             winner = None
@@ -163,7 +163,9 @@ class GiveawayView(ui.View):
             self.embed.add_field(name="Winners", value=f"{', '.join(f'<@{uid}>' for uid in winners)}", inline=True)
         else:
             self.embed.add_field(name="No Winners", value="No bids were made.", inline=True)
-        await self.message.edit(embed=self.embed, view=self)  # type: ignore
+        message = self.message
+        assert isinstance(message, discord.Message)  # skqipcq: BAN-B101
+        await message.edit(embed=self.embed, view=self)
         if winner is not None:
             await self.channel.send(
                 f"Congrats to {winner.mention} for winning the {self.game} giveaway! Please DM Charlie to claim it."
@@ -187,10 +189,11 @@ class GiveawayView(ui.View):
         """
         if self.message is None:
             self.message = interaction.message
-        if not any(role.id in ALLOWED_ROLES for role in interaction.user.roles):  # type: ignore
+        user = interaction.user
+        assert isinstance(user, discord.Member)  # skipcq: BAN-B101
+        if not any(role.id in ALLOWED_ROLES for role in user.roles):
             await interaction.response.send_message(
-                "You must be at least level 5 to participate in the giveaways system and be in <#969972085445238784>.",
-                ephemeral=True,
+                "You must be at least level 5 to participate in the giveaways system.", ephemeral=True
             )
             return
         last_win = await self.bot.pool.fetchval(
@@ -210,7 +213,9 @@ class GiveawayView(ui.View):
             self.check.disabled = False
         self.embed.set_field_at(3, name="Total Reputation Bid", value=f"{self.total_entries}")
         self.embed.set_field_at(4, name="Largest Bid", value=f"{self.top_bid}")
-        await self.message.edit(embed=self.embed, view=self)  # type: ignore
+        message = self.message
+        assert isinstance(message, discord.Message)  # skipcq: BAN-B101
+        await message.edit(embed=self.embed, view=self)
 
     # noinspection PyUnusedLocal
     @ui.button(label="Check", style=discord.ButtonStyle.blurple, disabled=True)
@@ -224,10 +229,13 @@ class GiveawayView(ui.View):
         button : ui.Button
             The button that was pressed.
         """
-        if not any(role.id in ALLOWED_ROLES for role in interaction.user.roles):  # type: ignore
+        if self.message is None:
+            self.message = interaction.message
+        user = interaction.user
+        assert isinstance(user, discord.Member)  # skipcq: BAN-B101
+        if not any(role.id in ALLOWED_ROLES for role in user.roles):
             await interaction.response.send_message(
-                "You must be at least level 5 to participate in the giveaways system and be in <#969972085445238784>.",
-                ephemeral=True,
+                "You must be at least level 5 to participate in the giveaways system.", ephemeral=True
             )
             return
         async with self.bot.pool.acquire() as conn:
@@ -290,7 +298,9 @@ class BidModal(ui.Modal, title="Bid"):
             The interaction that was submitted.
         """
         try:
-            bid_int = int(self.bid_str.value)  # type: ignore
+            val = self.bid_str.value
+            assert isinstance(val, str)  # skipcq: BAN-B101
+            bid_int = int(val)
         except ValueError:
             await interaction.response.send_message("Please enter a valid integer between 0 and 32768.", ephemeral=True)
             return self.stop()
@@ -331,13 +341,14 @@ class BidModal(ui.Modal, title="Bid"):
                     interaction.user.id,
                 )
             self.view.total_entries += bid_int
-            chance = new_bid * 100 / self.view.total_entries  # type: ignore
+            assert isinstance(new_bid, int)  # skipcq: BAN-B101
+            chance = new_bid * 100 / self.view.total_entries
             await interaction.followup.send(
                 f"You have bid {bid_int} more entries, for a total of {new_bid} entries, giving you a"
                 f" {chance:.2f}% chance of winning! You now have {points} reputation left.",
                 ephemeral=True,
             )
-            self.view.top_bid = max(new_bid, self.view.top_bid)  # type: ignore
+            self.view.top_bid = max(new_bid, self.view.top_bid)
             self.stop()
 
 
@@ -367,9 +378,9 @@ class Giveaway(commands.Cog):
 
     def __init__(self, bot: CBot):
         self.bot = bot
-        self.yesterdays_giveaway: GiveawayView | None = None
-        self.current_giveaway: GiveawayView | None = None
-        self.charlie: discord.Member = ...  # type: ignore
+        self.yesterdays_giveaway: GiveawayView = MISSING
+        self.current_giveaway: GiveawayView = MISSING
+        self.charlie: discord.Member = MISSING
         self.games: pd.DataFrame = self.load_game_csv()
 
     async def cog_load(self) -> None:
@@ -504,9 +515,12 @@ class Giveaway(commands.Cog):
         )
         embed.add_field(name="Total Reputation Bid", value="0", inline=True)
         embed.add_field(name="Largest Bid", value="0", inline=True)
-        channel = await self.bot.fetch_channel(int(os.getenv("GIVEAWAY_ID")))  # type: ignore
-        self.current_giveaway = GiveawayView(self.bot, channel, embed, game, url)  # type: ignore
-        self.current_giveaway.message = await channel.send(embed=embed, view=self.current_giveaway)  # type: ignore
+        channel_id = os.getenv("GIVEAWAY_ID")
+        assert isinstance(channel_id, str)  # skipcq: BAN-B101
+        channel = await self.bot.fetch_channel(int(channel_id))
+        assert isinstance(channel, discord.TextChannel)  # skipcq: BAN-B101
+        self.current_giveaway = GiveawayView(self.bot, channel, embed, game, url)
+        self.current_giveaway.message = await channel.send(embed=embed, view=self.current_giveaway)
 
 
 async def setup(bot: CBot):
