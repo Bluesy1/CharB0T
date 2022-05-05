@@ -27,15 +27,14 @@ import asyncio
 import datetime
 import logging
 import os
-from concurrent.futures import ThreadPoolExecutor, ProcessPoolExecutor
+from concurrent.futures import ProcessPoolExecutor, ThreadPoolExecutor
 from logging.handlers import RotatingFileHandler
 from zoneinfo import ZoneInfo
 
 import asyncpg
-
 import discord
 from discord.ext import commands
-from discord.utils import utcnow, MISSING
+from discord.utils import MISSING, utcnow
 from dotenv import load_dotenv
 
 

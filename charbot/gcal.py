@@ -23,20 +23,21 @@
 # SOFTWARE.
 #  ----------------------------------------------------------------------------
 """Dynamic stream calendar generator for the next week."""
-import os
 import datetime as _datetime
+import os
 from calendar import timegm
-from datetime import datetime, timedelta, time
+from datetime import datetime, time, timedelta
 from typing import Optional
 from zoneinfo import ZoneInfo
 
 import aiohttp
 import discord
-from discord.utils import utcnow, format_dt
 from discord.ext import commands, tasks
+from discord.utils import format_dt, utcnow
 from dotenv import load_dotenv
 from pytz import timezone
 from validators import url
+
 
 load_dotenv()
 

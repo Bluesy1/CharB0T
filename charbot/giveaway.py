@@ -35,9 +35,10 @@ import discord
 import pandas as pd
 from discord import app_commands, ui
 from discord.ext import commands, tasks
-from discord.utils import utcnow, MISSING
+from discord.utils import MISSING, utcnow
 
-from main import CBot, __TIME__, __ZONEINFO__
+from main import __TIME__, __ZONEINFO__, CBot
+
 
 ALLOWED_ROLES: Final = (
     337743478190637077,

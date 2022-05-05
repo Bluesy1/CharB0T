@@ -43,3 +43,8 @@ repos:
         args:
             - --match='(?!backup/)(?!test)(?!test_)(?!tests).*\.py'
             - --convention=numpy
+
+-   repo: https://github.com/pycqa/isort
+    rev: 5.10.1
+    hooks:
+    -   id: isort

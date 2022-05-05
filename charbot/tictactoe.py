@@ -27,10 +27,10 @@ import abc
 import math
 from enum import Enum
 from io import BytesIO
-from typing import NamedTuple, Final
+from typing import Final, NamedTuple
 
 import discord
-from discord import ui, ButtonStyle, app_commands
+from discord import ButtonStyle, app_commands, ui
 from discord.ext import commands
 from discord.utils import utcnow
 from PIL import Image

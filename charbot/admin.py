@@ -27,7 +27,7 @@ import json
 from datetime import datetime, timezone
 
 import discord
-from discord import Embed, Color, app_commands
+from discord import Color, Embed, app_commands
 from discord.ext import commands
 from discord.ext.commands import Cog, Context
 

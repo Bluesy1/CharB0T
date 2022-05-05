@@ -29,9 +29,9 @@ import traceback
 from datetime import timedelta
 
 import discord
-from discord import Embed, app_commands, Interaction, ui, PermissionOverwrite
+from discord import Embed, Interaction, PermissionOverwrite, app_commands, ui
 from discord.ext import tasks
-from discord.ext.commands import Cog
+from discord.ext.commands import GroupCog
 from discord.utils import utcnow
 
 from main import CBot
@@ -58,7 +58,7 @@ async def edit_check(interaction: Interaction) -> bool:
     )
 
 
-class ModSupport(Cog, app_commands.Group, name="modsupport", description="mod support command group"):
+class ModSupport(GroupCog, name="modsupport", description="mod support command group"):
     """Mod Support Cog.
 
     This cog contains all the commands for the mod support system.
@@ -75,9 +75,8 @@ class ModSupport(Cog, app_commands.Group, name="modsupport", description="mod su
     """
 
     def __init__(self, bot: CBot):
-        super().__init__(name="modsupport", description="mod support command group")
+        super(ModSupport, self).__init__()
         self.bot = bot
-        # noinspection PyUnresolvedReferences
 
     async def cog_unload(self) -> None:  # skipcq: PYL-W0236
         """Unload func."""

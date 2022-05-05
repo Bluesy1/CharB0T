@@ -28,15 +28,15 @@ import datetime
 import functools
 import random
 import uuid
-from random import sample
-from itertools import islice
 from copy import deepcopy
-from typing import Callable, Literal, Any, Generator, Final
+from itertools import islice
+from random import sample
+from typing import Any, Callable, Final, Generator, Literal
 
 import discord
 from discord import app_commands, ui
 from discord.ext import commands
-from discord.utils import utcnow, MISSING
+from discord.utils import MISSING, utcnow
 
 from main import CBot
 

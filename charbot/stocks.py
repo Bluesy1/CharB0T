@@ -23,14 +23,13 @@
 # SOFTWARE.
 #  ----------------------------------------------------------------------------
 """Stock market game."""
-from datetime import time
 from dataclasses import dataclass
-from decimal import Decimal, Context, ROUND_HALF_UP
+from datetime import time
+from decimal import ROUND_HALF_UP, Context, Decimal
 from enum import Enum
 
 import discord
 import yfinance as yf
-from discord import app_commands
 from discord.ext import commands, tasks
 
 from main import CBot
@@ -449,7 +448,7 @@ def get_stock(symbol: str) -> tuple[str, Stock]:
         )
 
 
-class Stocks(app_commands.Group, commands.Cog):
+class Stocks(commands.GroupCog, name="stocks", description="Stocks commands"):
     """Stocks cog.
 
     This cog contains commands for getting stock data.
@@ -466,7 +465,7 @@ class Stocks(app_commands.Group, commands.Cog):
     """
 
     def __init__(self, bot: CBot):
-        super().__init__(name="stocks", description="Stocks commands")
+        super().__init__()
         self.bot = bot
         self._stocks: StockDict = StockDict.empty()
 

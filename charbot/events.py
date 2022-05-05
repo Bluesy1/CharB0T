@@ -30,7 +30,7 @@ import traceback
 from datetime import datetime, timedelta, timezone
 
 import discord
-from discord import Embed, Color
+from discord import Color, Embed
 from discord.ext import commands
 from discord.ext.commands import Cog
 

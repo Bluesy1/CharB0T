@@ -28,7 +28,7 @@ import re
 from datetime import datetime, timedelta, timezone
 
 import discord
-from discord import Embed, Color
+from discord import Color, Embed
 from discord.ext import commands, tasks
 from discord.ext.commands import Cog, Context
 from discord.utils import utcnow
