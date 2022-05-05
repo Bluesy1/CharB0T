@@ -152,7 +152,7 @@ class PrimaryFunctions(Cog):
                     with open("sensitive_settings.json", encoding="utf8") as json_dict:
                         webhook = await self.bot.fetch_webhook(json.load(json_dict)["webhook_id"])
                     bot_user = self.bot.user
-                    assert isinstance(bot_user, discord.ClientUser)
+                    assert isinstance(bot_user, discord.ClientUser)  # skipcq: BAN-B101
                     await webhook.send(username=bot_user.name, avatar_url=bot_user.display_avatar.url, embed=embed)
                     removeable.append(i)
                 elif member.is_timed_out():
@@ -253,7 +253,7 @@ class PrimaryFunctions(Cog):
                     with open("sensitive_settings.json", encoding="utf8") as json_dict:
                         webhook = await self.bot.fetch_webhook(json.load(json_dict)["webhook_id"])
                     bot_user = self.bot.user
-                    assert isinstance(bot_user, discord.ClientUser)
+                    assert isinstance(bot_user, discord.ClientUser)  # skipcq: BAN-B101
                     await webhook.send(username=bot_user.name, avatar_url=bot_user.display_avatar.url, embed=embed)
                     self.timeouts.pop(after.id)
         except Exception:  # skipcq: PYL-W0703
@@ -291,7 +291,7 @@ class PrimaryFunctions(Cog):
         with open("sensitive_settings.json", encoding="utf8") as json_dict:
             webhook = await self.bot.fetch_webhook(json.load(json_dict)["webhook_id"])
         bot_user = self.bot.user
-        assert isinstance(bot_user, discord.ClientUser)
+        assert isinstance(bot_user, discord.ClientUser)  # skipcq: BAN-B101
         await webhook.send(username=bot_user.name, avatar_url=bot_user.display_avatar.url, embed=embed)
         self.timeouts.update({after.id: after.timed_out_until})
 

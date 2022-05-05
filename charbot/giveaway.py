@@ -164,7 +164,7 @@ class GiveawayView(ui.View):
         else:
             self.embed.add_field(name="No Winners", value="No bids were made.", inline=True)
         message = self.message
-        assert isinstance(message, discord.Message)  # skqipcq: BAN-B101
+        assert isinstance(message, discord.Message)  # skipcq: BAN-B101
         await message.edit(embed=self.embed, view=self)
         if winner is not None:
             await self.channel.send(

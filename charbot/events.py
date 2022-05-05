@@ -113,7 +113,7 @@ class Events(Cog):
             if message.channel.id == 837816311722803260:
                 return
             bot_user = self.bot.user
-            assert isinstance(bot_user, discord.ClientUser)
+            assert isinstance(bot_user, discord.ClientUser)  # skipcq: BAN-B101
             await webhook.send(username=bot_user.name, avatar_url=bot_user.display_avatar.url, embed=embed)
             self.last_sensitive_logged[message.author.id] = datetime.now()
 
@@ -177,7 +177,7 @@ class Events(Cog):
                     icon_url=author.display_avatar.url,
                 )
                 bot_user = self.bot.user
-                assert isinstance(bot_user, discord.ClientUser)
+                assert isinstance(bot_user, discord.ClientUser)  # skipcq: BAN-B101
                 await webhook.send(username=bot_user.name, avatar_url=bot_user.display_avatar.url, embed=embed)
             if message.author.bot or not message.content:
                 return

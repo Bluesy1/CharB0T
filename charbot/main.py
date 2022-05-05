@@ -88,9 +88,10 @@ class CBot(commands.Bot):
         await self.load_extension("query")
         await self.load_extension("shrugman")
         await self.load_extension("sudoku")
+        await self.load_extension("tictactoe")
         print("Extensions loaded")
         user = self.user
-        assert isinstance(user, discord.ClientUser)
+        assert isinstance(user, discord.ClientUser)  # skipcq: BAN-B101
         print(f"Logged in: {user.name}#{user.discriminator}")
 
     async def giveaway_user(self, user: int) -> None | asyncpg.Record:
