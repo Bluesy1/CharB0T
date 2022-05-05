@@ -47,6 +47,8 @@ ALLOWED_ROLES: Final = (
 
 CHANNEL_ID: Final[int] = 969972085445238784
 
+MESSAGE: Final = "You must be at least level 5 to participate in the giveaways system and be in <#969972085445238784>."
+
 FailStates = Enum(
     "FailStates",
     r"<:KHattip:896043110717608009> `¯` `¯\` `¯\_` `¯\_(` `¯\_(ツ` `¯\_(ツ)` `¯\_(ツ)_` `¯\_(ツ)_/` `¯\_(ツ)_/¯`",
@@ -84,72 +86,6 @@ __valid_guesses__ = (
     "y",
     "z",
 )
-
-
-class Shrugman(commands.Cog):
-    """Shrugman minigame cog.
-
-    This cog contains the commands for the shrugman minigame.
-
-    Parameters
-    ----------
-    bot : CBot
-        The bot instance.
-
-    Attributes
-    ----------
-    bot : CBot
-        The bot instance.
-    """
-
-    def __init__(self, bot: CBot):
-        self.bot = bot
-
-    # noinspection DuplicatedCode
-    @app_commands.command(name="shrugman", description="Play the shrugman minigame. (Hangman clone)")
-    @app_commands.guilds(225345178955808768)
-    async def shrugman(self, interaction: discord.Interaction) -> None:
-        """Play a game of Shrugman.
-
-        This game is a hangman-like game.
-
-        The game is played by guessing letters.
-
-        The game ends when the word is guessed or the player runs out of guesses.
-
-        The game is won by guessing the word.
-
-        The game is lost by running out of guesses.
-
-        Parameters
-        ----------
-        interaction: discord.Interaction
-            The interaction of the command.
-        """
-        channel = interaction.channel
-        assert isinstance(channel, discord.TextChannel)  # skipcq: BAN-B101
-        if (
-            interaction.guild is None
-            or not any(role.id in ALLOWED_ROLES for role in interaction.user.roles)  # type: ignore
-            or not channel.id == CHANNEL_ID
-        ):
-            await interaction.response.send_message(
-                "You must be at least level 5 to participate in the giveaways system and be in "
-                "a thread of <#969972085445238784>.",
-                ephemeral=True,
-            )
-            return
-        await interaction.response.defer(ephemeral=True)
-        word = random.choice(__words__)
-        embed = discord.Embed(
-            title="Shrugman",
-            description=f"Guess the word: `{''.join(['-' for _ in word])}`",
-            color=discord.Color.dark_purple(),
-        )
-        embed.set_footer(text="Type /shrugman to play")
-        embed.set_author(name=interaction.user.display_name, icon_url=interaction.user.display_avatar.url)
-        view = ShrugmanGame(self.bot, interaction.user, word)  # type: ignore
-        await interaction.followup.send(embed=embed, view=view)
 
 
 class ShrugmanGame(ui.View):
@@ -424,6 +360,63 @@ class GuessModal(ui.Modal, title="Shrugman Guess"):
                 inline=True,
             )
         await interaction.edit_original_message(embed=embed, view=self.game)
+
+
+class Shrugman(commands.Cog):
+    """Shrugman minigame cog.
+
+    This cog contains the commands for the shrugman minigame.
+
+    Parameters
+    ----------
+    bot : CBot
+        The bot instance.
+
+    Attributes
+    ----------
+    bot : CBot
+        The bot instance.
+    """
+
+    def __init__(self, bot: CBot):
+        self.bot = bot
+
+    @app_commands.command(name="shrugman", description="Play the shrugman minigame. (Hangman clone)")
+    @app_commands.guilds(225345178955808768)
+    async def shrugman(self, interaction: discord.Interaction) -> None:
+        """Play a game of Shrugman.
+
+        This game is a hangman-like game.
+
+        The game is played by guessing letters.
+
+        The game ends when the word is guessed or the player runs out of guesses.
+
+        The game is won by guessing the word.
+
+        The game is lost by running out of guesses.
+
+        Parameters
+        ----------
+        interaction: discord.Interaction
+            The interaction of the command.
+        """
+        user = interaction.user
+        assert isinstance(user, discord.Member)  # skipcq: BAN-B101
+        if not any(role.id in ALLOWED_ROLES for role in user.roles) or interaction.channel_id != CHANNEL_ID:
+            await interaction.response.send_message(MESSAGE, ephemeral=True)
+            return
+        await interaction.response.defer(ephemeral=True)
+        word = random.choice(__words__)
+        embed = discord.Embed(
+            title="Shrugman",
+            description=f"Guess the word: `{''.join(['-' for _ in word])}`",
+            color=discord.Color.dark_purple(),
+        )
+        embed.set_footer(text="Type /shrugman to play")
+        embed.set_author(name=interaction.user.display_name, icon_url=interaction.user.display_avatar.url)
+        view = ShrugmanGame(self.bot, interaction.user, word)  # type: ignore
+        await interaction.followup.send(embed=embed, view=view)
 
 
 async def setup(bot: CBot):

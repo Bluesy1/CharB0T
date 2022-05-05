@@ -53,8 +53,9 @@ ALLOWED_ROLES: Final = (
 
 CHANNEL_ID: Final[int] = 969972085445238784
 
+MESSAGE: Final = "You must be at least level 5 to participate in the giveaways system and be in <#969972085445238784>."
 
-# noinspection GrazieInspection
+
 class Cell:
     """Represents a cell in the sudoku board.
 
@@ -1358,19 +1359,10 @@ class Sudoku(commands.Cog):
         mobile: bool
             Whether to turn off formatting that only works on desktop.
         """
-        # noinspection DuplicatedCode
-        channel = interaction.channel
-        assert isinstance(channel, discord.TextChannel)  # skipcq: BAN-B101
-        if (
-            interaction.guild is None
-            or not any(role.id in ALLOWED_ROLES for role in interaction.user.roles)  # type: ignore
-            or not channel.id == CHANNEL_ID
-        ):
-            await interaction.response.send_message(
-                "You must be at least level 5 to participate in the giveaways system and be in "
-                "a thread of <#969972085445238784>.",
-                ephemeral=True,
-            )
+        user = interaction.user
+        assert isinstance(user, discord.Member)  # skipcq: BAN-B101
+        if not any(role.id in ALLOWED_ROLES for role in user.roles) or interaction.channel_id != CHANNEL_ID:
+            await interaction.response.send_message(MESSAGE, ephemeral=True)
             return
         await interaction.response.defer(ephemeral=True)
         puzzle = await self.bot.loop.run_in_executor(self.bot.process_pool, functools.partial(Puzzle.random, mobile))
