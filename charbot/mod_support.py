@@ -50,15 +50,11 @@ async def edit_check(interaction: Interaction) -> bool:
     bool
         Whether the user is allowed to edit the blacklist.
     """
+    user = interaction.user
+    assert isinstance(user, discord.Member)  # skipcq: BAN-B101
     return any(
-        role.id
-        in (
-            225413350874546176,
-            253752685357039617,
-            725377514414932030,
-            338173415527677954,
-        )
-        for role in interaction.user.roles  # type: ignore
+        role.id in (225413350874546176, 253752685357039617, 725377514414932030, 338173415527677954)
+        for role in user.roles
     )
 
 
@@ -93,6 +89,7 @@ class ModSupport(Cog, app_commands.Group, name="modsupport", description="mod su
         guild = await self.bot.fetch_guild(225345178955808768)
         everyone = guild.default_role
         mod_roles = guild.get_role(338173415527677954)
+        assert isinstance(mod_roles, discord.Role)  # skipcq: BAN-B101
         mods = {
             "146285543146127361": await guild.fetch_member(146285543146127361),
             "363095569515806722": await guild.fetch_member(363095569515806722),
@@ -100,7 +97,7 @@ class ModSupport(Cog, app_commands.Group, name="modsupport", description="mod su
             "162833689196101632": await guild.fetch_member(162833689196101632),
             "82495450153750528": await guild.fetch_member(82495450153750528),
         }
-        self.bot.add_view(ModSupportButtons(everyone, mod_roles, mods))  # type: ignore
+        self.bot.add_view(ModSupportButtons(everyone, mod_roles, mods))
 
     @tasks.loop(hours=8)
     async def check_mod_support_channels(self):
@@ -114,7 +111,9 @@ class ModSupport(Cog, app_commands.Group, name="modsupport", description="mod su
         for channel in cared:
             temp = True
             async for message in channel.history(after=utcnow() - timedelta(days=3)):
-                if message.author.id == self.bot.user.id:  # type: ignore
+                user = self.bot.user
+                assert isinstance(user, discord.ClientUser)  # skipcq: BAN-B101
+                if message.author.id == user.id:
                     continue
                 temp = False
                 break
@@ -270,14 +269,16 @@ class ModSupportButtons(ui.View):
         interaction : Interaction
             The interaction instance
         """
+        user = interaction.user
+        assert isinstance(user, discord.Member)  # skipcq: BAN-B101
         await interaction.response.send_modal(
             ModSupportModal(
                 {
                     self.mod_role: PermissionOverwrite(view_channel=True, send_messages=True, read_messages=True),
                     self.everyone: PermissionOverwrite(view_channel=False, send_messages=False, read_messages=False),
-                    interaction.user: PermissionOverwrite(view_channel=True, send_messages=True, read_messages=True),
+                    user: PermissionOverwrite(view_channel=True, send_messages=True, read_messages=True),
                 },
-                f"{button.label}-{interaction.user.name}-mod-support",
+                f"{button.label}-{user.name}-mod-support",
             )
         )
 
@@ -357,18 +358,18 @@ class ModSupportButtons(ui.View):
         select : discord.ui.Select
             The select instance
         """
+        user = interaction.user
+        assert isinstance(user, discord.Member)  # skipcq: BAN-B101
         perms = {
             self.mod_role: PermissionOverwrite(view_channel=False, send_messages=False, read_messages=False),
             self.everyone: PermissionOverwrite(view_channel=False, send_messages=False, read_messages=False),
-            interaction.user: PermissionOverwrite(view_channel=True, send_messages=True, read_messages=True),
+            user: PermissionOverwrite(view_channel=True, send_messages=True, read_messages=True),
         }
         for uid in select.values:
             perms.update(
                 {self.mods[uid]: PermissionOverwrite(view_channel=True, send_messages=True, read_messages=True)}
             )
-        await interaction.response.send_modal(
-            ModSupportModal(perms, f"{select.placeholder}-{interaction.user.name}-mod-support")
-        )
+        await interaction.response.send_modal(ModSupportModal(perms, f"{select.placeholder}-{user.name}-mod-support"))
 
 
 class ModSupportModal(ui.Modal, title="Mod Support Form"):
@@ -395,7 +396,7 @@ class ModSupportModal(ui.Modal, title="Mod Support Form"):
 
     def __init__(
         self,
-        perm_overrides: dict[discord.Role | discord.Member | discord.User, discord.PermissionOverwrite],
+        perm_overrides: dict[discord.Role | discord.Member, discord.PermissionOverwrite],
         channel_name: str,
     ):
         super().__init__(title="Mod Support Form")
@@ -449,11 +450,13 @@ class ModSupportModal(ui.Modal, title="Mod Support Form"):
             The interaction instance.
         """
         _channel = await interaction.client.fetch_channel(942578610336837632)
-        channel = await interaction.guild.create_text_channel(  # type: ignore
-            self.channel_name,
-            category=_channel,  # type: ignore
-            overwrites=self.perm_overrides,  # type: ignore
-            topic=self.short_description.value,  # type: ignore
+        _guild = interaction.guild
+        topic = self.short_description.value
+        assert isinstance(_channel, discord.CategoryChannel)  # skipcq: BAN-B101
+        assert isinstance(_guild, discord.Guild)  # skipcq: BAN-B101
+        assert isinstance(topic, str)  # skipcq: BAN-B101
+        channel = await _guild.create_text_channel(
+            self.channel_name, category=_channel, overwrites=self.perm_overrides, topic=topic
         )
         long = "     They supplied a longer description: "
         await channel.send(

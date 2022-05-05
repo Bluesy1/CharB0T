@@ -23,6 +23,7 @@
 # SOFTWARE.
 #  ----------------------------------------------------------------------------
 """Timeout and leave log."""
+import json
 import re
 from datetime import datetime, timedelta, timezone
 
@@ -85,7 +86,7 @@ class PrimaryFunctions(Cog):
         self.log_untimeout.start()
         guild = await self.bot.fetch_guild(225345178955808768)
         generator = guild.fetch_members(limit=None)
-        self.members.update({user.id: user.joined_at async for user in generator})  # type: ignore
+        self.members.update({user.id: user.joined_at async for user in generator if user.joined_at is not None})
 
     async def cog_unload(self) -> None:  # skipcq: PYL-W0236
         """Call when cog is unloaded.
@@ -121,10 +122,11 @@ class PrimaryFunctions(Cog):
         commands.CheckFailure
             If the user is not a moderator
         """
-        return any(
-            role.id in (338173415527677954, 253752685357039617, 225413350874546176)
-            for role in ctx.author.roles  # type: ignore
-        )
+        if ctx.guild is None:
+            return False
+        author = ctx.author
+        assert isinstance(author, discord.Member)  # skipcq: BAN-B101
+        return any(role.id in (338173415527677954, 253752685357039617, 225413350874546176) for role in author.roles)
 
     # noinspection DuplicatedCode
     @tasks.loop(seconds=30)
@@ -147,10 +149,11 @@ class PrimaryFunctions(Cog):
                     embed = Embed(color=Color.green())
                     embed.set_author(name=f"[UNTIMEOUT] {member.name}#{member.discriminator}")
                     embed.add_field(name="User", value=member.mention, inline=True)
-                    channel = await self.bot.fetch_channel(426016300439961601)
-                    await channel.send(  # type: ignore
-                        embed=embed
-                    )  # type: ignore
+                    with open("sensitive_settings.json", encoding="utf8") as json_dict:
+                        webhook = await self.bot.fetch_webhook(json.load(json_dict)["webhook_id"])
+                    bot_user = self.bot.user
+                    assert isinstance(bot_user, discord.ClientUser)  # skipcq: BAN-B101
+                    await webhook.send(username=bot_user.name, avatar_url=bot_user.display_avatar.url, embed=embed)
                     removeable.append(i)
                 elif member.is_timed_out():
                     self.timeouts.update({i: member.timed_out_until})
@@ -199,16 +202,12 @@ class PrimaryFunctions(Cog):
             mentioned_id = None
             search = re.search(r"<@!?(\d+)>\B", message.content)
             if search:
-                mentioned_id = int(search.groups()[0])  # type: ignore
-            if member and member.joined_at:  # type: ignore
-                delta = (utcnow() - member.joined_at).total_seconds()  # type: ignore
-                time_string = await time_string_from_seconds(abs(delta))
-                self.members.pop(member.id, None)
-            elif member and member.id in self.members:
+                mentioned_id = int(search.groups()[0])
+            if member and member.id in self.members:
                 delta = (utcnow() - self.members.pop(member.id)).total_seconds()
                 time_string = await time_string_from_seconds(abs(delta))
             elif mentioned_id and mentioned_id in self.members:
-                time = self.members.pop(mentioned_id)  # type: ignore
+                time = self.members.pop(mentioned_id)
                 delta = (utcnow() - time).total_seconds()
                 time_string = await time_string_from_seconds(abs(delta))
             else:
@@ -217,7 +216,9 @@ class PrimaryFunctions(Cog):
             member = member if member else await self.bot.fetch_user(mentioned_id) if mentioned_id else None
             print(member)
             if member:
-                await (await self.bot.fetch_channel(430197357100138497)).send(  # type: ignore
+                channel = await self.bot.fetch_channel(430197357100138497)
+                assert isinstance(channel, discord.TextChannel)  # skipcq: BAN-B101
+                await channel.send(
                     f"**{member.name}#{member.discriminator}** has left the server. "
                     f"ID:{member.id}. Time on Server: {time_string}"
                 )
@@ -249,10 +250,11 @@ class PrimaryFunctions(Cog):
                     embed = Embed(color=Color.green())
                     embed.set_author(name=f"[UNTIMEOUT] {after.name}#{after.discriminator}")
                     embed.add_field(name="User", value=after.mention, inline=True)
-                    channel = await self.bot.fetch_channel(426016300439961601)
-                    await channel.send(  # type: ignore
-                        embed=embed
-                    )  # type: ignore
+                    with open("sensitive_settings.json", encoding="utf8") as json_dict:
+                        webhook = await self.bot.fetch_webhook(json.load(json_dict)["webhook_id"])
+                    bot_user = self.bot.user
+                    assert isinstance(bot_user, discord.ClientUser)  # skipcq: BAN-B101
+                    await webhook.send(username=bot_user.name, avatar_url=bot_user.display_avatar.url, embed=embed)
                     self.timeouts.pop(after.id)
         except Exception:  # skipcq: PYL-W0703
             if after.is_timed_out():
@@ -268,7 +270,9 @@ class PrimaryFunctions(Cog):
         after : discord.Member
             The member after the update
         """
-        time_delta = after.timed_out_until + timedelta(seconds=1) - datetime.now(tz=timezone.utc)  # type: ignore
+        until = after.timed_out_until
+        assert isinstance(until, datetime)  # skipcq: BAN-B101
+        time_delta = until + timedelta(seconds=1) - datetime.now(tz=timezone.utc)
         time_string = ""
         if time_delta.days // 7 != 0:
             time_string += f"{time_delta.days // 7} Week{'s' if time_delta.days // 7 > 1 else ''}"
@@ -284,8 +288,11 @@ class PrimaryFunctions(Cog):
         embed.set_author(name=f"[TIMEOUT] {after.name}#{after.discriminator}")
         embed.add_field(name="User", value=after.mention, inline=True)
         embed.add_field(name="Duration", value=time_string, inline=True)
-        channel = await self.bot.fetch_channel(426016300439961601)
-        await channel.send(embed=embed)  # type: ignore
+        with open("sensitive_settings.json", encoding="utf8") as json_dict:
+            webhook = await self.bot.fetch_webhook(json.load(json_dict)["webhook_id"])
+        bot_user = self.bot.user
+        assert isinstance(bot_user, discord.ClientUser)  # skipcq: BAN-B101
+        await webhook.send(username=bot_user.name, avatar_url=bot_user.display_avatar.url, embed=embed)
         self.timeouts.update({after.id: after.timed_out_until})
 
 

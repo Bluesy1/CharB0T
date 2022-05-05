@@ -41,7 +41,9 @@ class Kethran(commands.Bot):
         await self.load_extension("jishaku")
         await self.load_extension("primary")
         print("Extensions loaded")
-        print(f"Logged in:{self.user.name}#{self.user.discriminator}")  # type: ignore
+        user = self.user
+        assert isinstance(user, discord.ClientUser)  # skipcq: BAN-B101
+        print(f"Logged in:{user.name}#{user.discriminator}")
 
 
 # noinspection PyBroadException

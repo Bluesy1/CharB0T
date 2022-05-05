@@ -3,7 +3,7 @@ requires = ["setuptools>=40.8.0", "git+https://github.com/Rapptz/discord.py@mast
 
 [tool.pyright]
 pythonPlatform = "Linux"
-reportUnnecessaryTypeIgnoreComments = true
+reportUnnecessaryTypeIgnoreComment = true
 exclude = ["**/__pycache__/**"]
 
 [tool.black]

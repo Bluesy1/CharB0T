@@ -25,6 +25,7 @@
 """Rolls dice."""
 import sys
 
+import discord
 from discord.ext import commands
 from discord.ext.commands import Cog, Context
 
@@ -67,10 +68,9 @@ class Roll(Cog):
         """
         if ctx.guild is None:
             return False
-        return any(
-            role.id in (338173415527677954, 253752685357039617, 225413350874546176)
-            for role in ctx.author.roles  # type: ignore
-        )
+        author = ctx.author
+        assert isinstance(author, discord.Member)  # skipcq: BAN-B101
+        return any(role.id in (338173415527677954, 253752685357039617, 225413350874546176) for role in author.roles)
 
     @commands.command()
     async def roll(self, ctx: Context, *, dice: str):

@@ -50,6 +50,8 @@ ALLOWED_ROLES: Final = (
 
 CHANNEL_ID: Final[int] = 969972085445238784
 
+MESSAGE: Final = "You must be at least level 5 to participate in the giveaways system and be in <#969972085445238784>."
+
 
 class PilOffsets(Enum):
     """Enum for PIL Offsets."""
@@ -156,7 +158,7 @@ class TicTacABC(abc.ABC):
         """
 
 
-class TicTacHard(TicTacABC):
+class TicTacEasy(TicTacABC):
     """Hard AI implementation of TicTacToe.
 
     Parameters
@@ -233,10 +235,10 @@ class TicTacHard(TicTacABC):
         """
         win_state = self.check_win()
         if win_state == 1:
-            return Points(participation=1, bonus=3)
+            return Points(participation=1, bonus=2)
         if win_state == 0:
             return Points(participation=1, bonus=0)
-        return Points(participation=1, bonus=2)
+        return Points(participation=1, bonus=1)
 
     # noinspection DuplicatedCode
     def check_win(self) -> int:
@@ -482,7 +484,7 @@ class TicTacHard(TicTacABC):
         return best
 
 
-class TicTacEasy(TicTacHard):
+class TicTacHard(TicTacEasy):
     """Adaptation of TicTacHard to an easier version.
 
     See Also
@@ -499,14 +501,12 @@ class TicTacEasy(TicTacHard):
         tuple[int, int]
             The x and y position of the move.
         """
-        move = self._next_move_easy()
-        if isinstance(move[0], int):
-            return move  # type: ignore #IDK what pyright's on here'
-        _move = move[0]
-        __move = move[1]
-        assert isinstance(_move, list)  # skipcq: BAN-B101
-        assert isinstance(__move, list)  # skipcq: BAN-B101
-        return _move[0], __move[0]
+        move_x, move_y = self._next_move_easy()
+        if isinstance(move_x, int) and isinstance(move_y, int):
+            return move_x, move_y
+        assert isinstance(move_x, list)  # skipcq: BAN-B101
+        assert isinstance(move_y, list)  # skipcq: BAN-B101
+        return move_x[0], move_y[0]
 
     def _next_move_easy(self) -> tuple[int, int] | tuple[list[int], list[int]]:
         """Make a move, and return the cell that was played.
@@ -601,22 +601,6 @@ class TicTacEasy(TicTacHard):
                     return c1 - gap + j, c2 + gap
         raise RuntimeError("No moves available")
 
-    @property
-    def points(self) -> Points:
-        """Return the points of the game.
-
-        Returns
-        -------
-        Points
-            The points of the game.
-        """
-        win_state = self.check_win()
-        if win_state == 1:
-            return Points(participation=1, bonus=2)
-        if win_state == 0:
-            return Points(participation=1, bonus=0)
-        return Points(participation=1, bonus=1)
-
 
 class TicTacView(ui.View):
     """Tic Tac Toe View.
@@ -647,7 +631,7 @@ class TicTacView(ui.View):
     def __init__(self, bot: CBot, letter: str = "X", easy: bool = True):
         super(TicTacView, self).__init__(timeout=300)
         self.letter = letter
-        self.puzzle: TicTacHard = TicTacEasy(self.letter) if easy else TicTacHard(self.letter)
+        self.puzzle: TicTacABC = TicTacEasy(self.letter) if easy else TicTacHard(self.letter)
         self.bot = bot
         self.time = utcnow()
         self._buttons = [
@@ -677,21 +661,6 @@ class TicTacView(ui.View):
         self.bot_right.disabled = True
         self.stop()
 
-    def display(self) -> None:
-        """DOCSTRING."""
-        line1 = ""
-        for i in range(0, 3):
-            for j in range(0, 2):
-                if self.puzzle.board[i][j] == "blur":
-                    line1 = line1 + "    |"
-                else:
-                    line1 = line1 + "  " + self.puzzle.board[i][j] + " |"
-            if self.puzzle.board[i][3 - 1] == "blur":
-                line1 = line1 + "    \n"
-            else:
-                line1 = line1 + "  " + self.puzzle.board[i][3 - 1] + " \n"
-        print(line1, "\n\n")
-
     async def move(self, interaction: discord.Interaction, button: ui.Button, x: int, y: int) -> None:
         """Call this to handle a move button press.
 
@@ -708,8 +677,6 @@ class TicTacView(ui.View):
         """
         await interaction.response.defer()
         self.puzzle.move(x, y)
-        print("Player:")
-        self.display()
         button.disabled = True
         if self.puzzle.check_win() == 1:
             points = self.puzzle.points
@@ -732,8 +699,6 @@ class TicTacView(ui.View):
             move = self.puzzle.next()
         else:
             move = await self.bot.loop.run_in_executor(None, self.puzzle.next)
-        print("Computer:")
-        self.display()
         self._buttons[move[0] * 3 + move[1]].disabled = True
         image = await self.bot.loop.run_in_executor(self.bot.executor, self.puzzle.display)
         if self.puzzle.check_win() == -1 and all(button.disabled for button in self._buttons):
@@ -948,22 +913,13 @@ class TicTacCog(commands.Cog):
             The interaction object for the command.
         letter : app_commands.Choice[str]
             The letter to play as.
-        hard : bool
-            Whether to use the hard AI.
+        easy : bool
+            Whether to use the easy AI.
         """
-        # noinspection DuplicatedCode
-        channel = interaction.channel
-        assert isinstance(channel, discord.TextChannel)  # skipcq: BAN-B101
-        if (
-            interaction.guild is None
-            or not any(role.id in ALLOWED_ROLES for role in interaction.user.roles)  # type: ignore
-            or not channel.id == CHANNEL_ID
-        ):
-            await interaction.response.send_message(
-                "You must be at least level 5 to participate in the giveaways system and be in "
-                "a thread of <#969972085445238784>.",
-                ephemeral=True,
-            )
+        user = interaction.user
+        assert isinstance(user, discord.Member)  # skipcq: BAN-B101
+        if not any(role.id in ALLOWED_ROLES for role in user.roles) or interaction.channel_id != CHANNEL_ID:
+            await interaction.response.send_message(MESSAGE, ephemeral=True)
             return
         await interaction.response.defer(ephemeral=True)
         game = TicTacView(self.bot, letter.value, easy)

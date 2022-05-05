@@ -31,12 +31,12 @@ import uuid
 from random import sample
 from itertools import islice
 from copy import deepcopy
-from typing import Callable, Literal, Optional, Any, Generator, Final
+from typing import Callable, Literal, Any, Generator, Final
 
 import discord
 from discord import app_commands, ui
 from discord.ext import commands
-from discord.utils import utcnow
+from discord.utils import utcnow, MISSING
 
 from main import CBot
 
@@ -53,8 +53,9 @@ ALLOWED_ROLES: Final = (
 
 CHANNEL_ID: Final[int] = 969972085445238784
 
+MESSAGE: Final = "You must be at least level 5 to participate in the giveaways system and be in <#969972085445238784>."
 
-# noinspection GrazieInspection
+
 class Cell:
     """Represents a cell in the sudoku board.
 
@@ -614,15 +615,13 @@ class Puzzle:
             for n in range(size + 1)
         }
         _empties = [i for i, n in enumerate(board) if n == 0]
-        used = set().union(*(span[n, _p] for _p, n in enumerate(board) if n))  # type: ignore
+        used = set().union(*(span[n, _p] for _p, n in enumerate(board) if n))
         empty = 0
         while 0 <= empty < len(_empties):
             pos = _empties[empty]
-            used -= span[board[pos], pos]  # type: ignore
-            board[pos] = next(  # type: ignore
-                (n for n in range(board[pos] + 1, size + 1) if not span[n, pos] & used), 0  # type: ignore
-            )
-            used |= span[board[pos], pos]  # type: ignore
+            used -= span[board[pos], pos]
+            board[pos] = next((n for n in range(board[pos] + 1, size + 1) if not span[n, pos] & used), 0)
+            used |= span[board[pos], pos]
             empty += 1 if board[pos] else -1
             if empty == len(_empties):
                 # fmt: off
@@ -835,8 +834,8 @@ class SudokuGame(ui.View):
         self.author = author
         self.bot = bot
         self.level: Literal["Puzzle", "Block", "Cell"] = "Puzzle"
-        self.block: Optional[Block] = None
-        self.cell: Optional[Cell] = None
+        self.block: Block = MISSING
+        self.cell: Cell = MISSING
         self.noting_mode = False
         self.start_time = utcnow()
         self.moves = 0
@@ -876,20 +875,20 @@ class SudokuGame(ui.View):
             self.enable_keypad()
         elif self.level == "Block":
             self.disable_keypad()
-            self.one.disabled = not self.block[0].editable  # type: ignore
-            self.two.disabled = not self.block[1].editable  # type: ignore
-            self.three.disabled = not self.block[2].editable  # type: ignore
-            self.four.disabled = not self.block[3].editable  # type: ignore
-            self.five.disabled = not self.block[4].editable  # type: ignore
-            self.six.disabled = not self.block[5].editable  # type: ignore
-            self.seven.disabled = not self.block[6].editable  # type: ignore
-            self.eight.disabled = not self.block[7].editable  # type: ignore
-            self.nine.disabled = not self.block[8].editable  # type: ignore
+            self.one.disabled = not self.block[0].editable
+            self.two.disabled = not self.block[1].editable
+            self.three.disabled = not self.block[2].editable
+            self.four.disabled = not self.block[3].editable
+            self.five.disabled = not self.block[4].editable
+            self.six.disabled = not self.block[5].editable
+            self.seven.disabled = not self.block[6].editable
+            self.eight.disabled = not self.block[7].editable
+            self.nine.disabled = not self.block[8].editable
             self.clear.disabled = False
             self.back.disabled = False
         elif self.level == "Cell":
             self.back.disabled = False
-            if self.cell.editable:  # type: ignore
+            if self.cell.editable:
                 self.enable_keypad()
             else:
                 self.disable_keypad()
@@ -906,7 +905,7 @@ class SudokuGame(ui.View):
         embed.set_author(name=self.author.display_name, icon_url=self.author.display_avatar.url)
         embed.set_footer(text="Play Sudoku by Typing /sudoku")
         embed.add_field(
-            name=f"Choose a value for the cell at {self.puzzle.location_of_cell(self.cell)}",  # type: ignore
+            name=f"Choose a value for the cell at {self.puzzle.location_of_cell(self.cell)}",
             value="Use the keypad to choose a value",
             inline=True,
         )
@@ -925,7 +924,7 @@ class SudokuGame(ui.View):
         embed.set_author(name=self.author.display_name, icon_url=self.author.display_avatar.url)
         embed.set_footer(text="Play Sudoku by Typing /sudoku")
         embed.add_field(
-            name=f"Choose a cell from block {self.puzzle.block_index(self.block) + 1}",  # type: ignore
+            name=f"Choose a cell from block {self.puzzle.block_index(self.block) + 1}",
             value="Use the keypad to choose a cell",
             inline=True,
         )
@@ -984,19 +983,21 @@ class SudokuGame(ui.View):
             if self.cell is not None:  # skipcq: PTC-W0048
                 if self.cell.editable and not self.noting_mode:
                     self.moves += 1
-                    self.cell.value = int(button.label)  # type: ignore
+                    val = button.label
+                    assert isinstance(val, str)  # skipcq: BAN-B101
+                    self.cell.value = int(val)
                     self.level = "Block"
                     self.cell.possible_values.clear()
                     self.cell.selected = False
-                    if self.block is not None:
+                    if self.block is not MISSING:
                         self.block.selected = True
-                    self.cell = None
+                    self.cell = MISSING
                     if self.puzzle.is_solved:
                         self.disable_keypad()
                         self.back.disabled = True
                         self.cancel.disabled = True
                         self.mode.disabled = True
-                        if self.cell is not None:
+                        if self.cell is not MISSING:
                             self.cell.selected = False
                         embed = discord.Embed(
                             title="**Solved!!** Sudoku",
@@ -1023,17 +1024,20 @@ class SudokuGame(ui.View):
                         self.update_keypad()
                         await interaction.response.edit_message(embed=self.cell_choose_embed(), view=self)
                 elif self.cell.editable and self.noting_mode:
-                    if int(button.label) not in self.cell.possible_values:  # type: ignore
-                        self.cell.possible_values.add(int(button.label))  # type: ignore
+                    val = button.label
+                    assert isinstance(val, str)  # skipcq: BAN-B101
+                    real_val = int(val)
+                    if real_val not in self.cell.possible_values:
+                        self.cell.possible_values.add(real_val)
                     else:
-                        self.cell.possible_values.remove(int(button.label))  # type: ignore
+                        self.cell.possible_values.remove(real_val)
                     raise NotImplementedError("Noting mode not implemented")
                 else:
-                    if self.cell is not None:
+                    if self.cell is not MISSING:
                         self.cell.selected = False
-                    if self.block is not None:
+                    if self.block is not MISSING:
                         self.block.selected = False
-                    self.cell = None
+                    self.cell = MISSING
                     self.level = "Block"
                     self.update_keypad()
                     await interaction.response.edit_message(embed=self.cell_choose_embed(), view=self)
@@ -1090,18 +1094,18 @@ class SudokuGame(ui.View):
         elif self.level == "Block":
             self.level = "Puzzle"
             button.disabled = True
-            if self.block is not None:
+            if self.block is not MISSING:
                 self.block.selected = False
-            self.block = None
+            self.block = MISSING
             self.enable_keypad()
             await interaction.response.edit_message(embed=self.block_choose_embed(), view=self)
         elif self.level == "Cell":
             self.level = "Block"
-            if self.cell is not None:
+            if self.cell is not MISSING:
                 self.cell.selected = False
-            if self.block is not None:
+            if self.block is not MISSING:
                 self.block.selected = True
-            self.cell = None
+            self.cell = MISSING
             self.enable_keypad()
             await interaction.response.edit_message(embed=self.cell_choose_embed(), view=self)
 
@@ -1353,23 +1357,16 @@ class Sudoku(commands.Cog):
         mobile: bool
             Whether to turn off formatting that only works on desktop.
         """
-        # noinspection DuplicatedCode
-        channel = interaction.channel
-        assert isinstance(channel, discord.TextChannel)  # skipcq: BAN-B101
-        if (
-            interaction.guild is None
-            or not any(role.id in ALLOWED_ROLES for role in interaction.user.roles)  # type: ignore
-            or not channel.id == CHANNEL_ID
-        ):
-            await interaction.response.send_message(
-                "You must be at least level 5 to participate in the giveaways system and be in "
-                "a thread of <#969972085445238784>.",
-                ephemeral=True,
-            )
+        user = interaction.user
+        assert isinstance(user, discord.Member)  # skipcq: BAN-B101
+        if not any(role.id in ALLOWED_ROLES for role in user.roles) or interaction.channel_id != CHANNEL_ID:
+            await interaction.response.send_message(MESSAGE, ephemeral=True)
             return
         await interaction.response.defer(ephemeral=True)
         puzzle = await self.bot.loop.run_in_executor(self.bot.process_pool, functools.partial(Puzzle.random, mobile))
-        view = SudokuGame(puzzle, interaction.user, self.bot)  # type: ignore
+        user = interaction.user
+        assert isinstance(user, discord.Member)  # skipcq: BAN-B101
+        view = SudokuGame(puzzle, user, self.bot)
         await interaction.followup.send(embed=view.block_choose_embed(), view=view)
 
 
