@@ -486,7 +486,7 @@ class Giveaway(commands.Cog):
     @tasks.loop(time=datetime.time(hour=9, minute=0, second=0, tzinfo=__ZONEINFO__))  # skipcq: PYL-E1123
     async def daily_giveaway(self):
         """Run the daily giveaway."""
-        if self.current_giveaway is not None:
+        if self.current_giveaway is not MISSING:
             self.yesterdays_giveaway = self.current_giveaway
             await self.yesterdays_giveaway.end()
         if not isinstance(self.charlie, discord.Member):
