@@ -34,14 +34,15 @@ from zoneinfo import ZoneInfo
 import asyncpg
 import discord
 from discord.ext import commands
-from discord.utils import MISSING, utcnow
+from discord.utils import MISSING
 from dotenv import load_dotenv
 
 
 __ZONEINFO__ = ZoneInfo("America/Detroit")
 __TIME__ = (
     lambda: datetime.datetime.now(__ZONEINFO__).replace(microsecond=0, second=0, minute=0, hour=9)
-    if datetime.datetime.now(__ZONEINFO__).replace(microsecond=0, second=0, minute=0, hour=9) >= utcnow()
+    if datetime.datetime.now(__ZONEINFO__).replace(microsecond=0, second=0, minute=0, hour=9)
+    <= datetime.datetime.now(__ZONEINFO__)
     else datetime.datetime.now(__ZONEINFO__).replace(microsecond=0, second=0, minute=0, hour=9)
     - datetime.timedelta(days=1)
 )  # noqa: E731
