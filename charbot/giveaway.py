@@ -475,7 +475,7 @@ class Giveaway(commands.Cog):
         user : discord.Member
             The user to confirm.
         """
-        if user.id != 225344348903047168:
+        if interaction.user.id != 225344348903047168:
             await interaction.response.send_message("Only Charlie can confirm a winner.", ephemeral=True)
             return
         await self.bot.pool.execute(
