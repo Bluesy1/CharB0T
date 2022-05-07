@@ -204,16 +204,19 @@ class GiveawayView(ui.View):
                 "You must be at least level 5 to participate in the giveaways system.", ephemeral=True
             )
             return
-        last_win = await self.bot.pool.fetchval(
-            "SELECT expiry FROM winners WHERE id = $1", interaction.user.id
-        ) or __TIME__() - datetime.timedelta(days=1)
-        if last_win > __TIME__():
-            await interaction.response.send_message(
-                f"You have won a giveaway recently, please wait until {last_win.strftime('%a %d %B %Y')}"
-                f" to bid again.",
-                ephemeral=True,
-            )
-            return
+        async with self.bot.pool.acquire() as conn:
+            last_win = await conn.fetchval(
+                "SELECT expiry FROM winners WHERE id = $1", interaction.user.id
+            ) or __TIME__() - datetime.timedelta(days=1)
+            if last_win >= __TIME__():
+                await interaction.response.send_message(
+                    f"You have won a giveaway recently, please wait until after {last_win.strftime('%a %d %B %Y')}"
+                    f" to bid again.",
+                    ephemeral=True,
+                )
+                return
+            if last_win != __TIME__() - datetime.timedelta(days=1):
+                await conn.execute("DELETE FROM winners WHERE id = $1", interaction.user.id)
         modal = BidModal(self.bot, self)
         await interaction.response.send_modal(modal)
         await modal.wait()
@@ -257,7 +260,7 @@ class GiveawayView(ui.View):
                     ephemeral=True,
                 )
                 return
-            if last_win is not None:
+            if last_win != __TIME__() - datetime.timedelta(days=1):
                 await conn.execute("DELETE FROM winners WHERE id = $1", interaction.user.id)
             record = await conn.fetchval("SELECT bid FROM bids WHERE id = $1", interaction.user.id)
             bid: int = record if record is not None else 0
