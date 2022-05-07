@@ -121,7 +121,14 @@ class GiveawayView(ui.View):
         self.embed.timestamp = utcnow()
         self.embed.clear_fields()
         async with self.bot.pool.acquire() as conn:
-            bidders = await conn.fetch("SELECT * FROM bids WHERE bid > 0 ORDER BY bid DESC")
+            blocked: list[int] = [block["id"] for block in await conn.fetch("SELECT id FROM winners")]
+            raw_bidders = await conn.fetch("SELECT * FROM bids WHERE bid > 0 ORDER BY bid DESC")
+            bidders = [bid for bid in raw_bidders if bid["id"] not in blocked]
+            blocked_bids = [bid for bid in raw_bidders if bid["id"] in blocked]
+            return_bids = [(bid["bid"], bid["id"]) for bid in blocked_bids]
+            await conn.executemany("UPDATE users SET points = points + $1 WHERE id = $2", return_bids)
+        self.top_bid = max(bid["bid"] for bid in bidders)
+        self.total_entries = sum(bid["bid"] for bid in bidders)
         if len(bidders) > 0:
             self.bidders = bidders.copy()
             bids: list[list[int]] = [[], []]
@@ -243,13 +250,15 @@ class GiveawayView(ui.View):
             last_win = await conn.fetchval(
                 "SELECT expiry FROM winners WHERE id = $1", interaction.user.id
             ) or __TIME__() - datetime.timedelta(days=1)
-            if last_win > __TIME__():
+            if last_win >= __TIME__():
                 await interaction.response.send_message(
-                    f"You have won a giveaway recently, please wait until {last_win.strftime('%a %d %B %Y')}"
+                    f"You have won a giveaway recently, please wait until after {last_win.strftime('%a %d %B %Y')}"
                     f" to bid again.",
                     ephemeral=True,
                 )
                 return
+            if last_win is not None:
+                await conn.execute("DELETE FROM winners WHERE id = $1", interaction.user.id)
             record = await conn.fetchval("SELECT bid FROM bids WHERE id = $1", interaction.user.id)
             bid: int = record if record is not None else 0
         chance = bid * 100 / self.total_entries
