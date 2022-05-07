@@ -124,9 +124,9 @@ class GiveawayView(ui.View):
             blocked: list[int] = [block["id"] for block in await conn.fetch("SELECT id FROM winners")]
             raw_bidders = await conn.fetch("SELECT * FROM bids WHERE bid > 0 ORDER BY bid DESC")
             bidders = [bid for bid in raw_bidders if bid["id"] not in blocked]
-            blocked_bids = [bid for bid in raw_bidders if bid["id"] in blocked]
-            return_bids = [(bid["bid"], bid["id"]) for bid in blocked_bids]
-            await conn.executemany("UPDATE users SET points = points + $1 WHERE id = $2", return_bids)
+            return_bids = [(bid["bid"], bid["id"]) for bid in raw_bidders if bid["id"] in blocked]
+            if len(return_bids) > 0:
+                await conn.executemany("UPDATE users SET points = points + $1 WHERE id = $2", return_bids)
         self.top_bid = max(bid["bid"] for bid in bidders)
         self.total_entries = sum(bid["bid"] for bid in bidders)
         if len(bidders) > 0:
