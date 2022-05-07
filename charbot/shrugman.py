@@ -203,7 +203,7 @@ class ShrugmanGame(ui.View):
         embed.add_field(name="Time Taken", value=f"{time_taken}", inline=True)
         if (utcnow() - self.start_time) > datetime.timedelta(seconds=60) and self.guess_count > 5:
             embed.add_field(name="Time Taken", value=f"{time_taken}", inline=True)
-            points = await self.bot.give_game_points(self.author.id, 2, 0)
+            points = await self.bot.give_game_points(self.author, "shrugman", 2, 0)
             embed.add_field(
                 name="Reputation gained",
                 value="2 Reputation" if points == 2 else f"{points} Reputation (Daily Cap Hit)",
@@ -318,7 +318,7 @@ class GuessModal(ui.Modal, title="Shrugman Guess"):
             embed.add_field(name="Guesses", value=f"{', '.join(self.game.guesses)}", inline=True)
             time_taken = utcnow().replace(microsecond=0) - self.game.start_time.replace(microsecond=0)
             embed.add_field(name="Time Taken", value=f"{time_taken}", inline=True)
-            points = await self.game.bot.give_game_points(self.game.author.id, 2, 0)
+            points = await self.game.bot.give_game_points(self.game.author, "shrugman", 2, 0)
             embed.add_field(
                 name="Reputation gained",
                 value="2 Reputation" if points == 2 else f"{points} Reputation (Daily Cap Hit)",
@@ -356,7 +356,7 @@ class GuessModal(ui.Modal, title="Shrugman Guess"):
             time_taken = utcnow().replace(microsecond=0) - self.game.start_time.replace(microsecond=0)
             embed.add_field(name="Time Taken", value=f"{time_taken}", inline=True)
             bonus = -(-((len(self.game.fail_enum) - 1) - self.game.mistakes) // 2)
-            points = await self.game.bot.give_game_points(self.game.author.id, 2, bonus)
+            points = await self.game.bot.give_game_points(self.game.author, "shrugman", 2, bonus)
             embed.add_field(
                 name="Reputation gained",
                 value=f"{points} Reputation" if points == (2 + bonus) else f"{points} Reputation (Daily Cap Hit)",

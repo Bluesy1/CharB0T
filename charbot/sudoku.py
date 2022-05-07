@@ -1008,7 +1008,7 @@ class SudokuGame(ui.View):
                         embed.set_footer(text="Play Sudoku by Typing /sudoku")
                         time_taken = utcnow().replace(microsecond=0) - self.start_time.replace(microsecond=0)
                         embed.add_field(name="Time Taken", value=f"{time_taken}", inline=True)
-                        points = await self.bot.give_game_points(self.author.id, 5, 10)
+                        points = await self.bot.give_game_points(self.author, "sudoku", 5, 10)
                         embed.add_field(
                             name="Reputation gained",
                             value="15 Reputation" if points == 15 else f"{points} Reputation (Daily Cap Hit)",
@@ -1174,7 +1174,7 @@ class SudokuGame(ui.View):
         embed.add_field(name="Time Taken", value=f"{time_taken}", inline=True)
         if (utcnow() - self.start_time) > datetime.timedelta(minutes=3) and self.moves > 10:
             embed.add_field(name="Time Taken", value=f"{time_taken}", inline=True)
-            points = await self.bot.give_game_points(self.author.id, 5, 0)
+            points = await self.bot.give_game_points(self.author, "sudoku", 5, 0)
             embed.add_field(
                 name="Reputation gained",
                 value="5 Reputation" if points == 5 else f"{points} Reputation (Daily Cap Hit)",

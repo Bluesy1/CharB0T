@@ -680,7 +680,9 @@ class TicTacView(ui.View):
         button.disabled = True
         if self.puzzle.check_win() == 1:
             points = self.puzzle.points
-            gained_points = await self.bot.give_game_points(interaction.user.id, points.participation, points.bonus)
+            member = interaction.user
+            assert isinstance(member, discord.Member)  # skipcq: BAN-B101
+            gained_points = await self.bot.give_game_points(member, "tictactoe", points.participation, points.bonus)
             max_points = points.participation + points.bonus
             embed = discord.Embed(
                 title="You Won!",
@@ -703,7 +705,9 @@ class TicTacView(ui.View):
         image = await self.bot.loop.run_in_executor(self.bot.executor, self.puzzle.display)
         if self.puzzle.check_win() == -1 and all(button.disabled for button in self._buttons):
             points = self.puzzle.points
-            gained_points = await self.bot.give_game_points(interaction.user.id, points.participation, points.bonus)
+            member = interaction.user
+            assert isinstance(member, discord.Member)  # skipcq: BAN-B101
+            gained_points = await self.bot.give_game_points(member, "tictactoe", points.participation, points.bonus)
             max_points = points.participation + points.bonus
             embed = discord.Embed(
                 title="Draw!",
@@ -719,7 +723,9 @@ class TicTacView(ui.View):
             return
         if self.puzzle.check_win() == 0:
             points = self.puzzle.points
-            gained_points = await self.bot.give_game_points(interaction.user.id, points.participation, points.bonus)
+            member = interaction.user
+            assert isinstance(member, discord.Member)  # skipcq: BAN-B101
+            gained_points = await self.bot.give_game_points(member, "tictactoe", points.participation, points.bonus)
             max_points = points.participation + points.bonus
             embed = discord.Embed(
                 title="You Lost!",
