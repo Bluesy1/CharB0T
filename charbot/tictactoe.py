@@ -236,10 +236,10 @@ class TicTacEasy(TicTacABC):
         """
         win_state = self.check_win()
         if win_state == 1:
-            return Points(participation=2, bonus=2)
+            return Points(participation=1, bonus=1)
         if win_state == 0:
             return Points(participation=0, bonus=0)
-        return Points(participation=2, bonus=0)
+        return Points(participation=1, bonus=0)
 
     # noinspection DuplicatedCode
     def check_win(self) -> int:
@@ -493,6 +493,22 @@ class TicTacHard(TicTacEasy):
     :class:`TicTacHard`
         For the full documentation and implementation.
     """
+
+    @property
+    def points(self) -> Points:
+        """Return the points of the game.
+
+        Returns
+        -------
+        Points
+            The points of the game.
+        """
+        win_state = self.check_win()
+        if win_state == 1:
+            return Points(participation=2, bonus=2)
+        if win_state == 0:
+            return Points(participation=0, bonus=0)
+        return Points(participation=2, bonus=0)
 
     def next(self) -> tuple[int, int]:
         """Make a move, and return the cell that was played.
