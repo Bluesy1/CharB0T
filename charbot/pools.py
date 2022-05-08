@@ -53,32 +53,6 @@ CHANNEL_ID: Final[int] = 687817008355737606
 MESSAGE: Final = "You must be at least level 5 to participate in the giveaways system and be in <#969972085445238784>."
 
 
-async def pool_autocomplete(interaction: Interaction, current: str) -> list[app_commands.Choice[str]]:
-    """Autocomplete a pool name.
-
-    Parameters
-    ----------
-    interaction : Interaction
-        The interaction object.
-    current : str
-        The current string.
-
-    Returns
-    -------
-    list[app_commands.Choice[str]]
-        The list of choices.
-    """
-    bot = interaction.client
-    member = interaction.user
-    assert isinstance(bot, CBot)  # skipcq: BAN-B101
-    assert isinstance(member, discord.Member)  # skipcq: BAN-B101
-    return [
-        app_commands.Choice(name=pool["pool"], value=pool["pool"])
-        for pool in await bot.pool.fetch("SELECT pool, required_roles FROM pools")
-        if current.lower() in pool["pool"].lower() and any(role.id in pool["required_roles"] for role in member.roles)
-    ]
-
-
 @app_commands.default_permissions(manage_messages=True)
 @app_commands.guilds(225345178955808768)
 class Pools(commands.GroupCog, name="pools", description="Reputation pools for certain features."):
@@ -131,6 +105,32 @@ class Pools(commands.GroupCog, name="pools", description="Reputation pools for c
         self.streaming = "media/pools/streaming.png"
         self.font1 = "media/pools/font.ttf"
         self.font2 = "media/pools/font2.ttf"
+
+        @self.add.autocomplete("pool")
+        async def add_pool_autocomplete(interaction: Interaction, current: str) -> list[app_commands.Choice[str]]:
+            """Autocomplete a pool name.
+
+            Parameters
+            ----------
+            interaction : Interaction
+                The interaction object.
+            current : str
+                The current string.
+            """
+            return await self.pool_autocomplete(interaction, current)
+
+        @self.query.autocomplete("pool")
+        async def query_pool_autocomplete(interaction: Interaction, current: str) -> list[app_commands.Choice[str]]:
+            """Autocomplete a pool name.
+
+            Parameters
+            ----------
+            interaction : Interaction
+                The interaction object.
+            current : str
+                The current string.
+            """
+            return await self.pool_autocomplete(interaction, current)
 
     def generate_card(
         self,
@@ -280,8 +280,31 @@ class Pools(commands.GroupCog, name="pools", description="Reputation pools for c
         final_bytes.seek(0)
         return final_bytes
 
+    async def pool_autocomplete(self, interaction: Interaction, current: str) -> list[app_commands.Choice[str]]:
+        """Autocomplete a pool name.
+
+        Parameters
+        ----------
+        interaction : Interaction
+            The interaction object.
+        current : str
+            The current string.
+
+        Returns
+        -------
+        list[app_commands.Choice[str]]
+            The list of choices.
+        """
+        member = interaction.user
+        assert isinstance(member, discord.Member)  # skipcq: BAN-B101
+        return [
+            app_commands.Choice(name=pool["pool"], value=pool["pool"])
+            for pool in await self.bot.pool.fetch("SELECT pool, required_roles FROM pools")
+            if current.lower() in pool["pool"].lower()
+            and any(role.id in pool["required_roles"] for role in member.roles)
+        ]
+
     @app_commands.command(name="add", description="Add reputation to an active pool.")
-    @app_commands.autocomplete(pool=pool_autocomplete)
     @app_commands.describe(pool="The pool to add to.", amount="The amount to add.")
     async def add(self, interaction: Interaction, pool: str, amount: int):
         """Add reputation to an active pool.
@@ -375,7 +398,6 @@ class Pools(commands.GroupCog, name="pools", description="Reputation pools for c
             await channel.send(f"{user.mention} has filled {pool}!", file=image)
 
     @app_commands.command(name="query", description="Check the status of an active pool.")
-    @app_commands.autocomplete(pool=pool_autocomplete)
     @app_commands.describe(pool="The pool to check.")
     async def query(self, interaction: Interaction, pool: str):
         """Check the status of an active pool.
