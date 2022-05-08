@@ -505,7 +505,7 @@ class TicTacHard(TicTacEasy):
         """
         win_state = self.check_win()
         if win_state == 1:
-            return Points(participation=2, bonus=2)
+            return Points(participation=2, bonus=3)
         if win_state == 0:
             return Points(participation=0, bonus=0)
         return Points(participation=2, bonus=0)
