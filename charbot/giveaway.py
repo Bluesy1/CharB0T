@@ -23,6 +23,7 @@
 # SOFTWARE.
 #  ----------------------------------------------------------------------------
 """Game giveaway extension."""
+import asyncio
 import datetime
 import os
 import random
@@ -108,6 +109,8 @@ class GiveawayView(ui.View):
         self.game = game
         self.url = url
         self.message: discord.Message | None = None
+        self.role_semaphore = asyncio.BoundedSemaphore(10)
+        self.bid_lock = asyncio.Lock()
         self.bidders: list[asyncpg.Record] = []
         if url is not None:
             self.add_item(ui.Button(label=game, style=discord.ButtonStyle.link, url=url))
@@ -291,21 +294,22 @@ class GiveawayView(ui.View):
         clientuser = self.bot.user
         assert isinstance(user, discord.Member)  # skipcq: BAN-B101
         assert isinstance(clientuser, discord.ClientUser)  # skipcq: BAN-B101
-        if not any(role.id == 972886729231044638 for role in user.roles):
-            await user.add_roles(discord.Object(id=972886729231044638), reason="Toggled giveaway alerts.")
-            await interaction.followup.send("You will now receive giveaway alerts.")
-            await self.bot.program_logs.send(
-                f"Added giveaway alerts to {user.mention}.", allowed_mentions=discord.AllowedMentions(users=False)
-            )
-        else:
-            await user.remove_roles(discord.Object(id=972886729231044638), reason="Toggled giveaway alerts.")
-            await interaction.followup.send("You will no longer receive giveaway alerts.")
-            await self.bot.program_logs.send(
-                f"Removed giveaway alerts from {user.mention}.",
-                username=clientuser.name,
-                avatar_url=clientuser.display_avatar.url,
-                allowed_mentions=discord.AllowedMentions(users=False),
-            )
+        async with self.role_semaphore:
+            if not any(role.id == 972886729231044638 for role in user.roles):
+                await user.add_roles(discord.Object(id=972886729231044638), reason="Toggled giveaway alerts.")
+                await interaction.followup.send("You will now receive giveaway alerts.")
+                await self.bot.program_logs.send(
+                    f"Added giveaway alerts to {user.mention}.", allowed_mentions=discord.AllowedMentions(users=False)
+                )
+            else:
+                await user.remove_roles(discord.Object(id=972886729231044638), reason="Toggled giveaway alerts.")
+                await interaction.followup.send("You will no longer receive giveaway alerts.")
+                await self.bot.program_logs.send(
+                    f"Removed giveaway alerts from {user.mention}.",
+                    username=clientuser.name,
+                    avatar_url=clientuser.display_avatar.url,
+                    allowed_mentions=discord.AllowedMentions(users=False),
+                )
 
 
 class BidModal(ui.Modal, title="Bid"):
@@ -359,7 +363,7 @@ class BidModal(ui.Modal, title="Bid"):
             await interaction.response.send_message("Please enter a valid integer between 0 and 32768.", ephemeral=True)
             return self.stop()
         await interaction.response.defer(ephemeral=True, thinking=True)
-        async with self.bot.pool.acquire() as conn:
+        async with self.view.bid_lock, self.bot.pool.acquire() as conn, conn.transaction():
             points: int | None = await conn.fetchval("SELECT points FROM users WHERE id = $1", interaction.user.id)
             if points is None or points == 0:
                 await interaction.followup.send("You either have never gained reputation or have 0.")
