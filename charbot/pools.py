@@ -377,7 +377,7 @@ class Pools(commands.GroupCog, name="pools", description="Reputation pools for c
         await interaction.followup.send(
             f"You have added {amount} rep to {pool} you now have {remaining} rep remaining.", file=image
         )
-        clientuser = self.user
+        clientuser = self.bot.user
         assert isinstance(clientuser, discord.ClientUser)  # skipcq: BAN-B101
         await self.bot.program_logs.send(
             f"{user.mention} added {amount} rep to {pool} ({after}/{pool_record['cap']}).",
