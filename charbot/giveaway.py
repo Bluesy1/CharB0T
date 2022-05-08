@@ -290,7 +290,7 @@ class GiveawayView(ui.View):
         user = interaction.user
         clientuser = self.bot.user
         assert isinstance(user, discord.Member)  # skipcq: BAN-B101
-        assert isinstance(clientuser, discord.User)  # skipcq: BAN-B101
+        assert isinstance(clientuser, discord.ClientUser)  # skipcq: BAN-B101
         if not any(role.id == 972886729231044638 for role in user.roles):
             await user.add_roles(discord.Object(id=972886729231044638), reason="Toggled giveaway alerts.")
             await interaction.followup.send("You will now receive giveaway alerts.")
