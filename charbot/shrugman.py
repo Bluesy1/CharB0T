@@ -44,11 +44,12 @@ ALLOWED_ROLES: Final = (
     969629632028614699,
     969628342733119518,
     969627321239760967,
+    969626979353632790,
 )
 
-CHANNEL_ID: Final[int] = 969972085445238784
+CHANNEL_ID: Final = 969972085445238784
 
-MESSAGE: Final = "You must be at least level 5 to participate in the giveaways system and be in <#969972085445238784>."
+MESSAGE: Final = "You must be at least level 1 to participate in the giveaways system and be in <#969972085445238784>."
 
 FailStates = Enum(
     "FailStates",
