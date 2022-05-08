@@ -24,16 +24,14 @@
 #  ----------------------------------------------------------------------------
 """Reputation pools."""
 import functools
-import math
 from io import BytesIO
-from typing import Final, Literal
+from typing import Callable, Final, Literal
 
 import asyncpg
 import discord
+from card import generate_card
 from discord import Interaction, app_commands
 from discord.ext import commands
-from discord.utils import MISSING
-from PIL import Image, ImageDraw, ImageFont
 
 from main import CBot
 
@@ -74,37 +72,10 @@ class Pools(commands.GroupCog, name="pools", description="Reputation pools for c
     ----------
     bot : CBot
         The bot object.
-    default_bg : str
-        The default background image.
-    default_profile : str
-        The default profile image.
-    online : str
-        The online image.
-    offline : str
-        The offline image.
-    idle : str
-        The idle image.
-    dnd : str
-        The dnd image.
-    streaming : str
-        The streaming image.
-    font1 : str
-        The font 1.
-    font2 : str
-        The font 2.
     """
 
     def __init__(self, bot: CBot):
         self.bot = bot
-        self.default_bg = "media/pools/card.png"
-        self.default_profile = "media/pools/profile.png"
-        self.online = "media/pools/online.png"
-        self.offline = "media/pools/offline.png"
-        self.idle = "media/pools/idle.png"
-        self.dnd = "media/pools/dnd.png"
-        self.streaming = "media/pools/streaming.png"
-        self.font1 = "media/pools/font.ttf"
-        self.font2 = "media/pools/font2.ttf"
 
         @self.add.autocomplete("pool")
         async def add_pool_autocomplete(interaction: Interaction, current: str) -> list[app_commands.Choice[str]]:
@@ -131,153 +102,6 @@ class Pools(commands.GroupCog, name="pools", description="Reputation pools for c
                 The current string.
             """
             return await self.pool_autocomplete(interaction, current)
-
-    def generate_card(
-        self,
-        *,
-        bg_image: BytesIO = MISSING,
-        profile_image: BytesIO = MISSING,
-        level: int = 1,
-        base_rep: int = 0,
-        current_rep: int = 20,
-        completed_rep: int = 100,
-        pool_name: str = "Unknown",
-        pool_status: Literal["online", "offline", "idle", "streaming", "dnd"] = "offline",
-    ):
-        """Generate a card.
-
-        This is adapted from the disrank library.
-
-        Parameters
-        ----------
-        bg_image: BytesIO = MISSING
-            The background image. Defaults to the default background image.
-        profile_image: BytesIO = MISSING
-            The profile image. Defaults to the default profile image.
-        level: int = 1
-            The level of the pool.
-        base_rep: int = 0
-            The base rep of the pool.
-        current_rep: int = 20
-            The current rep in the pool.
-        completed_rep: int = 100
-            The rep needed to complete the pool.
-        pool_name: str = "Unknown"
-            The name of the pool. Defaults to "Unknown".
-        pool_status: Literal['online', 'offline', 'idle', 'streaming', 'dnd'] = "offline"
-            The discord status color to roughtly indicate the status of the pool. Defaults to "offline" (grey).
-
-        Returns
-        -------
-        BytesIO
-            The card image as a buffered stream of I/O Bytes.
-        """
-        if bg_image is MISSING:
-            card = Image.open(self.default_bg).convert("RGBA")
-        else:
-            card = Image.open(bg_image).convert("RGBA")
-
-            width, height = card.size
-            if width == 900 and height == 238:
-                pass
-            else:
-                x1 = 0
-                y1 = 0
-                x2 = width
-                nh = math.ceil(width * 0.264444)
-                y2 = 0
-
-                if nh < height:
-                    y1 = (height // 2) - 119
-                    y2 = nh + y1
-
-                card = card.crop((x1, y1, x2, y2)).resize((900, 238))
-
-        profile_bytes: BytesIO | str = profile_image if profile_image is not MISSING else self.default_profile
-        profile = Image.open(profile_bytes).convert("RGBA").resize((180, 180))
-
-        if pool_status == "online":
-            status = Image.open(self.online)
-        elif pool_status == "offline":
-            status = Image.open(self.offline)
-        elif pool_status == "idle":
-            status = Image.open(self.idle)
-        elif pool_status == "streaming":
-            status = Image.open(self.streaming)
-        elif pool_status == "dnd":
-            status = Image.open(self.dnd)
-        else:
-            raise ValueError(f"Unknown status: {pool_status}")
-
-        status = status.convert("RGBA").resize((40, 40))
-
-        profile_pic_holder = Image.new("RGBA", card.size, (255, 255, 255, 0))  # Is used for a blank image for a mask
-
-        # Mask to crop image
-        mask = Image.new("RGBA", card.size, 0)
-        mask_draw = ImageDraw.Draw(mask)
-        mask_draw.ellipse((29, 29, 209, 209), fill=(255, 25, 255, 255))  # The part need to be cropped
-
-        # Editing stuff here
-
-        # ======== Fonts to use =============
-        font_normal = ImageFont.truetype(self.font1, 36)
-        font_small = ImageFont.truetype(self.font1, 20)
-        # noinspection PyUnusedLocal
-        font_signa = ImageFont.truetype(self.font2, 25)  # noqa: F841
-
-        # ======== Colors ========================
-        # noinspection PyUnusedLocal
-        WHITE = (189, 195, 199)  # noqa: F841
-        DARK = (252, 179, 63)
-        # noinspection PyUnusedLocal
-        YELLOW = (255, 234, 167)  # noqa: F841
-
-        get_str = (
-            lambda xp: str(xp) if xp < 1000 else f"{xp / 1000:.1f}k" if xp < 1000000 else f"{xp / 1000000:.1f}M"
-        )  # noqa: F731
-
-        draw = ImageDraw.Draw(card)
-        draw.text((245, 22), pool_name, DARK, font=font_normal)
-        # draw.text((245, 98), f"Rank #{user_position}", DARK, font=font_small)  # skipcq: PY-W0069
-        draw.text((245, 123), f"Pool Level {level}", DARK, font=font_small)
-        draw.text(
-            (245, 150),
-            f"Rep {get_str(current_rep)}/{get_str(completed_rep)}",
-            DARK,
-            font=font_small,
-        )
-
-        # Adding another blank layer for the progress bar
-        # Because drawing on card doesn't make their background transparent
-        blank = Image.new("RGBA", card.size, (255, 255, 255, 0))
-        blank_draw = ImageDraw.Draw(blank)
-        blank_draw.rectangle((245, 185, 750, 205), fill=(255, 255, 255, 0), outline=DARK)
-
-        xpneed = completed_rep - base_rep
-        xphave = current_rep - base_rep
-
-        current_percentage = (xphave / xpneed) * 100
-        length_of_bar = (current_percentage * 4.9) + 248
-
-        blank_draw.rectangle((248, 188, length_of_bar, 202), fill=DARK)
-        blank_draw.ellipse((20, 20, 218, 218), fill=(255, 255, 255, 0), outline=DARK)
-
-        profile_pic_holder.paste(profile, (29, 29, 209, 209))
-
-        pre = Image.composite(profile_pic_holder, card, mask)
-        pre = Image.alpha_composite(pre, blank)
-
-        # Status badge
-        # Another blank
-        blank = Image.new("RGBA", pre.size, (255, 255, 255, 0))
-        blank.paste(status, (169, 169))
-
-        final = Image.alpha_composite(pre, blank)
-        final_bytes = BytesIO()
-        final.save(final_bytes, "png")
-        final_bytes.seek(0)
-        return final_bytes
 
     async def pool_autocomplete(self, interaction: Interaction, current: str) -> list[app_commands.Choice[str]]:
         """Autocomplete a pool name.
@@ -362,8 +186,8 @@ class Pools(commands.GroupCog, name="pools", description="Reputation pools for c
             status = "streaming"
         elif completed_ratio == 1:
             status = "online"
-        image_generator: functools.partial[BytesIO] = functools.partial(
-            self.generate_card,
+        image_generator: Callable[[], BytesIO] = functools.partial(
+            generate_card,
             level=pool_record["level"],
             base_rep=pool_record["start"],
             current_rep=after,
@@ -371,7 +195,7 @@ class Pools(commands.GroupCog, name="pools", description="Reputation pools for c
             pool_name=pool,
             pool_status=status,
         )
-        image_bytes: BytesIO = await self.bot.loop.run_in_executor(None, image_generator)
+        image_bytes = await self.bot.loop.run_in_executor(None, image_generator)
         image = discord.File(image_bytes, filename=f"{pool}.png")
         await interaction.followup.send(
             f"You have added {amount} rep to {pool} you now have {remaining} rep remaining.", file=image
@@ -391,8 +215,8 @@ class Pools(commands.GroupCog, name="pools", description="Reputation pools for c
                 avatar_url=clientuser.display_avatar.url,
                 allowed_mentions=discord.AllowedMentions(users=False, roles=False, everyone=False),
             )
-            image_generator: functools.partial[BytesIO] = functools.partial(
-                self.generate_card,
+            image_generator: Callable[[], BytesIO] = functools.partial(
+                generate_card,
                 level=pool_record["level"],
                 base_rep=pool_record["start"],
                 current_rep=after,
@@ -400,7 +224,7 @@ class Pools(commands.GroupCog, name="pools", description="Reputation pools for c
                 pool_name=f"[COMPLETED] {pool}",
                 pool_status=status,
             )
-            image_bytes: BytesIO = await self.bot.loop.run_in_executor(None, image_generator)
+            image_bytes = await self.bot.loop.run_in_executor(None, image_generator)
             image = discord.File(image_bytes, filename=f"{pool}.png")
             channel = interaction.channel
             assert isinstance(channel, discord.abc.Messageable)  # skipcq: BAN-B101
@@ -443,8 +267,8 @@ class Pools(commands.GroupCog, name="pools", description="Reputation pools for c
             status = "streaming"
         elif completed == 1:
             status = "online"
-        image_generator: functools.partial[BytesIO] = functools.partial(
-            self.generate_card,
+        image_generator: Callable[[], BytesIO] = functools.partial(
+            generate_card,
             level=pool_record["level"],
             base_rep=pool_record["start"],
             current_rep=pool_record["current"],
@@ -452,7 +276,7 @@ class Pools(commands.GroupCog, name="pools", description="Reputation pools for c
             pool_name=pool,
             pool_status=status,
         )
-        image_bytes: BytesIO = await self.bot.loop.run_in_executor(None, image_generator)
+        image_bytes = await self.bot.loop.run_in_executor(None, image_generator)
         await interaction.followup.send(file=discord.File(image_bytes, filename=f"{pool}.png"))
 
 
