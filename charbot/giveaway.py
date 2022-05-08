@@ -202,7 +202,7 @@ class GiveawayView(ui.View):
         assert isinstance(user, discord.Member)  # skipcq: BAN-B101
         if not any(role.id in ALLOWED_ROLES for role in user.roles):
             await interaction.response.send_message(
-                "You must be at least level 5 to participate in the giveaways system.", ephemeral=True
+                "You must be at least level 1 to participate in the giveaways system.", ephemeral=True
             )
             return
         async with self.bot.pool.acquire() as conn:
@@ -247,7 +247,7 @@ class GiveawayView(ui.View):
         assert isinstance(user, discord.Member)  # skipcq: BAN-B101
         if not any(role.id in ALLOWED_ROLES for role in user.roles):
             await interaction.response.send_message(
-                "You must be at least level 5 to participate in the giveaways system.", ephemeral=True
+                "You must be at least level 1 to participate in the giveaways system.", ephemeral=True
             )
             return
         async with self.bot.pool.acquire() as conn:
