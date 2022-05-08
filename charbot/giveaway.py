@@ -284,16 +284,17 @@ class GiveawayView(ui.View):
         button : ui.Button
             The button that was pressed.
         """
+        await interaction.response.defer(ephemeral=True)
         if self.message is None:
             self.message = interaction.message
         user = interaction.user
         assert isinstance(user, discord.Member)  # skipcq: BAN-B101
         if not any(role.id == 972886729231044638 for role in user.roles):
             await user.add_roles(discord.Object(id=972886729231044638), reason="Toggled giveaway alerts.")
-            await interaction.response.send_message("You will now receive giveaway alerts.", ephemeral=True)
+            await interaction.followup.send("You will now receive giveaway alerts.")
         else:
             await user.remove_roles(discord.Object(id=972886729231044638), reason="Toggled giveaway alerts.")
-            await interaction.response.send_message("You will no longer receive giveaway alerts.", ephemeral=True)
+            await interaction.followup.send("You will no longer receive giveaway alerts.")
 
 
 class BidModal(ui.Modal, title="Bid"):
