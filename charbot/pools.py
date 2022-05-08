@@ -377,9 +377,21 @@ class Pools(commands.GroupCog, name="pools", description="Reputation pools for c
         await interaction.followup.send(
             f"You have added {amount} rep to {pool} you now have {remaining} rep remaining.", file=image
         )
-        await self.bot.program_logs.send(f"{user.mention} added {amount} rep to {pool} ({after}/{pool_record['cap']}.")
+        clientuser = self.user
+        assert isinstance(clientuser, discord.ClientUser)  # skipcq: BAN-B101
+        await self.bot.program_logs.send(
+            f"{user.mention} added {amount} rep to {pool} ({after}/{pool_record['cap']}).",
+            username=clientuser.name,
+            avatar_url=clientuser.display_avatar.url,
+            allowed_mentions=discord.AllowedMentions(users=False, roles=False, everyone=False),
+        )
         if after == pool_record["cap"]:
-            await self.bot.program_logs.send(f"{pool} has been filled.")
+            await self.bot.program_logs.send(
+                f"{pool} has been filled.",
+                username=clientuser.name,
+                avatar_url=clientuser.display_avatar.url,
+                allowed_mentions=discord.AllowedMentions(users=False, roles=False, everyone=False),
+            )
             image_generator: functools.partial[BytesIO] = functools.partial(
                 self.generate_card,
                 level=pool_record["level"],
@@ -413,7 +425,7 @@ class Pools(commands.GroupCog, name="pools", description="Reputation pools for c
             await interaction.response.send_message(MESSAGE, ephemeral=True)
             return
         await interaction.response.defer(ephemeral=True)
-        async with self.pool.acquire() as conn:
+        async with self.bot.pool.acquire() as conn:
             pool_record = await conn.fetchrow("SELECT * FROM pools WHERE pool = $1", pool)
             if pool is None:
                 await interaction.followup.send("Pool not found. Please choose one from the autocomplete.")
