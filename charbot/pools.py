@@ -274,7 +274,6 @@ class Pools(commands.GroupCog, name="pools", description="Reputation pools for c
         blank.paste(status, (169, 169))
 
         final = Image.alpha_composite(pre, blank)
-        final.show()
         final_bytes = BytesIO()
         final.save(final_bytes, "png")
         final_bytes.seek(0)
