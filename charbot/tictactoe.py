@@ -508,7 +508,7 @@ class TicTacHard(TicTacEasy):
             return Points(participation=2, bonus=3)
         if win_state == 0:
             return Points(participation=0, bonus=0)
-        return Points(participation=2, bonus=0)
+        return Points(participation=2, bonus=1)
 
     def next(self) -> tuple[int, int]:
         """Make a move, and return the cell that was played.
