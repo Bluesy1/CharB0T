@@ -405,6 +405,14 @@ class BidModal(ui.Modal, title="Bid"):
             )
             self.view.top_bid = max(new_bid, self.view.top_bid)
             self.stop()
+            clientuser = self.bot.user
+            assert isinstance(clientuser, discord.ClientUser)  # skipcq: BAN-B101
+            await self.bot.program_logs.send(
+                f"{interaction.user.mention} has bid {new_bid} reputation on {self.view.game}.",
+                allowed_mentions=discord.AllowedMentions(users=False),
+                username=clientuser.name,
+                avatar_url=clientuser.display_avatar.url,
+            )
 
 
 class Giveaway(commands.Cog):
@@ -470,6 +478,8 @@ class Giveaway(commands.Cog):
             The interaction of the command invocation.
         """
         user = interaction.user
+        clientuser = self.bot.user
+        assert isinstance(clientuser, discord.ClientUser)  # skipcq: BAN-B101
         assert isinstance(user, discord.Member)  # skipcq: BAN-B101
         if not any(role.id in ALLOWED_ROLES for role in user.roles) or interaction.channel_id != CHANNEL_ID:
             await interaction.response.send_message(MESSAGE, ephemeral=True)
@@ -488,6 +498,12 @@ class Giveaway(commands.Cog):
                 )
                 await conn.execute("INSERT INTO bids (id, bid) VALUES ($1, 0)", user.id)
                 await interaction.followup.send("You got some Rep today, inmate")
+                await self.bot.program_logs.send(
+                    f"{user.mention} has claimed their daily reputation bonus.",
+                    allowed_mentions=discord.AllowedMentions(users=False),
+                    username=clientuser.name,
+                    avatar_url=clientuser.display_avatar.url,
+                )
             return
         if giveaway_user["daily"] >= __TIME__():
             await interaction.followup.send("No more Rep for you yet, get back to your cell")
@@ -496,6 +512,12 @@ class Giveaway(commands.Cog):
             await conn.execute("UPDATE users SET points = points + 20 WHERE id = $1", user.id)
             await conn.execute("UPDATE daily_points SET last_claim = $1 WHERE id = $2", __TIME__(), user.id)
         await interaction.followup.send("You got some Rep today, inmate")
+        await self.bot.program_logs.send(
+            f"{user.mention} has claimed their daily reputation bonus.",
+            allowed_mentions=discord.AllowedMentions(users=False),
+            username=clientuser.name,
+            avatar_url=clientuser.display_avatar.url,
+        )
 
     @app_commands.command(name="reputation", description="Check your reputation")
     @app_commands.guilds(225345178955808768)
