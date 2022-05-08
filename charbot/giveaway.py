@@ -292,9 +292,15 @@ class GiveawayView(ui.View):
         if not any(role.id == 972886729231044638 for role in user.roles):
             await user.add_roles(discord.Object(id=972886729231044638), reason="Toggled giveaway alerts.")
             await interaction.followup.send("You will now receive giveaway alerts.")
+            await self.bot.program_logs.send(
+                f"Added giveaway alerts to {user.mention}.", allowed_mentions=discord.AllowedMentions(users=False)
+            )
         else:
             await user.remove_roles(discord.Object(id=972886729231044638), reason="Toggled giveaway alerts.")
             await interaction.followup.send("You will no longer receive giveaway alerts.")
+            await self.bot.program_logs.send(
+                f"Removed giveaway alerts from {user.mention}.", allowed_mentions=discord.AllowedMentions(users=False)
+            )
 
 
 class BidModal(ui.Modal, title="Bid"):
