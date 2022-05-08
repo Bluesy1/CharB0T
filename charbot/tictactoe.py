@@ -236,10 +236,10 @@ class TicTacEasy(TicTacABC):
         """
         win_state = self.check_win()
         if win_state == 1:
-            return Points(participation=1, bonus=1)
+            return Points(participation=2, bonus=2)
         if win_state == 0:
-            return Points(participation=1, bonus=0)
-        return Points(participation=1, bonus=1)
+            return Points(participation=0, bonus=0)
+        return Points(participation=2, bonus=0)
 
     # noinspection DuplicatedCode
     def check_win(self) -> int:
