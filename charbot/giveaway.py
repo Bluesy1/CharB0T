@@ -299,7 +299,10 @@ class GiveawayView(ui.View):
                 await user.add_roles(discord.Object(id=972886729231044638), reason="Toggled giveaway alerts.")
                 await interaction.followup.send("You will now receive giveaway alerts.")
                 await self.bot.program_logs.send(
-                    f"Added giveaway alerts to {user.mention}.", allowed_mentions=discord.AllowedMentions(users=False)
+                    f"Added giveaway alerts to {user.mention}.",
+                    username=clientuser.name,
+                    avatar_url=clientuser.display_avatar.url,
+                    allowed_mentions=discord.AllowedMentions(users=False),
                 )
             else:
                 await user.remove_roles(discord.Object(id=972886729231044638), reason="Toggled giveaway alerts.")
