@@ -284,7 +284,7 @@ class GiveawayView(ui.View):
         button : ui.Button
             The button that was pressed.
         """
-        await interaction.response.defer(ephemeral=True)
+        await interaction.response.defer(ephemeral=True, thinking=True)
         if self.message is None:
             self.message = interaction.message
         user = interaction.user
