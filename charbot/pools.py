@@ -233,17 +233,13 @@ class Pools(commands.GroupCog, name="pools", description="Reputation pools for c
         # noinspection PyUnusedLocal
         YELLOW = (255, 234, 167)  # noqa: F841
 
-        def get_str(xp):
-            if xp < 1000:
-                return str(xp)
-            if 1000 <= xp < 1000000:
-                return str(round(xp / 1000, 1)) + "k"
-            if xp > 1000000:
-                return str(round(xp / 1000000, 1)) + "M"
+        get_str = (
+            lambda xp: str(xp) if xp < 1000 else f"{xp / 1000:.1f}k" if xp < 1000000 else f"{xp / 1000000:.1f}M"
+        )  # noqa: F731
 
         draw = ImageDraw.Draw(card)
         draw.text((245, 22), pool_name, DARK, font=font_normal)
-        # draw.text((245, 98), f"Rank #{user_position}", DARK, font=font_small)
+        # draw.text((245, 98), f"Rank #{user_position}", DARK, font=font_small)  # skipcq: PY-W0069
         draw.text((245, 123), f"Pool Level {level}", DARK, font=font_small)
         draw.text(
             (245, 150),
@@ -375,7 +371,7 @@ class Pools(commands.GroupCog, name="pools", description="Reputation pools for c
             image_bytes: BytesIO = await self.bot.loop.run_in_executor(None, image_generator)
             image = discord.File(image_bytes, filename=f"{pool}.png")
             channel = interaction.channel
-            assert isinstance(channel, discord.abc.Messageable)
+            assert isinstance(channel, discord.abc.Messageable)  # skipcq: BAN-B101
             await channel.send(f"{user.mention} has filled {pool}!", file=image)
 
     @app_commands.command(name="query", description="Check the status of an active pool.")
