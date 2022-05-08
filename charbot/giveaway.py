@@ -288,7 +288,9 @@ class GiveawayView(ui.View):
         if self.message is None:
             self.message = interaction.message
         user = interaction.user
+        clientuser = self.bot.user
         assert isinstance(user, discord.Member)  # skipcq: BAN-B101
+        assert isinstance(clientuser, discord.User)  # skipcq: BAN-B101
         if not any(role.id == 972886729231044638 for role in user.roles):
             await user.add_roles(discord.Object(id=972886729231044638), reason="Toggled giveaway alerts.")
             await interaction.followup.send("You will now receive giveaway alerts.")
@@ -299,7 +301,10 @@ class GiveawayView(ui.View):
             await user.remove_roles(discord.Object(id=972886729231044638), reason="Toggled giveaway alerts.")
             await interaction.followup.send("You will no longer receive giveaway alerts.")
             await self.bot.program_logs.send(
-                f"Removed giveaway alerts from {user.mention}.", allowed_mentions=discord.AllowedMentions(users=False)
+                f"Removed giveaway alerts from {user.mention}.",
+                username=clientuser.name,
+                avatar_url=clientuser.display_avatar.url,
+                allowed_mentions=discord.AllowedMentions(users=False),
             )
 
 
