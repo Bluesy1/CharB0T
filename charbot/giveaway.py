@@ -558,7 +558,9 @@ class Giveaway(commands.Cog):
             await interaction.response.send_message("Only Charlie can confirm a winner.", ephemeral=True)
             return
         await self.bot.pool.execute(
-            "INSERT INTO winners (id, expiry) VALUES ($1, $2)", user.id, __TIME__() + datetime.timedelta(days=7)
+            "INSERT INTO winners (id, expiry) VALUES ($1, $2) ON CONFLICT DO UPDATE SET expiry = $2",
+            user.id,
+            __TIME__() + datetime.timedelta(days=6),
         )
         await interaction.response.send_message("Confirmed.", ephemeral=True)
 
@@ -600,7 +602,12 @@ class Giveaway(commands.Cog):
         channel = await self.bot.fetch_channel(int(channel_id))
         assert isinstance(channel, discord.TextChannel)  # skipcq: BAN-B101
         self.current_giveaway = GiveawayView(self.bot, channel, embed, game, url)
-        self.current_giveaway.message = await channel.send(embed=embed, view=self.current_giveaway)
+        self.current_giveaway.message = await channel.send(
+            "<@&972886729231044638>",
+            embed=embed,
+            view=self.current_giveaway,
+            allowed_mentions=discord.AllowedMentions(roles=True),
+        )
 
 
 async def setup(bot: CBot):
