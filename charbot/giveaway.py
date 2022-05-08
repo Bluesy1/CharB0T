@@ -118,6 +118,8 @@ class GiveawayView(ui.View):
         self.bid.label = "Giveaway ended"
         self.check.disabled = True
         self.check.label = "Giveaway ended"
+        self.toggle_alerts.disabled = True
+        self.toggle_alerts.label = "Giveaway ended"
         self.embed.set_footer(text="Giveaway ended")
         self.embed.timestamp = utcnow()
         self.embed.clear_fields()
@@ -269,6 +271,29 @@ class GiveawayView(ui.View):
         await interaction.response.send_message(
             f"You have bid {bid} entries, giving you a {chance:.2f}% chance of winning!", ephemeral=True
         )
+
+    # noinspection PyUnusedLocal
+    @ui.button(label="Toggle Giveaway Alerts", style=discord.ButtonStyle.danger)
+    async def toggle_alerts(self, interaction: discord.Interaction, button: ui.Button) -> None:  # skipcq: PYL-W0613
+        """Toggle the giveaway alerts.
+
+        Parameters
+        ----------
+        interaction : discord.Interaction
+            The interaction object.
+        button : ui.Button
+            The button that was pressed.
+        """
+        if self.message is None:
+            self.message = interaction.message
+        user = interaction.user
+        assert isinstance(user, discord.Member)  # skipcq: BAN-B101
+        if not any(role.id == 972886729231044638 for role in user.roles):
+            await user.add_roles(discord.Object(id=972886729231044638), reason="Toggled giveaway alerts.")
+            await interaction.response.send_message("You will now receive giveaway alerts.", ephemeral=True)
+        else:
+            await user.remove_roles(discord.Object(id=972886729231044638), reason="Toggled giveaway alerts.")
+            await interaction.response.send_message("You will no longer receive giveaway alerts.", ephemeral=True)
 
 
 class BidModal(ui.Modal, title="Bid"):
