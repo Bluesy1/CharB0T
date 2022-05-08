@@ -326,7 +326,7 @@ class Pools(commands.GroupCog, name="pools", description="Reputation pools for c
             await interaction.response.send_message(MESSAGE, ephemeral=True)
             return
         await interaction.response.defer(ephemeral=True)
-        async with self.pool.acquire() as conn:
+        async with self.bot.pool.acquire() as conn:
             pool_record = await conn.fetchrow("SELECT * FROM pools WHERE pool = $1", pool)
             if pool is None:
                 await interaction.followup.send("Pool not found. Please choose one from the autocomplete.")
