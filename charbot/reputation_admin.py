@@ -545,8 +545,9 @@ class ReputationAdmin(
                 await interaction.followup.send(
                     f"Pool `{pool}`: {_pool['level']} level pool with {_pool['start']} base rep, {_pool['current']}"
                     f" current rep, {_pool['cap']} completed rep, and {_pool['reward']} reward. "
-                    f"and allowed for roles: <@{'>, <@&'.join(str(role) for role in _pool['required_roles'])}>",
+                    f"and allowed for roles: <@&{'>, <@&'.join(str(role) for role in _pool['required_roles'])}>",
                     file=image,
+                    allowed_mentions=_ALLOWED_MENTIONS,
                 )
 
     @reputation.command(name="add", description="Adds reputation to a user.")
