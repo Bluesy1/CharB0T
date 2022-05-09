@@ -25,14 +25,13 @@
 """Admin commands for the reputation system."""
 from functools import partial
 from io import BytesIO
-from typing import Callable, Literal
+from typing import Callable, Literal, Optional
 
 import asyncpg
 import discord
 from card import generate_card
 from discord import Interaction, app_commands
 from discord.ext import commands
-from discord.utils import MISSING
 
 from main import CBot
 
@@ -167,24 +166,24 @@ class ReputationAdmin(
         level: app_commands.Range[int, 1] = 1,
         current: app_commands.Range[int, 0] = 0,
         start: app_commands.Range[int, 0] = 0,
-        role1: discord.Role = MISSING,
-        role2: discord.Role = MISSING,
-        role3: discord.Role = MISSING,
-        role4: discord.Role = MISSING,
-        role5: discord.Role = MISSING,
-        role6: discord.Role = MISSING,
-        role7: discord.Role = MISSING,
-        role8: discord.Role = MISSING,
-        role9: discord.Role = MISSING,
-        role10: discord.Role = MISSING,
-        role11: discord.Role = MISSING,
-        role12: discord.Role = MISSING,
-        role13: discord.Role = MISSING,
-        role14: discord.Role = MISSING,
-        role15: discord.Role = MISSING,
-        role16: discord.Role = MISSING,
-        role17: discord.Role = MISSING,
-        role18: discord.Role = MISSING,
+        role1: Optional[discord.Role] = None,
+        role2: Optional[discord.Role] = None,
+        role3: Optional[discord.Role] = None,
+        role4: Optional[discord.Role] = None,
+        role5: Optional[discord.Role] = None,
+        role6: Optional[discord.Role] = None,
+        role7: Optional[discord.Role] = None,
+        role8: Optional[discord.Role] = None,
+        role9: Optional[discord.Role] = None,
+        role10: Optional[discord.Role] = None,
+        role11: Optional[discord.Role] = None,
+        role12: Optional[discord.Role] = None,
+        role13: Optional[discord.Role] = None,
+        role14: Optional[discord.Role] = None,
+        role15: Optional[discord.Role] = None,
+        role16: Optional[discord.Role] = None,
+        role17: Optional[discord.Role] = None,
+        role18: Optional[discord.Role] = None,
     ):
         """Create a new reputation pool.
 
@@ -262,42 +261,42 @@ class ReputationAdmin(
             await interaction.response.defer(ephemeral=True)
             roles = [role.id]
             # noinspection DuplicatedCode
-            if role1 is not MISSING and role1.id not in roles:
+            if role1 is not None and role1.id not in roles:
                 roles.append(role1.id)
-            if role2 is not MISSING and role2.id not in roles:
+            if role2 is not None and role2.id not in roles:
                 roles.append(role2.id)
-            if role3 is not MISSING and role3.id not in roles:
+            if role3 is not None and role3.id not in roles:
                 roles.append(role3.id)
-            if role4 is not MISSING and role4.id not in roles:
+            if role4 is not None and role4.id not in roles:
                 roles.append(role4.id)
-            if role5 is not MISSING and role5.id not in roles:
+            if role5 is not None and role5.id not in roles:
                 roles.append(role5.id)
-            if role6 is not MISSING and role6.id not in roles:
+            if role6 is not None and role6.id not in roles:
                 roles.append(role6.id)
-            if role7 is not MISSING and role7.id not in roles:
+            if role7 is not None and role7.id not in roles:
                 roles.append(role7.id)
-            if role8 is not MISSING and role8.id not in roles:
+            if role8 is not None and role8.id not in roles:
                 roles.append(role8.id)
-            if role9 is not MISSING and role9.id not in roles:
+            if role9 is not None and role9.id not in roles:
                 roles.append(role9.id)
             # noinspection DuplicatedCode
-            if role10 is not MISSING and role10.id not in roles:
+            if role10 is not None and role10.id not in roles:
                 roles.append(role10.id)
-            if role11 is not MISSING and role11.id not in roles:
+            if role11 is not None and role11.id not in roles:
                 roles.append(role11.id)
-            if role12 is not MISSING and role12.id not in roles:
+            if role12 is not None and role12.id not in roles:
                 roles.append(role12.id)
-            if role13 is not MISSING and role13.id not in roles:
+            if role13 is not None and role13.id not in roles:
                 roles.append(role13.id)
-            if role14 is not MISSING and role14.id not in roles:
+            if role14 is not None and role14.id not in roles:
                 roles.append(role14.id)
-            if role15 is not MISSING and role15.id not in roles:
+            if role15 is not None and role15.id not in roles:
                 roles.append(role15.id)
-            if role16 is not MISSING and role16.id not in roles:
+            if role16 is not None and role16.id not in roles:
                 roles.append(role16.id)
-            if role17 is not MISSING and role17.id not in roles:
+            if role17 is not None and role17.id not in roles:
                 roles.append(role17.id)
-            if role18 is not MISSING and role18.id not in roles:
+            if role18 is not None and role18.id not in roles:
                 roles.append(role18.id)
             await conn.execute(
                 "INSERT INTO pools (pool, cap, reward, required_roles, level, current, start)"
@@ -330,9 +329,9 @@ class ReputationAdmin(
         self,
         interaction: Interaction,
         pool: str,
-        name: str = MISSING,
+        name: Optional[str] = None,
         capacity: app_commands.Range[int, 0] = 0,
-        reward: str = MISSING,
+        reward: Optional[str] = None,
         level: app_commands.Range[int, 1] = 1,
         current: app_commands.Range[int, 0] = 0,
         start: app_commands.Range[int, 0] = 0,
@@ -363,10 +362,10 @@ class ReputationAdmin(
                 "Error: Current and start must be greater than 0 if level is 1.", ephemeral=True
             )
             return
-        if name is not MISSING and len(name) > 32:
+        if name is not None and len(name) > 32:
             await interaction.response.send_message("Error: Name must be 32 characters or less.", ephemeral=True)
             return
-        if reward is not MISSING and len(reward) > 100:
+        if reward is not None and len(reward) > 100:
             await interaction.response.send_message("Error: Reward must be 100 characters or less.", ephemeral=True)
             return
         await interaction.response.defer(ephemeral=True)
@@ -377,11 +376,11 @@ class ReputationAdmin(
                     f"Error: Pool `{pool}` not found. Use the autocomplete feature to find the pool."
                 )
             else:
-                if name is not MISSING:
+                if name is not None:
                     await conn.execute("UPDATE pools SET pool = $1 WHERE pool = $2", name, pool)
                 if capacity != 0:
                     await conn.execute("UPDATE pools SET cap = $1 WHERE pool = $2", capacity, pool)
-                if reward is not MISSING:
+                if reward is not None:
                     await conn.execute("UPDATE pools SET reward = $1 WHERE pool = $2", reward, pool)
                 if level != 1:
                     await conn.execute("UPDATE pools SET level = $1 WHERE pool = $2", level, pool)
@@ -403,12 +402,12 @@ class ReputationAdmin(
                 image_bytes = await self.bot.loop.run_in_executor(None, _partial_image)
                 image = discord.File(image_bytes, f"{_pool['pool']}.png")
                 await interaction.followup.send(
-                    f"Pool {_pool['pool']}{f' (formerly {pool})' if name is not MISSING else ''} edited!", file=image
+                    f"Pool {_pool['pool']}{f' (formerly {pool})' if name is not None else ''} edited!", file=image
                 )
                 clientuser = self.bot.user
                 assert isinstance(clientuser, discord.ClientUser)  # skipcq: BAN-B101
                 await self.bot.program_logs.send(
-                    f"Pool {_pool['pool']}{f' (formerly {pool})' if name is not MISSING else ''}"
+                    f"Pool {_pool['pool']}{f' (formerly {pool})' if name is not None else ''}"
                     f" edited by {interaction.user.mention}.",
                     allowed_mentions=_ALLOWED_MENTIONS,
                     username=clientuser.name,
