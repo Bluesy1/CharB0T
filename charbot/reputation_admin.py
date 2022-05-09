@@ -402,7 +402,7 @@ class ReputationAdmin(
                 if start != 0:
                     await conn.execute("UPDATE pools SET start = $1 WHERE pool = $2", start, pool)
 
-                _pool = await conn.fetchrow("SELECT * FROM pools WHERE pool = $1", name)
+                _pool = await conn.fetchrow("SELECT * FROM pools WHERE pool = $1", name or pool)
                 assert isinstance(_pool, asyncpg.Record)  # skipcq: BAN-B101
                 _partial_image: Callable[[], BytesIO] = partial(
                     generate_card,
