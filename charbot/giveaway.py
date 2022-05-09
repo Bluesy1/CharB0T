@@ -558,7 +558,7 @@ class Giveaway(commands.Cog):
             await interaction.response.send_message("Only Charlie can confirm a winner.", ephemeral=True)
             return
         await self.bot.pool.execute(
-            "INSERT INTO winners (id, expiry) VALUES ($1, $2) ON CONFLICT DO UPDATE SET expiry = $2",
+            "INSERT INTO winners (id, expiry) VALUES ($1, $2) ON CONFLICT (id) DO UPDATE SET expiry = $2",
             user.id,
             __TIME__() + datetime.timedelta(days=6),
         )
