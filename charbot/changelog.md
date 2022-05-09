@@ -6,7 +6,7 @@ Notes:
 
  - Text that looks like `this` is normally a link to the relevant file.
 
-Important changes as of this commit:
+Important changes as of commit [`975c554d`](https://github.com/Bluesy1/CharB0T/commit/975c554d52ecabb299ea66e7f8fba5f0fbd16cae):
 -----------------------------------------------------
 
  - Added a dynamic [`calendar`](/charbot/gcal.py) that links to Charlie's Google calendar.
