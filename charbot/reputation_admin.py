@@ -246,7 +246,7 @@ class ReputationAdmin(
         role19 : discord.Role
             [OPTIONAL] Additional slot for a role to whitelist to participate in the pool.
         """
-        if level != 1 and (current == 0 or start == 0):
+        if level != 1 and 0 in (current, start):
             await interaction.response.send_message(
                 "Error: Level is not 1, but current and start are not set.", ephemeral=True
             )
