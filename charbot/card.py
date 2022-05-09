@@ -41,6 +41,7 @@ def generate_card(
     completed_rep: int = 100,
     pool_name: str = "Unknown",
     pool_status: Literal["online", "offline", "idle", "streaming", "dnd"] = "offline",
+    reward: str = "Unknown",
 ):
     """Generate a card.
 
@@ -64,6 +65,8 @@ def generate_card(
         The name of the pool. Defaults to "Unknown".
     pool_status: Literal['online', 'offline', 'idle', 'streaming', 'dnd'] = "offline"
         The discord status color to roughtly indicate the status of the pool. Defaults to "offline" (grey).
+    reward: str = "Unknown"
+        The reward of the pool. Defaults to "Unknown".
 
     Returns
     -------
@@ -146,8 +149,8 @@ def generate_card(
 
     draw = ImageDraw.Draw(card)
     draw.text((245, 22), pool_name, DARK, font=font_normal)
-    # draw.text((245, 98), f"Rank #{user_position}", DARK, font=font_small)  # skipcq: PY-W0069
-    draw.text((245, 123), f"Pool Level {level}", DARK, font=font_small)
+    draw.text((245, 98), f"Pool Level {level}", DARK, font=font_small)
+    draw.text((245, 123), reward, DARK, font=font_small)
     draw.text(
         (245, 150),
         f"Rep {get_str(current_rep)}/{get_str(completed_rep)}",

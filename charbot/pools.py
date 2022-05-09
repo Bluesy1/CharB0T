@@ -29,10 +29,10 @@ from typing import Callable, Final, Literal
 
 import asyncpg
 import discord
-from card import generate_card
 from discord import Interaction, app_commands
 from discord.ext import commands
 
+from card import generate_card
 from main import CBot
 
 
@@ -170,6 +170,7 @@ class Pools(commands.GroupCog, name="pools", description="Reputation pools for c
             completed_rep=pool_record["cap"],
             pool_name=pool,
             pool_status=status,
+            reward=pool_record["reward"],
         )
         image_bytes = await self.bot.loop.run_in_executor(None, image_generator)
         image = discord.File(image_bytes, filename=f"{pool}.png")
@@ -199,6 +200,7 @@ class Pools(commands.GroupCog, name="pools", description="Reputation pools for c
                 completed_rep=pool_record["cap"],
                 pool_name=f"[COMPLETED] {pool}",
                 pool_status=status,
+                reward=pool_record["reward"],
             )
             image_bytes = await self.bot.loop.run_in_executor(None, image_generator)
             image = discord.File(image_bytes, filename=f"{pool}.png")
@@ -251,6 +253,7 @@ class Pools(commands.GroupCog, name="pools", description="Reputation pools for c
             completed_rep=pool_record["cap"],
             pool_name=pool,
             pool_status=status,
+            reward=pool_record["reward"],
         )
         image_bytes = await self.bot.loop.run_in_executor(None, image_generator)
         await interaction.followup.send(file=discord.File(image_bytes, filename=f"{pool}.png"))

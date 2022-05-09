@@ -29,10 +29,10 @@ from typing import Callable, Literal, Optional
 
 import asyncpg
 import discord
-from card import generate_card
 from discord import Interaction, app_commands
 from discord.ext import commands
 
+from card import generate_card
 from main import CBot
 
 
@@ -310,7 +310,13 @@ class ReputationAdmin(
                 start,
             )
             _partial_image: Callable[[], BytesIO] = partial(
-                generate_card, level=level, base_rep=start, current_rep=current, completed_rep=capacity, pool_name=name
+                generate_card,
+                level=level,
+                base_rep=start,
+                current_rep=current,
+                completed_rep=capacity,
+                pool_name=name,
+                reward=reward,
             )
             image_bytes = await self.bot.loop.run_in_executor(None, _partial_image)
             image = discord.File(image_bytes, f"{name}.png")
@@ -398,6 +404,7 @@ class ReputationAdmin(
                     current_rep=_pool["current"],
                     completed_rep=_pool["cap"],
                     pool_name=_pool["pool"],
+                    reward=_pool["reward"],
                 )
                 image_bytes = await self.bot.loop.run_in_executor(None, _partial_image)
                 image = discord.File(image_bytes, f"{_pool['pool']}.png")
@@ -539,6 +546,7 @@ class ReputationAdmin(
                     completed_rep=_pool["cap"],
                     pool_name=pool,
                     pool_status=status,
+                    reward=_pool["reward"],
                 )
                 image_bytes = await self.bot.loop.run_in_executor(None, _partial_image)
                 image = discord.File(image_bytes, f"{_pool['pool']}.png")
