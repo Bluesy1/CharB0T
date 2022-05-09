@@ -26,4 +26,5 @@ Monday, May 9th 2022
 -------------------
 
  - Added [`administration`](/charbot/reputation_admin.py) commands for the pools and reputation system.
- - Updates [`giveaway`](/charbot/giveaway.py) system to reload games list csv every day instead of every time the cog is loaded.
+ - Updated [`giveaway`](/charbot/giveaway.py) system to reload games list csv every day instead of every time the cog is loaded.
+ - Updated images for [`pools`](/charbot/media/pools).
