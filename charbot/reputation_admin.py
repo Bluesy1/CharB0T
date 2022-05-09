@@ -196,7 +196,7 @@ class ReputationAdmin(
         capacity : int
             How many reputation points the pool can hold.
         reward : str
-            The reward for completing the pool. Max 100 characters.
+            The reward for completing the pool. Max 65 characters.
         role : discord.Role
             A role to whitelist to participate in the pool. role1 to 19 allow additional roles to participate.
         level : app_commands.Range[int, 1]
@@ -250,8 +250,8 @@ class ReputationAdmin(
         if len(name) > 32:
             await interaction.response.send_message("Error: Name must be 32 characters or less.", ephemeral=True)
             return
-        if len(reward) > 100:
-            await interaction.response.send_message("Error: Reward must be 100 characters or less.", ephemeral=True)
+        if len(reward) > 65:
+            await interaction.response.send_message("Error: Reward must be 65 characters or less.", ephemeral=True)
             return
         async with self.bot.pool.acquire() as conn, conn.transaction():
             _pool = await conn.fetchrow("SELECT * FROM pools WHERE pool = $1", name)
@@ -355,7 +355,7 @@ class ReputationAdmin(
         capacity : int
             The new capacity of the pool.
         reward : str
-            The new reward of the pool. mMst be 100 characters or fewer.
+            The new reward of the pool. mMst be 65 characters or fewer.
         level : int
             The new level of the pool. Must be at least 1.
         current : int
@@ -371,8 +371,8 @@ class ReputationAdmin(
         if name is not None and len(name) > 32:
             await interaction.response.send_message("Error: Name must be 32 characters or less.", ephemeral=True)
             return
-        if reward is not None and len(reward) > 100:
-            await interaction.response.send_message("Error: Reward must be 100 characters or less.", ephemeral=True)
+        if reward is not None and len(reward) > 65:
+            await interaction.response.send_message("Error: Reward must be 65 characters or less.", ephemeral=True)
             return
         await interaction.response.defer(ephemeral=True)
         async with self.bot.pool.acquire() as conn, conn.transaction():
