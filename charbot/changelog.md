@@ -28,3 +28,6 @@ Monday, May 9th 2022
  - Added [`administration`](/charbot/reputation_admin.py) commands for the pools and reputation system.
  - Updated [`giveaway`](/charbot/giveaway.py) system to reload games list csv every day instead of every time the cog is loaded.
  - Updated images for [`pools`](/charbot/media/pools).
+ - Updated masking for [`cards`](/charbot/card.py) to better suit the new images.
+ - Change title [`font`](/charbot/media/pools/font2.ttf) to [`batman`](https://freefontsvault.com/batman-font-free-download/#more-7850).
+ - Change text [`color`](/charbot/card.py) to white.

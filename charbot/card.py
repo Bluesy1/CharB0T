@@ -131,14 +131,13 @@ def generate_card(
     # Editing stuff here
 
     # ======== Fonts to use =============
-    font_normal = ImageFont.truetype(font1, 36)
+    font_normal = ImageFont.truetype(font2, 36)
     font_small = ImageFont.truetype(font1, 20)
     # noinspection PyUnusedLocal
     font_signa = ImageFont.truetype(font2, 25)  # noqa: F841
 
     # ======== Colors ========================
-    # noinspection PyUnusedLocal
-    WHITE = (189, 195, 199)  # noqa: F841
+    WHITE = (255, 255, 255)
     DARK = (252, 179, 63)
     # noinspection PyUnusedLocal
     YELLOW = (255, 234, 167)  # noqa: F841
@@ -148,13 +147,13 @@ def generate_card(
     )  # noqa: F731
 
     draw = ImageDraw.Draw(card)
-    draw.text((245, 22), pool_name, DARK, font=font_normal)
-    draw.text((245, 98), f"Pool Level {level}", DARK, font=font_small)
-    draw.text((245, 123), reward, DARK, font=font_small)
+    draw.text((245, 22), pool_name, WHITE, font=font_normal)
+    draw.text((245, 98), f"Pool Level {level}", WHITE, font=font_small)
+    draw.text((245, 123), reward, WHITE, font=font_small)
     draw.text(
         (245, 150),
         f"Rep {get_str(current_rep)}/{get_str(completed_rep)}",
-        DARK,
+        WHITE,
         font=font_small,
     )
 
@@ -184,7 +183,20 @@ def generate_card(
     blank.paste(status, (169, 169))
 
     final = Image.alpha_composite(pre, blank)
+    if __name__ == "__main__":
+        final.show()
     final_bytes = BytesIO()
     final.save(final_bytes, "png")
     final_bytes.seek(0)
     return final_bytes
+
+
+if __name__ == "__main__":
+    generate_card(
+        level=1,
+        current_rep=0,
+        completed_rep=100,
+        pool_name="Lorem ipsum",
+        pool_status="online",
+        reward="dolor sit amet, consectetur adipiscing elit, sed",
+    )
