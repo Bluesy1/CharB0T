@@ -380,8 +380,8 @@ class ReputationAdmin(
             if name is not None:
                 pool_ = await conn.fetchrow("SELECT * FROM pools WHERE pool = $1", name)
                 if pool_ is not None:
-                    await interaction.response.send_message(
-                        f"Error: Pool {name} already exists, cannot rename {pool} to that, try again.", ephemeral=True
+                    await interaction.followup.send(
+                        f"Error: Pool {name} already exists, cannot rename {pool} to that, try again."
                     )
                     return
             if _pool is None:
