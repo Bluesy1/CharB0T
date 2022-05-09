@@ -78,20 +78,8 @@ class Pools(commands.GroupCog, name="pools", description="Reputation pools for c
         self.bot = bot
 
         @self.add.autocomplete("pool")
-        async def add_pool_autocomplete(interaction: Interaction, current: str) -> list[app_commands.Choice[str]]:
-            """Autocomplete a pool name.
-
-            Parameters
-            ----------
-            interaction : Interaction
-                The interaction object.
-            current : str
-                The current string.
-            """
-            return await self.pool_autocomplete(interaction, current)
-
         @self.query.autocomplete("pool")
-        async def query_pool_autocomplete(interaction: Interaction, current: str) -> list[app_commands.Choice[str]]:
+        async def _pool_autocomplete(interaction: Interaction, current: str) -> list[app_commands.Choice[str]]:
             """Autocomplete a pool name.
 
             Parameters
