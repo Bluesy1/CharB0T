@@ -92,6 +92,17 @@ class Query(Cog):
         await ctx.send("Charlie's time is: " + time.strftime("%X %x %Z"), reference=ctx.message)
 
     @commands.command()
+    async def changelog(self, ctx: Context):
+        """Return the changelog.
+
+        Parameters
+        ----------
+        ctx : Context
+            The context of the command.
+        """
+        await ctx.reply("Here's the changelog: https://github.com/Bluesy1/CharB0T/blob/main/charbot/changelog.md")
+
+    @commands.command()
     @commands.cooldown(1, 60, commands.BucketType.channel)
     async def objection(self, ctx: Context):
         """Return the objection.
