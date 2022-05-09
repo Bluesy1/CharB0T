@@ -1,5 +1,5 @@
 ## CharB0T Changelog
-Base version: commit [`3b956f5`](https://github.com/Bluesy1/CharB0T/commit/3b956f5dcde987f760791fb8c444fbc9b0c22d68)
+Base version: commit [`975c554d`](https://github.com/Bluesy1/CharB0T/commit/975c554d52ecabb299ea66e7f8fba5f0fbd16cae)
 
 Notes:
 ------
