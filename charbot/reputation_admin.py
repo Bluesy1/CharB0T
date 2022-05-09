@@ -101,6 +101,16 @@ class TextChannelOnly(app_commands.Transformer):
 class ReputationAdmin(
     commands.GroupCog, name="administration", description="Administration commands for the reputation system."
 ):
+    """Reputation Admin Commands.
+
+    These commands are used to manage the reputation system.
+
+    Parameters
+    ----------
+    bot : CBot
+        The bot object.
+    """
+
     def __init__(self, bot: CBot):
         self.bot = bot
         self.ctx_menu = app_commands.ContextMenu(
