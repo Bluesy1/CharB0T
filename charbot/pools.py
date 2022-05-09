@@ -79,7 +79,7 @@ class Pools(commands.GroupCog, name="pools", description="Reputation pools for c
 
         @self.add.autocomplete("pool")
         @self.query.autocomplete("pool")
-        async def _pool_autocomplete(interaction: Interaction, current: str) -> list[app_commands.Choice[str]]:
+        async def pool_autocomplete(interaction: Interaction, current: str) -> list[app_commands.Choice[str]]:
             """Autocomplete a pool name.
 
             Parameters
@@ -88,32 +88,20 @@ class Pools(commands.GroupCog, name="pools", description="Reputation pools for c
                 The interaction object.
             current : str
                 The current string.
+
+            Returns
+            -------
+            list[app_commands.Choice[str]]
+                The list of choices.
             """
-            return await self.pool_autocomplete(interaction, current)
-
-    async def pool_autocomplete(self, interaction: Interaction, current: str) -> list[app_commands.Choice[str]]:
-        """Autocomplete a pool name.
-
-        Parameters
-        ----------
-        interaction : Interaction
-            The interaction object.
-        current : str
-            The current string.
-
-        Returns
-        -------
-        list[app_commands.Choice[str]]
-            The list of choices.
-        """
-        member = interaction.user
-        assert isinstance(member, discord.Member)  # skipcq: BAN-B101
-        return [
-            app_commands.Choice(name=pool["pool"], value=pool["pool"])
-            for pool in await self.bot.pool.fetch("SELECT pool, required_roles FROM pools")
-            if current.lower() in pool["pool"].lower()
-            and any(role.id in pool["required_roles"] for role in member.roles)
-        ]
+            member = interaction.user
+            assert isinstance(member, discord.Member)  # skipcq: BAN-B101
+            return [
+                app_commands.Choice(name=pool["pool"], value=pool["pool"])
+                for pool in await self.bot.pool.fetch("SELECT pool, required_roles FROM pools")
+                if current.lower() in pool["pool"].lower()
+                and any(role.id in pool["required_roles"] for role in member.roles)
+            ]
 
     @app_commands.command(name="add", description="Add reputation to an active pool.")
     @app_commands.describe(pool="The pool to add to.", amount="The amount to add.")

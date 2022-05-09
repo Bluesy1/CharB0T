@@ -16,8 +16,14 @@ Important changes as of commit [`975c554d`](https://github.com/Bluesy1/CharB0T/c
  - Added a giveaway system, [`giveaway`](/charbot/giveaway.py).
  - Added initial code for a [`pool`](/charbot/pools.py) system.
  - Added media for the pool system, [`pools`](/charbot/media/pools).
- - Added medial for [`tictactoe`](/charbot/media/tictactoe).
+ - Added media for [`tictactoe`](/charbot/media/tictactoe).
  - Added a mod support system, [`mod`](/charbot/mod_support.py).
  - Fixed a possible [`race condition`](https://en.wikipedia.org/wiki/Race_condition) that could cause undesireable behavior in bidding in [`giveaways`](/charbot/giveaway.py).
  - Added a command that links to this [`changelog`](/charbot/query.py#L95)
  - Added this changelog.
+
+Monday, May 9th 2022
+-------------------
+
+ - Added [`administration`](/charbot/reputation_admin.py) commands for the pools and reputation system.
+ - Updates [`giveaway`](/charbot/giveaway.py) system to reload games list csv every day instead of every time the cog is loaded.

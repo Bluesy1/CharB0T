@@ -572,6 +572,7 @@ class Giveaway(commands.Cog):
             await self.yesterdays_giveaway.end()
         if not isinstance(self.charlie, discord.Member):
             self.charlie = await (await self.bot.fetch_guild(225345178955808768)).fetch_member(225344348903047168)
+        self.games = self.load_game_csv()
         try:
             gameinfo: dict[str, str] = dict(self.games.loc[__TIME__().strftime("%-m/%-d/%Y")])
         except KeyError:
