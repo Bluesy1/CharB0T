@@ -185,7 +185,6 @@ class ReputationAdmin(
         role16: discord.Role = MISSING,
         role17: discord.Role = MISSING,
         role18: discord.Role = MISSING,
-        role19: discord.Role = MISSING,
     ):
         """Create a new reputation pool.
 
@@ -242,8 +241,6 @@ class ReputationAdmin(
         role17 : discord.Role
             [OPTIONAL] Additional slot for a role to whitelist to participate in the pool.
         role18 : discord.Role
-            [OPTIONAL] Additional slot for a role to whitelist to participate in the pool.
-        role19 : discord.Role
             [OPTIONAL] Additional slot for a role to whitelist to participate in the pool.
         """
         if level != 1 and 0 in (current, start):
@@ -302,8 +299,6 @@ class ReputationAdmin(
                 roles.append(role17.id)
             if role18 is not MISSING and role18.id not in roles:
                 roles.append(role18.id)
-            if role19 is not MISSING and role19.id not in roles:
-                roles.append(role19.id)
             await conn.execute(
                 "INSERT INTO pools (pool, cap, reward, required_roles, level, current, start)"
                 " VALUES ($1, $2, $3, $4, $5, $6, $7)",
