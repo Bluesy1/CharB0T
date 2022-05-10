@@ -27,7 +27,7 @@ import datetime as _datetime
 import os
 from calendar import timegm
 from datetime import datetime, time, timedelta
-from typing import Optional
+from typing import NamedTuple, Optional
 from zoneinfo import ZoneInfo
 
 import aiohttp
@@ -44,6 +44,14 @@ load_dotenv()
 ytLink = "https://www.youtube.com/charliepryor/live"
 chartime = ZoneInfo("US/Michigan")
 time_format = "%H:%M %x %Z"
+
+
+class EmbedField(NamedTuple):
+    """A named tuple for an embed field."""
+
+    name: str
+    value: str
+    inline: bool
 
 
 def getUrl(mintime: datetime, maxtime: datetime):
@@ -100,12 +108,12 @@ def ceil_dt(dt: datetime, delta: timedelta) -> datetime:
     return dt + (datetime(_datetime.MINYEAR, 1, 1, tzinfo=timezone("UTC")) - dt) % delta
 
 
-def default_field(dictionary: dict[int, dict[str, str | bool]], add_time: datetime, item: dict) -> None:
+def default_field(dictionary: dict[int, EmbedField], add_time: datetime, item: dict) -> None:
     """Add the default dict field for a specific time.
 
     Parameters
     ----------
-    dictionary : dict[int, dict[str, str | bool]]
+    dictionary : dict[int, EmbedField]
         The dictionary to add the field to.
     add_time : datetime
         The time to add the field to.
@@ -114,17 +122,16 @@ def default_field(dictionary: dict[int, dict[str, str | bool]], add_time: dateti
     """
     dictionary.update(
         {
-            timegm(add_time.utctimetuple()): {
-                "value": f"{format_dt(add_time, 'F')}\n"
-                f"[({add_time.astimezone(chartime).strftime(time_format)})]({ytLink})",
-                "name": item["summary"],
-                "inline": True,
-            }
+            timegm(add_time.utctimetuple()): EmbedField(
+                item["summary"],
+                f"{format_dt(add_time, 'F')}\n" f"[({add_time.astimezone(chartime).strftime(time_format)})]({ytLink})",
+                True,
+            )
         }
     )
 
 
-def calendar_embed(fields: dict[int, dict[str, str | bool]], next_event: datetime) -> discord.Embed:
+def calendar_embed(fields: dict[int, EmbedField], next_event: datetime | None) -> discord.Embed:
     """Create an embed for the calendar.
 
     Parameters
@@ -156,15 +163,15 @@ def calendar_embed(fields: dict[int, dict[str, str | bool]], next_event: datetim
         f" [Twitch](https://www.twitch.tv/charliepryor)\n Next stream: "
         f"{format_dt(next_event, 'R') if next_event else 'No streams scheduled'}",
     )
-    for field in list(fields.values()):  # type: dict[str, str | bool]
-        embed.add_field(name=field["name"], value=field["value"], inline=field["inline"])
+    for field in list(fields.values()):  # type: EmbedField
+        embed.add_field(name=field.name, value=field.value, inline=field.inline)
 
     embed.set_author(
         name="Charlie",
         icon_url="https://cdn.discordapp.com/avatars/225344348903047168/"
         "c093900592dfcd9b9e5c711f4e1c627d.webp?size=160",
     )
-    embed.set_footer(text="Last Updated")
+    return embed.set_footer(text="Last Updated")
 
 
 # noinspection GrazieInspection
@@ -236,7 +243,7 @@ class Calendar(commands.Cog):
         maxdatetime = datetime.now(tz=timezone("US/Eastern")) + timedelta(weeks=1)
         async with aiohttp.ClientSession() as session, session.get(getUrl(mindatetime, maxdatetime)) as response:
             items = await response.json()
-        fields = {}
+        fields: dict[int, EmbedField] = {}
         cancelled_times = []
         times: set[datetime] = set()
         for item in items["items"]:
@@ -262,13 +269,12 @@ class Calendar(commands.Cog):
             elif url(item["description"]):
                 fields.update(
                     {
-                        timegm(sub_time.utctimetuple()): {
-                            "name": f"{item['summary']}",
-                            "value": f"{format_dt(sub_time, 'F')}\n"
-                            f"[({sub_time.astimezone(chartime).strftime(time_format)})"
+                        timegm(sub_time.utctimetuple()): EmbedField(
+                            f"{item['summary']}",
+                            f"{format_dt(sub_time, 'F')}\n[({sub_time.astimezone(chartime).strftime(time_format)})"
                             f"]({item['description']})",
-                            "inline": True,
-                        }
+                            True,
+                        )
                     }
                 )
             else:
