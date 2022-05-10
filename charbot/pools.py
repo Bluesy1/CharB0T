@@ -36,7 +36,7 @@ from card import generate_card
 from main import CBot
 
 
-CHANNEL_ID: Final[int] = 687817008355737606
+CHANNEL_ID: Final[int] = 969972085445238784
 
 MESSAGE: Final = "You must be in <#969972085445238784> to participate in the pools system."
 
