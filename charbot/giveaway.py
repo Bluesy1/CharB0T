@@ -187,7 +187,7 @@ class GiveawayView(ui.View):
                 await conn.executemany("UPDATE users SET points = points + $1 WHERE id = $2", return_bids)
         return bidders
 
-    def _draw_winner(self, bidders: list[asyncpg.Record]) -> tuple[list[discord.Member], float]:
+    async def _draw_winner(self, bidders: list[asyncpg.Record]) -> tuple[list[discord.Member], float]:
         """Draw the winner.
 
         Parameters
@@ -230,7 +230,7 @@ class GiveawayView(ui.View):
         bidders = await self._get_bidders()
         self.top_bid = max(bid["bid"] for bid in bidders)
         self.total_entries = sum(bid["bid"] for bid in bidders)
-        winners, avg_bid = self._draw_winner(bidders)
+        winners, avg_bid = await self._draw_winner(bidders)
         if winners:
             winner = winners[0]
             winning_bid = await self.bot.pool.fetchval("SELECT bid FROM bids WHERE id = $1", winner.id)
