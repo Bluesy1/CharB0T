@@ -31,3 +31,8 @@ Monday, May 9th 2022
  - Updated masking for [`cards`](/charbot/card.py) to better suit the new images.
  - Change title [`font`](/charbot/media/pools/font2.ttf) to [`batman`](https://freefontsvault.com/batman-font-free-download/#more-7850).
  - Change text [`color`](/charbot/card.py) to white.
+
+Tuesday, May 10th 2022
+---------------------
+
+ - Made the [`pool`](/charbot/pools.py) system user commands public.

@@ -36,22 +36,11 @@ from card import generate_card
 from main import CBot
 
 
-ALLOWED_ROLES: Final = (
-    337743478190637077,
-    685331877057658888,
-    969629622453039104,
-    969629628249563166,
-    969629632028614699,
-    969628342733119518,
-    969627321239760967,
-)
-
 CHANNEL_ID: Final[int] = 687817008355737606
 
-MESSAGE: Final = "You must be at least level 5 to participate in the giveaways system and be in <#969972085445238784>."
+MESSAGE: Final = "You must be in <#969972085445238784> to participate in the pools system."
 
 
-@app_commands.default_permissions(manage_messages=True)
 @app_commands.guilds(225345178955808768)
 class Pools(commands.GroupCog, name="pools", description="Reputation pools for certain features."):
     """Reputation pools.
@@ -121,7 +110,7 @@ class Pools(commands.GroupCog, name="pools", description="Reputation pools for c
         """
         user = interaction.user
         assert isinstance(user, discord.Member)  # skipcq: BAN-B101
-        if not any(role.id in ALLOWED_ROLES for role in user.roles) or interaction.channel_id != CHANNEL_ID:
+        if interaction.channel_id != CHANNEL_ID:
             await interaction.response.send_message(MESSAGE, ephemeral=True)
             return
         await interaction.response.defer(ephemeral=True)
@@ -222,7 +211,7 @@ class Pools(commands.GroupCog, name="pools", description="Reputation pools for c
         """
         user = interaction.user
         assert isinstance(user, discord.Member)  # skipcq: BAN-B101
-        if not any(role.id in ALLOWED_ROLES for role in user.roles) or interaction.channel_id != CHANNEL_ID:
+        if interaction.channel_id != CHANNEL_ID:
             await interaction.response.send_message(MESSAGE, ephemeral=True)
             return
         await interaction.response.defer(ephemeral=True)
