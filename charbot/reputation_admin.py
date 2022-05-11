@@ -253,98 +253,82 @@ class ReputationAdmin(
         if len(reward) > 65:
             await interaction.response.send_message("Error: Reward must be 65 characters or less.", ephemeral=True)
             return
-        _pool = await self.bot.pool.fetchrow("SELECT * FROM pools WHERE pool = $1", name)
-        if _pool is not None:
-            await interaction.response.send_message("Error: Pool already exists.", ephemeral=True)
-            return
-        await interaction.response.defer(ephemeral=True)
-        _roles = [
-            role,
-            role1,
-            role2,
-            role3,
-            role4,
-            role5,
-            role6,
-            role7,
-            role8,
-            role9,
-            role10,
-            role11,
-            role12,
-            role13,
-            role14,
-            role15,
-            role16,
-            role17,
-            role18,
-        ]
-        roles = list({r.id for r in filter(lambda x: x is not None, _roles)})
-        await self._finish_pool_create(interaction, name, reward, capacity, level, current, start, roles)
-
-    async def _finish_pool_create(
-        self,
-        interaction: Interaction,
-        name: str,
-        reward: str,
-        capacity: int,
-        level: int,
-        current: int,
-        start: int,
-        roles: list[int],
-    ):
-        """Finish the pool creation process.
-
-        Parameters
-        ----------
-        interaction : Interaction
-            The interaction to respond to.
-        name : str
-            The name of the pool.
-        reward : str
-            The reward for the pool.
-        capacity : int
-            The capacity of the pool.
-        level : int
-            The level of the pool.
-        current : int
-            The current reputation of the pool.
-        start : int
-            The starting reputation of the pool.
-        roles : list[int]
-            The roles that can participate in the pool.
-        """
-        await self.bot.pool.execute(
-            "INSERT INTO pools (pool, cap, reward, required_roles, level, current, start)"
-            " VALUES ($1, $2, $3, $4, $5, $6, $7)",
-            name,
-            capacity,
-            reward,
-            roles,
-            level,
-            current,
-            start,
-        )
-        _partial_image: Callable[[], BytesIO] = partial(
-            generate_card,
-            level=level,
-            base_rep=start,
-            current_rep=current,
-            completed_rep=capacity,
-            pool_name=name,
-            reward=reward,
-        )
-        image_bytes = await self.bot.loop.run_in_executor(None, _partial_image)
-        image = discord.File(image_bytes, f"{name}.png")
-        await interaction.followup.send(f"Pool {name} created with reward {reward}!", file=image)
-        clientuser = self.bot.user
-        assert isinstance(clientuser, discord.ClientUser)  # skipcq: BAN-B101
-        await self.bot.program_logs.send(
-            f"Pool {name} created with reward {reward} by {interaction.user.mention}.",
-            allowed_mentions=_ALLOWED_MENTIONS,
-            username=clientuser.name,
-            avatar_url=clientuser.display_avatar.url,
-        )
+        async with self.bot.pool.acquire() as conn, conn.transaction():
+            _pool = await conn.fetchrow("SELECT * FROM pools WHERE pool = $1", name)
+            if _pool is not None:
+                await interaction.response.send_message("Error: Pool already exists.", ephemeral=True)
+                return
+            await interaction.response.defer(ephemeral=True)
+            roles = [role.id]
+            # noinspection DuplicatedCode
+            if role1 is not None and role1.id not in roles:
+                roles.append(role1.id)
+            if role2 is not None and role2.id not in roles:
+                roles.append(role2.id)
+            if role3 is not None and role3.id not in roles:
+                roles.append(role3.id)
+            if role4 is not None and role4.id not in roles:
+                roles.append(role4.id)
+            if role5 is not None and role5.id not in roles:
+                roles.append(role5.id)
+            if role6 is not None and role6.id not in roles:
+                roles.append(role6.id)
+            if role7 is not None and role7.id not in roles:
+                roles.append(role7.id)
+            if role8 is not None and role8.id not in roles:
+                roles.append(role8.id)
+            if role9 is not None and role9.id not in roles:
+                roles.append(role9.id)
+            # noinspection DuplicatedCode
+            if role10 is not None and role10.id not in roles:
+                roles.append(role10.id)
+            if role11 is not None and role11.id not in roles:
+                roles.append(role11.id)
+            if role12 is not None and role12.id not in roles:
+                roles.append(role12.id)
+            if role13 is not None and role13.id not in roles:
+                roles.append(role13.id)
+            if role14 is not None and role14.id not in roles:
+                roles.append(role14.id)
+            if role15 is not None and role15.id not in roles:
+                roles.append(role15.id)
+            if role16 is not None and role16.id not in roles:
+                roles.append(role16.id)
+            if role17 is not None and role17.id not in roles:
+                roles.append(role17.id)
+            if role18 is not None and role18.id not in roles:
+                roles.append(role18.id)
+            await conn.execute(
+                "INSERT INTO pools (pool, cap, reward, required_roles, level, current, start)"
+                " VALUES ($1, $2, $3, $4, $5, $6, $7)",
+                name,
+                capacity,
+                reward,
+                roles,
+                level,
+                current,
+                start,
+            )
+            _partial_image: Callable[[], BytesIO] = partial(
+                generate_card,
+                level=level,
+                base_rep=start,
+                current_rep=current,
+                completed_rep=capacity,
+                pool_name=name,
+                reward=reward,
+            )
+            image_bytes = await self.bot.loop.run_in_executor(None, _partial_image)
+            image = discord.File(image_bytes, f"{name}.png")
+            await interaction.followup.send(f"Pool {name} created with reward {reward}!", file=image)
+            clientuser = self.bot.user
+            assert isinstance(clientuser, discord.ClientUser)  # skipcq: BAN-B101
+            await self.bot.program_logs.send(
+                f"Pool {name} created with reward {reward} by {interaction.user.mention}.",
+                allowed_mentions=_ALLOWED_MENTIONS,
+                username=clientuser.name,
+                avatar_url=clientuser.display_avatar.url,
+            )
 
     @pools.command(name="edit", description="Edits a pool.")
     async def edit_pool(
@@ -352,11 +336,11 @@ class ReputationAdmin(
         interaction: Interaction,
         pool: str,
         name: Optional[str] = None,
-        capacity: Optional[app_commands.Range[int, 0]] = None,
+        capacity: app_commands.Range[int, 0] = 0,
         reward: Optional[str] = None,
-        level: Optional[app_commands.Range[int, 1]] = None,
-        current: Optional[app_commands.Range[int, 0]] = None,
-        start: Optional[app_commands.Range[int, 0]] = None,
+        level: app_commands.Range[int, 1] = 1,
+        current: app_commands.Range[int, 0] = 0,
+        start: app_commands.Range[int, 0] = 0,
     ):
         """Edit a pool. Options left out will not be changed.
 
@@ -371,104 +355,78 @@ class ReputationAdmin(
         capacity : int
             The new capacity of the pool.
         reward : str
-            The new reward of the pool. Must be 65 characters or fewer.
+            The new reward of the pool. mMst be 65 characters or fewer.
         level : int
-            The new level of the pool. Must be at least 1 if supplied, current and start must be supplied.
+            The new level of the pool. Must be at least 1.
         current : int
             The new current rep of the pool. Must be at least 0 and set above 0 if level is 1.
         start : int
             The new base rep for the pool level. Must be at least 0 and set above 0 if level is 1.
         """
-        if level is not None and level > 1 and any(i in (current, start) for i in (0, None)):
+        if level != 1 and 0 in (current, start):
             await interaction.response.send_message(
-                "Error: Current and start must be supplied and greater than 0 if level is 1.", ephemeral=True
+                "Error: Current and start must be greater than 0 if level is 1.", ephemeral=True
             )
             return
-        if (name is not None and len(name) > 32) or (reward is not None and len(reward) > 65):
-            await interaction.response.send_message(
-                "Error: Name must be 32 or less and/or reward must be 65 or less characters", ephemeral=True
-            )
+        if name is not None and len(name) > 32:
+            await interaction.response.send_message("Error: Name must be 32 characters or less.", ephemeral=True)
+            return
+        if reward is not None and len(reward) > 65:
+            await interaction.response.send_message("Error: Reward must be 65 characters or less.", ephemeral=True)
             return
         await interaction.response.defer(ephemeral=True)
-        async with self.bot.pool.acquire() as conn:
+        async with self.bot.pool.acquire() as conn, conn.transaction():
             _pool = await conn.fetchrow("SELECT * FROM pools WHERE pool = $1", pool)
-            if name is not None and await conn.fetchrow("SELECT * FROM pools WHERE pool = $1", name) is not None:
-                await interaction.followup.send(f"Error: Pool {name} already exists, try again.")
-                return
-        if _pool is None:
-            await interaction.followup.send(f"Error: Pool {pool} does not exist.")
-        else:
-            await self._finish_pool_edit(interaction, _pool, pool, name, capacity, reward, level, current, start)
-            clientuser = self.bot.user
-            assert isinstance(clientuser, discord.ClientUser)  # skipcq: BAN-B101
-            await self.bot.program_logs.send(
-                f"Pool {name or pool}{f' (formerly {pool})' if name is not None else ''}"
-                f" edited by {interaction.user.mention}.",
-                allowed_mentions=_ALLOWED_MENTIONS,
-                username=clientuser.name,
-                avatar_url=clientuser.display_avatar.url,
-            )
+            if name is not None:
+                pool_ = await conn.fetchrow("SELECT * FROM pools WHERE pool = $1", name)
+                if pool_ is not None:
+                    await interaction.followup.send(
+                        f"Error: Pool {name} already exists, cannot rename {pool} to that, try again."
+                    )
+                    return
+            if _pool is None:
+                await interaction.followup.send(
+                    f"Error: Pool `{pool}` not found. Use the autocomplete feature to find the pool."
+                )
+            else:
+                if name is not None:
+                    await conn.execute("UPDATE pools SET pool = $1 WHERE pool = $2", name, pool)
+                if capacity != 0:
+                    await conn.execute("UPDATE pools SET cap = $1 WHERE pool = $2", capacity, pool)
+                if reward is not None:
+                    await conn.execute("UPDATE pools SET reward = $1 WHERE pool = $2", reward, pool)
+                if level != 1:
+                    await conn.execute("UPDATE pools SET level = $1 WHERE pool = $2", level, pool)
+                if current != 0:
+                    await conn.execute("UPDATE pools SET current = $1 WHERE pool = $2", current, pool)
+                if start != 0:
+                    await conn.execute("UPDATE pools SET start = $1 WHERE pool = $2", start, pool)
 
-    async def _finish_pool_edit(
-        self,
-        interaction: Interaction,
-        previous: asyncpg.Record,
-        pool: str,
-        name: str | None,
-        capacity: int | None,
-        reward: str | None,
-        level: int | None,
-        current: int | None,
-        start: int | None,
-    ):
-        """Finish the pool edit process.
-
-        Parameters
-        ----------
-        interaction : Interaction
-            The interaction to respond to.
-        previous : asyncpg.Record
-            The previous pool record.
-        pool : str
-            The name of the pool.
-        name : str | None
-            The new name of the pool.
-        capacity : int | None
-            The new capacity of the pool.
-        reward : str | None
-            The new reward of the pool.
-        level : int | None
-            The new level of the pool.
-        current : int | None
-            The new current rep of the pool.
-        start : int | None
-            The new base rep for the pool level.
-        """
-        await self.bot.pool.execute(
-            "UPDATE pools SET pool = $1, cap = $2, reward = $3, level = $4, current = $5, start = $6"
-            " WHERE pool = $7",
-            name or pool,
-            capacity if capacity is not None else previous["cap"],
-            reward or previous["reward"],
-            level if level is not None else previous["level"],
-            current if current is not None else previous["current"],
-            start if start is not None else previous["start"],
-            pool,
-        )
-        _partial_image: Callable[[], BytesIO] = partial(
-            generate_card,
-            level=level if level is not None else previous["level"],
-            base_rep=start if start is not None else previous["start"],
-            current_rep=current if current is not None else previous["current"],
-            completed_rep=capacity if capacity is not None else previous["cap"],
-            pool_name=name or pool,
-            reward=reward or previous["reward"],
-        )
-        image_bytes = await self.bot.loop.run_in_executor(None, _partial_image)
-        image = discord.File(image_bytes, f"{previous['pool']}.png")
-        await interaction.followup.send(
-            f"Pool {name or pool}{f' (formerly {pool})' if name is not None else ''} edited!", file=image
-        )
+                _pool = await conn.fetchrow("SELECT * FROM pools WHERE pool = $1", name or pool)
+                assert isinstance(_pool, asyncpg.Record)  # skipcq: BAN-B101
+                _partial_image: Callable[[], BytesIO] = partial(
+                    generate_card,
+                    level=_pool["level"],
+                    base_rep=_pool["start"],
+                    current_rep=_pool["current"],
+                    completed_rep=_pool["cap"],
+                    pool_name=_pool["pool"],
+                    reward=_pool["reward"],
+                )
+                image_bytes = await self.bot.loop.run_in_executor(None, _partial_image)
+                image = discord.File(image_bytes, f"{_pool['pool']}.png")
+                await interaction.followup.send(
+                    f"Pool {_pool['pool']}{f' (formerly {pool})' if name is not None else ''} edited!", file=image
+                )
+                clientuser = self.bot.user
+                assert isinstance(clientuser, discord.ClientUser)  # skipcq: BAN-B101
+                await self.bot.program_logs.send(
+                    f"Pool {_pool['pool']}{f' (formerly {pool})' if name is not None else ''}"
+                    f" edited by {interaction.user.mention}.",
+                    allowed_mentions=_ALLOWED_MENTIONS,
+                    username=clientuser.name,
+                    avatar_url=clientuser.display_avatar.url,
+                )
 
     @pools.command(name="list", description="Lists all pools.")
     async def list_pools(self, interaction: Interaction):

@@ -24,6 +24,7 @@
 #  ----------------------------------------------------------------------------
 """Timeout and leave log."""
 import json
+import re
 from datetime import datetime, timedelta, timezone
 
 import discord
@@ -174,31 +175,54 @@ class PrimaryFunctions(Cog):
             self.members.update({member.id: utcnow()})
 
     @Cog.listener()
-    async def on_raw_member_remove(self, payload: discord.RawMemberRemoveEvent) -> None:
-        """Process when a member leaves the server and removes them from the members cache.
+    async def on_message(self, message: discord.Message) -> None:
+        """Handle when a message is sent.
+
+        If the message is a dm, it redirects them to the mod support page
+        If the message is a ping in the #goodbye channel, it deletes the message and
+        sends a message to that channel with the goodbye message
 
         Parameters
         ----------
         self : PrimaryFunctions
             The PrimaryFunctions object
-        payload : discord.RawMemberRemoveEvent
-            The payload of the member leaving the server
+        message : discord.Message
+            The message that was sent
         """
-        if payload.guild_id == 225345178955808768:
-            user = payload.user
-            if isinstance(user, discord.Member):
-                self.members.pop(user.id, None)
-                time_string = await time_string_from_seconds(abs(utcnow() - self.members[user.id]).total_seconds())
-            elif isinstance(user, discord.User) and user.id in self.members:
-                time_string = await time_string_from_seconds(abs(utcnow() - self.members.pop(user.id)).total_seconds())
-            else:
-                time_string = "Unknown"
-            channel = await self.bot.fetch_channel(430197357100138497)
-            assert isinstance(channel, discord.TextChannel)  # skipcq: BAN-B101
-            await channel.send(
-                f"**{user.name}#{user.discriminator}** has left the server. "
-                f"ID:{user.id}. Time on Server: {time_string}"
+        if not message.author.bot and message.channel.type is discord.ChannelType.private:
+            await message.channel.send(
+                "Hi! If this was an attempt to reach the mod team through modmail,"
+                " that has been removed, in favor of "
+                "mod support, which you can find in <#398949472840712192>"
             )
+        elif message.channel.id == 430197357100138497 and (
+            len(message.mentions) == 1 or re.search(r"<@!?(\d+)>\B", message.content)
+        ):
+            member = message.mentions[0] if message.mentions else None
+            mentioned_id = None
+            search = re.search(r"<@!?(\d+)>\B", message.content)
+            if search:
+                mentioned_id = int(search.groups()[0])
+            if member and member.id in self.members:
+                delta = (utcnow() - self.members.pop(member.id)).total_seconds()
+                time_string = await time_string_from_seconds(abs(delta))
+            elif mentioned_id and mentioned_id in self.members:
+                time = self.members.pop(mentioned_id)
+                delta = (utcnow() - time).total_seconds()
+                time_string = await time_string_from_seconds(abs(delta))
+            else:
+                time_string = "None Found"
+            print(member)
+            member = member if member else await self.bot.fetch_user(mentioned_id) if mentioned_id else None
+            print(member)
+            if member:
+                channel = await self.bot.fetch_channel(430197357100138497)
+                assert isinstance(channel, discord.TextChannel)  # skipcq: BAN-B101
+                await channel.send(
+                    f"**{member.name}#{member.discriminator}** has left the server. "
+                    f"ID:{member.id}. Time on Server: {time_string}"
+                )
+                await message.delete()
 
     # noinspection PyBroadException,DuplicatedCode
     @Cog.listener()

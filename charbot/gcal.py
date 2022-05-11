@@ -27,13 +27,13 @@ import datetime as _datetime
 import os
 from calendar import timegm
 from datetime import datetime, time, timedelta
-from typing import NamedTuple, Optional
+from typing import Optional
 from zoneinfo import ZoneInfo
 
 import aiohttp
 import discord
 from discord.ext import commands, tasks
-from discord.utils import MISSING, format_dt, utcnow
+from discord.utils import format_dt, utcnow
 from dotenv import load_dotenv
 from pytz import timezone
 from validators import url
@@ -44,14 +44,6 @@ load_dotenv()
 ytLink = "https://www.youtube.com/charliepryor/live"
 chartime = ZoneInfo("US/Michigan")
 time_format = "%H:%M %x %Z"
-
-
-class EmbedField(NamedTuple):
-    """A named tuple for an embed field."""
-
-    name: str
-    value: str
-    inline: bool
 
 
 def getUrl(mintime: datetime, maxtime: datetime):
@@ -108,12 +100,12 @@ def ceil_dt(dt: datetime, delta: timedelta) -> datetime:
     return dt + (datetime(_datetime.MINYEAR, 1, 1, tzinfo=timezone("UTC")) - dt) % delta
 
 
-def default_field(dictionary: dict[int, EmbedField], add_time: datetime, item: dict) -> None:
+def default_field(dictionary: dict[int, dict[str, str | bool]], add_time: datetime, item: dict) -> None:
     """Add the default dict field for a specific time.
 
     Parameters
     ----------
-    dictionary : dict[int, EmbedField]
+    dictionary : dict[int, dict[str, str | bool]]
         The dictionary to add the field to.
     add_time : datetime
         The time to add the field to.
@@ -122,56 +114,14 @@ def default_field(dictionary: dict[int, EmbedField], add_time: datetime, item: d
     """
     dictionary.update(
         {
-            timegm(add_time.utctimetuple()): EmbedField(
-                item["summary"],
-                f"{format_dt(add_time, 'F')}\n" f"[({add_time.astimezone(chartime).strftime(time_format)})]({ytLink})",
-                True,
-            )
+            timegm(add_time.utctimetuple()): {
+                "value": f"{format_dt(add_time, 'F')}\n"
+                f"[({add_time.astimezone(chartime).strftime(time_format)})]({ytLink})",
+                "name": item["summary"],
+                "inline": True,
+            }
         }
     )
-
-
-def calendar_embed(fields: dict[int, EmbedField], next_event: datetime | None) -> discord.Embed:
-    """Create an embed for the calendar.
-
-    Parameters
-    ----------
-    fields : dict[int, dict[str, str | bool]]
-        The dictionary to create the embed from.
-    next_event : datetime
-        The unix time for the next event.
-
-    Returns
-    -------
-    discord.Embed
-        The embed to send to the channel.
-    """
-    # noinspection PyTypeChecker
-    fields = dict(sorted(fields.items()))
-    embed = discord.Embed(
-        title="List of streams in the next 7 days",
-        color=discord.Color.dark_blue(),
-        timestamp=discord.utils.utcnow(),
-        url="https://cpry.net/calendar",
-        description=f"Click on the following links to go to Charlie's Calender,"
-        f" YouTube channel, Twitch, or click on the times to go to the"
-        f" corresponding streams. The blue time is the time of the stream in"
-        f" Charlie's timezone, and they link to the platform where the stream is "
-        f"being broadcast.\n"
-        f" [Calendar](https://cpry.net/calendar)\n"
-        f" [YouTube](https://www.youtube.com/charliepryor/live)\n"
-        f" [Twitch](https://www.twitch.tv/charliepryor)\n Next stream: "
-        f"{format_dt(next_event, 'R') if next_event else 'No streams scheduled'}",
-    )
-    for field in list(fields.values()):  # type: EmbedField
-        embed.add_field(name=field.name, value=field.value, inline=field.inline)
-
-    embed.set_author(
-        name="Charlie",
-        icon_url="https://cdn.discordapp.com/avatars/225344348903047168/"
-        "c093900592dfcd9b9e5c711f4e1c627d.webp?size=160",
-    )
-    return embed.set_footer(text="Last Updated")
 
 
 # noinspection GrazieInspection
@@ -207,7 +157,7 @@ class Calendar(commands.Cog):
 
     def __init__(self, bot: commands.Bot):
         self.bot = bot
-        self.message: discord.WebhookMessage = MISSING
+        self.message: Optional[discord.WebhookMessage] = None
         self.week_end = (
             utcnow().replace(hour=0, minute=0, second=0, microsecond=0)
             - timedelta(days=utcnow().weekday())
@@ -243,9 +193,9 @@ class Calendar(commands.Cog):
         maxdatetime = datetime.now(tz=timezone("US/Eastern")) + timedelta(weeks=1)
         async with aiohttp.ClientSession() as session, session.get(getUrl(mindatetime, maxdatetime)) as response:
             items = await response.json()
-        fields: dict[int, EmbedField] = {}
+        fields = {}
         cancelled_times = []
-        times: set[datetime] = set()
+        times = set()
         for item in items["items"]:
             if item["status"] == "cancelled":
                 sub_time = datetime.fromisoformat(item["originalStartTime"]["dateTime"])
@@ -269,12 +219,13 @@ class Calendar(commands.Cog):
             elif url(item["description"]):
                 fields.update(
                     {
-                        timegm(sub_time.utctimetuple()): EmbedField(
-                            f"{item['summary']}",
-                            f"{format_dt(sub_time, 'F')}\n[({sub_time.astimezone(chartime).strftime(time_format)})"
+                        timegm(sub_time.utctimetuple()): {
+                            "name": f"{item['summary']}",
+                            "value": f"{format_dt(sub_time, 'F')}\n"
+                            f"[({sub_time.astimezone(chartime).strftime(time_format)})"
                             f"]({item['description']})",
-                            True,
-                        )
+                            "inline": True,
+                        }
                     }
                 )
             else:
@@ -282,13 +233,41 @@ class Calendar(commands.Cog):
         for sub_time in cancelled_times:
             fields.pop(timegm(sub_time.utctimetuple()), None)
             times.discard(sub_time)
+        next_event = min(times, default=None)
+        # noinspection PyTypeChecker
+        fields = dict(sorted(fields.items()))
+        embed = discord.Embed(
+            title="List of streams in the next 7 days",
+            color=discord.Color.dark_blue(),
+            timestamp=discord.utils.utcnow(),
+            url="https://cpry.net/calendar",
+            description=f"Click on the following links to go to Charlie's Calender,"
+            f" YouTube channel, Twitch, or click on the times to go to the"
+            f" corresponding streams. The blue time is the time of the stream in"
+            f" Charlie's timezone, and they link to the platform where the stream is "
+            f"being broadcast.\n"
+            f" [Calendar](https://cpry.net/calendar)\n"
+            f" [YouTube](https://www.youtube.com/charliepryor/live)\n"
+            f" [Twitch](https://www.twitch.tv/charliepryor)\n Next stream: "
+            f"{format_dt(next_event, 'R') if next_event else 'No streams scheduled'}",
+        )
+        for field in fields:
+            field = fields[field]
+            embed.add_field(name=field["name"], value=field["value"], inline=field["inline"])
+
+        embed.set_author(
+            name="Charlie",
+            icon_url="https://cdn.discordapp.com/avatars/225344348903047168/"
+            "c093900592dfcd9b9e5c711f4e1c627d.webp?size=160",
+        )
+        embed.set_footer(text="Last Updated")
         bot_user = self.bot.user
         assert isinstance(bot_user, discord.ClientUser)  # skipcq: BAN-B101
-        if self.message is MISSING:
+        if self.message is None:
             self.message = await self.webhook.send(
                 username=bot_user.name,
                 avatar_url=bot_user.display_avatar.url,
-                embed=calendar_embed(fields, min(times, default=None)),
+                embed=embed,
                 wait=True,
             )
         elif utcnow() > self.week_end:
@@ -296,12 +275,12 @@ class Calendar(commands.Cog):
             self.message = await self.webhook.send(
                 username=bot_user.name,
                 avatar_url=bot_user.display_avatar.url,
-                embed=calendar_embed(fields, min(times, default=None)),
+                embed=embed,
                 wait=True,
             )
             self.week_end += timedelta(days=7)
         else:
-            self.message = await self.message.edit(embed=calendar_embed(fields, min(times, default=None)))
+            self.message = await self.message.edit(embed=embed)
 
 
 async def setup(bot: commands.Bot):

@@ -37,35 +37,6 @@ from discord.ext.commands import Cog
 from main import CBot
 
 
-def sensitive_embed(message: discord.Message, used: set[str]) -> discord.Embed:
-    """Create an embed with the message content.
-
-    Parameters
-    ----------
-    message : discord.Message
-        The message to create the embed from.
-    used : set[str]
-        The set of sensitive words used in the message.
-    """
-    embed = Embed(
-        title="Probable Sensitive Topic Detected",
-        description=f"Content:\n {message.content}",
-        color=Color.red(),
-        timestamp=datetime.now(tz=timezone.utc),
-    )
-    embed.add_field(name="Words Found:", value=", ".join(used)[0:1024], inline=True)
-    embed.add_field(
-        name="Author:",
-        value=f"{message.author.display_name}: " f"{message.author.name}#{message.author.discriminator}",
-        inline=True,
-    )
-    return embed.add_field(
-        name="Message Link:",
-        value=f"[Link]({message.jump_url})",
-        inline=True,
-    )
-
-
 class Events(Cog):
     """Event Cog.
 
@@ -100,39 +71,51 @@ class Events(Cog):
         message : discord.Message
             The message to check.
         """
-        if message.guild is not None and message.guild.id == 225345178955808768:
+        with open("sensitive_settings.json", encoding="utf8") as json_dict:
+            fulldict = json.load(json_dict)
+        used_words = set()
+        count_found = 0
+        for word in fulldict["words"]:
+            if word in message.content.lower():
+                count_found += 1
+                used_words.add(word)
+        self.last_sensitive_logged.setdefault(message.author.id, datetime.now() - timedelta(days=1))
+        if datetime.now() > (self.last_sensitive_logged[message.author.id] + timedelta(minutes=5)) and (
+            (count_found >= 2 and 25 <= (len(message.content) - len("".join(used_words))) < 50)
+            or (count_found > 2 and (len(message.content) - len("".join(used_words))) >= 50)
+            or (count_found >= 1 and (len(message.content) - len("".join(used_words))) < 25)
+        ):
+            webhook = await self.bot.fetch_webhook(fulldict["webhook_id"])
+            embed = Embed(
+                title="Probable Sensitive Topic Detected",
+                description=f"Content:\n {message.content}",
+                color=Color.red(),
+                timestamp=datetime.now(tz=timezone.utc),
+            )
+            embed.add_field(name="Words Found:", value=", ".join(used_words)[0:1024], inline=True)
+            embed.add_field(
+                name="Author:",
+                value=f"{message.author.display_name}: " f"{message.author.name}#{message.author.discriminator}",
+                inline=True,
+            )
+            embed.add_field(
+                name="Message Link:",
+                value=f"[Link]({message.jump_url})",
+                inline=True,
+            )
+            if message.channel.id == 926532222398369812:
+                await message.channel.send(embed=embed)
             channel = message.channel
-            assert isinstance(channel, discord.abc.GuildChannel)  # skipcq: BAN-B101
-            with open("sensitive_settings.json", encoding="utf8") as json_dict:
-                fulldict = json.load(json_dict)
-            used_words = set()
-            count_found = 0
-            for word in fulldict["words"]:
-                if word in message.content.lower():
-                    count_found += 1
-                    used_words.add(word)
-            self.last_sensitive_logged.setdefault(message.author.id, datetime.now() - timedelta(days=1))
-            if datetime.now() > (self.last_sensitive_logged[message.author.id] + timedelta(minutes=5)) and any(
-                [
-                    (count_found >= 2 and 25 <= (len(message.content) - len("".join(used_words))) < 50),
-                    (count_found > 2 and (len(message.content) - len("".join(used_words))) >= 50),
-                    (count_found >= 1 and (len(message.content) - len("".join(used_words))) < 25),
-                ]
-            ):
-                webhook = await self.bot.fetch_webhook(fulldict["webhook_id"])
+            if isinstance(channel, discord.abc.GuildChannel):
                 category = channel.category
-                if channel.id in (837816311722803260, 926532222398369812) or (
-                    category is not None and category.id in (360818916861280256, 942578610336837632)
-                ):
+                if category is not None and category.id in (360818916861280256, 942578610336837632):
                     return
-                bot_user = self.bot.user
-                assert isinstance(bot_user, discord.ClientUser)  # skipcq: BAN-B101
-                await webhook.send(
-                    username=bot_user.name,
-                    avatar_url=bot_user.display_avatar.url,
-                    embed=sensitive_embed(message, used_words),
-                )
-                self.last_sensitive_logged[message.author.id] = datetime.now()
+            if message.channel.id == 837816311722803260:
+                return
+            bot_user = self.bot.user
+            assert isinstance(bot_user, discord.ClientUser)  # skipcq: BAN-B101
+            await webhook.send(username=bot_user.name, avatar_url=bot_user.display_avatar.url, embed=embed)
+            self.last_sensitive_logged[message.author.id] = datetime.now()
 
     @Cog.listener()
     async def on_message(self, message: discord.Message) -> None:
