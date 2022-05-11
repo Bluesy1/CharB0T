@@ -22,7 +22,7 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 #  ----------------------------------------------------------------------------
-"""Puzzle Class"""
+"""Puzzle Class."""
 from copy import deepcopy
 from itertools import islice
 from random import choice, sample

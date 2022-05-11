@@ -22,7 +22,7 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 #  ----------------------------------------------------------------------------
-"""Sudoku puzzle game"""
+"""Sudoku puzzle game."""
 
 __all__ = ("Cell", "Row", "Column", "Block", "Puzzle", "Sudoku")
 
