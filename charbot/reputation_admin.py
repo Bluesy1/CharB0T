@@ -444,7 +444,7 @@ class ReputationAdmin(
         start : int | None
             The new base rep for the pool level.
         """
-        await self.bot.pool.execute(
+        await self.bot.execute(
             "UPDATE pools SET pool = $1, cap = $2, reward = $3, level = $4, current = $5, start = $6"
             " WHERE pool = $7",
             name or pool,
