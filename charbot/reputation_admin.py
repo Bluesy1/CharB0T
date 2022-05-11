@@ -395,21 +395,19 @@ class ReputationAdmin(
             if name is not None and await conn.fetchrow("SELECT * FROM pools WHERE pool = $1", name) is not None:
                 await interaction.followup.send(f"Error: Pool {name} already exists, try again.")
                 return
-            if _pool is None:
-                await interaction.followup.send(f"Error: Pool {pool} does not exist.")
-            else:
-                await conn.execute(
-                    "UPDATE pools SET pool = $1, cap = $2, reward = $3, level = $4, current = $5, start = $6"
-                    " WHERE pool = $7",
-                    name or pool,
-                    capacity if capacity is not None else _pool["cap"],
-                    reward or _pool["reward"],
-                    level if level is not None else _pool["level"],
-                    current if current is not None else _pool["current"],
-                    start if start is not None else _pool["start"],
-                    pool,
-                )
-                await self._finish_pool_edit(interaction, _pool, pool, name, capacity, reward, level, current, start)
+        if _pool is None:
+            await interaction.followup.send(f"Error: Pool {pool} does not exist.")
+        else:
+            await self._finish_pool_edit(interaction, _pool, pool, name, capacity, reward, level, current, start)
+            clientuser = self.bot.user
+            assert isinstance(clientuser, discord.ClientUser)  # skipcq: BAN-B101
+            await self.bot.program_logs.send(
+                f"Pool {name or pool}{f' (formerly {pool})' if name is not None else ''}"
+                f" edited by {interaction.user.mention}.",
+                allowed_mentions=_ALLOWED_MENTIONS,
+                username=clientuser.name,
+                avatar_url=clientuser.display_avatar.url,
+            )
 
     async def _finish_pool_edit(
         self,
@@ -446,7 +444,17 @@ class ReputationAdmin(
         start : int | None
             The new base rep for the pool level.
         """
-        assert isinstance(previous, asyncpg.Record)  # skipcq: BAN-B101
+        await self.bot.execute(
+            "UPDATE pools SET pool = $1, cap = $2, reward = $3, level = $4, current = $5, start = $6"
+            " WHERE pool = $7",
+            name or pool,
+            capacity if capacity is not None else previous["cap"],
+            reward or previous["reward"],
+            level if level is not None else previous["level"],
+            current if current is not None else previous["current"],
+            start if start is not None else previous["start"],
+            pool,
+        )
         _partial_image: Callable[[], BytesIO] = partial(
             generate_card,
             level=level if level is not None else previous["level"],
@@ -460,15 +468,6 @@ class ReputationAdmin(
         image = discord.File(image_bytes, f"{previous['pool']}.png")
         await interaction.followup.send(
             f"Pool {name or pool}{f' (formerly {pool})' if name is not None else ''} edited!", file=image
-        )
-        clientuser = self.bot.user
-        assert isinstance(clientuser, discord.ClientUser)  # skipcq: BAN-B101
-        await self.bot.program_logs.send(
-            f"Pool {name or pool}{f' (formerly {pool})' if name is not None else ''}"
-            f" edited by {interaction.user.mention}.",
-            allowed_mentions=_ALLOWED_MENTIONS,
-            username=clientuser.name,
-            avatar_url=clientuser.display_avatar.url,
         )
 
     @pools.command(name="list", description="Lists all pools.")
