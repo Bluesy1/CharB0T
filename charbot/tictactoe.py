@@ -26,10 +26,10 @@
 from typing import Final
 
 import discord
-from _tictactoe import TicTacABC, TicTacEasy, TicTacHard
 from discord import ButtonStyle, app_commands, ui
 from discord.ext import commands
 from discord.utils import utcnow
+from tictactoe import TicTacABC, TicTacEasy, TicTacHard
 
 from main import CBot
 
