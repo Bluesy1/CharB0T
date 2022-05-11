@@ -392,17 +392,11 @@ class ReputationAdmin(
         await interaction.response.defer(ephemeral=True)
         async with self.bot.pool.acquire() as conn:
             _pool = await conn.fetchrow("SELECT * FROM pools WHERE pool = $1", pool)
-            if name is not None:
-                pool_ = await conn.fetchrow("SELECT * FROM pools WHERE pool = $1", name)
-                if pool_ is not None:
-                    await interaction.followup.send(
-                        f"Error: Pool {name} already exists, cannot rename {pool} to that, try again."
-                    )
-                    return
+            if name is not None and await conn.fetchrow("SELECT * FROM pools WHERE pool = $1", name) is not None:
+                await interaction.followup.send(f"Error: Pool {name} already exists, try again.")
+                return
             if _pool is None:
-                await interaction.followup.send(
-                    f"Error: Pool `{pool}` not found. Use the autocomplete feature to find the pool."
-                )
+                await interaction.followup.send(f"Error: Pool {pool} does not exist.")
             else:
                 await conn.execute(
                     "UPDATE pools SET pool = $1, cap = $2, reward = $3, level = $4, current = $5, start = $6"
