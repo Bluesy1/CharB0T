@@ -155,7 +155,6 @@ class TicTacEasy(TicTacABC):
                 return 1
             if flag21 is True or flag22 is True:  # Computer Won
                 return 0
-        return -1
 
     def _check_diagonals(self) -> int:
         """Check if there is a winner in the diagonals.
