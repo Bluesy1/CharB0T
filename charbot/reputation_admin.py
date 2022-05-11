@@ -379,16 +379,15 @@ class ReputationAdmin(
         start : int
             The new base rep for the pool level. Must be at least 0 and set above 0 if level is 1.
         """
-        if level != 1 and any(i in (current, start) for i in (0, None)):
+        if level is not None and level > 1 and any(i in (current, start) for i in (0, None)):
             await interaction.response.send_message(
-                "Error: Current and start must be greater than 0 if level is 1.", ephemeral=True
+                "Error: Current and start must be supplied and greater than 0 if level is 1.", ephemeral=True
             )
             return
-        if name is not None and len(name) > 32:
-            await interaction.response.send_message("Error: Name must be 32 characters or less.", ephemeral=True)
-            return
-        if reward is not None and len(reward) > 65:
-            await interaction.response.send_message("Error: Reward must be 65 characters or less.", ephemeral=True)
+        if (name is not None and len(name) > 32) or (reward is not None and len(reward) > 65):
+            await interaction.response.send_message(
+                "Error: Name must be 32 or less and/or reward must be 65 or less characters", ephemeral=True
+            )
             return
         await interaction.response.defer(ephemeral=True)
         async with self.bot.pool.acquire() as conn:
