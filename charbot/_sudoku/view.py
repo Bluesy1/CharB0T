@@ -184,6 +184,42 @@ class Sudoku(ui.View):
         embed.add_field(name="Choose a block", value="Use the keypad to choose a block", inline=True)
         return embed
 
+    async def _on_win(self, interaction: Interaction):
+        """Send the win embed.
+
+        Parameters
+        ----------
+        interaction: Interaction
+            The interaction that triggered the win.
+        """
+        self.disable_keypad()
+        self.back.disabled = True
+        self.cancel.disabled = True
+        self.mode.disabled = True
+        if self.cell is not MISSING:
+            self.cell.selected = False
+        embed = discord.Embed(
+            title="**Solved!!** Sudoku",
+            description=f"```ansi\n{self.puzzle}```",
+            color=discord.Color.green(),
+        )
+        embed.set_author(name=self.author.display_name, icon_url=self.author.display_avatar.url)
+        embed.set_footer(text="Play Sudoku by Typing /sudoku")
+        time_taken = utcnow().replace(microsecond=0) - self.start_time.replace(microsecond=0)
+        embed.add_field(name="Time Taken", value=f"{time_taken}", inline=True)
+        points = await self.bot.give_game_points(self.author, "sudoku", 5, 10)
+        embed.add_field(
+            name="Reputation gained",
+            value="15 Reputation" if points == 15 else f"{points} Reputation (Daily Cap Hit)",
+            inline=True,
+        )
+        await interaction.response.edit_message(embed=embed, view=self)
+        await self.bot.pool.execute(
+            "UPDATE users SET sudoku_time = $1 WHERE id = $2 and sudoku_time > $1",
+            time_taken,
+            self.author.id,
+        )
+
     # noinspection DuplicatedCode
     async def keypad_callback(self, interaction: Interaction, button: ui.Button, key: int):
         """Keypad buttons callback.
@@ -232,33 +268,7 @@ class Sudoku(ui.View):
                         self.block.selected = True
                     self.cell = MISSING
                     if self.puzzle.is_solved:
-                        self.disable_keypad()
-                        self.back.disabled = True
-                        self.cancel.disabled = True
-                        self.mode.disabled = True
-                        if self.cell is not MISSING:
-                            self.cell.selected = False
-                        embed = discord.Embed(
-                            title="**Solved!!** Sudoku",
-                            description=f"```ansi\n{self.puzzle}```",
-                            color=discord.Color.green(),
-                        )
-                        embed.set_author(name=self.author.display_name, icon_url=self.author.display_avatar.url)
-                        embed.set_footer(text="Play Sudoku by Typing /sudoku")
-                        time_taken = utcnow().replace(microsecond=0) - self.start_time.replace(microsecond=0)
-                        embed.add_field(name="Time Taken", value=f"{time_taken}", inline=True)
-                        points = await self.bot.give_game_points(self.author, "sudoku", 5, 10)
-                        embed.add_field(
-                            name="Reputation gained",
-                            value="15 Reputation" if points == 15 else f"{points} Reputation (Daily Cap Hit)",
-                            inline=True,
-                        )
-                        await interaction.response.edit_message(embed=embed, view=self)
-                        await self.bot.pool.execute(
-                            "UPDATE users SET sudoku_time = $1 WHERE id = $2 and sudoku_time > $1",
-                            time_taken,
-                            self.author.id,
-                        )
+                        await self._on_win(interaction)
                     else:
                         self.update_keypad()
                         await interaction.response.edit_message(embed=self.cell_choose_embed(), view=self)
