@@ -373,7 +373,7 @@ class ReputationAdmin(
         reward : str
             The new reward of the pool. mMst be 65 characters or fewer.
         level : int
-            The new level of the pool. Must be at least 1 if supplied, current and start must be supplied.
+            The new level of the pool. Must be at least 1.
         current : int
             The new current rep of the pool. Must be at least 0 and set above 0 if level is 1.
         start : int
@@ -391,7 +391,7 @@ class ReputationAdmin(
             await interaction.response.send_message("Error: Reward must be 65 characters or less.", ephemeral=True)
             return
         await interaction.response.defer(ephemeral=True)
-        async with self.bot.pool.acquire() as conn:
+        async with self.bot.pool.acquire() as conn, conn.transaction():
             _pool = await conn.fetchrow("SELECT * FROM pools WHERE pool = $1", pool)
             if name is not None:
                 pool_ = await conn.fetchrow("SELECT * FROM pools WHERE pool = $1", name)
@@ -405,78 +405,41 @@ class ReputationAdmin(
                     f"Error: Pool `{pool}` not found. Use the autocomplete feature to find the pool."
                 )
             else:
-                await self._finish_pool_edit(interaction, _pool, pool, name, capacity, reward, level, current, start)
-
-    async def _finish_pool_edit(
-        self,
-        interaction: Interaction,
-        previous: asyncpg.Record,
-        pool: str | None,
-        name: str | None,
-        capacity: int | None,
-        reward: str | None,
-        level: int | None,
-        current: int | None,
-        start: int | None,
-    ):
-        """Finish the pool edit process.
-
-        Parameters
-        ----------
-        interaction : Interaction
-            The interaction to respond to.
-        previous : asyncpg.Record
-            The previous pool record.
-        pool : str | None
-            The new name of the pool.
-        name : str | None
-            The new name of the pool.
-        capacity : int | None
-            The new capacity of the pool.
-        reward : str | None
-            The new reward of the pool.
-        level : int | None
-            The new level of the pool.
-        current : int | None
-            The new current rep of the pool.
-        start : int | None
-            The new base rep for the pool level.
-        """
-        await self.bot.pool.execute(
-            "UPDATE pools SET pool = $1, cap = $2, reward = $3, level = $4, current = $5, start = $6"
-            " WHERE pool = $7",
-            name or pool,
-            capacity if capacity is not None else previous["cap"],
-            reward or previous["reward"],
-            level if level is not None else previous["level"],
-            current if current is not None else previous["current"],
-            start if start is not None else previous["start"],
-            pool,
-        )
-        assert isinstance(previous, asyncpg.Record)  # skipcq: BAN-B101
-        _partial_image: Callable[[], BytesIO] = partial(
-            generate_card,
-            level=level if level is not None else previous["level"],
-            base_rep=start if start is not None else previous["start"],
-            current_rep=current if current is not None else previous["current"],
-            completed_rep=capacity if capacity is not None else previous["cap"],
-            pool_name=name or pool,
-            reward=reward or previous["reward"],
-        )
-        image_bytes = await self.bot.loop.run_in_executor(None, _partial_image)
-        image = discord.File(image_bytes, f"{previous['pool']}.png")
-        await interaction.followup.send(
-            f"Pool {name or pool}{f' (formerly {pool})' if name is not None else ''} edited!", file=image
-        )
-        clientuser = self.bot.user
-        assert isinstance(clientuser, discord.ClientUser)  # skipcq: BAN-B101
-        await self.bot.program_logs.send(
-            f"Pool {name or pool}{f' (formerly {pool})' if name is not None else ''}"
-            f" edited by {interaction.user.mention}.",
-            allowed_mentions=_ALLOWED_MENTIONS,
-            username=clientuser.name,
-            avatar_url=clientuser.display_avatar.url,
-        )
+                await conn.execute(
+                    "UPDATE pools SET pool = $1, cap = $2, reward = $3, level = $4, current = $5, start = $6"
+                    " WHERE pool = $7",
+                    name or _pool["pool"],
+                    capacity if capacity is not None else _pool["cap"],
+                    reward or _pool["reward"],
+                    level if level is not None else _pool["level"],
+                    current if current is not None else _pool["current"],
+                    start if start is not None else _pool["start"],
+                    pool,
+                )
+                assert isinstance(_pool, asyncpg.Record)  # skipcq: BAN-B101
+                _partial_image: Callable[[], BytesIO] = partial(
+                    generate_card,
+                    level=level if level is not None else _pool["level"],
+                    base_rep=start if start is not None else _pool["start"],
+                    current_rep=current if current is not None else _pool["current"],
+                    completed_rep=capacity if capacity is not None else _pool["cap"],
+                    pool_name=name or pool,
+                    reward=reward or _pool["reward"],
+                )
+                image_bytes = await self.bot.loop.run_in_executor(None, _partial_image)
+                image = discord.File(image_bytes, f"{_pool['pool']}.png")
+                await interaction.followup.send(
+                    f"Pool {name or pool}{f' (formerly {pool})' if name is not None else ''} edited!", file=image
+                )
+                clientuser = self.bot.user
+                assert isinstance(clientuser, discord.ClientUser)  # skipcq: BAN-B101
+                await self.bot.program_logs.send(
+                    f"Pool {name or pool}{f' (formerly {pool})' if name is not None else ''}"
+                    f" edited by {interaction.user.mention}.",
+                    allowed_mentions=_ALLOWED_MENTIONS,
+                    username=clientuser.name,
+                    avatar_url=clientuser.display_avatar.url,
+                )
 
     @pools.command(name="list", description="Lists all pools.")
     async def list_pools(self, interaction: Interaction):
