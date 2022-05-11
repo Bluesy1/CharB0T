@@ -371,7 +371,7 @@ class ReputationAdmin(
         capacity : int
             The new capacity of the pool.
         reward : str
-            The new reward of the pool. mMst be 65 characters or fewer.
+            The new reward of the pool. Must be 65 characters or fewer.
         level : int
             The new level of the pool. Must be at least 1 if supplied, current and start must be supplied.
         current : int
