@@ -126,15 +126,9 @@ class GiveawayView(ui.View):
         self.embed.set_footer(text="Giveaway ended")
         self.embed.timestamp = utcnow()
         self.embed.clear_fields()
-        self.stop()
 
     def _create_drawn_embed(
-        self,
-        winner: discord.Member | None,
-        drawn: list[discord.Member],
-        winning_bid: int,
-        avg_bid: float,
-        total_bidders: int,
+        self, winner: discord.Member, drawn: list[discord.Member], winning_bid: int, avg_bid: int, total_bidders: int
     ):
         """Create the post draw embed.
 
@@ -171,13 +165,8 @@ class GiveawayView(ui.View):
         else:
             self.embed.add_field(name="No Winners", value="No bids were made.", inline=True)
 
-    async def _get_bidders(self) -> list[asyncpg.Record]:
-        """Get the bidders.
-
-        Returns
-        -------
-        list[asyncpg.Record]
-        """
+    async def end(self):
+        """End the giveaway."""
         async with self.bot.pool.acquire() as conn:
             blocked: list[int] = [block["id"] for block in await conn.fetch("SELECT id FROM winners")]
             raw_bidders = await conn.fetch("SELECT * FROM bids WHERE bid > 0 ORDER BY bid DESC")
@@ -185,21 +174,8 @@ class GiveawayView(ui.View):
             return_bids = [(bid["bid"], bid["id"]) for bid in raw_bidders if bid["id"] in blocked]
             if len(return_bids) > 0:
                 await conn.executemany("UPDATE users SET points = points + $1 WHERE id = $2", return_bids)
-        return bidders
-
-    def _draw_winner(self, bidders: list[asyncpg.Record]) -> tuple[list[discord.Member], float]:
-        """Draw the winner.
-
-        Parameters
-        ----------
-        bidders : list[asyncpg.Record]
-            The list of bidders.
-
-        Returns
-        -------
-        tuple[list[discord.Member], float]
-            The list of drawn members and the average bid.
-        """
+        self.top_bid = max(bid["bid"] for bid in bidders)
+        self.total_entries = sum(bid["bid"] for bid in bidders)
         if len(bidders) > 0:
             self.bidders = bidders.copy()
             bids: list[list[int]] = [[], []]
@@ -222,15 +198,6 @@ class GiveawayView(ui.View):
         else:
             winners = []
             avg_bid = 0
-        return winners, avg_bid
-
-    async def end(self):
-        """End the giveaway."""
-        self._prep_view_for_draw()
-        bidders = await self._get_bidders()
-        self.top_bid = max(bid["bid"] for bid in bidders)
-        self.total_entries = sum(bid["bid"] for bid in bidders)
-        winners, avg_bid = self._draw_winner(bidders)
         if winners:
             winner = winners[0]
             winning_bid = await self.bot.pool.fetchval("SELECT bid FROM bids WHERE id = $1", winner.id)
@@ -251,8 +218,8 @@ class GiveawayView(ui.View):
         await self.bot.pool.execute("UPDATE bids SET bid = 0 WHERE bid > 0")
         await self.bot.program_logs.send(
             f"{self.game} giveaway ended. {len(bidders)} bidders, {len(winners)} winners, "
-            f"{self.total_entries} entries, {self.top_bid} top bid.\n Winners:"
-            f" {', '.join(w.mention for w in winners)}"
+            f"{self.total_entries} entries, {self.top_bid} top bid."
+            f" {len(return_bids)} users returned their bids.\n Winners: {', '.join(f'<@{w.id}>' for w in winners)}"
         )
 
     # noinspection PyUnusedLocal
