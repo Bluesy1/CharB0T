@@ -405,17 +405,6 @@ class ReputationAdmin(
                     f"Error: Pool `{pool}` not found. Use the autocomplete feature to find the pool."
                 )
             else:
-                await conn.execute(
-                    "UPDATE pools SET pool = $1, cap = $2, reward = $3, level = $4, current = $5, start = $6"
-                    " WHERE pool = $7",
-                    name or pool,
-                    capacity if capacity is not None else _pool["cap"],
-                    reward or _pool["reward"],
-                    level if level is not None else _pool["level"],
-                    current if current is not None else _pool["current"],
-                    start if start is not None else _pool["start"],
-                    pool,
-                )
                 await self._finish_pool_edit(interaction, _pool, pool, name, capacity, reward, level, current, start)
 
     async def _finish_pool_edit(
@@ -453,6 +442,17 @@ class ReputationAdmin(
         start : int | None
             The new base rep for the pool level.
         """
+        await self.bot.pool.execute(
+            "UPDATE pools SET pool = $1, cap = $2, reward = $3, level = $4, current = $5, start = $6"
+            " WHERE pool = $7",
+            name or pool,
+            capacity if capacity is not None else previous["cap"],
+            reward or previous["reward"],
+            level if level is not None else previous["level"],
+            current if current is not None else previous["current"],
+            start if start is not None else previous["start"],
+            pool,
+        )
         assert isinstance(previous, asyncpg.Record)  # skipcq: BAN-B101
         _partial_image: Callable[[], BytesIO] = partial(
             generate_card,
