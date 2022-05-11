@@ -24,8 +24,9 @@
 #  ----------------------------------------------------------------------------
 """Tic-tac-toe classes and views."""
 
-__all__ = ("Points", "GridPositions", "PilOffsets", "PilOffsets", "TicTacABC", "TicTacEasy", "TicTacHard")
+__all__ = ("Points", "GridPositions", "PilOffsets", "PilOffsets", "TicTacABC", "TicTacEasy", "TicTacHard", "TicTacView")
 
-from abstract import GridPositions, PilOffsets, Points, TicTacABC
-from easy import TicTacEasy
-from hard import TicTacHard
+from .abstract import GridPositions, PilOffsets, Points, TicTacABC
+from .easy import TicTacEasy
+from .hard import TicTacHard
+from .view import TicTacView
