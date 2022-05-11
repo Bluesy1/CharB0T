@@ -352,11 +352,11 @@ class ReputationAdmin(
         interaction: Interaction,
         pool: str,
         name: Optional[str] = None,
-        capacity: app_commands.Range[int, 0] = 0,
+        capacity: Optional[app_commands.Range[int, 0]] = None,
         reward: Optional[str] = None,
-        level: app_commands.Range[int, 1] = 1,
-        current: app_commands.Range[int, 0] = 0,
-        start: app_commands.Range[int, 0] = 0,
+        level: Optional[app_commands.Range[int, 1]] = None,
+        current: Optional[app_commands.Range[int, 0]] = None,
+        start: Optional[app_commands.Range[int, 0]] = None,
     ):
         """Edit a pool. Options left out will not be changed.
 
@@ -379,7 +379,7 @@ class ReputationAdmin(
         start : int
             The new base rep for the pool level. Must be at least 0 and set above 0 if level is 1.
         """
-        if level != 1 and 0 in (current, start):
+        if level != 1 and any(i in (current, start) for i in (0, None)):
             await interaction.response.send_message(
                 "Error: Current and start must be greater than 0 if level is 1.", ephemeral=True
             )
@@ -405,39 +405,36 @@ class ReputationAdmin(
                     f"Error: Pool `{pool}` not found. Use the autocomplete feature to find the pool."
                 )
             else:
-                if name is not None:
-                    await conn.execute("UPDATE pools SET pool = $1 WHERE pool = $2", name, pool)
-                if capacity != 0:
-                    await conn.execute("UPDATE pools SET cap = $1 WHERE pool = $2", capacity, pool)
-                if reward is not None:
-                    await conn.execute("UPDATE pools SET reward = $1 WHERE pool = $2", reward, pool)
-                if level != 1:
-                    await conn.execute("UPDATE pools SET level = $1 WHERE pool = $2", level, pool)
-                if current != 0:
-                    await conn.execute("UPDATE pools SET current = $1 WHERE pool = $2", current, pool)
-                if start != 0:
-                    await conn.execute("UPDATE pools SET start = $1 WHERE pool = $2", start, pool)
-
-                _pool = await conn.fetchrow("SELECT * FROM pools WHERE pool = $1", name or pool)
+                await conn.execute(
+                    "UPDATE pools SET pool = $1, cap = $2, reward = $3, level = $4, current = $5, start = $6"
+                    " WHERE pool = $7",
+                    name or _pool["pool"],
+                    capacity if capacity is not None else _pool["cap"],
+                    reward or _pool["reward"],
+                    level if level is not None else _pool["level"],
+                    current if current is not None else _pool["current"],
+                    start if start is not None else _pool["start"],
+                    pool,
+                )
                 assert isinstance(_pool, asyncpg.Record)  # skipcq: BAN-B101
                 _partial_image: Callable[[], BytesIO] = partial(
                     generate_card,
-                    level=_pool["level"],
-                    base_rep=_pool["start"],
-                    current_rep=_pool["current"],
-                    completed_rep=_pool["cap"],
-                    pool_name=_pool["pool"],
-                    reward=_pool["reward"],
+                    level=level if level is not None else _pool["level"],
+                    base_rep=start if start is not None else _pool["start"],
+                    current_rep=current if current is not None else _pool["current"],
+                    completed_rep=capacity if capacity is not None else _pool["cap"],
+                    pool_name=name or pool,
+                    reward=reward or _pool["reward"],
                 )
                 image_bytes = await self.bot.loop.run_in_executor(None, _partial_image)
                 image = discord.File(image_bytes, f"{_pool['pool']}.png")
                 await interaction.followup.send(
-                    f"Pool {_pool['pool']}{f' (formerly {pool})' if name is not None else ''} edited!", file=image
+                    f"Pool {name or pool}{f' (formerly {pool})' if name is not None else ''} edited!", file=image
                 )
                 clientuser = self.bot.user
                 assert isinstance(clientuser, discord.ClientUser)  # skipcq: BAN-B101
                 await self.bot.program_logs.send(
-                    f"Pool {_pool['pool']}{f' (formerly {pool})' if name is not None else ''}"
+                    f"Pool {name or pool}{f' (formerly {pool})' if name is not None else ''}"
                     f" edited by {interaction.user.mention}.",
                     allowed_mentions=_ALLOWED_MENTIONS,
                     username=clientuser.name,
