@@ -411,7 +411,7 @@ class ReputationAdmin(
         self,
         interaction: Interaction,
         previous: asyncpg.Record,
-        pool: str | None,
+        pool: str,
         name: str | None,
         capacity: int | None,
         reward: str | None,
@@ -427,8 +427,8 @@ class ReputationAdmin(
             The interaction to respond to.
         previous : asyncpg.Record
             The previous pool record.
-        pool : str | None
-            The new name of the pool.
+        pool : str
+            The name of the pool.
         name : str | None
             The new name of the pool.
         capacity : int | None
