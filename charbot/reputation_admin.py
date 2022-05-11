@@ -279,7 +279,7 @@ class ReputationAdmin(
             role17,
             role18,
         ]
-        roles = list({r.id for r in filter(lambda x: x is not None, _roles)})
+        roles = list(set(r.id for r in filter(lambda x: x is not None, _roles)))
         await self._finish_pool_create(interaction, name, reward, capacity, level, current, start, roles)
 
     async def _finish_pool_create(
