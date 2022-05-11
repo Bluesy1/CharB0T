@@ -173,6 +173,7 @@ class Primary(Cog):
             An instance of the Primary class
         """
         pass
+        # self.friday_5.start()
 
     async def cog_unload(self) -> None:  # skipcq: PYL-W0236
         """Cancel the automated message every friday at 5:00pm Pacific Time.
@@ -183,6 +184,7 @@ class Primary(Cog):
             An instance of the Primary class
         """
         pass
+        # self.friday_5.cancel()
 
     @tasks.loop(  # skipcq: PYL-E1123
         time=datetime.time(
