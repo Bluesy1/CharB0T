@@ -9,9 +9,7 @@
 [![](https://tokei.rs/b1/github/Bluesy1/CharB0T?category=lines)](https://github.com/XAMPPRocky/tokei)
 [![](https://tokei.rs/b1/github/Bluesy1/CharB0T?category=files)](https://github.com/XAMPPRocky/tokei)
 [![](https://tokei.rs/b1/github/Bluesy1/CharB0T?category=comments)](https://github.com/XAMPPRocky/tokei)
-![](https://img.shields.io/badge/license-MIT-blue.svg)
-[![wakatime](https://wakatime.com/badge/github/Bluesy1/CharB0T.svg)](https://wakatime.com/badge/github/Bluesy1/CharB0T)
-[![wakatime project](https://wakatime.com/badge/user/3f26ffdf-13bd-416d-bcdf-5a9d627ec7f6/project/8ba6c9d7-7528-4748-a62f-ccb59413cf35.svg)](https://wakatime.com/badge/user/3f26ffdf-13bd-416d-bcdf-5a9d627ec7f6/project/8ba6c9d7-7528-4748-a62f-ccb59413cf35)
+
 # CharB0T
 Personal Bots, And Ones made for Charlie.
 
