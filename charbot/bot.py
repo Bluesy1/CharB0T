@@ -316,7 +316,7 @@ class CBot(commands.Bot):
         return points + bonus
 
     async def on_command_error(self, ctx: commands.Context, exception: CommandError, /) -> None:
-        """The event triggered when an error is raised while invoking a command.
+        """Event triggered when an error is raised while invoking a command.
 
         Parameters
         ------------
@@ -368,10 +368,10 @@ class CBot(commands.Bot):
             traceback.print_exception(type(exception), exception, exception.__traceback__, file=sys.stderr)
 
     async def on_error(self, event_method: str, /, *args: Any, **kwargs: Any) -> None:
-        """The event triggered when an error is raised.
+        """Event triggered when an error is raised.
 
         Parameters
-        ------------
+        ----------
         event_method: str
             The name of the event that raised the error.
         args: Any
@@ -393,10 +393,10 @@ class Tree(app_commands.CommandTree):
         self.client: CBot = bot
 
     async def on_error(self, interaction: discord.Interaction, error: app_commands.AppCommandError) -> None:
-        """The event triggered when an error is raised while invoking a command.
+        """Event triggered when an error is raised while invoking a command.
 
         Parameters
-        ------------
+        ----------
         interaction: discord.Interaction
             The interaction that raised the error.
 
