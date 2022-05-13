@@ -22,5 +22,5 @@ profile = "black"
 skip_gitignore = true
 line_length = 120
 atomic = true
-known_local_folder = ["backup", "main", "card", "_tictactoe", "_sudoku", "_shrugman"]
+known_local_folder = ["backup", "main", "card", "_tictactoe", "_sudoku", "shrugman", "bot"]
 lines_after_imports = 2
