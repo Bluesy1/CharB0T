@@ -45,7 +45,7 @@ class CBot(commands.Bot):
     This class is used to create the bot instance.
 
     Parameters
-    -----------
+    ----------
     command_prefix
         The command prefix is what the message content must contain initially
         to have a command invoked. This prefix could either be a string to
@@ -320,7 +320,7 @@ class CBot(commands.Bot):
         """Event triggered when an error is raised while invoking a command.
 
         Parameters
-        ------------
+        ----------
         ctx: commands.Context
             The context used for command invocation.
         exception: commands.CommandError
