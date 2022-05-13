@@ -315,7 +315,8 @@ class CBot(commands.Bot):
             return 0
         return points + bonus
 
-    async def on_command_error(self, ctx: commands.Context, exception: CommandError, /) -> None:
+    # for some reason deepsource doesn't like this, so i'm skipcq'ing the definition header
+    async def on_command_error(self, ctx: commands.Context, exception: CommandError, /) -> None:  # skipcq: PYL-W0221
         """Event triggered when an error is raised while invoking a command.
 
         Parameters
@@ -332,7 +333,7 @@ class CBot(commands.Bot):
 
         cog = ctx.cog
         # noinspection PyProtectedMember
-        if cog is not None and cog._get_overridden_method(cog.cog_command_error) is not None:
+        if cog is not None and cog._get_overridden_method(cog.cog_command_error) is not None:  # skipcq: PYL-W0212
             return  # Local cog overrides take precedence
 
         ignored = (commands.CommandNotFound,)
