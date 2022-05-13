@@ -38,7 +38,7 @@ from discord import app_commands, ui
 from discord.ext import commands, tasks
 from discord.utils import MISSING, utcnow
 
-from main import __TIME__, __ZONEINFO__, CBot
+from bot import CBot
 
 
 ALLOWED_ROLES: Final = (
@@ -279,15 +279,15 @@ class GiveawayView(ui.View):
         async with self.bot.pool.acquire() as conn:
             last_win = await conn.fetchval(
                 "SELECT expiry FROM winners WHERE id = $1", interaction.user.id
-            ) or __TIME__() - datetime.timedelta(days=1)
-            if last_win >= __TIME__():
+            ) or self.bot.TIME() - datetime.timedelta(days=1)
+            if last_win >= self.bot.TIME():
                 await interaction.response.send_message(
                     f"You have won a giveaway recently, please wait until after {last_win.strftime('%a %d %B %Y')}"
                     f" to bid again.",
                     ephemeral=True,
                 )
                 return
-            if last_win != __TIME__() - datetime.timedelta(days=1):
+            if last_win != self.bot.TIME() - datetime.timedelta(days=1):
                 await conn.execute("DELETE FROM winners WHERE id = $1", interaction.user.id)
         modal = BidModal(self.bot, self)
         await interaction.response.send_modal(modal)
@@ -324,15 +324,15 @@ class GiveawayView(ui.View):
         async with self.bot.pool.acquire() as conn:
             last_win = await conn.fetchval(
                 "SELECT expiry FROM winners WHERE id = $1", interaction.user.id
-            ) or __TIME__() - datetime.timedelta(days=1)
-            if last_win >= __TIME__():
+            ) or self.bot.TIME() - datetime.timedelta(days=1)
+            if last_win >= self.bot.TIME():
                 await interaction.response.send_message(
                     f"You have won a giveaway recently, please wait until after {last_win.strftime('%a %d %B %Y')}"
                     f" to bid again.",
                     ephemeral=True,
                 )
                 return
-            if last_win != __TIME__() - datetime.timedelta(days=1):
+            if last_win != self.bot.TIME() - datetime.timedelta(days=1):
                 await conn.execute("DELETE FROM winners WHERE id = $1", interaction.user.id)
             record = await conn.fetchval("SELECT bid FROM bids WHERE id = $1", interaction.user.id)
             bid: int = record if record is not None else 0
@@ -562,8 +562,8 @@ class Giveaway(commands.Cog):
                     "INSERT INTO daily_points (id, last_claim, last_particip_dt, particip, won) VALUES "
                     "($1, $2, $3, 0, 0)",
                     user.id,
-                    __TIME__(),
-                    __TIME__() - datetime.timedelta(days=1),
+                    self.bot.TIME(),
+                    self.bot.TIME() - datetime.timedelta(days=1),
                 )
                 await conn.execute("INSERT INTO bids (id, bid) VALUES ($1, 0)", user.id)
                 await interaction.followup.send("You got some Rep today, inmate")
@@ -574,12 +574,12 @@ class Giveaway(commands.Cog):
                     avatar_url=clientuser.display_avatar.url,
                 )
             return
-        if giveaway_user["daily"] >= __TIME__():
+        if giveaway_user["daily"] >= self.bot.TIME():
             await interaction.followup.send("No more Rep for you yet, get back to your cell")
             return
         async with self.bot.pool.acquire() as conn:
             await conn.execute("UPDATE users SET points = points + 20 WHERE id = $1", user.id)
-            await conn.execute("UPDATE daily_points SET last_claim = $1 WHERE id = $2", __TIME__(), user.id)
+            await conn.execute("UPDATE daily_points SET last_claim = $1 WHERE id = $2", self.bot.TIME(), user.id)
         await interaction.followup.send("You got some Rep today, inmate")
         await self.bot.program_logs.send(
             f"{user.mention} has claimed their daily reputation bonus.",
@@ -626,11 +626,11 @@ class Giveaway(commands.Cog):
         await self.bot.pool.execute(
             "INSERT INTO winners (id, expiry) VALUES ($1, $2) ON CONFLICT (id) DO UPDATE SET expiry = $2",
             user.id,
-            __TIME__() + datetime.timedelta(days=6),
+            self.bot.TIME() + datetime.timedelta(days=6),
         )
         await interaction.response.send_message("Confirmed.", ephemeral=True)
 
-    @tasks.loop(time=datetime.time(hour=9, minute=0, second=0, tzinfo=__ZONEINFO__))  # skipcq: PYL-E1123
+    @tasks.loop(time=datetime.time(hour=9, minute=0, second=0, tzinfo=CBot.ZONEINFO))  # skipcq: PYL-E1123
     async def daily_giveaway(self):
         """Run the daily giveaway."""
         if self.current_giveaway is not MISSING:
@@ -640,7 +640,7 @@ class Giveaway(commands.Cog):
             self.charlie = await (await self.bot.fetch_guild(225345178955808768)).fetch_member(225344348903047168)
         self.games = self.load_game_csv()
         try:
-            gameinfo: dict[str, str] = dict(self.games.loc[__TIME__().strftime("%-m/%-d/%Y")])
+            gameinfo: dict[str, str] = dict(self.games.loc[self.bot.TIME().strftime("%-m/%-d/%Y")])
         except KeyError:
             gameinfo: dict[str, str] = {"game": "Charlie Didn't Give me one", "url": "None", "source": "Charlie"}
         game = gameinfo["game"]
