@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Ask a question
+    about: Ask question and discuss with others on github
+    url: https://github.com/Bluesy1/CharB0T/discussions
+  - name: Discord Server
+    about: Ask question or get help outside of github
+    url: https://cpry.net/discord
