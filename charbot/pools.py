@@ -94,7 +94,7 @@ class Pools(commands.GroupCog, name="pools", description="Reputation pools for c
 
     @app_commands.command(name="add", description="Add reputation to an active pool.")
     @app_commands.describe(pool="The pool to add to.", amount="The amount to add.")
-    async def add(self, interaction: Interaction, pool: str, amount: int):
+    async def add(self, interaction: Interaction, pool: str, amount: app_commands.Range[int, 1]):
         """Add reputation to an active pool.
 
         If the pool would be overfilled by the addition, it only fills it to the maximum.
