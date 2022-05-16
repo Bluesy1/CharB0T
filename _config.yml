@@ -26,14 +26,16 @@ description: >- # this means to ignore newlines until "baseurl:"
   Google search results) and in your feed.xml site description.
 domain: bluesy1.github.io    # if you want to force HTTPS, specify the domain without the http at the start, e.g. example.com
 url: https://bluesy1.github.io/CharB0T/  # the base hostname and protocol for your site, e.g. http://example.com
-baseurl: /CharB0T/docs      # place folder name if the site is served in a subfolder
+baseurl: /CharB0T/      # place folder name if the site is served in a subfolder
 twitter_username: jekyllrb
 github_username:  jekyll
 
 # Build settings
-theme: jekyll-theme-midnight
+markdown: GFM
+remote_theme: pages-themes/midnight@v0.2.0
 plugins:
   - jekyll-feed
+  - jekyll-remote-theme
 
 # Exclude from processing.
 # The following items will not be processed, by default.
