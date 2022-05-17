@@ -22,13 +22,25 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 #  ----------------------------------------------------------------------------
-"""Sudoku puzzle game."""
+"""Wrong roles error."""
+from discord.app_commands import MissingAnyRole
 
-__all__ = ("Cell", "Row", "Column", "Block", "Puzzle", "Sudoku")
 
-from block import Block
-from cell import Cell
-from column import Column
-from puzzle import Puzzle
-from row import Row
-from view import Sudoku
+class MissingProgramRole(MissingAnyRole):
+    """Wrong roles' error.
+
+    Raised when the command is not run in the right channel.
+
+    Parameters
+    ----------
+    roles : list
+        The roles the command should be run with.
+    """
+
+    def __init__(self, roles: list[int | str]):
+        super().__init__(roles)
+        self.message = self.args[0] + " - you must be at least level 1 to use this command."
+
+    def __str__(self):
+        """String representation of error."""
+        return self.message

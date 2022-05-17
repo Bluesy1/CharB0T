@@ -23,13 +23,24 @@
 # SOFTWARE.
 #  ----------------------------------------------------------------------------
 """Tic-tac-toe game view."""
+import asyncio
+from typing import Protocol
 
 import discord
 from discord import ButtonStyle, Interaction, ui
 from discord.utils import utcnow
 
-from ..main import CBot
 from . import TicTacABC, TicTacEasy, TicTacHard
+
+
+class CBot(Protocol):
+
+    loop: asyncio.AbstractEventLoop
+
+    async def give_game_points(
+        self, member: discord.Member | discord.User, game: str, points: int, bonus: int = 0
+    ) -> int:
+        ...
 
 
 class TicTacView(ui.View):
@@ -123,7 +134,7 @@ class TicTacView(ui.View):
                 color=discord.Color.green(),
             )
             self.disable()
-            image = await self.bot.loop.run_in_executor(self.bot.executor, self.puzzle.display)
+            image = await self.bot.loop.run_in_executor(None, self.puzzle.display)
             await interaction.edit_original_message(attachments=[])
             await interaction.edit_original_message(attachments=[image], embed=embed, view=self)
             return
@@ -132,7 +143,7 @@ class TicTacView(ui.View):
         else:
             move = await self.bot.loop.run_in_executor(None, self.puzzle.next)
         self._buttons[move[0] * 3 + move[1]].disabled = True
-        image = await self.bot.loop.run_in_executor(self.bot.executor, self.puzzle.display)
+        image = await self.bot.loop.run_in_executor(None, self.puzzle.display)
         if self.puzzle.check_win() == -1 and all(button.disabled for button in self._buttons):
             points = self.puzzle.points
             member = interaction.user

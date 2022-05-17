@@ -28,11 +28,12 @@ import os
 import sys
 import traceback
 from concurrent.futures import ProcessPoolExecutor, ThreadPoolExecutor
-from typing import Any, ClassVar, Type
+from typing import Any, ClassVar, Final, Type
 from zoneinfo import ZoneInfo
 
 import asyncpg
 import discord
+import errors
 from discord import app_commands
 from discord.ext import commands
 from discord.ext.commands import CommandError
@@ -116,7 +117,7 @@ class CBot(commands.Bot):
     """
 
     ZONEINFO: ClassVar[ZoneInfo] = ZoneInfo("America/Detroit")
-    ALLOWED_ROLES: ClassVar[tuple] = (
+    ALLOWED_ROLES: Final[list[int | str]] = [
         337743478190637077,
         685331877057658888,
         969629622453039104,
@@ -125,7 +126,8 @@ class CBot(commands.Bot):
         969628342733119518,
         969627321239760967,
         969626979353632790,
-    )
+    ]
+    CHANNEL_ID: ClassVar[int] = 969972085445238784
 
     @classmethod
     def TIME(cls) -> datetime.datetime:
@@ -144,8 +146,8 @@ class CBot(commands.Bot):
             - datetime.timedelta(days=1)
         )  # noqa: E731
 
-    def __init__(self, *args, tree_cls: Type[app_commands.CommandTree], **kwargs):
-        super().__init__(*args, tree_cls=tree_cls, **kwargs)
+    def __init__(self, *args, strip_after_prefix: bool = True, tree_cls: Type[app_commands.CommandTree], **kwargs):
+        super().__init__(*args, strip_after_prefix=strip_after_prefix, tree_cls=tree_cls, **kwargs)
         self.executor: ThreadPoolExecutor = MISSING
         self.process_pool: ProcessPoolExecutor = MISSING
         self.pool: asyncpg.Pool = MISSING
@@ -208,7 +210,9 @@ class CBot(commands.Bot):
             user,
         )
 
-    async def give_game_points(self, member: discord.Member, game: str, points: int, bonus: int = 0) -> int:
+    async def give_game_points(
+        self, member: discord.Member | discord.User, game: str, points: int, bonus: int = 0
+    ) -> int:
         """Give the user points.
 
         Parameters
@@ -406,11 +410,15 @@ class Tree(app_commands.CommandTree):
         """
         command = interaction.command
         if isinstance(command, (app_commands.Command, app_commands.ContextMenu)):
+            if isinstance(error, errors.MissingProgramRole):
+                if interaction.response.is_done():
+                    await interaction.followup.send(error.message)
+                else:
+                    await interaction.response.send_message(error.message, ephemeral=True)
             if isinstance(error, app_commands.MissingAnyRole):
                 if interaction.response.is_done():
                     await interaction.followup.send(
-                        f"{interaction.user.mention}, you don't have any of the required role(s) to use "
-                        f"{command.name}."
+                        f"{interaction.user.mention}, you don't have any of the required role(s) to use {command.name}."
                     )
                 else:
                     await interaction.response.send_message(
@@ -418,13 +426,16 @@ class Tree(app_commands.CommandTree):
                         f"{command.name}.",
                         ephemeral=True,
                     )
+            elif isinstance(error, errors.WrongChannelError):
+                if interaction.response.is_done():
+                    await interaction.followup.send(f"{interaction.user.mention}, {error}")
+                else:
+                    await interaction.response.send_message(f"{interaction.user.mention}, {error}", ephemeral=True)
             elif isinstance(error, app_commands.NoPrivateMessage):
                 if interaction.response.is_done():
-                    await interaction.followup.send(f"{interaction.user.mention}, {command.name} can't be used in DMs.")
+                    await interaction.followup.send(error.args[0])
                 else:
-                    await interaction.response.send_message(
-                        f"{interaction.user.mention}, {command.name} can't be used in DMs.", ephemeral=True
-                    )
+                    await interaction.response.send_message(error.args[0], ephemeral=True)
             elif isinstance(error, app_commands.CheckFailure):
                 if interaction.response.is_done():
                     await interaction.followup.send(f"{interaction.user.mention}, you can't use {command.name}.")
@@ -433,6 +444,7 @@ class Tree(app_commands.CommandTree):
                         f"{interaction.user.mention}, you can't use {command.name}.", ephemeral=True
                     )
             elif isinstance(error, app_commands.CommandInvokeError):
+                orig_error = error.original or error
                 if interaction.response.is_done():
                     await interaction.followup.send(
                         f"{interaction.user.mention}, an error occurred while executing {command.name}"
@@ -446,12 +458,11 @@ class Tree(app_commands.CommandTree):
                     )
                 await self.client.error_logs.send(
                     f"{interaction.user.mention} tried to execute command {command.name!r} but an error "
-                    f"occurred:\n{error.original}"
+                    f"occurred:\n{orig_error}"
                 )
                 print(f"Ignoring exception in command {command.name!r}", file=sys.stderr)
-                traceback.print_exception(error.__class__, error, error.__traceback__, file=sys.stderr)
+                traceback.print_exception(orig_error.__class__, orig_error, orig_error.__traceback__, file=sys.stderr)
         else:
             print(f"Ignoring exception in command tree: {error}", file=sys.stderr)
-            await self.client.error_logs.send(f"Ignoring exception in command tree: file={sys.stderr}")
-
-        traceback.print_exception(error.__class__, error, error.__traceback__, file=sys.stderr)
+            await self.client.error_logs.send(f"Ignoring exception in command tree: {error}")
+            traceback.print_exception(error.__class__, error, error.__traceback__, file=sys.stderr)

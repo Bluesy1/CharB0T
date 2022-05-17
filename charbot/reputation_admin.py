@@ -32,8 +32,8 @@ import discord
 from discord import Interaction, app_commands
 from discord.ext import commands
 
+from bot import CBot
 from card import generate_card
-from main import CBot
 
 
 _ALLOWED_MENTIONS = discord.AllowedMentions(roles=False, users=False, everyone=False)
@@ -117,6 +117,12 @@ class ReputationAdmin(
             callback=self.check_reputation_context,
         )
         self.bot.tree.add_command(self.ctx_menu)
+        self._allowed_roles: list[int | str] = [
+            225413350874546176,
+            253752685357039617,
+            725377514414932030,
+            338173415527677954,
+        ]
 
         # noinspection PyUnusedLocal
         @self.edit_pool.autocomplete("pool")
@@ -146,6 +152,11 @@ class ReputationAdmin(
                 if current.lower() in pool["pool"].lower()
             ]
 
+    @property
+    def allowed_roles(self) -> list[int | str]:
+        """Allowed roles."""
+        return self._allowed_roles
+
     async def cog_unload(self) -> None:
         """Unload the cog."""
         self.bot.tree.remove_command(
@@ -154,6 +165,29 @@ class ReputationAdmin(
 
     pools = app_commands.Group(name="pools", description="Administration commands for the reputation pools.")
     reputation = app_commands.Group(name="reputation", description="Administration commands for the reputation system.")
+
+    async def interaction_check(self, interaction: Interaction) -> bool:
+        """Check if the interaction is allowed.
+
+        Parameters
+        ----------
+        interaction : Interaction
+            The interaction object.
+
+        Returns
+        -------
+        bool
+            Whether the interaction is allowed.
+        """
+        try:
+            member = interaction.user
+            assert isinstance(member, discord.Member)  # skipcq: BAN-B101
+        except AssertionError:
+            raise app_commands.NoPrivateMessage("This command can't be used in DMs.")
+        else:
+            if not any(role.id in self.allowed_roles for role in member.roles):
+                raise app_commands.MissingAnyRole(self.allowed_roles)
+            return True
 
     @pools.command(name="create", description="Create a new reputation pool.")
     async def create_pool(

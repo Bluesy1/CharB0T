@@ -24,14 +24,24 @@
 #  ----------------------------------------------------------------------------
 """View class."""
 import datetime
-from typing import Literal
+from typing import Literal, Protocol
 
+import asyncpg
 import discord
 from discord import ButtonStyle, Interaction, SelectOption, ui
 from discord.utils import MISSING, utcnow
 
-from ..main import CBot
 from . import Block, Cell, Puzzle
+
+
+class CBot(Protocol):
+
+    pool: asyncpg.Pool
+
+    async def give_game_points(
+        self, member: discord.Member | discord.User, game: str, points: int, bonus: int = 0
+    ) -> int:
+        ...
 
 
 # noinspection GrazieInspection

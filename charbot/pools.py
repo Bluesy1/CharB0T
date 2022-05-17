@@ -32,8 +32,8 @@ import discord
 from discord import Interaction, app_commands
 from discord.ext import commands
 
+from bot import CBot
 from card import generate_card
-from main import CBot
 
 
 CHANNEL_ID: Final[int] = 969972085445238784
