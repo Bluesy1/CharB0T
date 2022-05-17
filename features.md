@@ -44,3 +44,4 @@ Bot modules:
  - Admin: Select [admin](./admin) commands, such as the auto-mod and ping commands.
  - Dice: Select [dice](./dice) commands, such as the roll command.
  - Events: Select [event](./events) processing, such as the on_member_update for timeouts.
+ - Google Calendar: Connect to a [Google Calendar](./cal) to a discord channel and keep upcoming events listed in the channel.

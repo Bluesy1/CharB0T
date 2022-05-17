@@ -12,18 +12,18 @@ permalink: /docs/events
 
 ## On member join
 
-{% highlight python %}
+```python
 async def on_member_join(self, member: discord.Member):
     if member.guild.id == 0:
         self.members.update({member.id: utcnow()})
 #=> Add the members join time to the mapping
-{% endhighlight %}
+```
 
  - One parameter, **member**, which is a discord.Member object
 
 ## On member leave
 
-{% highlight python %}
+```python
 async def on_raw_member_remove(self, payload: discord.RawMemberRemoveEvent):
     if payload.guild_id == 0:
         user = payload.user
@@ -37,7 +37,7 @@ async def on_raw_member_remove(self, payload: discord.RawMemberRemoveEvent):
         channel = await self.bot.fetch_channel(1)
         assert isinstance(channel, discord.TextChannel)
         await channel.send(f"... Time on Server: {time_string}")
-{% endhighlight %}
+```
 
   - One parameter, **payload**, which is a discord.RawMemberRemoveEvent object
   - Processes member leave events
@@ -49,7 +49,7 @@ async def on_raw_member_remove(self, payload: discord.RawMemberRemoveEvent):
 
 ## On member update
 
-{% highlight python %}
+```python
 async def on_member_update(self, before: discord.Member, after):
     try:
         if after.timed_out_until != before.timed_out_until:
@@ -66,7 +66,7 @@ async def on_member_update(self, before: discord.Member, after):
     except Exception:
         if after.is_timed_out():
             await self.parse_timeout(after)
-{% endhighlight %}
+```
 
   - Two parameters, **before** and **after**, which are discord.Member objects
   - Processes member update events
@@ -77,7 +77,7 @@ async def on_member_update(self, before: discord.Member, after):
 
 ## On Message
 
-{% highlight python %}
+```python
 async def on_message(self, message: discord.Message):
     if message.content is not None and not message.author.bot:
         # remove empty messages and bot messages
@@ -92,7 +92,7 @@ async def on_message(self, message: discord.Message):
             await log(message)
             # log bad messages
             await message.delete()
-{% endhighlight %}
+```
 
   - No parameters
   - Processes messages
