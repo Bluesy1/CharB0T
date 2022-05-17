@@ -42,5 +42,5 @@ class MissingProgramRole(MissingAnyRole):
         self.message = self.args[0] + " - you must be at least level 1 to use this command."
 
     def __str__(self):
-        """String representation of error."""
+        """Get the error as a string."""
         return self.message

@@ -35,12 +35,14 @@ from . import Block, Cell, Puzzle
 
 
 class CBot(Protocol):
+    """Protocol for the CBot class."""
 
     pool: asyncpg.Pool
 
     async def give_game_points(
         self, member: discord.Member | discord.User, game: str, points: int, bonus: int = 0
     ) -> int:
+        """Give points to a member for a game."""
         ...
 
 

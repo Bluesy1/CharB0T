@@ -43,5 +43,5 @@ class WrongChannelError(AppCommandError):
         self._channel: int = channel
 
     def __str__(self):
-        """String."""
+        """Get the error as a string."""
         return f"This command can only be run in the channel <#{self._channel}> ."

@@ -34,12 +34,14 @@ from . import TicTacABC, TicTacEasy, TicTacHard
 
 
 class CBot(Protocol):
+    """Protocol for the CBot class."""
 
     loop: asyncio.AbstractEventLoop
 
     async def give_game_points(
         self, member: discord.Member | discord.User, game: str, points: int, bonus: int = 0
     ) -> int:
+        """Give points to a member for a game."""
         ...
 
 
