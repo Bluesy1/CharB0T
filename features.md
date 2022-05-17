@@ -1,7 +1,7 @@
 ---
 layout: default
 title: Features
-permalink: /docs
+permalink: /docs/
 ---
 
 ## Features
