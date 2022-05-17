@@ -154,7 +154,7 @@ class ReputationAdmin(
 
     @property
     def allowed_roles(self) -> list[int | str]:
-        """Allowed roles."""
+        """Allow roles."""
         return self._allowed_roles
 
     async def cog_unload(self) -> None:
