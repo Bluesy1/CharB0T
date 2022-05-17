@@ -20,6 +20,22 @@ layout: default
 [![Code style: flake8](https://img.shields.io/badge/code%20style-flake8-blue.svg)](https://github.com/pycqa/flake8)
 [![wakatime](https://wakatime.com/badge/github/Bluesy1/CharB0T.svg)](https://wakatime.com/badge/github/Bluesy1/CharB0T)
 
+![GitHub commit activity](https://img.shields.io/github/commit-activity/w/Bluesy1/CharB0T)
+![GitHub issues by-label](https://img.shields.io/github/issues/Bluesy1/CharB0T/feature%20request?label=Feature%20Requests)
+![GitHub issues by-label](https://img.shields.io/github/issues/Bluesy1/CharB0T/bug?label=Confirmed%20Bugs)
+![GitHub issues by-label](https://img.shields.io/github/issues/Bluesy1/CharB0T/unconfirmed%20bug?label=Unconfirmed%20Bugs)
+![GitHub issues](https://img.shields.io/github/issues/Bluesy1/CharB0T)
+![GitHub closed issues](https://img.shields.io/github/issues-closed/Bluesy1/CharB0T)
+![GitHub pull requests](https://img.shields.io/github/issues-pr/Bluesy1/CharB0T)
+![GitHub closed pull requests](https://img.shields.io/github/issues-pr-closed/Bluesy1/CharB0T)
+
+## Contributors
+    
+![GitHub contributors](https://img.shields.io/github/contributors/Bluesy1/CharB0T.svg)
+[![Discord](https://img.shields.io/discord/225345178955808768)](https://cpry.net/discord)
+
+![Contributors](https://contrib.rocks/image?repo=BLuesy1/CharB0T)
+
 ## Docs
 
 You can find the documentation for the bot [here](./docs/).
