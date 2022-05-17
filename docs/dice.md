@@ -1,6 +1,6 @@
 ---
 layout: default
-title: Admin Module
+title: Dice Module
 permalink: /docs/dice
 ---
 
