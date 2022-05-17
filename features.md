@@ -16,6 +16,9 @@ Libraries and Tools Used:
  - Pillow: [Python Imaging Library](https://pillow.readthedocs.io/en/stable/) for image manipulation.
  - Pycharm IDE: [PyCharm](https://www.jetbrains.com/pycharm/) for Python development.
  - DataGrip: [DataGrip](https://www.jetbrains.com/datagrip/) for SQL development.
+ - RubyMine: [RubyMine](https://www.jetbrains.com/ruby/) for github pages development.
+ - PostgreSQL: [PostgreSQL](https://www.postgresql.org/) for the database.
+ - Digital Ocean: [Digital Ocean](https://www.digitalocean.com/) for hosting the bot.
  - Asyncpg: [Asyncpg](https://magicstack.github.io/asyncpg/current/) for asynchronous PostgreSQL access in Python.
  - Matplotlib: [Matplotlib](https://matplotlib.org/) for plotting.
  - NumPy: [NumPy](https://numpy.org/) for numerical analysis.
