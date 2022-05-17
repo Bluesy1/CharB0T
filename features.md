@@ -1,7 +1,7 @@
 ---
 layout: default
 title: Features
-permalink: /documentation
+permalink: /docs
 ---
 
 ## Features
@@ -16,12 +16,12 @@ Libraries and Tools Used:
  - Pillow: [Python Imaging Library](https://pillow.readthedocs.io/en/stable/) for image manipulation.
  - Pycharm IDE: [PyCharm](https://www.jetbrains.com/pycharm/) for Python development.
  - DataGrip: [DataGrip](https://www.jetbrains.com/datagrip/) for SQL development.
- - Asyncpg: [Asyncpg](https://magicstack.github.io/asyncpg/current/) for asynchronus PostgreSQL access in Python.
+ - Asyncpg: [Asyncpg](https://magicstack.github.io/asyncpg/current/) for asynchronous PostgreSQL access in Python.
  - Matplotlib: [Matplotlib](https://matplotlib.org/) for plotting.
  - NumPy: [NumPy](https://numpy.org/) for numerical analysis.
  - Pandas: [Pandas](https://pandas.pydata.org/) for data analysis.
  - Scipy: [SciPy](https://www.scipy.org/) for scientific computing.
- - Aiohttp: [aiohttp](https://aiohttp.readthedocs.io/en/stable/) for asynchronus HTTP requests.
+ - Aiohttp: [aiohttp](https://aiohttp.readthedocs.io/en/stable/) for asynchronous HTTP requests.
  - Uvloop: [uvloop](https://uvloop.readthedocs.io/) for a superior asyncio event loop.
  - Validators: [validators](https://validators.readthedocs.io/en/latest/) for validating data.
  - Pyright: [microsoft](https://github.com/Microsoft) / [pyright](https://github.com/Microsoft/pyright) for static type analysis in python.
@@ -38,4 +38,5 @@ Libraries and Tools Used:
 Bot modules:
 
  - Jishaku: [Gorialis](https://github.com/Gorialis) / [Jishaku](https://github.com/Gorialis/Jishaku) for debugging and rapid testing.
+ - Admin: Select [admin](./admin) commands, such as the auto-mod and ping commands.
  - 
