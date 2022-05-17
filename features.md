@@ -39,4 +39,4 @@ Bot modules:
 
  - Jishaku: [Gorialis](https://github.com/Gorialis) / [Jishaku](https://github.com/Gorialis/Jishaku) for debugging and rapid testing.
  - Admin: Select [admin](./admin) commands, such as the auto-mod and ping commands.
- - 
+ - Dice: Select [dice](./dice) commands, such as the roll command.
