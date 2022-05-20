@@ -23,7 +23,7 @@
 # SOFTWARE.
 #  ----------------------------------------------------------------------------
 """Charbot Module."""
-from .bot import CBot
+from .bot import CBot, Tree
 
 
-__all__ = ("CBot",)
+__all__ = ("CBot", "Tree")

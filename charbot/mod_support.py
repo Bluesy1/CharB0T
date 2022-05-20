@@ -34,7 +34,7 @@ from discord.ext import tasks
 from discord.ext.commands import GroupCog
 from discord.utils import utcnow
 
-from bot import CBot
+from . import CBot
 
 
 async def edit_check(interaction: Interaction) -> bool:

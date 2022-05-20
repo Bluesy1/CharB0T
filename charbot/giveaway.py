@@ -29,7 +29,6 @@ import os
 import random
 import warnings
 from statistics import mean
-from typing import Final
 
 import asyncpg
 import discord
@@ -38,23 +37,7 @@ from discord import app_commands, ui
 from discord.ext import commands, tasks
 from discord.utils import MISSING, utcnow
 
-from bot import CBot
-
-
-ALLOWED_ROLES: Final = (
-    337743478190637077,
-    685331877057658888,
-    969629622453039104,
-    969629628249563166,
-    969629632028614699,
-    969628342733119518,
-    969627321239760967,
-    969626979353632790,
-)
-
-CHANNEL_ID: Final = 969972085445238784
-
-MESSAGE: Final = "You must be at least level 1 to participate in the giveaways system and be in <#969972085445238784>."
+from . import CBot
 
 
 class GiveawayView(ui.View):
@@ -271,7 +254,7 @@ class GiveawayView(ui.View):
             self.message = interaction.message
         user = interaction.user
         assert isinstance(user, discord.Member)  # skipcq: BAN-B101
-        if not any(role.id in ALLOWED_ROLES for role in user.roles):
+        if not any(role.id in CBot.ALLOWED_ROLES for role in user.roles):
             await interaction.response.send_message(
                 "You must be at least level 1 to participate in the giveaways system.", ephemeral=True
             )
@@ -316,7 +299,7 @@ class GiveawayView(ui.View):
             self.message = interaction.message
         user = interaction.user
         assert isinstance(user, discord.Member)  # skipcq: BAN-B101
-        if not any(role.id in ALLOWED_ROLES for role in user.roles):
+        if not any(role.id in CBot.ALLOWED_ROLES for role in user.roles):
             await interaction.response.send_message(
                 "You must be at least level 1 to participate in the giveaways system.", ephemeral=True
             )

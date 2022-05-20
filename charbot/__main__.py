@@ -34,7 +34,7 @@ import discord
 from discord.ext import commands
 from dotenv import load_dotenv
 
-from bot import CBot, Tree
+from . import CBot, Tree
 
 
 # noinspection PyBroadException

@@ -33,7 +33,7 @@ from discord.ext import tasks
 from discord.ext.commands import Cog
 from discord.utils import utcnow
 
-from bot import CBot
+from . import CBot
 
 
 def sensitive_embed(message: discord.Message, used: set[str]) -> discord.Embed:
