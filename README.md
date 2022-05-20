@@ -33,8 +33,7 @@
 
 ## Docs
 
-You can find the documentation for the bot [here](https://bluesy1.github.io/CharB0T/docs/).
-The changelog is [here](https://bluesy1.github.io/CharB0T/changes).
+You can find the documentation for the bot [here](https://bluesy1.github.io/CharB0T/docs/) and the changelog is [here](https://bluesy1.github.io/CharB0T/changes).
 
 ## Contributing
 
