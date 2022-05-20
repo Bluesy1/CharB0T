@@ -24,25 +24,22 @@
 #  ----------------------------------------------------------------------------
 """Program classses and functions."""
 import asyncio
+import datetime
 import random
 from typing import Final, Literal
 
 import discord
-import errors
-import sudoku
-import tictactoe
 from discord import Interaction, app_commands
 from discord.ext import commands
 
-import shrugman
-from bot import CBot
+from . import CBot, errors, shrugman, sudoku, tictactoe
 
 
 MESSAGE: Final = "You must be at least level 1 to participate in the giveaways system and be in <#969972085445238784>."
 
 
 @app_commands.guilds(225345178955808768)
-class Programs(commands.GroupCog, name="programs", description="Programs to gain you rep."):
+class Programs(commands.Cog):
     """Programs."""
 
     def __init__(self, bot: CBot):
@@ -57,14 +54,20 @@ class Programs(commands.GroupCog, name="programs", description="Programs to gain
         channel = interaction.channel
         assert isinstance(channel, discord.abc.GuildChannel)  # skipcq: BAN-B101
         if channel.id != self.bot.CHANNEL_ID:
-            raise app_commands.CheckFailure("You must be in <#969972085445238784> to use this cog.")
+            raise app_commands.CheckFailure("You must be in <#969972085445238784> to use this command.")
         user = interaction.user
         assert isinstance(user, discord.Member)  # skipcq: BAN-B101
         if not any(role.id in self.bot.ALLOWED_ROLES for role in user.roles):
             raise app_commands.MissingAnyRole(self.bot.ALLOWED_ROLES)
         return True
 
-    @app_commands.command(name="sudoku", description="Play a Sudoku puzzle")
+    programs = app_commands.Group(
+        name="programs", description="Programs to gain you rep.", guild_ids=[225345178955808768]
+    )
+
+    programs.interaction_check = interaction_check
+
+    @programs.command(name="sudoku", description="Play a Sudoku puzzle")
     async def sudoku(self, interaction: discord.Interaction, mobile: bool):
         """Generate a sudoku puzzle.
 
@@ -82,8 +85,7 @@ class Programs(commands.GroupCog, name="programs", description="Programs to gain
         view = sudoku.Sudoku(puzzle, user, self.bot)
         await interaction.followup.send(embed=view.block_choose_embed(), view=view)
 
-    @app_commands.command(name="tictactoe", description="Play a game of Tic Tac Toe!")
-    @app_commands.guilds(225345178955808768)
+    @programs.command(name="tictactoe", description="Play a game of Tic Tac Toe!")
     async def tictactoe(self, interaction: discord.Interaction, letter: Literal["X", "O"], easy: bool):
         """Tic Tac Toe! command.
 
@@ -107,8 +109,7 @@ class Programs(commands.GroupCog, name="programs", description="Programs to gain
         image = await self.bot.loop.run_in_executor(None, game.puzzle.display)
         await interaction.followup.send(file=image, view=game)
 
-    @app_commands.command(name="shrugman", description="Play the shrugman minigame. (Hangman clone)")
-    @app_commands.guilds(225345178955808768)
+    @programs.command(name="shrugman", description="Play the shrugman minigame. (Hangman clone)")
     async def shrugman(self, interaction: discord.Interaction) -> None:
         """Play a game of Shrugman.
 
@@ -138,6 +139,69 @@ class Programs(commands.GroupCog, name="programs", description="Programs to gain
         embed.set_author(name=interaction.user.display_name, icon_url=interaction.user.display_avatar.url)
         view = shrugman.Shrugman(self.bot, word)
         await interaction.followup.send(embed=embed, view=view)
+
+    @app_commands.command(name="rollcall", description="Claim your daily reputation bonus")
+    @app_commands.guilds(225345178955808768)
+    async def rollcall(self, interaction: discord.Interaction):
+        """Get a daily reputation bonus.
+
+        Parameters
+        ----------
+        interaction: discord.Interaction
+            The interaction of the command invocation.
+        """
+        clientuser = self.bot.user
+        assert isinstance(clientuser, discord.ClientUser)  # skipcq: BAN-B101
+        await interaction.response.defer(ephemeral=True)
+        giveaway_user = await self.bot.giveaway_user(interaction.user.id)
+        if giveaway_user is None:
+            async with self.bot.pool.acquire() as conn:
+                await conn.execute("INSERT INTO users (id, points) VALUES ($1, 20)", interaction.user.id)
+                await conn.execute(
+                    "INSERT INTO daily_points (id, last_claim, last_particip_dt, particip, won) VALUES "
+                    "($1, $2, $3, 0, 0)",
+                    interaction.user.id,
+                    self.bot.TIME(),
+                    self.bot.TIME() - datetime.timedelta(days=1),
+                )
+                await conn.execute("INSERT INTO bids (id, bid) VALUES ($1, 0)", interaction.user.id)
+                await interaction.followup.send("You got some Rep today, inmate")
+                await self.bot.program_logs.send(
+                    f"{interaction.user.mention} has claimed their daily reputation bonus.",
+                    allowed_mentions=discord.AllowedMentions(users=False),
+                    username=clientuser.name,
+                    avatar_url=clientuser.display_avatar.url,
+                )
+            return
+        if giveaway_user["daily"] >= self.bot.TIME():
+            await interaction.followup.send("No more Rep for you yet, get back to your cell")
+            return
+        async with self.bot.pool.acquire() as conn:
+            await conn.execute("UPDATE users SET points = points + 20 WHERE id = $1", interaction.user.id)
+            await conn.execute(
+                "UPDATE daily_points SET last_claim = $1 WHERE id = $2", self.bot.TIME(), interaction.user.id
+            )
+        await interaction.followup.send("You got some Rep today, inmate")
+        await self.bot.program_logs.send(
+            f"{interaction.user.mention} has claimed their daily reputation bonus.",
+            allowed_mentions=discord.AllowedMentions(users=False),
+            username=clientuser.name,
+            avatar_url=clientuser.display_avatar.url,
+        )
+
+    @app_commands.command(name="reputation", description="Check your reputation")
+    @app_commands.guilds(225345178955808768)
+    async def query_points(self, interaction: discord.Interaction):
+        """Query your reputation.
+
+        Parameters
+        ----------
+        interaction: discord.Interaction
+            The interaction of the command invocation.
+        """
+        await interaction.response.defer(ephemeral=True)
+        points = await self.bot.pool.fetchval("SELECT points from users where id = $1", interaction.user.id) or 0
+        await interaction.followup.send(f"You have {points} reputation.", ephemeral=True)
 
 
 async def setup(bot: CBot):

@@ -33,11 +33,12 @@ from zoneinfo import ZoneInfo
 
 import asyncpg
 import discord
-import errors
 from discord import app_commands
 from discord.ext import commands
 from discord.ext.commands import CommandError
 from discord.utils import MISSING
+
+from . import errors
 
 
 class CBot(commands.Bot):
@@ -180,7 +181,6 @@ class CBot(commands.Bot):
         await self.load_extension("gcal")
         await self.load_extension("giveaway")
         await self.load_extension("mod_support")
-        await self.load_extension("primary")
         await self.load_extension("query")
         await self.load_extension("shrugman")
         await self.load_extension("sudoku")
