@@ -65,8 +65,6 @@ class Programs(commands.Cog):
         name="programs", description="Programs to gain you rep.", guild_ids=[225345178955808768]
     )
 
-    programs.interaction_check = interaction_check
-
     @programs.command(name="sudoku", description="Play a Sudoku puzzle")
     async def sudoku(self, interaction: discord.Interaction, mobile: bool):
         """Generate a sudoku puzzle.
