@@ -39,7 +39,7 @@ MESSAGE: Final = "You must be at least level 1 to participate in the giveaways s
 
 
 @app_commands.guilds(225345178955808768)
-class Programs(commands.Cog):
+class Reputation(commands.Cog, name="Programs"):
     """Programs."""
 
     def __init__(self, bot: CBot):
@@ -209,7 +209,7 @@ async def setup(bot: CBot):
     ----------
     bot : CBot
     """
-    await bot.add_cog(Programs(bot), guild=discord.Object(id=225345178955808768), override=True)
+    await bot.add_cog(Reputation(bot), guild=discord.Object(id=225345178955808768), override=True)
 
 
 async def teardown(bot: CBot):
@@ -222,4 +222,4 @@ async def teardown(bot: CBot):
     # noinspection PyProtectedMember
     while bot.process_pool._shutdown_lock.locked():  # skipcq: PYL-W0212
         await asyncio.sleep(1)
-    await bot.remove_cog("programs", guild=discord.Object(id=225345178955808768))
+    await bot.remove_cog("Programs", guild=discord.Object(id=225345178955808768))
