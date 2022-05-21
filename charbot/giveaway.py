@@ -484,6 +484,100 @@ class BidModal(ui.Modal, title="Bid"):
             )
 
 
+class IntToTimeDeltaTransformer(app_commands.Transformer):
+    """Transformer that converts an integer to a timedelta.
+
+    This is used to convert the time limit to a timedelta. for app_commands, as discord doesn't support any time based
+    arguments.
+
+    Methods
+    -------
+    type
+        Returns the type of the argument.
+    min_value
+        Returns the minimum value of the argument.
+    max_value
+        Returns the maximum value of the argument.
+    transform
+        Transforms an integer to a timedelta.
+    autocomplete
+        Autocompletes the argument.
+    """
+
+    @classmethod
+    def type(cls) -> AppCommandOptionType:
+        """Returns the type of the argument.
+
+        Returns
+        -------
+        AppCommandOptionType
+            The type of the argument.
+        """
+        return AppCommandOptionType.integer
+
+    @classmethod
+    def min_value(cls) -> int:
+        """Returns the minimum value of the argument.
+
+        Returns
+        -------
+        int
+            The minimum value of the argument.
+        """
+        return 1
+
+    @classmethod
+    def max_value(cls) -> int:
+        """Returns the maximum value of the argument.
+
+        Returns
+        -------
+        int
+            The maximum value of the argument.
+        """
+        return 60
+
+    @classmethod
+    async def transform(cls, interaction: discord.Interaction, value: int) -> datetime.timedelta:
+        """Transforms an integer to a timedelta.
+
+        Parameters
+        ----------
+        interaction : discord.Interaction
+            The interaction to transform.
+        value : int
+            The value to transform.
+
+        Returns
+        -------
+        datetime.timedelta
+            The transformed value.
+        """
+        return datetime.timedelta(days=value)
+
+    @classmethod
+    async def autocomplete(cls, interaction: discord.Interaction, value: int) -> list[app_commands.Choice[int]]:
+        """Autocompletes the argument.
+
+        Parameters
+        ----------
+        interaction : discord.Interaction
+            The interaction to autocomplete.
+        value : int
+            The value to autocomplete.
+
+        Returns
+        -------
+        list[app_commands.Choice[int]]
+            The autocompleted value.
+        """
+        if value is None or value <= 13:
+            return [app_commands.Choice(value=i, name=f"{i} days") for i in range(1, 26)]
+        if value > 47:
+            return [app_commands.Choice(value=i, name=f"{i} days") for i in range(36, 61)]
+        return [app_commands.Choice(value=i, name=f"{i} days") for i in range(value - 12, value + 13)]
+
+
 class Giveaway(commands.Cog):
     """Giveaway commands.
 
@@ -608,9 +702,13 @@ class Giveaway(commands.Cog):
         await interaction.followup.send(f"You have {points} reputation.", ephemeral=True)
 
     @app_commands.command(name="confirm", description="[Charlie only] confirm a winner")
-    @app_commands.describe(user="The user to confirm as a winner.")
     @app_commands.guilds(225345178955808768)
-    async def confirm(self, interaction: discord.Interaction, user: discord.Member):
+    async def confirm(
+        self,
+        interaction: discord.Interaction,
+        user: discord.Member,
+        time: Optional[app_commands.Transform[datetime.timedelta, IntToTimeDeltaTransformer]] = None,
+    ) -> None:
         """Confirm a winner.
 
         Parameters
@@ -618,7 +716,9 @@ class Giveaway(commands.Cog):
         interaction: discord.Interaction
             The interaction of the command invocation.
         user : discord.Member
-            The user to confirm.
+            The user to confirm as a winner.
+        time : Optional[IntToTimeDeltaTransformer] = None
+            [OPTIONAL] How many days should the winner be blocked from bidding again?"
         """
         if interaction.user.id != 225344348903047168:
             await interaction.response.send_message("Only Charlie can confirm a winner.", ephemeral=True)
@@ -626,7 +726,7 @@ class Giveaway(commands.Cog):
         await self.bot.pool.execute(
             "INSERT INTO winners (id, expiry) VALUES ($1, $2) ON CONFLICT (id) DO UPDATE SET expiry = $2",
             user.id,
-            __TIME__() + datetime.timedelta(days=6),
+            __TIME__() + time,
         )
         await interaction.response.send_message("Confirmed.", ephemeral=True)
 
