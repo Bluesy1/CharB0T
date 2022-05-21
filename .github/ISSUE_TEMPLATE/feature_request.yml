@@ -15,7 +15,7 @@ body:
       label: What is the feature request for?
       options:
         - The giveaway games
-        - The gieaways
+        - The giveaways
         - The pools
         - Other exisiting features
         - Something new
