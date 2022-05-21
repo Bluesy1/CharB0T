@@ -29,7 +29,7 @@ import os
 import random
 import warnings
 from statistics import mean
-from typing import Final, Optional
+from typing import Final
 
 import asyncpg
 import discord
@@ -707,7 +707,7 @@ class Giveaway(commands.Cog):
         self,
         interaction: discord.Interaction,
         user: discord.Member,
-        time: Optional[app_commands.Transform[datetime.timedelta, IntToTimeDeltaTransformer]] = datetime.timedelta(1),
+        time: app_commands.Transform[datetime.timedelta, IntToTimeDeltaTransformer] = datetime.timedelta(1),
     ) -> None:
         """Confirm a winner.
 
