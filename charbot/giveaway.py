@@ -538,7 +538,7 @@ class IntToTimeDeltaTransformer(app_commands.Transformer):
         return 60
 
     @classmethod
-    async def transform(cls, interaction: discord.Interaction, value: int) -> datetime.timedelta:
+    async def transform(cls, interaction: discord.Interaction, value: int) -> datetime.timedelta:  # skipcq: PYL-W0613
         """Transform an integer to a timedelta.
 
         Parameters
@@ -556,7 +556,9 @@ class IntToTimeDeltaTransformer(app_commands.Transformer):
         return datetime.timedelta(days=value)
 
     @classmethod
-    async def autocomplete(cls, interaction: discord.Interaction, value: int) -> list[app_commands.Choice[int]]:
+    async def autocomplete(
+        cls, interaction: discord.Interaction, value: int  # skipcq: PYL-W0613
+    ) -> list[app_commands.Choice[int]]:
         """Autocompletes the argument.
 
         Parameters
@@ -707,7 +709,7 @@ class Giveaway(commands.Cog):
         self,
         interaction: discord.Interaction,
         user: discord.Member,
-        time: app_commands.Transform[datetime.timedelta, IntToTimeDeltaTransformer] = datetime.timedelta(1),
+        time: app_commands.Transform[datetime.timedelta, IntToTimeDeltaTransformer] = 1,
     ) -> None:
         """Confirm a winner.
 
