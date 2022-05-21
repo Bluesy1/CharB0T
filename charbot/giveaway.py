@@ -29,7 +29,7 @@ import os
 import random
 import warnings
 from statistics import mean
-from typing import Final, Optional
+from typing import Any, Optional
 
 import asyncpg
 import discord
@@ -38,7 +38,7 @@ from discord import AppCommandOptionType, app_commands, ui
 from discord.ext import commands, tasks
 from discord.utils import MISSING, utcnow
 
-from . import CBot
+from . import CBot, errors
 
 
 class GiveawayView(ui.View):
@@ -98,6 +98,48 @@ class GiveawayView(ui.View):
         self.bidders: list[asyncpg.Record] = []
         if url is not None:
             self.add_item(ui.Button(label=game, style=discord.ButtonStyle.link, url=url))
+
+    async def interaction_check(self, interaction: discord.Interaction) -> bool:
+        """Check if the interaction is valid.
+
+        Parameters
+        ----------
+        interaction : discord.Interaction
+            The interaction to check.
+
+        Returns
+        -------
+        bool
+            Whether the interaction is valid.
+
+        Raises
+        ------
+        errors.MissingProgramRole
+            If no program roles are present.
+        """
+        user = interaction.user
+        assert isinstance(user, discord.Member)  # skipcq: BAN-B101
+        if not any(role.id in self.bot.ALLOWED_ROLES for role in user.roles):
+            raise errors.MissingProgramRole(self.bot.ALLOWED_ROLES)
+        return True
+
+    async def on_error(self, interaction: discord.Interaction, error: Exception, item: ui.Item[Any]) -> None:
+        """Error handler.
+
+        Parameters
+        ----------
+        interaction : discord.Interaction
+            The interaction.
+        error : Exception
+            The error.
+        item : ui.Item
+            The item.
+        """
+        if isinstance(error, errors.MissingProgramRole):
+            await interaction.response.send_message(error.message, ephemeral=True)
+        else:
+            await self.bot.error_logs.send(f"Ignoring exception in view {self} for item {item}: {error}")
+            await super(GiveawayView, self).on_error(interaction, error, item)
 
     def _prep_view_for_draw(self):
         """Disable all buttons."""
@@ -253,13 +295,6 @@ class GiveawayView(ui.View):
         """
         if self.message is None:
             self.message = interaction.message
-        user = interaction.user
-        assert isinstance(user, discord.Member)  # skipcq: BAN-B101
-        if not any(role.id in CBot.ALLOWED_ROLES for role in user.roles):
-            await interaction.response.send_message(
-                "You must be at least level 1 to participate in the giveaways system.", ephemeral=True
-            )
-            return
         async with self.bot.pool.acquire() as conn:
             last_win = await conn.fetchval(
                 "SELECT expiry FROM winners WHERE id = $1", interaction.user.id
@@ -298,13 +333,6 @@ class GiveawayView(ui.View):
         """
         if self.message is None:
             self.message = interaction.message
-        user = interaction.user
-        assert isinstance(user, discord.Member)  # skipcq: BAN-B101
-        if not any(role.id in CBot.ALLOWED_ROLES for role in user.roles):
-            await interaction.response.send_message(
-                "You must be at least level 1 to participate in the giveaways system.", ephemeral=True
-            )
-            return
         async with self.bot.pool.acquire() as conn:
             last_win = await conn.fetchval(
                 "SELECT expiry FROM winners WHERE id = $1", interaction.user.id
@@ -561,12 +589,16 @@ class IntToTimeDeltaTransformer(app_commands.Transformer):
         list[app_commands.Choice[int]]
             The autocompleted value.
         """
-        _value = int(value)
-        if _value is None or _value <= 13:
+        try:
+            _value = int(value)
+        except ValueError:
             return [app_commands.Choice(value=i, name=f"{i} days") for i in range(1, 26)]
-        if _value > 47:
-            return [app_commands.Choice(value=i, name=f"{i} days") for i in range(36, 61)]
-        return [app_commands.Choice(value=i, name=f"{i} days") for i in range(_value - 12, _value + 13)]
+        else:
+            if _value <= 13:
+                return [app_commands.Choice(value=i, name=f"{i} days") for i in range(1, 26)]
+            if _value > 47:
+                return [app_commands.Choice(value=i, name=f"{i} days") for i in range(36, 61)]
+            return [app_commands.Choice(value=i, name=f"{i} days") for i in range(_value - 12, _value + 13)]
 
 
 class Giveaway(commands.Cog):

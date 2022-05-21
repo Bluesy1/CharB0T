@@ -39,7 +39,7 @@ class MissingProgramRole(MissingAnyRole):
 
     def __init__(self, roles: list[int | str]):
         super().__init__(roles)
-        self.message = self.args[0] + " - you must be at least level 1 to use this command."
+        self.message = self.args[0] + " - you must be at least level 1 to use this command/button."
 
     def __str__(self):
         """Get the error as a string."""

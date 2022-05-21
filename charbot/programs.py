@@ -50,15 +50,15 @@ class Reputation(commands.Cog, name="Programs"):
         if interaction.guild is None:
             raise app_commands.NoPrivateMessage("Programs can't be used in direct messages.")
         if interaction.guild.id != 225345178955808768:
-            raise errors.WrongChannelError(225345178955808768)
+            raise app_commands.NoPrivateMessage("Programs can't be used in this server.")
         channel = interaction.channel
         assert isinstance(channel, discord.abc.GuildChannel)  # skipcq: BAN-B101
         if channel.id != self.bot.CHANNEL_ID:
-            raise app_commands.CheckFailure("You must be in <#969972085445238784> to use this command.")
+            raise errors.WrongChannelError(self.bot.CHANNEL_ID)
         user = interaction.user
         assert isinstance(user, discord.Member)  # skipcq: BAN-B101
         if not any(role.id in self.bot.ALLOWED_ROLES for role in user.roles):
-            raise app_commands.MissingAnyRole(self.bot.ALLOWED_ROLES)
+            raise errors.MissingProgramRole(self.bot.ALLOWED_ROLES)
         return True
 
     programs = app_commands.Group(
