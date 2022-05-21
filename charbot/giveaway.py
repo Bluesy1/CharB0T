@@ -711,7 +711,7 @@ class Giveaway(commands.Cog):
         self,
         interaction: discord.Interaction,
         user: discord.Member,
-        time: Optiomal[app_commands.Transform[datetime.timedelta, IntToTimeDeltaTransformer]] = None,
+        time: Optional[app_commands.Transform[datetime.timedelta, IntToTimeDeltaTransformer]] = None,
     ) -> None:
         """Confirm a winner.
 
