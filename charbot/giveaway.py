@@ -29,7 +29,7 @@ import os
 import random
 import warnings
 from statistics import mean
-from typing import Final
+from typing import Final, Optional
 
 import asyncpg
 import discord
@@ -553,6 +553,8 @@ class IntToTimeDeltaTransformer(app_commands.Transformer):
         datetime.timedelta
             The transformed value.
         """
+        if value is None:
+            return datetime.timedelta(days=1)
         return datetime.timedelta(days=value)
 
     @classmethod
@@ -709,7 +711,7 @@ class Giveaway(commands.Cog):
         self,
         interaction: discord.Interaction,
         user: discord.Member,
-        time: app_commands.Transform[datetime.timedelta, IntToTimeDeltaTransformer] = 1,
+        time: Optiomal[app_commands.Transform[datetime.timedelta, IntToTimeDeltaTransformer]] = None,
     ) -> None:
         """Confirm a winner.
 
@@ -728,7 +730,7 @@ class Giveaway(commands.Cog):
         await self.bot.pool.execute(
             "INSERT INTO winners (id, expiry) VALUES ($1, $2) ON CONFLICT (id) DO UPDATE SET expiry = $2",
             user.id,
-            __TIME__() + time,
+            __TIME__() + (time or datetime.timedelta(days=1)),
         )
         await interaction.response.send_message("Confirmed.", ephemeral=True)
 
