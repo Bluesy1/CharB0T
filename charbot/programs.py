@@ -207,7 +207,7 @@ class Reputation(commands.Cog, name="Programs"):
             }
         claim = "have" if limits["last_claim"] == self.bot.TIME() else "haven't"
         particip = (
-            "have" if (limits["last_particip_dt"] == self.bot.TIME()) and (limits["particip"] >= 10) else "haven't "
+            "have" if (limits["last_particip_dt"] == self.bot.TIME()) and (limits["particip"] >= 10) else "haven't"
         )
         await interaction.followup.send(
             f"You have {points} reputation, you {claim} claimed your daily bonus, and you {particip} hit"
