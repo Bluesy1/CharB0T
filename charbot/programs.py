@@ -198,8 +198,22 @@ class Reputation(commands.Cog, name="Programs"):
             The interaction of the command invocation.
         """
         await interaction.response.defer(ephemeral=True)
-        points = await self.bot.pool.fetchval("SELECT points from users where id = $1", interaction.user.id) or 0
-        await interaction.followup.send(f"You have {points} reputation.", ephemeral=True)
+        async with self.bot.pool.acquire() as conn:
+            points = await conn.fetchval("SELECT points from users where id = $1", interaction.user.id) or 0
+            limits = await conn.fetchrow("SELECT * from daily_points where id = $1", interaction.user.id) or {
+                "last_claim": 0,
+                "last_particip_dt": 0,
+                "particip": 0,
+            }
+        claim = "have" if limits["last_claim"] == self.bot.TIME() else "haven't"
+        particip = (
+            "have" if (limits["last_particip_dt"] == self.bot.TIME()) and (limits["particip"] >= 10) else "haven't "
+        )
+        await interaction.followup.send(
+            f"You have {points} reputation, you {claim} claimed your daily bonus, and you {particip} hit"
+            f" your daily program cap.",
+            ephemeral=True,
+        )
 
 
 async def setup(bot: CBot):
