@@ -707,7 +707,7 @@ class Giveaway(commands.Cog):
         self,
         interaction: discord.Interaction,
         user: discord.Member,
-        time: Optional[app_commands.Transform[datetime.timedelta, IntToTimeDeltaTransformer]] = None,
+        time: Optional[app_commands.Transform[datetime.timedelta, IntToTimeDeltaTransformer]] = datetime.timedelta(1),
     ) -> None:
         """Confirm a winner.
 
@@ -718,7 +718,7 @@ class Giveaway(commands.Cog):
         user : discord.Member
             The user to confirm as a winner.
         time : Optional[IntToTimeDeltaTransformer] = None
-            [OPTIONAL] How many days should the winner be blocked from bidding again?"
+            [OPTIONAL, Default 1] How many days should the winner be blocked from bidding again?"
         """
         if interaction.user.id != 225344348903047168:
             await interaction.response.send_message("Only Charlie can confirm a winner.", ephemeral=True)
