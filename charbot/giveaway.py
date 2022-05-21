@@ -522,7 +522,9 @@ class IntToTimeDeltaTransformer(app_commands.Transformer):
         return 60
 
     @classmethod
-    async def transform(cls, interaction: discord.Interaction, value: int) -> datetime.timedelta:  # skipcq: PYL-W0613
+    async def transform(
+        cls, interaction: discord.Interaction, value: str | int | float  # skipcq: PYL-W0613
+    ) -> datetime.timedelta:
         """Transform an integer to a timedelta.
 
         Parameters
@@ -539,11 +541,11 @@ class IntToTimeDeltaTransformer(app_commands.Transformer):
         """
         if value is None:
             return datetime.timedelta(days=1)
-        return datetime.timedelta(days=value)
+        return datetime.timedelta(days=int(value))
 
     @classmethod
     async def autocomplete(
-        cls, interaction: discord.Interaction, value: int  # skipcq: PYL-W0613
+        cls, interaction: discord.Interaction, value: str | int | float  # skipcq: PYL-W0613
     ) -> list[app_commands.Choice[int]]:
         """Autocompletes the argument.
 
@@ -559,11 +561,12 @@ class IntToTimeDeltaTransformer(app_commands.Transformer):
         list[app_commands.Choice[int]]
             The autocompleted value.
         """
-        if value is None or value <= 13:
+        _value = int(value)
+        if _value is None or _value <= 13:
             return [app_commands.Choice(value=i, name=f"{i} days") for i in range(1, 26)]
-        if value > 47:
+        if _value > 47:
             return [app_commands.Choice(value=i, name=f"{i} days") for i in range(36, 61)]
-        return [app_commands.Choice(value=i, name=f"{i} days") for i in range(value - 12, value + 13)]
+        return [app_commands.Choice(value=i, name=f"{i} days") for i in range(_value - 12, _value + 13)]
 
 
 class Giveaway(commands.Cog):
