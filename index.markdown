@@ -39,6 +39,7 @@ layout: default
 ## Docs
 
 You can find the documentation for the bot [here](./docs/).
+The changelog is [here](./changes).
 
 ## Contributing
 
@@ -56,6 +57,30 @@ You can find the documentation for the bot [here](./docs/).
 6. If you implement or change something documented, update the documentation and changelogs and submit a pull request for that too.
 7. Again, **Be sure to update the changelogs and documentation.** If you don't, I will have to write them myself and your PR will be delayed. -
 
+----------------------------------------------------------------------------
+MIT License
+
+Copyright (c) 2022 Bluesy
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+
+----------------------------------------------------------------------------
 
 [Feature-Request]: https://github.com/Bluesy1/CharB0T/issues/new?assignees=&labels=feature+request&template=feature_request.yml
 [Bug-Report]: https://github.com/Bluesy1/CharB0T/issues/new?assignees=&labels=unconfirmed+bug&template=bug_report.yml

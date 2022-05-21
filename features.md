@@ -45,5 +45,8 @@ Bot modules:
  - Dice: Select [dice](./dice) commands, such as the roll command.
  - Events: Select [event](./events) processing, such as the on_member_update for timeouts.
  - Google Calendar: Connect to a [Google Calendar](./cal) to a discord channel and keep upcoming events listed in the channel.
+ - Giveaway: Select [giveaway](./giveaway) commands and the giveaway task.
+ - 
+
 
 ## Back to [Home](../)
