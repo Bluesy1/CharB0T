@@ -29,12 +29,12 @@ import os
 import random
 import warnings
 from statistics import mean
-from typing import Final
+from typing import Final, Optional
 
 import asyncpg
 import discord
 import pandas as pd
-from discord import app_commands, ui
+from discord import AppCommandOptionType, app_commands, ui
 from discord.ext import commands, tasks
 from discord.utils import MISSING, utcnow
 
@@ -506,7 +506,7 @@ class IntToTimeDeltaTransformer(app_commands.Transformer):
 
     @classmethod
     def type(cls) -> AppCommandOptionType:
-        """Returns the type of the argument.
+        """Return the type of the argument.
 
         Returns
         -------
@@ -517,7 +517,7 @@ class IntToTimeDeltaTransformer(app_commands.Transformer):
 
     @classmethod
     def min_value(cls) -> int:
-        """Returns the minimum value of the argument.
+        """Return the minimum value of the argument.
 
         Returns
         -------
@@ -528,7 +528,7 @@ class IntToTimeDeltaTransformer(app_commands.Transformer):
 
     @classmethod
     def max_value(cls) -> int:
-        """Returns the maximum value of the argument.
+        """Return the maximum value of the argument.
 
         Returns
         -------
@@ -539,7 +539,7 @@ class IntToTimeDeltaTransformer(app_commands.Transformer):
 
     @classmethod
     async def transform(cls, interaction: discord.Interaction, value: int) -> datetime.timedelta:
-        """Transforms an integer to a timedelta.
+        """Transform an integer to a timedelta.
 
         Parameters
         ----------
