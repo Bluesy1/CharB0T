@@ -29,7 +29,7 @@ import os
 import random
 import warnings
 from statistics import mean
-from typing import Final
+from typing import Final, Optional
 
 import asyncpg
 import discord
@@ -538,7 +538,7 @@ class IntToTimeDeltaTransformer(app_commands.Transformer):
         return 60
 
     @classmethod
-    async def transform(cls, interaction: discord.Interaction, value: int) -> datetime.timedelta:
+    async def transform(cls, interaction: discord.Interaction, value: int) -> datetime.timedelta:  # skipcq: PYL-W0613
         """Transform an integer to a timedelta.
 
         Parameters
@@ -553,10 +553,14 @@ class IntToTimeDeltaTransformer(app_commands.Transformer):
         datetime.timedelta
             The transformed value.
         """
+        if value is None:
+            return datetime.timedelta(days=1)
         return datetime.timedelta(days=value)
 
     @classmethod
-    async def autocomplete(cls, interaction: discord.Interaction, value: int) -> list[app_commands.Choice[int]]:
+    async def autocomplete(
+        cls, interaction: discord.Interaction, value: int  # skipcq: PYL-W0613
+    ) -> list[app_commands.Choice[int]]:
         """Autocompletes the argument.
 
         Parameters
@@ -707,7 +711,7 @@ class Giveaway(commands.Cog):
         self,
         interaction: discord.Interaction,
         user: discord.Member,
-        time: app_commands.Transform[datetime.timedelta, IntToTimeDeltaTransformer] = datetime.timedelta(1),
+        time: Optional[app_commands.Transform[datetime.timedelta, IntToTimeDeltaTransformer]] = None,
     ) -> None:
         """Confirm a winner.
 
@@ -726,7 +730,7 @@ class Giveaway(commands.Cog):
         await self.bot.pool.execute(
             "INSERT INTO winners (id, expiry) VALUES ($1, $2) ON CONFLICT (id) DO UPDATE SET expiry = $2",
             user.id,
-            __TIME__() + time,
+            __TIME__() + (time or datetime.timedelta(days=1)),
         )
         await interaction.response.send_message("Confirmed.", ephemeral=True)
 
