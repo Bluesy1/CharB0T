@@ -17,7 +17,7 @@ to avoid this happening again.
 
 # What happened?
 
-Normally, when i need to reload the giveaway module, I use [Jishaku] to store the giveaway in a local [REPL] session 
+Normally, when I need to reload the giveaway module, I use [Jishaku] to store the giveaway in a local [REPL] session 
 in the bot that maintains the variables passed to it, and then reload the module. I thought this would be a good way to
 avoid the issue, but it turns out that this method is prone to errors, and the error is not always obvious, until it is
 too late. The process is as follows:
@@ -49,9 +49,9 @@ the giveaway's interface) from the code that is handling the giveaway task.
 
 # What went wrong?
 
-I think, and i have no way to confirm this, that because when i went to do step 2, I initially got a syntax error i had
-to fix, and after i fixed that i forgot to confirm i copied in the correct references to the [REPL] session, so when i 
-reloaded the module and tried to load the giveaway from the [REPL] session, i lost the giveaway and loaded in `...`
+I think, and I have no way to confirm this, that because when I went to do step 2, I initially got a syntax error I had
+to fix, and after I fixed that I forgot to confirm I copied in the correct references to the [REPL] session, so when I 
+reloaded the module and tried to load the giveaway from the [REPL] session, I lost the giveaway and loaded in `...`
 ellipses placeholders instead.
 
 # How am I going to fix this and prevent it from happening again?
@@ -60,7 +60,7 @@ First, I am going to remove all other commands and code not required for the giv
 This will prevent the giveaway module from having to be reloaded as often, limit chances for failure. Second, I am
 going to store the giveaways in a bot variable during reloading automatically instead of a cog variable
 to make the state of the giveaway not based off of a [REPL] session. This will make it easier to reload the module 
-without losing the giveaway. Finally, i'm going to add a [Class Method] as a Factory Method to the GiveawayView
+without losing the giveaway. Finally, I'm going to add a [Class Method] as a Factory Method to the GiveawayView
 class to allow me to reconstruct a giveaway easier from a channel and message ID should a giveaway be lost in the
 future.
 
