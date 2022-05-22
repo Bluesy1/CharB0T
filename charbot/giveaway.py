@@ -29,12 +29,12 @@ import os
 import random
 import warnings
 from statistics import mean
-from typing import Any, Optional
+from typing import Any
 
 import asyncpg
 import discord
 import pandas as pd
-from discord import AppCommandOptionType, app_commands, ui
+from discord import ui
 from discord.ext import commands, tasks
 from discord.utils import MISSING, utcnow
 
@@ -98,6 +98,41 @@ class GiveawayView(ui.View):
         self.bidders: list[asyncpg.Record] = []
         if url is not None:
             self.add_item(ui.Button(label=game, style=discord.ButtonStyle.link, url=url))
+
+    @classmethod
+    def recreate_from_message(cls, message: discord.Message, bot: CBot):
+        """Create a view from a message.
+
+        Parameters
+        ----------
+        message : discord.Message
+            The message of the giveaway.
+        bot : CBot
+            The bot instance.
+
+        Returns
+        -------
+        GiveawayView
+            The view of the giveaway.
+        """
+        try:
+            embed = message.embeds[0]
+            game = embed.title
+            url = embed.url
+            channel = message.channel
+            assert isinstance(channel, discord.TextChannel)
+            assert isinstance(game, str)
+            view = cls(bot, channel, embed, game, url)
+            view.message = message
+            bid = embed.fields[4].value
+            assert isinstance(bid, str)
+            view.top_bid = int(bid)
+            total = embed.fields[3].value
+            assert isinstance(total, str)
+            view.total_entries = int(total)
+        except IndexError | ValueError | TypeError | AssertionError as e:
+            raise KeyError("Invalid giveaway embed.") from e
+        return view
 
     async def interaction_check(self, interaction: discord.Interaction) -> bool:
         """Check if the interaction is valid.
@@ -496,111 +531,6 @@ class BidModal(ui.Modal, title="Bid"):
             )
 
 
-class IntToTimeDeltaTransformer(app_commands.Transformer):
-    """Transformer that converts an integer to a timedelta.
-
-    This is used to convert the time limit to a timedelta. for app_commands, as discord doesn't support any time based
-    arguments.
-
-    Methods
-    -------
-    type
-        Returns the type of the argument.
-    min_value
-        Returns the minimum value of the argument.
-    max_value
-        Returns the maximum value of the argument.
-    transform
-        Transforms an integer to a timedelta.
-    autocomplete
-        Autocompletes the argument.
-    """
-
-    @classmethod
-    def type(cls) -> AppCommandOptionType:
-        """Return the type of the argument.
-
-        Returns
-        -------
-        AppCommandOptionType
-            The type of the argument.
-        """
-        return AppCommandOptionType.integer
-
-    @classmethod
-    def min_value(cls) -> int:
-        """Return the minimum value of the argument.
-
-        Returns
-        -------
-        int
-            The minimum value of the argument.
-        """
-        return 1
-
-    @classmethod
-    def max_value(cls) -> int:
-        """Return the maximum value of the argument.
-
-        Returns
-        -------
-        int
-            The maximum value of the argument.
-        """
-        return 60
-
-    @classmethod
-    async def transform(
-        cls, interaction: discord.Interaction, value: str | int | float  # skipcq: PYL-W0613
-    ) -> datetime.timedelta:
-        """Transform an integer to a timedelta.
-
-        Parameters
-        ----------
-        interaction : discord.Interaction
-            The interaction to transform.
-        value : int
-            The value to transform.
-
-        Returns
-        -------
-        datetime.timedelta
-            The transformed value.
-        """
-        if value is None:
-            return datetime.timedelta(days=1)
-        return datetime.timedelta(days=int(value))
-
-    @classmethod
-    async def autocomplete(
-        cls, interaction: discord.Interaction, value: str | int | float  # skipcq: PYL-W0613
-    ) -> list[app_commands.Choice[int]]:
-        """Autocompletes the argument.
-
-        Parameters
-        ----------
-        interaction : discord.Interaction
-            The interaction to autocomplete.
-        value : int
-            The value to autocomplete.
-
-        Returns
-        -------
-        list[app_commands.Choice[int]]
-            The autocompleted value.
-        """
-        try:
-            _value = int(value)
-        except ValueError:
-            return [app_commands.Choice(value=i, name=f"{i} days") for i in range(1, 26)]
-        else:
-            if _value <= 13:
-                return [app_commands.Choice(value=i, name=f"{i} days") for i in range(1, 26)]
-            if _value > 47:
-                return [app_commands.Choice(value=i, name=f"{i} days") for i in range(36, 61)]
-            return [app_commands.Choice(value=i, name=f"{i} days") for i in range(_value - 12, _value + 13)]
-
-
 class Giveaway(commands.Cog):
     """Giveaway commands.
 
@@ -627,8 +557,8 @@ class Giveaway(commands.Cog):
 
     def __init__(self, bot: CBot):
         self.bot = bot
-        self.yesterdays_giveaway: GiveawayView = MISSING
-        self.current_giveaway: GiveawayView = MISSING
+        self.yesterdays_giveaway: GiveawayView = bot.holder.pop("yesterdays_giveaway")
+        self.current_giveaway: GiveawayView = bot.holder.pop("current_giveaway")
         self.charlie: discord.Member = MISSING
         self.games: pd.DataFrame = self.load_game_csv()
 
@@ -639,6 +569,8 @@ class Giveaway(commands.Cog):
     async def cog_unload(self) -> None:  # skipcq: PYL-W0236
         """Call when the cog is unloaded."""
         self.daily_giveaway.cancel()
+        self.bot.holder["yesterdays_giveaway"] = self.yesterdays_giveaway
+        self.bot.holder["current_giveaway"] = self.current_giveaway
 
     @staticmethod
     def load_game_csv() -> pd.DataFrame:
@@ -652,35 +584,6 @@ class Giveaway(commands.Cog):
             The games dataframe, with the index date in the form (m)m/(d)d/yyyy., and columns game, url, and source.
         """
         return pd.read_csv("giveaway.csv", index_col=0, usecols=[0, 1, 2, 4], names=["date", "game", "url", "source"])
-
-    @app_commands.command(name="confirm", description="[Charlie only] confirm a winner")
-    @app_commands.guilds(225345178955808768)
-    async def confirm(
-        self,
-        interaction: discord.Interaction,
-        user: discord.Member,
-        time: Optional[app_commands.Transform[datetime.timedelta, IntToTimeDeltaTransformer]] = None,
-    ) -> None:
-        """Confirm a winner.
-
-        Parameters
-        ----------
-        interaction: discord.Interaction
-            The interaction of the command invocation.
-        user : discord.Member
-            The user to confirm as a winner.
-        time : Optional[IntToTimeDeltaTransformer] = None
-            [OPTIONAL, Default 1] How many days should the winner be blocked from bidding again?"
-        """
-        if interaction.user.id != 225344348903047168:
-            await interaction.response.send_message("Only Charlie can confirm a winner.", ephemeral=True)
-            return
-        await self.bot.pool.execute(
-            "INSERT INTO winners (id, expiry) VALUES ($1, $2) ON CONFLICT (id) DO UPDATE SET expiry = $2",
-            user.id,
-            self.bot.TIME() + (time or datetime.timedelta(days=1)),
-        )
-        await interaction.response.send_message("Confirmed.", ephemeral=True)
 
     @tasks.loop(time=datetime.time(hour=9, minute=0, second=0, tzinfo=CBot.ZONEINFO))  # skipcq: PYL-E1123
     async def daily_giveaway(self):
@@ -737,4 +640,4 @@ async def setup(bot: CBot):
     bot : CBot
         The bot to add the cog to.
     """
-    await bot.add_cog(Giveaway(bot), guild=discord.Object(id=225345178955808768), override=True)
+    await bot.add_cog(Giveaway(bot), override=True)

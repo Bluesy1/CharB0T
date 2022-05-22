@@ -28,7 +28,7 @@ import os
 import sys
 import traceback
 from concurrent.futures import ProcessPoolExecutor, ThreadPoolExecutor
-from typing import Any, ClassVar, Final, Type
+from typing import Any, ClassVar, Final, Type, TypeVar
 from zoneinfo import ZoneInfo
 
 import asyncpg
@@ -39,6 +39,43 @@ from discord.ext.commands import CommandError
 from discord.utils import MISSING
 
 from . import errors
+
+
+_VT = TypeVar("_VT")
+
+
+class Holder(dict):
+    """Holder for data."""
+
+    def __getitem__(self, k: Any) -> Any:
+        """Get item."""
+        if k not in self:
+            return MISSING
+        return super().__getitem__(k)
+
+    def __delitem__(self, key: Any) -> None:
+        """Delete item."""
+        if key not in self:
+            return
+        super().__delitem__(key)
+
+    def pop(self, __key: Any, default: _VT = MISSING) -> _VT:
+        """Pop item."""
+        if __key not in self:
+            return default
+        return super().pop(__key)
+
+    def get(self, __key: Any, default: _VT = MISSING) -> _VT:
+        """Get item."""
+        if __key not in self:
+            return default
+        return super().get(__key, default)
+
+    def setdefault(self, __key: Any, default: _VT = MISSING) -> _VT:
+        """Set default."""
+        if __key not in self:
+            self[__key] = default
+        return self[__key]
 
 
 class CBot(commands.Bot):
@@ -130,6 +167,7 @@ class CBot(commands.Bot):
     ]
     CHANNEL_ID: ClassVar[int] = 969972085445238784
 
+    # noinspection PyPep8Naming
     @classmethod
     def TIME(cls) -> datetime.datetime:
         """Return the current giveaway time in the bot's timezone.
@@ -145,7 +183,7 @@ class CBot(commands.Bot):
             <= datetime.datetime.now(cls.ZONEINFO)
             else datetime.datetime.now(cls.ZONEINFO).replace(microsecond=0, second=0, minute=0, hour=9)
             - datetime.timedelta(days=1)
-        )  # noqa: E731
+        )
 
     def __init__(self, *args, strip_after_prefix: bool = True, tree_cls: Type[app_commands.CommandTree], **kwargs):
         super().__init__(*args, strip_after_prefix=strip_after_prefix, tree_cls=tree_cls, **kwargs)
@@ -155,6 +193,7 @@ class CBot(commands.Bot):
         self.program_logs: discord.Webhook = MISSING
         self.error_logs: discord.Webhook = MISSING
         self.giveaway_webhook: discord.Webhook = MISSING
+        self.holder: Holder = Holder()
 
     async def setup_hook(self):
         """Initialize hook for the bot.
