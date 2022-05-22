@@ -368,7 +368,7 @@ class ModSupportButtons(ui.View):
             perms.update(
                 {self.mods[uid]: PermissionOverwrite(view_channel=True, send_messages=True, read_messages=True)}
             )
-        await interaction.response.send_modal(ModSupportModal(perms, f"{select.placeholder}-{user.name}-mod-support"))
+        await interaction.response.send_modal(ModSupportModal(perms, f"Private-{user.name}-mod-support"))
 
 
 class ModSupportModal(ui.Modal, title="Mod Support Form"):
@@ -448,14 +448,14 @@ class ModSupportModal(ui.Modal, title="Mod Support Form"):
         interaction : Interaction
             The interaction instance.
         """
-        _channel = await interaction.client.fetch_channel(942578610336837632)
-        _guild = interaction.guild
+        category = await interaction.client.fetch_channel(942578610336837632)
+        guild = interaction.guild
         topic = self.short_description.value
-        assert isinstance(_channel, discord.CategoryChannel)  # skipcq: BAN-B101
-        assert isinstance(_guild, discord.Guild)  # skipcq: BAN-B101
+        assert isinstance(category, discord.CategoryChannel)  # skipcq: BAN-B101
+        assert isinstance(guild, discord.Guild)  # skipcq: BAN-B101
         assert isinstance(topic, str)  # skipcq: BAN-B101
-        channel = await _guild.create_text_channel(
-            self.channel_name, category=_channel, overwrites=self.perm_overrides, topic=topic
+        channel = await guild.create_text_channel(
+            self.channel_name, category=category, overwrites=self.perm_overrides, topic=topic
         )
         long = "     They supplied a longer description: "
         await channel.send(
