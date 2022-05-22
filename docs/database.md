@@ -16,8 +16,6 @@ CREATE TABLE users
     sudoku_time INTERVAL DEFAULT '1 day'::INTERVAL
 );
 
-CREATE UNIQUE INDEX points_user_uindex ON users(id);
-
 ```
 
 - `id`: The user's unique ID, primary key.
@@ -46,13 +44,11 @@ CREATE TABLE winners
 CREATE TABLE bids
 (
     id BIGINT
-        CONSTRAINT winners_pk PRIMARY KEY
+        CONSTRAINT bids_pk PRIMARY KEY
         CONSTRAINT bids_user_id_fk REFERENCES users(id)
             ON UPDATE CASCADE ON DELETE CASCADE,
     bid SMALLINT NOT NULL
 );
-
-CREATE UNIQUE INDEX bids_user_uindex ON bids(id);
 ```
 
  - `id`: The user's unique ID, primary key, foreign key.
@@ -72,8 +68,6 @@ CREATE TABLE daily_points
     particip SMALLINT DEFAULT 0 NOT NULL,
     won SMALLINT DEFAULT 0 NOT NULL
 );
-
-CREATE UNIQUE INDEX daily_points_user_uindex ON daily_points(id);
 ```
 
  - `id`: The user's unique ID, primary key, foreign key.
