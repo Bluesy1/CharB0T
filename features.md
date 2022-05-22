@@ -46,8 +46,6 @@ Bot modules:
  - Events: Select [event](./events) processing, such as the on_member_update for timeouts.
  - Google Calendar: Connect to a [Google Calendar](./cal) to a discord channel and keep upcoming events listed in the channel.
  - Giveaway: Select [giveaway](./giveaway) commands and the giveaway task.
- - 
-
-[Name of Link](/CharB0T{% post_url 2022-05-22-giveaway-error-postmortem %})
+ - Mod Support: A [ticket](./tickets) based support system to get help from moderators.
 
 ## Back to [Home](../)
