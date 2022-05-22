@@ -73,13 +73,23 @@ class GiveawayView:
 	...
     @classmethod
     def recreate_from_message(cls, message: discord.Message, bot: CBot) -> G:
-        embed = message.embeds[0]
-        game = embed.title
-        url = embed.url
-        view = cls(bot, message.channel, embed, game, url)
-        view.message = message
-        view.top_bid = int(embed.fields[4].value)
-        view.total_entries = int(embed.fields[3].value)
+        try:
+            embed = message.embeds[0]
+            game = embed.title
+            url = embed.url
+            channel = message.channel
+            assert isinstance(channel, discord.TextChannel)
+            assert isinstance(game, str)
+            view = cls(bot, channel, embed, game, url)
+            view.message = message
+            bid = embed.fields[4].value
+            assert isinstance(bid, str)
+            view.top_bid = int(bid)
+            total = embed.fields[3].value
+            assert isinstance(total, str)
+            view.total_entries = int(total)
+        except IndexError | ValueError | TypeError | AssertionError as e:
+            raise KeyError("Invalid giveaway embed.") from e
         return view
 ```
  - The class method is a factory method that creates a view from a message.
@@ -90,37 +100,36 @@ class GiveawayView:
 
 #### The holder class for the bot variable
 ```python
-_KT = TypeVar("_KT")
 _VT = TypeVar("_VT")
 class Holder(dict):
-    def __getitem__(self, k: _KT) -> _VT:
+    def __getitem__(self, k: Any) -> _VT:
         if k not in self:
             return MISSING
         return super().__getitem__(k)
 
-    def __delitem__(self, key: _KT) -> None:
+    def __delitem__(self, key: Any) -> None:
         if key not in self:
             return
         super().__delitem__(key)
 
-    def pop(self, __key: _KT, default: _VT = MISSING) -> _VT:
+    def pop(self, __key: Any, default: _VT = MISSING) -> _VT:
         if __key not in self:
             return default
         return super().pop(__key)
 
-    def get(self, __key: _KT, default: _VT = MISSING) -> _VT:
+    def get(self, __key: Any, default: _VT = MISSING) -> _VT:
         if __key not in self:
             return default
         return super().get(__key)
 
-    def setdefault(self, __key: _KT, default: _VT = MISSING) -> _VT:
+    def setdefault(self, __key: Any, default: _VT = MISSING) -> _VT:
         if __key not in self:
             self[__key] = default
         return self[__key]
 ```
  - The [TypeVars][TypeVar] here are special types used in the standard python implementation of the [dict] class.
  - The [MISSING] type is the missing Sentinel value for the discord.py library, to avoid NoneType issues.
- - The **_KT** and **_VT** are the type variables for the key and value types.
+ - The **_VT** are the type variables for the key and value types.
  - It is implemented in the bot class as `self.holder = Holder()`, as a public var open to access anywhere.
  - The holder class is a subclass of the [dict] class, and is used to store the bot variable.
  - It is implemented as follows:
