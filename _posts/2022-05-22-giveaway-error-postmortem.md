@@ -50,7 +50,7 @@ the giveaway's interface) from the code that is handling the giveaway task.
 # What went wrong?
 
 I think, and I have no way to confirm this, that when I went to do step 2, because I initially got a syntax error I had
-to fix, and after I fixed that I forgot to confirm I copied in the correct references to the [REPL] session, so when I 
+to fix and after I fixed that I forgot to confirm I copied in the correct references to the [REPL] session, so when I 
 reloaded the module and tried to load the giveaway from the [REPL] session, I lost the giveaway and loaded in `...`
 ellipses placeholders instead.
 
