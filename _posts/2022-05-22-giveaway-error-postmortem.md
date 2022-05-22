@@ -140,8 +140,8 @@ class Giveaway(commands.Cog)
 
     async def cog_unload(self) -> None:
         self.daily_giveaway.cancel()
-        self.bot.holder["yesterday"] = self.yesterdays_giveaway
-        self.bot.holder["current"] = self.current_giveaway
+        self.bot.holder["yesterday"] = self.yesterdays
+        self.bot.holder["current"] = self.current
 ```
 
  - The cog_unload method is called when the cog is unloaded.
