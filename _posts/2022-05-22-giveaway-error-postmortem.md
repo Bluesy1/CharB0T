@@ -8,8 +8,6 @@ author:  Bluesy
 excerpt_separator: <!--more-->
 ---
 
-# Summary
-
 When reloading the giveaway module after updating the `/confirm` command yesterday to allow
 setting the number of days to confirm for, I accidentally de-linked the giveaway from any code references, causing
 it to not be automatically ended from the timer. This postmortem is to help me figure out what went wrong, and how
