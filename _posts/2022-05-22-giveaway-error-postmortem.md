@@ -140,7 +140,7 @@ class Giveaway(commands.Cog)
 
     async def cog_unload(self) -> None:
         self.daily_giveaway.cancel()
-        self.bot.holder["yesterday"] = self.yesterdays
+        self.bot.holder["yesterday"] = self.yesterday
         self.bot.holder["current"] = self.current
 ```
 
