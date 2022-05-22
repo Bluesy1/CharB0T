@@ -68,11 +68,10 @@ future.
 
 ### The mentioned class/factory method
 ```python
-G = TypeVar("G", bound="GivawayView")
 class GiveawayView:
 	...
     @classmethod
-    def recreate_from_message(cls, message: discord.Message, bot: CBot) -> G:
+    def recreate_from_message(cls, message: discord.Message, bot: CBot):
         try:
             embed = message.embeds[0]
             game = embed.title
@@ -93,8 +92,6 @@ class GiveawayView:
         return view
 ```
  - The class method is a factory method that creates a view from a message.
- - The [TypeVar] is a special bound type that is used to type the class because
-  you cannot reference a class within itself.
 
 ### Moving out of the REPL
 
