@@ -57,6 +57,17 @@ The changelog is [here](./changes).
 6. If you implement or change something documented, update the documentation and changelogs and submit a pull request for that too.
 7. Again, **Be sure to update the changelogs and documentation.** If you don't, I will have to write them myself and your PR will be delayed. -
 
+## Posts
+
+<ul>
+{% for post in site.posts %}
+  <li>
+    <a href="/CharB0T{{ post.url }}">{{ post.title }}</a>
+    {{ post.excerpt }}
+  </li>
+{% endfor %}
+</ul>
+
 ----------------------------------------------------------------------------
 MIT License
 
