@@ -64,8 +64,91 @@ without losing the giveaway. Finally, I'm going to add a [Class Method] as a Fac
 class to allow me to reconstruct a giveaway easier from a channel and message ID should a giveaway be lost in the
 future.
 
+## How do I do this?
+
+### The mentioned class/factory method
+```python
+G = TypeVar("G", bound="GivawayView")
+class GiveawayView:
+	...
+    @classmethod
+    def recreate_from_message(cls, message: discord.Message, bot: CBot) -> G:
+        embed = message.embeds[0]
+        game = embed.title
+        url = embed.url
+        view = cls(bot, message.channel, embed, game, url)
+        view.message = message
+        view.top_bid = int(embed.fields[4].value)
+        view.total_entries = int(embed.fields[3].value)
+        return view
+```
+ - The class method is a factory method that creates a view from a message.
+ - The [TypeVar] is a special bound type that is used to type the class because
+  you cannot reference a class within itself.
+
+### Moving out of the REPL
+
+#### The holder class for the bot variable
+```python
+_KT = TypeVar("_KT")
+_VT = TypeVar("_VT")
+class Holder(dict):
+    def __getitem__(self, k: _KT) -> _VT:
+        if k not in self:
+            return MISSING
+        return super().__getitem__(k)
+
+    def __delitem__(self, key: _KT) -> None:
+        if key not in self:
+            return
+        super().__delitem__(key)
+
+    def pop(self, __key: _KT, default: _VT = MISSING) -> _VT:
+        if __key not in self:
+            return default
+        return super().pop(__key)
+
+    def get(self, __key: _KT, default: _VT = MISSING) -> _VT:
+        if __key not in self:
+            return default
+        return super().get(__key)
+
+    def setdefault(self, __key: _KT, default: _VT = MISSING) -> _VT:
+        if __key not in self:
+            self[__key] = default
+        return self[__key]
+```
+ - The [TypeVars][TypeVar] here are special types used in the standard python implementation of the [dict] class.
+ - The [MISSING] type is the missing Sentinel value for the discord.py library, to avoid NoneType issues.
+ - The **_KT** and **_VT** are the type variables for the key and value types.
+ - It is implemented in the bot class as `self.holder = Holder()`, as a public var open to access anywhere.
+ - The holder class is a subclass of the [dict] class, and is used to store the bot variable.
+ - It is implemented as follows:
+
+```python
+class Giveaway(commands.Cog)
+    def __init__(self, bot: CBot):
+        self.bot = bot
+        self.yesterday: GiveawayView = bot.holder.pop("yesterday")
+        self.current: GiveawayView = bot.holder.pop("current")
+
+    async def cog_unload(self) -> None:
+        self.daily_giveaway.cancel()
+        self.bot.holder["yesterday"] = self.yesterdays_giveaway
+        self.bot.holder["current"] = self.current_giveaway
+```
+
+ - The cog_unload method is called when the cog is unloaded.
+ - The `__init__` method is called when the cog is constructed.
+ - They transfer the method between the bot class and the cog class to keep them in the smallest possible state.
+   - The cog is the smaller state, as it is self contained and doesn't require reaching above its own level.
+
+
 ## Back to [Top](./giveaway-error-postmortem) / [Home](../../../../index.html)
 
 [Jishaku]: https://jishaku.readthedocs.io/en/latest/
 [REPL]: https://en.wikipedia.org/wiki/Read%E2%80%93eval%E2%80%93print_loop
 [Class Method]: https://docs.python.org/3/library/functions.html#classmethod
+[TypeVar]: https://docs.python.org/3.10/library/typing.html#typing.TypeVar
+[dict]: https://docs.python.org/3/library/stdtypes.html#dict
+[MISSING]: https://discordpy.readthedocs.io/en/latest/api.html#discord.discord.utils.MISSING
