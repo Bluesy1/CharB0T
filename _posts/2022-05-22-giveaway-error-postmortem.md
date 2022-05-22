@@ -18,7 +18,7 @@ to avoid this happening again.
 # What happened?
 
 Normally, when i need to reload the giveaway module, I use [Jishaku] to store the giveaway in a local [REPL] session 
-in the bot that maintaines the variabled passed to it, and then reload the module. I thought this would be a good way to
+in the bot that maintains the variables passed to it, and then reload the module. I thought this would be a good way to
 avoid the issue, but it turns out that this method is prone to errors, and the error is not always obvious, until it is
 too late. The process is as follows:
 1. The current and past giveaways are stored in the bot's [REPL] session:
