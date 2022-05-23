@@ -25,7 +25,7 @@
 """Admin commands for the reputation system."""
 from functools import partial
 from io import BytesIO
-from typing import Callable, Literal, Optional
+from typing import Callable, Optional
 
 import asyncpg
 import discord
@@ -611,16 +611,6 @@ class ReputationAdmin(
             if _pool is None:
                 await interaction.followup.send(f"Error: Pool `{pool}` not found.")
             else:
-                completed = round(_pool["current"] / _pool["cap"], 2)
-                status: Literal["online", "offline", "idle", "streaming", "dnd"] = "offline"
-                if completed < 0.34:
-                    status = "dnd"
-                elif 0.34 <= completed < 0.67:
-                    status = "idle"
-                elif 0.67 <= completed < 1:
-                    status = "streaming"
-                elif completed == 1:
-                    status = "online"
                 _partial_image: Callable[[], BytesIO] = partial(
                     generate_card,
                     level=_pool["level"],
@@ -628,7 +618,6 @@ class ReputationAdmin(
                     current_rep=_pool["current"],
                     completed_rep=_pool["cap"],
                     pool_name=pool,
-                    pool_status=status,
                     reward=_pool["reward"],
                 )
                 image_bytes = await self.bot.loop.run_in_executor(None, _partial_image)

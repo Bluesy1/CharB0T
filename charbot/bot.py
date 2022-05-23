@@ -475,6 +475,11 @@ class Tree(app_commands.CommandTree):
                     await interaction.followup.send(error.args[0])
                 else:
                     await interaction.response.send_message(error.args[0], ephemeral=True)
+            elif isinstance(error, errors.NoPoolFound):
+                if interaction.response.is_done():
+                    await interaction.followup.send(error.message)
+                else:
+                    await interaction.response.send_message(error.message, ephemeral=True)
             elif isinstance(error, app_commands.CheckFailure):
                 if interaction.response.is_done():
                     await interaction.followup.send(f"{interaction.user.mention}, you can't use {command.name}.")

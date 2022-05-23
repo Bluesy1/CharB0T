@@ -24,7 +24,8 @@
 #  ----------------------------------------------------------------------------
 """Custom errors for the bot."""
 
-__all__ = ("WrongChannelError", "MissingProgramRole")
+__all__ = ("WrongChannelError", "NoPoolFound", "MissingProgramRole", "MissingPoolRole")
 
 from .channel import WrongChannelError
-from .roles import MissingProgramRole
+from .pools import NoPoolFound
+from .roles import MissingPoolRole, MissingProgramRole
