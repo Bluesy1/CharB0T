@@ -47,5 +47,6 @@ Bot modules:
  - Google Calendar: Connect to a [Google Calendar](./cal) to a discord channel and keep upcoming events listed in the channel.
  - Giveaway: Select [giveaway](./giveaway) commands and the giveaway task.
  - Mod Support: A [ticket](./tickets) based support system to get help from moderators.
+ - Pools: A [pool](./pools) system for users to interact with point pool challenges.
 
 ## Back to [Home](../)
