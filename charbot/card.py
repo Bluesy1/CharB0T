@@ -2,6 +2,7 @@
 #  ----------------------------------------------------------------------------
 #  MIT License
 #
+# Copyright (c) 2020 - 2021 Md Shahriyar Alam
 # Copyright (c) 2022 Bluesy
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy

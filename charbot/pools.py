@@ -118,9 +118,9 @@ class Pools(commands.GroupCog, name="pools", description="Reputation pools for c
             "SELECT required_roles FROM pools WHERE pool = $1", interaction.namespace["pool"]
         )
         if roles is None:
-            raise errors.NoPoolFound(MESSAGE)
+            raise errors.NoPoolFound(interaction.namespace["pool"])
         if not any(role.id in roles for role in member.roles):
-            raise errors.MissingPoolRole(roles)
+            raise errors.NoPoolFound(interaction.namespace["pool"])
         if interaction.channel_id != 969972085445238784:
             raise errors.WrongChannelError(969972085445238784)
         return True
