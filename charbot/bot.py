@@ -449,63 +449,37 @@ class Tree(app_commands.CommandTree):
         """
         command = interaction.command
         if isinstance(command, (app_commands.Command, app_commands.ContextMenu)):
-            if isinstance(error, errors.MissingProgramRole):
-                if interaction.response.is_done():
-                    await interaction.followup.send(error.message)
-                else:
-                    await interaction.response.send_message(error.message, ephemeral=True)
-            if isinstance(error, app_commands.MissingAnyRole):
-                if interaction.response.is_done():
-                    await interaction.followup.send(
-                        f"{interaction.user.mention}, you don't have any of the required role(s) to use {command.name}."
-                    )
-                else:
-                    await interaction.response.send_message(
-                        f"{interaction.user.mention}, you don't have any of the required role(s) to use "
-                        f"{command.name}.",
-                        ephemeral=True,
-                    )
+            if isinstance(error, (errors.MissingProgramRole, errors.NoPoolFound)):
+                message = error.message
+            elif isinstance(error, app_commands.MissingAnyRole):
+                message = (
+                    f"{interaction.user.mention}, you don't have any of the required role(s) to use {command.name}."
+                )
             elif isinstance(error, errors.WrongChannelError):
-                if interaction.response.is_done():
-                    await interaction.followup.send(f"{interaction.user.mention}, {error}")
-                else:
-                    await interaction.response.send_message(f"{interaction.user.mention}, {error}", ephemeral=True)
+                message = f"{interaction.user.mention}, {error}"
             elif isinstance(error, app_commands.NoPrivateMessage):
-                if interaction.response.is_done():
-                    await interaction.followup.send(error.args[0])
-                else:
-                    await interaction.response.send_message(error.args[0], ephemeral=True)
-            elif isinstance(error, errors.NoPoolFound):
-                if interaction.response.is_done():
-                    await interaction.followup.send(error.message)
-                else:
-                    await interaction.response.send_message(error.message, ephemeral=True)
+                message = error.args[0]
             elif isinstance(error, app_commands.CheckFailure):
-                if interaction.response.is_done():
-                    await interaction.followup.send(f"{interaction.user.mention}, you can't use {command.name}.")
-                else:
-                    await interaction.response.send_message(
-                        f"{interaction.user.mention}, you can't use {command.name}.", ephemeral=True
-                    )
+                message = f"{interaction.user.mention}, you can't use {command.name}."
             elif isinstance(error, app_commands.CommandInvokeError):
                 orig_error = error.original or error
-                if interaction.response.is_done():
-                    await interaction.followup.send(
-                        f"{interaction.user.mention}, an error occurred while executing {command.name}"
-                        f", Bluesy has been notified."
-                    )
-                else:
-                    await interaction.response.send_message(
-                        f"{interaction.user.mention}, an error occurred while executing {command.name}"
-                        f", Bluesy has been notified.",
-                        ephemeral=True,
-                    )
+                message = (
+                    f"{interaction.user.mention}, an error occurred while executing {command.name}"
+                    f", Bluesy has been notified."
+                )
                 await self.client.error_logs.send(
                     f"{interaction.user.mention} tried to execute command {command.name!r} but an error "
                     f"occurred:\n{orig_error}"
                 )
                 print(f"Ignoring exception in command {command.name!r}", file=sys.stderr)
                 traceback.print_exception(orig_error.__class__, orig_error, orig_error.__traceback__, file=sys.stderr)
+                return
+            else:
+                message = "An error occurred while executing the command."
+            if interaction.response.is_done():
+                await interaction.followup.send(message)
+            else:
+                await interaction.response.send_message(message)
         else:
             print(f"Ignoring exception in command tree: {error}", file=sys.stderr)
             await self.client.error_logs.send(f"Ignoring exception in command tree: {error}")
