@@ -468,15 +468,15 @@ class ModSupportModal(ui.Modal, title="Mod Support Form"):
             await channel.send(self.full_description.value)
         await interaction.response.send_message(f"Channel Created: {channel.mention}", ephemeral=True)
 
-    async def on_error(self, error: Exception, interaction: Interaction) -> None:
+    async def on_error(self, interaction: Interaction, error: Exception) -> None:
         """Error handler for modal.
 
         Parameters
         ----------
-        error : Exception
-            The error that was raised.
         interaction : Interaction
             The interaction instance.
+        error : Exception
+            The error that was raised.
         """
         await interaction.response.send_message(
             "Oh no! Something went wrong. Please ask for a mod's help in this " "channel and let Bluesy know.",
