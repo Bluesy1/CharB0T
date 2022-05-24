@@ -25,6 +25,7 @@
 """Admin commands for charbot."""
 import json
 from datetime import datetime, timedelta, timezone
+from time import perf_counter
 from typing import Optional
 
 import discord
@@ -184,7 +185,21 @@ class Admin(commands.Cog):
         ctx : Context
             The context of the command.
         """
-        await ctx.send(f"Pong! Latency: {self.bot.latency * 1000:.2f}ms")
+        start = perf_counter()
+        await ctx.typing()
+        end = perf_counter()
+        typing = end - start
+        start = perf_counter()
+        await self.bot.pool.fetchrow("SELECT * FROM users WHERE id = $1", ctx.author.id)
+        end = perf_counter()
+        database = end - start
+        start = perf_counter()
+        message = await ctx.send("Ping ...")
+        end = perf_counter()
+        await message.edit(
+            content=f"Pong!\n\nPing: {(end - start) * 100:.2f}ms\nTyping: {typing * 1000:.2f}ms\nDatabase: "
+            f"{database * 1000:.2f}ms\nWebsocket: {self.bot.latency * 1000:.2f}ms"
+        )
 
     @commands.hybrid_group(name="sensitive")
     @app_commands.guilds(225345178955808768)
