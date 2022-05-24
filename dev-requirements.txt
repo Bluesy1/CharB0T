@@ -5,5 +5,5 @@ flake8==4.0.1
 isort==5.10.1
 pre-commit==2.19.0
 pydocstyle==6.1.1
-pyright==1.1.247
+pyright==1.1.248
 toml==0.10.2
