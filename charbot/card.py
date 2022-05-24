@@ -26,7 +26,6 @@
 """Card generator for Charbot."""
 import math
 from io import BytesIO
-from typing import Literal
 
 from discord.utils import MISSING
 from PIL import Image, ImageDraw, ImageFont
@@ -104,36 +103,6 @@ def generate_card(
     profile_bytes: BytesIO | str = profile_image if profile_image is not MISSING else default_profile
     profile = Image.open(profile_bytes).convert("RGBA").resize((180, 180))
 
-    xpneed = completed_rep - base_rep
-    xphave = current_rep - base_rep
-
-    current_percentage = (xphave / xpneed) * 100
-
-    pool_status: Literal["online", "offline", "idle", "streaming", "dnd"] = "offline"
-    if current_percentage < 34:
-        pool_status = "dnd"
-    elif 0.34 <= current_percentage < 67:
-        pool_status = "idle"
-    elif 0.67 <= current_percentage < 100:
-        pool_status = "streaming"
-    elif current_percentage == 100:
-        pool_status = "online"
-
-    if pool_status == "online":
-        status = Image.open(online)
-    elif pool_status == "offline":
-        status = Image.open(offline)
-    elif pool_status == "idle":
-        status = Image.open(idle)
-    elif pool_status == "streaming":
-        status = Image.open(streaming)
-    elif pool_status == "dnd":
-        status = Image.open(dnd)
-    else:
-        raise ValueError(f"Unknown status: {pool_status}")
-
-    status = status.convert("RGBA").resize((40, 40))
-
     profile_pic_holder = Image.new("RGBA", card.size, (255, 255, 255, 0))  # Is used for a blank image for a mask
 
     # Mask to crop image
@@ -176,6 +145,22 @@ def generate_card(
     blank_draw = ImageDraw.Draw(blank)
     blank_draw.rectangle((245, 185, 750, 205), fill=(255, 255, 255, 0), outline=DARK)
 
+    xpneed = completed_rep - base_rep
+    xphave = current_rep - base_rep
+
+    current_percentage = (xphave / xpneed) * 100
+
+    status = Image.open(offline)
+    if 0 < current_percentage < 34:
+        status = Image.open(dnd)
+    elif 0.34 <= current_percentage < 67:
+        status = Image.open(idle)
+    elif 0.67 <= current_percentage < 100:
+        status = Image.open(streaming)
+    elif current_percentage == 100:
+        status = Image.open(online)
+
+    status = status.convert("RGBA").resize((40, 40))
     length_of_bar = (current_percentage * 4.9) + 248
 
     blank_draw.rectangle((248, 188, length_of_bar, 202), fill=DARK)
