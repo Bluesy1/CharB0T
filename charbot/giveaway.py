@@ -227,8 +227,11 @@ class GiveawayView(ui.View):
             self.embed.add_field(name="Total Entries", value=f"{self.total_entries}", inline=True)
             self.embed.add_field(name="Winner", value=f"{winner.name}#{winner.discriminator}", inline=True)
             self.embed.add_field(
-                name="Backup Winners", value=f"{','.join(f'{m.name}#{m.discriminator}' for m in drawn)}", inline=True
+                name="Backup Winners", value=f"{', '.join(f'{m.name}#{m.discriminator}' for m in drawn)}", inline=True
             )
+            _drawn = [winner]
+            _drawn.extend(drawn)
+            self.embed.add_field(name="All Drawn People", value=f"{', '.join(m.mention for m in _drawn)}", inline=True)
         else:
             self.embed.add_field(name="No Winners", value="No bids were made.", inline=True)
 
