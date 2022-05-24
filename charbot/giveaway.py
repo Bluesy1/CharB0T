@@ -120,17 +120,17 @@ class GiveawayView(ui.View):
             game = embed.title
             url = embed.url
             channel = message.channel
-            assert isinstance(channel, discord.TextChannel)
-            assert isinstance(game, str)
+            assert isinstance(channel, discord.TextChannel)  # skipcq: BAN-B101
+            assert isinstance(game, str)  # skipcq: BAN-B101
             view = cls(bot, channel, embed, game, url)
             view.message = message
             bid = embed.fields[4].value
-            assert isinstance(bid, str)
+            assert isinstance(bid, str)  # skipcq: BAN-B101
             view.top_bid = int(bid)
             total = embed.fields[3].value
-            assert isinstance(total, str)
+            assert isinstance(total, str)  # skipcq: BAN-B101
             view.total_entries = int(total)
-        except IndexError | ValueError | TypeError | AssertionError as e:
+        except (IndexError, ValueError, TypeError, AssertionError) as e:
             raise KeyError("Invalid giveaway embed.") from e
         return view
 
