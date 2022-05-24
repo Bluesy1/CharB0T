@@ -32,11 +32,7 @@ from discord.ext import commands
 from discord.ext.commands import Cog, Context
 
 
-__source__ = (
-    "You can find my source code here: https://github.com/Bluesy1/CharB0T/tree/main/charbot \n"
-    "I'm liscensed under the MIT liscense. See the license file for more information: "
-    "https://www.github.com/Bluesy1/CharB0T/blob/master/LICENSE \n Creator: Bluesy#8150"
-)
+__source__ = "<https://github.com/Bluesy1/CharB0T/tree/main/charbot>"
 
 
 class Query(Cog):
@@ -100,7 +96,7 @@ class Query(Cog):
         ctx : Context
             The context of the command.
         """
-        await ctx.reply("Here's the changelog: https://github.com/Bluesy1/CharB0T/blob/main/charbot/changelog.md")
+        await ctx.reply("Here's the changelog: https://bluesy1.github.io/CharB0T/changes")
 
     @commands.command()
     @commands.cooldown(1, 60, commands.BucketType.channel)
@@ -154,7 +150,7 @@ class Query(Cog):
         ctx: discord.ext.commands.Context
             The context of the command
         """
-        await ctx.reply(__source__)
+        await ctx.reply(f"https://bluesy1.github.io/CharB0T/\n{__source__}\nMIT License")
 
     @commands.hybrid_command(name="imgscam", description="Info about the semi fake image scam on discord")
     @app_commands.guilds(225345178955808768)
