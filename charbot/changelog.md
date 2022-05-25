@@ -1,3 +1,5 @@
+# Deprecated, use the GitHub Pages [Changelog](https://bluesy1.github.io/CharB0T/changes) instead.
+
 ## CharB0T Changelog
 Base version: commit [`975c554d`](https://github.com/Bluesy1/CharB0T/commit/975c554d52ecabb299ea66e7f8fba5f0fbd16cae)
 
@@ -10,7 +12,7 @@ Important changes as of commit [`975c554d`](https://github.com/Bluesy1/CharB0T/c
 -----------------------------------------------------
 
  - Added a dynamic [`calendar`](/charbot/gcal.py) that links to Charlie's Google calendar.
- - Added 3 games that generate reputation, [`tictactoe`](/charbot/tictactoe.py), [`shrugman`](/charbot/shrugman.py), and [`sudoku`](/charbot/sudoku.py).
+ - Added 3 games that generate reputation, [`tictactoe`](/charbot/tictactoe), [`shrugman`](/charbot/shrugman), and [`sudoku`](/charbot/sudoku/).
  - Added a daily reputation generator command, [`rollcall`](/charbot/giveaway.py).
  - Added a reputation queryier command, [`reputation`](/charbot/giveaway.py).
  - Added a giveaway system, [`giveaway`](/charbot/giveaway.py).
@@ -36,3 +38,12 @@ Tuesday, May 10th 2022
 ---------------------
 
  - Made the [`pool`](/charbot/pools.py) system user commands public.
+
+Sunday, May 15th 2022
+---------------------
+
+ - Split out the programs into sub modules [`sudoku`](/charbot/sudoku), [`tictactoe`](/charbot/tictactoe), and [`shrugman`](/charbot/shrugman).
+ - Added them to a single group cog for ease of ux, [`programs`](/charbot/programs.py).
+ - Added Feature Requests and Bug Report Issue templates.
+ - Added [`greetings`](/.github/workflows/greetings.yml) GHA.
+ - Subclasses the default discord.py command tree and moved the subclassed bot class to their own file, [`bot`](/charbot/bot.py).

@@ -24,21 +24,23 @@
 #  ----------------------------------------------------------------------------
 """Admin commands for charbot."""
 import json
-from datetime import datetime, timezone
+from datetime import datetime, timedelta, timezone
+from time import perf_counter
 
 import discord
 from discord import Color, Embed, app_commands
 from discord.ext import commands
-from discord.ext.commands import Cog, Context
+
+from . import CBot
 
 
-class Admin(Cog):
+class Admin(commands.Cog):
     """Admin Cog."""
 
-    def __init__(self, bot: commands.Bot):
+    def __init__(self, bot: CBot):
         self.bot = bot
 
-    def cog_check(self, ctx: Context) -> bool:
+    def cog_check(self, ctx: commands.Context) -> bool:
         """Check to make sure runner is a moderator.
 
         Parameters
@@ -65,7 +67,7 @@ class Admin(Cog):
         return any(role.id in (338173415527677954, 253752685357039617, 225413350874546176) for role in author.roles)
 
     @commands.command()
-    async def ping(self, ctx: Context):
+    async def ping(self, ctx: commands.Context):
         """Ping Command TO Check Bot Is Alive.
 
         This command is used to check if the bot is alive.
@@ -77,11 +79,25 @@ class Admin(Cog):
         ctx : Context
             The context of the command.
         """
-        await ctx.send(f"Pong! Latency: {self.bot.latency * 1000:.2f}ms")
+        start = perf_counter()
+        await ctx.typing()
+        end = perf_counter()
+        typing = end - start
+        start = perf_counter()
+        await self.bot.pool.fetchrow("SELECT * FROM users WHERE id = $1", ctx.author.id)
+        end = perf_counter()
+        database = end - start
+        start = perf_counter()
+        message = await ctx.send("Ping ...")
+        end = perf_counter()
+        await message.edit(
+            content=f"Pong!\n\nPing: {(end - start) * 100:.2f}ms\nTyping: {typing * 1000:.2f}ms\nDatabase: "
+            f"{database * 1000:.2f}ms\nWebsocket: {self.bot.latency * 1000:.2f}ms"
+        )
 
     @commands.hybrid_group(name="sensitive")
     @app_commands.guilds(225345178955808768)
-    async def sensitive(self, ctx: Context):
+    async def sensitive(self, ctx: commands.Context):
         """Command group for configuring the sensitive words filter.
 
         Parameters
@@ -98,7 +114,7 @@ class Admin(Cog):
             )
 
     @sensitive.command(name="add")
-    async def add(self, ctx: Context, *, word: str):
+    async def add(self, ctx: commands.Context, *, word: str):
         """Add a word to the sensitive words filter.
 
         Parameters
@@ -135,7 +151,7 @@ class Admin(Cog):
             )
 
     @sensitive.command(name="remove")
-    async def remove(self, ctx: Context, *, word: str):
+    async def remove(self, ctx: commands.Context, *, word: str):
         """Remove a word from the sensitive words filter.
 
         Parameters
@@ -172,7 +188,7 @@ class Admin(Cog):
             )
 
     @sensitive.command(name="query")
-    async def query(self, ctx: Context):
+    async def query(self, ctx: commands.Context):
         """Retrieve the list of words defined as sensitive.
 
         Parameters
@@ -193,8 +209,37 @@ class Admin(Cog):
             )
         )
 
+    @app_commands.command(name="confirm", description="[Charlie only] confirm a winner")
+    @app_commands.guilds(225345178955808768)
+    async def confirm(
+        self,
+        interaction: discord.Interaction,
+        user: discord.Member,
+        time: app_commands.Range[int, 1, 30] = 6,
+    ) -> None:
+        """Confirm a winner.
 
-async def setup(bot: commands.Bot):
+        Parameters
+        ----------
+        interaction: discord.Interaction
+            The interaction of the command invocation.
+        user : discord.Member
+            The user to confirm as a winner.
+        time : Optional[IntToTimeDeltaTransformer] = None
+            [OPTIONAL, Default 6] How many days should the winner be blocked from bidding again?"
+        """
+        if interaction.user.id != 225344348903047168:
+            await interaction.response.send_message("Only Charlie can confirm a winner.", ephemeral=True)
+            return
+        await self.bot.pool.execute(
+            "INSERT INTO winners (id, expiry) VALUES ($1, $2) ON CONFLICT (id) DO UPDATE SET expiry = $2",
+            user.id,
+            self.bot.TIME() + timedelta(days=time),
+        )
+        await interaction.response.send_message("Confirmed.", ephemeral=True)
+
+
+async def setup(bot: CBot):
     """Add the Admin cog to the bot.
 
     Parameters

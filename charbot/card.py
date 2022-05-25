@@ -2,6 +2,7 @@
 #  ----------------------------------------------------------------------------
 #  MIT License
 #
+# Copyright (c) 2020 - 2021 Md Shahriyar Alam
 # Copyright (c) 2022 Bluesy
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -25,7 +26,6 @@
 """Card generator for Charbot."""
 import math
 from io import BytesIO
-from typing import Literal
 
 from discord.utils import MISSING
 from PIL import Image, ImageDraw, ImageFont
@@ -40,7 +40,6 @@ def generate_card(
     current_rep: int = 20,
     completed_rep: int = 100,
     pool_name: str = "Unknown",
-    pool_status: Literal["online", "offline", "idle", "streaming", "dnd"] = "offline",
     reward: str = "Unknown",
 ):
     """Generate a card.
@@ -63,8 +62,6 @@ def generate_card(
         The rep needed to complete the pool.
     pool_name: str = "Unknown"
         The name of the pool. Defaults to "Unknown".
-    pool_status: Literal['online', 'offline', 'idle', 'streaming', 'dnd'] = "offline"
-        The discord status color to roughtly indicate the status of the pool. Defaults to "offline" (grey).
     reward: str = "Unknown"
         The reward of the pool. Defaults to "Unknown".
 
@@ -105,21 +102,6 @@ def generate_card(
 
     profile_bytes: BytesIO | str = profile_image if profile_image is not MISSING else default_profile
     profile = Image.open(profile_bytes).convert("RGBA").resize((180, 180))
-
-    if pool_status == "online":
-        status = Image.open(online)
-    elif pool_status == "offline":
-        status = Image.open(offline)
-    elif pool_status == "idle":
-        status = Image.open(idle)
-    elif pool_status == "streaming":
-        status = Image.open(streaming)
-    elif pool_status == "dnd":
-        status = Image.open(dnd)
-    else:
-        raise ValueError(f"Unknown status: {pool_status}")
-
-    status = status.convert("RGBA").resize((40, 40))
 
     profile_pic_holder = Image.new("RGBA", card.size, (255, 255, 255, 0))  # Is used for a blank image for a mask
 
@@ -167,6 +149,18 @@ def generate_card(
     xphave = current_rep - base_rep
 
     current_percentage = (xphave / xpneed) * 100
+
+    status = Image.open(offline)
+    if 0 < current_percentage < 34:
+        status = Image.open(dnd)
+    elif 0.34 <= current_percentage < 67:
+        status = Image.open(idle)
+    elif 0.67 <= current_percentage < 100:
+        status = Image.open(streaming)
+    elif current_percentage == 100:
+        status = Image.open(online)
+
+    status = status.convert("RGBA").resize((40, 40))
     length_of_bar = (current_percentage * 4.9) + 248
 
     blank_draw.rectangle((248, 188, length_of_bar, 202), fill=DARK)
@@ -197,6 +191,5 @@ if __name__ == "__main__":
         current_rep=0,
         completed_rep=100,
         pool_name="Lorem ipsum",
-        pool_status="online",
         reward="dolor sit amet, consectetur adipiscing elit, sed",
     )

@@ -4,7 +4,7 @@ requires = ["setuptools>=40.8.0", "git+https://github.com/Rapptz/discord.py@mast
 [tool.pyright]
 pythonPlatform = "Linux"
 reportUnnecessaryTypeIgnoreComment = true
-exclude = ["**/__pycache__/**"]
+exclude = ["**/__pycache__/**", "venv"]
 
 [tool.black]
 line-length = 120
@@ -22,5 +22,5 @@ profile = "black"
 skip_gitignore = true
 line_length = 120
 atomic = true
-known_local_folder = ["backup", "main", "card"]
+known_local_folder = ["backup", "main", "card", "tictactoe", "sudoku", "shrugman", "bot", "errors"]
 lines_after_imports = 2

@@ -25,16 +25,15 @@
 """Event handling for Charbot."""
 import json
 import re
-import sys
-import traceback
 from datetime import datetime, timedelta, timezone
 
 import discord
 from discord import Color, Embed
-from discord.ext import commands
+from discord.ext import tasks
 from discord.ext.commands import Cog
+from discord.utils import utcnow
 
-from main import CBot
+from . import CBot
 
 
 def sensitive_embed(message: discord.Message, used: set[str]) -> discord.Embed:
@@ -66,6 +65,21 @@ def sensitive_embed(message: discord.Message, used: set[str]) -> discord.Embed:
     )
 
 
+async def time_string_from_seconds(delta: float) -> str:
+    """Convert seconds to a string.
+
+    Parameters
+    ----------
+    delta : float
+        The number of seconds to convert to a string
+    """
+    minutes, sec = divmod(delta, 60)
+    hour, minutes = divmod(minutes, 60)
+    day, hour = divmod(hour, 24)
+    year, day = divmod(day, 365)
+    return f"{year} Year(s), {day} Day(s), {hour} Hour(s)," f" {minutes} Min(s), {sec:.2f} Sec(s)"
+
+
 class Events(Cog):
     """Event Cog.
 
@@ -87,6 +101,71 @@ class Events(Cog):
     def __init__(self, bot: CBot):
         self.bot = bot
         self.last_sensitive_logged = {}
+        self.timeouts = {}
+        self.members: dict[int, datetime] = {}
+
+    async def cog_load(self) -> None:
+        """Cog load function.
+
+        This is called when the cog is loaded, and initializes the
+        log_untimeout task and the members cache
+
+        Parameters
+        ----------
+        self : PrimaryFunctions
+            The PrimaryFunctions object
+        """
+        self.log_untimeout.start()
+        guild = await self.bot.fetch_guild(225345178955808768)
+        generator = guild.fetch_members(limit=None)
+        self.members.update({user.id: user.joined_at async for user in generator if user.joined_at is not None})
+
+    async def cog_unload(self) -> None:  # skipcq: PYL-W0236
+        """Call when cog is unloaded.
+
+        This stops the log_untimeout task
+
+        Parameters
+        ----------
+        self : PrimaryFunctions
+            The PrimaryFunctions object
+        """
+        self.log_untimeout.cancel()
+
+    async def parse_timeout(self, after: discord.Member):
+        """Parse the timeout and logs it to the mod log.
+
+        Parameters
+        ----------
+        self : PrimaryFunctions
+            The PrimaryFunctions object
+        after : discord.Member
+            The member after the update
+        """
+        until = after.timed_out_until
+        assert isinstance(until, datetime)  # skipcq: BAN-B101
+        time_delta = until + timedelta(seconds=1) - datetime.now(tz=timezone.utc)
+        time_string = ""
+        if time_delta.days // 7 != 0:
+            time_string += f"{time_delta.days // 7} Week{'s' if time_delta.days // 7 > 1 else ''}"
+        if time_delta.days % 7 != 0:
+            time_string += f"{', ' if bool(time_string) else ''}{time_delta.days % 7} Day(s) "
+        if time_delta.seconds // 3600 > 0:
+            time_string += f"{', ' if bool(time_string) else ''}" f"{time_delta.seconds // 3600} Hour(s) "
+        if (time_delta.seconds % 3600) // 60 != 0:
+            time_string += f"{', ' if bool(time_string) else ''}" f"{(time_delta.seconds % 3600) // 60} Minute(s) "
+        if (time_delta.seconds % 3600) % 60 != 0:
+            time_string += f"{', ' if bool(time_string) else ''}" f"{(time_delta.seconds % 3600) % 60} Second(s) "
+        embed = Embed(color=Color.red())
+        embed.set_author(name=f"[TIMEOUT] {after.name}#{after.discriminator}")
+        embed.add_field(name="User", value=after.mention, inline=True)
+        embed.add_field(name="Duration", value=time_string, inline=True)
+        with open("sensitive_settings.json", encoding="utf8") as json_dict:
+            webhook = await self.bot.fetch_webhook(json.load(json_dict)["webhook_id"])
+        bot_user = self.bot.user
+        assert isinstance(bot_user, discord.ClientUser)  # skipcq: BAN-B101
+        await webhook.send(username=bot_user.name, avatar_url=bot_user.display_avatar.url, embed=embed)
+        self.timeouts.update({after.id: after.timed_out_until})
 
     async def sensitive_scan(self, message: discord.Message) -> None:
         """Check and take action if a message contains sensitive content.
@@ -133,6 +212,115 @@ class Events(Cog):
                     embed=sensitive_embed(message, used_words),
                 )
                 self.last_sensitive_logged[message.author.id] = datetime.now()
+
+    # noinspection DuplicatedCode
+    @tasks.loop(seconds=30)
+    async def log_untimeout(self) -> None:
+        """Untimeout Report Task.
+
+        This task runs every 30 seconds and checks if any users that have been timed out have had their timeouts
+        expired. If they have, it will send a message to the mod channel.
+
+        Parameters
+        ----------
+        self : PrimaryFunctions
+            The PrimaryFunctions object
+        """
+        removeable = []
+        for i, j in self.timeouts.copy().items():
+            if j < datetime.now(tz=timezone.utc):
+                member = await (await self.bot.fetch_guild(225345178955808768)).fetch_member(i)
+                if not member.is_timed_out():
+                    embed = Embed(color=Color.green())
+                    embed.set_author(name=f"[UNTIMEOUT] {member.name}#{member.discriminator}")
+                    embed.add_field(name="User", value=member.mention, inline=True)
+                    with open("sensitive_settings.json", encoding="utf8") as json_dict:
+                        webhook = await self.bot.fetch_webhook(json.load(json_dict)["webhook_id"])
+                    bot_user = self.bot.user
+                    assert isinstance(bot_user, discord.ClientUser)  # skipcq: BAN-B101
+                    await webhook.send(username=bot_user.name, avatar_url=bot_user.display_avatar.url, embed=embed)
+                    removeable.append(i)
+                elif member.is_timed_out():
+                    self.timeouts.update({i: member.timed_out_until})
+        for i in removeable:
+            self.timeouts.pop(i)
+
+    @Cog.listener()
+    async def on_member_join(self, member: discord.Member) -> None:
+        """Process when a member joins the server and adds them to the members cache.
+
+        Parameters
+        ----------
+        self : PrimaryFunctions
+            The PrimaryFunctions object
+        member : discord.Member
+            The member that joined the server
+        """
+        if member.guild.id == 225345178955808768:
+            self.members.update({member.id: utcnow()})
+
+    @Cog.listener()
+    async def on_raw_member_remove(self, payload: discord.RawMemberRemoveEvent) -> None:
+        """Process when a member leaves the server and removes them from the members cache.
+
+        Parameters
+        ----------
+        self : PrimaryFunctions
+            The PrimaryFunctions object
+        payload : discord.RawMemberRemoveEvent
+            The payload of the member leaving the server
+        """
+        if payload.guild_id == 225345178955808768:
+            user = payload.user
+            if isinstance(user, discord.Member):
+                self.members.pop(user.id, None)
+                time_string = await time_string_from_seconds(abs(utcnow() - self.members[user.id]).total_seconds())
+            elif isinstance(user, discord.User) and user.id in self.members:
+                time_string = await time_string_from_seconds(abs(utcnow() - self.members.pop(user.id)).total_seconds())
+            else:
+                time_string = "Unknown"
+            channel = await self.bot.fetch_channel(430197357100138497)
+            assert isinstance(channel, discord.TextChannel)  # skipcq: BAN-B101
+            await channel.send(
+                f"**{user.name}#{user.discriminator}** has left the server. "
+                f"ID:{user.id}. Time on Server: {time_string}"
+            )
+
+    # noinspection PyBroadException,DuplicatedCode
+    @Cog.listener()
+    async def on_member_update(self, before: discord.Member, after: discord.Member):
+        """Process when a member is timed out or untimed out.
+
+        If the member is timed out, it adds them to the timeouts cache
+        If the member is untimed out, it removes them from the timeouts cache
+        In both cases, it logs the action to the mod log
+
+        Parameters
+        ----------
+        self : PrimaryFunctions
+            The PrimaryFunctions object
+        before : discord.Member
+            The member before the update
+        after : discord.Member
+            The member after the update
+        """
+        try:
+            if after.timed_out_until != before.timed_out_until:
+                if after.is_timed_out():
+                    await self.parse_timeout(after)
+                else:
+                    embed = Embed(color=Color.green())
+                    embed.set_author(name=f"[UNTIMEOUT] {after.name}#{after.discriminator}")
+                    embed.add_field(name="User", value=after.mention, inline=True)
+                    with open("sensitive_settings.json", encoding="utf8") as json_dict:
+                        webhook = await self.bot.fetch_webhook(json.load(json_dict)["webhook_id"])
+                    bot_user = self.bot.user
+                    assert isinstance(bot_user, discord.ClientUser)  # skipcq: BAN-B101
+                    await webhook.send(username=bot_user.name, avatar_url=bot_user.display_avatar.url, embed=embed)
+                    self.timeouts.pop(after.id)
+        except Exception:  # skipcq: PYL-W0703
+            if after.is_timed_out():
+                await self.parse_timeout(after)
 
     @Cog.listener()
     async def on_message(self, message: discord.Message) -> None:
@@ -204,65 +392,6 @@ class Events(Cog):
                 re.MULTILINE | re.IGNORECASE,
             ):
                 await message.delete()
-
-    @Cog.listener()
-    async def on_command_error(self, ctx, error):
-        """Trigger when an error is raised while invoking a command.
-
-        Parameters
-        ----------
-        self : Events
-            The Events cog.
-        ctx: commands.Context
-            The context used for command invocation.
-        error: commands.CommandError
-            The Exception raised.
-        """
-        # This prevents any commands with local handlers being
-        # handled here in on_command_error.
-        if hasattr(ctx.command, "on_error"):
-            return
-
-        # This prevents any cogs with an overwritten
-        # cog_command_error being handled here.
-        cog: Cog = ctx.cog
-        if cog and (
-            # skipcq: PYL-W0212
-            cog._get_overridden_method(cog.cog_command_error)
-            is not None
-        ):
-            return
-
-        ignored = (commands.CommandNotFound,)
-
-        # Allows us to check for original exceptions
-        # raised and sent to CommandInvokeError.
-        # If nothing is found. We keep the exception passed to on_command_error.
-        error = getattr(error, "original", error)
-
-        # Anything in ignored will return and prevent anything happening.
-        if isinstance(error, ignored):
-            return
-
-        if isinstance(error, commands.DisabledCommand):
-            await ctx.send(f"{ctx.command} has been disabled.")
-
-        elif isinstance(error, commands.NoPrivateMessage):
-            try:
-                await ctx.author.send(f"{ctx.command} can not be used in Private Messages.")
-            except discord.HTTPException:
-                pass
-
-        # For this error example we check to see where it came from...
-        elif isinstance(error, commands.BadArgument):
-            await ctx.send("Bad Argument.")
-
-        else:
-            # All other Errors not returned come here.
-            # And we can just print the default TraceBack.
-            assert error is not None  # skipcq: BAN-B101
-            print(f"Ignoring exception in command {ctx.command}:", file=sys.stderr)
-            traceback.print_exception(type(error), error, error.__traceback__, file=sys.stderr)
 
 
 async def setup(bot: CBot):

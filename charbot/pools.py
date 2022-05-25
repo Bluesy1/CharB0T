@@ -25,15 +25,15 @@
 """Reputation pools."""
 import functools
 from io import BytesIO
-from typing import Callable, Final, Literal
+from typing import Callable, Final
 
 import asyncpg
 import discord
 from discord import Interaction, app_commands
 from discord.ext import commands
 
-from card import generate_card
-from main import CBot
+from . import CBot, errors
+from .card import generate_card
 
 
 CHANNEL_ID: Final[int] = 969972085445238784
@@ -92,12 +92,45 @@ class Pools(commands.GroupCog, name="pools", description="Reputation pools for c
                 and any(role.id in pool["required_roles"] for role in member.roles)
             ]
 
+    async def interaction_check(self, interaction: Interaction) -> bool:
+        """Check if the interaction is valid.
+
+        Parameters
+        ----------
+        interaction : Interaction
+            The interaction object.
+
+        Returns
+        -------
+        bool
+            Whether the interaction is valid.
+
+        Raises
+        ------
+        errors.MissingProgramnRole
+            If the user has no role on the list of roles.
+        errors.WrongChannelError
+            If the user is not in the correct channel.
+        """
+        member = interaction.user
+        assert isinstance(member, discord.Member)  # skipcq: BAN-B101
+        roles: list[int | str] | None = await self.bot.pool.fetchval(
+            "SELECT required_roles FROM pools WHERE pool = $1", interaction.namespace["pool"]
+        )
+        if roles is None:
+            raise errors.NoPoolFound(interaction.namespace["pool"])
+        if not any(role.id in roles for role in member.roles):
+            raise errors.NoPoolFound(interaction.namespace["pool"])
+        if interaction.channel_id != 969972085445238784:
+            raise errors.WrongChannelError(969972085445238784)
+        return True
+
     @app_commands.command(name="add", description="Add reputation to an active pool.")
     @app_commands.describe(pool="The pool to add to.", amount="The amount to add.")
     async def add(self, interaction: Interaction, pool: str, amount: app_commands.Range[int, 1]):
         """Add reputation to an active pool.
 
-        If the pool would be overfilled by the addition, it only fills it to the maximum.
+        If the pool overflowed by the addition, it only fills it to the maximum.
 
         Parameters
         ----------
@@ -108,22 +141,14 @@ class Pools(commands.GroupCog, name="pools", description="Reputation pools for c
         amount : int
             The amount to add.
         """
-        user = interaction.user
-        assert isinstance(user, discord.Member)  # skipcq: BAN-B101
-        if interaction.channel_id != CHANNEL_ID:
-            await interaction.response.send_message(MESSAGE, ephemeral=True)
-            return
         await interaction.response.defer(ephemeral=True)
         async with self.bot.pool.acquire() as conn:
             pool_record = await conn.fetchrow("SELECT * FROM pools WHERE pool = $1", pool)
-            if pool is None:
-                await interaction.followup.send("Pool not found. Please choose one from the autocomplete.")
-                return
             assert isinstance(pool_record, asyncpg.Record)  # skipcq: BAN-B101
-            if not any(role.id in pool_record["required_roles"] for role in user.roles):
-                await interaction.followup.send(f"You don't have the required roles to add to {pool_record['pool']}.")
+            if pool_record["current"] == pool_record["cap"]:
+                await interaction.followup.send(f"The pool {pool} is already full. You can't add any more rep to it.")
                 return
-            user_record = await conn.fetchrow("SELECT * FROM users WHERE id = $1", user.id)
+            user_record = await conn.fetchrow("SELECT * FROM users WHERE id = $1", interaction.user.id)
             if user_record is None:
                 await interaction.followup.send("You haven't gained any rep yet.")
                 return
@@ -136,21 +161,11 @@ class Pools(commands.GroupCog, name="pools", description="Reputation pools for c
             if pool_record["current"] + amount > pool_record["cap"]:
                 amount = pool_record["cap"] - pool_record["current"]
             remaining: int = await conn.fetchval(
-                "UPDATE users SET points = points - $1 WHERE id = $2 RETURNING points", amount, user.id
+                "UPDATE users SET points = points - $1 WHERE id = $2 RETURNING points", amount, interaction.user.id
             )
             after = await conn.fetchval(
                 "UPDATE pools SET current = current + $1 WHERE pool = $2 returning current", amount, pool
             )
-        completed_ratio = round(after / pool_record["cap"], 2)
-        status: Literal["online", "offline", "idle", "streaming", "dnd"] = "offline"
-        if completed_ratio < 0.34:
-            status = "dnd"
-        elif 0.34 <= completed_ratio < 0.67:
-            status = "idle"
-        elif 0.67 <= completed_ratio < 1:
-            status = "streaming"
-        elif completed_ratio == 1:
-            status = "online"
         image_generator: Callable[[], BytesIO] = functools.partial(
             generate_card,
             level=pool_record["level"],
@@ -158,7 +173,6 @@ class Pools(commands.GroupCog, name="pools", description="Reputation pools for c
             current_rep=after,
             completed_rep=pool_record["cap"],
             pool_name=pool,
-            pool_status=status,
             reward=pool_record["reward"],
         )
         image_bytes = await self.bot.loop.run_in_executor(None, image_generator)
@@ -169,7 +183,7 @@ class Pools(commands.GroupCog, name="pools", description="Reputation pools for c
         clientuser = self.bot.user
         assert isinstance(clientuser, discord.ClientUser)  # skipcq: BAN-B101
         await self.bot.program_logs.send(
-            f"{user.mention} added {amount} rep to {pool} ({after}/{pool_record['cap']}).",
+            f"{interaction.user.mention} added {amount} rep to {pool} ({after}/{pool_record['cap']}).",
             username=clientuser.name,
             avatar_url=clientuser.display_avatar.url,
             allowed_mentions=discord.AllowedMentions(users=False, roles=False, everyone=False),
@@ -187,15 +201,14 @@ class Pools(commands.GroupCog, name="pools", description="Reputation pools for c
                 base_rep=pool_record["start"],
                 current_rep=after,
                 completed_rep=pool_record["cap"],
-                pool_name=f"[COMPLETED] {pool}",
-                pool_status=status,
+                pool_name=pool,
                 reward=pool_record["reward"],
             )
             image_bytes = await self.bot.loop.run_in_executor(None, image_generator)
             image = discord.File(image_bytes, filename=f"{pool}.png")
             channel = interaction.channel
             assert isinstance(channel, discord.abc.Messageable)  # skipcq: BAN-B101
-            await channel.send(f"{user.mention} has filled {pool}!", file=image)
+            await channel.send(f"{interaction.user.mention} has filled {pool}!", file=image)
 
     @app_commands.command(name="query", description="Check the status of an active pool.")
     @app_commands.describe(pool="The pool to check.")
@@ -224,16 +237,7 @@ class Pools(commands.GroupCog, name="pools", description="Reputation pools for c
             if not any(role.id in pool_record["required_roles"] for role in user.roles):
                 await interaction.followup.send("Pool not found. Please choose one from the autocomplete.")
                 return
-        completed = round(pool_record["current"] / pool_record["cap"], 2)
-        status: Literal["online", "offline", "idle", "streaming", "dnd"] = "offline"
-        if completed < 0.34:
-            status = "dnd"
-        elif 0.34 <= completed < 0.67:
-            status = "idle"
-        elif 0.67 <= completed < 1:
-            status = "streaming"
-        elif completed == 1:
-            status = "online"
+
         image_generator: Callable[[], BytesIO] = functools.partial(
             generate_card,
             level=pool_record["level"],
@@ -241,7 +245,6 @@ class Pools(commands.GroupCog, name="pools", description="Reputation pools for c
             current_rep=pool_record["current"],
             completed_rep=pool_record["cap"],
             pool_name=pool,
-            pool_status=status,
             reward=pool_record["reward"],
         )
         image_bytes = await self.bot.loop.run_in_executor(None, image_generator)

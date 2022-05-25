@@ -29,32 +29,16 @@ import os
 import random
 import warnings
 from statistics import mean
-from typing import Final, Optional
+from typing import Any
 
 import asyncpg
 import discord
 import pandas as pd
-from discord import AppCommandOptionType, app_commands, ui
+from discord import ui
 from discord.ext import commands, tasks
 from discord.utils import MISSING, utcnow
 
-from main import __TIME__, __ZONEINFO__, CBot
-
-
-ALLOWED_ROLES: Final = (
-    337743478190637077,
-    685331877057658888,
-    969629622453039104,
-    969629628249563166,
-    969629632028614699,
-    969628342733119518,
-    969627321239760967,
-    969626979353632790,
-)
-
-CHANNEL_ID: Final = 969972085445238784
-
-MESSAGE: Final = "You must be at least level 1 to participate in the giveaways system and be in <#969972085445238784>."
+from . import CBot, errors
 
 
 class GiveawayView(ui.View):
@@ -115,6 +99,83 @@ class GiveawayView(ui.View):
         if url is not None:
             self.add_item(ui.Button(label=game, style=discord.ButtonStyle.link, url=url))
 
+    @classmethod
+    def recreate_from_message(cls, message: discord.Message, bot: CBot):
+        """Create a view from a message.
+
+        Parameters
+        ----------
+        message : discord.Message
+            The message of the giveaway.
+        bot : CBot
+            The bot instance.
+
+        Returns
+        -------
+        GiveawayView
+            The view of the giveaway.
+        """
+        try:
+            embed = message.embeds[0]
+            game = embed.title
+            url = embed.url
+            channel = message.channel
+            assert isinstance(channel, discord.TextChannel)  # skipcq: BAN-B101
+            assert isinstance(game, str)  # skipcq: BAN-B101
+            view = cls(bot, channel, embed, game, url)
+            view.message = message
+            bid = embed.fields[4].value
+            assert isinstance(bid, str)  # skipcq: BAN-B101
+            view.top_bid = int(bid)
+            total = embed.fields[3].value
+            assert isinstance(total, str)  # skipcq: BAN-B101
+            view.total_entries = int(total)
+        except (IndexError, ValueError, TypeError, AssertionError) as e:
+            raise KeyError("Invalid giveaway embed.") from e
+        return view
+
+    async def interaction_check(self, interaction: discord.Interaction) -> bool:
+        """Check if the interaction is valid.
+
+        Parameters
+        ----------
+        interaction : discord.Interaction
+            The interaction to check.
+
+        Returns
+        -------
+        bool
+            Whether the interaction is valid.
+
+        Raises
+        ------
+        errors.MissingProgramRole
+            If no program roles are present.
+        """
+        user = interaction.user
+        assert isinstance(user, discord.Member)  # skipcq: BAN-B101
+        if not any(role.id in self.bot.ALLOWED_ROLES for role in user.roles):
+            raise errors.MissingProgramRole(self.bot.ALLOWED_ROLES)
+        return True
+
+    async def on_error(self, interaction: discord.Interaction, error: Exception, item: ui.Item[Any]) -> None:
+        """Error handler.
+
+        Parameters
+        ----------
+        interaction : discord.Interaction
+            The interaction.
+        error : Exception
+            The error.
+        item : ui.Item
+            The item.
+        """
+        if isinstance(error, errors.MissingProgramRole):
+            await interaction.response.send_message(error.message, ephemeral=True)
+        else:
+            await self.bot.error_logs.send(f"Ignoring exception in view {self} for item {item}: {error}")
+            await super(GiveawayView, self).on_error(interaction, error, item)
+
     def _prep_view_for_draw(self):
         """Disable all buttons."""
         self.bid.disabled = True
@@ -166,8 +227,11 @@ class GiveawayView(ui.View):
             self.embed.add_field(name="Total Entries", value=f"{self.total_entries}", inline=True)
             self.embed.add_field(name="Winner", value=f"{winner.name}#{winner.discriminator}", inline=True)
             self.embed.add_field(
-                name="Backup Winners", value=f"{','.join(f'{m.name}#{m.discriminator}' for m in drawn)}", inline=True
+                name="Backup Winners", value=f"{', '.join(f'{m.name}#{m.discriminator}' for m in drawn)}", inline=True
             )
+            _drawn = [winner]
+            _drawn.extend(drawn)
+            self.embed.add_field(name="All Drawn People", value=f"{', '.join(m.mention for m in _drawn)}", inline=True)
         else:
             self.embed.add_field(name="No Winners", value="No bids were made.", inline=True)
 
@@ -269,25 +333,18 @@ class GiveawayView(ui.View):
         """
         if self.message is None:
             self.message = interaction.message
-        user = interaction.user
-        assert isinstance(user, discord.Member)  # skipcq: BAN-B101
-        if not any(role.id in ALLOWED_ROLES for role in user.roles):
-            await interaction.response.send_message(
-                "You must be at least level 1 to participate in the giveaways system.", ephemeral=True
-            )
-            return
         async with self.bot.pool.acquire() as conn:
             last_win = await conn.fetchval(
                 "SELECT expiry FROM winners WHERE id = $1", interaction.user.id
-            ) or __TIME__() - datetime.timedelta(days=1)
-            if last_win >= __TIME__():
+            ) or self.bot.TIME() - datetime.timedelta(days=1)
+            if last_win >= self.bot.TIME():
                 await interaction.response.send_message(
                     f"You have won a giveaway recently, please wait until after {last_win.strftime('%a %d %B %Y')}"
                     f" to bid again.",
                     ephemeral=True,
                 )
                 return
-            if last_win != __TIME__() - datetime.timedelta(days=1):
+            if last_win != self.bot.TIME() - datetime.timedelta(days=1):
                 await conn.execute("DELETE FROM winners WHERE id = $1", interaction.user.id)
         modal = BidModal(self.bot, self)
         await interaction.response.send_modal(modal)
@@ -314,25 +371,18 @@ class GiveawayView(ui.View):
         """
         if self.message is None:
             self.message = interaction.message
-        user = interaction.user
-        assert isinstance(user, discord.Member)  # skipcq: BAN-B101
-        if not any(role.id in ALLOWED_ROLES for role in user.roles):
-            await interaction.response.send_message(
-                "You must be at least level 1 to participate in the giveaways system.", ephemeral=True
-            )
-            return
         async with self.bot.pool.acquire() as conn:
             last_win = await conn.fetchval(
                 "SELECT expiry FROM winners WHERE id = $1", interaction.user.id
-            ) or __TIME__() - datetime.timedelta(days=1)
-            if last_win >= __TIME__():
+            ) or self.bot.TIME() - datetime.timedelta(days=1)
+            if last_win >= self.bot.TIME():
                 await interaction.response.send_message(
                     f"You have won a giveaway recently, please wait until after {last_win.strftime('%a %d %B %Y')}"
                     f" to bid again.",
                     ephemeral=True,
                 )
                 return
-            if last_win != __TIME__() - datetime.timedelta(days=1):
+            if last_win != self.bot.TIME() - datetime.timedelta(days=1):
                 await conn.execute("DELETE FROM winners WHERE id = $1", interaction.user.id)
             record = await conn.fetchval("SELECT bid FROM bids WHERE id = $1", interaction.user.id)
             bid: int = record if record is not None else 0
@@ -484,107 +534,6 @@ class BidModal(ui.Modal, title="Bid"):
             )
 
 
-class IntToTimeDeltaTransformer(app_commands.Transformer):
-    """Transformer that converts an integer to a timedelta.
-
-    This is used to convert the time limit to a timedelta. for app_commands, as discord doesn't support any time based
-    arguments.
-
-    Methods
-    -------
-    type
-        Returns the type of the argument.
-    min_value
-        Returns the minimum value of the argument.
-    max_value
-        Returns the maximum value of the argument.
-    transform
-        Transforms an integer to a timedelta.
-    autocomplete
-        Autocompletes the argument.
-    """
-
-    @classmethod
-    def type(cls) -> AppCommandOptionType:
-        """Return the type of the argument.
-
-        Returns
-        -------
-        AppCommandOptionType
-            The type of the argument.
-        """
-        return AppCommandOptionType.integer
-
-    @classmethod
-    def min_value(cls) -> int:
-        """Return the minimum value of the argument.
-
-        Returns
-        -------
-        int
-            The minimum value of the argument.
-        """
-        return 1
-
-    @classmethod
-    def max_value(cls) -> int:
-        """Return the maximum value of the argument.
-
-        Returns
-        -------
-        int
-            The maximum value of the argument.
-        """
-        return 60
-
-    @classmethod
-    async def transform(
-        cls, interaction: discord.Interaction, value: str | int | float  # skipcq: PYL-W0613
-    ) -> datetime.timedelta:
-        """Transform an integer to a timedelta.
-
-        Parameters
-        ----------
-        interaction : discord.Interaction
-            The interaction to transform.
-        value : int
-            The value to transform.
-
-        Returns
-        -------
-        datetime.timedelta
-            The transformed value.
-        """
-        if value is None:
-            return datetime.timedelta(days=1)
-        return datetime.timedelta(days=int(value))
-
-    @classmethod
-    async def autocomplete(
-        cls, interaction: discord.Interaction, value: str | int | float  # skipcq: PYL-W0613
-    ) -> list[app_commands.Choice[int]]:
-        """Autocompletes the argument.
-
-        Parameters
-        ----------
-        interaction : discord.Interaction
-            The interaction to autocomplete.
-        value : int
-            The value to autocomplete.
-
-        Returns
-        -------
-        list[app_commands.Choice[int]]
-            The autocompleted value.
-        """
-        _value = int(value)
-        if _value is None or _value <= 13:
-            return [app_commands.Choice(value=i, name=f"{i} days") for i in range(1, 26)]
-        if _value > 47:
-            return [app_commands.Choice(value=i, name=f"{i} days") for i in range(36, 61)]
-        return [app_commands.Choice(value=i, name=f"{i} days") for i in range(_value - 12, _value + 13)]
-
-
 class Giveaway(commands.Cog):
     """Giveaway commands.
 
@@ -611,8 +560,8 @@ class Giveaway(commands.Cog):
 
     def __init__(self, bot: CBot):
         self.bot = bot
-        self.yesterdays_giveaway: GiveawayView = MISSING
-        self.current_giveaway: GiveawayView = MISSING
+        self.yesterdays_giveaway: GiveawayView = bot.holder.pop("yesterdays_giveaway")
+        self.current_giveaway: GiveawayView = bot.holder.pop("current_giveaway")
         self.charlie: discord.Member = MISSING
         self.games: pd.DataFrame = self.load_game_csv()
 
@@ -623,6 +572,8 @@ class Giveaway(commands.Cog):
     async def cog_unload(self) -> None:  # skipcq: PYL-W0236
         """Call when the cog is unloaded."""
         self.daily_giveaway.cancel()
+        self.bot.holder["yesterdays_giveaway"] = self.yesterdays_giveaway
+        self.bot.holder["current_giveaway"] = self.current_giveaway
 
     @staticmethod
     def load_game_csv() -> pd.DataFrame:
@@ -637,107 +588,7 @@ class Giveaway(commands.Cog):
         """
         return pd.read_csv("giveaway.csv", index_col=0, usecols=[0, 1, 2, 4], names=["date", "game", "url", "source"])
 
-    @app_commands.command(name="rollcall", description="Claim your daily reputation bonus")
-    @app_commands.guilds(225345178955808768)
-    async def rollcall(self, interaction: discord.Interaction):
-        """Get a daily reputation bonus.
-
-        Parameters
-        ----------
-        interaction: discord.Interaction
-            The interaction of the command invocation.
-        """
-        user = interaction.user
-        clientuser = self.bot.user
-        assert isinstance(clientuser, discord.ClientUser)  # skipcq: BAN-B101
-        assert isinstance(user, discord.Member)  # skipcq: BAN-B101
-        if not any(role.id in ALLOWED_ROLES for role in user.roles) or interaction.channel_id != CHANNEL_ID:
-            await interaction.response.send_message(MESSAGE, ephemeral=True)
-            return
-        await interaction.response.defer(ephemeral=True)
-        giveaway_user = await self.bot.giveaway_user(user.id)
-        if giveaway_user is None:
-            async with self.bot.pool.acquire() as conn:
-                await conn.execute("INSERT INTO users (id, points) VALUES ($1, 20)", user.id)
-                await conn.execute(
-                    "INSERT INTO daily_points (id, last_claim, last_particip_dt, particip, won) VALUES "
-                    "($1, $2, $3, 0, 0)",
-                    user.id,
-                    __TIME__(),
-                    __TIME__() - datetime.timedelta(days=1),
-                )
-                await conn.execute("INSERT INTO bids (id, bid) VALUES ($1, 0)", user.id)
-                await interaction.followup.send("You got some Rep today, inmate")
-                await self.bot.program_logs.send(
-                    f"{user.mention} has claimed their daily reputation bonus.",
-                    allowed_mentions=discord.AllowedMentions(users=False),
-                    username=clientuser.name,
-                    avatar_url=clientuser.display_avatar.url,
-                )
-            return
-        if giveaway_user["daily"] >= __TIME__():
-            await interaction.followup.send("No more Rep for you yet, get back to your cell")
-            return
-        async with self.bot.pool.acquire() as conn:
-            await conn.execute("UPDATE users SET points = points + 20 WHERE id = $1", user.id)
-            await conn.execute("UPDATE daily_points SET last_claim = $1 WHERE id = $2", __TIME__(), user.id)
-        await interaction.followup.send("You got some Rep today, inmate")
-        await self.bot.program_logs.send(
-            f"{user.mention} has claimed their daily reputation bonus.",
-            allowed_mentions=discord.AllowedMentions(users=False),
-            username=clientuser.name,
-            avatar_url=clientuser.display_avatar.url,
-        )
-
-    @app_commands.command(name="reputation", description="Check your reputation")
-    @app_commands.guilds(225345178955808768)
-    async def query_points(self, interaction: discord.Interaction):
-        """Query your reputation.
-
-        Parameters
-        ----------
-        interaction: discord.Interaction
-            The interaction of the command invocation.
-        """
-        user = interaction.user
-        assert isinstance(user, discord.Member)  # skipcq: BAN-B101
-        if not any(role.id in ALLOWED_ROLES for role in user.roles) or interaction.channel_id != CHANNEL_ID:
-            await interaction.response.send_message(MESSAGE, ephemeral=True)
-            return
-        await interaction.response.defer(ephemeral=True)
-        points = await self.bot.pool.fetchval("SELECT points from users where id = $1", user.id) or 0
-        await interaction.followup.send(f"You have {points} reputation.", ephemeral=True)
-
-    @app_commands.command(name="confirm", description="[Charlie only] confirm a winner")
-    @app_commands.guilds(225345178955808768)
-    async def confirm(
-        self,
-        interaction: discord.Interaction,
-        user: discord.Member,
-        time: Optional[app_commands.Transform[datetime.timedelta, IntToTimeDeltaTransformer]] = None,
-    ) -> None:
-        """Confirm a winner.
-
-        Parameters
-        ----------
-        interaction: discord.Interaction
-            The interaction of the command invocation.
-        user : discord.Member
-            The user to confirm as a winner.
-        time : Optional[IntToTimeDeltaTransformer] = None
-            [OPTIONAL, Default 1] How many days should the winner be blocked from bidding again?"
-        """
-        if interaction.user.id != 225344348903047168:
-            await interaction.response.send_message("Only Charlie can confirm a winner.", ephemeral=True)
-            return
-        await self.bot.pool.execute(
-            "INSERT INTO winners (id, expiry) VALUES ($1, $2) ON CONFLICT (id) DO UPDATE SET expiry = $2",
-            user.id,
-            __TIME__() + (time or datetime.timedelta(days=1)),
-        )
-        await interaction.response.send_message("Confirmed.", ephemeral=True)
-
-    @tasks.loop(time=datetime.time(hour=9, minute=0, second=0, tzinfo=__ZONEINFO__))  # skipcq: PYL-E1123
+    @tasks.loop(time=datetime.time(hour=9, minute=0, second=0, tzinfo=CBot.ZONEINFO))  # skipcq: PYL-E1123
     async def daily_giveaway(self):
         """Run the daily giveaway."""
         if self.current_giveaway is not MISSING:
@@ -747,7 +598,7 @@ class Giveaway(commands.Cog):
             self.charlie = await (await self.bot.fetch_guild(225345178955808768)).fetch_member(225344348903047168)
         self.games = self.load_game_csv()
         try:
-            gameinfo: dict[str, str] = dict(self.games.loc[__TIME__().strftime("%-m/%-d/%Y")])
+            gameinfo: dict[str, str] = dict(self.games.loc[self.bot.TIME().strftime("%-m/%-d/%Y")])
         except KeyError:
             gameinfo: dict[str, str] = {"game": "Charlie Didn't Give me one", "url": "None", "source": "Charlie"}
         game = gameinfo["game"]
@@ -792,4 +643,4 @@ async def setup(bot: CBot):
     bot : CBot
         The bot to add the cog to.
     """
-    await bot.add_cog(Giveaway(bot), guild=discord.Object(id=225345178955808768), override=True)
+    await bot.add_cog(Giveaway(bot), override=True)

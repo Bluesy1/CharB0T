@@ -25,73 +25,18 @@
 """Admin commands for the reputation system."""
 from functools import partial
 from io import BytesIO
-from typing import Callable, Literal, Optional
+from typing import Callable, Optional
 
 import asyncpg
 import discord
 from discord import Interaction, app_commands
 from discord.ext import commands
 
-from card import generate_card
-from main import CBot
+from . import CBot
+from .card import generate_card
 
 
 _ALLOWED_MENTIONS = discord.AllowedMentions(roles=False, users=False, everyone=False)
-
-
-# noinspection PyAbstractClass
-class TextChannelOnly(app_commands.Transformer):
-    """Transformer that only allows text channels."""
-
-    @classmethod
-    def channel_types(cls) -> list[discord.ChannelType]:
-        """Return the channel types that are allowed.
-
-        Returns
-        -------
-        list[discord.ChannelType]
-            The channel types that are allowed.
-        """
-        return [
-            discord.ChannelType.text,
-            discord.ChannelType.news,
-            discord.ChannelType.news_thread,
-            discord.ChannelType.public_thread,
-            discord.ChannelType.private_thread,
-        ]
-
-    @classmethod
-    def type(cls) -> discord.AppCommandOptionType:
-        """Return the type of the transformer.
-
-        Returns
-        -------
-        discord.AppCommandOptionType
-            The type of the transformer.
-        """
-        return discord.AppCommandOptionType.channel
-
-    @classmethod
-    async def transform(
-        cls, interaction: discord.Interaction, value: app_commands.AppCommandChannel  # skipcq: PYL-W0613
-    ) -> app_commands.AppCommandChannel:
-        """Transform the value.
-
-        It actually doesn't, but we've got to pretend it does.
-
-        Parameters
-        ----------
-        interaction: discord.Interaction
-            The interaction object for the message.
-        value: app_commands.AppCommandChannel
-            The value to "transform".
-
-        Returns
-        -------
-        app_commands.AppCommandChannel
-            The "transformed" value.
-        """
-        return value
 
 
 @app_commands.default_permissions(manage_messages=True)
@@ -117,6 +62,12 @@ class ReputationAdmin(
             callback=self.check_reputation_context,
         )
         self.bot.tree.add_command(self.ctx_menu)
+        self._allowed_roles: list[int | str] = [
+            225413350874546176,
+            253752685357039617,
+            725377514414932030,
+            338173415527677954,
+        ]
 
         # noinspection PyUnusedLocal
         @self.edit_pool.autocomplete("pool")
@@ -146,6 +97,11 @@ class ReputationAdmin(
                 if current.lower() in pool["pool"].lower()
             ]
 
+    @property
+    def allowed_roles(self) -> list[int | str]:
+        """Allow roles."""
+        return self._allowed_roles
+
     async def cog_unload(self) -> None:
         """Unload the cog."""
         self.bot.tree.remove_command(
@@ -154,6 +110,29 @@ class ReputationAdmin(
 
     pools = app_commands.Group(name="pools", description="Administration commands for the reputation pools.")
     reputation = app_commands.Group(name="reputation", description="Administration commands for the reputation system.")
+
+    async def interaction_check(self, interaction: Interaction) -> bool:
+        """Check if the interaction is allowed.
+
+        Parameters
+        ----------
+        interaction : Interaction
+            The interaction object.
+
+        Returns
+        -------
+        bool
+            Whether the interaction is allowed.
+        """
+        try:
+            member = interaction.user
+            assert isinstance(member, discord.Member)  # skipcq: BAN-B101
+        except AssertionError:
+            raise app_commands.NoPrivateMessage("This command can't be used in DMs.")
+        else:
+            if not any(role.id in self.allowed_roles for role in member.roles):
+                raise app_commands.MissingAnyRole(self.allowed_roles)
+            return True
 
     @pools.command(name="create", description="Create a new reputation pool.")
     async def create_pool(
@@ -577,16 +556,6 @@ class ReputationAdmin(
             if _pool is None:
                 await interaction.followup.send(f"Error: Pool `{pool}` not found.")
             else:
-                completed = round(_pool["current"] / _pool["cap"], 2)
-                status: Literal["online", "offline", "idle", "streaming", "dnd"] = "offline"
-                if completed < 0.34:
-                    status = "dnd"
-                elif 0.34 <= completed < 0.67:
-                    status = "idle"
-                elif 0.67 <= completed < 1:
-                    status = "streaming"
-                elif completed == 1:
-                    status = "online"
                 _partial_image: Callable[[], BytesIO] = partial(
                     generate_card,
                     level=_pool["level"],
@@ -594,7 +563,6 @@ class ReputationAdmin(
                     current_rep=_pool["current"],
                     completed_rep=_pool["cap"],
                     pool_name=pool,
-                    pool_status=status,
                     reward=_pool["reward"],
                 )
                 image_bytes = await self.bot.loop.run_in_executor(None, _partial_image)

@@ -22,32 +22,27 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 #  ----------------------------------------------------------------------------
-"""Tictactoe cog."""
-from typing import Final
+"""Tic-tac-toe game view."""
+import asyncio
+from typing import Protocol
 
 import discord
-from _tictactoe import TicTacABC, TicTacEasy, TicTacHard
-from discord import ButtonStyle, app_commands, ui
-from discord.ext import commands
+from discord import ButtonStyle, Interaction, ui
 from discord.utils import utcnow
 
-from main import CBot
+from . import TicTacABC, TicTacEasy, TicTacHard
 
 
-ALLOWED_ROLES: Final = (
-    337743478190637077,
-    685331877057658888,
-    969629622453039104,
-    969629628249563166,
-    969629632028614699,
-    969628342733119518,
-    969627321239760967,
-    969626979353632790,
-)
+class CBot(Protocol):
+    """Protocol for the CBot class."""
 
-CHANNEL_ID: Final = 969972085445238784
+    loop: asyncio.AbstractEventLoop
 
-MESSAGE: Final = "You must be at least level 1 to participate in the giveaways system and be in <#969972085445238784>."
+    async def give_game_points(
+        self, member: discord.Member | discord.User, game: str, points: int, bonus: int = 0
+    ) -> int:
+        """Give points to a member for a game."""
+        ...
 
 
 class TicTacView(ui.View):
@@ -141,7 +136,7 @@ class TicTacView(ui.View):
                 color=discord.Color.green(),
             )
             self.disable()
-            image = await self.bot.loop.run_in_executor(self.bot.executor, self.puzzle.display)
+            image = await self.bot.loop.run_in_executor(None, self.puzzle.display)
             await interaction.edit_original_message(attachments=[])
             await interaction.edit_original_message(attachments=[image], embed=embed, view=self)
             return
@@ -150,7 +145,7 @@ class TicTacView(ui.View):
         else:
             move = await self.bot.loop.run_in_executor(None, self.puzzle.next)
         self._buttons[move[0] * 3 + move[1]].disabled = True
-        image = await self.bot.loop.run_in_executor(self.bot.executor, self.puzzle.display)
+        image = await self.bot.loop.run_in_executor(None, self.puzzle.display)
         if self.puzzle.check_win() == -1 and all(button.disabled for button in self._buttons):
             points = self.puzzle.points
             member = interaction.user
@@ -191,7 +186,7 @@ class TicTacView(ui.View):
         await interaction.edit_original_message(attachments=[image])
 
     @ui.button(style=ButtonStyle.green, emoji="✅")
-    async def top_left(self, interaction: discord.Interaction, button: ui.Button):
+    async def top_left(self, interaction: Interaction, button: ui.Button):
         """Call when top left button is pressed.
 
         Parameters
@@ -204,7 +199,7 @@ class TicTacView(ui.View):
         await self.move(interaction, button, 0, 0)
 
     @ui.button(style=ButtonStyle.green, emoji="✅")
-    async def top_mid(self, interaction: discord.Interaction, button: ui.Button):
+    async def top_mid(self, interaction: Interaction, button: ui.Button):
         """Call when top middle button is pressed.
 
         Parameters
@@ -217,7 +212,7 @@ class TicTacView(ui.View):
         await self.move(interaction, button, 0, 1)
 
     @ui.button(style=ButtonStyle.green, emoji="✅")
-    async def top_right(self, interaction: discord.Interaction, button: ui.Button):
+    async def top_right(self, interaction: Interaction, button: ui.Button):
         """Call when top right button is pressed.
 
         Parameters
@@ -231,7 +226,7 @@ class TicTacView(ui.View):
 
     # noinspection PyUnusedLocal
     @ui.button(label="Cancel", style=ButtonStyle.danger)
-    async def cancel(self, interaction: discord.Interaction, button: ui.Button):  # skipcq: PYL-W0613
+    async def cancel(self, interaction: Interaction, button: ui.Button):  # skipcq: PYL-W0613
         """Call when cancel button is pressed.
 
         Parameters
@@ -250,7 +245,7 @@ class TicTacView(ui.View):
         await interaction.response.edit_message(embed=embed)
 
     @ui.button(style=ButtonStyle.green, emoji="✅", row=1)
-    async def mid_left(self, interaction: discord.Interaction, button: ui.Button):
+    async def mid_left(self, interaction: Interaction, button: ui.Button):
         """Call when middle left button is pressed.
 
         Parameters
@@ -263,7 +258,7 @@ class TicTacView(ui.View):
         await self.move(interaction, button, 1, 0)
 
     @ui.button(style=ButtonStyle.green, emoji="✅", row=1)
-    async def mid_mid(self, interaction: discord.Interaction, button: ui.Button):
+    async def mid_mid(self, interaction: Interaction, button: ui.Button):
         """Call when middle_middle button is pressed.
 
         Parameters
@@ -276,7 +271,7 @@ class TicTacView(ui.View):
         await self.move(interaction, button, 1, 1)
 
     @ui.button(style=ButtonStyle.green, emoji="✅", row=1)
-    async def mid_right(self, interaction: discord.Interaction, button: ui.Button):
+    async def mid_right(self, interaction: Interaction, button: ui.Button):
         """Call when middle right button is pressed.
 
         Parameters
@@ -289,7 +284,7 @@ class TicTacView(ui.View):
         await self.move(interaction, button, 1, 2)
 
     @ui.button(style=ButtonStyle.green, emoji="✅", row=2)
-    async def bot_left(self, interaction: discord.Interaction, button: ui.Button):
+    async def bot_left(self, interaction: Interaction, button: ui.Button):
         """Call when bottom left button is pressed.
 
         Parameters
@@ -302,7 +297,7 @@ class TicTacView(ui.View):
         await self.move(interaction, button, 2, 0)
 
     @ui.button(style=ButtonStyle.green, emoji="✅", row=2)
-    async def bot_mid(self, interaction: discord.Interaction, button: ui.Button):
+    async def bot_mid(self, interaction: Interaction, button: ui.Button):
         """Call when bottom middle button is pressed.
 
         Parameters
@@ -315,7 +310,7 @@ class TicTacView(ui.View):
         await self.move(interaction, button, 2, 1)
 
     @ui.button(style=ButtonStyle.green, emoji="✅", row=2)
-    async def bot_right(self, interaction: discord.Interaction, button: ui.Button):
+    async def bot_right(self, interaction: Interaction, button: ui.Button):
         """Call when bottom right button is pressed.
 
         Parameters
@@ -326,71 +321,3 @@ class TicTacView(ui.View):
             The button that was pressed.
         """
         await self.move(interaction, button, 2, 2)
-
-
-class TicTacCog(commands.Cog):
-    """Tic Tac Toe cog.
-
-    Parameters
-    ----------
-    bot : CBot
-        The bot instance.
-
-    Attributes
-    ----------
-    bot : CBot
-        The bot instance.
-    """
-
-    def __init__(self, bot: CBot):
-        self.bot = bot
-
-    @app_commands.command(name="tictactoe", description="Play a game of Tic Tac Toe!")
-    @app_commands.describe(
-        easy="Set this to false for a harder variant of the AI.", letter="Do you want to play as X or O?"
-    )
-    @app_commands.choices(
-        letter=[
-            app_commands.Choice(name="X", value="X"),
-            app_commands.Choice(name="O", value="O"),
-        ]
-    )
-    @app_commands.guilds(225345178955808768)
-    async def tictaccommand(self, interaction: discord.Interaction, letter: app_commands.Choice[str], easy: bool):
-        """Tic Tac Toe! command.
-
-        This command is for playing a game of Tic Tac Toe.
-
-        Parameters
-        ----------
-        interaction : discord.Interaction
-            The interaction object for the command.
-        letter : app_commands.Choice[str]
-            The letter to play as.
-        easy : bool
-            Whether to use the easy AI.
-        """
-        user = interaction.user
-        assert isinstance(user, discord.Member)  # skipcq: BAN-B101
-        if not any(role.id in ALLOWED_ROLES for role in user.roles) or interaction.channel_id != CHANNEL_ID:
-            await interaction.response.send_message(MESSAGE, ephemeral=True)
-            return
-        await interaction.response.defer(ephemeral=True)
-        game = TicTacView(self.bot, letter.value, easy)
-        if not easy:
-            move = await self.bot.loop.run_in_executor(None, game.puzzle.next)
-            # noinspection PyProtectedMember
-            game._buttons[move[0] * 3 + move[1]].disabled = True  # skipcq: PYL-W0212
-        image = await self.bot.loop.run_in_executor(None, game.puzzle.display)
-        await interaction.followup.send(file=image, view=game)
-
-
-async def setup(bot: CBot):
-    """Initialize the cog.
-
-    Parameters
-    ----------
-    bot: CBot
-        The bot to attach the cog to.
-    """
-    await bot.add_cog(TicTacCog(bot), guild=discord.Object(id=225345178955808768), override=True)
