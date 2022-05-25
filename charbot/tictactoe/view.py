@@ -159,7 +159,7 @@ class TicTacView(ui.View):
                 f"You gained {gained_points} reputation. "
                 f"{'(Daily Cap Reached)' if gained_points != max_points else ''}",
                 color=discord.Color.gold(),
-            ).set_image(url=image.filename)
+            ).set_image(url="attachment://tictactoe.png")
             self.disable()
             await interaction.edit_original_message(attachments=[])
             await interaction.edit_original_message(attachments=[image], embed=embed, view=self)
@@ -177,7 +177,7 @@ class TicTacView(ui.View):
                 f" You gained {gained_points} reputation. "
                 f"{'(Daily Cap Reached)' if gained_points != max_points else ''}",
                 color=discord.Color.red(),
-            ).set_image(url=image.filename)
+            ).set_image(url="attachment://tictactoe.png")
             self.disable()
             await interaction.edit_original_message(attachments=[])
             await interaction.edit_original_message(attachments=[image], embed=embed, view=self)
