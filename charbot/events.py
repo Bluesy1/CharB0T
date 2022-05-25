@@ -181,7 +181,7 @@ class Events(Cog):
         """
         if message.guild is not None and message.guild.id == 225345178955808768:
             channel = message.channel
-            assert isinstance(channel, discord.abc.GuildChannel)  # skipcq: BAN-B101
+            assert isinstance(channel, discord.Messageable)  # skipcq: BAN-B101
             with open("charbot/sensitive_settings.json", encoding="utf8") as json_dict:
                 fulldict = json.load(json_dict)
             used_words = set()
