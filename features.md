@@ -48,5 +48,7 @@ Bot modules:
  - Giveaway: Select [giveaway](./giveaway) commands and the giveaway task.
  - Mod Support: A [ticket](./tickets) based support system to get help from moderators.
  - Pools: A [pool](./pools) system for users to interact with point pool challenges.
+ - Programs: A [program](./programs) system for users to interact with the points program.
+ - 
 
 ## Back to [Home](../)
