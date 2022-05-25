@@ -49,6 +49,6 @@ Bot modules:
  - Mod Support: A [ticket](./tickets) based support system to get help from moderators.
  - Pools: A [pool](./pools) system for users to interact with point pool challenges.
  - Programs: A [program](./programs) system for users to interact with the points program.
- - 
+ - Query: A [query](./query) system for users to get some information about things.
 
 ## Back to [Home](../)
