@@ -99,19 +99,6 @@ class Query(Cog):
         await ctx.reply("Here's the changelog: https://bluesy1.github.io/CharB0T/changes")
 
     @commands.command()
-    @commands.cooldown(1, 60, commands.BucketType.channel)
-    async def objection(self, ctx: Context):
-        """Return the objection.
-
-        Parameters
-        ----------
-        ctx : Context
-            The context of the command.
-        """
-        await ctx.send("Objection! Hearsay.")
-        await ctx.message.delete()
-
-    @commands.command()
     @commands.cooldown(1, 300, commands.BucketType.channel)
     async def faq(self, ctx: commands.Context):
         """Return the FAQ.
@@ -133,6 +120,7 @@ class Query(Cog):
         )
 
     @commands.hybrid_command(name="source", description="Info about the source code")
+    @commands.cooldown(1, 60, commands.BucketType.channel)
     @app_commands.guilds(225345178955808768)
     async def source(self, ctx: Context):
         """Return a reference to the source code for the bot and its liscense.
