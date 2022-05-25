@@ -201,7 +201,7 @@ class Pools(commands.GroupCog, name="pools", description="Reputation pools for c
                 base_rep=pool_record["start"],
                 current_rep=after,
                 completed_rep=pool_record["cap"],
-                pool_name=f"[COMPLETED] {pool}",
+                pool_name=pool,
                 reward=pool_record["reward"],
             )
             image_bytes = await self.bot.loop.run_in_executor(None, image_generator)
