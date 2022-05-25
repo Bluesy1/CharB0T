@@ -39,61 +39,6 @@ from .card import generate_card
 _ALLOWED_MENTIONS = discord.AllowedMentions(roles=False, users=False, everyone=False)
 
 
-# noinspection PyAbstractClass
-class TextChannelOnly(app_commands.Transformer):
-    """Transformer that only allows text channels."""
-
-    @classmethod
-    def channel_types(cls) -> list[discord.ChannelType]:
-        """Return the channel types that are allowed.
-
-        Returns
-        -------
-        list[discord.ChannelType]
-            The channel types that are allowed.
-        """
-        return [
-            discord.ChannelType.text,
-            discord.ChannelType.news,
-            discord.ChannelType.news_thread,
-            discord.ChannelType.public_thread,
-            discord.ChannelType.private_thread,
-        ]
-
-    @classmethod
-    def type(cls) -> discord.AppCommandOptionType:
-        """Return the type of the transformer.
-
-        Returns
-        -------
-        discord.AppCommandOptionType
-            The type of the transformer.
-        """
-        return discord.AppCommandOptionType.channel
-
-    @classmethod
-    async def transform(
-        cls, interaction: discord.Interaction, value: app_commands.AppCommandChannel  # skipcq: PYL-W0613
-    ) -> app_commands.AppCommandChannel:
-        """Transform the value.
-
-        It actually doesn't, but we've got to pretend it does.
-
-        Parameters
-        ----------
-        interaction: discord.Interaction
-            The interaction object for the message.
-        value: app_commands.AppCommandChannel
-            The value to "transform".
-
-        Returns
-        -------
-        app_commands.AppCommandChannel
-            The "transformed" value.
-        """
-        return value
-
-
 @app_commands.default_permissions(manage_messages=True)
 @app_commands.guilds(225345178955808768)
 @app_commands.checks.has_any_role(225413350874546176, 253752685357039617, 725377514414932030, 338173415527677954)
