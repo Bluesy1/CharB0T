@@ -248,9 +248,9 @@ class TicTacEasy(TicTacABC):
         :class:`discord.File`
             The image of the board, represented as a discord.File object.
         """
-        grid = Image.open("media/tictactoe/grid.png", "r").convert("RGBA")
-        cross = Image.open("media/tictactoe/X.png", "r")
-        circle = Image.open("media/tictactoe/O.png", "r")
+        grid = Image.open("charbot/media/tictactoe/grid.png", "r").convert("RGBA")
+        cross = Image.open("charbot/media/tictactoe/X.png", "r")
+        circle = Image.open("charbot/media/tictactoe/O.png", "r")
         for i in range(0, self.dim_sz):
             for j in range(0, self.dim_sz):
                 if self.board[i][j] == "X":

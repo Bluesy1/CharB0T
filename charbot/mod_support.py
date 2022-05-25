@@ -131,7 +131,7 @@ class ModSupport(GroupCog, name="modsupport", description="mod support command g
             The interaction object for the command.
         """
         if await edit_check(interaction):
-            with open("mod_support_blacklist.json", "r", encoding="utf8") as file:
+            with open("charbot/mod_support_blacklist.json", "r", encoding="utf8") as file:
                 blacklisted = [f"<@{item}>" for item in json.load(file)["blacklisted"]]
             await interaction.response.send_message(
                 embed=Embed(title="Blacklisted users", description="\n".join(blacklisted)),
@@ -160,20 +160,20 @@ class ModSupport(GroupCog, name="modsupport", description="mod support command g
         if await edit_check(interaction):
             if add:
                 successful = False
-                with open("mod_support_blacklist.json", "r", encoding="utf8") as file:
+                with open("charbot/mod_support_blacklist.json", "r", encoding="utf8") as file:
                     modmail_blacklist = json.load(file)
                 if user.id not in modmail_blacklist["blacklisted"]:
                     modmail_blacklist["blacklisted"].append(user.id)
-                    with open("mod_support_blacklist.json", "w", encoding="utf8") as file:
+                    with open("charbot/mod_support_blacklist.json", "w", encoding="utf8") as file:
                         json.dump(modmail_blacklist, file)
                     successful = True
             else:
                 successful = False
-                with open("mod_support_blacklist.json", "r", encoding="utf8") as file:
+                with open("charbot/mod_support_blacklist.json", "r", encoding="utf8") as file:
                     modmail_blacklist = json.load(file)
                 if user.id in modmail_blacklist["blacklisted"]:
                     modmail_blacklist["blacklisted"].remove(user.id)
-                    with open("mod_support_blacklist.json", "w", encoding="utf8") as file:
+                    with open("charbot/mod_support_blacklist.json", "w", encoding="utf8") as file:
                         json.dump(modmail_blacklist, file)
                     successful = True
             if add and successful:
@@ -238,7 +238,7 @@ class ModSupportButtons(ui.View):
         self.everyone = everyone
         self.mod_role = mod_role
         self.mods = mods
-        self.filename = "mod_support_blacklist.json"
+        self.filename = "charbot/mod_support_blacklist.json"
 
     async def interaction_check(self, interaction: Interaction) -> bool:
         """Check to run for all interaction instances.
@@ -401,7 +401,7 @@ class ModSupportModal(ui.Modal, title="Mod Support Form"):
         super().__init__(title="Mod Support Form")
         self.perm_overrides = perm_overrides
         self.channel_name = channel_name
-        self.filename = "mod_support_blacklist.json"
+        self.filename = "charbot/mod_support_blacklist.json"
 
     async def interaction_check(self, interaction: Interaction) -> bool:
         """Check to run for all interaction instances.

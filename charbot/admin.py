@@ -126,11 +126,11 @@ class Admin(commands.Cog):
         word : str
             The word to add to the filter.
         """
-        with open("sensitive_settings.json", encoding="utf8") as json_dict:
+        with open("charbot/sensitive_settings.json", encoding="utf8") as json_dict:
             fulldict = json.load(json_dict)
         if word.lower() not in fulldict["words"]:
             fulldict["words"].append(word.lower()).sort()
-            with open("sensitive_settings.json", "w", encoding="utf8") as json_dict:
+            with open("charbot/sensitive_settings.json", "w", encoding="utf8") as json_dict:
                 json.dump(fulldict, json_dict)
             await ctx.send(
                 embed=Embed(
@@ -163,7 +163,7 @@ class Admin(commands.Cog):
         word : str
             The word to remove from the filter.
         """
-        with open("sensitive_settings.json", encoding="utf8") as file:
+        with open("charbot/sensitive_settings.json", encoding="utf8") as file:
             fulldict = json.load(file)
         if word.lower() in fulldict["words"]:
             fulldict["words"].remove(word.lower()).sort()
@@ -175,7 +175,7 @@ class Admin(commands.Cog):
                     timestamp=datetime.now(tz=timezone.utc),
                 )
             )
-            with open("sensitive_settings.json", "w", encoding="utf8") as file:
+            with open("charbot/sensitive_settings.json", "w", encoding="utf8") as file:
                 json.dump(fulldict, file)
         else:
             await ctx.send(
@@ -198,7 +198,7 @@ class Admin(commands.Cog):
         ctx : Context
             The context of the command.
         """
-        with open("sensitive_settings.json", encoding="utf8") as json_dict:
+        with open("charbot/sensitive_settings.json", encoding="utf8") as json_dict:
             fulldict = json.load(json_dict)
         await ctx.send(
             embed=Embed(
