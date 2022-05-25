@@ -306,7 +306,7 @@ class GiveawayView(ui.View):
         assert isinstance(message, discord.Message)  # skipcq: BAN-B101
         await message.edit(embed=self.embed, view=self)
         if winner is not None:
-            await self.channel.send(
+            await self.bot.giveaway_webhook.send(
                 f"Congrats to {winner.mention} for winning the {self.game} giveaway! Please DM Charlie to claim it."
                 f" If you're listed under backups, stay tuned for if the first winner does not reach out to redeem"
                 f" their prize.",
@@ -627,7 +627,7 @@ class Giveaway(commands.Cog):
         channel = await self.bot.fetch_channel(int(channel_id))
         assert isinstance(channel, discord.TextChannel)  # skipcq: BAN-B101
         self.current_giveaway = GiveawayView(self.bot, channel, embed, game, url)
-        self.current_giveaway.message = await channel.send(
+        self.current_giveaway.message = await self.bot.giveaway_webhook.send(
             "<@&972886729231044638>",
             embed=embed,
             view=self.current_giveaway,
