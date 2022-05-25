@@ -26,118 +26,12 @@
 import json
 from datetime import datetime, timedelta, timezone
 from time import perf_counter
-from typing import Optional
 
 import discord
-from discord import AppCommandOptionType, Color, Embed, app_commands
+from discord import Color, Embed, app_commands
 from discord.ext import commands
 
 from . import CBot
-
-
-class IntToTimeDelta(app_commands.Transformer):
-    """Transformer that converts an integer to a timedelta.
-
-    This is used to convert the time limit to a timedelta. for app_commands, as discord doesn't support any time based
-    arguments.
-
-    Methods
-    -------
-    type
-        Returns the type of the argument.
-    min_value
-        Returns the minimum value of the argument.
-    max_value
-        Returns the maximum value of the argument.
-    transform
-        Transforms an integer to a timedelta.
-    autocomplete
-        Autocompletes the argument.
-    """
-
-    @classmethod
-    def type(cls) -> AppCommandOptionType:
-        """Return the type of the argument.
-
-        Returns
-        -------
-        AppCommandOptionType
-            The type of the argument.
-        """
-        return AppCommandOptionType.integer
-
-    @classmethod
-    def min_value(cls) -> int:
-        """Return the minimum value of the argument.
-
-        Returns
-        -------
-        int
-            The minimum value of the argument.
-        """
-        return 1
-
-    @classmethod
-    def max_value(cls) -> int:
-        """Return the maximum value of the argument.
-
-        Returns
-        -------
-        int
-            The maximum value of the argument.
-        """
-        return 60
-
-    @classmethod
-    async def transform(
-        cls, interaction: discord.Interaction, value: str | int | float  # skipcq: PYL-W0613
-    ) -> timedelta:
-        """Transform an integer to a timedelta.
-
-        Parameters
-        ----------
-        interaction : discord.Interaction
-            The interaction to transform.
-        value : int
-            The value to transform.
-
-        Returns
-        -------
-        datetime.timedelta
-            The transformed value.
-        """
-        if value is None:
-            return timedelta(days=6)
-        return timedelta(days=int(value))
-
-    @classmethod
-    async def autocomplete(
-        cls, interaction: discord.Interaction, value: str | int | float  # skipcq: PYL-W0613
-    ) -> list[app_commands.Choice[int]]:
-        """Autocompletes the argument.
-
-        Parameters
-        ----------
-        interaction : discord.Interaction
-            The interaction to autocomplete.
-        value : int
-            The value to autocomplete.
-
-        Returns
-        -------
-        list[app_commands.Choice[int]]
-            The autocompleted value.
-        """
-        try:
-            _value = int(value)
-        except ValueError:
-            return [app_commands.Choice(value=i, name=f"{i} days") for i in range(1, 26)]
-        else:
-            if _value <= 13:
-                return [app_commands.Choice(value=i, name=f"{i} days") for i in range(1, 26)]
-            if _value > 47:
-                return [app_commands.Choice(value=i, name=f"{i} days") for i in range(36, 61)]
-            return [app_commands.Choice(value=i, name=f"{i} days") for i in range(_value - 12, _value + 13)]
 
 
 class Admin(commands.Cog):
@@ -321,7 +215,7 @@ class Admin(commands.Cog):
         self,
         interaction: discord.Interaction,
         user: discord.Member,
-        time: Optional[app_commands.Transform[timedelta, IntToTimeDelta]] = None,
+        time: app_commands.Range[int, 1, 30] = 6,
     ) -> None:
         """Confirm a winner.
 
@@ -340,7 +234,7 @@ class Admin(commands.Cog):
         await self.bot.pool.execute(
             "INSERT INTO winners (id, expiry) VALUES ($1, $2) ON CONFLICT (id) DO UPDATE SET expiry = $2",
             user.id,
-            self.bot.TIME() + (time or timedelta(days=6)),
+            self.bot.TIME() + timedelta(days=time),
         )
         await interaction.response.send_message("Confirmed.", ephemeral=True)
 
