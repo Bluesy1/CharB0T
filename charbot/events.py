@@ -160,7 +160,7 @@ class Events(Cog):
         embed.set_author(name=f"[TIMEOUT] {after.name}#{after.discriminator}")
         embed.add_field(name="User", value=after.mention, inline=True)
         embed.add_field(name="Duration", value=time_string, inline=True)
-        with open("sensitive_settings.json", encoding="utf8") as json_dict:
+        with open("charbot/sensitive_settings.json", encoding="utf8") as json_dict:
             webhook = await self.bot.fetch_webhook(json.load(json_dict)["webhook_id"])
         bot_user = self.bot.user
         assert isinstance(bot_user, discord.ClientUser)  # skipcq: BAN-B101
@@ -182,7 +182,7 @@ class Events(Cog):
         if message.guild is not None and message.guild.id == 225345178955808768:
             channel = message.channel
             assert isinstance(channel, discord.abc.GuildChannel)  # skipcq: BAN-B101
-            with open("sensitive_settings.json", encoding="utf8") as json_dict:
+            with open("charbot/sensitive_settings.json", encoding="utf8") as json_dict:
                 fulldict = json.load(json_dict)
             used_words = set()
             count_found = 0
@@ -234,7 +234,7 @@ class Events(Cog):
                     embed = Embed(color=Color.green())
                     embed.set_author(name=f"[UNTIMEOUT] {member.name}#{member.discriminator}")
                     embed.add_field(name="User", value=member.mention, inline=True)
-                    with open("sensitive_settings.json", encoding="utf8") as json_dict:
+                    with open("charbot/sensitive_settings.json", encoding="utf8") as json_dict:
                         webhook = await self.bot.fetch_webhook(json.load(json_dict)["webhook_id"])
                     bot_user = self.bot.user
                     assert isinstance(bot_user, discord.ClientUser)  # skipcq: BAN-B101
@@ -312,7 +312,7 @@ class Events(Cog):
                     embed = Embed(color=Color.green())
                     embed.set_author(name=f"[UNTIMEOUT] {after.name}#{after.discriminator}")
                     embed.add_field(name="User", value=after.mention, inline=True)
-                    with open("sensitive_settings.json", encoding="utf8") as json_dict:
+                    with open("charbot/sensitive_settings.json", encoding="utf8") as json_dict:
                         webhook = await self.bot.fetch_webhook(json.load(json_dict)["webhook_id"])
                     bot_user = self.bot.user
                     assert isinstance(bot_user, discord.ClientUser)  # skipcq: BAN-B101
@@ -371,7 +371,7 @@ class Events(Cog):
                     discord.Object(id=684936661745795088),
                 )
                 await message.delete()
-                with open("sensitive_settings.json", encoding="utf8") as json_dict:
+                with open("charbot/sensitive_settings.json", encoding="utf8") as json_dict:
                     webhook = await self.bot.fetch_webhook(json.load(json_dict)["webhook_id"])
                 embed = Embed(
                     description=message.content,

@@ -70,15 +70,15 @@ def generate_card(
     BytesIO
         The card image as a buffered stream of I/O Bytes.
     """
-    default_bg = "media/pools/card.png"
-    default_profile = "media/pools/profile.png"
-    online = "media/pools/online.png"
-    offline = "media/pools/offline.png"
-    idle = "media/pools/idle.png"
-    dnd = "media/pools/dnd.png"
-    streaming = "media/pools/streaming.png"
-    font1 = "media/pools/font.ttf"
-    font2 = "media/pools/font2.ttf"
+    default_bg = "charbot/media/pools/card.png"
+    default_profile = "charbot/media/pools/profile.png"
+    online = "charbot/media/pools/online.png"
+    offline = "charbot/media/pools/offline.png"
+    idle = "charbot/media/pools/idle.png"
+    dnd = "charbot/media/pools/dnd.png"
+    streaming = "charbot/media/pools/streaming.png"
+    font1 = "charbot/media/pools/font.ttf"
+    font2 = "charbot/media/pools/font2.ttf"
     if bg_image is MISSING:
         card = Image.open(default_bg).convert("RGBA")
     else:

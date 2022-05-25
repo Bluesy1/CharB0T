@@ -586,7 +586,9 @@ class Giveaway(commands.Cog):
         pd.DataFrame
             The games dataframe, with the index date in the form (m)m/(d)d/yyyy., and columns game, url, and source.
         """
-        return pd.read_csv("giveaway.csv", index_col=0, usecols=[0, 1, 2, 4], names=["date", "game", "url", "source"])
+        return pd.read_csv(
+            "charbot/giveaway.csv", index_col=0, usecols=[0, 1, 2, 4], names=["date", "game", "url", "source"]
+        )
 
     @tasks.loop(time=datetime.time(hour=9, minute=0, second=0, tzinfo=CBot.ZONEINFO))  # skipcq: PYL-E1123
     async def daily_giveaway(self):
