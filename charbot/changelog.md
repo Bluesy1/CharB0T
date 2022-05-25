@@ -1,4 +1,4 @@
-# Depreciated, use the Cithub Pages [Changelog](https://bluesy1.github.io/CharB0T/changes) instead.
+# Deprecated, use the GitHub Pages [Changelog](https://bluesy1.github.io/CharB0T/changes) instead.
 
 ## CharB0T Changelog
 Base version: commit [`975c554d`](https://github.com/Bluesy1/CharB0T/commit/975c554d52ecabb299ea66e7f8fba5f0fbd16cae)
