@@ -29,7 +29,7 @@ import traceback
 from datetime import timedelta
 
 import discord
-from discord import Embed, Interaction, PermissionOverwrite, app_commands, ui
+from discord import Embed, Interaction, PermissionOverwrite, Permissions, app_commands, ui
 from discord.ext import tasks
 from discord.ext.commands import GroupCog
 from discord.utils import utcnow
@@ -273,9 +273,9 @@ class ModSupportButtons(ui.View):
         await interaction.response.send_modal(
             ModSupportModal(
                 {
-                    self.mod_role: PermissionOverwrite(view_channel=True, send_messages=True, read_messages=True),
+                    self.mod_role: PermissionOverwrite(Permissions(139586817088), Permissions.none()),
                     self.everyone: PermissionOverwrite(view_channel=False, send_messages=False, read_messages=False),
-                    user: PermissionOverwrite(view_channel=True, send_messages=True, read_messages=True),
+                    user: PermissionOverwrite.from_pair(Permissions(139586817088), Permissions.none()),
                 },
                 f"{button.label}-{user.name}-mod-support",
             )
@@ -362,12 +362,10 @@ class ModSupportButtons(ui.View):
         perms = {
             self.mod_role: PermissionOverwrite(view_channel=False, send_messages=False, read_messages=False),
             self.everyone: PermissionOverwrite(view_channel=False, send_messages=False, read_messages=False),
-            user: PermissionOverwrite(view_channel=True, send_messages=True, read_messages=True),
+            user: PermissionOverwrite.from_pair(Permissions(139586817088), Permissions.none()),
         }
         for uid in select.values:
-            perms.update(
-                {self.mods[uid]: PermissionOverwrite(view_channel=True, send_messages=True, read_messages=True)}
-            )
+            perms.update({self.mods[uid]: PermissionOverwrite.from_pair(Permissions(139586817088), Permissions.none())})
         await interaction.response.send_modal(ModSupportModal(perms, f"Private-{user.name}-mod-support"))
 
 

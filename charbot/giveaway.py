@@ -360,7 +360,7 @@ class GiveawayView(ui.View):
         self.embed.set_field_at(3, name="Total Reputation Bid", value=f"{self.total_entries}")
         self.embed.set_field_at(4, name="Largest Bid", value=f"{self.top_bid}")
         message = self.message
-        assert isinstance(message, discord.Message)  # skipcq: BAN-B101
+        assert isinstance(message, discord.WebhookMessage)  # skipcq: BAN-B101
         await message.edit(embed=self.embed, view=self)
 
     # noinspection PyUnusedLocal
