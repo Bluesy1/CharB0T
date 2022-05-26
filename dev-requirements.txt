@@ -1,4 +1,4 @@
-asyncpg-stubs==0.25.2
+asyncpg-stubs==0.25.3
 bandit==1.7.4
 black==22.3.0
 flake8==4.0.1
