@@ -92,15 +92,21 @@ class GiveawayView(ui.View):
         self.top_bid = 0
         self.game = game
         self.url = url
-        self.message: discord.Message | None = None
+        self.message: discord.WebhookMessage | None = None
         self.role_semaphore = asyncio.BoundedSemaphore(10)
         self.bid_lock = asyncio.Lock()
         self.bidders: list[asyncpg.Record] = []
         if url is not None:
             self.add_item(ui.Button(label=game, style=discord.ButtonStyle.link, url=url))
 
+    def __repr__(self):
+        return (
+            f"<{self.__class__.__name__} timeout={self.timeout} children={len(self._children)}"
+            f" game={self.game} total_entries={self.total_entries} top_bid={self.top_bid}>"
+        )
+
     @classmethod
-    def recreate_from_message(cls, message: discord.Message, bot: CBot):
+    def recreate_from_message(cls, message: discord.WebhookMessage, bot: CBot):
         """Create a view from a message.
 
         Parameters

@@ -225,7 +225,7 @@ class Sudoku(ui.View):
             value="15 Reputation" if points == 15 else f"{points} Reputation (Daily Cap Hit)",
             inline=True,
         )
-        await interaction.response.edit_message(embed=embed, view=self)
+        await interaction.edit_original_message(embed=embed, view=self)
         await self.bot.pool.execute(
             "UPDATE users SET sudoku_time = $1 WHERE id = $2 and sudoku_time > $1",
             time_taken,
@@ -252,12 +252,13 @@ class Sudoku(ui.View):
         NotImplementedError
             If a cell level change is triggered and the puzzle is in noting mode.
         """
+        await interaction.response.defer(ephemeral=True)
         if self.level == "Puzzle":
             self.block = self.puzzle.blocks[key]
             self.block.selected = True
             self.level = "Block"
             self.update_keypad()
-            await interaction.response.edit_message(embed=self.cell_choose_embed(), view=self)
+            await interaction.edit_original_message(embed=self.cell_choose_embed(), view=self)
         elif self.level == "Block":
             if self.block is not None:
                 self.cell = self.block[key]
@@ -265,7 +266,7 @@ class Sudoku(ui.View):
                 self.block.selected = False
                 self.cell.selected = True
                 self.update_keypad()
-                await interaction.response.edit_message(embed=self.change_cell_prompt_embed(), view=self)
+                await interaction.edit_original_message(embed=self.change_cell_prompt_embed(), view=self)
         elif self.level == "Cell":  # skipcq: PTC-W0048
             if self.cell is not None:  # skipcq: PTC-W0048
                 if self.cell.editable and not self.noting_mode:
@@ -283,7 +284,7 @@ class Sudoku(ui.View):
                         await self._on_win(interaction)
                     else:
                         self.update_keypad()
-                        await interaction.response.edit_message(embed=self.cell_choose_embed(), view=self)
+                        await interaction.edit_original_message(embed=self.cell_choose_embed(), view=self)
                 elif self.cell.editable and self.noting_mode:
                     val = button.label
                     assert isinstance(val, str)  # skipcq: BAN-B101
@@ -301,7 +302,7 @@ class Sudoku(ui.View):
                     self.cell = MISSING
                     self.level = "Block"
                     self.update_keypad()
-                    await interaction.response.edit_message(embed=self.cell_choose_embed(), view=self)
+                    await interaction.edit_original_message(embed=self.cell_choose_embed(), view=self)
 
     @ui.button(label="Back", disabled=True, style=ButtonStyle.green, row=0)
     async def back(self, interaction: Interaction, button: ui.Button):
