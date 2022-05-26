@@ -1,5 +1,3 @@
-# Due to private reasons I have temporarily ceased development. It may begin again at a later date.
-
 ## Continuous Integration Status
 [![DeepSource](https://deepsource.io/gh/Bluesy1/CharB0T.svg/?label=active+issues&show_trend=true&token=wb08Mu693aFli6scALkkEmql)](https://deepsource.io/gh/Bluesy1/CharB0T/?ref=repository-badge)
 [![DeepSource](https://deepsource.io/gh/Bluesy1/CharB0T.svg/?label=resolved+issues&show_trend=true&token=wb08Mu693aFli6scALkkEmql)](https://deepsource.io/gh/Bluesy1/CharB0T/?ref=repository-badge)
