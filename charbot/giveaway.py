@@ -640,6 +640,7 @@ class Giveaway(commands.Cog):
             embed=embed,
             view=self.current_giveaway,
             allowed_mentions=discord.AllowedMentions(roles=True),
+            wait=True,
         )
 
 
