@@ -369,6 +369,8 @@ class CBot(commands.Bot):
         exception: commands.CommandError
             The Exception raised.
         """
+        if isinstance(exception, commands.CommandNotFound):
+            return  # We want to return immediately because ctx.command won't exist if the command is not found
         command = ctx.command
         assert isinstance(command, commands.Command)  # skipcq: BAN-B101
         if hasattr(ctx.command, "on_error"):
