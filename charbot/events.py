@@ -276,7 +276,9 @@ class Events(Cog):
                 self.members.pop(user.id, None)
                 time_string = await time_string_from_seconds(abs(utcnow() - self.members[user.id]).total_seconds())
             elif isinstance(user, discord.User) and user.id in self.members:
-                time_string = await time_string_from_seconds(abs(utcnow() - self.members.pop(user.id)).total_seconds())
+                time_string = await time_string_from_seconds(
+                    abs(utcnow() - self.members.pop(user.id, utcnow() - timedelta(hours=1))).total_seconds()
+                )
             else:
                 time_string = "Unknown"
             channel = await self.bot.fetch_channel(430197357100138497)
