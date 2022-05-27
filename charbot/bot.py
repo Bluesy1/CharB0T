@@ -78,6 +78,12 @@ class Holder(dict):
         return self[__key]
 
 
+class Name:
+    """Name."""
+
+    name: Final = "<Unkown command>"
+
+
 class CBot(commands.Bot):
     """Custom bot class. extends discord.ext.commands.Bot.
 
@@ -370,9 +376,11 @@ class CBot(commands.Bot):
             The Exception raised.
         """
         command = ctx.command
-        assert isinstance(command, commands.Command)  # skipcq: BAN-B101
-        if hasattr(ctx.command, "on_error"):
-            return  # Don't mess with local overrides
+        if isinstance(command, commands.Command):
+            if hasattr(command, "on_error"):
+                return  # Don't mess with local overrides
+        else:
+            command = Name()
 
         cog = ctx.cog
         # noinspection PyProtectedMember
