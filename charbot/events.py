@@ -273,8 +273,8 @@ class Events(Cog):
         if payload.guild_id == 225345178955808768:
             user = payload.user
             if isinstance(user, discord.Member):
-                self.members.pop(user.id, None)
-                time_string = await time_string_from_seconds(abs(utcnow() - self.members[user.id]).total_seconds())
+                _time = self.members.pop(user.id, user.joined_at) or utcnow() - timedelta(hours=1)
+                time_string = await time_string_from_seconds(abs(utcnow() - _time).total_seconds())
             elif isinstance(user, discord.User) and user.id in self.members:
                 time_string = await time_string_from_seconds(
                     abs(utcnow() - self.members.pop(user.id, utcnow() - timedelta(hours=1))).total_seconds()
