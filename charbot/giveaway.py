@@ -92,7 +92,7 @@ class GiveawayView(ui.View):
         self.top_bid = 0
         self.game = game
         self.url = url
-        self.message: discord.WebhookMessage | None = None
+        self.message: discord.WebhookMessage = MISSING
         self.role_semaphore = asyncio.BoundedSemaphore(10)
         self.bid_lock = asyncio.Lock()
         self.bidders: list[asyncpg.Record] = []
@@ -100,6 +100,7 @@ class GiveawayView(ui.View):
             self.add_item(ui.Button(label=game, style=discord.ButtonStyle.link, url=url))
 
     def __repr__(self):
+        """String representation of the view."""
         return (
             f"<{self.__class__.__name__} timeout={self.timeout} children={len(self._children)}"
             f" game={self.game} total_entries={self.total_entries} top_bid={self.top_bid}>"
@@ -337,8 +338,6 @@ class GiveawayView(ui.View):
         button : ui.Button
             The button that was pressed.
         """
-        if self.message is None:
-            self.message = interaction.message
         async with self.bot.pool.acquire() as conn:
             last_win = await conn.fetchval(
                 "SELECT expiry FROM winners WHERE id = $1", interaction.user.id
@@ -375,8 +374,6 @@ class GiveawayView(ui.View):
         button : ui.Button
             The button that was pressed.
         """
-        if self.message is None:
-            self.message = interaction.message
         async with self.bot.pool.acquire() as conn:
             last_win = await conn.fetchval(
                 "SELECT expiry FROM winners WHERE id = $1", interaction.user.id
@@ -410,8 +407,6 @@ class GiveawayView(ui.View):
             The button that was pressed.
         """
         await interaction.response.defer(ephemeral=True, thinking=True)
-        if self.message is None:
-            self.message = interaction.message
         user = interaction.user
         clientuser = self.bot.user
         assert isinstance(user, discord.Member)  # skipcq: BAN-B101

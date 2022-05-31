@@ -273,7 +273,7 @@ class ModSupportButtons(ui.View):
         await interaction.response.send_modal(
             ModSupportModal(
                 {
-                    self.mod_role: PermissionOverwrite(Permissions(139586817088), Permissions.none()),
+                    self.mod_role: PermissionOverwrite.from_pair(Permissions(139586817088), Permissions.none()),
                     self.everyone: PermissionOverwrite(view_channel=False, send_messages=False, read_messages=False),
                     user: PermissionOverwrite.from_pair(Permissions(139586817088), Permissions.none()),
                 },
