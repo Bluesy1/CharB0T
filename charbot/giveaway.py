@@ -100,7 +100,7 @@ class GiveawayView(ui.View):
             self.add_item(ui.Button(label=game, style=discord.ButtonStyle.link, url=url))
 
     def __repr__(self):
-        """String representation of the view."""
+        """Representation of the view."""
         return (
             f"<{self.__class__.__name__} timeout={self.timeout} children={len(self._children)}"
             f" game={self.game} total_entries={self.total_entries} top_bid={self.top_bid}>"
