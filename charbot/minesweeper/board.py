@@ -22,18 +22,19 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 #  ----------------------------------------------------------------------------
-"""Minesweeper game tuples."""
+"""Minesweeper game board."""
 from dataclasses import dataclass
 from typing import overload
 
 from . import Coordinate, Tile
 
 
+__all__ = ("MineSweeperBoard", "MineSweeperRow")
+
+
 @dataclass
 class MineSweeperRow:
-    """
-    A row of the mine sweeper board
-    """
+    """A row of the mine sweeper board."""
 
     zero: Tile
     one: Tile
@@ -50,14 +51,13 @@ class MineSweeperRow:
     twelve: Tile
 
     def __getitem__(self, item: Coordinate) -> Tile:
+        """Get the tile at the given coordinate."""
         return getattr(self, item.name)
 
 
 @dataclass
 class MineSweeperBoard:
-    """
-    The mine sweeper board
-    """
+    """The mine sweeper board."""
 
     zero: MineSweeperRow
     one: MineSweeperRow
@@ -75,32 +75,42 @@ class MineSweeperBoard:
 
     @overload
     def __getitem__(self, item: Coordinate) -> MineSweeperRow:
+        """Get a row of the board"""
         ...
 
     @overload
     def __getitem__(self, item: tuple[Coordinate, Coordinate]) -> Tile:
+        """Get a tile from the board"""
         ...
 
     @overload
     def __getitem__(self, item: int) -> MineSweeperRow:
+        """Get a row of the board"""
         ...
 
     @overload
     def __getitem__(self, item: tuple[int, int]) -> Tile:
+        """Get a tile from the board"""
         ...
 
     def __getitem__(
         self, item: Coordinate | int | tuple[Coordinate, Coordinate] | tuple[int, int]
     ) -> MineSweeperRow | Tile:
+        """Get a row of the board"""
         if isinstance(item, Coordinate):
-            return getattr(self, item.name)
+            _item = getattr(self, item.name)
         elif isinstance(item, int):
-            return getattr(self, Coordinate(item).name)
+            _item = getattr(self, Coordinate(item).name)
         elif isinstance(item, tuple):
             row, col = item
             if isinstance(row, Coordinate) and isinstance(col, Coordinate):
-                return getattr(self, row.name)[col.name]
+                _item = getattr(self, row.name)[col.name]
             elif isinstance(row, int) and isinstance(col, int):
-                return getattr(self, Coordinate(row).name)[Coordinate(col).name]
+                _item = getattr(self, Coordinate(row).name)[Coordinate(col).name]
+            else:
+                raise TypeError(f"Invalid tuple: {item}")
         else:
             raise TypeError(f"Invalid type for item: {type(item)}")
+        if _item is not None:
+            return _item
+        raise KeyError(f"Invalid key: {item}")

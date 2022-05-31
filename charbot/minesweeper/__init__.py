@@ -22,6 +22,7 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 #  ----------------------------------------------------------------------------
+# isort:skip_file
 """Minesweeper Game"""
 
 __all__ = (
@@ -40,11 +41,6 @@ __all__ = (
 
 from .enums import Coordinate, Emoji, GameState, TileType
 from .errors import InvalidMoveError, MineExplodedError, MineSweeperError
-
-
-# isort: off
 from .tile import Tile
 from .board import MineSweeperBoard, MineSweeperRow
 from .game import Minesweeper
-
-# isort: on
