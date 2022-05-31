@@ -75,28 +75,24 @@ class MineSweeperBoard:
 
     @overload
     def __getitem__(self, item: Coordinate) -> MineSweeperRow:
-        """Get a row of the board."""
         ...
 
     @overload
     def __getitem__(self, item: tuple[Coordinate, Coordinate]) -> Tile:
-        """Get a tile from the board."""
         ...
 
     @overload
     def __getitem__(self, item: int) -> MineSweeperRow:
-        """Get a row of the board."""
         ...
 
     @overload
     def __getitem__(self, item: tuple[int, int]) -> Tile:
-        """Get a tile from the board."""
         ...
 
     def __getitem__(
         self, item: Coordinate | int | tuple[Coordinate, Coordinate] | tuple[int, int]
     ) -> MineSweeperRow | Tile:
-        """Get a row of the board."""
+        """Get a row or tile of the board."""
         if isinstance(item, Coordinate):
             _item = getattr(self, item.name)
         elif isinstance(item, int):
