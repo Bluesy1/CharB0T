@@ -74,19 +74,19 @@ class MineSweeperBoard:
     twelve: MineSweeperRow
 
     @overload
-    def __getitem__(self, item: Coordinate) -> MineSweeperRow:
+    def __getitem__(self, item: Coordinate) -> MineSweeperRow:  # noqa: D105
         ...
 
     @overload
-    def __getitem__(self, item: tuple[Coordinate, Coordinate]) -> Tile:
+    def __getitem__(self, item: tuple[Coordinate, Coordinate]) -> Tile:  # noqa: D105
         ...
 
     @overload
-    def __getitem__(self, item: int) -> MineSweeperRow:
+    def __getitem__(self, item: int) -> MineSweeperRow:  # noqa: D105
         ...
 
     @overload
-    def __getitem__(self, item: tuple[int, int]) -> Tile:
+    def __getitem__(self, item: tuple[int, int]) -> Tile:  # noqa: D105
         ...
 
     def __getitem__(

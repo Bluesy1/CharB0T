@@ -16,6 +16,7 @@ skips = ["B101", "B311"]
 [tool.pydocstyle]
 convention = "numpy"
 match = '(?!backup/)(?!test)(?!test_)(?!tests).*\.py'
+add_ignore = ["D105"]
 
 [tool.isort]
 profile = "black"
