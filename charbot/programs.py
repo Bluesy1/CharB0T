@@ -81,9 +81,9 @@ class Reputation(commands.Cog, name="Programs"):
             Whether to turn off formatting that only works on desktop.
         """
         await interaction.response.defer(ephemeral=True)
-        async with self.session.get("https://nine.websudoku.com/?level=3") as response:
+        async with self.session.get("https://nine.websudoku.com/?level=2") as response:
             vals, hidden = self.sudoku_regex.search(str(await response.content.read())).group(1, 2)
-        board: list[list[int]] = [[] for i in range(9)]
+        board: list[list[int]] = [[] for _ in range(9)]
         for i, num in enumerate(vals):
             board[i // 9].append(int(num) if int(hidden[i]) == 0 else 0)
         user = interaction.user
