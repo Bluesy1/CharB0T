@@ -44,6 +44,7 @@ def roll(arg: str) -> str:
         dice = arg.split("+")
     else:
         dice = [str(arg)]
+    # noinspection PyBroadException
     try:
         sums = 0
         rolls = []

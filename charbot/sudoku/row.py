@@ -35,11 +35,6 @@ class Row:
     cells : list[Cell]
         The cells in the row.
 
-    Attributes
-    ----------
-    cells : list[Cell]
-    solved : bool
-
     Methods
     -------
     clear()

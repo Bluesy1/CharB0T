@@ -475,7 +475,6 @@ class Tree(app_commands.CommandTree):
                 )
                 print(f"Ignoring exception in command {command.name!r}", file=sys.stderr)
                 traceback.print_exception(orig_error.__class__, orig_error, orig_error.__traceback__, file=sys.stderr)
-                return
             else:
                 message = "An error occurred while executing the command."
             if interaction.response.is_done():
