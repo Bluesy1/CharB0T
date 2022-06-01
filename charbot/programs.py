@@ -82,7 +82,7 @@ class Reputation(commands.Cog, name="Programs"):
         """
         await interaction.response.defer(ephemeral=True)
         async with self.session.get("https://nine.websudoku.com/?level=3") as response:
-            vals, hidden = self.sudoku_regex.search(str(response.content)).group(1, 2)
+            vals, hidden = self.sudoku_regex.search(str(await response.content.read())).group(1, 2)
         board: list[list[int]] = [[] for i in range(9)]
         for i, num in enumerate(vals):
             board[i // 9].append(int(num) if int(hidden[i]) == 0 else 0)
