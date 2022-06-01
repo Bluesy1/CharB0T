@@ -26,8 +26,10 @@
 import asyncio
 import datetime
 import random
+import re
 from typing import Final, Literal
 
+import aiohttp
 import discord
 from discord import Interaction, app_commands
 from discord.ext import commands
@@ -44,6 +46,8 @@ class Reputation(commands.Cog, name="Programs"):
 
     def __init__(self, bot: CBot):
         self.bot = bot
+        self.session = aiohttp.ClientSession()
+        self.sudoku_regex = re.compile(r"(\d{81}).*([01]{81})")
 
     async def interaction_check(self, interaction: Interaction):  # skipcq: PYL-W0221
         """Check if the user is allowed to use the cog."""
@@ -77,10 +81,14 @@ class Reputation(commands.Cog, name="Programs"):
             Whether to turn off formatting that only works on desktop.
         """
         await interaction.response.defer(ephemeral=True)
-        puzzle = await self.bot.loop.run_in_executor(self.bot.process_pool, sudoku.Puzzle.random, mobile)
+        async with self.session.get("https://nine.websudoku.com/?level=2") as response:
+            vals, hidden = self.sudoku_regex.search(str(await response.content.read())).group(1, 2)
+        board: list[list[int]] = [[] for _ in range(9)]
+        for i, num in enumerate(vals):
+            board[i // 9].append(int(num) if int(hidden[i]) == 0 else 0)
         user = interaction.user
         assert isinstance(user, discord.Member)  # skipcq: BAN-B101
-        view = sudoku.Sudoku(puzzle, user, self.bot)
+        view = sudoku.Sudoku(sudoku.Puzzle(board, mobile), user, self.bot)
         await interaction.followup.send(embed=view.block_choose_embed(), view=view)
 
     @programs.command(name="tictactoe", description="Play a game of Tic Tac Toe!")
