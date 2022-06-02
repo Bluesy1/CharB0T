@@ -481,7 +481,7 @@ class Tree(app_commands.CommandTree):
             if interaction.response.is_done():
                 await interaction.followup.send(message)
             else:
-                await interaction.response.send_message(message)
+                await interaction.response.send_message(message, ephemeral=True)
         else:
             print(f"Ignoring exception in command tree: {error}", file=sys.stderr)
             await self.client.error_logs.send(f"Ignoring exception in command tree: {error}")
