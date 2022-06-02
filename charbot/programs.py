@@ -82,7 +82,11 @@ class Reputation(commands.Cog, name="Programs"):
         """
         await interaction.response.defer(ephemeral=True)
         async with self.session.get("https://nine.websudoku.com/?level=2") as response:
-            vals, hidden = self.sudoku_regex.search(str(await response.content.read())).group(1, 2)
+            match = self.sudoku_regex.search(str(await response.content.read()))
+            if match is None:
+                await interaction.followup.send("Couldn't find a puzzle.")
+                return
+            vals, hidden = match.group(1, 2)
         board: list[list[int]] = [[] for _ in range(9)]
         for i, num in enumerate(vals):
             board[i // 9].append(int(num) if int(hidden[i]) == 0 else 0)
