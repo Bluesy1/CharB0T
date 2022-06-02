@@ -1,0 +1,33 @@
+name: Leaderboard Pull
+on:
+  push:
+  schedule:
+    - cron: "0 0 * * *"
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Set up Python 3.10
+        uses: actions/setup-python@v2
+        with:
+          python-version: "3.10"
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+      - name: Run sql script
+        env:
+          DB: ${{ secrets.DB }}
+          DB_USER: ${{ secrets.DB_USER }}
+          PASS: ${{ secrets.PASS }}
+          HOST: ${{ secrets.HOST }}
+          PORT: ${{ secrets.PORT }}
+        run: |
+          python db_to_json.py
+      - name: Update json file
+        uses: devops-actions/json-to-file@v1.0.0
+        with:
+          json: ${{ env.LEADERBOARD_JSON }}
+          filename: './_data/users.json'
