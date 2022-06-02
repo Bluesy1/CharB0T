@@ -23,8 +23,9 @@
 # SOFTWARE.
 #  ----------------------------------------------------------------------------
 """MineSweeper game."""
+import asyncio
 import random
-from typing import Callable
+from typing import Callable, Final
 
 import numpy as np
 
@@ -32,6 +33,23 @@ from . import Coordinate, MineSweeperBoard, MineSweeperRow, Tile, TileType, erro
 
 
 class Minesweeper:
+
+    __indicator_emojis__: Final[list[str]] = [
+        "0\N{combining enclosing keycap}",
+        "1\N{combining enclosing keycap}",
+        "2\N{combining enclosing keycap}",
+        "3\N{combining enclosing keycap}",
+        "4\N{combining enclosing keycap}",
+        "5\N{combining enclosing keycap}",
+        "6\N{combining enclosing keycap}",
+        "7\N{combining enclosing keycap}",
+        "8\N{combining enclosing keycap}",
+        "9\N{combining enclosing keycap}",
+        "\N{keycap ten}",
+        ":regional_indicator_a:",
+        ":regional_indicator_b:",
+    ]
+
     def __init__(self, initial_row: Coordinate, initial_col: Coordinate):
         invalid = True
         while invalid:
@@ -75,3 +93,85 @@ class Minesweeper:
                 pass
             else:
                 invalid = False
+
+    def __str__(self) -> str:
+        text = "⏹️" + "".join(self.__indicator_emojis__) + "\n"
+        for i, row in enumerate(self.board):  # type: int, MineSweeperRow
+            text += self.__indicator_emojis__[i]
+            for tile in row:
+                text += tile.emoji.value
+            text += "\n"
+        return text
+
+    @staticmethod
+    def floodfill(row: Coordinate, col: Coordinate) -> list[tuple[Coordinate, Coordinate]]:
+        """Floodfill coordinate generator.
+
+        Parameters
+        ----------
+        row : Coordinate
+            Row of the tile to center the floodfill on
+        col : Coordinate
+            Column of the tile to center the floodfill on
+
+        Returns
+        -------
+        list[tuple[Coordinate, Coordinate]]
+            List of tiles to reveal
+        """
+        return [
+            (Coordinate(row.value + x), Coordinate(col.value + y))
+            for x in range(-1, 2)
+            for y in range(-1, 2)
+            if x != 0 and y != 0 and 0 <= row.value + x <= 12 and 0 <= col.value + y <= 12
+        ]
+
+    async def reveal(self, row: Coordinate, col: Coordinate) -> None:
+        """Reveal a tile, and floodfill if appropriate.
+
+        Parameters
+        ----------
+        row : Coordinate
+            Row of the tile to reveal
+        col : Coordinate
+            Column of the tile to reveal
+
+        Raises
+        ------
+        errors.MineExplodedError
+            If the tile is a mine
+        """
+        if self.board[row, col].is_revealed:
+            return
+        floodfill = self.board[row, col].reveal()
+        if floodfill:
+            await asyncio.gather(*[self.reveal(*tile) for tile in self.floodfill(row, col)])
+
+    def flag(self, row: Coordinate, col: Coordinate) -> bool:
+        """Flag a tile.
+
+        Parameters
+        ----------
+        row : Coordinate
+            Row of the tile to flag
+        col : Coordinate
+            Column of the tile to flag
+
+        Returns
+        -------
+        bool
+            True if the tile was flagged, False if it was unflagged
+
+        Raises
+        ------
+        errors.InvalidMoveError
+            If the tile is revealed
+        """
+        return self.board[row, col].flag()
+
+    def explode(self) -> None:
+        """Explode the game."""
+        for row in self.board:
+            for tile in row:
+                if tile.tile_type == TileType.MINE:
+                    tile.explode()

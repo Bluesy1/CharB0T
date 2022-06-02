@@ -23,103 +23,22 @@
 # SOFTWARE.
 #  ----------------------------------------------------------------------------
 """Minesweeper view."""
-import random
-
 import discord
-from discord import Interaction, SelectOption, ui
+from discord import Interaction, ui
+
+from . import Minesweeper, modals
 
 
-straight_titles = ["0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "A", "B"]
-indicator_emojis = [
-    "0\N{combining enclosing keycap}",
-    "1\N{combining enclosing keycap}",
-    "2\N{combining enclosing keycap}",
-    "3\N{combining enclosing keycap}",
-    "4\N{combining enclosing keycap}",
-    "5\N{combining enclosing keycap}",
-    "6\N{combining enclosing keycap}",
-    "7\N{combining enclosing keycap}",
-    "8\N{combining enclosing keycap}",
-    "9\N{combining enclosing keycap}",
-    "\N{keycap ten}",
-    ":regional_indicator_a:",
-    ":regional_indicator_b:",
-]
+class MinesweeperView(ui.View):
+    """Minesweeper view."""
 
+    def __init__(self, game: Minesweeper):
+        """Initialize the view."""
+        super().__init__(timeout=300)
+        self.game = Minesweeper
 
-class TestModal(ui.Modal):
-    move = ui.Select(
-        placeholder="Select a move",
-        min_values=1,
-        max_values=1,
-        options=[
-            SelectOption(label="Togggle Flag", value="flagged", emoji="🚩"),
-            SelectOption(label="Reveal", value="revealed", emoji="⛏️"),
-            SelectOption(label="Chord", value="chord", emoji="⚒️"),
-        ],
-    )
-
-    row = ui.Select(
-        placeholder="Select a row",
-        min_values=1,
-        max_values=1,
-        options=[
-            SelectOption(label="Row 0", value="zero", emoji="0\N{combining enclosing keycap}"),
-            SelectOption(label="Row 1", value="one", emoji="1\N{combining enclosing keycap}"),
-            SelectOption(label="Row 2", value="two", emoji="2\N{combining enclosing keycap}"),
-            SelectOption(label="Row 3", value="three", emoji="3\N{combining enclosing keycap}"),
-            SelectOption(label="Row 4", value="four", emoji="4\N{combining enclosing keycap}"),
-            SelectOption(label="Row 5", value="five", emoji="5\N{combining enclosing keycap}"),
-            SelectOption(label="Row 6", value="six", emoji="6\N{combining enclosing keycap}"),
-            SelectOption(label="Row 7", value="seven", emoji="7\N{combining enclosing keycap}"),
-            SelectOption(label="Row 8", value="eight", emoji="8\N{combining enclosing keycap}"),
-            SelectOption(label="Row 9", value="nine", emoji="9\N{combining enclosing keycap}"),
-            SelectOption(label="Row 10", value="ten", emoji="\N{keycap ten}"),
-            SelectOption(label="Row A", value="eleven", emoji="🇦"),
-            SelectOption(label="Row B", value="twelve", emoji="🇧"),
-        ],
-    )
-
-    column = ui.Select(
-        placeholder="Select a column",
-        min_values=1,
-        max_values=1,
-        options=[
-            SelectOption(label="Column 0", value="zero", emoji="0\N{combining enclosing keycap}"),
-            SelectOption(label="Column 1", value="one", emoji="1\N{combining enclosing keycap}"),
-            SelectOption(label="Column 2", value="two", emoji="2\N{combining enclosing keycap}"),
-            SelectOption(label="Column 3", value="three", emoji="3\N{combining enclosing keycap}"),
-            SelectOption(label="Column 4", value="four", emoji="4\N{combining enclosing keycap}"),
-            SelectOption(label="Column 5", value="five", emoji="5\N{combining enclosing keycap}"),
-            SelectOption(label="Column 6", value="six", emoji="6\N{combining enclosing keycap}"),
-            SelectOption(label="Column 7", value="seven", emoji="7\N{combining enclosing keycap}"),
-            SelectOption(label="Column 8", value="eight", emoji="8\N{combining enclosing keycap}"),
-            SelectOption(label="Column 9", value="nine", emoji="9\N{combining enclosing keycap}"),
-            SelectOption(label="Column 10", value="ten", emoji="\N{keycap ten}"),
-            SelectOption(label="Column A", value="eleven", emoji="🇦"),
-            SelectOption(label="Column B", value="twelve", emoji="🇧"),
-        ],
-    )
-
-    async def on_submit(self, interaction: Interaction) -> None:
-        await interaction.response.send_message(
-            f"You {self.move.values[0]} {self.row.values[0]}-{self.column.values[0]}"
-        )
-
-
-class TestView(ui.View):
-    @ui.button(
-        label="Open Modal",
-        emoji="🔎",
-        style=discord.ButtonStyle.primary,
-    )
-    async def open_modal(self, interaction: Interaction, button: ui.Button):
-        await interaction.response.send_modal(TestModal(title="Test Modal"))
-
-
-text = "⏹️" + "".join(indicator_emojis) + "\n"
-for emoji in indicator_emojis:
-    text += emoji
-    for i in range(13):
-        text += random.choice(["⏹️", "⏹️", "⏹️", "💣"])
-    text += "\n"
+    # noinspection PyUnusedLocal
+    @ui.button(emoji="⛏️", style=discord.ButtonStyle.green)
+    async def start_moce(self, interaction: Interaction, button: ui.Button):  # skipcq: PYL-W0613
+        """Start a new game."""
+        await interaction.response.send_modal(modals.MoveModal(self))

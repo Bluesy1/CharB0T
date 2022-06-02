@@ -24,7 +24,7 @@
 #  ----------------------------------------------------------------------------
 """Minesweeper game board."""
 from dataclasses import dataclass
-from typing import overload
+from typing import Generator, overload
 
 from . import Coordinate, Tile
 
@@ -50,6 +50,22 @@ class MineSweeperRow:
     eleven: Tile
     twelve: Tile
 
+    def __iter__(self) -> Generator[Tile, None, None]:
+        """Iterate over all tiles in the row."""
+        yield self.zero
+        yield self.one
+        yield self.two
+        yield self.three
+        yield self.four
+        yield self.five
+        yield self.six
+        yield self.seven
+        yield self.eight
+        yield self.nine
+        yield self.ten
+        yield self.eleven
+        yield self.twelve
+
     def __getitem__(self, item: Coordinate) -> Tile:
         """Get the tile at the given coordinate."""
         return getattr(self, item.name)
@@ -72,6 +88,22 @@ class MineSweeperBoard:
     ten: MineSweeperRow
     eleven: MineSweeperRow
     twelve: MineSweeperRow
+
+    def __iter__(self) -> Generator[MineSweeperRow, None, None]:
+        """Iterate over the rows of the board."""
+        yield self.zero
+        yield self.one
+        yield self.two
+        yield self.three
+        yield self.four
+        yield self.five
+        yield self.six
+        yield self.seven
+        yield self.eight
+        yield self.nine
+        yield self.ten
+        yield self.eleven
+        yield self.twelve
 
     @overload
     def __getitem__(self, item: Coordinate) -> MineSweeperRow:  # noqa: D105

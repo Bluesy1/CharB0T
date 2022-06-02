@@ -92,7 +92,10 @@ class Tile:
             If the tile is a mine
         """
         if self.is_mine:
+            self._emoji = Emoji.EXPLODED
             raise errors.MineExplodedError()
+        if self.is_revealed:
+            return False
         self._is_revealed = True
         if self._value == 0:
             self._emoji = Emoji.EMPTY
@@ -100,3 +103,25 @@ class Tile:
         else:
             self._emoji = Emoji(f"{self._value}\N{combining enclosing keycap}")
             return False
+
+    def flag(self) -> bool:
+        """Toggle the flag on the tile
+
+        Returns
+        -------
+        bool
+            The new state of the tile's flag
+
+        Raises
+        ------
+        InvalidMoveError
+            If the tile is revealed
+        """
+        if self.is_revealed:
+            raise errors.InvalidMoveError("Cannot flag a revealed tile")
+        self._is_flagged = not self._is_flagged
+        return self._is_flagged
+
+    def explode(self) -> None:
+        """Explode the tile"""
+        self._emoji = Emoji.EXPLODED
