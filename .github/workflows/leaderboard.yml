@@ -1,6 +1,8 @@
 name: Leaderboard Pull
 on:
   push:
+    paths-ignore:
+      - '**/_data/users.json**'
   schedule:
     - cron: "0 0 * * *"
 
