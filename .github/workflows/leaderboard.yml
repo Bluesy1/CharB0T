@@ -26,6 +26,6 @@ jobs:
           PORT: ${{ secrets.PORT }}
         run: |
           python db_to_json.py
-      - name: Update json file
-        run: |
-          echo ${{ env.LEADERBOARD_JSON }} | sudo tee ./_data/users.json
+          git add .
+          git commit -m "Update leaderboard"
+          git push origin gh-pages

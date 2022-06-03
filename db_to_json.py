@@ -16,10 +16,10 @@ def avatar(avatar_hash: str | None, user_id: int, discrim: int) -> str:
     return f"https://cdn.discordapp.com/avatars/{user_id}/{avatar_hash}.png"
 
 
-try:
-    with conn, conn.cursor() as cur:
-        cur.execute("SELECT * FROM xp_users ORDER BY xp DESC")
-        LEADERBOARD_JSON = json.dumps(
+with conn, conn.cursor() as cur:
+    cur.execute("SELECT * FROM xp_users ORDER BY xp DESC")
+    with open("_data/users.json", "w") as f:
+        json.dump(
             [
                 {
                     "id": user[0],
@@ -33,10 +33,5 @@ try:
                 }
                 for user in cur.fetchall()
             ],
+            f
         )
-except Exception as e:
-    with open("_data/users.json", "r") as f:
-        LEADERBOARD_JSON = json.dumps(json.load(f))
-finally:
-    with open(getenv('GITHUB_ENV'), "a") as myfile:
-        myfile.write(f"LEADERBOARD_JSON={LEADERBOARD_JSON}")
