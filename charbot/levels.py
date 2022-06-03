@@ -39,6 +39,35 @@ from disrank.generator import Generator
 from . import CBot
 
 
+async def update_level_roles(member: discord.Member, new_level: int) -> None:
+    """Update the level roles of the user.
+
+    Parameters
+    ----------
+    member : discord.Member
+        The member to update the level roles of.
+    new_level : int
+        The new level of the user.
+    """
+    if new_level == 1:
+        await member.add_roles(discord.Object(969626979353632790), reason="Level 1")
+    elif new_level == 5:
+        await member.remove_roles(discord.Object(969626979353632790), reason="Level 5")
+        await member.add_roles(discord.Object(969627321239760967), reason="Level 5")
+    elif new_level == 10:
+        await member.remove_roles(discord.Object(969627321239760967), reason="Level 10")
+        await member.add_roles(discord.Object(969628342733119518), reason="Level 10")
+    elif new_level == 20:
+        await member.remove_roles(discord.Object(969628342733119518), reason="Level 20")
+        await member.add_roles(discord.Object(969629632028614699), reason="Level 20")
+    elif new_level == 25:
+        await member.remove_roles(discord.Object(969629632028614699), reason="Level 25")
+        await member.add_roles(discord.Object(969629628249563166), reason="Level 25")
+    elif new_level == 30:
+        await member.remove_roles(discord.Object(969629628249563166), reason="Level 30")
+        await member.add_roles(discord.Object(969629622453039104), reason="Level 30")
+
+
 class Leveling(commands.Cog):
     """Level system."""
 
@@ -116,23 +145,7 @@ class Leveling(commands.Cog):
                     await message.channel.send(
                         f"{message.author.mention} has done some time, and is now level **{new_level}**."
                     )
-                    if new_level == 1:
-                        await member.add_roles(discord.Object(969626979353632790), reason="Level 1")
-                    elif new_level == 5:
-                        await member.remove_roles(discord.Object(969626979353632790), reason="Level 5")
-                        await member.add_roles(discord.Object(969627321239760967), reason="Level 5")
-                    elif new_level == 10:
-                        await member.remove_roles(discord.Object(969627321239760967), reason="Level 10")
-                        await member.add_roles(discord.Object(969628342733119518), reason="Level 10")
-                    elif new_level == 20:
-                        await member.remove_roles(discord.Object(969628342733119518), reason="Level 20")
-                        await member.add_roles(discord.Object(969629632028614699), reason="Level 20")
-                    elif new_level == 25:
-                        await member.remove_roles(discord.Object(969629632028614699), reason="Level 25")
-                        await member.add_roles(discord.Object(969629628249563166), reason="Level 25")
-                    elif new_level == 30:
-                        await member.remove_roles(discord.Object(969629628249563166), reason="Level 30")
-                        await member.add_roles(discord.Object(969629622453039104), reason="Level 30")
+                    await update_level_roles(member, new_level)
                     return
                 await conn.execute(
                     "UPDATE xp_users SET xp = xp + $1, detailed_xp = $2, messages = messages + 1 WHERE id = $3",
