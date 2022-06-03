@@ -26,6 +26,7 @@
 import datetime
 import functools
 import random
+from io import BytesIO
 from typing import Callable
 
 import discord
@@ -63,23 +64,31 @@ class Leveling(commands.Cog):
             return
         if message.guild is None:
             return
-        last_time = self.off_cooldown.get(message.author.id, None)
-        if last_time is None or last_time < utcnow():
-            self.off_cooldown[message.author.id] = utcnow() + datetime.timedelta(minutes=1)
-            async with self.bot.pool.acquire() as conn, conn.transaction():
+        async with self.bot.pool.acquire() as conn, conn.transaction():
+            no_xp = await conn.fetchrow("SELECT * FROM no_xp WHERE guild = $1", message.guild.id)
+            if no_xp is None:
+                return
+            if message.channel.id in no_xp["channels"]:
+                return
+            member = message.author
+            assert isinstance(member, discord.Member)  # skipcq: BAN-B101
+            if any(role.id in no_xp["roles"] for role in member.roles):
+                return
+            last_time = self.off_cooldown.get(message.author.id, None)
+            if last_time is None or last_time < utcnow():
+                self.off_cooldown[message.author.id] = utcnow() + datetime.timedelta(minutes=1)
                 user = await conn.fetchrow("SELECT * FROM xp_users WHERE id = $1", message.author.id)
                 gained = random.randint(self._min_xp, self._max_xp)
                 if user is None:
                     await conn.execute(
-                        "INSERT INTO xp_users (id, username, discriminator, xp, detailed_xp, level, messages, avatar)"
-                        " VALUES ($1, $2, $3, $4, $5, $6, $7, $8) ON CONFLICT (id) DO NOTHING",
+                        "INSERT INTO xp_users "
+                        "(id, username, discriminator, xp, detailed_xp, level, messages, avatar, gang, prestige)"
+                        " VALUES ($1, $2, $3, $4, $5, 0, 1, $6, null, 0) ON CONFLICT (id) DO NOTHING",
                         message.author.id,
                         message.author.name,
                         message.author.discriminator,
                         gained,
                         [gained, self._xp_function(0), gained],
-                        0,
-                        1,
                         message.author.avatar.key if message.author.avatar else None,
                     )
                     return
@@ -101,6 +110,7 @@ class Leveling(commands.Cog):
                     return
 
     @app_commands.command(name="rank")
+    @app_commands.guilds(225345178955808768)
     async def rank_command(self, interaction: Interaction):
         """Check your level and rank.
 
@@ -110,13 +120,17 @@ class Leveling(commands.Cog):
             The interaction object.
         """
         await interaction.response.defer(ephemeral=True)
+        if interaction.guild is None:
+            await interaction.followup.send("This Must be used in a guild")
+            return
+        member = interaction.user
+        assert isinstance(member, discord.Member)  # skipcq: BAN-B101
         async with self.bot.pool.acquire() as conn:
             user = await conn.fetchrow("SELECT * FROM xp_users WHERE id = $1", interaction.user.id)
         if user is None:
             await interaction.followup.send("🚫 You aren't ranked yet. Send some messages first, then try again.")
             return
-
-        card = functools.partial(
+        card: Callable[[], BytesIO] = functools.partial(
             self.generator.generate_profile,
             profile_image=interaction.user.avatar.url if interaction.user.avatar is not None else self.default_profile,
             level=0,
@@ -124,11 +138,12 @@ class Leveling(commands.Cog):
             user_xp=user["xp"],
             next_xp=user["detailed_xp"][2] - user["detailed_xp"][0] + user["detailed_xp"][1],
             user_name=f"{interaction.user.name}#{interaction.user.discriminator}",
-            user_status=interaction.user.status.value if not isinstance(interaction.user.status, str) else "offline",
+            user_status=member.status.value if not isinstance(member.status, str) else "offline",
         )
-        card = self.bot.loop.run_in_executor(card)
+        image = await self.bot.loop.run_in_executor(None, card)
+        await interaction.followup.send(file=discord.File(image, "profile.png", description="Your profile."))
 
 
 async def setup(bot: CBot):
-    """Setup."""
+    """Load cog."""
     await bot.add_cog(Leveling(bot))
