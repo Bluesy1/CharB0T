@@ -687,7 +687,7 @@ class ReputationAdmin(
             else:
                 await interaction.followup.send(f"User `{user.name}` has {_user['points']} reputation.")
 
-    @pools.command(name="role", description="Toggles a roles ability to block xp gain.")
+    @pools.command(name="noxp_role", description="Toggles a roles ability to block xp gain.")
     async def noxp_role(self, interaction: Interaction, role: discord.Role):
         """Toggles a roles ability to block xp gain.
 
@@ -716,7 +716,7 @@ class ReputationAdmin(
                 )
                 await interaction.followup.send(f"Role `{role.name}` added to noxp.")
 
-    @pools.command(name="role", description="Toggles a channels ability to give xp.")
+    @pools.command(name="noxp_channel", description="Toggles a channels ability to give xp.")
     async def noxp_channel(
         self,
         interaction: Interaction,
