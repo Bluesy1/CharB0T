@@ -26,10 +26,8 @@ jobs:
           PORT: ${{ secrets.PORT }}
         run: |
           python db_to_json.py
-      - name: push
-        uses: github-actions-x/commit@v2.9
-        with:
-          github-token: ${{ secrets.GITHUB_TOKEN }}
-          push-branch: 'gh-pages'
-          commit-message: '[GHA] Update leaderboard'
-          files: _data/users.json
+          git config user.name "GitHub Actions Bot"
+          git config user.email "<>"
+          git add .
+          git commit -m "Update leaderboard"
+          git push origin gh-pages
