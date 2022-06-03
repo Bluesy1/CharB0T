@@ -4,7 +4,6 @@ from os import getenv, environ
 
 
 def _(env: str) -> str | None:
-    print(getenv(f"{env.upper()}"))
     return getenv(f"{env.upper()}")
 
 
