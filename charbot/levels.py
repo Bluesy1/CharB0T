@@ -25,14 +25,16 @@
 """Level system."""
 import datetime
 import functools
+import os
 import random
 from io import BytesIO
 from typing import Callable, Optional
 
+import aiohttp
 import asyncpg
 import discord
 from discord import Interaction, app_commands
-from discord.ext import commands
+from discord.ext import commands, tasks
 from discord.utils import utcnow
 from disrank.generator import Generator
 
@@ -80,14 +82,26 @@ class Leveling(commands.Cog):
         self.generator = Generator()
         self.generator.default_bg = "charbot/media/pools/card.png"
         self.default_profile = "https://raw.githubusercontent.com/Bluesy1/CharB0T/main/charbot/media/pools/profile.png"
+        _token = os.getenv("GITHUB_TOKEN")
+        assert isinstance(_token, str)  # skipcq: BAN-B101
+        self.session = aiohttp.ClientSession(auth=aiohttp.BasicAuth("Bluesy1", _token), headers={"ref": "gh-pages"})
+        self._post_url = "https://api.github.com/repos/bluesy1/charb0t/actions/workflows/leaderboard.yml/dispatches"
 
     async def cog_load(self) -> None:
         """Load the cog."""
         self.off_cooldown = self.bot.holder.pop("off_xp_cooldown", {})
+        self.update_pages.start()
 
     async def cog_unload(self) -> None:
         """Unload the cog."""
         self.bot.holder["off_xp_cooldown"] = self.off_cooldown
+        self.update_pages.cancel()
+
+    @tasks.loop(time=[datetime.time(i) for i in range(0, 24)])
+    async def update_pages(self) -> None:
+        """Update the page."""
+        async with self.session.post(self._post_url) as resp:
+            print(resp.status)
 
     @commands.Cog.listener()
     async def on_message(self, message: discord.Message):
