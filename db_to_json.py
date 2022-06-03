@@ -23,7 +23,7 @@ with conn, conn.cursor() as cur:
             [
                 {
                     "id": user[0],
-                    "name": str(user[1]).encode("ascii", "ignore").decode(),
+                    "name": str(user[1]).encode("utf-8", "ignore").decode("utf-8", "ignore"),
                     "discriminator": user[2],
                     "xp": user[3],
                     "detailed_xp": user[4],
@@ -36,5 +36,7 @@ with conn, conn.cursor() as cur:
                 }
                 for user in cur.fetchall()
             ],
-            f
+            f,
+            indent=4,
+            ensure_ascii=False,
         )
