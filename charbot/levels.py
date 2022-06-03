@@ -74,7 +74,7 @@ class Leveling(commands.Cog):
             assert isinstance(member, discord.Member)  # skipcq: BAN-B101
             if any(role.id in no_xp["roles"] for role in member.roles):
                 return
-            last_time = self.off_cooldown.get(message.author.id, None)
+            last_time = self.off_cooldown.get(message.author.id)
             if last_time is None or last_time < utcnow():
                 self.off_cooldown[message.author.id] = utcnow() + datetime.timedelta(minutes=1)
                 user = await conn.fetchrow("SELECT * FROM xp_users WHERE id = $1", message.author.id)
@@ -141,7 +141,7 @@ class Leveling(commands.Cog):
             user_status=member.status.value if not isinstance(member.status, str) else "offline",
         )
         image = await self.bot.loop.run_in_executor(None, card)
-        await interaction.followup.send(file=discord.File(image, "profile.png", description="Your profile."))
+        await interaction.followup.send(file=discord.File(image, "profile.png"))
 
 
 async def setup(bot: CBot):
