@@ -17,7 +17,7 @@ def avatar(avatar_hash: str | None, user_id: int, discriminator: int) -> str:
 
 
 with conn, conn.cursor() as cur:
-    cur.execute("SELECT *, ROW_NUMBER() OVER(ORDER BY xp) FROM xp_users ORDER BY xp DESC")
+    cur.execute("SELECT *, ROW_NUMBER() OVER(ORDER BY xp DESC) FROM xp_users ORDER BY xp DESC")
     with open("_data/users.json", "w") as f:
         json.dump(
             [

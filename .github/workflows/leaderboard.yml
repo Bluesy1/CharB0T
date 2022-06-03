@@ -4,7 +4,7 @@ on:
     paths-ignore:
       - '**/_data/users.json**'
   schedule:
-    - cron: "0 * */1 * *"
+    - cron: "0 * * * *"
 
 jobs:
   download-users:
