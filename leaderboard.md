@@ -62,7 +62,7 @@ layout: default
 {{ site.data.gangs.emoji.gray }}
 {% when "brown" %}
 {{ site.data.gangs.emoji.brown }}
-{5 else %}
+{% else %}
 {{ nil }}
 {% endcase %}
 {% assign num = {{  user.prestige  }} %}
