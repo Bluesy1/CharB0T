@@ -4,7 +4,25 @@ layout: default
 ---
 
 
-# Charlie's Leaderboard
+<h1 style="text-align: center">Charlie's Leaderboard</h1>
+
+<table>
+<tr>
+<th>Level 1</th>
+<th>Level 5</th>
+<th>Level 10</th>
+<th>Level 15</th>
+<th>Level 25</th>
+<th>Level 30</th>
+</tr>
+<tr>
+<td style="color: #be6782">Supermax</td>
+<td style="color: #fd6a5f">Maximum Security</td>
+<td style="color: #E67E22FF">Medium Security</td>
+<td style="color: #daeeaf">Minimum Security</td>
+<td style="color: #6dbee7">Parole Eligible</td>
+<td style="color: #8bbff5">Released</td>
+</table>
 
 
 <table>
@@ -47,7 +65,7 @@ layout: default
 {5 else %}
 {{ nil }}
 {% endcase %}
-{% assign num = {{user.prestige}} %}
+{% assign num = {{  user.prestige  }} %}
 {% for i in (1..num) %}🏅{% endfor %}
 </td>
 <td><img alt="pfp" src="{{ user.avatar }}" width="50" /></td>
