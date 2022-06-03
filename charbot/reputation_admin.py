@@ -702,20 +702,23 @@ class ReputationAdmin(
         await interaction.response.defer(ephemeral=True)
         async with self.bot.pool.acquire() as conn, conn.transaction():
             noxp = await conn.fetchrow("SELECT * FROM no_xp WHERE guild = $1", interaction.guild_id)
-            if role.id in noxp["roles"]:
-                await conn.execute(
-                    "UPDATE no_xp SET roles = array_remove(roles, $1) WHERE guild = $2",
-                    role.id,
-                    interaction.guild_id,
-                )
-                await interaction.followup.send(f"Role `{role.name}` removed from noxp.")
+            if noxp is None:
+                await interaction.followup.send("Xp is not set up??.")
             else:
-                await conn.execute(
-                    "UPDATE no_xp SET roles = array_append(roles, $1) WHERE guild = $2",
-                    role.id,
-                    interaction.guild_id,
-                )
-                await interaction.followup.send(f"Role `{role.name}` added to noxp.")
+                if role.id in noxp["roles"]:
+                    await conn.execute(
+                        "UPDATE no_xp SET roles = array_remove(roles, $1) WHERE guild = $2",
+                        role.id,
+                        interaction.guild_id,
+                    )
+                    await interaction.followup.send(f"Role `{role.name}` removed from noxp.")
+                else:
+                    await conn.execute(
+                        "UPDATE no_xp SET roles = array_append(roles, $1) WHERE guild = $2",
+                        role.id,
+                        interaction.guild_id,
+                    )
+                    await interaction.followup.send(f"Role `{role.name}` added to noxp.")
 
     @levels.command(name="noxp_channel", description="Toggles a channels ability to give xp.")
     async def noxp_channel(self, interaction: Interaction, channel: discord.TextChannel | discord.VoiceChannel):
@@ -731,20 +734,23 @@ class ReputationAdmin(
         await interaction.response.defer(ephemeral=True)
         async with self.bot.pool.acquire() as conn, conn.transaction():
             noxp = await conn.fetchrow("SELECT * FROM no_xp WHERE guild = $1", interaction.guild_id)
-            if channel.id in noxp["channels"]:
-                await conn.execute(
-                    "UPDATE no_xp SET channels = array_remove(channels, $1) WHERE guild = $2",
-                    channel.id,
-                    interaction.guild_id,
-                )
-                await interaction.followup.send(f"{channel.mention} removed from noxp.")
+            if noxp is None:
+                await interaction.followup.send("Xp is not set up??.")
             else:
-                await conn.execute(
-                    "UPDATE no_xp SET channels = array_append(channels, $1) WHERE guild = $2",
-                    channel.id,
-                    interaction.guild_id,
-                )
-                await interaction.followup.send(f"{channel.mention} added to noxp.")
+                if channel.id in noxp["channels"]:
+                    await conn.execute(
+                        "UPDATE no_xp SET channels = array_remove(channels, $1) WHERE guild = $2",
+                        channel.id,
+                        interaction.guild_id,
+                    )
+                    await interaction.followup.send(f"{channel.mention} removed from noxp.")
+                else:
+                    await conn.execute(
+                        "UPDATE no_xp SET channels = array_append(channels, $1) WHERE guild = $2",
+                        channel.id,
+                        interaction.guild_id,
+                    )
+                    await interaction.followup.send(f"{channel.mention} added to noxp.")
 
     @levels.command(name="noxp_query", description="Sees teh channels and roles that are banned from gaining xp.")
     async def noxp_query(self, interaction: Interaction):
@@ -759,7 +765,7 @@ class ReputationAdmin(
         async with self.bot.pool.acquire() as conn:
             noxp = await conn.fetchrow("SELECT * FROM no_xp WHERE guild = $1", interaction.guild_id)
             if noxp is None:
-                await interaction.followup.send("No xp is currently banned.")
+                await interaction.followup.send("Xp is not set up??.")
             else:
                 guild = interaction.guild
                 assert isinstance(guild, discord.Guild)  # skipcq: BAN-B101
