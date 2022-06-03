@@ -31,6 +31,7 @@ import asyncpg
 import discord
 from discord import Interaction, app_commands
 from discord.ext import commands
+from discord.utils import utcnow
 
 from . import CBot
 from .card import generate_card
@@ -43,7 +44,7 @@ _ALLOWED_MENTIONS = discord.AllowedMentions(roles=False, users=False, everyone=F
 @app_commands.guilds(225345178955808768)
 @app_commands.checks.has_any_role(225413350874546176, 253752685357039617, 725377514414932030, 338173415527677954)
 class ReputationAdmin(
-    commands.GroupCog, name="administration", description="Administration commands for the reputation system."
+    commands.GroupCog, group_name="admin", group_description="Administration commands for the reputation system."
 ):
     """Reputation Admin Commands.
 
@@ -110,6 +111,7 @@ class ReputationAdmin(
 
     pools = app_commands.Group(name="pools", description="Administration commands for the reputation pools.")
     reputation = app_commands.Group(name="reputation", description="Administration commands for the reputation system.")
+    levels = app_commands.Group(name="levels", description="Administration commands for the leveling system.")
 
     async def interaction_check(self, interaction: Interaction) -> bool:
         """Check if the interaction is allowed.
@@ -685,6 +687,93 @@ class ReputationAdmin(
                 await interaction.followup.send(f"Error: User `{user.name}` not found as active.")
             else:
                 await interaction.followup.send(f"User `{user.name}` has {_user['points']} reputation.")
+
+    @levels.command(name="noxp_role", description="Toggles a roles ability to block xp gain.")
+    async def noxp_role(self, interaction: Interaction, role: discord.Role):
+        """Toggles a roles ability to block xp gain.
+
+        Parameters
+        ----------
+        interaction : Interaction
+            The interaction object.
+        role : discord.Role
+            The role to toggle.
+        """
+        await interaction.response.defer(ephemeral=True)
+        async with self.bot.pool.acquire() as conn, conn.transaction():
+            noxp = await conn.fetchrow("SELECT * FROM no_xp WHERE guild = $1", interaction.guild_id)
+            if role.id in noxp["roles"]:
+                await conn.execute(
+                    "UPDATE no_xp SET roles = array_remove(roles, $1) WHERE guild = $2",
+                    role.id,
+                    interaction.guild_id,
+                )
+                await interaction.followup.send(f"Role `{role.name}` removed from noxp.")
+            else:
+                await conn.execute(
+                    "UPDATE no_xp SET roles = array_append(roles, $1) WHERE guild = $2",
+                    role.id,
+                    interaction.guild_id,
+                )
+                await interaction.followup.send(f"Role `{role.name}` added to noxp.")
+
+    @levels.command(name="noxp_channel", description="Toggles a channels ability to give xp.")
+    async def noxp_channel(self, interaction: Interaction, channel: discord.TextChannel | discord.VoiceChannel):
+        """Toggles a roles ability to block xp gain.
+
+        Parameters
+        ----------
+        interaction : Interaction
+            The interaction object.
+        channel: discord.TextChannel | discord.VoiceChannel
+            The role to toggle.
+        """
+        await interaction.response.defer(ephemeral=True)
+        async with self.bot.pool.acquire() as conn, conn.transaction():
+            noxp = await conn.fetchrow("SELECT * FROM no_xp WHERE guild = $1", interaction.guild_id)
+            if channel.id in noxp["channels"]:
+                await conn.execute(
+                    "UPDATE no_xp SET channels = array_remove(channels, $1) WHERE guild = $2",
+                    channel.id,
+                    interaction.guild_id,
+                )
+                await interaction.followup.send(f"{channel.mention} removed from noxp.")
+            else:
+                await conn.execute(
+                    "UPDATE no_xp SET channels = array_append(channels, $1) WHERE guild = $2",
+                    channel.id,
+                    interaction.guild_id,
+                )
+                await interaction.followup.send(f"{channel.mention} added to noxp.")
+
+    @levels.command(name="noxp_query", description="Sees teh channels and roles that are banned from gaining xp.")
+    async def noxp_query(self, interaction: Interaction):
+        """Sees the channels and roles that are banned from gaining xp.
+
+        Parameters
+        ----------
+        interaction : Interaction
+            The interaction object.
+        """
+        await interaction.response.defer(ephemeral=True)
+        async with self.bot.pool.acquire() as conn:
+            noxp = await conn.fetchrow("SELECT * FROM no_xp WHERE guild = $1", interaction.guild_id)
+            if noxp is None:
+                await interaction.followup.send("No xp is currently banned.")
+            else:
+                guild = interaction.guild
+                assert isinstance(guild, discord.Guild)  # skipcq: BAN-B101
+                embed = discord.Embed(title="Noxp", description="", timestamp=utcnow())
+                embed.set_author(name=guild.name, icon_url=guild.icon.url if guild.icon else None)
+                embed.set_footer(
+                    text=f"Requested by {interaction.user.name}",
+                    icon_url=interaction.user.avatar.url
+                    if interaction.user.avatar
+                    else interaction.user.default_avatar.url,
+                )
+                embed.add_field(name="Channels", value=", ".join(f"<#{c}>" for c in noxp["channels"]), inline=False)
+                embed.add_field(name="Roles", value=", ".join(f"<@&{r}>" for r in noxp["roles"]), inline=False)
+                await interaction.followup.send(embed=embed)
 
 
 async def setup(bot: CBot):
