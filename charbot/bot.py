@@ -219,6 +219,7 @@ class CBot(commands.Bot):
         await self.load_extension("charbot.events")
         await self.load_extension("charbot.gcal")
         await self.load_extension("charbot.giveaway")
+        await self.load_extension("charbot.levels")
         await self.load_extension("charbot.mod_support")
         await self.load_extension("charbot.pools")
         await self.load_extension("charbot.programs")
