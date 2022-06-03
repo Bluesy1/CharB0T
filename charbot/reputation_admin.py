@@ -717,18 +717,14 @@ class ReputationAdmin(
                 await interaction.followup.send(f"Role `{role.name}` added to noxp.")
 
     @pools.command(name="noxp_channel", description="Toggles a channels ability to give xp.")
-    async def noxp_channel(
-        self,
-        interaction: Interaction,
-        channel: discord.TextChannel | discord.VoiceChannel | discord.ForumChannel,
-    ):
+    async def noxp_channel(self, interaction: Interaction, channel: discord.TextChannel | discord.VoiceChannel):
         """Toggles a roles ability to block xp gain.
 
         Parameters
         ----------
         interaction : Interaction
             The interaction object.
-        channel: discord.TextChannel | discord.VoiceChannel | discord.ForumChannel
+        channel: discord.TextChannel | discord.VoiceChannel
             The role to toggle.
         """
         await interaction.response.defer(ephemeral=True)
