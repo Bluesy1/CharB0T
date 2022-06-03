@@ -28,4 +28,4 @@ jobs:
           python db_to_json.py
       - name: Update json file
         run: |
-          echo ${{ env.LEADERBOARD_JSON }} | ./_data/users.json
+          ./rename_json.sh
