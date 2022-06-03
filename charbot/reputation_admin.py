@@ -31,6 +31,7 @@ import asyncpg
 import discord
 from discord import Interaction, app_commands
 from discord.ext import commands
+from discord.utils import utcnow
 
 from . import CBot
 from .card import generate_card
@@ -687,7 +688,7 @@ class ReputationAdmin(
             else:
                 await interaction.followup.send(f"User `{user.name}` has {_user['points']} reputation.")
 
-    @pools.command(name="noxp_role", description="Toggles a roles ability to block xp gain.")
+    @levels.command(name="noxp_role", description="Toggles a roles ability to block xp gain.")
     async def noxp_role(self, interaction: Interaction, role: discord.Role):
         """Toggles a roles ability to block xp gain.
 
@@ -716,7 +717,7 @@ class ReputationAdmin(
                 )
                 await interaction.followup.send(f"Role `{role.name}` added to noxp.")
 
-    @pools.command(name="noxp_channel", description="Toggles a channels ability to give xp.")
+    @levels.command(name="noxp_channel", description="Toggles a channels ability to give xp.")
     async def noxp_channel(self, interaction: Interaction, channel: discord.TextChannel | discord.VoiceChannel):
         """Toggles a roles ability to block xp gain.
 
@@ -744,6 +745,35 @@ class ReputationAdmin(
                     interaction.guild_id,
                 )
                 await interaction.followup.send(f"{channel.mention} added to noxp.")
+
+    @levels.command(name="noxp_query", description="Sees teh channels and roles that are banned from gaining xp.")
+    async def noxp_query(self, interaction: Interaction):
+        """Sees the channels and roles that are banned from gaining xp.
+
+        Parameters
+        ----------
+        interaction : Interaction
+            The interaction object.
+        """
+        await interaction.response.defer(ephemeral=True)
+        async with self.bot.pool.acquire() as conn:
+            noxp = await conn.fetchrow("SELECT * FROM no_xp WHERE guild = $1", interaction.guild_id)
+            if noxp is None:
+                await interaction.followup.send("No xp is currently banned.")
+            else:
+                embed = discord.Embed(title="Noxp", description="", timestamp=utcnow())
+                embed.set_author(
+                    name=interaction.guild.name, icon_url=interaction.guild.icon.url if interaction.guild.icon else None
+                )
+                embed.set_footer(
+                    text=f"Requested by {interaction.user.name}",
+                    icon_url=interaction.user.avatar.url
+                    if interaction.user.avatar
+                    else interaction.user.default_avatar.url,
+                )
+                embed.add_field(name="Channels", value=", ".join(f"<#{c}>" for c in noxp["channels"]))
+                embed.add_field(name="Roles", value=", ".join(f"<@&{r}>" for r in noxp["roles"]))
+                await interaction.followup.send(embed=embed)
 
 
 async def setup(bot: CBot):

@@ -27,8 +27,9 @@ import datetime
 import functools
 import random
 from io import BytesIO
-from typing import Callable
+from typing import Callable, Optional
 
+import asyncpg
 import discord
 from discord import Interaction, app_commands
 from discord.ext import commands
@@ -50,6 +51,14 @@ class Leveling(commands.Cog):
         self.generator = Generator()
         self.generator.default_bg = "charbot/media/pools/card.png"
         self.default_profile = "https://raw.githubusercontent.com/Bluesy1/CharB0T/main/charbot/media/pools/profile.png"
+
+    async def cog_load(self) -> None:
+        """Load the cog."""
+        self.off_cooldown = self.bot.holder.pop("off_xp_cooldown", {})
+
+    async def cog_unload(self) -> None:
+        """Unload the cog."""
+        self.bot.holder["off_xp_cooldown"] = self.off_cooldown
 
     @commands.Cog.listener()
     async def on_message(self, message: discord.Message):
@@ -107,26 +116,47 @@ class Leveling(commands.Cog):
                     await message.channel.send(
                         f"{message.author.mention} has done some time, and is now level **{new_level}**."
                     )
+                    if new_level == 1:
+                        await member.add_roles(discord.Object(969626979353632790), reason="Level 1")
+                    elif new_level == 5:
+                        await member.remove_roles(discord.Object(969626979353632790), reason="Level 5")
+                        await member.add_roles(discord.Object(969627321239760967), reason="Level 5")
+                    elif new_level == 10:
+                        await member.remove_roles(discord.Object(969627321239760967), reason="Level 10")
+                        await member.add_roles(discord.Object(969628342733119518), reason="Level 10")
+                    elif new_level == 20:
+                        await member.remove_roles(discord.Object(969628342733119518), reason="Level 20")
+                        await member.add_roles(discord.Object(969629632028614699), reason="Level 20")
+                    elif new_level == 25:
+                        await member.remove_roles(discord.Object(969629632028614699), reason="Level 25")
+                        await member.add_roles(discord.Object(969629628249563166), reason="Level 25")
+                    elif new_level == 30:
+                        await member.remove_roles(discord.Object(969629628249563166), reason="Level 30")
+                        await member.add_roles(discord.Object(969629622453039104), reason="Level 30")
                     return
 
     @app_commands.command(name="rank")
     @app_commands.guilds(225345178955808768)
-    async def rank_command(self, interaction: Interaction):
-        """Check your level and rank.
+    @app_commands.checks.cooldown(1, 3600, key=lambda interaction: interaction.user.id)
+    async def rank_command(self, interaction: Interaction, user: Optional[discord.Member] = None):
+        """Check your or someone's level and rank.
 
         Parameters
         ----------
         interaction : Interaction
             The interaction object.
+        user : Optional[discord.Member]
+            The user to check the level and rank of.
         """
         await interaction.response.defer(ephemeral=True)
         if interaction.guild is None:
             await interaction.followup.send("This Must be used in a guild")
             return
-        member = interaction.user
+        member = user or interaction.user
         assert isinstance(member, discord.Member)  # skipcq: BAN-B101
         async with self.bot.pool.acquire() as conn:
-            user = await conn.fetchrow("SELECT * FROM xp_users WHERE id = $1", interaction.user.id)
+            users = await conn.fetchrow("SELECT *, ROW_NUMBER() OVER(ORDER BY xp) AS rank FROM xp_users")
+            user: asyncpg.Record = list(filter(lambda x: x["id"] == member.id, users))[0]
         if user is None:
             await interaction.followup.send("🚫 You aren't ranked yet. Send some messages first, then try again.")
             return
@@ -137,6 +167,7 @@ class Leveling(commands.Cog):
             current_xp=user["detailed_xp"][2] - user["detailed_xp"][0],
             user_xp=user["xp"],
             next_xp=user["detailed_xp"][2] - user["detailed_xp"][0] + user["detailed_xp"][1],
+            user_position=user["rank"],
             user_name=f"{interaction.user.name}#{interaction.user.discriminator}",
             user_status=member.status.value if not isinstance(member.status, str) else "offline",
         )
