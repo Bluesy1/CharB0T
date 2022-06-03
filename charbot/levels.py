@@ -134,6 +134,12 @@ class Leveling(commands.Cog):
                         await member.remove_roles(discord.Object(969629628249563166), reason="Level 30")
                         await member.add_roles(discord.Object(969629622453039104), reason="Level 30")
                     return
+                await conn.execute(
+                    "UPDATE xp_users SET xp = xp + $1, detailed_xp = $2, messages = messages + 1 WHERE id = $3",
+                    gained,
+                    [user["detailed_xp"[0]] + gained, user["detailed_xp"][1], user["detailed_xp"][2] + gained],
+                    message.author.id,
+                )
 
     @app_commands.command(name="rank")
     @app_commands.guilds(225345178955808768)
