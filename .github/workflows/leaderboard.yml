@@ -28,9 +28,10 @@ jobs:
           PORT: ${{ secrets.PORT }}
         run: |
           python db_to_json.py
-          cmd="git diff --cached --quiet"
+          cmd="git diff --quiet"
           $cmd
           status=$?
+          echo $status
           if [ $status -eq 0 ]; then
           echo "No changes to commit"
           exit 0
