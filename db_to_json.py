@@ -19,11 +19,11 @@ def avatar(avatar_hash: str | None, user_id: int, discrim: int) -> str:
 try:
     with conn, conn.cursor() as cur:
         cur.execute("SELECT * FROM xp_users ORDER BY xp DESC")
-        environ["LEADERBOARD_JSON"] = json.dumps(
+        LEADERBOARD_JSON = json.dumps(
             [
                 {
                     "id": user[0],
-                    "name":user[1],
+                    "name": user[1],
                     "discrim": user[2],
                     "xp": user[3],
                     "detailed_xp": user[4],
@@ -36,4 +36,7 @@ try:
         )
 except Exception as e:
     with open("_data/users.json", "r") as f:
-        environ["LEADERBOARD_JSON"] = json.dumps(json.load(f))
+        LEADERBOARD_JSON = json.dumps(json.load(f))
+finally:
+    with open(getenv('GITHUB_ENV'), "a") as myfile:
+        myfile.write(f"LEADERBOARD_JSON={LEADERBOARD_JSON}")
