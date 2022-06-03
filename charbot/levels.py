@@ -85,10 +85,8 @@ class Leveling(commands.Cog):
         _token = os.getenv("GITHUB_TOKEN")
         assert isinstance(_token, str)  # skipcq: BAN-B101
         self.session = aiohttp.ClientSession(
-            headers={
-                "accept": "application/vnd.github.v3+json",
-                "Authorization": f"Bearer {_token}",
-            },
+            auth=aiohttp.BasicAuth(login="Bluesy1", password=_token),
+            headers={"accept": "application/vnd.github.v3+json"},
         )
         self._post_url = "https://api.github.com/repos/bluesy1/charb0t/actions/workflows/leaderboard.yml/dispatches"
 
@@ -105,9 +103,8 @@ class Leveling(commands.Cog):
     @tasks.loop(time=[datetime.time(i) for i in range(0, 24)])
     async def update_pages(self) -> None:
         """Update the page."""
-        async with self.session.post(self._post_url, data={"ref": "gh-pages"}) as resp:
+        async with self.session.post(self._post_url, json={"ref": "gh-pages"}) as resp:
             print(resp.request_info)
-            resp.text()
 
     @commands.Cog.listener()
     async def on_message(self, message: discord.Message):
