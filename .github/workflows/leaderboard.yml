@@ -28,4 +28,5 @@ jobs:
           python db_to_json.py
       - name: Update json file
         run: |
-          ./rename_json.sh
+          sudo -s
+          echo ${{ env.LEADERBOARD_JSON }} | ./_data/users.json
