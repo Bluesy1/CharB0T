@@ -84,7 +84,9 @@ class Leveling(commands.Cog):
         self.default_profile = "https://raw.githubusercontent.com/Bluesy1/CharB0T/main/charbot/media/pools/profile.png"
         _token = os.getenv("GITHUB_TOKEN")
         assert isinstance(_token, str)  # skipcq: BAN-B101
-        self.session = aiohttp.ClientSession(auth=aiohttp.BasicAuth("Bluesy1", _token), headers={"ref": "gh-pages"})
+        self.session = aiohttp.ClientSession(
+            auth=aiohttp.BasicAuth("Bluesy1", _token), headers={"accept": "application/vnd.github.v3+json"}
+        )
         self._post_url = "https://api.github.com/repos/bluesy1/charb0t/actions/workflows/leaderboard.yml/dispatches"
 
     async def cog_load(self) -> None:
@@ -100,7 +102,7 @@ class Leveling(commands.Cog):
     @tasks.loop(time=[datetime.time(i) for i in range(0, 24)])
     async def update_pages(self) -> None:
         """Update the page."""
-        async with self.session.post(self._post_url) as resp:
+        async with self.session.post(self._post_url, data={"ref": "gh-pages"}) as resp:
             print(resp.status)
 
     @commands.Cog.listener()
