@@ -3,14 +3,14 @@
         "id": 363095569515806722,
         "name": "Bluesy",
         "discriminator": "8150",
-        "xp": 49713,
+        "xp": 49871,
         "detailed_xp": [
-            3238,
+            3396,
             4780,
-            49713
+            49871
         ],
         "level": 26,
-        "messages": 3381,
+        "messages": 3392,
         "avatar": "https://cdn.discordapp.com/avatars/363095569515806722/ccf12c126a6827a5b07a4e579a52b043.png",
         "gang": null,
         "prestige": 0,
@@ -241,14 +241,14 @@
         "id": 725373259817811988,
         "name": "General_WCJ",
         "discriminator": "4528",
-        "xp": 6690,
+        "xp": 6726,
         "detailed_xp": [
-            915,
+            951,
             1255,
-            6690
+            6726
         ],
         "level": 11,
-        "messages": 456,
+        "messages": 459,
         "avatar": "https://cdn.discordapp.com/avatars/725373259817811988/546e55f0087341def7d2533f7738b5e3.png",
         "gang": null,
         "prestige": 0,
@@ -309,14 +309,14 @@
         "id": 244529987510599680,
         "name": "Petrat852",
         "discriminator": "7958",
-        "xp": 4619,
+        "xp": 4637,
         "detailed_xp": [
-            899,
+            917,
             955,
-            4619
+            4637
         ],
         "level": 9,
-        "messages": 315,
+        "messages": 316,
         "avatar": "https://cdn.discordapp.com/avatars/244529987510599680/803f09d621468a326fc9f8ff25225579.png",
         "gang": null,
         "prestige": 0,
@@ -479,14 +479,14 @@
         "id": 925449738705338368,
         "name": "MarsOmega77",
         "discriminator": "8763",
-        "xp": 2501,
+        "xp": 2519,
         "detailed_xp": [
-            296,
+            314,
             695,
-            2501
+            2519
         ],
         "level": 7,
-        "messages": 175,
+        "messages": 176,
         "avatar": "https://cdn.discordapp.com/avatars/925449738705338368/4155be38f3591a54d5b63451109f3c9e.png",
         "gang": null,
         "prestige": 0,
@@ -1445,18 +1445,18 @@
         "rank": 85
     },
     {
-        "id": 791742375117455381,
-        "name": "Magpie",
-        "discriminator": "5751",
-        "xp": 119,
+        "id": 104871281488363520,
+        "name": "JooGoo",
+        "discriminator": "0001",
+        "xp": 125,
         "detailed_xp": [
-            19,
+            25,
             155,
-            119
+            125
         ],
         "level": 1,
-        "messages": 8,
-        "avatar": "https://cdn.discordapp.com/avatars/791742375117455381/1bde9e89e74cfedbb72e489e55d4bfd8.png",
+        "messages": 9,
+        "avatar": "https://cdn.discordapp.com/avatars/104871281488363520/a_48fbc98402319452b59b2a5b6f181a36.png",
         "gang": null,
         "prestige": 0,
         "rank": 86
@@ -1479,6 +1479,23 @@
         "rank": 87
     },
     {
+        "id": 791742375117455381,
+        "name": "Magpie",
+        "discriminator": "5751",
+        "xp": 119,
+        "detailed_xp": [
+            19,
+            155,
+            119
+        ],
+        "level": 1,
+        "messages": 8,
+        "avatar": "https://cdn.discordapp.com/avatars/791742375117455381/1bde9e89e74cfedbb72e489e55d4bfd8.png",
+        "gang": null,
+        "prestige": 0,
+        "rank": 88
+    },
+    {
         "id": 728234986628710570,
         "name": "shadow23",
         "discriminator": "5491",
@@ -1493,7 +1510,7 @@
         "avatar": "https://cdn.discordapp.com/embed/avatars/1.png",
         "gang": null,
         "prestige": 0,
-        "rank": 88
+        "rank": 89
     },
     {
         "id": 975141549149139054,
@@ -1510,7 +1527,7 @@
         "avatar": "https://cdn.discordapp.com/embed/avatars/1.png",
         "gang": null,
         "prestige": 0,
-        "rank": 89
+        "rank": 90
     },
     {
         "id": 431945207437721600,
@@ -1527,7 +1544,7 @@
         "avatar": "https://cdn.discordapp.com/avatars/431945207437721600/e2b98d1e2df848a852e664d59148e356.png",
         "gang": null,
         "prestige": 0,
-        "rank": 90
+        "rank": 91
     },
     {
         "id": 981669362857549824,
@@ -1544,7 +1561,7 @@
         "avatar": "https://cdn.discordapp.com/avatars/981669362857549824/1d9167b46db32fd11165c3951979da3f.png",
         "gang": null,
         "prestige": 0,
-        "rank": 91
+        "rank": 92
     },
     {
         "id": 775855346069274644,
@@ -1561,7 +1578,7 @@
         "avatar": "https://cdn.discordapp.com/avatars/775855346069274644/2e2b4924db51fb502607348760f31840.png",
         "gang": null,
         "prestige": 0,
-        "rank": 92
+        "rank": 93
     },
     {
         "id": 834748126505467935,
@@ -1578,7 +1595,7 @@
         "avatar": "https://cdn.discordapp.com/avatars/834748126505467935/a_63a96b9ea74d7c3c8ca6b74da8e91542.png",
         "gang": null,
         "prestige": 0,
-        "rank": 93
+        "rank": 94
     },
     {
         "id": 689740845657751555,
@@ -1595,7 +1612,7 @@
         "avatar": "https://cdn.discordapp.com/avatars/689740845657751555/7746d27b4947a71b2a2727989aab3297.png",
         "gang": null,
         "prestige": 0,
-        "rank": 94
+        "rank": 95
     },
     {
         "id": 754318396543336478,
@@ -1612,7 +1629,7 @@
         "avatar": "https://cdn.discordapp.com/embed/avatars/1.png",
         "gang": null,
         "prestige": 0,
-        "rank": 95
+        "rank": 96
     },
     {
         "id": 726744245729230910,
@@ -1629,7 +1646,7 @@
         "avatar": "https://cdn.discordapp.com/avatars/726744245729230910/ad7eedd301ec7b538985504f98fdfb1c.png",
         "gang": null,
         "prestige": 0,
-        "rank": 96
+        "rank": 97
     },
     {
         "id": 143436508853043201,
@@ -1646,7 +1663,7 @@
         "avatar": "https://cdn.discordapp.com/avatars/143436508853043201/ac692cdee7dca3a24a2dff246414174d.png",
         "gang": null,
         "prestige": 0,
-        "rank": 97
+        "rank": 98
     },
     {
         "id": 586092537438273546,
@@ -1663,7 +1680,7 @@
         "avatar": "https://cdn.discordapp.com/avatars/586092537438273546/4ebc229f919c76eeebb6e5ded3616e78.png",
         "gang": null,
         "prestige": 0,
-        "rank": 98
+        "rank": 99
     },
     {
         "id": 246394449309990914,
@@ -1680,7 +1697,7 @@
         "avatar": "https://cdn.discordapp.com/avatars/246394449309990914/10ccff5e7857473e30d372470a087e83.png",
         "gang": null,
         "prestige": 0,
-        "rank": 99
+        "rank": 100
     },
     {
         "id": 707969675027284069,
@@ -1697,7 +1714,7 @@
         "avatar": "https://cdn.discordapp.com/avatars/707969675027284069/6a89ca222a7083271ab9801bae84d560.png",
         "gang": null,
         "prestige": 0,
-        "rank": 100
+        "rank": 101
     },
     {
         "id": 346324078740635650,
@@ -1714,7 +1731,7 @@
         "avatar": "https://cdn.discordapp.com/avatars/346324078740635650/c97f46a9590da9992483f66cb8f39b00.png",
         "gang": null,
         "prestige": 0,
-        "rank": 101
+        "rank": 102
     },
     {
         "id": 160171748195696640,
@@ -1731,7 +1748,7 @@
         "avatar": "https://cdn.discordapp.com/avatars/160171748195696640/2cd8df62fe77d80ca78703e2687d20bd.png",
         "gang": null,
         "prestige": 0,
-        "rank": 102
+        "rank": 103
     },
     {
         "id": 764163552478888017,
@@ -1748,7 +1765,7 @@
         "avatar": "https://cdn.discordapp.com/avatars/764163552478888017/9b31085c1d7a2deab8f96541f57f9d45.png",
         "gang": null,
         "prestige": 0,
-        "rank": 103
+        "rank": 104
     },
     {
         "id": 274971044979408907,
@@ -1763,23 +1780,6 @@
         "level": 0,
         "messages": 4,
         "avatar": "https://cdn.discordapp.com/avatars/274971044979408907/f418a85cee1c6dedbe50a773b5aeb7d2.png",
-        "gang": null,
-        "prestige": 0,
-        "rank": 104
-    },
-    {
-        "id": 104871281488363520,
-        "name": "JooGoo",
-        "discriminator": "0001",
-        "xp": 62,
-        "detailed_xp": [
-            62,
-            100,
-            62
-        ],
-        "level": 0,
-        "messages": 4,
-        "avatar": "https://cdn.discordapp.com/avatars/104871281488363520/a_48fbc98402319452b59b2a5b6f181a36.png",
         "gang": null,
         "prestige": 0,
         "rank": 105
