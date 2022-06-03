@@ -23,7 +23,7 @@ with conn, conn.cursor() as cur:
             [
                 {
                     "id": user[0],
-                    "name": user[1],
+                    "name": str(user[1]).encode("ascii", "ignore").decode(),
                     "discriminator": user[2],
                     "xp": user[3],
                     "detailed_xp": user[4],
