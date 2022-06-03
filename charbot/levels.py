@@ -148,7 +148,7 @@ class Leveling(commands.Cog):
                         message.author.avatar.key if message.author.avatar else None,
                     )
                     return
-                if gained + user["detailed_xp"][0] >= self._xp_function(user["level"][1]):
+                if gained + user["detailed_xp"][0] >= self._xp_function(user["level"]):
                     new_level = user["level"] + 1
                     new_detailed = [0, self._xp_function(new_level), user["xp"] + gained]
                     new_xp = new_detailed[2]
