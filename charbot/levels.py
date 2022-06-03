@@ -93,6 +93,7 @@ class Leveling(commands.Cog):
     async def cog_load(self) -> None:
         """Load the cog."""
         self.off_cooldown = self.bot.holder.pop("off_xp_cooldown", {})
+
         self.update_pages.start()
 
     async def cog_unload(self) -> None:
@@ -104,7 +105,7 @@ class Leveling(commands.Cog):
     async def update_pages(self) -> None:
         """Update the page."""
         async with self.session.post(self._post_url, json={"ref": "gh-pages"}) as resp:
-            print(resp.request_info)
+            print(resp)
 
     @commands.Cog.listener()
     async def on_message(self, message: discord.Message):
