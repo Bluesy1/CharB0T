@@ -137,7 +137,7 @@ class Leveling(commands.Cog):
                 await conn.execute(
                     "UPDATE xp_users SET xp = xp + $1, detailed_xp = $2, messages = messages + 1 WHERE id = $3",
                     gained,
-                    [user["detailed_xp"[0]] + gained, user["detailed_xp"][1], user["detailed_xp"][2] + gained],
+                    [user["detailed_xp"][0] + gained, user["detailed_xp"][1], user["detailed_xp"][2] + gained],
                     message.author.id,
                 )
 
