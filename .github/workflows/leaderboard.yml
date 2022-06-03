@@ -27,7 +27,5 @@ jobs:
         run: |
           python db_to_json.py
       - name: Update json file
-        uses: devops-actions/json-to-file@v1.0.0
-        with:
-          json: "${{ env.LEADERBOARD_JSON }}"
-          filename: './_data/users.json'
+        run: |
+          echo '${{ env.LEADERBOARD_JSON }}' | ./_data/users.json
