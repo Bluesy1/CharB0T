@@ -761,10 +761,10 @@ class ReputationAdmin(
             if noxp is None:
                 await interaction.followup.send("No xp is currently banned.")
             else:
+                guild = interaction.guild
+                assert isinstance(guild, discord.Guild)  # skipcq: BAN-B101
                 embed = discord.Embed(title="Noxp", description="", timestamp=utcnow())
-                embed.set_author(
-                    name=interaction.guild.name, icon_url=interaction.guild.icon.url if interaction.guild.icon else None
-                )
+                embed.set_author(name=guild.name, icon_url=guild.icon.url if guild.icon else None)
                 embed.set_footer(
                     text=f"Requested by {interaction.user.name}",
                     icon_url=interaction.user.avatar.url
