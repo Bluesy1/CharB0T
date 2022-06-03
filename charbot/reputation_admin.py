@@ -771,8 +771,8 @@ class ReputationAdmin(
                     if interaction.user.avatar
                     else interaction.user.default_avatar.url,
                 )
-                embed.add_field(name="Channels", value=", ".join(f"<#{c}>" for c in noxp["channels"]))
-                embed.add_field(name="Roles", value=", ".join(f"<@&{r}>" for r in noxp["roles"]))
+                embed.add_field(name="Channels", value=", ".join(f"<#{c}>" for c in noxp["channels"]), inline=False)
+                embed.add_field(name="Roles", value=", ".join(f"<@&{r}>" for r in noxp["roles"]), inline=False)
                 await interaction.followup.send(embed=embed)
 
 
