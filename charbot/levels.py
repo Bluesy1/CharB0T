@@ -155,8 +155,8 @@ class Leveling(commands.Cog):
         member = user or interaction.user
         assert isinstance(member, discord.Member)  # skipcq: BAN-B101
         async with self.bot.pool.acquire() as conn:
-            users = await conn.fetchrow("SELECT *, ROW_NUMBER() OVER(ORDER BY xp) AS rank FROM xp_users")
-            user: asyncpg.Record = [user for user in users if user["id"] == member.id][0]
+            users = await conn.fetch("SELECT *, ROW_NUMBER() OVER(ORDER BY xp) AS rank FROM xp_users")
+            user: asyncpg.Record = list(filter(lambda x: x["id"] == member.id, users))[0]
         if user is None:
             await interaction.followup.send("🚫 You aren't ranked yet. Send some messages first, then try again.")
             return
