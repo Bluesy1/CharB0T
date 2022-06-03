@@ -28,17 +28,8 @@ jobs:
           PORT: ${{ secrets.PORT }}
         run: |
           python db_to_json.py
-          cmd="git diff --quiet"
-          $cmd
-          status=$?
-          echo $status
-          if [ $status -eq 0 ]; then
-          echo "No changes to commit"
-          exit 0
-          else
           git config user.name "GitHub Actions Bot"
           git config user.email "<>"
           git add .
           git commit -m "Update leaderboard"
           git push origin gh-pages
-          fi
