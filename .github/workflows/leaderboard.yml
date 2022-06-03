@@ -26,9 +26,9 @@ jobs:
           PORT: ${{ secrets.PORT }}
         run: |
           python db_to_json.py
-          echo ${{ env.LEADERBOARD_JSON }}
+          echo "${{ env.LEADERBOARD_JSON }}"
       - name: Update json file
         uses: devops-actions/json-to-file@v1.0.0
         with:
-          json: ${{ env.LEADERBOARD_JSON }}
+          json: "${{ env.LEADERBOARD_JSON }}"
           filename: './_data/users.json'
