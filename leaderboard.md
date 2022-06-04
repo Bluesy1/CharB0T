@@ -86,31 +86,3 @@ layout: default
 </tr>
 {% endfor %}
 </table>
-<style> 
-/* For Firefox */
-progress::-moz-progress-bar {
-    background: orange;
-}
-
-/* For Chrome or Safari */
-progress::-webkit-progress-value {
-    background: orange;
-}
-
-/* For IE10 */
-progress {
-    background: orange;
-}
-
-/*General styling*/
-progress {
-  color: #0063a6;
-  font-size: .6em;
-  line-height: 1.5em;
-  text-indent: .5em;
-  width: 15em;
-  height: 1.8em;
-  border: 1px solid #dddddd;
-  background: #fff;
-}
-</style>
