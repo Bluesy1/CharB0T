@@ -3,7 +3,6 @@ title: Leaderboard
 layout: default
 ---
 
-
 <h1 style="text-align: center">Charlie's Leaderboard</h1>
 
 <table>
@@ -11,7 +10,7 @@ layout: default
 <th>Level 1</th>
 <th>Level 5</th>
 <th>Level 10</th>
-<th>Level 15</th>
+<th>Level 20</th>
 <th>Level 25</th>
 <th>Level 30</th>
 </tr>
@@ -37,7 +36,15 @@ layout: default
 	</tr>
 {% for user in site.data.users | sort: "rank" %}
 <tr>
+{% if user.rank == 1 %}
+<td style="color: #DA9E3BFF"><b>{{ user.rank }}</b></td>
+{% elsif user.rank == 2 %}
+<td style="color: #989898FF"><b>{{ user.rank }}</b></td>
+{% elsif user.rank == 3 %}
+<td style="color: #AE7441FF"><b>{{ user.rank }}</b></td>
+{% else %}
 <td><b>{{ user.rank }} </b></td>
+{% endif %}
 <td>
 {% case {{user.gang}} %}
 {% when "green" %}
@@ -74,8 +81,36 @@ layout: default
 <td>{{ user.xp }}</td>
 <td>
 	{{ user.level }}
-	<progress value="{{ user.detailed_xp[0] }}" max="{{ user.xp }}"></progress>
+	<progress value="{{ user.detailed_xp[0] }}" max="{{ user.detailed_xp[1] }}"></progress>
 </td>
 </tr>
 {% endfor %}
 </table>
+<style> 
+/* For Firefox */
+progress::-moz-progress-bar {
+    background: orange;
+}
+
+/* For Chrome or Safari */
+progress::-webkit-progress-value {
+    background: orange;
+}
+
+/* For IE10 */
+progress {
+    background: orange;
+}
+
+/*General styling*/
+progress {
+  color: #0063a6;
+  font-size: .6em;
+  line-height: 1.5em;
+  text-indent: .5em;
+  width: 15em;
+  height: 1.8em;
+  border: 1px solid #dddddd;
+  background: #fff;
+}
+</style>
