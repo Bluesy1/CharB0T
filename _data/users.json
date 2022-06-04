@@ -258,14 +258,14 @@
         "id": 718188351508971542,
         "name": "StealthHydrac",
         "discriminator": "8476",
-        "xp": 5532,
+        "xp": 5548,
         "detailed_xp": [
-            857,
+            873,
             1100,
-            5532
+            5548
         ],
         "level": 10,
-        "messages": 377,
+        "messages": 378,
         "avatar": "https://cdn.discordapp.com/avatars/718188351508971542/4d61f718cb0602a9fa2121459306be1e.png",
         "gang": null,
         "prestige": 0,
@@ -411,14 +411,14 @@
         "id": 138380316095021056,
         "name": "krios41",
         "discriminator": "1947",
-        "xp": 2914,
+        "xp": 2928,
         "detailed_xp": [
-            14,
+            28,
             820,
-            2914
+            2928
         ],
         "level": 8,
-        "messages": 202,
+        "messages": 203,
         "avatar": "https://cdn.discordapp.com/avatars/138380316095021056/f912ef80e2616dbb2221fcb2dbd09ab9.png",
         "gang": null,
         "prestige": 0,
