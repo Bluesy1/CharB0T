@@ -89,6 +89,7 @@ class Leveling(commands.Cog):
             headers={"accept": "application/vnd.github.v3+json"},
         )
         self._post_url = "https://api.github.com/repos/bluesy1/charb0t/actions/workflows/leaderboard.yml/dispatches"
+        self._upload: bool = False
 
     async def cog_load(self) -> None:
         """Load the cog."""
@@ -104,8 +105,10 @@ class Leveling(commands.Cog):
     @tasks.loop(time=[datetime.time(i) for i in range(0, 24)])
     async def update_pages(self) -> None:
         """Update the page."""
-        async with self.session.post(self._post_url, json={"ref": "gh-pages"}) as resp:
-            print(resp)
+        if self._upload:
+            async with self.session.post(self._post_url, json={"ref": "gh-pages"}) as resp:
+                print(resp)
+        self._upload = False
 
     @commands.Cog.listener()
     async def on_message(self, message: discord.Message):
@@ -132,6 +135,7 @@ class Leveling(commands.Cog):
                 return
             last_time = self.off_cooldown.get(message.author.id)
             if last_time is None or last_time < utcnow():
+                self._upload = True
                 self.off_cooldown[message.author.id] = utcnow() + datetime.timedelta(minutes=1)
                 user = await conn.fetchrow("SELECT * FROM xp_users WHERE id = $1", message.author.id)
                 gained = random.randint(self._min_xp, self._max_xp)
@@ -153,11 +157,12 @@ class Leveling(commands.Cog):
                     new_detailed = [0, self._xp_function(new_level), user["xp"] + gained]
                     new_xp = new_detailed[2]
                     await conn.execute(
-                        "UPDATE xp_users SET level = $1, detailed_xp = $2, xp = $3, messages = messages + 1 WHERE"
-                        " id = $4",
+                        "UPDATE xp_users SET level = $1, detailed_xp = $2, xp = $3, messages = messages + 1,"
+                        " avatar = $4 WHERE id = $5",
                         new_level,
                         new_detailed,
                         new_xp,
+                        message.author.avatar.key if message.author.avatar else None,
                         message.author.id,
                     )
                     await message.channel.send(
@@ -166,9 +171,11 @@ class Leveling(commands.Cog):
                     await update_level_roles(member, new_level)
                     return
                 await conn.execute(
-                    "UPDATE xp_users SET xp = xp + $1, detailed_xp = $2, messages = messages + 1 WHERE id = $3",
+                    "UPDATE xp_users SET xp = xp + $1, detailed_xp = $2, messages = messages + 1, avatar = $3"
+                    " WHERE id = $4",
                     gained,
                     [user["detailed_xp"][0] + gained, user["detailed_xp"][1], user["detailed_xp"][2] + gained],
+                    message.author.avatar.key if message.author.avatar else None,
                     message.author.id,
                 )
 
