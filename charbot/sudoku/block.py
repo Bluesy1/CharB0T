@@ -35,11 +35,6 @@ class Block:
     cells : list[Cell]
         The cells in the block.
 
-    Attributes
-    ----------
-    cells : list[Cell]
-    solved : bool
-
     Methods
     -------
     clear()

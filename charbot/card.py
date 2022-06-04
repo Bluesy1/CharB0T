@@ -119,23 +119,23 @@ def generate_card(
     font_signa = ImageFont.truetype(font2, 25)  # noqa: F841
 
     # ======== Colors ========================
-    WHITE = (255, 255, 255)
-    DARK = (252, 179, 63)
+    white = (255, 255, 255)
+    dark = (252, 179, 63)
     # noinspection PyUnusedLocal
-    YELLOW = (255, 234, 167)  # noqa: F841
+    yellow = (255, 234, 167)  # noqa: F841
 
     get_str = (
         lambda xp: str(xp) if xp < 1000 else f"{xp / 1000:.1f}k" if xp < 1000000 else f"{xp / 1000000:.1f}M"
     )  # noqa: F731
 
     draw = ImageDraw.Draw(card)
-    draw.text((245, 22), pool_name, WHITE, font=font_normal)
-    draw.text((245, 98), f"Pool Level {level}", WHITE, font=font_small)
-    draw.text((245, 123), reward, WHITE, font=font_small)
+    draw.text((245, 22), pool_name, white, font=font_normal)
+    draw.text((245, 98), f"Pool Level {level}", white, font=font_small)
+    draw.text((245, 123), reward, white, font=font_small)
     draw.text(
         (245, 150),
         f"Rep {get_str(current_rep)}/{get_str(completed_rep)}",
-        WHITE,
+        white,
         font=font_small,
     )
 
@@ -143,7 +143,7 @@ def generate_card(
     # Because drawing on card doesn't make their background transparent
     blank = Image.new("RGBA", card.size, (255, 255, 255, 0))
     blank_draw = ImageDraw.Draw(blank)
-    blank_draw.rectangle((245, 185, 750, 205), fill=(255, 255, 255, 0), outline=DARK)
+    blank_draw.rectangle((245, 185, 750, 205), fill=(255, 255, 255, 0), outline=dark)
 
     xpneed = completed_rep - base_rep
     xphave = current_rep - base_rep
@@ -163,7 +163,7 @@ def generate_card(
     status = status.convert("RGBA").resize((40, 40))
     length_of_bar = (current_percentage * 4.9) + 248
 
-    blank_draw.rectangle((248, 188, length_of_bar, 202), fill=DARK)
+    blank_draw.rectangle((248, 188, length_of_bar, 202), fill=dark)
     # blank_draw.ellipse((20, 20, 218, 218), fill=(255, 255, 255, 0), outline=DARK)  # skipcq: PY-W0069
 
     profile_pic_holder.paste(profile, (29, 29, 209, 209), profile)
