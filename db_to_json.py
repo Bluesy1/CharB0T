@@ -15,6 +15,13 @@ def avatar(avatar_hash: str | None, user_id: int, discriminator: int) -> str:
         return f"https://cdn.discordapp.com/embed/avatars/{discriminator % 5}.png"
     return f"https://cdn.discordapp.com/avatars/{user_id}/{avatar_hash}.png"
 
+def get_str(xp):
+    if xp < 1000:
+        return str(xp)
+    if xp >= 1000 and xp < 1000000:
+        return str(round(xp / 1000, 1)) + "k"
+    if xp > 1000000:
+        return str(round(xp / 1000000, 1)) + "M"
 
 with conn, conn.cursor() as cur:
     cur.execute("SELECT *, ROW_NUMBER() OVER(ORDER BY xp DESC) FROM xp_users ORDER BY xp DESC")
@@ -25,7 +32,7 @@ with conn, conn.cursor() as cur:
                     "id": user[0],
                     "name": str(user[1]).encode("utf-8", "ignore").decode("utf-8", "ignore"),
                     "discriminator": user[2],
-                    "xp": user[3],
+                    "xp": get_str(int(user[3])),
                     "detailed_xp": user[4],
                     "level": user[5],
                     "messages": user[6],

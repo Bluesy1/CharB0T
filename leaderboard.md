@@ -35,7 +35,7 @@ layout: default
 		<th>Experience</th>
 		<th style="text-align: center">Level</th>
 	</tr>
-{% for user in site.data.users %}
+{% for user in site.data.users | sort: "rank" %}
 <tr>
 <td><b>{{ user.rank }} </b></td>
 <td>
