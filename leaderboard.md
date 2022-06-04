@@ -74,7 +74,7 @@ layout: default
 <td>{{ user.xp }}</td>
 <td>
 	{{ user.level }}
-	<progress value="{{ user.detailed_xp[0] }}" max="{{ user.detailed_xp[1] }}"></progress>
+	<progress value="{{ user.detailed_xp[0] }}" max="{{ user.xp }}"></progress>
 </td>
 </tr>
 {% endfor %}
