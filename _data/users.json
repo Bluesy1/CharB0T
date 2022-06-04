@@ -20,14 +20,14 @@
         "id": 465356664657149952,
         "name": "Mordakai Slivermoon",
         "discriminator": "7762",
-        "xp": 26756,
+        "xp": 26773,
         "detailed_xp": [
-            2906,
+            2923,
             3100,
-            26756
+            26773
         ],
         "level": 20,
-        "messages": 1832,
+        "messages": 1833,
         "avatar": "https://cdn.discordapp.com/avatars/465356664657149952/69046661ae37d5aeacd06e8670bd2cd1.png",
         "gang": null,
         "prestige": 0,
@@ -241,14 +241,14 @@
         "id": 725373259817811988,
         "name": "General_WCJ",
         "discriminator": "4528",
-        "xp": 6779,
+        "xp": 6807,
         "detailed_xp": [
-            1004,
+            1032,
             1255,
-            6779
+            6807
         ],
         "level": 11,
-        "messages": 463,
+        "messages": 465,
         "avatar": "https://cdn.discordapp.com/avatars/725373259817811988/546e55f0087341def7d2533f7738b5e3.png",
         "gang": null,
         "prestige": 0,
