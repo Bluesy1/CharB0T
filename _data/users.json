@@ -37,14 +37,14 @@
         "id": 434764784353804305,
         "name": "Caspar",
         "discriminator": "8014",
-        "xp": 22649,
+        "xp": 22660,
         "detailed_xp": [
-            1654,
+            1665,
             2855,
-            22649
+            22660
         ],
         "level": 19,
-        "messages": 1547,
+        "messages": 1548,
         "avatar": "https://cdn.discordapp.com/avatars/434764784353804305/079e9acbab412d57da60f98460454d62.png",
         "gang": null,
         "prestige": 0,
