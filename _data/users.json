@@ -634,12 +634,12 @@
         "discriminator": "2725",
         "xp": "1.5k",
         "detailed_xp": [
-            309,
+            321,
             475,
-            1487
+            1499
         ],
         "level": 5,
-        "messages": 102,
+        "messages": 103,
         "avatar": "https://cdn.discordapp.com/avatars/980079182912561212/9e6bfe52f1e097b1f193ca347be3b68d.png",
         "gang": null,
         "prestige": 0,
