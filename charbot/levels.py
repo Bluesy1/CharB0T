@@ -181,7 +181,7 @@ class Leveling(commands.Cog):
 
     @commands.Cog.listener()
     async def on_member_join(self, member: discord.Member) -> None:
-        """CHeck if they are rejoining and should get a rank role back.
+        """Check if they are rejoining and should get a rank role back.
 
         Parameters
         ----------
