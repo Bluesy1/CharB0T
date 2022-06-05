@@ -37,14 +37,14 @@
         "id": 434764784353804305,
         "name": "Caspar",
         "discriminator": "8014",
-        "xp": "23.3k",
+        "xp": "23.4k",
         "detailed_xp": [
-            2350,
+            2378,
             2855,
-            23345
+            23373
         ],
         "level": 19,
-        "messages": 1596,
+        "messages": 1598,
         "avatar": "https://cdn.discordapp.com/avatars/434764784353804305/079e9acbab412d57da60f98460454d62.png",
         "gang": null,
         "prestige": 0,
@@ -173,14 +173,14 @@
         "id": 389137667926786060,
         "name": "coolmanfight",
         "discriminator": "1179",
-        "xp": "9.3k",
+        "xp": "9.4k",
         "detailed_xp": [
-            900,
+            916,
             1595,
-            9350
+            9366
         ],
         "level": 13,
-        "messages": 640,
+        "messages": 641,
         "avatar": "https://cdn.discordapp.com/avatars/389137667926786060/a0938cefc089461da843738b184389f5.png",
         "gang": null,
         "prestige": 0,
@@ -391,6 +391,23 @@
         "rank": 23
     },
     {
+        "id": 138380316095021056,
+        "name": "krios41",
+        "discriminator": "1947",
+        "xp": "3.0k",
+        "detailed_xp": [
+            73,
+            820,
+            2973
+        ],
+        "level": 8,
+        "messages": 206,
+        "avatar": "https://cdn.discordapp.com/avatars/138380316095021056/f912ef80e2616dbb2221fcb2dbd09ab9.png",
+        "gang": null,
+        "prestige": 0,
+        "rank": 24
+    },
+    {
         "id": 492512818948603904,
         "name": "Sentient Floating Orb",
         "discriminator": "6856",
@@ -403,23 +420,6 @@
         "level": 8,
         "messages": 203,
         "avatar": "https://cdn.discordapp.com/avatars/492512818948603904/239b001a472c3d8a465acb3e9d5be235.png",
-        "gang": null,
-        "prestige": 0,
-        "rank": 24
-    },
-    {
-        "id": 138380316095021056,
-        "name": "krios41",
-        "discriminator": "1947",
-        "xp": "2.9k",
-        "detailed_xp": [
-            43,
-            820,
-            2943
-        ],
-        "level": 8,
-        "messages": 204,
-        "avatar": "https://cdn.discordapp.com/avatars/138380316095021056/f912ef80e2616dbb2221fcb2dbd09ab9.png",
         "gang": null,
         "prestige": 0,
         "rank": 25
