@@ -73,12 +73,12 @@
         "discriminator": "6862",
         "xp": "17.0k",
         "detailed_xp": [
-            973,
+            1002,
             2395,
-            16953
+            16982
         ],
         "level": 17,
-        "messages": 1159,
+        "messages": 1161,
         "avatar": "https://cdn.discordapp.com/avatars/470021089104494598/609eb666ab567abadd68dcfc4d7c042c.png",
         "gang": null,
         "prestige": 0,
@@ -192,12 +192,12 @@
         "discriminator": "5792",
         "xp": "8.1k",
         "detailed_xp": [
-            1070,
+            1085,
             1420,
-            8100
+            8115
         ],
         "level": 12,
-        "messages": 554,
+        "messages": 555,
         "avatar": "https://cdn.discordapp.com/avatars/254272745779494922/104c411ce5b4accfc2095084e3dded32.png",
         "gang": null,
         "prestige": 0,
@@ -663,6 +663,23 @@
         "rank": 39
     },
     {
+        "id": 980079182912561212,
+        "name": "Tsamoka",
+        "discriminator": "2725",
+        "xp": "1.4k",
+        "detailed_xp": [
+            195,
+            475,
+            1373
+        ],
+        "level": 5,
+        "messages": 95,
+        "avatar": "https://cdn.discordapp.com/avatars/980079182912561212/9e6bfe52f1e097b1f193ca347be3b68d.png",
+        "gang": null,
+        "prestige": 0,
+        "rank": 40
+    },
+    {
         "id": 341928732602269698,
         "name": "Crazykid080",
         "discriminator": "0080",
@@ -677,7 +694,7 @@
         "avatar": "https://cdn.discordapp.com/avatars/341928732602269698/a1fd7180e38d5812b9cc12fcd200bf88.png",
         "gang": null,
         "prestige": 0,
-        "rank": 40
+        "rank": 41
     },
     {
         "id": 861568433370955816,
@@ -692,23 +709,6 @@
         "level": 5,
         "messages": 93,
         "avatar": "https://cdn.discordapp.com/avatars/861568433370955816/0e281a0de725326177270201e7d536e7.png",
-        "gang": null,
-        "prestige": 0,
-        "rank": 41
-    },
-    {
-        "id": 980079182912561212,
-        "name": "Tsamoka",
-        "discriminator": "2725",
-        "xp": "1.3k",
-        "detailed_xp": [
-            155,
-            475,
-            1333
-        ],
-        "level": 5,
-        "messages": 92,
-        "avatar": "https://cdn.discordapp.com/avatars/980079182912561212/9e6bfe52f1e097b1f193ca347be3b68d.png",
         "gang": null,
         "prestige": 0,
         "rank": 42
