@@ -275,14 +275,14 @@
         "id": 244529987510599680,
         "name": "Petrat852",
         "discriminator": "7958",
-        "xp": "5.7k",
+        "xp": "5.8k",
         "detailed_xp": [
-            1054,
+            1069,
             1100,
-            5735
+            5750
         ],
         "level": 10,
-        "messages": 394,
+        "messages": 395,
         "avatar": "https://cdn.discordapp.com/avatars/244529987510599680/803f09d621468a326fc9f8ff25225579.png",
         "gang": null,
         "prestige": 0,
@@ -629,6 +629,23 @@
         "rank": 37
     },
     {
+        "id": 980079182912561212,
+        "name": "Tsamoka",
+        "discriminator": "2725",
+        "xp": "1.5k",
+        "detailed_xp": [
+            309,
+            475,
+            1487
+        ],
+        "level": 5,
+        "messages": 102,
+        "avatar": "https://cdn.discordapp.com/avatars/980079182912561212/9e6bfe52f1e097b1f193ca347be3b68d.png",
+        "gang": null,
+        "prestige": 0,
+        "rank": 38
+    },
+    {
         "id": 272563498251321344,
         "name": "iiPartyKing",
         "discriminator": "0647",
@@ -643,7 +660,7 @@
         "avatar": "https://cdn.discordapp.com/avatars/272563498251321344/bdb2b85eff2a0ffca1d138056e3ff695.png",
         "gang": null,
         "prestige": 0,
-        "rank": 38
+        "rank": 39
     },
     {
         "id": 817815076492279849,
@@ -658,23 +675,6 @@
         "level": 5,
         "messages": 95,
         "avatar": "https://cdn.discordapp.com/avatars/817815076492279849/1ae859cca5685787975d357114f46c44.png",
-        "gang": null,
-        "prestige": 0,
-        "rank": 39
-    },
-    {
-        "id": 980079182912561212,
-        "name": "Tsamoka",
-        "discriminator": "2725",
-        "xp": "1.4k",
-        "detailed_xp": [
-            195,
-            475,
-            1373
-        ],
-        "level": 5,
-        "messages": 95,
-        "avatar": "https://cdn.discordapp.com/avatars/980079182912561212/9e6bfe52f1e097b1f193ca347be3b68d.png",
         "gang": null,
         "prestige": 0,
         "rank": 40
@@ -717,14 +717,14 @@
         "id": 439128031152570389,
         "name": "DeFc0n",
         "discriminator": "3052",
-        "xp": "1.2k",
+        "xp": "1.3k",
         "detailed_xp": [
-            75,
+            135,
             475,
-            1232
+            1292
         ],
         "level": 5,
-        "messages": 83,
+        "messages": 87,
         "avatar": "https://cdn.discordapp.com/avatars/439128031152570389/2c440e9e23cde6d55eac869f1278b37a.png",
         "gang": null,
         "prestige": 0,
