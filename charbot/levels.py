@@ -230,7 +230,10 @@ class Leveling(commands.Cog):
             await interaction.followup.send("This Must be used in a guild")
             return
         member = user or interaction.user
+        guild = interaction.guild
         assert isinstance(member, discord.Member)  # skipcq: BAN-B101
+        assert isinstance(guild, discord.Guild)  # skipcq: BAN-B101
+        cached_member = guild.get_member(member.id) or member
         async with self.bot.pool.acquire() as conn:
             users = await conn.fetch("SELECT *, ROW_NUMBER() OVER(ORDER BY xp DESC) AS rank FROM xp_users")
             try:
@@ -247,7 +250,7 @@ class Leveling(commands.Cog):
             next_xp=user_record["detailed_xp"][2] - user_record["detailed_xp"][0] + user_record["detailed_xp"][1],
             user_position=user_record["rank"],
             user_name=f"{member.name}#{member.discriminator}",
-            user_status=member.status.value if not isinstance(member.status, str) else "offline",
+            user_status=cached_member.status.value if not isinstance(cached_member.status, str) else "offline",
         )
         image = await self.bot.loop.run_in_executor(None, card)
         await interaction.followup.send(file=discord.File(image, "profile.png"))
