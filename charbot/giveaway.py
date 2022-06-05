@@ -314,9 +314,9 @@ class GiveawayView(ui.View):
         await message.edit(embed=self.embed, view=self)
         if winner is not None:
             await self.bot.giveaway_webhook.send(
-                f"Congrats to {winner.mention} for winning the {self.game} giveaway! Please DM Charlie to claim it."
-                f" If you're listed under backups, stay tuned for if the first winner does not reach out to redeem"
-                f" their prize.",
+                f"Congrats to {winner.mention} for winning the {self.game} giveaway! Please send a single DM to"
+                f" Charlie to claim it. If you're listed under backups, stay tuned for if the first winner does not"
+                f" reach out to redeem their prize.",
                 allowed_mentions=discord.AllowedMentions(users=True),
             )
         await self.bot.pool.execute("UPDATE bids SET bid = 0 WHERE bid > 0")

@@ -179,6 +179,39 @@ class Leveling(commands.Cog):
                     message.author.id,
                 )
 
+    @commands.Cog.listener()
+    async def on_member_join(self, member: discord.Member) -> None:
+        """CHeck if they are rejoining and should get a rank role back.
+
+        Parameters
+        ----------
+        member : discord.Member
+            The member that joined.
+        """
+        async with self.bot.pool.acquire() as conn:
+            level: int | None = await conn.fetchval("SELECT level FROM xp_users WHERE id = $1", member.id)
+            if level is None:
+                return
+            await conn.execute(
+                "UPDATE xp_users SET username = $1, discriminator = $2, avatar = $3 WHERE id = $4",
+                member.name,
+                member.discriminator,
+                member.avatar.key if member.avatar else None,
+                member.id,
+            )
+            if 0 < level < 5:
+                await member.add_roles(discord.Object(969626979353632790), reason=f"Rejoined at level {level}")
+            elif 5 <= level < 10:
+                await member.add_roles(discord.Object(969627321239760967), reason=f"Rejoined at level {level}")
+            elif 10 <= level < 20:
+                await member.add_roles(discord.Object(969628342733119518), reason=f"Rejoined at level {level}")
+            elif 20 <= level < 25:
+                await member.add_roles(discord.Object(969629632028614699), reason=f"Rejoined at level {level}")
+            elif 25 <= level < 30:
+                await member.add_roles(discord.Object(969629628249563166), reason=f"Rejoined at level {level}")
+            elif level >= 30:
+                await member.add_roles(discord.Object(969629622453039104), reason=f"Rejoined at level {level}")
+
     @app_commands.command(name="rank")
     @app_commands.guilds(225345178955808768)
     @app_commands.checks.cooldown(1, 3600, key=lambda interaction: interaction.user.id)
