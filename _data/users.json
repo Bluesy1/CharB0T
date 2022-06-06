@@ -5,12 +5,12 @@
         "discriminator": "8150",
         "xp": "53.8k",
         "detailed_xp": [
-            2500,
+            2531,
             5095,
-            53755
+            53786
         ],
         "level": 27,
-        "messages": 3662,
+        "messages": 3664,
         "avatar": "https://cdn.discordapp.com/avatars/363095569515806722/ccf12c126a6827a5b07a4e579a52b043.png",
         "gang": null,
         "prestige": 0,
@@ -107,12 +107,12 @@
         "discriminator": "0001",
         "xp": "11.7k",
         "detailed_xp": [
-            1629,
+            1646,
             1780,
-            11674
+            11691
         ],
         "level": 14,
-        "messages": 794,
+        "messages": 795,
         "avatar": "https://cdn.discordapp.com/avatars/225344348903047168/a_44adaea1066b1489bfe2aeebb0922d33.png",
         "gang": null,
         "prestige": 0,
@@ -241,14 +241,14 @@
         "id": 725373259817811988,
         "name": "General_WCJ",
         "discriminator": "4528",
-        "xp": "7.0k",
+        "xp": "7.1k",
         "detailed_xp": [
-            0,
+            35,
             1420,
-            7041
+            7076
         ],
         "level": 12,
-        "messages": 481,
+        "messages": 483,
         "avatar": "https://cdn.discordapp.com/avatars/725373259817811988/546e55f0087341def7d2533f7738b5e3.png",
         "gang": null,
         "prestige": 0,
@@ -969,6 +969,23 @@
         "rank": 57
     },
     {
+        "id": 621453799390838784,
+        "name": "Dr.Drumbas",
+        "discriminator": "2564",
+        "xp": "507",
+        "detailed_xp": [
+            32,
+            295,
+            507
+        ],
+        "level": 3,
+        "messages": 35,
+        "avatar": "https://cdn.discordapp.com/avatars/621453799390838784/0da83d8258f9eb2c0c1518aec2e0db22.png",
+        "gang": null,
+        "prestige": 0,
+        "rank": 58
+    },
+    {
         "id": 529837776816832524,
         "name": "ThunderClan57",
         "discriminator": "0716",
@@ -981,23 +998,6 @@
         "level": 3,
         "messages": 35,
         "avatar": "https://cdn.discordapp.com/avatars/529837776816832524/a3d65f8d93702140961de70c367c6fe1.png",
-        "gang": null,
-        "prestige": 0,
-        "rank": 58
-    },
-    {
-        "id": 621453799390838784,
-        "name": "Dr.Drumbas",
-        "discriminator": "2564",
-        "xp": "489",
-        "detailed_xp": [
-            14,
-            295,
-            489
-        ],
-        "level": 3,
-        "messages": 34,
-        "avatar": "https://cdn.discordapp.com/avatars/621453799390838784/0da83d8258f9eb2c0c1518aec2e0db22.png",
         "gang": null,
         "prestige": 0,
         "rank": 59
@@ -1547,23 +1547,6 @@
         "rank": 91
     },
     {
-        "id": 791742375117455381,
-        "name": "Magpie",
-        "discriminator": "5751",
-        "xp": "119",
-        "detailed_xp": [
-            19,
-            155,
-            119
-        ],
-        "level": 1,
-        "messages": 8,
-        "avatar": "https://cdn.discordapp.com/avatars/791742375117455381/1bde9e89e74cfedbb72e489e55d4bfd8.png",
-        "gang": null,
-        "prestige": 0,
-        "rank": 92
-    },
-    {
         "id": 342296474257719308,
         "name": "Alexander Berner",
         "discriminator": "0926",
@@ -1576,6 +1559,23 @@
         "level": 1,
         "messages": 8,
         "avatar": "https://cdn.discordapp.com/avatars/342296474257719308/98a086f9fc81f8c66025e499e3601a06.png",
+        "gang": null,
+        "prestige": 0,
+        "rank": 92
+    },
+    {
+        "id": 791742375117455381,
+        "name": "Magpie",
+        "discriminator": "5751",
+        "xp": "119",
+        "detailed_xp": [
+            19,
+            155,
+            119
+        ],
+        "level": 1,
+        "messages": 8,
+        "avatar": "https://cdn.discordapp.com/avatars/791742375117455381/1bde9e89e74cfedbb72e489e55d4bfd8.png",
         "gang": null,
         "prestige": 0,
         "rank": 93
