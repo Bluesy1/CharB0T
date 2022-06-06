@@ -3,14 +3,14 @@
         "id": 363095569515806722,
         "name": "Bluesy",
         "discriminator": "8150",
-        "xp": "54.0k",
+        "xp": "54.1k",
         "detailed_xp": [
-            2742,
+            2821,
             5095,
-            53997
+            54076
         ],
         "level": 27,
-        "messages": 3678,
+        "messages": 3683,
         "avatar": "https://cdn.discordapp.com/avatars/363095569515806722/ccf12c126a6827a5b07a4e579a52b043.png",
         "gang": null,
         "prestige": 0,
@@ -20,14 +20,14 @@
         "id": 465356664657149952,
         "name": "Mordakai Slivermoon",
         "discriminator": "7762",
-        "xp": "28.5k",
+        "xp": "28.6k",
         "detailed_xp": [
-            1582,
+            1633,
             3355,
-            28539
+            28590
         ],
         "level": 21,
-        "messages": 1956,
+        "messages": 1960,
         "avatar": "https://cdn.discordapp.com/avatars/465356664657149952/69046661ae37d5aeacd06e8670bd2cd1.png",
         "gang": null,
         "prestige": 0,
@@ -39,12 +39,12 @@
         "discriminator": "8014",
         "xp": "24.3k",
         "detailed_xp": [
-            441,
+            469,
             3100,
-            24298
+            24326
         ],
         "level": 20,
-        "messages": 1662,
+        "messages": 1664,
         "avatar": "https://cdn.discordapp.com/avatars/434764784353804305/079e9acbab412d57da60f98460454d62.png",
         "gang": null,
         "prestige": 0,
@@ -71,14 +71,14 @@
         "id": 470021089104494598,
         "name": "Copperspikes",
         "discriminator": "6862",
-        "xp": "17.2k",
+        "xp": "17.3k",
         "detailed_xp": [
-            1261,
+            1289,
             2395,
-            17241
+            17269
         ],
         "level": 17,
-        "messages": 1179,
+        "messages": 1181,
         "avatar": "https://cdn.discordapp.com/avatars/470021089104494598/609eb666ab567abadd68dcfc4d7c042c.png",
         "gang": null,
         "prestige": 0,
@@ -243,12 +243,12 @@
         "discriminator": "4528",
         "xp": "7.1k",
         "detailed_xp": [
-            35,
+            53,
             1420,
-            7076
+            7094
         ],
         "level": 12,
-        "messages": 483,
+        "messages": 484,
         "avatar": "https://cdn.discordapp.com/avatars/725373259817811988/546e55f0087341def7d2533f7738b5e3.png",
         "gang": null,
         "prestige": 0,
@@ -275,14 +275,14 @@
         "id": 244529987510599680,
         "name": "Petrat852",
         "discriminator": "7958",
-        "xp": "5.9k",
+        "xp": "6.0k",
         "detailed_xp": [
-            117,
+            158,
             1255,
-            5911
+            5952
         ],
         "level": 11,
-        "messages": 406,
+        "messages": 409,
         "avatar": "https://cdn.discordapp.com/avatars/244529987510599680/803f09d621468a326fc9f8ff25225579.png",
         "gang": null,
         "prestige": 0,
@@ -396,12 +396,12 @@
         "discriminator": "1947",
         "xp": "3.0k",
         "detailed_xp": [
-            86,
+            99,
             820,
-            2986
+            2999
         ],
         "level": 8,
-        "messages": 207,
+        "messages": 208,
         "avatar": "https://cdn.discordapp.com/avatars/138380316095021056/f912ef80e2616dbb2221fcb2dbd09ab9.png",
         "gang": null,
         "prestige": 0,
@@ -600,12 +600,12 @@
         "discriminator": "2725",
         "xp": "1.7k",
         "detailed_xp": [
-            32,
+            73,
             580,
-            1692
+            1733
         ],
         "level": 6,
-        "messages": 116,
+        "messages": 119,
         "avatar": "https://cdn.discordapp.com/avatars/980079182912561212/9e6bfe52f1e097b1f193ca347be3b68d.png",
         "gang": null,
         "prestige": 0,
@@ -921,14 +921,14 @@
         "id": 722228570612564028,
         "name": "the noter",
         "discriminator": "7675",
-        "xp": "685",
+        "xp": "711",
         "detailed_xp": [
-            202,
+            228,
             295,
-            685
+            711
         ],
         "level": 3,
-        "messages": 47,
+        "messages": 49,
         "avatar": "https://cdn.discordapp.com/avatars/722228570612564028/aa5272c9d2a0baa70a46bdd56933de96.png",
         "gang": null,
         "prestige": 0,
