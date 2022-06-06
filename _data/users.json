@@ -634,12 +634,12 @@
         "discriminator": "2725",
         "xp": "1.5k",
         "detailed_xp": [
-            321,
+            335,
             475,
-            1499
+            1513
         ],
         "level": 5,
-        "messages": 103,
+        "messages": 104,
         "avatar": "https://cdn.discordapp.com/avatars/980079182912561212/9e6bfe52f1e097b1f193ca347be3b68d.png",
         "gang": null,
         "prestige": 0,
@@ -2346,23 +2346,6 @@
         "rank": 138
     },
     {
-        "id": 963917863117275186,
-        "name": "Wayofthewildkitty",
-        "discriminator": "3009",
-        "xp": "27",
-        "detailed_xp": [
-            27,
-            100,
-            27
-        ],
-        "level": 0,
-        "messages": 2,
-        "avatar": "https://cdn.discordapp.com/embed/avatars/4.png",
-        "gang": null,
-        "prestige": 0,
-        "rank": 139
-    },
-    {
         "id": 851448719944974387,
         "name": "Player121341",
         "discriminator": "7365",
@@ -2375,6 +2358,23 @@
         "level": 0,
         "messages": 2,
         "avatar": "https://cdn.discordapp.com/avatars/851448719944974387/af8830e54fe261dadf82cfe5e810abdb.png",
+        "gang": null,
+        "prestige": 0,
+        "rank": 139
+    },
+    {
+        "id": 963917863117275186,
+        "name": "Wayofthewildkitty",
+        "discriminator": "3009",
+        "xp": "27",
+        "detailed_xp": [
+            27,
+            100,
+            27
+        ],
+        "level": 0,
+        "messages": 2,
+        "avatar": "https://cdn.discordapp.com/embed/avatars/4.png",
         "gang": null,
         "prestige": 0,
         "rank": 140
