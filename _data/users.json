@@ -3,14 +3,14 @@
         "id": 363095569515806722,
         "name": "Bluesy",
         "discriminator": "8150",
-        "xp": "53.2k",
+        "xp": "53.5k",
         "detailed_xp": [
-            1922,
+            2225,
             5095,
-            53177
+            53480
         ],
         "level": 27,
-        "messages": 3620,
+        "messages": 3643,
         "avatar": "https://cdn.discordapp.com/avatars/363095569515806722/ccf12c126a6827a5b07a4e579a52b043.png",
         "gang": null,
         "prestige": 0,
@@ -20,14 +20,14 @@
         "id": 465356664657149952,
         "name": "Mordakai Slivermoon",
         "discriminator": "7762",
-        "xp": "28.2k",
+        "xp": "28.3k",
         "detailed_xp": [
-            1258,
+            1325,
             3355,
-            28215
+            28282
         ],
         "level": 21,
-        "messages": 1934,
+        "messages": 1938,
         "avatar": "https://cdn.discordapp.com/avatars/465356664657149952/69046661ae37d5aeacd06e8670bd2cd1.png",
         "gang": null,
         "prestige": 0,
@@ -37,14 +37,14 @@
         "id": 434764784353804305,
         "name": "Caspar",
         "discriminator": "8014",
-        "xp": "24.1k",
+        "xp": "24.2k",
         "detailed_xp": [
-            196,
+            367,
             3100,
-            24053
+            24224
         ],
         "level": 20,
-        "messages": 1645,
+        "messages": 1657,
         "avatar": "https://cdn.discordapp.com/avatars/434764784353804305/079e9acbab412d57da60f98460454d62.png",
         "gang": null,
         "prestige": 0,
@@ -73,12 +73,12 @@
         "discriminator": "6862",
         "xp": "17.1k",
         "detailed_xp": [
-            1088,
+            1100,
             2395,
-            17068
+            17080
         ],
         "level": 17,
-        "messages": 1167,
+        "messages": 1168,
         "avatar": "https://cdn.discordapp.com/avatars/470021089104494598/609eb666ab567abadd68dcfc4d7c042c.png",
         "gang": null,
         "prestige": 0,
@@ -292,14 +292,14 @@
         "id": 304410053593661442,
         "name": "MSpears",
         "discriminator": "2802",
-        "xp": "5.4k",
+        "xp": "5.5k",
         "detailed_xp": [
-            737,
+            849,
             1100,
-            5412
+            5524
         ],
         "level": 10,
-        "messages": 368,
+        "messages": 376,
         "avatar": "https://cdn.discordapp.com/avatars/304410053593661442/b046a5b99f4e2f6dad50444728de28cf.png",
         "gang": null,
         "prestige": 0,
@@ -768,14 +768,14 @@
         "id": 453052504444239892,
         "name": "This Guy 1289",
         "discriminator": "4367",
-        "xp": "986",
+        "xp": "997",
         "detailed_xp": [
-            207,
+            218,
             380,
-            986
+            997
         ],
         "level": 4,
-        "messages": 68,
+        "messages": 69,
         "avatar": "https://cdn.discordapp.com/avatars/453052504444239892/a35c1bb705c4637d88ecd84c054b619d.png",
         "gang": null,
         "prestige": 0,
@@ -918,6 +918,23 @@
         "rank": 54
     },
     {
+        "id": 722228570612564028,
+        "name": "the noter",
+        "discriminator": "7675",
+        "xp": "685",
+        "detailed_xp": [
+            202,
+            295,
+            685
+        ],
+        "level": 3,
+        "messages": 47,
+        "avatar": "https://cdn.discordapp.com/avatars/722228570612564028/aa5272c9d2a0baa70a46bdd56933de96.png",
+        "gang": null,
+        "prestige": 0,
+        "rank": 55
+    },
+    {
         "id": 868752506656784405,
         "name": "ThatOneGamer",
         "discriminator": "8044",
@@ -932,7 +949,7 @@
         "avatar": "https://cdn.discordapp.com/avatars/868752506656784405/34e618c28bc280efd904e85989c5d502.png",
         "gang": null,
         "prestige": 0,
-        "rank": 55
+        "rank": 56
     },
     {
         "id": 438900626601148417,
@@ -947,23 +964,6 @@
         "level": 3,
         "messages": 44,
         "avatar": "https://cdn.discordapp.com/avatars/438900626601148417/5939919a88f67ffa49bb260edaf2d3bb.png",
-        "gang": null,
-        "prestige": 0,
-        "rank": 56
-    },
-    {
-        "id": 722228570612564028,
-        "name": "the noter",
-        "discriminator": "7675",
-        "xp": "588",
-        "detailed_xp": [
-            105,
-            295,
-            588
-        ],
-        "level": 3,
-        "messages": 41,
-        "avatar": "https://cdn.discordapp.com/avatars/722228570612564028/aa5272c9d2a0baa70a46bdd56933de96.png",
         "gang": null,
         "prestige": 0,
         "rank": 57
