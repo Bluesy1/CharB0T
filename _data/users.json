@@ -153,6 +153,23 @@
         "rank": 9
     },
     {
+        "id": 389137667926786060,
+        "name": "coolmanfight",
+        "discriminator": "1179",
+        "xp": "9.5k",
+        "detailed_xp": [
+            1022,
+            1595,
+            9472
+        ],
+        "level": 13,
+        "messages": 648,
+        "avatar": "https://cdn.discordapp.com/avatars/389137667926786060/a0938cefc089461da843738b184389f5.png",
+        "gang": null,
+        "prestige": 0,
+        "rank": 10
+    },
+    {
         "id": 361315683243524097,
         "name": "UnckleSkeezer14",
         "discriminator": "5307",
@@ -167,23 +184,6 @@
         "avatar": "https://cdn.discordapp.com/avatars/361315683243524097/7ab62327b597a48fd2fd179a6791694f.png",
         "gang": null,
         "prestige": 0,
-        "rank": 10
-    },
-    {
-        "id": 389137667926786060,
-        "name": "coolmanfight",
-        "discriminator": "1179",
-        "xp": "9.5k",
-        "detailed_xp": [
-            1008,
-            1595,
-            9458
-        ],
-        "level": 13,
-        "messages": 647,
-        "avatar": "https://cdn.discordapp.com/avatars/389137667926786060/a0938cefc089461da843738b184389f5.png",
-        "gang": null,
-        "prestige": 0,
         "rank": 11
     },
     {
@@ -192,12 +192,12 @@
         "discriminator": "5792",
         "xp": "8.2k",
         "detailed_xp": [
-            1145,
+            1158,
             1420,
-            8175
+            8188
         ],
         "level": 12,
-        "messages": 559,
+        "messages": 560,
         "avatar": "https://cdn.discordapp.com/avatars/254272745779494922/104c411ce5b4accfc2095084e3dded32.png",
         "gang": null,
         "prestige": 0,
