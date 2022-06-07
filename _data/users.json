@@ -3,14 +3,14 @@
         "id": 363095569515806722,
         "name": "Bluesy",
         "discriminator": "8150",
-        "xp": "54.9k",
+        "xp": "55.1k",
         "detailed_xp": [
-            3654,
+            3814,
             5095,
-            54909
+            55069
         ],
         "level": 27,
-        "messages": 3739,
+        "messages": 3750,
         "avatar": "https://cdn.discordapp.com/avatars/363095569515806722/ccf12c126a6827a5b07a4e579a52b043.png",
         "gang": null,
         "prestige": 0,
@@ -39,12 +39,12 @@
         "discriminator": "8014",
         "xp": "24.8k",
         "detailed_xp": [
-            930,
+            958,
             3100,
-            24787
+            24815
         ],
         "level": 20,
-        "messages": 1695,
+        "messages": 1697,
         "avatar": "https://cdn.discordapp.com/avatars/434764784353804305/079e9acbab412d57da60f98460454d62.png",
         "gang": null,
         "prestige": 0,
@@ -141,12 +141,12 @@
         "discriminator": "1179",
         "xp": "9.6k",
         "detailed_xp": [
-            1148,
+            1159,
             1595,
-            9598
+            9609
         ],
         "level": 13,
-        "messages": 657,
+        "messages": 658,
         "avatar": "https://cdn.discordapp.com/avatars/389137667926786060/a0938cefc089461da843738b184389f5.png",
         "gang": null,
         "prestige": 0,
@@ -241,14 +241,14 @@
         "id": 725373259817811988,
         "name": "General_WCJ",
         "discriminator": "4528",
-        "xp": "7.3k",
+        "xp": "7.4k",
         "detailed_xp": [
-            268,
+            355,
             1420,
-            7309
+            7396
         ],
         "level": 12,
-        "messages": 499,
+        "messages": 505,
         "avatar": "https://cdn.discordapp.com/avatars/725373259817811988/546e55f0087341def7d2533f7738b5e3.png",
         "gang": null,
         "prestige": 0,
@@ -277,12 +277,12 @@
         "discriminator": "8476",
         "xp": "6.5k",
         "detailed_xp": [
-            681,
+            708,
             1255,
-            6459
+            6486
         ],
         "level": 11,
-        "messages": 441,
+        "messages": 443,
         "avatar": "https://cdn.discordapp.com/avatars/718188351508971542/4d61f718cb0602a9fa2121459306be1e.png",
         "gang": null,
         "prestige": 0,
@@ -292,14 +292,14 @@
         "id": 304410053593661442,
         "name": "MSpears",
         "discriminator": "2802",
-        "xp": "5.6k",
+        "xp": "5.7k",
         "detailed_xp": [
-            945,
+            1054,
             1100,
-            5620
+            5729
         ],
         "level": 10,
-        "messages": 383,
+        "messages": 390,
         "avatar": "https://cdn.discordapp.com/avatars/304410053593661442/b046a5b99f4e2f6dad50444728de28cf.png",
         "gang": null,
         "prestige": 0,
