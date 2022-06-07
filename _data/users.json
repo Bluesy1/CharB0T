@@ -37,14 +37,14 @@
         "id": 434764784353804305,
         "name": "Caspar",
         "discriminator": "8014",
-        "xp": "24.3k",
+        "xp": "24.4k",
         "detailed_xp": [
-            486,
+            497,
             3100,
-            24343
+            24354
         ],
         "level": 20,
-        "messages": 1665,
+        "messages": 1666,
         "avatar": "https://cdn.discordapp.com/avatars/434764784353804305/079e9acbab412d57da60f98460454d62.png",
         "gang": null,
         "prestige": 0,
@@ -54,14 +54,14 @@
         "id": 355127455419203585,
         "name": "Sir Clint Pope",
         "discriminator": "2226",
-        "xp": "19.7k",
+        "xp": "19.8k",
         "detailed_xp": [
-            1327,
+            1389,
             2620,
-            19702
+            19764
         ],
         "level": 18,
-        "messages": 1337,
+        "messages": 1341,
         "avatar": "https://cdn.discordapp.com/avatars/355127455419203585/095ad3bae31ea645652dd0f7d6c16aee.png",
         "gang": null,
         "prestige": 0,
@@ -141,12 +141,12 @@
         "discriminator": "1179",
         "xp": "9.6k",
         "detailed_xp": [
-            1110,
+            1124,
             1595,
-            9560
+            9574
         ],
         "level": 13,
-        "messages": 654,
+        "messages": 655,
         "avatar": "https://cdn.discordapp.com/avatars/389137667926786060/a0938cefc089461da843738b184389f5.png",
         "gang": null,
         "prestige": 0,
@@ -192,12 +192,12 @@
         "discriminator": "5792",
         "xp": "8.5k",
         "detailed_xp": [
-            0,
+            17,
             1595,
-            8460
+            8477
         ],
         "level": 13,
-        "messages": 579,
+        "messages": 580,
         "avatar": "https://cdn.discordapp.com/avatars/254272745779494922/104c411ce5b4accfc2095084e3dded32.png",
         "gang": null,
         "prestige": 0,
@@ -782,6 +782,23 @@
         "rank": 46
     },
     {
+        "id": 510193035024531491,
+        "name": "Kazgeroth",
+        "discriminator": "7595",
+        "xp": "1.0k",
+        "detailed_xp": [
+            243,
+            380,
+            1013
+        ],
+        "level": 4,
+        "messages": 70,
+        "avatar": "https://cdn.discordapp.com/avatars/510193035024531491/173b4f4accd45a2827b7ab8f43229ec4.png",
+        "gang": null,
+        "prestige": 0,
+        "rank": 47
+    },
+    {
         "id": 766369884358574080,
         "name": "羽生结弦",
         "discriminator": "2152",
@@ -794,23 +811,6 @@
         "level": 4,
         "messages": 68,
         "avatar": "https://cdn.discordapp.com/avatars/766369884358574080/8fa951910ba322ff87a0ffbc601cdc50.png",
-        "gang": null,
-        "prestige": 0,
-        "rank": 47
-    },
-    {
-        "id": 510193035024531491,
-        "name": "Kazgeroth",
-        "discriminator": "7595",
-        "xp": "973",
-        "detailed_xp": [
-            203,
-            380,
-            973
-        ],
-        "level": 4,
-        "messages": 67,
-        "avatar": "https://cdn.discordapp.com/avatars/510193035024531491/173b4f4accd45a2827b7ab8f43229ec4.png",
         "gang": null,
         "prestige": 0,
         "rank": 48
