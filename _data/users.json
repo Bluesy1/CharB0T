@@ -5,12 +5,12 @@
         "discriminator": "8150",
         "xp": "54.6k",
         "detailed_xp": [
-            3335,
+            3382,
             5095,
-            54590
+            54637
         ],
         "level": 27,
-        "messages": 3717,
+        "messages": 3720,
         "avatar": "https://cdn.discordapp.com/avatars/363095569515806722/ccf12c126a6827a5b07a4e579a52b043.png",
         "gang": null,
         "prestige": 0,
@@ -37,14 +37,14 @@
         "id": 434764784353804305,
         "name": "Caspar",
         "discriminator": "8014",
-        "xp": "24.4k",
+        "xp": "24.5k",
         "detailed_xp": [
-            585,
+            681,
             3100,
-            24442
+            24538
         ],
         "level": 20,
-        "messages": 1672,
+        "messages": 1678,
         "avatar": "https://cdn.discordapp.com/avatars/434764784353804305/079e9acbab412d57da60f98460454d62.png",
         "gang": null,
         "prestige": 0,
@@ -107,12 +107,12 @@
         "discriminator": "0001",
         "xp": "11.8k",
         "detailed_xp": [
-            1706,
+            1723,
             1780,
-            11751
+            11768
         ],
         "level": 14,
-        "messages": 799,
+        "messages": 800,
         "avatar": "https://cdn.discordapp.com/avatars/225344348903047168/a_44adaea1066b1489bfe2aeebb0922d33.png",
         "gang": null,
         "prestige": 0,
@@ -277,12 +277,12 @@
         "discriminator": "8476",
         "xp": "6.4k",
         "detailed_xp": [
-            582,
+            643,
             1255,
-            6360
+            6421
         ],
         "level": 11,
-        "messages": 434,
+        "messages": 438,
         "avatar": "https://cdn.discordapp.com/avatars/718188351508971542/4d61f718cb0602a9fa2121459306be1e.png",
         "gang": null,
         "prestige": 0,
