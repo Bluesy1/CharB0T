@@ -3,14 +3,14 @@
         "id": 363095569515806722,
         "name": "Bluesy",
         "discriminator": "8150",
-        "xp": "54.2k",
+        "xp": "54.3k",
         "detailed_xp": [
-            2911,
+            3032,
             5095,
-            54166
+            54287
         ],
         "level": 27,
-        "messages": 3689,
+        "messages": 3697,
         "avatar": "https://cdn.discordapp.com/avatars/363095569515806722/ccf12c126a6827a5b07a4e579a52b043.png",
         "gang": null,
         "prestige": 0,
@@ -141,12 +141,12 @@
         "discriminator": "1179",
         "xp": "9.5k",
         "detailed_xp": [
-            1064,
+            1095,
             1595,
-            9514
+            9545
         ],
         "level": 13,
-        "messages": 651,
+        "messages": 653,
         "avatar": "https://cdn.discordapp.com/avatars/389137667926786060/a0938cefc089461da843738b184389f5.png",
         "gang": null,
         "prestige": 0,
@@ -258,14 +258,14 @@
         "id": 244529987510599680,
         "name": "Petrat852",
         "discriminator": "7958",
-        "xp": "6.6k",
+        "xp": "6.8k",
         "detailed_xp": [
-            780,
+            1033,
             1255,
-            6574
+            6827
         ],
         "level": 11,
-        "messages": 451,
+        "messages": 468,
         "avatar": "https://cdn.discordapp.com/avatars/244529987510599680/803f09d621468a326fc9f8ff25225579.png",
         "gang": null,
         "prestige": 0,
@@ -476,6 +476,23 @@
         "rank": 28
     },
     {
+        "id": 980079182912561212,
+        "name": "Tsamoka",
+        "discriminator": "2725",
+        "xp": "2.8k",
+        "detailed_xp": [
+            502,
+            695,
+            2750
+        ],
+        "level": 7,
+        "messages": 190,
+        "avatar": "https://cdn.discordapp.com/avatars/980079182912561212/9e6bfe52f1e097b1f193ca347be3b68d.png",
+        "gang": null,
+        "prestige": 0,
+        "rank": 29
+    },
+    {
         "id": 226683171196895242,
         "name": "StyxAnnihilator",
         "discriminator": "1338",
@@ -488,23 +505,6 @@
         "level": 7,
         "messages": 180,
         "avatar": "https://cdn.discordapp.com/avatars/226683171196895242/47df82197362781bcd0325fae5029ee3.png",
-        "gang": null,
-        "prestige": 0,
-        "rank": 29
-    },
-    {
-        "id": 980079182912561212,
-        "name": "Tsamoka",
-        "discriminator": "2725",
-        "xp": "2.4k",
-        "detailed_xp": [
-            179,
-            695,
-            2427
-        ],
-        "level": 7,
-        "messages": 167,
-        "avatar": "https://cdn.discordapp.com/avatars/980079182912561212/9e6bfe52f1e097b1f193ca347be3b68d.png",
         "gang": null,
         "prestige": 0,
         "rank": 30
@@ -816,6 +816,23 @@
         "rank": 48
     },
     {
+        "id": 621453799390838784,
+        "name": "Dr.Drumbas",
+        "discriminator": "2564",
+        "xp": "828",
+        "detailed_xp": [
+            56,
+            380,
+            828
+        ],
+        "level": 4,
+        "messages": 58,
+        "avatar": "https://cdn.discordapp.com/avatars/621453799390838784/0da83d8258f9eb2c0c1518aec2e0db22.png",
+        "gang": null,
+        "prestige": 0,
+        "rank": 49
+    },
+    {
         "id": 281146597289492480,
         "name": "Wardriven",
         "discriminator": "4890",
@@ -830,7 +847,7 @@
         "avatar": "https://cdn.discordapp.com/avatars/281146597289492480/9edb8a24af7107d5c79e5595f80681cd.png",
         "gang": null,
         "prestige": 0,
-        "rank": 49
+        "rank": 50
     },
     {
         "id": 260908307730923522,
@@ -847,7 +864,7 @@
         "avatar": "https://cdn.discordapp.com/avatars/260908307730923522/f35e5463715e3961ddcad685487eea1e.png",
         "gang": null,
         "prestige": 0,
-        "rank": 50
+        "rank": 51
     },
     {
         "id": 409359209931735042,
@@ -864,7 +881,7 @@
         "avatar": "https://cdn.discordapp.com/avatars/409359209931735042/d82de2f954abf19c6c53ea6d8917af5a.png",
         "gang": null,
         "prestige": 0,
-        "rank": 51
+        "rank": 52
     },
     {
         "id": 246847874254635018,
@@ -881,7 +898,7 @@
         "avatar": "https://cdn.discordapp.com/avatars/246847874254635018/cad3a706e3e04eaac2f05c8a0f59aadc.png",
         "gang": null,
         "prestige": 0,
-        "rank": 52
+        "rank": 53
     },
     {
         "id": 420226573325828106,
@@ -898,7 +915,7 @@
         "avatar": "https://cdn.discordapp.com/avatars/420226573325828106/7d719877a192e31e4476bca7f8dff374.png",
         "gang": null,
         "prestige": 0,
-        "rank": 53
+        "rank": 54
     },
     {
         "id": 637695409069883421,
@@ -915,7 +932,7 @@
         "avatar": "https://cdn.discordapp.com/embed/avatars/1.png",
         "gang": null,
         "prestige": 0,
-        "rank": 54
+        "rank": 55
     },
     {
         "id": 722228570612564028,
@@ -932,7 +949,7 @@
         "avatar": "https://cdn.discordapp.com/avatars/722228570612564028/aa5272c9d2a0baa70a46bdd56933de96.png",
         "gang": null,
         "prestige": 0,
-        "rank": 55
+        "rank": 56
     },
     {
         "id": 868752506656784405,
@@ -949,7 +966,7 @@
         "avatar": "https://cdn.discordapp.com/avatars/868752506656784405/34e618c28bc280efd904e85989c5d502.png",
         "gang": null,
         "prestige": 0,
-        "rank": 56
+        "rank": 57
     },
     {
         "id": 438900626601148417,
@@ -964,23 +981,6 @@
         "level": 3,
         "messages": 44,
         "avatar": "https://cdn.discordapp.com/avatars/438900626601148417/5939919a88f67ffa49bb260edaf2d3bb.png",
-        "gang": null,
-        "prestige": 0,
-        "rank": 57
-    },
-    {
-        "id": 621453799390838784,
-        "name": "Dr.Drumbas",
-        "discriminator": "2564",
-        "xp": "567",
-        "detailed_xp": [
-            92,
-            295,
-            567
-        ],
-        "level": 3,
-        "messages": 39,
-        "avatar": "https://cdn.discordapp.com/avatars/621453799390838784/0da83d8258f9eb2c0c1518aec2e0db22.png",
         "gang": null,
         "prestige": 0,
         "rank": 58
