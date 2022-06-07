@@ -22,12 +22,12 @@
         "discriminator": "7762",
         "xp": "28.8k",
         "detailed_xp": [
-            1832,
+            1857,
             3355,
-            28789
+            28814
         ],
         "level": 21,
-        "messages": 1974,
+        "messages": 1976,
         "avatar": "https://cdn.discordapp.com/avatars/465356664657149952/69046661ae37d5aeacd06e8670bd2cd1.png",
         "gang": null,
         "prestige": 0,
@@ -39,12 +39,12 @@
         "discriminator": "8014",
         "xp": "24.4k",
         "detailed_xp": [
-            497,
+            509,
             3100,
-            24354
+            24366
         ],
         "level": 20,
-        "messages": 1666,
+        "messages": 1667,
         "avatar": "https://cdn.discordapp.com/avatars/434764784353804305/079e9acbab412d57da60f98460454d62.png",
         "gang": null,
         "prestige": 0,
@@ -260,12 +260,12 @@
         "discriminator": "7958",
         "xp": "7.2k",
         "detailed_xp": [
-            102,
+            115,
             1420,
-            7151
+            7164
         ],
         "level": 12,
-        "messages": 491,
+        "messages": 492,
         "avatar": "https://cdn.discordapp.com/avatars/244529987510599680/803f09d621468a326fc9f8ff25225579.png",
         "gang": null,
         "prestige": 0,
@@ -275,14 +275,14 @@
         "id": 718188351508971542,
         "name": "StealthHydrac",
         "discriminator": "8476",
-        "xp": "6.3k",
+        "xp": "6.4k",
         "detailed_xp": [
-            571,
+            582,
             1255,
-            6349
+            6360
         ],
         "level": 11,
-        "messages": 433,
+        "messages": 434,
         "avatar": "https://cdn.discordapp.com/avatars/718188351508971542/4d61f718cb0602a9fa2121459306be1e.png",
         "gang": null,
         "prestige": 0,
