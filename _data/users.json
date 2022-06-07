@@ -819,14 +819,14 @@
         "id": 621453799390838784,
         "name": "Dr.Drumbas",
         "discriminator": "2564",
-        "xp": "878",
+        "xp": "890",
         "detailed_xp": [
-            106,
+            118,
             380,
-            878
+            890
         ],
         "level": 4,
-        "messages": 62,
+        "messages": 63,
         "avatar": "https://cdn.discordapp.com/avatars/621453799390838784/0da83d8258f9eb2c0c1518aec2e0db22.png",
         "gang": null,
         "prestige": 0,
