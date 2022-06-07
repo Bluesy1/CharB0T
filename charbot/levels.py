@@ -243,7 +243,7 @@ class Leveling(commands.Cog):
                 return
         card: Callable[[], BytesIO] = functools.partial(
             self.generator.generate_profile,
-            profile_image=interaction.user.avatar.url if interaction.user.avatar is not None else self.default_profile,
+            profile_image=member.avatar.url if member.avatar is not None else self.default_profile,
             level=user_record["level"],
             current_xp=user_record["detailed_xp"][2] - user_record["detailed_xp"][0],
             user_xp=user_record["xp"],
