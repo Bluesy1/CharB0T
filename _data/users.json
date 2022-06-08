@@ -5,12 +5,12 @@
         "discriminator": "8150",
         "xp": "55.6k",
         "detailed_xp": [
-            4317,
+            4343,
             5095,
-            55572
+            55598
         ],
         "level": 27,
-        "messages": 3785,
+        "messages": 3787,
         "avatar": "https://cdn.discordapp.com/avatars/363095569515806722/ccf12c126a6827a5b07a4e579a52b043.png",
         "gang": null,
         "prestige": 0,
@@ -22,12 +22,12 @@
         "discriminator": "7762",
         "xp": "29.7k",
         "detailed_xp": [
-            2745,
+            2782,
             3355,
-            29702
+            29739
         ],
         "level": 21,
-        "messages": 2038,
+        "messages": 2041,
         "avatar": "https://cdn.discordapp.com/avatars/465356664657149952/69046661ae37d5aeacd06e8670bd2cd1.png",
         "gang": null,
         "prestige": 0,
@@ -39,12 +39,12 @@
         "discriminator": "8014",
         "xp": "25.2k",
         "detailed_xp": [
-            1350,
+            1365,
             3100,
-            25207
+            25222
         ],
         "level": 20,
-        "messages": 1725,
+        "messages": 1726,
         "avatar": "https://cdn.discordapp.com/avatars/434764784353804305/079e9acbab412d57da60f98460454d62.png",
         "gang": null,
         "prestige": 0,
@@ -54,14 +54,14 @@
         "id": 355127455419203585,
         "name": "Sir Clint Pope",
         "discriminator": "2226",
-        "xp": "19.8k",
+        "xp": "19.9k",
         "detailed_xp": [
-            1462,
+            1478,
             2620,
-            19837
+            19853
         ],
         "level": 18,
-        "messages": 1346,
+        "messages": 1347,
         "avatar": "https://cdn.discordapp.com/avatars/355127455419203585/095ad3bae31ea645652dd0f7d6c16aee.png",
         "gang": null,
         "prestige": 0,
@@ -107,12 +107,12 @@
         "discriminator": "0001",
         "xp": "11.9k",
         "detailed_xp": [
-            77,
+            95,
             1975,
-            11904
+            11922
         ],
         "level": 15,
-        "messages": 809,
+        "messages": 810,
         "avatar": "https://cdn.discordapp.com/avatars/225344348903047168/a_44adaea1066b1489bfe2aeebb0922d33.png",
         "gang": null,
         "prestige": 0,
@@ -122,14 +122,14 @@
         "id": 389137667926786060,
         "name": "coolmanfight",
         "discriminator": "1179",
-        "xp": "9.6k",
+        "xp": "9.7k",
         "detailed_xp": [
-            1188,
+            1204,
             1595,
-            9638
+            9654
         ],
         "level": 13,
-        "messages": 660,
+        "messages": 661,
         "avatar": "https://cdn.discordapp.com/avatars/389137667926786060/a0938cefc089461da843738b184389f5.png",
         "gang": null,
         "prestige": 0,
@@ -292,14 +292,14 @@
         "id": 304410053593661442,
         "name": "MSpears",
         "discriminator": "2802",
-        "xp": "5.7k",
+        "xp": "5.8k",
         "detailed_xp": [
-            1070,
+            1084,
             1100,
-            5745
+            5759
         ],
         "level": 10,
-        "messages": 391,
+        "messages": 392,
         "avatar": "https://cdn.discordapp.com/avatars/304410053593661442/b046a5b99f4e2f6dad50444728de28cf.png",
         "gang": null,
         "prestige": 0,
@@ -362,12 +362,12 @@
         "discriminator": "1947",
         "xp": "3.2k",
         "detailed_xp": [
-            309,
+            340,
             820,
-            3209
+            3240
         ],
         "level": 8,
-        "messages": 222,
+        "messages": 224,
         "avatar": "https://cdn.discordapp.com/avatars/138380316095021056/f912ef80e2616dbb2221fcb2dbd09ab9.png",
         "gang": null,
         "prestige": 0,
