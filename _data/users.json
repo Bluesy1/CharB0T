@@ -5,12 +5,12 @@
         "discriminator": "8150",
         "xp": "55.5k",
         "detailed_xp": [
-            4202,
+            4245,
             5095,
-            55457
+            55500
         ],
         "level": 27,
-        "messages": 3777,
+        "messages": 3780,
         "avatar": "https://cdn.discordapp.com/avatars/363095569515806722/ccf12c126a6827a5b07a4e579a52b043.png",
         "gang": null,
         "prestige": 0,
@@ -20,14 +20,14 @@
         "id": 465356664657149952,
         "name": "Mordakai Slivermoon",
         "discriminator": "7762",
-        "xp": "29.6k",
+        "xp": "29.7k",
         "detailed_xp": [
-            2693,
+            2732,
             3355,
-            29650
+            29689
         ],
         "level": 21,
-        "messages": 2034,
+        "messages": 2037,
         "avatar": "https://cdn.discordapp.com/avatars/465356664657149952/69046661ae37d5aeacd06e8670bd2cd1.png",
         "gang": null,
         "prestige": 0,
@@ -243,12 +243,12 @@
         "discriminator": "4528",
         "xp": "7.5k",
         "detailed_xp": [
-            422,
+            447,
             1420,
-            7463
+            7488
         ],
         "level": 12,
-        "messages": 510,
+        "messages": 512,
         "avatar": "https://cdn.discordapp.com/avatars/725373259817811988/546e55f0087341def7d2533f7738b5e3.png",
         "gang": null,
         "prestige": 0,
@@ -748,6 +748,23 @@
         "rank": 44
     },
     {
+        "id": 970444057417498635,
+        "name": "lime",
+        "discriminator": "2794",
+        "xp": "1.2k",
+        "detailed_xp": [
+            59,
+            475,
+            1209
+        ],
+        "level": 5,
+        "messages": 83,
+        "avatar": "https://cdn.discordapp.com/avatars/970444057417498635/db5b5928be9783c9026cb5140d619c5d.png",
+        "gang": null,
+        "prestige": 0,
+        "rank": 45
+    },
+    {
         "id": 254322038817292289,
         "name": "Lolgamingxl",
         "discriminator": "0546",
@@ -760,23 +777,6 @@
         "level": 5,
         "messages": 82,
         "avatar": "https://cdn.discordapp.com/avatars/254322038817292289/c52472a9f4dc45be30de2160c6a0fd38.png",
-        "gang": null,
-        "prestige": 0,
-        "rank": 45
-    },
-    {
-        "id": 970444057417498635,
-        "name": "lime",
-        "discriminator": "2794",
-        "xp": "1.2k",
-        "detailed_xp": [
-            46,
-            475,
-            1196
-        ],
-        "level": 5,
-        "messages": 82,
-        "avatar": "https://cdn.discordapp.com/avatars/970444057417498635/db5b5928be9783c9026cb5140d619c5d.png",
         "gang": null,
         "prestige": 0,
         "rank": 46
@@ -1547,23 +1547,6 @@
         "rank": 91
     },
     {
-        "id": 791742375117455381,
-        "name": "Magpie",
-        "discriminator": "5751",
-        "xp": "119",
-        "detailed_xp": [
-            19,
-            155,
-            119
-        ],
-        "level": 1,
-        "messages": 8,
-        "avatar": "https://cdn.discordapp.com/avatars/791742375117455381/1bde9e89e74cfedbb72e489e55d4bfd8.png",
-        "gang": null,
-        "prestige": 0,
-        "rank": 92
-    },
-    {
         "id": 342296474257719308,
         "name": "Alexander Berner",
         "discriminator": "0926",
@@ -1576,6 +1559,23 @@
         "level": 1,
         "messages": 8,
         "avatar": "https://cdn.discordapp.com/avatars/342296474257719308/98a086f9fc81f8c66025e499e3601a06.png",
+        "gang": null,
+        "prestige": 0,
+        "rank": 92
+    },
+    {
+        "id": 791742375117455381,
+        "name": "Magpie",
+        "discriminator": "5751",
+        "xp": "119",
+        "detailed_xp": [
+            19,
+            155,
+            119
+        ],
+        "level": 1,
+        "messages": 8,
+        "avatar": "https://cdn.discordapp.com/avatars/791742375117455381/1bde9e89e74cfedbb72e489e55d4bfd8.png",
         "gang": null,
         "prestige": 0,
         "rank": 93
@@ -2397,6 +2397,23 @@
         "rank": 141
     },
     {
+        "id": 899586789235388416,
+        "name": "Dawsondude11",
+        "discriminator": "4588",
+        "xp": "27",
+        "detailed_xp": [
+            27,
+            100,
+            27
+        ],
+        "level": 0,
+        "messages": 2,
+        "avatar": "https://cdn.discordapp.com/embed/avatars/3.png",
+        "gang": null,
+        "prestige": 0,
+        "rank": 142
+    },
+    {
         "id": 326740167425785866,
         "name": "Starkiller09",
         "discriminator": "6949",
@@ -2411,7 +2428,7 @@
         "avatar": "https://cdn.discordapp.com/embed/avatars/4.png",
         "gang": null,
         "prestige": 0,
-        "rank": 142
+        "rank": 143
     },
     {
         "id": 902960698915688520,
@@ -2428,7 +2445,7 @@
         "avatar": "https://cdn.discordapp.com/avatars/902960698915688520/a5d979b04a61d6e5d4a077d3343cd812.png",
         "gang": null,
         "prestige": 0,
-        "rank": 143
+        "rank": 144
     },
     {
         "id": 851448719944974387,
@@ -2443,23 +2460,6 @@
         "level": 0,
         "messages": 2,
         "avatar": "https://cdn.discordapp.com/avatars/851448719944974387/af8830e54fe261dadf82cfe5e810abdb.png",
-        "gang": null,
-        "prestige": 0,
-        "rank": 144
-    },
-    {
-        "id": 899586789235388416,
-        "name": "Dawsondude11",
-        "discriminator": "4588",
-        "xp": "27",
-        "detailed_xp": [
-            27,
-            100,
-            27
-        ],
-        "level": 0,
-        "messages": 2,
-        "avatar": "https://cdn.discordapp.com/embed/avatars/3.png",
         "gang": null,
         "prestige": 0,
         "rank": 145
