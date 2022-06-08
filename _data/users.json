@@ -5,12 +5,12 @@
         "discriminator": "8150",
         "xp": "55.4k",
         "detailed_xp": [
-            4146,
+            4157,
             5095,
-            55401
+            55412
         ],
         "level": 27,
-        "messages": 3773,
+        "messages": 3774,
         "avatar": "https://cdn.discordapp.com/avatars/363095569515806722/ccf12c126a6827a5b07a4e579a52b043.png",
         "gang": null,
         "prestige": 0,
@@ -107,12 +107,12 @@
         "discriminator": "0001",
         "xp": "11.9k",
         "detailed_xp": [
-            47,
+            77,
             1975,
-            11874
+            11904
         ],
         "level": 15,
-        "messages": 807,
+        "messages": 809,
         "avatar": "https://cdn.discordapp.com/avatars/225344348903047168/a_44adaea1066b1489bfe2aeebb0922d33.png",
         "gang": null,
         "prestige": 0,
@@ -938,14 +938,14 @@
         "id": 722228570612564028,
         "name": "the noter",
         "discriminator": "7675",
-        "xp": "724",
+        "xp": "740",
         "detailed_xp": [
-            241,
+            257,
             295,
-            724
+            740
         ],
         "level": 3,
-        "messages": 50,
+        "messages": 51,
         "avatar": "https://cdn.discordapp.com/avatars/722228570612564028/aa5272c9d2a0baa70a46bdd56933de96.png",
         "gang": null,
         "prestige": 0,
