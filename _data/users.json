@@ -39,12 +39,12 @@
         "discriminator": "8014",
         "xp": "25.1k",
         "detailed_xp": [
-            1266,
+            1278,
             3100,
-            25123
+            25135
         ],
         "level": 20,
-        "messages": 1719,
+        "messages": 1720,
         "avatar": "https://cdn.discordapp.com/avatars/434764784353804305/079e9acbab412d57da60f98460454d62.png",
         "gang": null,
         "prestige": 0,
@@ -362,12 +362,12 @@
         "discriminator": "1947",
         "xp": "3.2k",
         "detailed_xp": [
-            294,
+            309,
             820,
-            3194
+            3209
         ],
         "level": 8,
-        "messages": 221,
+        "messages": 222,
         "avatar": "https://cdn.discordapp.com/avatars/138380316095021056/f912ef80e2616dbb2221fcb2dbd09ab9.png",
         "gang": null,
         "prestige": 0,
@@ -1003,6 +1003,23 @@
         "rank": 59
     },
     {
+        "id": 612357341794402307,
+        "name": "lucian",
+        "discriminator": "9800",
+        "xp": "494",
+        "detailed_xp": [
+            16,
+            295,
+            494
+        ],
+        "level": 3,
+        "messages": 34,
+        "avatar": "https://cdn.discordapp.com/avatars/612357341794402307/f2e402d7a82eca7b63cf8fb1859d7778.png",
+        "gang": null,
+        "prestige": 0,
+        "rank": 60
+    },
+    {
         "id": 746906063533768814,
         "name": "pixi76",
         "discriminator": "7196",
@@ -1015,23 +1032,6 @@
         "level": 3,
         "messages": 32,
         "avatar": "https://cdn.discordapp.com/embed/avatars/1.png",
-        "gang": null,
-        "prestige": 0,
-        "rank": 60
-    },
-    {
-        "id": 612357341794402307,
-        "name": "lucian",
-        "discriminator": "9800",
-        "xp": "478",
-        "detailed_xp": [
-            0,
-            295,
-            478
-        ],
-        "level": 3,
-        "messages": 33,
-        "avatar": "https://cdn.discordapp.com/avatars/612357341794402307/f2e402d7a82eca7b63cf8fb1859d7778.png",
         "gang": null,
         "prestige": 0,
         "rank": 61
