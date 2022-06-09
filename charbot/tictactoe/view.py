@@ -72,7 +72,7 @@ class TicTacView(ui.View):
     """
 
     def __init__(self, bot: CBot, letter: str = "X", easy: bool = True):
-        super(TicTacView, self).__init__(timeout=300)
+        super().__init__(timeout=300)
         self.letter = letter
         self.puzzle: TicTacABC = TicTacEasy(self.letter) if easy else TicTacHard(self.letter)
         self.bot = bot
