@@ -94,13 +94,13 @@ class Leveling(commands.Cog):
     async def cog_load(self) -> None:
         """Load the cog."""
         self.off_cooldown = self.bot.holder.pop("off_xp_cooldown", {})
-
         self.update_pages.start()
 
     async def cog_unload(self) -> None:  # skipcq: PYL-W0236
         """Unload the cog."""
         self.bot.holder["off_xp_cooldown"] = self.off_cooldown
         self.update_pages.cancel()
+        await self.session.close()
 
     @tasks.loop(time=[datetime.time(i) for i in range(0, 24)])  # skipcq: PYL-E1123
     async def update_pages(self) -> None:
