@@ -38,6 +38,8 @@ from discord.utils import MISSING, format_dt, utcnow
 from dotenv import load_dotenv
 from validators import url
 
+from . import CBot
+
 
 load_dotenv()
 
@@ -205,8 +207,8 @@ class Calendar(commands.Cog):
         Loads the cog.
     """
 
-    def __init__(self, bot: commands.Bot):
-        self.bot = bot
+    def __init__(self, bot: CBot):
+        self.bot: CBot = bot
         self.message: discord.WebhookMessage = MISSING
         self.week_end = (
             utcnow().replace(hour=0, minute=0, second=0, microsecond=0)
@@ -219,12 +221,15 @@ class Calendar(commands.Cog):
     async def cog_unload(self) -> None:  # skipcq: PYL-W0236
         """Unload hook."""
         self.calendar.cancel()
+        self.bot.holder["message"] = self.message
+        self.bot.holder["webhook"] = self.webhook
 
     async def cog_load(self) -> None:
         """Load hook."""
         webhook_id = os.getenv("WEBHOOK_ID")
         assert isinstance(webhook_id, str)  # skipcq: BAN-B101
-        self.webhook = await self.bot.fetch_webhook(int(webhook_id))
+        self.webhook = self.bot.holder.pop("webhook", await self.bot.fetch_webhook(int(webhook_id)))
+        self.message = self.bot.holder.pop("message", MISSING)
         self.calendar.start()
 
     @tasks.loop()
@@ -304,7 +309,7 @@ class Calendar(commands.Cog):
             self.message = await self.message.edit(embed=calendar_embed(fields, min(times, default=None)))
 
 
-async def setup(bot: commands.Bot):
+async def setup(bot: CBot):
     """Load the cog to the bot.
 
     Parameters
