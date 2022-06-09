@@ -65,9 +65,17 @@ Wednesday, May 25th 2022
 - Updated the giveaway [draw]({{github}}/charbot/giveaway.py) to list names+discriminators for winners on top of pings
   to fix client caching issue.
   - Require two extra API requests to get the backup winners member objects from the discord API.
-- Moved rollcall and reputation commands to [programs]({{github}}/charbot/programs.py) from [giveaway]({{github}}/charbot/giveaway.py)
+- Moved rollcall and reputation commands to [programs]({{github}}/charbot/programs.py) from
+  [giveaway]({{github}}/charbot/giveaway.py)
   to avoid the issue described in this [postmortem](/CharB0T{% post_url 2022-05-22-giveaway-error-postmortem %}).
 - Made sure people can't trigger [pool]({{github}}/charbot/pools.py) completion once a pool is complete,
 - limiting it to one announcement per pool being full.
 - Moved all the programs commands to the [programs]({{github}}/charbot/programs.py) group to combine it into one group.
 - Updated [query]({{github}}/charbot/query.py) to have correct responses and removed one temporary joke command.
+
+Thursday, June 9th 2022
+----------------------
+
+ - Added a leveling system, [levels]({{github}}/charbot/levels.py).
+ - Fixed a bug in the hard mode of [tictactoe]({{github}}/charbot/tictactoe).
+ - Fixed an issue with [tictactoe]({{github}}/charbot/tictactoe) where the image wouldn't appear in an embed properly.
