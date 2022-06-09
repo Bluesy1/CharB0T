@@ -35,7 +35,7 @@ with conn, conn.cursor() as cur:
                         "id": str(user[0]),
                         "name": user[1],
                         "discriminator": user[2],
-                        "xp": user[3],
+                        "xp": get_str(int(user[3])),
                         "detailed_xp": user[4],
                         "level": user[5],
                         "messages": user[6],
