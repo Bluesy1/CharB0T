@@ -1,0 +1,2 @@
+psycopg2==2.9.3
+orjson==3.7.2
