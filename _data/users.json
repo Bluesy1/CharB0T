@@ -105,14 +105,14 @@
     "id": "225344348903047168",
     "name": "CharliePryor",
     "discriminator": "0001",
-    "xp": 11959,
+    "xp": 11973,
     "detailed_xp": [
-      132,
+      146,
       1975,
-      11959
+      11973
     ],
     "level": 15,
-    "messages": 813,
+    "messages": 814,
     "avatar": "https://cdn.discordapp.com/avatars/225344348903047168/a_44adaea1066b1489bfe2aeebb0922d33.png",
     "gang": null,
     "prestige": 0,
@@ -207,14 +207,14 @@
     "id": "615334339349184522",
     "name": "ssWinni",
     "discriminator": "7585",
-    "xp": 8164,
+    "xp": 8181,
     "detailed_xp": [
-      1134,
+      1151,
       1420,
-      8164
+      8181
     ],
     "level": 12,
-    "messages": 554,
+    "messages": 555,
     "avatar": "https://cdn.discordapp.com/avatars/615334339349184522/f26d5bb99c50ed137bc9069b70e16fbf.png",
     "gang": null,
     "prestige": 0,
