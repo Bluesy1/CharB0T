@@ -26,7 +26,7 @@ def get_str(xp):
 
 with conn, conn.cursor() as cur:
     cur.execute("SELECT *, ROW_NUMBER() OVER(ORDER BY xp DESC) FROM xp_users ORDER BY xp DESC")
-    with open("_data/users.json", "b") as r:
+    with open("_data/users.json", "rb") as r:
         old = r.read()
     with open("_data/users.json", "wb") as f:
         new = orjson.dumps(
