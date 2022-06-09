@@ -3,14 +3,14 @@
     "id": "363095569515806722",
     "name": "Bluesy",
     "discriminator": "8150",
-    "xp": "56.4k",
+    "xp": "56.5k",
     "detailed_xp": [
-      30,
+      108,
       5420,
-      56390
+      56468
     ],
     "level": 28,
-    "messages": 3840,
+    "messages": 3845,
     "avatar": "https://cdn.discordapp.com/avatars/363095569515806722/ccf12c126a6827a5b07a4e579a52b043.png",
     "gang": null,
     "prestige": 0,
@@ -20,14 +20,14 @@
     "id": "465356664657149952",
     "name": "Mordakai Slivermoon",
     "discriminator": "7762",
-    "xp": "30.2k",
+    "xp": "30.3k",
     "detailed_xp": [
-      3226,
+      3329,
       3355,
-      30183
+      30286
     ],
     "level": 21,
-    "messages": 2071,
+    "messages": 2078,
     "avatar": "https://cdn.discordapp.com/avatars/465356664657149952/69046661ae37d5aeacd06e8670bd2cd1.png",
     "gang": null,
     "prestige": 0,
@@ -71,14 +71,14 @@
     "id": "470021089104494598",
     "name": "Copperspikes",
     "discriminator": "6862",
-    "xp": "17.6k",
+    "xp": "17.7k",
     "detailed_xp": [
-      1629,
+      1678,
       2395,
-      17609
+      17658
     ],
     "level": 17,
-    "messages": 1207,
+    "messages": 1210,
     "avatar": "https://cdn.discordapp.com/avatars/470021089104494598/609eb666ab567abadd68dcfc4d7c042c.png",
     "gang": null,
     "prestige": 0,
@@ -124,12 +124,12 @@
     "discriminator": "1179",
     "xp": "9.7k",
     "detailed_xp": [
-      1204,
+      1230,
       1595,
-      9654
+      9680
     ],
     "level": 13,
-    "messages": 661,
+    "messages": 663,
     "avatar": "https://cdn.discordapp.com/avatars/389137667926786060/a0938cefc089461da843738b184389f5.png",
     "gang": null,
     "prestige": 0,
@@ -260,12 +260,12 @@
     "discriminator": "7958",
     "xp": "7.3k",
     "detailed_xp": [
-      207,
+      237,
       1420,
-      7256
+      7286
     ],
     "level": 12,
-    "messages": 498,
+    "messages": 500,
     "avatar": "https://cdn.discordapp.com/avatars/244529987510599680/803f09d621468a326fc9f8ff25225579.png",
     "gang": null,
     "prestige": 0,
