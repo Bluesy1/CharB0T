@@ -195,19 +195,13 @@ class TicTacHard(TicTacEasy):
                 if (c1 - gap, c2 - gap + j) in available:  # TOP LEFT TO TOP RIGHT
                     self.board[c1 - gap][c2 - gap + j] = comp_pick
                     return c1 - gap, c2 - gap + j
-                if (
-                    c1 + gap,
-                    c2 - gap + j,
-                ) in available:  # BOTTOM LEFT TO BOTTOM RIGHT
+                if (c1 + gap, c2 - gap + j) in available:  # BOTTOM LEFT TO BOTTOM RIGHT
                     self.board[c1 + gap][c2 - gap + j] = comp_pick
                     return c1 + gap, c2 - gap + j
-                if (c1 - gap, c2 - gap) in available:  # LEFT TOP TO LEFT BOTTOM
+                if (c1 - gap + j, c2 - gap) in available:  # LEFT TOP TO LEFT BOTTOM
                     self.board[c1 - gap + j][c2 - gap] = comp_pick
                     return c1 - gap + j, c2 - gap
-                if (
-                    c1 - gap + j,
-                    c2 + gap,
-                ) in available:  # RIGHT TOP TO RIGHT BOTTOM
+                if (c1 - gap + j, c2 + gap) in available:  # RIGHT TOP TO RIGHT BOTTOM
                     self.board[c1 - gap + j][c2 + gap] = comp_pick
                     return c1 - gap + j, c2 + gap
         return 0

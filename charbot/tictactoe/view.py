@@ -72,7 +72,7 @@ class TicTacView(ui.View):
     """
 
     def __init__(self, bot: CBot, letter: str = "X", easy: bool = True):
-        super().__init__(timeout=300)
+        super(TicTacView, self).__init__(timeout=300)
         self.letter = letter
         self.puzzle: TicTacABC = TicTacEasy(self.letter) if easy else TicTacHard(self.letter)
         self.bot = bot
@@ -144,6 +144,8 @@ class TicTacView(ui.View):
         else:
             move = await self.bot.loop.run_in_executor(None, self.puzzle.next)
         self._buttons[move[0] * 3 + move[1]].disabled = True
+        if self.puzzle.board[move[0]][move[1]] == "blur":
+            self.puzzle.board[move[0]][move[1]] = "O" if self.letter == "X" else "X"
         image = await self.bot.loop.run_in_executor(None, self.puzzle.display)
         if self.puzzle.check_win() == -1 and all(button.disabled for button in self._buttons):
             points = self.puzzle.points
