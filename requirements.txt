@@ -1,17 +1,16 @@
 aiohttp[speedups]==3.8.1
 asyncpg==0.25.0
 discord.py[speed] @ git+https://github.com/Rapptz/discord.py@master#egg=discord.py
-
 disrank==0.0.2
 jishaku==2.5.0
 matplotlib==3.5.2
 numpy==1.22.4
+orjson==3.7.2
 pandas==1.4.2
-
 Pillow==9.1.1
 python-dotenv==0.20.0
 pytz==2022.1
 scipy==1.8.1
 uvloop==0.16.0
-validators==0.19.0
+validators==0.20.0
 yfinance==0.1.70

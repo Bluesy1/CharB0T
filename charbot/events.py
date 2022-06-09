@@ -23,15 +23,15 @@
 # SOFTWARE.
 #  ----------------------------------------------------------------------------
 """Event handling for Charbot."""
-import json
 import re
 from datetime import datetime, timedelta, timezone
 
 import discord
+import orjson
 from discord import Color, Embed
 from discord.ext import tasks
 from discord.ext.commands import Cog
-from discord.utils import utcnow
+from discord.utils import MISSING, utcnow
 
 from . import CBot
 
@@ -103,32 +103,25 @@ class Events(Cog):
         self.last_sensitive_logged = {}
         self.timeouts = {}
         self.members: dict[int, datetime] = {}
+        self.webhook: discord.Webhook = MISSING
 
     async def cog_load(self) -> None:
         """Cog load function.
 
         This is called when the cog is loaded, and initializes the
         log_untimeout task and the members cache
-
-        Parameters
-        ----------
-        self : PrimaryFunctions
-            The PrimaryFunctions object
         """
         self.log_untimeout.start()
         guild = await self.bot.fetch_guild(225345178955808768)
         generator = guild.fetch_members(limit=None)
         self.members.update({user.id: user.joined_at async for user in generator if user.joined_at is not None})
+        with open("charbot/sensitive_settings.json", "rb", encoding="utf8") as json_dict:
+            self.webhook = await self.bot.fetch_webhook(orjson.loads(json_dict.read())["webhook_id"])
 
     async def cog_unload(self) -> None:  # skipcq: PYL-W0236
         """Call when cog is unloaded.
 
         This stops the log_untimeout task
-
-        Parameters
-        ----------
-        self : PrimaryFunctions
-            The PrimaryFunctions object
         """
         self.log_untimeout.cancel()
 
@@ -137,8 +130,6 @@ class Events(Cog):
 
         Parameters
         ----------
-        self : PrimaryFunctions
-            The PrimaryFunctions object
         after : discord.Member
             The member after the update
         """
@@ -160,11 +151,9 @@ class Events(Cog):
         embed.set_author(name=f"[TIMEOUT] {after.name}#{after.discriminator}")
         embed.add_field(name="User", value=after.mention, inline=True)
         embed.add_field(name="Duration", value=time_string, inline=True)
-        with open("charbot/sensitive_settings.json", encoding="utf8") as json_dict:
-            webhook = await self.bot.fetch_webhook(json.load(json_dict)["webhook_id"])
         bot_user = self.bot.user
         assert isinstance(bot_user, discord.ClientUser)  # skipcq: BAN-B101
-        await webhook.send(username=bot_user.name, avatar_url=bot_user.display_avatar.url, embed=embed)
+        await self.webhook.send(username=bot_user.name, avatar_url=bot_user.display_avatar.url, embed=embed)
         self.timeouts.update({after.id: after.timed_out_until})
 
     async def sensitive_scan(self, message: discord.Message) -> None:
@@ -174,16 +163,14 @@ class Events(Cog):
 
         Parameters
         ----------
-        self : Events
-            The Events cog.
         message : discord.Message
             The message to check.
         """
         if message.guild is not None and message.guild.id == 225345178955808768:
             channel = message.channel
             assert isinstance(channel, (discord.abc.GuildChannel, discord.Thread))  # skipcq: BAN-B101
-            with open("charbot/sensitive_settings.json", encoding="utf8") as json_dict:
-                fulldict = json.load(json_dict)
+            with open("charbot/sensitive_settings.json", "rb", encoding="utf8") as json_dict:
+                fulldict = orjson.loads(json_dict.read())
             used_words = set()
             count_found = 0
             for word in fulldict["words"]:
@@ -198,7 +185,6 @@ class Events(Cog):
                     (count_found >= 1 and (len(message.content) - len("".join(used_words))) < 25),
                 ]
             ):
-                webhook = await self.bot.fetch_webhook(fulldict["webhook_id"])
                 category = channel.category
                 if channel.id in (837816311722803260, 926532222398369812) or (
                     category is not None and category.id in (360818916861280256, 942578610336837632)
@@ -206,7 +192,7 @@ class Events(Cog):
                     return
                 bot_user = self.bot.user
                 assert isinstance(bot_user, discord.ClientUser)  # skipcq: BAN-B101
-                await webhook.send(
+                await self.webhook.send(
                     username=bot_user.name,
                     avatar_url=bot_user.display_avatar.url,
                     embed=sensitive_embed(message, used_words),
@@ -220,11 +206,6 @@ class Events(Cog):
 
         This task runs every 30 seconds and checks if any users that have been timed out have had their timeouts
         expired. If they have, it will send a message to the mod channel.
-
-        Parameters
-        ----------
-        self : PrimaryFunctions
-            The PrimaryFunctions object
         """
         removeable = []
         for i, j in self.timeouts.copy().items():
@@ -234,11 +215,9 @@ class Events(Cog):
                     embed = Embed(color=Color.green())
                     embed.set_author(name=f"[UNTIMEOUT] {member.name}#{member.discriminator}")
                     embed.add_field(name="User", value=member.mention, inline=True)
-                    with open("charbot/sensitive_settings.json", encoding="utf8") as json_dict:
-                        webhook = await self.bot.fetch_webhook(json.load(json_dict)["webhook_id"])
                     bot_user = self.bot.user
                     assert isinstance(bot_user, discord.ClientUser)  # skipcq: BAN-B101
-                    await webhook.send(username=bot_user.name, avatar_url=bot_user.display_avatar.url, embed=embed)
+                    await self.webhook.send(username=bot_user.name, avatar_url=bot_user.display_avatar.url, embed=embed)
                     removeable.append(i)
                 elif member.is_timed_out():
                     self.timeouts.update({i: member.timed_out_until})
@@ -251,8 +230,6 @@ class Events(Cog):
 
         Parameters
         ----------
-        self : PrimaryFunctions
-            The PrimaryFunctions object
         member : discord.Member
             The member that joined the server
         """
@@ -265,8 +242,6 @@ class Events(Cog):
 
         Parameters
         ----------
-        self : PrimaryFunctions
-            The PrimaryFunctions object
         payload : discord.RawMemberRemoveEvent
             The payload of the member leaving the server
         """
@@ -299,8 +274,6 @@ class Events(Cog):
 
         Parameters
         ----------
-        self : PrimaryFunctions
-            The PrimaryFunctions object
         before : discord.Member
             The member before the update
         after : discord.Member
@@ -314,11 +287,9 @@ class Events(Cog):
                     embed = Embed(color=Color.green())
                     embed.set_author(name=f"[UNTIMEOUT] {after.name}#{after.discriminator}")
                     embed.add_field(name="User", value=after.mention, inline=True)
-                    with open("charbot/sensitive_settings.json", encoding="utf8") as json_dict:
-                        webhook = await self.bot.fetch_webhook(json.load(json_dict)["webhook_id"])
                     bot_user = self.bot.user
                     assert isinstance(bot_user, discord.ClientUser)  # skipcq: BAN-B101
-                    await webhook.send(username=bot_user.name, avatar_url=bot_user.display_avatar.url, embed=embed)
+                    await self.webhook.send(username=bot_user.name, avatar_url=bot_user.display_avatar.url, embed=embed)
                     self.timeouts.pop(after.id)
         except Exception:  # skipcq: PYL-W0703
             if after.is_timed_out():
@@ -335,8 +306,6 @@ class Events(Cog):
 
         Parameters
         ----------
-        self : Events
-            The Events cog.
         message : discord.Message
             The message sent to the websocket from discord.
         """
@@ -373,8 +342,6 @@ class Events(Cog):
                     discord.Object(id=684936661745795088),
                 )
                 await message.delete()
-                with open("charbot/sensitive_settings.json", encoding="utf8") as json_dict:
-                    webhook = await self.bot.fetch_webhook(json.load(json_dict)["webhook_id"])
                 embed = Embed(
                     description=message.content,
                     title="Mute: Everyone/Here Ping sent by non mod",
@@ -385,7 +352,7 @@ class Events(Cog):
                 )
                 bot_user = self.bot.user
                 assert isinstance(bot_user, discord.ClientUser)  # skipcq: BAN-B101
-                await webhook.send(username=bot_user.name, avatar_url=bot_user.display_avatar.url, embed=embed)
+                await self.webhook.send(username=bot_user.name, avatar_url=bot_user.display_avatar.url, embed=embed)
             if message.author.bot or not message.content:
                 return
             if re.search(r"~~:.|:;~~", message.content, re.MULTILINE | re.IGNORECASE) or re.search(

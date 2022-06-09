@@ -23,12 +23,12 @@
 # SOFTWARE.
 #  ----------------------------------------------------------------------------
 """Mod Support cog."""
-import json
 import sys
 import traceback
 from datetime import timedelta
 
 import discord
+import orjson
 from discord import Embed, Interaction, PermissionOverwrite, Permissions, app_commands, ui
 from discord.ext import tasks
 from discord.ext.commands import GroupCog
@@ -131,8 +131,8 @@ class ModSupport(GroupCog, name="modsupport", description="mod support command g
             The interaction object for the command.
         """
         if await edit_check(interaction):
-            with open("charbot/mod_support_blacklist.json", "r", encoding="utf8") as file:
-                blacklisted = [f"<@{item}>" for item in json.load(file)["blacklisted"]]
+            with open("charbot/mod_support_blacklist.json", "rb", encoding="utf8") as file:
+                blacklisted = [f"<@{item}>" for item in orjson.loads(file.read())["blacklisted"]]
             await interaction.response.send_message(
                 embed=Embed(title="Blacklisted users", description="\n".join(blacklisted)),
                 ephemeral=True,
@@ -160,21 +160,21 @@ class ModSupport(GroupCog, name="modsupport", description="mod support command g
         if await edit_check(interaction):
             if add:
                 successful = False
-                with open("charbot/mod_support_blacklist.json", "r", encoding="utf8") as file:
-                    modmail_blacklist = json.load(file)
+                with open("charbot/mod_support_blacklist.json", "rb", encoding="utf8") as file:
+                    modmail_blacklist = orjson.loads(file.read())
                 if user.id not in modmail_blacklist["blacklisted"]:
                     modmail_blacklist["blacklisted"].append(user.id)
-                    with open("charbot/mod_support_blacklist.json", "w", encoding="utf8") as file:
-                        json.dump(modmail_blacklist, file)
+                    with open("charbot/mod_support_blacklist.json", "wb", encoding="utf8") as file:
+                        file.write(orjson.dumps(modmail_blacklist))
                     successful = True
             else:
                 successful = False
-                with open("charbot/mod_support_blacklist.json", "r", encoding="utf8") as file:
-                    modmail_blacklist = json.load(file)
+                with open("charbot/mod_support_blacklist.json", "rb", encoding="utf8") as file:
+                    modmail_blacklist = orjson.loads(file.read())
                 if user.id in modmail_blacklist["blacklisted"]:
                     modmail_blacklist["blacklisted"].remove(user.id)
-                    with open("charbot/mod_support_blacklist.json", "w", encoding="utf8") as file:
-                        json.dump(modmail_blacklist, file)
+                    with open("charbot/mod_support_blacklist.json", "wb", encoding="utf8") as file:
+                        file.write(orjson.dumps(modmail_blacklist))
                     successful = True
             if add and successful:
                 await interaction.response.send_message(
@@ -253,8 +253,8 @@ class ModSupportButtons(ui.View):
         bool
             True if the interaction should be run, False otherwise.
         """
-        with open(self.filename, "r", encoding="utf8") as file:
-            return interaction.user.id not in json.load(file)["blacklisted"]
+        with open(self.filename, "rb", encoding="utf8") as file:
+            return interaction.user.id not in orjson.loads(file.read())["blacklisted"]
 
     async def standard_callback(self, button: discord.ui.Button, interaction: Interaction):
         """Just general and important and ememgrency callback helper.
@@ -416,8 +416,8 @@ class ModSupportModal(ui.Modal, title="Mod Support Form"):
         bool
             Whether or not the interaction user is allowed to use this modal.
         """
-        with open(self.filename, "r", encoding="utf8") as file:
-            return interaction.user.id not in json.load(file)["blacklisted"]
+        with open(self.filename, "rb", encoding="utf8") as file:
+            return interaction.user.id not in orjson.loads(file.read())["blacklisted"]
 
     short_description = ui.TextInput(
         label="Short Description of your problem/query",

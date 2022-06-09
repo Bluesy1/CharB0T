@@ -32,6 +32,7 @@ from zoneinfo import ZoneInfo
 
 import aiohttp
 import discord
+import orjson
 from discord.ext import commands, tasks
 from discord.utils import MISSING, format_dt, utcnow
 from dotenv import load_dotenv
@@ -242,7 +243,7 @@ class Calendar(commands.Cog):
         mindatetime = datetime.now(tz=timezone("US/Eastern"))
         maxdatetime = datetime.now(tz=timezone("US/Eastern")) + timedelta(weeks=1)
         async with aiohttp.ClientSession() as session, session.get(getUrl(mindatetime, maxdatetime)) as response:
-            items = await response.json()
+            items = await response.json(loads=orjson.loads)
         fields: dict[int, EmbedField] = {}
         cancelled_times = []
         times: set[datetime] = set()
