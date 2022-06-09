@@ -115,7 +115,7 @@ class Events(Cog):
         guild = await self.bot.fetch_guild(225345178955808768)
         generator = guild.fetch_members(limit=None)
         self.members.update({user.id: user.joined_at async for user in generator if user.joined_at is not None})
-        with open("charbot/sensitive_settings.json", "rb", encoding="utf8") as json_dict:
+        with open("charbot/sensitive_settings.json", "rb") as json_dict:
             self.webhook = await self.bot.fetch_webhook(orjson.loads(json_dict.read())["webhook_id"])
 
     async def cog_unload(self) -> None:  # skipcq: PYL-W0236
@@ -169,7 +169,7 @@ class Events(Cog):
         if message.guild is not None and message.guild.id == 225345178955808768:
             channel = message.channel
             assert isinstance(channel, (discord.abc.GuildChannel, discord.Thread))  # skipcq: BAN-B101
-            with open("charbot/sensitive_settings.json", "rb", encoding="utf8") as json_dict:
+            with open("charbot/sensitive_settings.json", "rb") as json_dict:
                 fulldict = orjson.loads(json_dict.read())
             used_words = set()
             count_found = 0
