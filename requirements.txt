@@ -9,7 +9,6 @@ orjson==3.7.2
 pandas==1.4.2
 Pillow==9.1.1
 python-dotenv==0.20.0
-pytz==2022.1
 scipy==1.8.1
 uvloop==0.16.0
 validators==0.20.0

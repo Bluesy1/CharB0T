@@ -26,9 +26,9 @@
 import datetime
 import random
 import sys
+from zoneinfo import ZoneInfo
 
 import discord
-import pytz
 from discord.ext import commands, tasks
 from discord.ext.commands import Cog
 from discord.utils import utcnow
@@ -185,13 +185,7 @@ class Primary(Cog):
         pass
 
     @tasks.loop(  # skipcq: PYL-E1123
-        time=datetime.time(
-            hour=17,
-            minute=0,
-            second=0,
-            microsecond=0,
-            tzinfo=pytz.timezone("US/Pacific"),
-        )
+        time=datetime.time(hour=17, minute=0, second=0, microsecond=0, tzinfo=ZoneInfo("America/Los_Angeles")),
     )
     async def friday_5(self) -> None:
         """Automated message every friday at 5:00pm Pacific Time.

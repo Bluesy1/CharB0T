@@ -26,7 +26,7 @@
 import datetime as _datetime
 import os
 from calendar import timegm
-from datetime import datetime, time, timedelta
+from datetime import datetime, time, timedelta, timezone
 from typing import NamedTuple, Optional
 from zoneinfo import ZoneInfo
 
@@ -36,7 +36,6 @@ import orjson
 from discord.ext import commands, tasks
 from discord.utils import MISSING, format_dt, utcnow
 from dotenv import load_dotenv
-from pytz import timezone
 from validators import url
 
 
@@ -106,7 +105,7 @@ def ceil_dt(dt: datetime, delta: timedelta) -> datetime:
     datetime
         The rounded datetime.
     """
-    return dt + (datetime(_datetime.MINYEAR, 1, 1, tzinfo=timezone("UTC")) - dt) % delta
+    return dt + (datetime(_datetime.MINYEAR, 1, 1, tzinfo=timezone.utc) - dt) % delta
 
 
 def default_field(dictionary: dict[int, EmbedField], add_time: datetime, item: dict) -> None:
@@ -240,8 +239,8 @@ class Calendar(commands.Cog):
             webhook_id = os.getenv("WEBHOOK_ID")
             assert isinstance(webhook_id, str)  # skipcq: BAN-B101
             self.webhook = await self.bot.fetch_webhook(int(webhook_id))
-        mindatetime = datetime.now(tz=timezone("US/Eastern"))
-        maxdatetime = datetime.now(tz=timezone("US/Eastern")) + timedelta(weeks=1)
+        mindatetime = datetime.now(tz=ZoneInfo("America/New_York"))
+        maxdatetime = datetime.now(tz=ZoneInfo("America/New_York")) + timedelta(weeks=1)
         async with aiohttp.ClientSession() as session, session.get(getUrl(mindatetime, maxdatetime)) as response:
             items = await response.json(loads=orjson.loads)
         fields: dict[int, EmbedField] = {}
