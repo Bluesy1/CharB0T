@@ -134,10 +134,9 @@ class TicTacView(ui.View):
                 f"You gained {gained_points} reputation. "
                 f"{'(Daily Cap Reached)' if gained_points != max_points else ''}",
                 color=discord.Color.green(),
-            )
+            ).set_image(url="attachment://tictactoe.png")
             self.disable()
             image = await self.bot.loop.run_in_executor(None, self.puzzle.display)
-            await interaction.edit_original_message(attachments=[])
             await interaction.edit_original_message(attachments=[image], embed=embed, view=self)
             return
         if isinstance(self.puzzle, TicTacEasy):
@@ -161,7 +160,6 @@ class TicTacView(ui.View):
                 color=discord.Color.gold(),
             ).set_image(url="attachment://tictactoe.png")
             self.disable()
-            await interaction.edit_original_message(attachments=[])
             await interaction.edit_original_message(attachments=[image], embed=embed, view=self)
             return
         if self.puzzle.check_win() == 0:
@@ -179,11 +177,9 @@ class TicTacView(ui.View):
                 color=discord.Color.red(),
             ).set_image(url="attachment://tictactoe.png")
             self.disable()
-            await interaction.edit_original_message(attachments=[])
             await interaction.edit_original_message(attachments=[image], embed=embed, view=self)
             return
-        await interaction.edit_original_message(attachments=[], view=self)
-        await interaction.edit_original_message(attachments=[image])
+        await interaction.edit_original_message(attachments=[image], view=self)
 
     @ui.button(style=ButtonStyle.green, emoji="✅")
     async def top_left(self, interaction: Interaction, button: ui.Button):
