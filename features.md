@@ -26,7 +26,8 @@ Libraries and Tools Used:
  - Scipy: [SciPy](https://www.scipy.org/) for scientific computing.
  - Aiohttp: [aiohttp](https://aiohttp.readthedocs.io/en/stable/) for asynchronous HTTP requests.
  - Orjson: [ijl](https://github.com/ijl) / [orjson](https://github.com/ijl/orjson) for a faster JSON serialization and
-  deserialization than the standard python [JSON](https://docs.python.org/3.10/library/json.html#module-json) written in rust.
+  deserialization than the standard python [JSON](https://docs.python.org/3.10/library/json.html#module-json) library
+  as orjson is written in rust.
  - Uvloop: [uvloop](https://uvloop.readthedocs.io/) for a superior asyncio event loop.
  - Validators: [validators](https://validators.readthedocs.io/en/latest/) for validating data.
  - Pyright: [microsoft](https://github.com/Microsoft) / [pyright](https://github.com/Microsoft/pyright) for static type analysis in python.
