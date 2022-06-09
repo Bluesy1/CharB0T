@@ -80,6 +80,8 @@ class TicTacABC(abc.ABC):
         Make an AI move.
     """
 
+    board: list[list[str]]
+
     @property
     @abc.abstractmethod
     def letter(self) -> str:
