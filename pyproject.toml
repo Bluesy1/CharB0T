@@ -1,5 +1,10 @@
 [build-system]
-requires = ["setuptools>=40.8.0", "git+https://github.com/Rapptz/discord.py@master#egg=discord.py"]
+requires = ["setuptools>=42", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[tool.pytest.ini_options]
+minversion = "7.1.2"
+asyncio_mode = "strict"
 
 [tool.pyright]
 pythonPlatform = "Linux"
