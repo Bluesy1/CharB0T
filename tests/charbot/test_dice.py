@@ -45,7 +45,7 @@ class TestDice:
         mock_bot = Mock(spec=commands.Bot)
         mock_ctx.author.mention = "mock"
         cog = dice.Roll(mock_bot)
-        await cog.roll.__call__(mock_ctx, mock_ctx, dice="1d4+5")
+        await cog.roll.__call__(mock_ctx, mock_ctx, dice="1d4+5")  # type: ignore
         mock_ctx.reply.assert_called_once_with(
             "mock rolled `1d4+5` got `1, 5` for a total value of: 6", mention_author=True
         )
@@ -56,7 +56,7 @@ class TestDice:
         mock_bot = Mock(spec=commands.Bot)
         mock_ctx.author.mention = "mock"
         cog = dice.Roll(mock_bot)
-        await cog.roll.__call__(mock_ctx, mock_ctx, dice="1e4+5")
+        await cog.roll.__call__(mock_ctx, mock_ctx, dice="1e4+5")  # type: ignore
         mock_ctx.reply.assert_called_once_with(
             "mock Error invalid argument: specified dice can only be d<int>, or if a constant"
             " modifier must be a perfect integer, positive or negative, connected with `+`, and no spaces.",
