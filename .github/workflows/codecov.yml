@@ -1,9 +1,6 @@
 name: Code Coverage
 
-on:
-  push:
-  pull_request:
-    types: [ opened, reopened, synchronize ]
+on: [push]
 
 jobs:
     codecov:
@@ -16,12 +13,12 @@ jobs:
             cache: "pip"
             cache-dependency-path: |
               requirements.txt
-              requirements-dev.txt
+              requirements-tests.txt
         - name: Dependencies
           run: |
               pip install -U pip
               pip install -U -r requirements.txt
-              pip install pytest pytest-cov pytest-asyncio
+              pip install -U -r requirements-tests.txt
               pip install -e .
         - name: Run pytest
           id: pytest
