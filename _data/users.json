@@ -5,12 +5,12 @@
     "discriminator": "8150",
     "xp": "57.0k",
     "detailed_xp": [
-      627,
+      687,
       5420,
-      56987
+      57047
     ],
     "level": 28,
-    "messages": 3881,
+    "messages": 3885,
     "avatar": "https://cdn.discordapp.com/avatars/363095569515806722/ccf12c126a6827a5b07a4e579a52b043.png",
     "gang": null,
     "prestige": 0,
@@ -20,14 +20,14 @@
     "id": "465356664657149952",
     "name": "Mordakai Slivermoon",
     "discriminator": "7762",
-    "xp": "30.4k",
+    "xp": "30.6k",
     "detailed_xp": [
-      109,
+      243,
       3620,
-      30436
+      30570
     ],
     "level": 22,
-    "messages": 2089,
+    "messages": 2098,
     "avatar": "https://cdn.discordapp.com/avatars/465356664657149952/69046661ae37d5aeacd06e8670bd2cd1.png",
     "gang": null,
     "prestige": 0,
@@ -209,12 +209,12 @@
     "discriminator": "7585",
     "xp": "8.2k",
     "detailed_xp": [
-      1151,
+      1188,
       1420,
-      8181
+      8218
     ],
     "level": 12,
-    "messages": 555,
+    "messages": 558,
     "avatar": "https://cdn.discordapp.com/avatars/615334339349184522/f26d5bb99c50ed137bc9069b70e16fbf.png",
     "gang": null,
     "prestige": 0,
@@ -413,12 +413,12 @@
     "discriminator": "2725",
     "xp": "3.1k",
     "detailed_xp": [
-      171,
+      182,
       820,
-      3125
+      3136
     ],
     "level": 8,
-    "messages": 217,
+    "messages": 218,
     "avatar": "https://cdn.discordapp.com/avatars/980079182912561212/9e6bfe52f1e097b1f193ca347be3b68d.png",
     "gang": null,
     "prestige": 0,
@@ -3247,9 +3247,9 @@
     "rank": 191
   },
   {
-    "id": "492918092872024067",
-    "name": "hegner864",
-    "discriminator": "2565",
+    "id": "201159016259256321",
+    "name": "Shade, Superb Slayling",
+    "discriminator": "3455",
     "xp": "13",
     "detailed_xp": [
       13,
@@ -3258,7 +3258,7 @@
     ],
     "level": 0,
     "messages": 1,
-    "avatar": "https://cdn.discordapp.com/embed/avatars/0.png",
+    "avatar": "https://cdn.discordapp.com/avatars/201159016259256321/3cc3ffb454e20f56d88e7d5da70cdaf7.png",
     "gang": null,
     "prestige": 0,
     "rank": 192
@@ -3332,9 +3332,9 @@
     "rank": 196
   },
   {
-    "id": "201159016259256321",
-    "name": "Shade, Superb Slayling",
-    "discriminator": "3455",
+    "id": "492918092872024067",
+    "name": "hegner864",
+    "discriminator": "2565",
     "xp": "13",
     "detailed_xp": [
       13,
@@ -3343,7 +3343,7 @@
     ],
     "level": 0,
     "messages": 1,
-    "avatar": "https://cdn.discordapp.com/avatars/201159016259256321/3cc3ffb454e20f56d88e7d5da70cdaf7.png",
+    "avatar": "https://cdn.discordapp.com/embed/avatars/0.png",
     "gang": null,
     "prestige": 0,
     "rank": 197
