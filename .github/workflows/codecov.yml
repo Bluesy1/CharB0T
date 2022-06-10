@@ -22,6 +22,7 @@ jobs:
               pip install -U pip
               pip install -U -r requirements.txt
               pip install pytest pytest-cov pytest-asyncio
+              pip install -e .
         - name: Run pytest
           id: pytest
           run: pytest --cov-report=xml:coverage/reports/coverage.xml --cov=charbot tests/ --cov-report=term
