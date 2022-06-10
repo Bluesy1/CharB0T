@@ -56,12 +56,12 @@
     "discriminator": "2226",
     "xp": "19.9k",
     "detailed_xp": [
-      1542,
+      1553,
       2620,
-      19917
+      19928
     ],
     "level": 18,
-    "messages": 1351,
+    "messages": 1352,
     "avatar": "https://cdn.discordapp.com/avatars/355127455419203585/095ad3bae31ea645652dd0f7d6c16aee.png",
     "gang": null,
     "prestige": 0,
@@ -651,12 +651,12 @@
     "discriminator": "9094",
     "xp": "1.7k",
     "detailed_xp": [
-      52,
+      65,
       580,
-      1677
+      1690
     ],
     "level": 6,
-    "messages": 116,
+    "messages": 117,
     "avatar": "https://cdn.discordapp.com/avatars/229122038294380545/ccfc30b880c163df8209862a357de793.png",
     "gang": null,
     "prestige": 0,
@@ -1037,6 +1037,23 @@
     "rank": 61
   },
   {
+    "id": "204748601664995328",
+    "name": "Zeph",
+    "discriminator": "2659",
+    "xp": "451",
+    "detailed_xp": [
+      196,
+      220,
+      451
+    ],
+    "level": 2,
+    "messages": 30,
+    "avatar": "https://cdn.discordapp.com/avatars/204748601664995328/34d0412088e4cbaa7619321eb040946c.png",
+    "gang": null,
+    "prestige": 0,
+    "rank": 62
+  },
+  {
     "id": "753211438134460458",
     "name": "shadownonja_hazardos",
     "discriminator": "0995",
@@ -1051,7 +1068,7 @@
     "avatar": "https://cdn.discordapp.com/avatars/753211438134460458/e9691fd05527908646c163c8a53a5336.png",
     "gang": null,
     "prestige": 0,
-    "rank": 62
+    "rank": 63
   },
   {
     "id": "658280274765021196",
@@ -1066,23 +1083,6 @@
     "level": 2,
     "messages": 32,
     "avatar": "https://cdn.discordapp.com/avatars/658280274765021196/bdcbafaed5350eb7c5f70ea71b7f88aa.png",
-    "gang": null,
-    "prestige": 0,
-    "rank": 63
-  },
-  {
-    "id": "204748601664995328",
-    "name": "Zeph",
-    "discriminator": "2659",
-    "xp": "422",
-    "detailed_xp": [
-      167,
-      220,
-      422
-    ],
-    "level": 2,
-    "messages": 28,
-    "avatar": "https://cdn.discordapp.com/avatars/204748601664995328/34d0412088e4cbaa7619321eb040946c.png",
     "gang": null,
     "prestige": 0,
     "rank": 64
