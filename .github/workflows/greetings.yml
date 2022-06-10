@@ -1,6 +1,10 @@
 name: Greet first-time contributors
 
-on: [pull_request, issues]
+on:
+  pull_request:
+    types: [opened]
+  issues:
+    types: [opened]
 
 jobs:
   greeting:
