@@ -3,14 +3,14 @@
     "id": "363095569515806722",
     "name": "Bluesy",
     "discriminator": "8150",
-    "xp": "57.0k",
+    "xp": "57.1k",
     "detailed_xp": [
-      687,
+      699,
       5420,
-      57047
+      57059
     ],
     "level": 28,
-    "messages": 3885,
+    "messages": 3886,
     "avatar": "https://cdn.discordapp.com/avatars/363095569515806722/ccf12c126a6827a5b07a4e579a52b043.png",
     "gang": null,
     "prestige": 0,
@@ -309,14 +309,14 @@
     "id": "710057301264039946",
     "name": "Aru05",
     "discriminator": "8860",
-    "xp": "5.3k",
+    "xp": "5.4k",
     "detailed_xp": [
-      639,
+      686,
       1100,
-      5314
+      5361
     ],
     "level": 10,
-    "messages": 368,
+    "messages": 371,
     "avatar": "https://cdn.discordapp.com/avatars/710057301264039946/7d7aa20c67865c80e0bd735fe704a5ea.png",
     "gang": null,
     "prestige": 0,
