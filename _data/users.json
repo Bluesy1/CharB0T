@@ -260,12 +260,12 @@
     "discriminator": "7958",
     "xp": "7.4k",
     "detailed_xp": [
-      321,
+      332,
       1420,
-      7370
+      7381
     ],
     "level": 12,
-    "messages": 506,
+    "messages": 507,
     "avatar": "https://cdn.discordapp.com/avatars/244529987510599680/803f09d621468a326fc9f8ff25225579.png",
     "gang": null,
     "prestige": 0,
@@ -736,12 +736,12 @@
     "discriminator": "4367",
     "xp": "1.3k",
     "detailed_xp": [
-      139,
+      154,
       475,
-      1298
+      1313
     ],
     "level": 5,
-    "messages": 89,
+    "messages": 90,
     "avatar": "https://cdn.discordapp.com/avatars/453052504444239892/a35c1bb705c4637d88ecd84c054b619d.png",
     "gang": null,
     "prestige": 0,
@@ -867,6 +867,23 @@
     "rank": 51
   },
   {
+    "id": "420226573325828106",
+    "name": "Dinosaursrecycle",
+    "discriminator": "6477",
+    "xp": "790",
+    "detailed_xp": [
+      11,
+      380,
+      790
+    ],
+    "level": 4,
+    "messages": 54,
+    "avatar": "https://cdn.discordapp.com/avatars/420226573325828106/7d719877a192e31e4476bca7f8dff374.png",
+    "gang": null,
+    "prestige": 0,
+    "rank": 52
+  },
+  {
     "id": "409359209931735042",
     "name": "stuart96",
     "discriminator": "1434",
@@ -879,23 +896,6 @@
     "level": 4,
     "messages": 53,
     "avatar": "https://cdn.discordapp.com/avatars/409359209931735042/d82de2f954abf19c6c53ea6d8917af5a.png",
-    "gang": null,
-    "prestige": 0,
-    "rank": 52
-  },
-  {
-    "id": "420226573325828106",
-    "name": "Dinosaursrecycle",
-    "discriminator": "6477",
-    "xp": "779",
-    "detailed_xp": [
-      0,
-      380,
-      779
-    ],
-    "level": 4,
-    "messages": 53,
-    "avatar": "https://cdn.discordapp.com/avatars/420226573325828106/7d719877a192e31e4476bca7f8dff374.png",
     "gang": null,
     "prestige": 0,
     "rank": 53
