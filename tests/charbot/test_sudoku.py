@@ -237,7 +237,7 @@ async def test_view_block_choose_embed(_unused_puzzle_unsolved):
     view = sudoku.Sudoku(_unused_puzzle_unsolved, mock_member, mock_bot)
     embed = view.block_choose_embed()
     assert embed.title == "Sudoku"
-    assert embed.footer.text == "Play Sudoku by Typing /programs sudoku"
+    assert embed.footer.text == "Play by typing /programs sudoku"
     assert embed.color == discord.Color.blurple()
 
 
