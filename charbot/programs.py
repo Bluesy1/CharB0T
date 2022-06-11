@@ -118,6 +118,7 @@ class Reputation(commands.Cog, name="Programs"):
             game._buttons[move[0] * 3 + move[1]].disabled = True  # skipcq: PYL-W0212
         image = await self.bot.loop.run_in_executor(None, game.puzzle.display)
         embed = discord.Embed(title="TicTacToe").set_image(url="attachment://tictactoe.png")
+        embed.set_footer(text="Play by typing /programs tictactoe")
         await interaction.followup.send(embed=embed, file=image, view=game)
 
     @programs.command(name="shrugman", description="Play the shrugman minigame. (Hangman clone)")
