@@ -192,7 +192,6 @@ class Sudoku(ui.View):
         """
         embed = discord.Embed(title="Sudoku", description=f"```ansi\n{self.puzzle}```", color=discord.Color.blurple())
         embed.set_author(name=self.author.display_name, icon_url=self.author.display_avatar.url)
-        main
         embed.set_footer(text="Start playing by typing /programs sudoku")
         embed.add_field(name="Choose a block", value="Use the keypad to choose a block", inline=True)
         return embed
