@@ -240,6 +240,7 @@ class TicTacView(ui.View):
             description=f"Cancelled, time taken: {utcnow().replace(microsecond=0) - self.time.replace(microsecond=0)}",
             color=discord.Color.red(),
         ).set_image(url="attachment://tictactoe.png")
+        embed.set_footer(text="Start playing by typing /programs tictactoe")
         await interaction.response.edit_message(embed=embed)
 
     @ui.button(style=ButtonStyle.green, emoji="✅", row=1)

@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+import copy
 import datetime
 from unittest.mock import AsyncMock, Mock
 
@@ -305,6 +306,7 @@ async def test_view_back_button_callback(_unused_puzzle_unsolved):
     assert view.block.selected
 
 
+# noinspection DuplicatedCode
 @pytest.mark.asyncio
 async def test_one_button_callback(_unused_puzzle_unsolved):
     """Test Sudoku one button callback."""
@@ -357,6 +359,7 @@ async def test_four_button_callback(_unused_puzzle_unsolved):
     mock_interaction.edit_original_message.assert_called_once()
 
 
+# noinspection DuplicatedCode
 @pytest.mark.asyncio
 async def test_five_button_callback(_unused_puzzle_unsolved):
     """Test Sudoku five button callback."""
@@ -503,3 +506,179 @@ def test_generator_function(_unused_puzzle_unsolved):
     generator = _unused_puzzle_unsolved.shortSudokuSolve(_board=_unused_puzzle_unsolved.as_list())
     assert next(generator, None) is not None
     assert next(generator, None) is None
+
+
+def test_cell_location(_unused_puzzle_unsolved):
+    """Test sudoku cell location."""
+    assert _unused_puzzle_unsolved.location_of_cell(_unused_puzzle_unsolved.blocks[0][0]) == "row 1, column 1"
+    test_cell = sudoku.Cell(0, True)
+    try:
+        _unused_puzzle_unsolved.location_of_cell(test_cell)
+    except Exception as e:  # skipcq: PYL-W0703
+        assert isinstance(e, ValueError)
+    else:
+        assert False
+    with pytest.raises(TypeError):
+        _unused_puzzle_unsolved.location_of_cell("This is not a cell")  # skipcq
+
+
+def test_row_of_cell(_unused_puzzle_unsolved):
+    """Test sudoku row of cell."""
+    assert _unused_puzzle_unsolved.row_of_cell(_unused_puzzle_unsolved.blocks[0][0]) is _unused_puzzle_unsolved.rows[0]
+    test_cell = sudoku.Cell(0, True)
+    try:
+        _unused_puzzle_unsolved.row_of_cell(test_cell)
+    except Exception as e:  # skipcq: PYL-W0703
+        assert isinstance(e, ValueError)
+    else:
+        assert False
+    with pytest.raises(TypeError):
+        _unused_puzzle_unsolved.row_of_cell("This is not a cell")  # skipcq
+
+
+def test_column_of_cell(_unused_puzzle_unsolved):
+    """Test sudoku column of cell."""
+    assert (
+        _unused_puzzle_unsolved.column_of_cell(_unused_puzzle_unsolved.blocks[0][0])
+        is _unused_puzzle_unsolved.columns[0]
+    )
+    test_cell = sudoku.Cell(0, True)
+    try:
+        _unused_puzzle_unsolved.column_of_cell(test_cell)
+    except Exception as e:  # skipcq: PYL-W0703
+        assert isinstance(e, ValueError)
+    else:
+        assert False
+    with pytest.raises(TypeError):
+        _unused_puzzle_unsolved.column_of_cell("This is not a cell")  # skipcq
+
+
+def test_block_of_cell(_unused_puzzle_unsolved):
+    """Test sudoku block of cell."""
+    assert (
+        _unused_puzzle_unsolved.block_of_cell(_unused_puzzle_unsolved.blocks[0][0]) is _unused_puzzle_unsolved.blocks[0]
+    )
+    test_cell = sudoku.Cell(1, True)
+    test_cell._value = 10
+    try:
+        _unused_puzzle_unsolved.block_of_cell(test_cell)
+    except Exception as e:  # skipcq: PYL-W0703
+        assert isinstance(e, ValueError)
+    else:
+        assert False
+    with pytest.raises(TypeError):
+        _unused_puzzle_unsolved.block_of_cell("This is not a cell")  # skipcq
+
+
+def test_block_index(_unused_puzzle_unsolved):
+    """Test sudoku block index."""
+    assert _unused_puzzle_unsolved.block_index(_unused_puzzle_unsolved.blocks[0]) == 0
+    test_cell = sudoku.Block([sudoku.Cell(0, True) for _ in range(9)])
+    try:
+        _unused_puzzle_unsolved.block_index(test_cell)
+    except Exception as e:  # skipcq: PYL-W0703
+        assert isinstance(e, ValueError)
+    else:
+        assert False
+    with pytest.raises(TypeError):
+        _unused_puzzle_unsolved.block_index("This is not a block")  # skipcq
+
+
+def test_row_init():
+    """Test row validation"""
+    with pytest.raises(ValueError):
+        sudoku.Row([sudoku.Cell(0, True) for _ in range(10)])
+
+
+def test_row_clear():
+    """Test row clear"""
+    row = sudoku.Row([sudoku.Cell(1, True) for _ in range(9)])
+    row_copy = copy.deepcopy(row)
+    assert row == row_copy
+    row.clear()
+    for cell in row.cells:
+        assert cell.value == 0
+
+
+def test_column_init():
+    """Test column validation"""
+    with pytest.raises(ValueError):
+        sudoku.Column([sudoku.Cell(0, True) for _ in range(10)])
+
+
+def test_column_clear():
+    """Test column clear"""
+    col = sudoku.Column([sudoku.Cell(1, True) for _ in range(9)])
+    col_copy = copy.deepcopy(col)
+    assert col == col_copy
+    col.clear()
+    for cell in col.cells:
+        assert cell.value == 0
+
+
+def test_block_init():
+    """Test block validation"""
+    with pytest.raises(ValueError):
+        sudoku.Block([sudoku.Cell(0, True) for _ in range(10)])
+
+
+def test_block_compare():
+    """Test block compare"""
+    block = sudoku.Block([sudoku.Cell(1, True) for _ in range(9)])
+    block_copy = copy.deepcopy(block)
+    assert block == block_copy
+    assert block != sudoku.Block([sudoku.Cell(1, True) for _ in range(9)])
+
+
+def test_block_select_toggle():
+    """Test block select toggle"""
+    block = sudoku.Block([sudoku.Cell(1, True) for _ in range(9)])
+    with pytest.raises(TypeError):
+        block.selected = "This is not a boolean"  # type: ignore  # skipcq
+
+
+def test_cell_validation():
+    """Test cell validation"""
+    with pytest.raises(ValueError):
+        sudoku.Cell(10, True)
+
+
+def test_cell_hash():
+    """Test cell hash"""
+    cell = sudoku.Cell(1, True)
+    assert hash(cell) == hash(f"{cell.value}{cell.editable}")
+
+
+def test_cell_validate_value_unediable():
+    """Test cell validate value unediable"""
+    cell = sudoku.Cell(1, False)
+    with pytest.raises(ValueError):
+        cell.value = 2
+
+
+def test_cell_validate_value_editable():
+    """Test cell validate value editable"""
+    cell = sudoku.Cell(1, True)
+    with pytest.raises(ValueError):
+        cell.value = 10
+
+
+def test_possible_value_uneditable():
+    """Test possible value uneditable"""
+    cell = sudoku.Cell(1, False)
+    with pytest.raises(ValueError):
+        cell.possible_values = {2}
+
+
+def test_cell_selected_state():
+    """Test cell selected state"""
+    cell = sudoku.Cell(1, True)
+    with pytest.raises(TypeError):
+        cell.selected = "This is not a boolean"  # type: ignore  # skipcq
+
+
+def test_cell_validate_clear():
+    """Test cell validate clear"""
+    cell = sudoku.Cell(1, False)
+    with pytest.raises(ValueError):
+        cell.clear()
