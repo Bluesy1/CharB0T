@@ -519,7 +519,7 @@ def test_cell_location(_unused_puzzle_unsolved):
     else:
         assert False
     with pytest.raises(TypeError):
-        _unused_puzzle_unsolved.location_of_cell("This is not a cell")  # type: ignore  # skipcq
+        _unused_puzzle_unsolved.location_of_cell("This is not a cell")  # skipcq
 
 
 def test_row_of_cell(_unused_puzzle_unsolved):
@@ -533,7 +533,7 @@ def test_row_of_cell(_unused_puzzle_unsolved):
     else:
         assert False
     with pytest.raises(TypeError):
-        _unused_puzzle_unsolved.row_of_cell("This is not a cell")  # type: ignore  # skipcq
+        _unused_puzzle_unsolved.row_of_cell("This is not a cell")  # skipcq
 
 
 def test_column_of_cell(_unused_puzzle_unsolved):
@@ -550,7 +550,7 @@ def test_column_of_cell(_unused_puzzle_unsolved):
     else:
         assert False
     with pytest.raises(TypeError):
-        _unused_puzzle_unsolved.column_of_cell("This is not a cell")  # type: ignore  # skipcq
+        _unused_puzzle_unsolved.column_of_cell("This is not a cell")  # skipcq
 
 
 def test_block_of_cell(_unused_puzzle_unsolved):
@@ -567,7 +567,7 @@ def test_block_of_cell(_unused_puzzle_unsolved):
     else:
         assert False
     with pytest.raises(TypeError):
-        _unused_puzzle_unsolved.block_of_cell("This is not a cell")  # type: ignore  # skipcq
+        _unused_puzzle_unsolved.block_of_cell("This is not a cell")  # skipcq
 
 
 def test_block_index(_unused_puzzle_unsolved):
@@ -581,7 +581,7 @@ def test_block_index(_unused_puzzle_unsolved):
     else:
         assert False
     with pytest.raises(TypeError):
-        _unused_puzzle_unsolved.block_index("This is not a block")  # type: ignore  # skipcq
+        _unused_puzzle_unsolved.block_index("This is not a block")  # skipcq
 
 
 def test_row_init():
