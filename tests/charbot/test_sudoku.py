@@ -509,12 +509,12 @@ def test_generator_function(_unused_puzzle_unsolved):
 
 
 def test_cell_location(_unused_puzzle_unsolved):
-    assert _unused_puzzle_unsolved.location_of_cell(_unused_puzzle_unsolved.blocks[0][0]) == "row 1, column 1"
     """Test sudoku cell location."""
+    assert _unused_puzzle_unsolved.location_of_cell(_unused_puzzle_unsolved.blocks[0][0]) == "row 1, column 1"
     test_cell = sudoku.Cell(0, True)
     try:
         _unused_puzzle_unsolved.location_of_cell(test_cell)
-    except Exception as e:
+    except Exception as e:  # skipcq: PYL-W0703
         assert isinstance(e, ValueError)
     else:
         assert False
@@ -528,7 +528,7 @@ def test_row_of_cell(_unused_puzzle_unsolved):
     test_cell = sudoku.Cell(0, True)
     try:
         _unused_puzzle_unsolved.row_of_cell(test_cell)
-    except Exception as e:
+    except Exception as e:  # skipcq: PYL-W0703
         assert isinstance(e, ValueError)
     else:
         assert False
@@ -545,7 +545,7 @@ def test_column_of_cell(_unused_puzzle_unsolved):
     test_cell = sudoku.Cell(0, True)
     try:
         _unused_puzzle_unsolved.column_of_cell(test_cell)
-    except Exception as e:
+    except Exception as e:  # skipcq: PYL-W0703
         assert isinstance(e, ValueError)
     else:
         assert False
@@ -562,7 +562,7 @@ def test_block_of_cell(_unused_puzzle_unsolved):
     test_cell._value = 10
     try:
         _unused_puzzle_unsolved.block_of_cell(test_cell)
-    except Exception as e:
+    except Exception as e:  # skipcq: PYL-W0703
         assert isinstance(e, ValueError)
     else:
         assert False
@@ -576,7 +576,7 @@ def test_block_index(_unused_puzzle_unsolved):
     test_cell = sudoku.Block([sudoku.Cell(0, True) for _ in range(9)])
     try:
         _unused_puzzle_unsolved.block_index(test_cell)
-    except Exception as e:
+    except Exception as e:  # skipcq: PYL-W0703
         assert isinstance(e, ValueError)
     else:
         assert False
@@ -596,8 +596,8 @@ def test_row_clear():
     row_copy = copy.deepcopy(row)
     assert row == row_copy
     row.clear()
-    for i, cell in enumerate(row_copy.cells):
-        assert row[1].value == 0
+    for cell in row.cells:
+        assert cell.value == 0
 
 
 def test_column_init():
@@ -612,8 +612,8 @@ def test_column_clear():
     col_copy = copy.deepcopy(col)
     assert col == col_copy
     col.clear()
-    for i, cell in enumerate(col_copy.cells):
-        assert col[1].value == 0
+    for cell in col.cells:
+        assert cell.value == 0
 
 
 def test_block_init():
