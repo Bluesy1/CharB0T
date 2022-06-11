@@ -501,6 +501,5 @@ def test_from_rows_and_cols_and_random(_unused_puzzle_unsolved):
 def test_generator_function(_unused_puzzle_unsolved):
     """Test sudoku generator function."""
     generator = _unused_puzzle_unsolved.shortSudokuSolve(_board=_unused_puzzle_unsolved.as_list())
-    assert next(generator) is not None
-    with pytest.raises(StopIteration):
-        next(generator)
+    assert next(generator, None) is not None
+    assert next(generator, None) is None
