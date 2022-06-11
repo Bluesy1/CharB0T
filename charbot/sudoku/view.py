@@ -154,7 +154,7 @@ class Sudoku(ui.View):
         """
         embed = discord.Embed(title="Sudoku", description=f"```ansi\n{self.puzzle}```", color=discord.Color.blurple())
         embed.set_author(name=self.author.display_name, icon_url=self.author.display_avatar.url)
-        embed.set_footer(text="Play Sudoku by Typing /sudoku")
+        embed.set_footer(text="Start playing by typing /programs sudoku")
         embed.add_field(
             name=f"Choose a value for the cell at {self.puzzle.location_of_cell(self.cell)}",
             value="Use the keypad to choose a value",
@@ -173,7 +173,7 @@ class Sudoku(ui.View):
         """
         embed = discord.Embed(title="Sudoku", description=f"```ansi\n{self.puzzle}```", color=discord.Color.blurple())
         embed.set_author(name=self.author.display_name, icon_url=self.author.display_avatar.url)
-        embed.set_footer(text="Play Sudoku by Typing /sudoku")
+        embed.set_footer(text="Start playing by typing /programs sudoku")
         embed.add_field(
             name=f"Choose a cell from block {self.puzzle.block_index(self.block) + 1}",
             value="Use the keypad to choose a cell",
@@ -192,7 +192,7 @@ class Sudoku(ui.View):
         """
         embed = discord.Embed(title="Sudoku", description=f"```ansi\n{self.puzzle}```", color=discord.Color.blurple())
         embed.set_author(name=self.author.display_name, icon_url=self.author.display_avatar.url)
-        embed.set_footer(text="Play Sudoku by Typing /programs sudoku")
+        embed.set_footer(text="Start playing by typing /programs sudoku")
         embed.add_field(name="Choose a block", value="Use the keypad to choose a block", inline=True)
         return embed
 
@@ -217,7 +217,7 @@ class Sudoku(ui.View):
             color=discord.Color.green(),
         )
         embed.set_author(name=self.author.display_name, icon_url=self.author.display_avatar.url)
-        embed.set_footer(text="Play Sudoku by Typing /sudoku")
+        embed.set_footer(text="Start playing by typing /programs sudoku")
         time_taken = utcnow().replace(microsecond=0) - self.start_time.replace(microsecond=0)
         embed.add_field(name="Time Taken", value=f"{time_taken}", inline=True)
         points = await self.bot.give_game_points(self.author, "sudoku", 5, 10)
@@ -400,7 +400,7 @@ class Sudoku(ui.View):
             color=discord.Color.red(),
         )
         embed.set_author(name=self.author.display_name, icon_url=self.author.display_avatar.url)
-        embed.set_footer(text="Play Sudoku by Typing /sudoku")
+        embed.set_footer(text="Start playing by typing /programs sudoku")
         time_taken = utcnow().replace(microsecond=0) - self.start_time.replace(microsecond=0)
         embed.add_field(name="Time Taken", value=f"{time_taken}", inline=True)
         if (utcnow() - self.start_time) > datetime.timedelta(minutes=3) and self.moves > 10:

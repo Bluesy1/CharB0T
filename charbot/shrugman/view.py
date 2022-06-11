@@ -149,7 +149,7 @@ class Shrugman(ui.View):
             description=f"Guess the word: `{''.join(self.guess_word_list)}`",
             color=discord.Color.dark_purple(),
         )
-        embed.set_footer(text="Type /shrugman to play")
+        embed.set_footer(text="Play by typing /programs shrugman")
         embed.set_author(name=interaction.user.display_name, icon_url=interaction.user.display_avatar.url)
         embed.add_field(name="Shrugman", value=self.fail_enum(self.mistakes).name, inline=True)
         embed.add_field(name="Guesses", value=f"{self.guess_count}", inline=True)

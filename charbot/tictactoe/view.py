@@ -135,6 +135,7 @@ class TicTacView(ui.View):
                 f"{'(Daily Cap Reached)' if gained_points != max_points else ''}",
                 color=discord.Color.green(),
             ).set_image(url="attachment://tictactoe.png")
+            embed.set_footer(text="Start playing by typing /programs tictactoe")
             self.disable()
             image = await self.bot.loop.run_in_executor(None, self.puzzle.display)
             await interaction.edit_original_message(attachments=[image], embed=embed, view=self)
@@ -158,6 +159,7 @@ class TicTacView(ui.View):
                 f"{'(Daily Cap Reached)' if gained_points != max_points else ''}",
                 color=discord.Color.gold(),
             ).set_image(url="attachment://tictactoe.png")
+            embed.set_footer(text="Start playing by typing /programs tictactoe")
             self.disable()
             await interaction.edit_original_message(attachments=[image], embed=embed, view=self)
             return
@@ -175,6 +177,7 @@ class TicTacView(ui.View):
                 f"{'(Daily Cap Reached)' if gained_points != max_points else ''}",
                 color=discord.Color.red(),
             ).set_image(url="attachment://tictactoe.png")
+            embed.set_footer(text="Start playing by typing /programs tictactoe")
             self.disable()
             await interaction.edit_original_message(attachments=[image], embed=embed, view=self)
             return
