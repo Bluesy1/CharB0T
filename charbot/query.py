@@ -23,8 +23,8 @@
 # SOFTWARE.
 #  ----------------------------------------------------------------------------
 """Query extension."""
-import os
-import time
+from datetime import datetime
+from zoneinfo import ZoneInfo
 
 import discord
 from discord import app_commands
@@ -83,9 +83,7 @@ class Query(Cog):
         ctx : Context
             The context of the command.
         """
-        os.environ["TZ"] = "US/Eastern"
-        time.tzset()
-        await ctx.send("Charlie's time is: " + time.strftime("%X %x %Z"), reference=ctx.message)
+        await ctx.reply(f"Charlie's time is: {datetime.now(ZoneInfo('America/Detroit')).strftime('%X %x %Z')}")
 
     @commands.command()
     async def changelog(self, ctx: Context):

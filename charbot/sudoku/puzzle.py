@@ -23,9 +23,6 @@
 # SOFTWARE.
 #  ----------------------------------------------------------------------------
 """Puzzle Class."""
-from copy import deepcopy
-from itertools import islice
-from random import choice, sample
 from typing import Any, Callable, Generator
 
 from . import Block, Cell, Column, Row
@@ -197,48 +194,6 @@ class Puzzle:
                 row.append(column.cells[i].value)
             rows.append(row)
         return cls(rows)
-
-    @classmethod
-    def random(cls, mobile: bool):
-        """Create a new puzzle randomly.
-
-        Returns
-        -------
-        Puzzle
-            A new puzzle.
-        """
-        base = 3
-        side = base * base
-
-        # pattern for a baseline valid solution
-        pattern = lambda r, c: (base * (r % base) + r // base + c) % side  # noqa: E731
-
-        # randomize rows, columns and numbers (of valid base pattern)
-        shuffle = lambda s: sample(s, len(s))  # noqa: E731
-
-        r_base = range(base)
-        rows = [g * base + r for g in shuffle(r_base) for r in shuffle(r_base)]
-        cols = [g * base + c for g in shuffle(r_base) for c in shuffle(r_base)]
-        nums = shuffle(range(1, base * base + 1))
-
-        # produce board using randomized baseline pattern
-        board = [[nums[pattern(r, c)] for c in cols] for r in rows]
-
-        solution = deepcopy(board)
-
-        squares = side * side
-        empties = squares * 3 // 4
-        for p in sample(range(squares), empties):
-            board[p // side][p % side] = 0
-
-        while True:
-            solved = [*islice(cls.shortSudokuSolve(board), 2)]
-            if len(solved) == 1:
-                break
-            diff_pos = [(r, c) for r in range(9) for c in range(9) if solved[0][r][c] != solved[1][r][c]]
-            r, c = choice(diff_pos)
-            board[r][c] = solution[r][c]
-        return cls(board, mobile)
 
     @staticmethod
     def shortSudokuSolve(_board: list[list[int]]) -> Generator[list[list[int]], Any, None]:

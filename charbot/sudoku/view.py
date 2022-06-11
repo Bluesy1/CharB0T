@@ -192,7 +192,7 @@ class Sudoku(ui.View):
         """
         embed = discord.Embed(title="Sudoku", description=f"```ansi\n{self.puzzle}```", color=discord.Color.blurple())
         embed.set_author(name=self.author.display_name, icon_url=self.author.display_avatar.url)
-        embed.set_footer(text="Play Sudoku by Typing /sudoku")
+        embed.set_footer(text="Play Sudoku by Typing /programs sudoku")
         embed.add_field(name="Choose a block", value="Use the keypad to choose a block", inline=True)
         return embed
 
@@ -208,6 +208,7 @@ class Sudoku(ui.View):
         self.back.disabled = True
         self.cancel.disabled = True
         self.mode.disabled = True
+        self.stop()
         if self.cell is not MISSING:
             self.cell.selected = False
         embed = discord.Embed(
@@ -277,12 +278,12 @@ class Sudoku(ui.View):
                     self.level = "Block"
                     self.cell.possible_values.clear()
                     self.cell.selected = False
-                    if self.block is not MISSING:
-                        self.block.selected = True
-                    self.cell = MISSING
                     if self.puzzle.is_solved:
                         await self._on_win(interaction)
                     else:
+                        if self.block is not MISSING:
+                            self.block.selected = True
+                        self.cell = MISSING
                         self.update_keypad()
                         await interaction.edit_original_message(embed=self.cell_choose_embed(), view=self)
                 elif self.cell.editable and self.noting_mode:
@@ -298,7 +299,7 @@ class Sudoku(ui.View):
                     if self.cell is not MISSING:
                         self.cell.selected = False
                     if self.block is not MISSING:
-                        self.block.selected = False
+                        self.block.selected = True
                     self.cell = MISSING
                     self.level = "Block"
                     self.update_keypad()
@@ -336,7 +337,7 @@ class Sudoku(ui.View):
             if self.block is not MISSING:
                 self.block.selected = True
             self.cell = MISSING
-            self.enable_keypad()
+            self.update_keypad()
             await interaction.response.edit_message(embed=self.cell_choose_embed(), view=self)
 
     @ui.button(label="1", style=ButtonStyle.blurple, row=0)
@@ -477,11 +478,11 @@ class Sudoku(ui.View):
             self.puzzle.reset()
             await interaction.response.edit_message(embed=self.block_choose_embed(), view=self)
         elif self.level == "Block":
-            if self.block is not None:
+            if self.block is not MISSING:
                 self.block.clear()
             await interaction.response.edit_message(embed=self.cell_choose_embed(), view=self)
         elif self.level == "Cell":
-            if self.cell is not None and self.cell.editable:
+            if self.cell is not MISSING and self.cell.editable:
                 self.cell.clear()
             await interaction.response.edit_message(embed=self.change_cell_prompt_embed(), view=self)
 
