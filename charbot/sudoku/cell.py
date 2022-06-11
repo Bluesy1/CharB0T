@@ -49,7 +49,7 @@ class Cell:
     """
 
     def __init__(self, value: int, editable: bool):
-        if 9 < value < 0:
+        if value > 9 or value < 0:
             raise ValueError("Value must be between 0 and 9.")
         self._value = value
         self._editable = editable
@@ -90,7 +90,7 @@ class Cell:
         """
         if not self._editable:
             raise ValueError("Cannot set value of non-editable cell.")
-        if 9 < value < 0:
+        if value > 9 or value < 0:
             raise ValueError("Value must be between 0 and 9.")
         self._value = value
         self._possible_values = {value}
