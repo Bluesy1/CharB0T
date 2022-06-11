@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+import datetime
 from unittest.mock import AsyncMock, Mock
 
 import asyncpg
@@ -191,6 +192,7 @@ async def test_view_keypad_callback_add_possible_cell_value(_unused_puzzle_unsol
 
 @pytest.mark.asyncio
 async def test_view_keypad_callback_try_set_static_cell(_unused_puzzle_unsolved):
+    """Test Sudoku view update keypad."""
     mock_bot = AsyncMock(spec=sudoku.view.CBot)
     mock_member = AsyncMock(spec=discord.Member)
     view = sudoku.Sudoku(_unused_puzzle_unsolved, mock_member, mock_bot)
@@ -209,6 +211,7 @@ async def test_view_keypad_callback_try_set_static_cell(_unused_puzzle_unsolved)
 
 @pytest.mark.asyncio
 async def test_view_update_keypad_puzzle_level(_unused_puzzle_unsolved):
+    """Test Sudoku view update keypad."""
     mock_bot = AsyncMock(spec=sudoku.view.CBot)
     mock_member = AsyncMock(spec=discord.Member)
     view = sudoku.Sudoku(_unused_puzzle_unsolved, mock_member, mock_bot)
@@ -228,6 +231,7 @@ async def test_view_update_keypad_puzzle_level(_unused_puzzle_unsolved):
 
 @pytest.mark.asyncio
 async def test_view_block_choose_embed(_unused_puzzle_unsolved):
+    """Test Sudoku view block choose embed."""
     mock_bot = AsyncMock(spec=sudoku.view.CBot)
     mock_member = AsyncMock(spec=discord.Member)
     view = sudoku.Sudoku(_unused_puzzle_unsolved, mock_member, mock_bot)
@@ -239,6 +243,7 @@ async def test_view_block_choose_embed(_unused_puzzle_unsolved):
 
 @pytest.mark.asyncio
 async def test_view_on_win(_unused_puzzle_solved):
+    """Test Sudoku view on win."""
     mock_bot = AsyncMock(spec=sudoku.view.CBot)
     mock_bot.pool = AsyncMock(spec=asyncpg.Pool)
     mock_member = AsyncMock(spec=discord.Member)
@@ -259,3 +264,242 @@ async def test_view_on_win(_unused_puzzle_solved):
     args = mock_bot.pool.execute.call_args.args
     assert args[0] == "UPDATE users SET sudoku_time = $1 WHERE id = $2 and sudoku_time > $1"
     mock_bot.give_game_points.assert_called_once_with(mock_member, "sudoku", 5, 10)
+
+
+@pytest.mark.asyncio
+async def test_view_back_button_callback(_unused_puzzle_unsolved):
+    """Test Sudoku view back button callback."""
+    mock_bot = AsyncMock(spec=sudoku.view.CBot)
+    mock_member = AsyncMock(spec=discord.Member)
+    view = sudoku.Sudoku(_unused_puzzle_unsolved, mock_member, mock_bot)
+    mock_interaction = AsyncMock(spec=discord.Interaction)
+    mock_interaction.response = AsyncMock(spec=discord.InteractionResponse)
+    view.back.disabled = False
+    await view.back.callback(mock_interaction)
+    mock_interaction.response.edit_message.assert_called_once()
+    assert view.back.disabled
+    mock_interaction.reset_mock()
+    mock_interaction.response.reset_mock()
+    view.block = _unused_puzzle_unsolved.blocks[0]
+    view.level = "Block"
+    view.block.selected = True
+    view.update_keypad()
+    await view.back.callback(mock_interaction)
+    mock_interaction.response.edit_message.assert_called_once()
+    assert view.back.disabled
+    assert view.level == "Puzzle"
+    assert view.block is discord.utils.MISSING
+    assert not _unused_puzzle_unsolved.blocks[0].selected
+    mock_interaction.reset_mock()
+    mock_interaction.response.reset_mock()
+    view.block = _unused_puzzle_unsolved.blocks[0]
+    view.cell = view.block[2]
+    view.cell.selected = True
+    view.level = "Cell"
+    view.update_keypad()
+    await view.back.callback(mock_interaction)
+    mock_interaction.response.edit_message.assert_called_once()
+    assert not view.back.disabled
+    assert view.level == "Block"
+    assert view.cell is discord.utils.MISSING
+    assert view.block.selected
+
+
+@pytest.mark.asyncio
+async def test_one_button_callback(_unused_puzzle_unsolved):
+    """Test Sudoku one button callback."""
+    mock_bot = AsyncMock(spec=sudoku.view.CBot)
+    mock_member = AsyncMock(spec=discord.Member)
+    view = sudoku.Sudoku(_unused_puzzle_unsolved, mock_member, mock_bot)
+    mock_interaction = AsyncMock(spec=discord.Interaction)
+    mock_interaction.response = AsyncMock(spec=discord.InteractionResponse)
+    await view.one.callback(mock_interaction)
+    mock_interaction.response.defer.assert_called_once()
+    mock_interaction.edit_original_message.assert_called_once()
+
+
+@pytest.mark.asyncio
+async def test_two_button_callback(_unused_puzzle_unsolved):
+    """Test Sudoku two button callback."""
+    mock_bot = AsyncMock(spec=sudoku.view.CBot)
+    mock_member = AsyncMock(spec=discord.Member)
+    view = sudoku.Sudoku(_unused_puzzle_unsolved, mock_member, mock_bot)
+    mock_interaction = AsyncMock(spec=discord.Interaction)
+    mock_interaction.response = AsyncMock(spec=discord.InteractionResponse)
+    await view.two.callback(mock_interaction)
+    mock_interaction.response.defer.assert_called_once()
+    mock_interaction.edit_original_message.assert_called_once()
+
+
+@pytest.mark.asyncio
+async def test_three_button_callback(_unused_puzzle_unsolved):
+    """Test Sudoku three button callback."""
+    mock_bot = AsyncMock(spec=sudoku.view.CBot)
+    mock_member = AsyncMock(spec=discord.Member)
+    view = sudoku.Sudoku(_unused_puzzle_unsolved, mock_member, mock_bot)
+    mock_interaction = AsyncMock(spec=discord.Interaction)
+    mock_interaction.response = AsyncMock(spec=discord.InteractionResponse)
+    await view.three.callback(mock_interaction)
+    mock_interaction.response.defer.assert_called_once()
+    mock_interaction.edit_original_message.assert_called_once()
+
+
+@pytest.mark.asyncio
+async def test_four_button_callback(_unused_puzzle_unsolved):
+    """Test Sudoku four button callback."""
+    mock_bot = AsyncMock(spec=sudoku.view.CBot)
+    mock_member = AsyncMock(spec=discord.Member)
+    view = sudoku.Sudoku(_unused_puzzle_unsolved, mock_member, mock_bot)
+    mock_interaction = AsyncMock(spec=discord.Interaction)
+    mock_interaction.response = AsyncMock(spec=discord.InteractionResponse)
+    await view.four.callback(mock_interaction)
+    mock_interaction.response.defer.assert_called_once()
+    mock_interaction.edit_original_message.assert_called_once()
+
+
+@pytest.mark.asyncio
+async def test_five_button_callback(_unused_puzzle_unsolved):
+    """Test Sudoku five button callback."""
+    mock_bot = AsyncMock(spec=sudoku.view.CBot)
+    mock_member = AsyncMock(spec=discord.Member)
+    view = sudoku.Sudoku(_unused_puzzle_unsolved, mock_member, mock_bot)
+    mock_interaction = AsyncMock(spec=discord.Interaction)
+    mock_interaction.response = AsyncMock(spec=discord.InteractionResponse)
+    await view.five.callback(mock_interaction)
+    mock_interaction.response.defer.assert_called_once()
+    mock_interaction.edit_original_message.assert_called_once()
+
+
+@pytest.mark.asyncio
+async def test_six_button_callback(_unused_puzzle_unsolved):
+    """Test Sudoku six button callback."""
+    mock_bot = AsyncMock(spec=sudoku.view.CBot)
+    mock_member = AsyncMock(spec=discord.Member)
+    view = sudoku.Sudoku(_unused_puzzle_unsolved, mock_member, mock_bot)
+    mock_interaction = AsyncMock(spec=discord.Interaction)
+    mock_interaction.response = AsyncMock(spec=discord.InteractionResponse)
+    await view.six.callback(mock_interaction)
+    mock_interaction.response.defer.assert_called_once()
+    mock_interaction.edit_original_message.assert_called_once()
+
+
+@pytest.mark.asyncio
+async def test_seven_button_callback(_unused_puzzle_unsolved):
+    """Test Sudoku seven button callback."""
+    mock_bot = AsyncMock(spec=sudoku.view.CBot)
+    mock_member = AsyncMock(spec=discord.Member)
+    view = sudoku.Sudoku(_unused_puzzle_unsolved, mock_member, mock_bot)
+    mock_interaction = AsyncMock(spec=discord.Interaction)
+    mock_interaction.response = AsyncMock(spec=discord.InteractionResponse)
+    await view.seven.callback(mock_interaction)
+    mock_interaction.response.defer.assert_called_once()
+    mock_interaction.edit_original_message.assert_called_once()
+
+
+@pytest.mark.asyncio
+async def test_eight_button_callback(_unused_puzzle_unsolved):
+    """Test Sudoku eight button callback."""
+    mock_bot = AsyncMock(spec=sudoku.view.CBot)
+    mock_member = AsyncMock(spec=discord.Member)
+    view = sudoku.Sudoku(_unused_puzzle_unsolved, mock_member, mock_bot)
+    mock_interaction = AsyncMock(spec=discord.Interaction)
+    mock_interaction.response = AsyncMock(spec=discord.InteractionResponse)
+    await view.eight.callback(mock_interaction)
+    mock_interaction.response.defer.assert_called_once()
+    mock_interaction.edit_original_message.assert_called_once()
+
+
+@pytest.mark.asyncio
+async def test_nine_button_callback(_unused_puzzle_unsolved):
+    """Test Sudoku nine button callback."""
+    mock_bot = AsyncMock(spec=sudoku.view.CBot)
+    mock_member = AsyncMock(spec=discord.Member)
+    view = sudoku.Sudoku(_unused_puzzle_unsolved, mock_member, mock_bot)
+    mock_interaction = AsyncMock(spec=discord.Interaction)
+    mock_interaction.response = AsyncMock(spec=discord.InteractionResponse)
+    await view.nine.callback(mock_interaction)
+    mock_interaction.response.defer.assert_called_once()
+    mock_interaction.edit_original_message.assert_called_once()
+
+
+@pytest.mark.asyncio
+async def test_mode_select(_unused_puzzle_unsolved):
+    """Test sudoku mode select."""
+    mock_bot = AsyncMock(spec=sudoku.view.CBot)
+    mock_member = AsyncMock(spec=discord.Member)
+    view = sudoku.Sudoku(_unused_puzzle_unsolved, mock_member, mock_bot)
+    mock_interaction = AsyncMock(spec=discord.Interaction)
+    mock_interaction.response = AsyncMock(spec=discord.InteractionResponse)
+    with pytest.raises(NotImplementedError):
+        await view.mode.callback(mock_interaction)
+
+
+@pytest.mark.asyncio
+async def test_cancel_callback(_unused_puzzle_unsolved):
+    """Test sudoku cancel callback."""
+    mock_bot = AsyncMock(spec=sudoku.view.CBot)
+    mock_member = AsyncMock(spec=discord.Member)
+    view = sudoku.Sudoku(_unused_puzzle_unsolved, mock_member, mock_bot)
+    mock_interaction = AsyncMock(spec=discord.Interaction)
+    mock_interaction.response = AsyncMock(spec=discord.InteractionResponse)
+    await view.cancel.callback(mock_interaction)
+    mock_interaction.response.edit_message.assert_called_once()
+    view = sudoku.Sudoku(_unused_puzzle_unsolved, mock_member, mock_bot)
+    view.start_time = discord.utils.utcnow() - datetime.timedelta(minutes=5)
+    view.moves = 20
+    mock_interaction.reset_mock()
+    mock_interaction.response.reset_mock()
+    await view.cancel.callback(mock_interaction)
+    mock_interaction.response.edit_message.assert_called_once()
+
+
+@pytest.mark.asyncio
+async def test_clear_callback(_unused_puzzle_unsolved):
+    """Test sudoku clear callback."""
+    mock_bot = AsyncMock(spec=sudoku.view.CBot)
+    mock_member = AsyncMock(spec=discord.Member)
+    view = sudoku.Sudoku(_unused_puzzle_unsolved, mock_member, mock_bot)
+    mock_interaction = AsyncMock(spec=discord.Interaction)
+    mock_interaction.response = AsyncMock(spec=discord.InteractionResponse)
+    await view.clear.callback(mock_interaction)
+    mock_interaction.response.edit_message.assert_called_once()
+    await view.one.callback(mock_interaction)
+    mock_interaction.reset_mock()
+    mock_interaction.response.reset_mock()
+    await view.clear.callback(mock_interaction)
+    mock_interaction.response.edit_message.assert_called_once()
+    await view.three.callback(mock_interaction)
+    mock_interaction.reset_mock()
+    mock_interaction.response.reset_mock()
+    await view.clear.callback(mock_interaction)
+    mock_interaction.response.edit_message.assert_called_once()
+
+
+def test_puzzle_magic_methods(_unused_puzzle_unsolved, _unused_puzzle_solved):
+    """Test sudoku puzzle magic methods."""
+    assert isinstance(repr(_unused_puzzle_unsolved), str)
+    assert _unused_puzzle_unsolved != _unused_puzzle_solved
+
+
+def test_puzzle_solution(_unused_puzzle_solved):
+    """Test sudoku puzzle solution."""
+    _unused_puzzle_solved.blocks[0][1]._value = 9
+    _unused_puzzle_solved.blocks[0][2]._value = 0
+    with pytest.raises(AttributeError):
+        print(_unused_puzzle_solved.solution)
+
+
+def test_from_rows_and_cols_and_random(_unused_puzzle_unsolved):
+    """Test sudoku from rows and cols and random."""
+    rows = [sudoku.Row([sudoku.Cell(cell, cell == 0) for cell in row]) for row in _unused_puzzle_unsolved.as_list()]
+    cols = [sudoku.Column([row.cells[i] for row in rows]) for i in range(9)]
+    rows_puzzle = sudoku.Puzzle.from_rows(rows)
+    cols_puzzle = sudoku.Puzzle.from_columns(cols)
+    assert rows_puzzle.as_list() == cols_puzzle.as_list() == _unused_puzzle_unsolved.as_list()
+
+
+def test_generator_function(_unused_puzzle_unsolved):
+    """Test sudoku generator function."""
+    generator = _unused_puzzle_unsolved.shortSudokuSolve(_board=_unused_puzzle_unsolved.as_list())
+    assert next(generator) is not None
+    assert next(generator) is not None

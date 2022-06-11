@@ -337,7 +337,7 @@ class Sudoku(ui.View):
             if self.block is not MISSING:
                 self.block.selected = True
             self.cell = MISSING
-            self.enable_keypad()
+            self.update_keypad()
             await interaction.response.edit_message(embed=self.cell_choose_embed(), view=self)
 
     @ui.button(label="1", style=ButtonStyle.blurple, row=0)
@@ -478,11 +478,11 @@ class Sudoku(ui.View):
             self.puzzle.reset()
             await interaction.response.edit_message(embed=self.block_choose_embed(), view=self)
         elif self.level == "Block":
-            if self.block is not None:
+            if self.block is not MISSING:
                 self.block.clear()
             await interaction.response.edit_message(embed=self.cell_choose_embed(), view=self)
         elif self.level == "Cell":
-            if self.cell is not None and self.cell.editable:
+            if self.cell is not MISSING and self.cell.editable:
                 self.cell.clear()
             await interaction.response.edit_message(embed=self.change_cell_prompt_embed(), view=self)
 

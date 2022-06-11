@@ -83,7 +83,6 @@ class Query(Cog):
         ctx : Context
             The context of the command.
         """
-
         await ctx.reply(f"Charlie's time is: {datetime.now(ZoneInfo('America/Detroit')).strftime('%X %x %Z')}")
 
     @commands.command()
