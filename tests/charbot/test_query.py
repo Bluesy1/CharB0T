@@ -45,51 +45,57 @@ def test_cog_check_allowed():
 
 @pytest.mark.asyncio
 async def test_time_command():
+    """Test time command."""
     mock_ctx = Mock(spec=commands.Context)
     mock_bot = Mock(spec=commands.Bot)
     cog = query.Query(mock_bot)
-    await cog.time.__call__(mock_ctx, mock_ctx)
+    await cog.time.__call__(mock_ctx, mock_ctx)  # type: ignore
     mock_ctx.reply.assert_called_once()
 
 
 @pytest.mark.asyncio
 async def test_changelog_command():
+    """Test changelog command."""
     mock_ctx = Mock(spec=commands.Context)
     mock_bot = Mock(spec=commands.Bot)
     cog = query.Query(mock_bot)
-    await cog.changelog.__call__(mock_ctx, mock_ctx)
+    await cog.changelog.__call__(mock_ctx, mock_ctx)  # type: ignore
     mock_ctx.reply.assert_called_once_with("Here's the changelog: https://bluesy1.github.io/CharB0T/changes")
 
 
 @pytest.mark.asyncio
 async def test_faq_command():
+    """Test faq command."""
     mock_ctx = Mock(spec=commands.Context)
     mock_bot = Mock(spec=commands.Bot)
     cog = query.Query(mock_bot)
-    await cog.faq.__call__(mock_ctx, mock_ctx)
+    await cog.faq.__call__(mock_ctx, mock_ctx)  # type: ignore
     mock_ctx.reply.assert_called_once()
 
 
 @pytest.mark.asyncio
 async def test_source_command():
+    """Test source command."""
     mock_ctx = Mock(spec=commands.Context)
     mock_bot = Mock(spec=commands.Bot)
     cog = query.Query(mock_bot)
-    await cog.source.__call__(mock_ctx, mock_ctx)
+    await cog.source.__call__(mock_ctx, mock_ctx)  # type: ignore
     mock_ctx.reply.assert_called_once_with(f"https://bluesy1.github.io/CharB0T/\n{query.__source__}\nMIT License")
 
 
 @pytest.mark.asyncio
 async def test_imgscam_command():
+    """Test imgscam command."""
     mock_ctx = Mock(spec=commands.Context)
     mock_bot = Mock(spec=commands.Bot)
     cog = query.Query(mock_bot)
-    await cog.imgscam.__call__(mock_ctx, mock_ctx)
+    await cog.imgscam.__call__(mock_ctx, mock_ctx)  # type: ignore
     mock_ctx.reply.assert_called_once_with("https://blog.hyperphish.com/articles/001-loading/")
 
 
 @pytest.mark.asyncio
 async def test_setup_function():
+    """Test setup function."""
     mock_bot = AsyncMock(spec=commands.Bot)
     await query.setup(mock_bot)
     mock_bot.add_cog.assert_called_once()
