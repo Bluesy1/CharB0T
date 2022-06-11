@@ -58,13 +58,13 @@ class TicTacHard(TicTacEasy):
         -------
         tuple[int, int]
             The x and y position of the move.
+
+        Raises
+        ------
+        RuntimeError
+            If the game is over or a move cannot be found.
         """
-        move_x, move_y = self._next_move_easy()
-        if isinstance(move_x, int) and isinstance(move_y, int):
-            return move_x, move_y
-        assert isinstance(move_x, list)  # skipcq: BAN-B101
-        assert isinstance(move_y, list)  # skipcq: BAN-B101
-        return move_x[0], move_y[0]
+        return self._next_move_easy()
 
     def _available_moves(self) -> list[tuple[int, int]]:
         """Return a list of available moves.
@@ -134,10 +134,10 @@ class TicTacHard(TicTacEasy):
             return comp[0]
         if len(player) != 0:
             self.board[player[0][0]][player[0][1]] = comp_pick
-            return player[0][0], player[0][1]
+            return player[0]
         if len(available) == 1:
             self.board[available[0][0]][available[0][1]] = comp_pick
-            return available[0][0], available[0][1]
+            return available[0]
         if len(available) == 0:
             return -1, -1
         if self.board[0][0] == self.pick and self.board[2][2] == self.pick:
@@ -206,12 +206,12 @@ class TicTacHard(TicTacEasy):
                     return c1 - gap + j, c2 + gap
         return 0
 
-    def _next_move_easy(self) -> tuple[int, int] | tuple[list[int], list[int]]:
+    def _next_move_easy(self) -> tuple[int, int]:
         """Make a move, and return the cell that was played.
 
         Returns
         -------
-        tuple[int, int] | tuple[list[int], list[int]]
+        tuple[int, int]
             The cell that was played.
         """
         available_moves = self._available_moves()  # will carry all available moves

@@ -140,10 +140,7 @@ class TicTacView(ui.View):
             image = await self.bot.loop.run_in_executor(None, self.puzzle.display)
             await interaction.edit_original_message(attachments=[image], embed=embed, view=self)
             return
-        if isinstance(self.puzzle, TicTacEasy):
-            move = self.puzzle.next()
-        else:
-            move = await self.bot.loop.run_in_executor(None, self.puzzle.next)
+        move = await self.bot.loop.run_in_executor(None, self.puzzle.next)
         self._buttons[move[0] * 3 + move[1]].disabled = True
         if self.puzzle.board[move[0]][move[1]] == "blur":
             self.puzzle.board[move[0]][move[1]] = "O" if self.letter == "X" else "X"
@@ -239,10 +236,10 @@ class TicTacView(ui.View):
         """
         self.disable()
         embed = discord.Embed(
-            title="Tic Tac Toe",
+            title="TicTacToe",
             description=f"Cancelled, time taken: {utcnow().replace(microsecond=0) - self.time.replace(microsecond=0)}",
             color=discord.Color.red(),
-        )
+        ).set_image(url="attachment://tictactoe.png")
         await interaction.response.edit_message(embed=embed)
 
     @ui.button(style=ButtonStyle.green, emoji="✅", row=1)
