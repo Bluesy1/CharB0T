@@ -121,7 +121,7 @@ class GuessModal(ui.Modal, title="Shrugman Guess"):
                 description=f"You got: `{''.join(self.game.guess_word_list)}`",
                 color=discord.Color.red(),
             )
-            embed.set_footer(text="Type /shrugman to play")
+            embed.set_footer(text="Play by typing /programs shrugman")
             embed.set_author(name=interaction.user.display_name, icon_url=interaction.user.display_avatar.url)
             embed.add_field(
                 name="Shrugman",
@@ -152,7 +152,7 @@ class GuessModal(ui.Modal, title="Shrugman Guess"):
             f" `{''.join(self.game.guess_word_list)}`",
             color=discord.Color.green() if "-" not in self.game.guess_word_list else discord.Color.red(),
         )
-        embed.set_footer(text=f"Type /shrugman to play {'again' if '-' not in self.game.guess_word_list else ''}")
+        embed.set_footer(text="Play by typing /programs shrugman")
         embed.set_author(name=interaction.user.display_name, icon_url=interaction.user.display_avatar.url)
         embed.add_field(
             name="Shrugman",

@@ -182,9 +182,11 @@ async def test_cancel_button(_unused_mock_generator, photo):
     assert view.cancel.disabled
     mock_interaction.response.edit_message.assert_called_once()
     assert "embed" in mock_interaction.response.edit_message.call_args.kwargs
-    assert isinstance(mock_interaction.response.edit_message.call_args.kwargs["embed"], discord.Embed)
-    assert mock_interaction.response.edit_message.call_args.kwargs["embed"].title == "TicTacToe"
-    assert mock_interaction.response.edit_message.call_args.kwargs["embed"].color == discord.Color.red()
+    embed = mock_interaction.response.edit_message.call_args.kwargs["embed"]
+    assert isinstance(embed, discord.Embed)
+    assert embed.title == "TicTacToe"
+    assert embed.color == discord.Color.red()
+    assert embed.footer.text == "Start playing by typing /programs tictactoe"
 
 
 @pytest.mark.parametrize(

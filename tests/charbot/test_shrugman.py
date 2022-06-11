@@ -74,6 +74,8 @@ async def test_view_cancel_long_game(_unused_not_random):
     await view.stop_button.callback(mock_interaction)
     mock_interaction.response.edit_message.assert_called_once()
     mock_bot.give_game_points.assert_called_once_with(mock_interaction.user, "shrugman", 2, 0)
+    embed = mock_interaction.response.edit_message.call_args.kwargs["embed"]
+    assert embed.footer.text == "Play by typing /programs shrugman"
 
 
 async def test_modal_valid_guess(_unused_not_random):
@@ -89,6 +91,8 @@ async def test_modal_valid_guess(_unused_not_random):
     mock_interaction.response.defer.assert_called_once()
     mock_interaction.edit_original_message.assert_called_once()
     mock_bot.give_game_points.assert_called_once_with(mock_interaction.user, "shrugman", 2, 5)
+    embed = mock_interaction.edit_original_message.call_args.kwargs["embed"]
+    assert embed.footer.text == "Play by typing /programs shrugman"
 
 
 async def test_modal_wrong_guess(_unused_not_random):
@@ -105,6 +109,8 @@ async def test_modal_wrong_guess(_unused_not_random):
     mock_interaction.response.defer.assert_called_once()
     mock_interaction.edit_original_message.assert_called_once()
     mock_bot.give_game_points.assert_called_once_with(mock_interaction.user, "shrugman", 2, 0)
+    embed = mock_interaction.edit_original_message.call_args.kwargs["embed"]
+    assert embed.footer.text == "Play by typing /programs shrugman"
 
 
 async def test_modal_invalid_guess(_unused_not_random):
