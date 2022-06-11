@@ -277,7 +277,7 @@ class TicTacEasy(TicTacABC):
         str | bool
             True on sucess, string error message on failure.
         """
-        if 0 > r or r >= self.dim_sz or 0 > c or c >= self.dim_sz:
+        if r < 0 or r >= self.dim_sz or c < 0 or c >= self.dim_sz:
             return "Out of Bounds"
         if self.board[r][c] != "blur":
             return "Spot Pre-Occupied"

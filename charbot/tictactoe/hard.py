@@ -58,10 +58,13 @@ class TicTacHard(TicTacEasy):
         -------
         tuple[int, int]
             The x and y position of the move.
+
+        Raises
+        ------
+        RuntimeError
+            If the game is over or a move cannot be found.
         """
-        move_x, move_y = self._next_move_easy()
-        if isinstance(move_x, int) and isinstance(move_y, int):
-            return move_x, move_y
+        return self._next_move_easy()
 
     def _available_moves(self) -> list[tuple[int, int]]:
         """Return a list of available moves.
