@@ -70,7 +70,7 @@ class TicTacEasy(TicTacABC):
         The abstract class for TicTac. All other implementations inherit from this class, or a subclass of it.
     """
 
-    def __init__(self, pick, sz=3) -> None:
+    def __init__(self, pick, sz: int = 3) -> None:
         self.pick = pick
         self.dim_sz = sz
         self.board = self.clear_board()
@@ -277,7 +277,7 @@ class TicTacEasy(TicTacABC):
         str | bool
             True on sucess, string error message on failure.
         """
-        if r > self.dim_sz or c > self.dim_sz:
+        if 0 > r or r >= self.dim_sz or 0 > c or c >= self.dim_sz:
             return "Out of Bounds"
         if self.board[r][c] != "blur":
             return "Spot Pre-Occupied"
