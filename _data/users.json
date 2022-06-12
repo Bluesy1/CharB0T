@@ -124,12 +124,12 @@
     "discriminator": "1179",
     "xp": "9.8k",
     "detailed_xp": [
-      1361,
+      1373,
       1595,
-      9811
+      9823
     ],
     "level": 13,
-    "messages": 672,
+    "messages": 673,
     "avatar": "https://cdn.discordapp.com/avatars/389137667926786060/a0938cefc089461da843738b184389f5.png",
     "gang": null,
     "prestige": 0,
@@ -1329,14 +1329,14 @@
     "id": "652242001147854849",
     "name": "erraw",
     "discriminator": "0113",
-    "xp": "194",
+    "xp": "206",
     "detailed_xp": [
-      82,
+      94,
       155,
-      194
+      206
     ],
     "level": 1,
-    "messages": 13,
+    "messages": 14,
     "avatar": "https://cdn.discordapp.com/avatars/652242001147854849/1e2fe7b85012ec744d2e05fd5a627201.png",
     "gang": null,
     "prestige": 0,
@@ -2533,23 +2533,6 @@
     "rank": 149
   },
   {
-    "id": "137426826191568896",
-    "name": "UnknownTrainer",
-    "discriminator": "1031",
-    "xp": "27",
-    "detailed_xp": [
-      27,
-      100,
-      27
-    ],
-    "level": 0,
-    "messages": 2,
-    "avatar": "https://cdn.discordapp.com/avatars/137426826191568896/64a3efb0fed7010a92921c7e73379a96.png",
-    "gang": null,
-    "prestige": 0,
-    "rank": 150
-  },
-  {
     "id": "899586789235388416",
     "name": "Dawsondude11",
     "discriminator": "4588",
@@ -2562,6 +2545,23 @@
     "level": 0,
     "messages": 2,
     "avatar": "https://cdn.discordapp.com/embed/avatars/3.png",
+    "gang": null,
+    "prestige": 0,
+    "rank": 150
+  },
+  {
+    "id": "137426826191568896",
+    "name": "UnknownTrainer",
+    "discriminator": "1031",
+    "xp": "27",
+    "detailed_xp": [
+      27,
+      100,
+      27
+    ],
+    "level": 0,
+    "messages": 2,
+    "avatar": "https://cdn.discordapp.com/avatars/137426826191568896/64a3efb0fed7010a92921c7e73379a96.png",
     "gang": null,
     "prestige": 0,
     "rank": 151
