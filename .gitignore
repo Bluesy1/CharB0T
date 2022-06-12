@@ -1,5 +1,6 @@
 /backup/
-/.idea/
+/.idea
+/virtual-enviornment
 *.pyc
 *.zip
 *.log*
@@ -9,3 +10,5 @@ charbot/mod_support_blacklist.json
 charbot/sensitive_settings.json
 giveaway.csv
 /charbot/media/pools/Discord-pool-bg-01.jpg
+.coverage
+/charbot.egg-info
