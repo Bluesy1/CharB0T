@@ -3,14 +3,14 @@
     "id": "363095569515806722",
     "name": "Bluesy",
     "discriminator": "8150",
-    "xp": "59.0k",
+    "xp": "59.1k",
     "detailed_xp": [
-      2675,
+      2737,
       5420,
-      59035
+      59097
     ],
     "level": 28,
-    "messages": 4023,
+    "messages": 4027,
     "avatar": "https://cdn.discordapp.com/avatars/363095569515806722/ccf12c126a6827a5b07a4e579a52b043.png",
     "gang": null,
     "prestige": 0,
@@ -20,14 +20,14 @@
     "id": "465356664657149952",
     "name": "Mordakai Slivermoon",
     "discriminator": "7762",
-    "xp": "31.4k",
+    "xp": "31.5k",
     "detailed_xp": [
-      1055,
+      1135,
       3620,
-      31382
+      31462
     ],
     "level": 22,
-    "messages": 2155,
+    "messages": 2161,
     "avatar": "https://cdn.discordapp.com/avatars/465356664657149952/69046661ae37d5aeacd06e8670bd2cd1.png",
     "gang": null,
     "prestige": 0,
@@ -37,14 +37,14 @@
     "id": "434764784353804305",
     "name": "Caspar",
     "discriminator": "8014",
-    "xp": "27.3k",
+    "xp": "27.4k",
     "detailed_xp": [
-      359,
+      463,
       3355,
-      27316
+      27420
     ],
     "level": 21,
-    "messages": 1869,
+    "messages": 1876,
     "avatar": "https://cdn.discordapp.com/avatars/434764784353804305/079e9acbab412d57da60f98460454d62.png",
     "gang": null,
     "prestige": 0,
@@ -258,14 +258,14 @@
     "id": "244529987510599680",
     "name": "Petrat852",
     "discriminator": "7958",
-    "xp": "7.6k",
+    "xp": "7.7k",
     "detailed_xp": [
-      572,
+      604,
       1420,
-      7621
+      7653
     ],
     "level": 12,
-    "messages": 524,
+    "messages": 526,
     "avatar": "https://cdn.discordapp.com/avatars/244529987510599680/803f09d621468a326fc9f8ff25225579.png",
     "gang": null,
     "prestige": 0,
