@@ -165,7 +165,8 @@ def calendar_embed(fields: dict[int, EmbedField], next_event: datetime | None) -
         f" [Twitch](https://www.twitch.tv/charliepryor)\n Next stream: "
         f"{format_dt(next_event, 'R') if next_event else 'No streams scheduled'}",
     )
-    for field in list(fields.values()):  # type: EmbedField
+    field: EmbedField
+    for field in list(fields.values()):
         embed.add_field(name=field.name, value=field.value, inline=field.inline)
 
     embed.set_author(

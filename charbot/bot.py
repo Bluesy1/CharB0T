@@ -114,9 +114,9 @@ class CBot(commands.Bot):
             when passing an empty string, it should always be last as no prefix
             after it will be matched.
     case_insensitive: :class:`bool`
-        Whether the commands should be case insensitive. Defaults to ``False``. This
+        Whether the commands should be case-insensitive. Defaults to ``False``. This
         attribute does not carry over to groups. You must set it to every group if
-        you require group commands to be case insensitive as well.
+        you require group commands to be case-insensitive as well.
     description: :class:`str`
         The content prefixed into the default help message.
     help_command: Optional[:class:`.HelpCommand`]
@@ -384,7 +384,7 @@ class CBot(commands.Bot):
 
         ignored = (commands.CommandNotFound,)
 
-        # Discordpy wraps exceptuions that are not inherited from CommandInvokeError in a CommandInvokeError for type
+        # Discord.py wraps exceptions that are not inherited from CommandInvokeError in a CommandInvokeError for type
         # safety. We want to catch the actual exception, not the wrapped one.
         exception = getattr(exception, "original", exception)
 
@@ -476,7 +476,6 @@ class Tree(app_commands.CommandTree):
                 )
                 print(f"Ignoring exception in command {command.name!r}", file=sys.stderr)
                 traceback.print_exception(orig_error.__class__, orig_error, orig_error.__traceback__, file=sys.stderr)
-                return
             else:
                 message = "An error occurred while executing the command."
             if interaction.response.is_done():

@@ -611,6 +611,7 @@ def test_column_clear():
     col = sudoku.Column([sudoku.Cell(1, True) for _ in range(9)])
     col_copy = copy.deepcopy(col)
     assert col == col_copy
+    assert col[0].value == 1
     col.clear()
     for cell in col.cells:
         assert cell.value == 0
