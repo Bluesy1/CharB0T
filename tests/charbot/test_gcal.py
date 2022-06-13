@@ -1,11 +1,6 @@
-import random
-from unittest.mock import AsyncMock, Mock
-
-import discord
-import pytest
 import datetime
-import calendar
-from discord.ext import commands
+
+import pytest
 
 from charbot import gcal
 
@@ -13,7 +8,6 @@ from charbot import gcal
 @pytest.fixture
 def url_mock_response(monkeypatch):
     """os.env"""
-
     monkeypatch.setenv("CALKEY", "calenderkey")
 
 
