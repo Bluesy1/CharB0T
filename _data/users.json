@@ -3,14 +3,14 @@
     "id": "363095569515806722",
     "name": "Bluesy",
     "discriminator": "8150",
-    "xp": "61.2k",
+    "xp": "61.4k",
     "detailed_xp": [
-      4886,
+      5048,
       5420,
-      61246
+      61408
     ],
     "level": 28,
-    "messages": 4176,
+    "messages": 4187,
     "avatar": "https://cdn.discordapp.com/avatars/363095569515806722/ccf12c126a6827a5b07a4e579a52b043.png",
     "gang": null,
     "prestige": 0,
@@ -226,12 +226,12 @@
     "discriminator": "4221",
     "xp": "8.4k",
     "detailed_xp": [
-      1347,
+      1371,
       1420,
-      8377
+      8401
     ],
     "level": 12,
-    "messages": 572,
+    "messages": 574,
     "avatar": "https://cdn.discordapp.com/avatars/329687445010644992/d225ec3818221578bf865e1d82f7c46e.png",
     "gang": null,
     "prestige": 0,
@@ -241,14 +241,14 @@
     "id": "725373259817811988",
     "name": "General_WCJ",
     "discriminator": "4528",
-    "xp": "8.2k",
+    "xp": "8.3k",
     "detailed_xp": [
-      1194,
+      1210,
       1420,
-      8235
+      8251
     ],
     "level": 12,
-    "messages": 563,
+    "messages": 564,
     "avatar": "https://cdn.discordapp.com/avatars/725373259817811988/f6bb046bfd0f14ceea1dec9e03e70fb8.png",
     "gang": null,
     "prestige": 0,
@@ -377,14 +377,14 @@
     "id": "980079182912561212",
     "name": "Tsamoka",
     "discriminator": "2725",
-    "xp": "3.2k",
+    "xp": "3.3k",
     "detailed_xp": [
-      272,
+      350,
       820,
-      3226
+      3304
     ],
     "level": 8,
-    "messages": 225,
+    "messages": 230,
     "avatar": "https://cdn.discordapp.com/avatars/980079182912561212/9e6bfe52f1e097b1f193ca347be3b68d.png",
     "gang": null,
     "prestige": 0,
@@ -802,14 +802,14 @@
     "id": "204748601664995328",
     "name": "Zeph",
     "discriminator": "2659",
-    "xp": "992",
+    "xp": "1.1k",
     "detailed_xp": [
-      203,
+      266,
       380,
-      992
+      1055
     ],
     "level": 4,
-    "messages": 68,
+    "messages": 73,
     "avatar": "https://cdn.discordapp.com/avatars/204748601664995328/34d0412088e4cbaa7619321eb040946c.png",
     "gang": null,
     "prestige": 0,
@@ -2227,23 +2227,6 @@
     "rank": 131
   },
   {
-    "id": "918305171019296818",
-    "name": "honfg",
-    "discriminator": "9087",
-    "xp": "43",
-    "detailed_xp": [
-      43,
-      100,
-      43
-    ],
-    "level": 0,
-    "messages": 3,
-    "avatar": "https://cdn.discordapp.com/avatars/918305171019296818/3c751e5ce01ce66c26e4a27f94bc61d2.png",
-    "gang": null,
-    "prestige": 0,
-    "rank": 132
-  },
-  {
     "id": "618534573180977152",
     "name": "EllieKat",
     "discriminator": "0900",
@@ -2258,12 +2241,29 @@
     "avatar": "https://cdn.discordapp.com/embed/avatars/0.png",
     "gang": null,
     "prestige": 0,
+    "rank": 132
+  },
+  {
+    "id": "918305171019296818",
+    "name": "honfg",
+    "discriminator": "9087",
+    "xp": "43",
+    "detailed_xp": [
+      43,
+      100,
+      43
+    ],
+    "level": 0,
+    "messages": 3,
+    "avatar": "https://cdn.discordapp.com/avatars/918305171019296818/3c751e5ce01ce66c26e4a27f94bc61d2.png",
+    "gang": null,
+    "prestige": 0,
     "rank": 133
   },
   {
-    "id": "147807150742306817",
-    "name": "JustGlenn",
-    "discriminator": "4747",
+    "id": "355258083301392384",
+    "name": "popcornlover24",
+    "discriminator": "6554",
     "xp": "42",
     "detailed_xp": [
       42,
@@ -2272,7 +2272,7 @@
     ],
     "level": 0,
     "messages": 3,
-    "avatar": "https://cdn.discordapp.com/avatars/147807150742306817/bcc3a54069cb4bf200a2247807aae375.png",
+    "avatar": "https://cdn.discordapp.com/embed/avatars/4.png",
     "gang": null,
     "prestige": 0,
     "rank": 134
@@ -2295,9 +2295,9 @@
     "rank": 135
   },
   {
-    "id": "355258083301392384",
-    "name": "popcornlover24",
-    "discriminator": "6554",
+    "id": "147807150742306817",
+    "name": "JustGlenn",
+    "discriminator": "4747",
     "xp": "42",
     "detailed_xp": [
       42,
@@ -2306,7 +2306,7 @@
     ],
     "level": 0,
     "messages": 3,
-    "avatar": "https://cdn.discordapp.com/embed/avatars/4.png",
+    "avatar": "https://cdn.discordapp.com/avatars/147807150742306817/bcc3a54069cb4bf200a2247807aae375.png",
     "gang": null,
     "prestige": 0,
     "rank": 136
