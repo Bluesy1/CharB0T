@@ -5,12 +5,12 @@
     "discriminator": "8150",
     "xp": "62.4k",
     "detailed_xp": [
-      599,
+      631,
       5755,
-      62382
+      62414
     ],
     "level": 29,
-    "messages": 4253,
+    "messages": 4255,
     "avatar": "https://cdn.discordapp.com/avatars/363095569515806722/ccf12c126a6827a5b07a4e579a52b043.png",
     "gang": null,
     "prestige": 0,
@@ -22,12 +22,12 @@
     "discriminator": "7762",
     "xp": "32.5k",
     "detailed_xp": [
-      2160,
+      2175,
       3620,
-      32487
+      32502
     ],
     "level": 22,
-    "messages": 2229,
+    "messages": 2230,
     "avatar": "https://cdn.discordapp.com/avatars/465356664657149952/69046661ae37d5aeacd06e8670bd2cd1.png",
     "gang": null,
     "prestige": 0,
@@ -209,12 +209,12 @@
     "discriminator": "7585",
     "xp": "9.0k",
     "detailed_xp": [
-      545,
+      563,
       1595,
-      8997
+      9015
     ],
     "level": 13,
-    "messages": 609,
+    "messages": 610,
     "avatar": "https://cdn.discordapp.com/avatars/615334339349184522/f26d5bb99c50ed137bc9069b70e16fbf.png",
     "gang": null,
     "prestige": 0,
@@ -226,12 +226,12 @@
     "discriminator": "4221",
     "xp": "8.6k",
     "detailed_xp": [
-      102,
+      131,
       1595,
-      8553
+      8582
     ],
     "level": 13,
-    "messages": 584,
+    "messages": 586,
     "avatar": "https://cdn.discordapp.com/avatars/329687445010644992/d225ec3818221578bf865e1d82f7c46e.png",
     "gang": null,
     "prestige": 0,
@@ -328,12 +328,12 @@
     "discriminator": "1947",
     "xp": "4.6k",
     "detailed_xp": [
-      864,
+      904,
       955,
-      4597
+      4637
     ],
     "level": 9,
-    "messages": 318,
+    "messages": 321,
     "avatar": "https://cdn.discordapp.com/avatars/138380316095021056/f912ef80e2616dbb2221fcb2dbd09ab9.png",
     "gang": null,
     "prestige": 0,
@@ -617,12 +617,12 @@
     "discriminator": "2659",
     "xp": "1.8k",
     "detailed_xp": [
-      136,
+      179,
       580,
-      1786
+      1829
     ],
     "level": 6,
-    "messages": 123,
+    "messages": 126,
     "avatar": "https://cdn.discordapp.com/avatars/204748601664995328/34d0412088e4cbaa7619321eb040946c.png",
     "gang": null,
     "prestige": 0,
