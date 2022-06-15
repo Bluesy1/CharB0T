@@ -37,14 +37,14 @@
     "id": "434764784353804305",
     "name": "Caspar",
     "discriminator": "8014",
-    "xp": "28.9k",
+    "xp": "29.0k",
     "detailed_xp": [
-      1894,
+      2050,
       3355,
-      28851
+      29007
     ],
     "level": 21,
-    "messages": 1973,
+    "messages": 1983,
     "avatar": "https://cdn.discordapp.com/avatars/434764784353804305/079e9acbab412d57da60f98460454d62.png",
     "gang": null,
     "prestige": 0,
@@ -73,12 +73,12 @@
     "discriminator": "6862",
     "xp": "18.6k",
     "detailed_xp": [
-      187,
+      271,
       2620,
-      18564
+      18648
     ],
     "level": 18,
-    "messages": 1271,
+    "messages": 1277,
     "avatar": "https://cdn.discordapp.com/avatars/470021089104494598/609eb666ab567abadd68dcfc4d7c042c.png",
     "gang": null,
     "prestige": 0,
@@ -153,6 +153,23 @@
     "rank": 9
   },
   {
+    "id": "361315683243524097",
+    "name": "UnckleSkeezer14",
+    "discriminator": "5307",
+    "xp": "9.7k",
+    "detailed_xp": [
+      1222,
+      1595,
+      9672
+    ],
+    "level": 13,
+    "messages": 661,
+    "avatar": "https://cdn.discordapp.com/avatars/361315683243524097/7ab62327b597a48fd2fd179a6791694f.png",
+    "gang": null,
+    "prestige": 0,
+    "rank": 10
+  },
+  {
     "id": "254272745779494922",
     "name": "[MSM]Wasan",
     "discriminator": "5792",
@@ -165,23 +182,6 @@
     "level": 13,
     "messages": 652,
     "avatar": "https://cdn.discordapp.com/avatars/254272745779494922/104c411ce5b4accfc2095084e3dded32.png",
-    "gang": null,
-    "prestige": 0,
-    "rank": 10
-  },
-  {
-    "id": "361315683243524097",
-    "name": "UnckleSkeezer14",
-    "discriminator": "5307",
-    "xp": "9.5k",
-    "detailed_xp": [
-      1079,
-      1595,
-      9529
-    ],
-    "level": 13,
-    "messages": 651,
-    "avatar": "https://cdn.discordapp.com/avatars/361315683243524097/7ab62327b597a48fd2fd179a6791694f.png",
     "gang": null,
     "prestige": 0,
     "rank": 11
@@ -207,14 +207,14 @@
     "id": "615334339349184522",
     "name": "ssWinni",
     "discriminator": "7585",
-    "xp": "9.0k",
+    "xp": "9.2k",
     "detailed_xp": [
-      563,
+      763,
       1595,
-      9015
+      9215
     ],
     "level": 13,
-    "messages": 610,
+    "messages": 624,
     "avatar": "https://cdn.discordapp.com/avatars/615334339349184522/f26d5bb99c50ed137bc9069b70e16fbf.png",
     "gang": null,
     "prestige": 0,
