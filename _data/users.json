@@ -54,14 +54,14 @@
     "id": "355127455419203585",
     "name": "Sir Clint Pope",
     "discriminator": "2226",
-    "xp": "20.4k",
+    "xp": "20.5k",
     "detailed_xp": [
-      2057,
+      2151,
       2620,
-      20432
+      20526
     ],
     "level": 18,
-    "messages": 1388,
+    "messages": 1395,
     "avatar": "https://cdn.discordapp.com/avatars/355127455419203585/095ad3bae31ea645652dd0f7d6c16aee.png",
     "gang": null,
     "prestige": 0,
@@ -170,6 +170,23 @@
     "rank": 10
   },
   {
+    "id": "254272745779494922",
+    "name": "[MSM]Wasan",
+    "discriminator": "5792",
+    "xp": "9.5k",
+    "detailed_xp": [
+      1054,
+      1595,
+      9514
+    ],
+    "level": 13,
+    "messages": 651,
+    "avatar": "https://cdn.discordapp.com/avatars/254272745779494922/104c411ce5b4accfc2095084e3dded32.png",
+    "gang": null,
+    "prestige": 0,
+    "rank": 11
+  },
+  {
     "id": "632990542921334804",
     "name": "Gerwanese",
     "discriminator": "3687",
@@ -182,23 +199,6 @@
     "level": 13,
     "messages": 645,
     "avatar": "https://cdn.discordapp.com/avatars/632990542921334804/45a3fc0247abf90aea5ee8ec7869741a.png",
-    "gang": null,
-    "prestige": 0,
-    "rank": 11
-  },
-  {
-    "id": "254272745779494922",
-    "name": "[MSM]Wasan",
-    "discriminator": "5792",
-    "xp": "9.5k",
-    "detailed_xp": [
-      1027,
-      1595,
-      9487
-    ],
-    "level": 13,
-    "messages": 649,
-    "avatar": "https://cdn.discordapp.com/avatars/254272745779494922/104c411ce5b4accfc2095084e3dded32.png",
     "gang": null,
     "prestige": 0,
     "rank": 12
@@ -447,12 +447,12 @@
     "discriminator": "8763",
     "xp": "3.0k",
     "detailed_xp": [
-      57,
+      103,
       820,
-      2968
+      3014
     ],
     "level": 8,
-    "messages": 208,
+    "messages": 211,
     "avatar": "https://cdn.discordapp.com/avatars/925449738705338368/4155be38f3591a54d5b63451109f3c9e.png",
     "gang": null,
     "prestige": 0,
