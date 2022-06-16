@@ -5,12 +5,12 @@
     "discriminator": "8150",
     "xp": "63.4k",
     "detailed_xp": [
-      1579,
+      1649,
       5755,
-      63362
+      63432
     ],
     "level": 29,
-    "messages": 4321,
+    "messages": 4326,
     "avatar": "https://cdn.discordapp.com/avatars/363095569515806722/ccf12c126a6827a5b07a4e579a52b043.png",
     "gang": null,
     "prestige": 0,
@@ -224,14 +224,14 @@
     "id": "329687445010644992",
     "name": "Alven",
     "discriminator": "4221",
-    "xp": "8.9k",
+    "xp": "9.0k",
     "detailed_xp": [
-      470,
+      515,
       1595,
-      8921
+      8966
     ],
     "level": 13,
-    "messages": 609,
+    "messages": 612,
     "avatar": "https://cdn.discordapp.com/avatars/329687445010644992/d225ec3818221578bf865e1d82f7c46e.png",
     "gang": null,
     "prestige": 0,
@@ -311,12 +311,12 @@
     "discriminator": "1947",
     "xp": "5.5k",
     "detailed_xp": [
-      772,
+      798,
       1100,
-      5467
+      5493
     ],
     "level": 10,
-    "messages": 378,
+    "messages": 380,
     "avatar": "https://cdn.discordapp.com/avatars/138380316095021056/f912ef80e2616dbb2221fcb2dbd09ab9.png",
     "gang": null,
     "prestige": 0,
