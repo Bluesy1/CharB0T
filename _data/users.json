@@ -3,14 +3,14 @@
     "id": "363095569515806722",
     "name": "Bluesy",
     "discriminator": "8150",
-    "xp": "63.0k",
+    "xp": "63.2k",
     "detailed_xp": [
-      1258,
+      1386,
       5755,
-      63041
+      63169
     ],
     "level": 29,
-    "messages": 4299,
+    "messages": 4308,
     "avatar": "https://cdn.discordapp.com/avatars/363095569515806722/ccf12c126a6827a5b07a4e579a52b043.png",
     "gang": null,
     "prestige": 0,
@@ -73,12 +73,12 @@
     "discriminator": "6862",
     "xp": "18.8k",
     "detailed_xp": [
-      432,
+      446,
       2620,
-      18809
+      18823
     ],
     "level": 18,
-    "messages": 1288,
+    "messages": 1289,
     "avatar": "https://cdn.discordapp.com/avatars/470021089104494598/609eb666ab567abadd68dcfc4d7c042c.png",
     "gang": null,
     "prestige": 0,
@@ -124,12 +124,12 @@
     "discriminator": "1179",
     "xp": "10.8k",
     "detailed_xp": [
-      744,
+      758,
       1780,
-      10792
+      10806
     ],
     "level": 14,
-    "messages": 740,
+    "messages": 741,
     "avatar": "https://cdn.discordapp.com/avatars/389137667926786060/a0938cefc089461da843738b184389f5.png",
     "gang": null,
     "prestige": 0,
@@ -224,14 +224,14 @@
     "id": "329687445010644992",
     "name": "Alven",
     "discriminator": "4221",
-    "xp": "8.8k",
+    "xp": "8.9k",
     "detailed_xp": [
-      342,
+      406,
       1595,
-      8793
+      8857
     ],
     "level": 13,
-    "messages": 601,
+    "messages": 605,
     "avatar": "https://cdn.discordapp.com/avatars/329687445010644992/d225ec3818221578bf865e1d82f7c46e.png",
     "gang": null,
     "prestige": 0,
@@ -326,14 +326,14 @@
     "id": "138380316095021056",
     "name": "krios41",
     "discriminator": "1947",
-    "xp": "5.2k",
+    "xp": "5.3k",
     "detailed_xp": [
-      462,
+      601,
       1100,
-      5157
+      5296
     ],
     "level": 10,
-    "messages": 356,
+    "messages": 366,
     "avatar": "https://cdn.discordapp.com/avatars/138380316095021056/f912ef80e2616dbb2221fcb2dbd09ab9.png",
     "gang": null,
     "prestige": 0,
