@@ -5,12 +5,12 @@
     "discriminator": "8150",
     "xp": "63.0k",
     "detailed_xp": [
-      1220,
+      1258,
       5755,
-      63003
+      63041
     ],
     "level": 29,
-    "messages": 4296,
+    "messages": 4299,
     "avatar": "https://cdn.discordapp.com/avatars/363095569515806722/ccf12c126a6827a5b07a4e579a52b043.png",
     "gang": null,
     "prestige": 0,
@@ -39,12 +39,12 @@
     "discriminator": "8014",
     "xp": "29.3k",
     "detailed_xp": [
-      2376,
+      2390,
       3355,
-      29333
+      29347
     ],
     "level": 21,
-    "messages": 2006,
+    "messages": 2007,
     "avatar": "https://cdn.discordapp.com/avatars/434764784353804305/079e9acbab412d57da60f98460454d62.png",
     "gang": null,
     "prestige": 0,
@@ -88,14 +88,14 @@
     "id": "268664164543758336",
     "name": "Maltesemt",
     "discriminator": "9829",
-    "xp": "12.6k",
+    "xp": "12.7k",
     "detailed_xp": [
-      823,
+      875,
       1975,
-      12648
+      12700
     ],
     "level": 15,
-    "messages": 866,
+    "messages": 869,
     "avatar": "https://cdn.discordapp.com/avatars/268664164543758336/536a483c07eaf86788a1bae92f8fd504.png",
     "gang": null,
     "prestige": 0,
@@ -122,14 +122,14 @@
     "id": "389137667926786060",
     "name": "coolmanfight",
     "discriminator": "1179",
-    "xp": "10.7k",
+    "xp": "10.8k",
     "detailed_xp": [
-      701,
+      744,
       1780,
-      10749
+      10792
     ],
     "level": 14,
-    "messages": 737,
+    "messages": 740,
     "avatar": "https://cdn.discordapp.com/avatars/389137667926786060/a0938cefc089461da843738b184389f5.png",
     "gang": null,
     "prestige": 0,
@@ -326,14 +326,14 @@
     "id": "138380316095021056",
     "name": "krios41",
     "discriminator": "1947",
-    "xp": "5.1k",
+    "xp": "5.2k",
     "detailed_xp": [
-      437,
+      462,
       1100,
-      5132
+      5157
     ],
     "level": 10,
-    "messages": 354,
+    "messages": 356,
     "avatar": "https://cdn.discordapp.com/avatars/138380316095021056/f912ef80e2616dbb2221fcb2dbd09ab9.png",
     "gang": null,
     "prestige": 0,
@@ -617,12 +617,12 @@
     "discriminator": "2659",
     "xp": "1.9k",
     "detailed_xp": [
-      204,
+      233,
       580,
-      1854
+      1883
     ],
     "level": 6,
-    "messages": 128,
+    "messages": 130,
     "avatar": "https://cdn.discordapp.com/avatars/204748601664995328/34d0412088e4cbaa7619321eb040946c.png",
     "gang": null,
     "prestige": 0,
