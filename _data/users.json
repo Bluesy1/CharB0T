@@ -5,12 +5,12 @@
     "discriminator": "8150",
     "xp": "63.2k",
     "detailed_xp": [
-      1386,
+      1453,
       5755,
-      63169
+      63236
     ],
     "level": 29,
-    "messages": 4308,
+    "messages": 4312,
     "avatar": "https://cdn.discordapp.com/avatars/363095569515806722/ccf12c126a6827a5b07a4e579a52b043.png",
     "gang": null,
     "prestige": 0,
@@ -37,14 +37,14 @@
     "id": "434764784353804305",
     "name": "Caspar",
     "discriminator": "8014",
-    "xp": "29.3k",
+    "xp": "29.4k",
     "detailed_xp": [
-      2390,
+      2417,
       3355,
-      29347
+      29374
     ],
     "level": 21,
-    "messages": 2007,
+    "messages": 2009,
     "avatar": "https://cdn.discordapp.com/avatars/434764784353804305/079e9acbab412d57da60f98460454d62.png",
     "gang": null,
     "prestige": 0,
@@ -328,12 +328,12 @@
     "discriminator": "1947",
     "xp": "5.3k",
     "detailed_xp": [
-      601,
+      623,
       1100,
-      5296
+      5318
     ],
     "level": 10,
-    "messages": 366,
+    "messages": 368,
     "avatar": "https://cdn.discordapp.com/avatars/138380316095021056/f912ef80e2616dbb2221fcb2dbd09ab9.png",
     "gang": null,
     "prestige": 0,
@@ -595,6 +595,23 @@
     "rank": 35
   },
   {
+    "id": "204748601664995328",
+    "name": "Zeph",
+    "discriminator": "2659",
+    "xp": "1.9k",
+    "detailed_xp": [
+      249,
+      580,
+      1899
+    ],
+    "level": 6,
+    "messages": 131,
+    "avatar": "https://cdn.discordapp.com/avatars/204748601664995328/34d0412088e4cbaa7619321eb040946c.png",
+    "gang": null,
+    "prestige": 0,
+    "rank": 36
+  },
+  {
     "id": "299245497657327618",
     "name": "ninjapizzamonkey",
     "discriminator": "4784",
@@ -607,23 +624,6 @@
     "level": 6,
     "messages": 129,
     "avatar": "https://cdn.discordapp.com/avatars/299245497657327618/ee2500dc3ac8750a4d37b42fd835585b.png",
-    "gang": null,
-    "prestige": 0,
-    "rank": 36
-  },
-  {
-    "id": "204748601664995328",
-    "name": "Zeph",
-    "discriminator": "2659",
-    "xp": "1.9k",
-    "detailed_xp": [
-      233,
-      580,
-      1883
-    ],
-    "level": 6,
-    "messages": 130,
-    "avatar": "https://cdn.discordapp.com/avatars/204748601664995328/34d0412088e4cbaa7619321eb040946c.png",
     "gang": null,
     "prestige": 0,
     "rank": 37
