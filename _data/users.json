@@ -56,12 +56,12 @@
     "discriminator": "2226",
     "xp": "20.6k",
     "detailed_xp": [
-      2260,
+      2274,
       2620,
-      20635
+      20649
     ],
     "level": 18,
-    "messages": 1402,
+    "messages": 1403,
     "avatar": "https://cdn.discordapp.com/avatars/355127455419203585/095ad3bae31ea645652dd0f7d6c16aee.png",
     "gang": null,
     "prestige": 0,
@@ -153,6 +153,23 @@
     "rank": 9
   },
   {
+    "id": "361315683243524097",
+    "name": "UnckleSkeezer14",
+    "discriminator": "5307",
+    "xp": "9.7k",
+    "detailed_xp": [
+      1249,
+      1595,
+      9699
+    ],
+    "level": 13,
+    "messages": 663,
+    "avatar": "https://cdn.discordapp.com/avatars/361315683243524097/7ab62327b597a48fd2fd179a6791694f.png",
+    "gang": null,
+    "prestige": 0,
+    "rank": 10
+  },
+  {
     "id": "208476626999181312",
     "name": "scooterchamp",
     "discriminator": "1161",
@@ -165,23 +182,6 @@
     "level": 13,
     "messages": 662,
     "avatar": "https://cdn.discordapp.com/avatars/208476626999181312/1f40bcab313e9db88174ce00f7de5c31.png",
-    "gang": null,
-    "prestige": 0,
-    "rank": 10
-  },
-  {
-    "id": "361315683243524097",
-    "name": "UnckleSkeezer14",
-    "discriminator": "5307",
-    "xp": "9.7k",
-    "detailed_xp": [
-      1236,
-      1595,
-      9686
-    ],
-    "level": 13,
-    "messages": 662,
-    "avatar": "https://cdn.discordapp.com/avatars/361315683243524097/7ab62327b597a48fd2fd179a6791694f.png",
     "gang": null,
     "prestige": 0,
     "rank": 11
@@ -209,12 +209,12 @@
     "discriminator": "7585",
     "xp": "9.3k",
     "detailed_xp": [
-      817,
+      832,
       1595,
-      9269
+      9284
     ],
     "level": 13,
-    "messages": 628,
+    "messages": 629,
     "avatar": "https://cdn.discordapp.com/avatars/615334339349184522/f26d5bb99c50ed137bc9069b70e16fbf.png",
     "gang": null,
     "prestige": 0,
