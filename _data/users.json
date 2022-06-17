@@ -311,12 +311,12 @@
     "discriminator": "1947",
     "xp": "5.6k",
     "detailed_xp": [
-      922,
+      934,
       1100,
-      5617
+      5629
     ],
     "level": 10,
-    "messages": 389,
+    "messages": 390,
     "avatar": "https://cdn.discordapp.com/avatars/138380316095021056/f912ef80e2616dbb2221fcb2dbd09ab9.png",
     "gang": null,
     "prestige": 0,
@@ -1343,6 +1343,23 @@
     "rank": 79
   },
   {
+    "id": "431945207437721600",
+    "name": "frosty",
+    "discriminator": "6511",
+    "xp": "208",
+    "detailed_xp": [
+      108,
+      155,
+      208
+    ],
+    "level": 1,
+    "messages": 15,
+    "avatar": "https://cdn.discordapp.com/avatars/431945207437721600/e2b98d1e2df848a852e664d59148e356.png",
+    "gang": null,
+    "prestige": 0,
+    "rank": 80
+  },
+  {
     "id": "563099572616822795",
     "name": "Chris Tucker",
     "discriminator": "7755",
@@ -1357,24 +1374,24 @@
     "avatar": "https://cdn.discordapp.com/avatars/563099572616822795/0b449658e58c0a4b0e5e5ed59529c795.png",
     "gang": null,
     "prestige": 0,
-    "rank": 80
+    "rank": 81
   },
   {
-    "id": "431945207437721600",
-    "name": "frosty",
-    "discriminator": "6511",
-    "xp": "197",
+    "id": "693051127930945536",
+    "name": "DeltaGaming",
+    "discriminator": "6211",
+    "xp": "204",
     "detailed_xp": [
-      97,
+      93,
       155,
-      197
+      204
     ],
     "level": 1,
-    "messages": 14,
-    "avatar": "https://cdn.discordapp.com/avatars/431945207437721600/e2b98d1e2df848a852e664d59148e356.png",
+    "messages": 13,
+    "avatar": "https://cdn.discordapp.com/avatars/693051127930945536/abb77bb12589621b501fa9093f1ba999.png",
     "gang": null,
     "prestige": 0,
-    "rank": 81
+    "rank": 82
   },
   {
     "id": "737317309194174574",
@@ -1389,23 +1406,6 @@
     "level": 1,
     "messages": 12,
     "avatar": "https://cdn.discordapp.com/embed/avatars/1.png",
-    "gang": null,
-    "prestige": 0,
-    "rank": 82
-  },
-  {
-    "id": "693051127930945536",
-    "name": "DeltaGaming",
-    "discriminator": "6211",
-    "xp": "186",
-    "detailed_xp": [
-      75,
-      155,
-      186
-    ],
-    "level": 1,
-    "messages": 12,
-    "avatar": "https://cdn.discordapp.com/avatars/693051127930945536/abb77bb12589621b501fa9093f1ba999.png",
     "gang": null,
     "prestige": 0,
     "rank": 83
@@ -3553,23 +3553,6 @@
     "rank": 209
   },
   {
-    "id": "907383382734946305",
-    "name": "Nattie_ie",
-    "discriminator": "5695",
-    "xp": "11",
-    "detailed_xp": [
-      11,
-      100,
-      11
-    ],
-    "level": 0,
-    "messages": 1,
-    "avatar": "https://cdn.discordapp.com/avatars/907383382734946305/5445ffd7ffb201a98393cbdf684ea4b1.png",
-    "gang": null,
-    "prestige": 0,
-    "rank": 210
-  },
-  {
     "id": "725264055161323679",
     "name": "gshoey65",
     "discriminator": "0719",
@@ -3582,6 +3565,23 @@
     "level": 0,
     "messages": 1,
     "avatar": "https://cdn.discordapp.com/avatars/725264055161323679/97b18b57679f275fc35dacb6880fe485.png",
+    "gang": null,
+    "prestige": 0,
+    "rank": 210
+  },
+  {
+    "id": "907383382734946305",
+    "name": "Nattie_ie",
+    "discriminator": "5695",
+    "xp": "11",
+    "detailed_xp": [
+      11,
+      100,
+      11
+    ],
+    "level": 0,
+    "messages": 1,
+    "avatar": "https://cdn.discordapp.com/avatars/907383382734946305/5445ffd7ffb201a98393cbdf684ea4b1.png",
     "gang": null,
     "prestige": 0,
     "rank": 211
