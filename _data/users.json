@@ -3,14 +3,14 @@
     "id": "363095569515806722",
     "name": "Bluesy",
     "discriminator": "8150",
-    "xp": "63.6k",
+    "xp": "63.7k",
     "detailed_xp": [
-      1858,
+      1903,
       5755,
-      63641
+      63686
     ],
     "level": 29,
-    "messages": 4340,
+    "messages": 4343,
     "avatar": "https://cdn.discordapp.com/avatars/363095569515806722/ccf12c126a6827a5b07a4e579a52b043.png",
     "gang": null,
     "prestige": 0,
@@ -20,14 +20,14 @@
     "id": "465356664657149952",
     "name": "Mordakai Slivermoon",
     "discriminator": "7762",
-    "xp": "32.6k",
+    "xp": "32.7k",
     "detailed_xp": [
-      2287,
+      2362,
       3620,
-      32614
+      32689
     ],
     "level": 22,
-    "messages": 2238,
+    "messages": 2243,
     "avatar": "https://cdn.discordapp.com/avatars/465356664657149952/69046661ae37d5aeacd06e8670bd2cd1.png",
     "gang": null,
     "prestige": 0,
@@ -37,14 +37,14 @@
     "id": "434764784353804305",
     "name": "Caspar",
     "discriminator": "8014",
-    "xp": "29.4k",
+    "xp": "29.5k",
     "detailed_xp": [
-      2493,
+      2556,
       3355,
-      29450
+      29513
     ],
     "level": 21,
-    "messages": 2014,
+    "messages": 2018,
     "avatar": "https://cdn.discordapp.com/avatars/434764784353804305/079e9acbab412d57da60f98460454d62.png",
     "gang": null,
     "prestige": 0,
@@ -122,14 +122,14 @@
     "id": "389137667926786060",
     "name": "coolmanfight",
     "discriminator": "1179",
-    "xp": "10.8k",
+    "xp": "10.9k",
     "detailed_xp": [
-      783,
+      814,
       1780,
-      10831
+      10862
     ],
     "level": 14,
-    "messages": 743,
+    "messages": 745,
     "avatar": "https://cdn.discordapp.com/avatars/389137667926786060/a0938cefc089461da843738b184389f5.png",
     "gang": null,
     "prestige": 0,
@@ -141,12 +141,12 @@
     "discriminator": "5792",
     "xp": "9.9k",
     "detailed_xp": [
-      1445,
+      1460,
       1595,
-      9905
+      9920
     ],
     "level": 13,
-    "messages": 678,
+    "messages": 679,
     "avatar": "https://cdn.discordapp.com/avatars/254272745779494922/104c411ce5b4accfc2095084e3dded32.png",
     "gang": null,
     "prestige": 0,
@@ -224,14 +224,14 @@
     "id": "329687445010644992",
     "name": "Alven",
     "discriminator": "4221",
-    "xp": "9.0k",
+    "xp": "9.1k",
     "detailed_xp": [
-      588,
+      611,
       1595,
-      9039
+      9062
     ],
     "level": 13,
-    "messages": 617,
+    "messages": 619,
     "avatar": "https://cdn.discordapp.com/avatars/329687445010644992/d225ec3818221578bf865e1d82f7c46e.png",
     "gang": null,
     "prestige": 0,
@@ -309,14 +309,14 @@
     "id": "138380316095021056",
     "name": "krios41",
     "discriminator": "1947",
-    "xp": "5.7k",
+    "xp": "5.8k",
     "detailed_xp": [
-      1052,
+      1097,
       1100,
-      5747
+      5792
     ],
     "level": 10,
-    "messages": 399,
+    "messages": 402,
     "avatar": "https://cdn.discordapp.com/avatars/138380316095021056/f912ef80e2616dbb2221fcb2dbd09ab9.png",
     "gang": null,
     "prestige": 0,
