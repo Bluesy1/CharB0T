@@ -3,14 +3,14 @@
     "id": "363095569515806722",
     "name": "Bluesy",
     "discriminator": "8150",
-    "xp": "65.4k",
+    "xp": "65.5k",
     "detailed_xp": [
-      3626,
+      3754,
       5755,
-      65409
+      65537
     ],
     "level": 29,
-    "messages": 4465,
+    "messages": 4474,
     "avatar": "https://cdn.discordapp.com/avatars/363095569515806722/ccf12c126a6827a5b07a4e579a52b043.png",
     "gang": null,
     "prestige": 0,
@@ -39,12 +39,12 @@
     "discriminator": "8014",
     "xp": "29.8k",
     "detailed_xp": [
-      2831,
+      2846,
       3355,
-      29788
+      29803
     ],
     "level": 21,
-    "messages": 2037,
+    "messages": 2038,
     "avatar": "https://cdn.discordapp.com/avatars/434764784353804305/079e9acbab412d57da60f98460454d62.png",
     "gang": null,
     "prestige": 0,
@@ -224,14 +224,14 @@
     "id": "329687445010644992",
     "name": "Alven",
     "discriminator": "4221",
-    "xp": "9.4k",
+    "xp": "9.5k",
     "detailed_xp": [
-      993,
+      1055,
       1595,
-      9444
+      9506
     ],
     "level": 13,
-    "messages": 646,
+    "messages": 650,
     "avatar": "https://cdn.discordapp.com/avatars/329687445010644992/d225ec3818221578bf865e1d82f7c46e.png",
     "gang": null,
     "prestige": 0,
@@ -289,6 +289,23 @@
     "rank": 17
   },
   {
+    "id": "138380316095021056",
+    "name": "krios41",
+    "discriminator": "1947",
+    "xp": "7.0k",
+    "detailed_xp": [
+      1186,
+      1255,
+      6993
+    ],
+    "level": 11,
+    "messages": 484,
+    "avatar": "https://cdn.discordapp.com/avatars/138380316095021056/f912ef80e2616dbb2221fcb2dbd09ab9.png",
+    "gang": null,
+    "prestige": 0,
+    "rank": 18
+  },
+  {
     "id": "718188351508971542",
     "name": "StealthHydrac",
     "discriminator": "8476",
@@ -301,23 +318,6 @@
     "level": 11,
     "messages": 477,
     "avatar": "https://cdn.discordapp.com/avatars/718188351508971542/4d61f718cb0602a9fa2121459306be1e.png",
-    "gang": null,
-    "prestige": 0,
-    "rank": 18
-  },
-  {
-    "id": "138380316095021056",
-    "name": "krios41",
-    "discriminator": "1947",
-    "xp": "6.9k",
-    "detailed_xp": [
-      1067,
-      1255,
-      6874
-    ],
-    "level": 11,
-    "messages": 476,
-    "avatar": "https://cdn.discordapp.com/avatars/138380316095021056/f912ef80e2616dbb2221fcb2dbd09ab9.png",
     "gang": null,
     "prestige": 0,
     "rank": 19
