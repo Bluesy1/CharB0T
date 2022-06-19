@@ -5,12 +5,12 @@
     "discriminator": "8150",
     "xp": "66.9k",
     "detailed_xp": [
-      5078,
+      5117,
       5755,
-      66861
+      66900
     ],
     "level": 29,
-    "messages": 4566,
+    "messages": 4569,
     "avatar": "https://cdn.discordapp.com/avatars/363095569515806722/ccf12c126a6827a5b07a4e579a52b043.png",
     "gang": null,
     "prestige": 0,
@@ -71,14 +71,14 @@
     "id": "470021089104494598",
     "name": "Copperspikes",
     "discriminator": "6862",
-    "xp": "19.0k",
+    "xp": "19.1k",
     "detailed_xp": [
-      648,
+      691,
       2620,
-      19025
+      19068
     ],
     "level": 18,
-    "messages": 1303,
+    "messages": 1306,
     "avatar": "https://cdn.discordapp.com/avatars/470021089104494598/609eb666ab567abadd68dcfc4d7c042c.png",
     "gang": null,
     "prestige": 0,
@@ -243,12 +243,12 @@
     "discriminator": "4528",
     "xp": "9.0k",
     "detailed_xp": [
-      485,
+      502,
       1595,
-      8952
+      8969
     ],
     "level": 13,
-    "messages": 613,
+    "messages": 614,
     "avatar": "https://cdn.discordapp.com/avatars/725373259817811988/f6bb046bfd0f14ceea1dec9e03e70fb8.png",
     "gang": null,
     "prestige": 0,
@@ -258,14 +258,14 @@
     "id": "138380316095021056",
     "name": "krios41",
     "discriminator": "1947",
-    "xp": "8.2k",
+    "xp": "8.3k",
     "detailed_xp": [
-      1122,
+      1244,
       1420,
-      8189
+      8311
     ],
     "level": 12,
-    "messages": 566,
+    "messages": 574,
     "avatar": "https://cdn.discordapp.com/avatars/138380316095021056/f912ef80e2616dbb2221fcb2dbd09ab9.png",
     "gang": null,
     "prestige": 0,
@@ -870,14 +870,14 @@
     "id": "246847874254635018",
     "name": "Crazy Man",
     "discriminator": "2917",
-    "xp": "831",
+    "xp": "845",
     "detailed_xp": [
-      46,
+      60,
       380,
-      831
+      845
     ],
     "level": 4,
-    "messages": 57,
+    "messages": 58,
     "avatar": "https://cdn.discordapp.com/avatars/246847874254635018/cad3a706e3e04eaac2f05c8a0f59aadc.png",
     "gang": null,
     "prestige": 0,
@@ -1006,14 +1006,14 @@
     "id": "396749467292008460",
     "name": "Daisukekun13",
     "discriminator": "0967",
-    "xp": "601",
+    "xp": "631",
     "detailed_xp": [
-      121,
+      151,
       295,
-      601
+      631
     ],
     "level": 3,
-    "messages": 41,
+    "messages": 43,
     "avatar": "https://cdn.discordapp.com/avatars/396749467292008460/3c8762a5fd9dcb8b0b24b19cb83e7bf5.png",
     "gang": null,
     "prestige": 0,
