@@ -3,14 +3,14 @@
     "id": "363095569515806722",
     "name": "Bluesy",
     "discriminator": "8150",
-    "xp": "66.8k",
+    "xp": "66.9k",
     "detailed_xp": [
-      5060,
+      5078,
       5755,
-      66843
+      66861
     ],
     "level": 29,
-    "messages": 4565,
+    "messages": 4566,
     "avatar": "https://cdn.discordapp.com/avatars/363095569515806722/ccf12c126a6827a5b07a4e579a52b043.png",
     "gang": null,
     "prestige": 0,
@@ -39,12 +39,12 @@
     "discriminator": "8014",
     "xp": "30.2k",
     "detailed_xp": [
-      3236,
+      3249,
       3355,
-      30193
+      30206
     ],
     "level": 21,
-    "messages": 2064,
+    "messages": 2065,
     "avatar": "https://cdn.discordapp.com/avatars/434764784353804305/079e9acbab412d57da60f98460454d62.png",
     "gang": null,
     "prestige": 0,
@@ -73,12 +73,12 @@
     "discriminator": "6862",
     "xp": "19.0k",
     "detailed_xp": [
-      632,
+      648,
       2620,
-      19009
+      19025
     ],
     "level": 18,
-    "messages": 1302,
+    "messages": 1303,
     "avatar": "https://cdn.discordapp.com/avatars/470021089104494598/609eb666ab567abadd68dcfc4d7c042c.png",
     "gang": null,
     "prestige": 0,
@@ -241,14 +241,14 @@
     "id": "725373259817811988",
     "name": "General_WCJ",
     "discriminator": "4528",
-    "xp": "8.9k",
+    "xp": "9.0k",
     "detailed_xp": [
-      473,
+      485,
       1595,
-      8940
+      8952
     ],
     "level": 13,
-    "messages": 612,
+    "messages": 613,
     "avatar": "https://cdn.discordapp.com/avatars/725373259817811988/f6bb046bfd0f14ceea1dec9e03e70fb8.png",
     "gang": null,
     "prestige": 0,
@@ -260,12 +260,12 @@
     "discriminator": "1947",
     "xp": "8.2k",
     "detailed_xp": [
-      1093,
+      1122,
       1420,
-      8160
+      8189
     ],
     "level": 12,
-    "messages": 564,
+    "messages": 566,
     "avatar": "https://cdn.discordapp.com/avatars/138380316095021056/f912ef80e2616dbb2221fcb2dbd09ab9.png",
     "gang": null,
     "prestige": 0,
