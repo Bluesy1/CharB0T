@@ -5,12 +5,12 @@
     "discriminator": "8150",
     "xp": "66.7k",
     "detailed_xp": [
-      4868,
+      4929,
       5755,
-      66651
+      66712
     ],
     "level": 29,
-    "messages": 4551,
+    "messages": 4556,
     "avatar": "https://cdn.discordapp.com/avatars/363095569515806722/ccf12c126a6827a5b07a4e579a52b043.png",
     "gang": null,
     "prestige": 0,
@@ -56,12 +56,12 @@
     "discriminator": "2226",
     "xp": "20.9k",
     "detailed_xp": [
-      2503,
+      2534,
       2620,
-      20878
+      20909
     ],
     "level": 18,
-    "messages": 1419,
+    "messages": 1421,
     "avatar": "https://cdn.discordapp.com/avatars/355127455419203585/095ad3bae31ea645652dd0f7d6c16aee.png",
     "gang": null,
     "prestige": 0,
@@ -88,14 +88,14 @@
     "id": "268664164543758336",
     "name": "Maltesemt",
     "discriminator": "9829",
-    "xp": "13.4k",
+    "xp": "13.5k",
     "detailed_xp": [
-      1598,
+      1665,
       1975,
-      13423
+      13490
     ],
     "level": 15,
-    "messages": 918,
+    "messages": 922,
     "avatar": "https://cdn.discordapp.com/avatars/268664164543758336/536a483c07eaf86788a1bae92f8fd504.png",
     "gang": null,
     "prestige": 0,
@@ -124,12 +124,12 @@
     "discriminator": "1179",
     "xp": "11.3k",
     "detailed_xp": [
-      1245,
+      1285,
       1780,
-      11293
+      11333
     ],
     "level": 14,
-    "messages": 773,
+    "messages": 776,
     "avatar": "https://cdn.discordapp.com/avatars/389137667926786060/a0938cefc089461da843738b184389f5.png",
     "gang": null,
     "prestige": 0,
@@ -156,14 +156,14 @@
     "id": "615334339349184522",
     "name": "ssWinni",
     "discriminator": "7585",
-    "xp": "9.9k",
+    "xp": "10.1k",
     "detailed_xp": [
-      1494,
-      1595,
-      9946
+      0,
+      1780,
+      10056
     ],
-    "level": 13,
-    "messages": 675,
+    "level": 14,
+    "messages": 682,
     "avatar": "https://cdn.discordapp.com/avatars/615334339349184522/f26d5bb99c50ed137bc9069b70e16fbf.png",
     "gang": null,
     "prestige": 0,
@@ -275,14 +275,14 @@
     "id": "138380316095021056",
     "name": "krios41",
     "discriminator": "1947",
-    "xp": "7.9k",
+    "xp": "8.0k",
     "detailed_xp": [
-      836,
+      944,
       1420,
-      7903
+      8011
     ],
     "level": 12,
-    "messages": 546,
+    "messages": 554,
     "avatar": "https://cdn.discordapp.com/avatars/138380316095021056/f912ef80e2616dbb2221fcb2dbd09ab9.png",
     "gang": null,
     "prestige": 0,
