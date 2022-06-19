@@ -20,14 +20,14 @@
     "id": "465356664657149952",
     "name": "Mordakai Slivermoon",
     "discriminator": "7762",
-    "xp": "33.1k",
+    "xp": "33.2k",
     "detailed_xp": [
-      2811,
+      2825,
       3620,
-      33138
+      33152
     ],
     "level": 22,
-    "messages": 2273,
+    "messages": 2274,
     "avatar": "https://cdn.discordapp.com/avatars/465356664657149952/69046661ae37d5aeacd06e8670bd2cd1.png",
     "gang": null,
     "prestige": 0,
@@ -39,12 +39,12 @@
     "discriminator": "8014",
     "xp": "30.2k",
     "detailed_xp": [
-      3221,
+      3236,
       3355,
-      30178
+      30193
     ],
     "level": 21,
-    "messages": 2063,
+    "messages": 2064,
     "avatar": "https://cdn.discordapp.com/avatars/434764784353804305/079e9acbab412d57da60f98460454d62.png",
     "gang": null,
     "prestige": 0,
@@ -73,12 +73,12 @@
     "discriminator": "6862",
     "xp": "19.0k",
     "detailed_xp": [
-      619,
+      632,
       2620,
-      18996
+      19009
     ],
     "level": 18,
-    "messages": 1301,
+    "messages": 1302,
     "avatar": "https://cdn.discordapp.com/avatars/470021089104494598/609eb666ab567abadd68dcfc4d7c042c.png",
     "gang": null,
     "prestige": 0,
@@ -260,12 +260,12 @@
     "discriminator": "1947",
     "xp": "8.1k",
     "detailed_xp": [
-      1033,
+      1048,
       1420,
-      8100
+      8115
     ],
     "level": 12,
-    "messages": 560,
+    "messages": 561,
     "avatar": "https://cdn.discordapp.com/avatars/138380316095021056/f912ef80e2616dbb2221fcb2dbd09ab9.png",
     "gang": null,
     "prestige": 0,
