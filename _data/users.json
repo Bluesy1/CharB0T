@@ -3,14 +3,14 @@
     "id": "363095569515806722",
     "name": "Bluesy",
     "discriminator": "8150",
-    "xp": "67.2k",
+    "xp": "67.3k",
     "detailed_xp": [
-      5420,
+      5492,
       5755,
-      67203
+      67275
     ],
     "level": 29,
-    "messages": 4590,
+    "messages": 4595,
     "avatar": "https://cdn.discordapp.com/avatars/363095569515806722/ccf12c126a6827a5b07a4e579a52b043.png",
     "gang": null,
     "prestige": 0,
@@ -37,14 +37,14 @@
     "id": "434764784353804305",
     "name": "Caspar",
     "discriminator": "8014",
-    "xp": "30.3k",
+    "xp": "30.4k",
     "detailed_xp": [
-      27,
+      93,
       3620,
-      30339
+      30405
     ],
     "level": 22,
-    "messages": 2075,
+    "messages": 2079,
     "avatar": "https://cdn.discordapp.com/avatars/434764784353804305/079e9acbab412d57da60f98460454d62.png",
     "gang": null,
     "prestige": 0,
@@ -340,6 +340,23 @@
     "rank": 20
   },
   {
+    "id": "980079182912561212",
+    "name": "Tsamoka",
+    "discriminator": "2725",
+    "xp": "4.0k",
+    "detailed_xp": [
+      255,
+      955,
+      4036
+    ],
+    "level": 9,
+    "messages": 281,
+    "avatar": "https://cdn.discordapp.com/avatars/980079182912561212/9e6bfe52f1e097b1f193ca347be3b68d.png",
+    "gang": null,
+    "prestige": 0,
+    "rank": 21
+  },
+  {
     "id": "82495450153750528",
     "name": "Kaitlin🐱 Goddess of annihilation",
     "discriminator": "7803",
@@ -352,23 +369,6 @@
     "level": 9,
     "messages": 276,
     "avatar": "https://cdn.discordapp.com/avatars/82495450153750528/f2d1f7b0118324478743227ddb67ecfa.png",
-    "gang": null,
-    "prestige": 0,
-    "rank": 21
-  },
-  {
-    "id": "980079182912561212",
-    "name": "Tsamoka",
-    "discriminator": "2725",
-    "xp": "4.0k",
-    "detailed_xp": [
-      239,
-      955,
-      4020
-    ],
-    "level": 9,
-    "messages": 280,
-    "avatar": "https://cdn.discordapp.com/avatars/980079182912561212/9e6bfe52f1e097b1f193ca347be3b68d.png",
     "gang": null,
     "prestige": 0,
     "rank": 22
