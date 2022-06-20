@@ -5,12 +5,12 @@
     "discriminator": "8150",
     "xp": "67.2k",
     "detailed_xp": [
-      5379,
+      5392,
       5755,
-      67162
+      67175
     ],
     "level": 29,
-    "messages": 4587,
+    "messages": 4588,
     "avatar": "https://cdn.discordapp.com/avatars/363095569515806722/ccf12c126a6827a5b07a4e579a52b043.png",
     "gang": null,
     "prestige": 0,
@@ -39,12 +39,12 @@
     "discriminator": "8014",
     "xp": "30.3k",
     "detailed_xp": [
-      3328,
+      3339,
       3355,
-      30285
+      30296
     ],
     "level": 21,
-    "messages": 2071,
+    "messages": 2072,
     "avatar": "https://cdn.discordapp.com/avatars/434764784353804305/079e9acbab412d57da60f98460454d62.png",
     "gang": null,
     "prestige": 0,
@@ -122,14 +122,14 @@
     "id": "389137667926786060",
     "name": "coolmanfight",
     "discriminator": "1179",
-    "xp": "11.5k",
+    "xp": "11.6k",
     "detailed_xp": [
-      1498,
+      1515,
       1780,
-      11546
+      11563
     ],
     "level": 14,
-    "messages": 791,
+    "messages": 792,
     "avatar": "https://cdn.discordapp.com/avatars/389137667926786060/a0938cefc089461da843738b184389f5.png",
     "gang": null,
     "prestige": 0,
@@ -241,14 +241,14 @@
     "id": "725373259817811988",
     "name": "General_WCJ",
     "discriminator": "4528",
-    "xp": "9.0k",
+    "xp": "9.1k",
     "detailed_xp": [
-      572,
+      586,
       1595,
-      9039
+      9053
     ],
     "level": 13,
-    "messages": 619,
+    "messages": 620,
     "avatar": "https://cdn.discordapp.com/avatars/725373259817811988/f6bb046bfd0f14ceea1dec9e03e70fb8.png",
     "gang": null,
     "prestige": 0,
@@ -260,12 +260,12 @@
     "discriminator": "1947",
     "xp": "8.4k",
     "detailed_xp": [
-      1368,
+      1381,
       1420,
-      8435
+      8448
     ],
     "level": 12,
-    "messages": 583,
+    "messages": 584,
     "avatar": "https://cdn.discordapp.com/avatars/138380316095021056/f912ef80e2616dbb2221fcb2dbd09ab9.png",
     "gang": null,
     "prestige": 0,
@@ -464,12 +464,12 @@
     "discriminator": "4496",
     "xp": "3.0k",
     "detailed_xp": [
-      69,
+      85,
       820,
-      2974
+      2990
     ],
     "level": 8,
-    "messages": 202,
+    "messages": 203,
     "avatar": "https://cdn.discordapp.com/avatars/287990529461846017/292e7ecdd52f9086934133da4e4eb9c4.png",
     "gang": null,
     "prestige": 0,
