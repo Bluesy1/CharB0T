@@ -243,12 +243,12 @@
     "discriminator": "4528",
     "xp": "9.0k",
     "detailed_xp": [
-      502,
+      515,
       1595,
-      8969
+      8982
     ],
     "level": 13,
-    "messages": 614,
+    "messages": 615,
     "avatar": "https://cdn.discordapp.com/avatars/725373259817811988/f6bb046bfd0f14ceea1dec9e03e70fb8.png",
     "gang": null,
     "prestige": 0,
@@ -770,12 +770,12 @@
     "discriminator": "2917",
     "xp": "1.3k",
     "detailed_xp": [
-      121,
+      134,
       475,
-      1296
+      1309
     ],
     "level": 5,
-    "messages": 90,
+    "messages": 91,
     "avatar": "https://cdn.discordapp.com/avatars/246847874254635018/cad3a706e3e04eaac2f05c8a0f59aadc.png",
     "gang": null,
     "prestige": 0,
@@ -989,14 +989,14 @@
     "id": "396749467292008460",
     "name": "Daisukekun13",
     "discriminator": "0967",
-    "xp": "643",
+    "xp": "661",
     "detailed_xp": [
-      163,
+      181,
       295,
-      643
+      661
     ],
     "level": 3,
-    "messages": 44,
+    "messages": 45,
     "avatar": "https://cdn.discordapp.com/avatars/396749467292008460/3c8762a5fd9dcb8b0b24b19cb83e7bf5.png",
     "gang": null,
     "prestige": 0,
