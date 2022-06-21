@@ -20,14 +20,14 @@
     "id": "465356664657149952",
     "name": "Mordakai Slivermoon",
     "discriminator": "7762",
-    "xp": "33.2k",
+    "xp": "33.3k",
     "detailed_xp": [
-      2898,
+      2927,
       3620,
-      33225
+      33254
     ],
     "level": 22,
-    "messages": 2279,
+    "messages": 2281,
     "avatar": "https://cdn.discordapp.com/avatars/465356664657149952/69046661ae37d5aeacd06e8670bd2cd1.png",
     "gang": null,
     "prestige": 0,
@@ -122,14 +122,14 @@
     "id": "389137667926786060",
     "name": "coolmanfight",
     "discriminator": "1179",
-    "xp": "11.6k",
+    "xp": "11.7k",
     "detailed_xp": [
-      1592,
+      1604,
       1780,
-      11640
+      11652
     ],
     "level": 14,
-    "messages": 798,
+    "messages": 799,
     "avatar": "https://cdn.discordapp.com/avatars/389137667926786060/a0938cefc089461da843738b184389f5.png",
     "gang": null,
     "prestige": 0,
@@ -241,14 +241,14 @@
     "id": "725373259817811988",
     "name": "General_WCJ",
     "discriminator": "4528",
-    "xp": "9.1k",
+    "xp": "9.2k",
     "detailed_xp": [
-      681,
+      696,
       1595,
-      9148
+      9163
     ],
     "level": 13,
-    "messages": 626,
+    "messages": 627,
     "avatar": "https://cdn.discordapp.com/avatars/725373259817811988/f6bb046bfd0f14ceea1dec9e03e70fb8.png",
     "gang": null,
     "prestige": 0,
@@ -260,12 +260,12 @@
     "discriminator": "1947",
     "xp": "8.8k",
     "detailed_xp": [
-      264,
+      276,
       1595,
-      8753
+      8765
     ],
     "level": 13,
-    "messages": 605,
+    "messages": 606,
     "avatar": "https://cdn.discordapp.com/avatars/138380316095021056/f912ef80e2616dbb2221fcb2dbd09ab9.png",
     "gang": null,
     "prestige": 0,
@@ -462,14 +462,14 @@
     "id": "287990529461846017",
     "name": "DinoMaster1290",
     "discriminator": "4496",
-    "xp": "3.0k",
+    "xp": "3.1k",
     "detailed_xp": [
-      123,
+      149,
       820,
-      3028
+      3054
     ],
     "level": 8,
-    "messages": 206,
+    "messages": 208,
     "avatar": "https://cdn.discordapp.com/avatars/287990529461846017/292e7ecdd52f9086934133da4e4eb9c4.png",
     "gang": null,
     "prestige": 0,
@@ -765,6 +765,23 @@
     "rank": 45
   },
   {
+    "id": "246847874254635018",
+    "name": "Crazy Man",
+    "discriminator": "2917",
+    "xp": "1.4k",
+    "detailed_xp": [
+      180,
+      475,
+      1355
+    ],
+    "level": 5,
+    "messages": 94,
+    "avatar": "https://cdn.discordapp.com/avatars/246847874254635018/cad3a706e3e04eaac2f05c8a0f59aadc.png",
+    "gang": null,
+    "prestige": 0,
+    "rank": 46
+  },
+  {
     "id": "510193035024531491",
     "name": "Kazgeroth",
     "discriminator": "7595",
@@ -777,23 +794,6 @@
     "level": 5,
     "messages": 94,
     "avatar": "https://cdn.discordapp.com/avatars/510193035024531491/173b4f4accd45a2827b7ab8f43229ec4.png",
-    "gang": null,
-    "prestige": 0,
-    "rank": 46
-  },
-  {
-    "id": "246847874254635018",
-    "name": "Crazy Man",
-    "discriminator": "2917",
-    "xp": "1.3k",
-    "detailed_xp": [
-      134,
-      475,
-      1309
-    ],
-    "level": 5,
-    "messages": 91,
-    "avatar": "https://cdn.discordapp.com/avatars/246847874254635018/cad3a706e3e04eaac2f05c8a0f59aadc.png",
     "gang": null,
     "prestige": 0,
     "rank": 47
