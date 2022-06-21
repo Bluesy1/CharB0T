@@ -56,12 +56,12 @@
     "discriminator": "2226",
     "xp": "21.0k",
     "detailed_xp": [
-      0,
+      46,
       2855,
-      21000
+      21046
     ],
     "level": 19,
-    "messages": 1428,
+    "messages": 1431,
     "avatar": "https://cdn.discordapp.com/avatars/355127455419203585/095ad3bae31ea645652dd0f7d6c16aee.png",
     "gang": null,
     "prestige": 0,
@@ -139,14 +139,14 @@
     "id": "254272745779494922",
     "name": "[MSM]Wasan",
     "discriminator": "5792",
-    "xp": "10.4k",
+    "xp": "10.5k",
     "detailed_xp": [
-      371,
+      403,
       1780,
-      10428
+      10460
     ],
     "level": 14,
-    "messages": 714,
+    "messages": 716,
     "avatar": "https://cdn.discordapp.com/avatars/254272745779494922/104c411ce5b4accfc2095084e3dded32.png",
     "gang": null,
     "prestige": 0,
