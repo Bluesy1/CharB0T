@@ -27,10 +27,10 @@ import datetime
 import os
 import sys
 import traceback
-from concurrent.futures import ProcessPoolExecutor, ThreadPoolExecutor
 from typing import Any, ClassVar, Final, Type, TypeVar
 from zoneinfo import ZoneInfo
 
+import aiohttp
 import asyncpg
 import discord
 from discord import app_commands
@@ -187,9 +187,8 @@ class CBot(commands.Bot):
 
     def __init__(self, *args, strip_after_prefix: bool = True, tree_cls: Type[app_commands.CommandTree], **kwargs):
         super().__init__(*args, strip_after_prefix=strip_after_prefix, tree_cls=tree_cls, **kwargs)
-        self.executor: ThreadPoolExecutor = MISSING
-        self.process_pool: ProcessPoolExecutor = MISSING
         self.pool: asyncpg.Pool = MISSING
+        self.session: aiohttp.ClientSession = MISSING
         self.program_logs: discord.Webhook = MISSING
         self.error_logs: discord.Webhook = MISSING
         self.giveaway_webhook: discord.Webhook = MISSING

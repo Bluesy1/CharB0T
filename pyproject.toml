@@ -1,6 +1,47 @@
+[tool.poetry]
+name = "charbot"
+version = "0.1.0"
+description = "Custom discord bot made with dpy2.0 for a special server."
+authors = ["Bluesy <68259537+Bluesy1@users.noreply.github.com>"]
+license = "MIT"
+
+[tool.poetry.dependencies]
+python = "^3.10.4,<3.11"
+"discord.py" = {extras = ["speed"], git = "https://github.com/Rapptz/discord.py", rev = "868476c"}
+aiohttp = {extras = ["speedups"], version = "3.8.1"}
+asyncpg = "0.25.0"
+disrank = "0.0.2"
+jishaku = "2.5.0"
+matplotlib = "3.5.2"
+numpy = "1.22.4"
+orjson = "3.7.2"
+pandas = "1.4.2"
+Pillow = "9.1.1"
+scipy = "1.8.1"
+uvloop = "0.16.0"
+validators = "0.20.0"
+yfinance = "0.1.72"
+tomli = "2.0.1"
+sentry-sdk = "^1.5.12"
+
+[tool.poetry.dev-dependencies]
+pytest = "7.1.2"
+pytest-asyncio = "0.18.3"
+pytest-mock = "3.7.0"
+pytest-cov = "3.0.0"
+asyncpg-stubs = "0.25.4"
+bandit = "1.7.4"
+black = "22.3.0"
+flake8 = "4.0.1"
+isort = "5.10.1"
+pre-commit = "2.19.0"
+pydocstyle = "6.1.1"
+pyright = "1.1.255"
+toml = "0.10.2"
+
 [build-system]
-requires = ["setuptools>=42", "wheel"]
-build-backend = "setuptools.build_meta"
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"
 
 [tool.pytest.ini_options]
 minversion = "7.1.2"

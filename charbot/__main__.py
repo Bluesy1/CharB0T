@@ -26,33 +26,72 @@
 import asyncio
 import logging
 import os
-from concurrent.futures import ProcessPoolExecutor, ThreadPoolExecutor
+import socket
+import uuid
 from logging.handlers import RotatingFileHandler
 
+import aiohttp
 import asyncpg
 import discord
+import sentry_sdk
 from discord.ext import commands
-from dotenv import load_dotenv
 
 from . import CBot, Tree
+
+
+try:
+    import tomllib
+except ImportError:
+    import tomli as tomllib
 
 
 # noinspection PyBroadException
 async def main():
     """Run charbot."""
+    # set up logging because i'm using `client.start()`, not `client.run()`
+    # so i don't get the sane loging defaults set by discord.py
     logger = logging.getLogger("discord")
-    logger.setLevel(logging.INFO)
+    logger.setLevel(logging.DEBUG)
+    logging.getLogger("discord.http").setLevel(logging.INFO)
+
     handler = RotatingFileHandler(
-        filename="../CharBot.log",
+        filename="discord.log",
         encoding="utf-8",
-        mode="w",
-        maxBytes=2000000,
-        backupCount=10,
+        maxBytes=32 * 1024 * 1024,  # 32 MiB
+        backupCount=5,  # Rotate through 5 files
     )
-    handler.setFormatter(logging.Formatter("%(asctime)s:%(levelname)s:%(name)s: %(message)s"))
+    dt_fmt = "%Y-%m-%d %H:%M:%S"
+    formatter = logging.Formatter("[{asctime}] [{levelname:<8}] {name}: {message}", dt_fmt, style="{")
+    handler.setFormatter(formatter)
     logger.addHandler(handler)
+
+    # load config from config.toml
+    with open("config.toml", "rb") as f:
+        config = tomllib.load(f)
+
+    # Setup sentry.io integration so that exceptions are logged to sentry.io as well.
+    sentry_sdk.set_user({"id": uuid.uuid4(), "ip_address": "{{ auto }}", "username": socket.gethostname()})
+    sentry_sdk.init(
+        dsn=config["sentry"]["dsn"],
+        # Set traces_sample_rate to 1.0 to capture 100%
+        # of transactions for performance monitoring.
+        # We recommend adjusting this value in production.
+        traces_sample_rate=1.0,
+        environment=config["sentry"]["environment"],
+        release=config["sentry"]["release"],
+        send_default_pii=True,
+        attach_stacktrace=True,
+        in_app_include=[
+            "charbot",
+            "minesweeper",
+            "shrugman",
+            "sudoku",
+            "tictactoe",
+        ],
+    )
+
     # Instantiate a Bot instance
-    bot = CBot(
+    async with CBot(
         tree_cls=Tree,
         command_prefix=commands.when_mentioned_or("!"),
         owner_ids=[225344348903047168, 363095569515806722],
@@ -60,26 +99,17 @@ async def main():
         intents=discord.Intents.all(),
         help_command=None,
         activity=discord.Activity(type=discord.ActivityType.watching, name="over the server"),
-    )
-
-    load_dotenv()
-    async with bot, asyncpg.create_pool(  # skipcq: PYL-E1701
+    ) as bot, asyncpg.create_pool(  # skipcq: PYL-E1701
         min_size=50,
         max_size=100,
-        **{
-            "host": os.getenv("HOST"),
-            "user": os.getenv("DBUSER"),
-            "password": os.getenv("PASSWORD"),
-            "database": os.getenv("DATABASE"),
-        },
-    ) as pool:
-        with ThreadPoolExecutor(max_workers=25) as executor, ProcessPoolExecutor(max_workers=5) as process_pool:
-            bot.executor = executor
-            bot.process_pool = process_pool
-            bot.pool = pool
-            token = os.getenv("TOKEN")
-            assert isinstance(token, str)  # skipcq: BAN-B101
-            await bot.start(token)
+        host=config["postgres"]["host"],
+        user=config["postgres"]["user"],
+        password=config["postgres"]["password"],
+        database=config["postgres"]["database"],
+    ) as pool, aiohttp.ClientSession() as session:
+        bot.pool = pool
+        bot.session = session
+        await bot.start(config["discord"]["token"])
 
 
 if __name__ == "__main__":

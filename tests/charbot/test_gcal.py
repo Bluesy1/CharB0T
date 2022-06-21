@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 import datetime
 
 import pytest
@@ -12,6 +13,7 @@ def url_mock_response(monkeypatch):
 
 
 def test_get_url(url_mock_response):
+    """Test get_url."""
     date_min = datetime.datetime(1, 1, 1, 0, 0, 0, 0)
     date_max = datetime.datetime(10, 10, 10, 10, 10, 10, 10)
 
@@ -23,6 +25,7 @@ def test_get_url(url_mock_response):
 
 
 def test_half_hour_intervals():
+    """Test half_hour_intervals."""
     count = 0
     for interval in gcal.half_hour_intervals():
         hours = count // 2
@@ -33,6 +36,7 @@ def test_half_hour_intervals():
 
 
 def test_ceil_dt():
+    """Test ceil_dt."""
     dt = datetime.datetime(1, 1, 1, 0, 0, 0, 0, tzinfo=datetime.timezone.utc)
     delta = datetime.timedelta(15)
     assert dt + (datetime.datetime(datetime.MINYEAR, 1, 1, tzinfo=datetime.timezone.utc) - dt) % delta == gcal.ceil_dt(

@@ -362,7 +362,6 @@ class GiveawayView(ui.View):
         if self.total_entries > 0:
             self.check.disabled = False
         self.embed.set_field_at(3, name="Total Reputation Bid", value=f"{self.total_entries}")
-        self.embed.set_field_at(4, name="Largest Bid", value=f"{self.top_bid}")
         message = self.message
         assert isinstance(message, discord.WebhookMessage)  # skipcq: BAN-B101
         await message.edit(embed=self.embed, view=self)
@@ -629,7 +628,6 @@ class Giveaway(commands.Cog):
             inline=True,
         )
         embed.add_field(name="Total Reputation Bid", value="0", inline=True)
-        embed.add_field(name="Largest Bid", value="0", inline=True)
         channel_id = os.getenv("GIVEAWAY_ID")
         assert isinstance(channel_id, str)  # skipcq: BAN-B101
         channel = await self.bot.fetch_channel(int(channel_id))

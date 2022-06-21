@@ -98,3 +98,19 @@ async def test_interaction_check_no_allowed_roles(mock_bot):
         "'969629622453039104', '969629628249563166', '969629632028614699', '969628342733119518', '969627321239760967', "
         "or '969626979353632790' - you must be at least level 1 to use this command/button."
     )
+
+
+async def test_interaction_check_allowed(mock_bot):
+    """Test the interaction check when the interaction is in the right channel and guild."""
+    cog = programs.Reputation(mock_bot)
+    mock_interaction = AsyncMock(spec=discord.Interaction)
+    mock_interaction.guild = AsyncMock(spec=discord.Guild)
+    mock_interaction.guild.id = 225345178955808768
+    mock_interaction.channel = AsyncMock(spec=discord.TextChannel)
+    mock_interaction.channel.id = 969972085445238784
+    mock_interaction.user = AsyncMock(spec=discord.Member)
+    mock_interaction.user.roles = [
+        discord.Object(id=337743478190637077),
+        discord.Object(id=685331877057658888),
+    ]
+    assert await cog.interaction_check(mock_interaction)

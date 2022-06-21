@@ -12,3 +12,4 @@ giveaway.csv
 /charbot/media/pools/Discord-pool-bg-01.jpg
 .coverage
 /charbot.egg-info
+/config.toml
