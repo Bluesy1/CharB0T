@@ -32,8 +32,14 @@ jobs:
           with:
             directory: ./coverage/reports/
             env_vars: OS,PYTHON
-            fail_ci_if_error: true
+            fail_ci_if_error: false
             flags: unittests
             name: codecov-umbrella
             path_to_write_report: ./coverage/codecov_report.txt
             verbose: true
+        - name: Report test coverage to DeepSource
+          uses: deepsourcelabs/test-coverage-action@master
+          with:
+            key: python
+            coverage-file: ./coverage/reports/coverage.xml
+            dsn: ${{ secrets.DEEPSOURCE_DSN }}

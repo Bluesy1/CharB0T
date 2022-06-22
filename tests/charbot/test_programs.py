@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 from unittest.mock import AsyncMock
 
-import aiohttp
 import discord
 import pytest
 
@@ -24,10 +23,8 @@ async def test_programs_init(mock_bot):
     """Test the initialization of the programs' module."""
     cog = programs.Reputation(mock_bot)
     assert cog.bot is mock_bot
-    assert isinstance(cog.session, aiohttp.ClientSession)
     assert cog.sudoku_regex.pattern == r"(\d{81}).*([01]{81})"
     await cog.cog_unload()
-    assert cog.session.closed
 
 
 async def test_interaction_check_no_guild(mock_bot):
