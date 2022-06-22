@@ -19,7 +19,7 @@ jobs:
             python-version: "3.10"
             cache: "poetry"
         - name: Dependencies
-          run: python3.10 poetry install
+          run: python3.10 -m poetry install
         - name: Run pytest
           id: pytest
           run: poetry run pytest --cov-report=xml:coverage/reports/coverage.xml --cov=charbot tests/ --cov-report=term
