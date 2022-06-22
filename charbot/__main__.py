@@ -81,7 +81,7 @@ async def main():
     )
 
     # Instantiate a Bot instance
-    async with CBot(
+    async with CBot(  # skipcq: PYL-E1701
         tree_cls=Tree,
         command_prefix=commands.when_mentioned_or("!"),
         owner_ids=[225344348903047168, 363095569515806722],
@@ -89,7 +89,7 @@ async def main():
         intents=discord.Intents.all(),
         help_command=None,
         activity=discord.Activity(type=discord.ActivityType.watching, name="over the server"),
-    ) as bot, asyncpg.create_pool(  # skipcq: PYL-E1701
+    ) as bot, asyncpg.create_pool(
         min_size=50,
         max_size=100,
         host=Config["postgres"]["host"],

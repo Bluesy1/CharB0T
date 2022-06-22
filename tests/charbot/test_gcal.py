@@ -3,29 +3,24 @@ import datetime
 
 import pytest
 
-from charbot import gcal
-
-
-try:
-    import tomllib  # type: ignore
-except ImportError:
-    import tomli as tomllib
+# noinspection PyProtectedMember
+from charbot import _Config, gcal  # skipcq
 
 
 @pytest.fixture
 def url_mock_response(monkeypatch):
-    """os.env"""
+    """config.toml mocking"""
     monkeypatch.setattr(
-        tomllib,
-        "load",
-        lambda *args: {
+        _Config,
+        "__getitem__",
+        lambda self, key: {
             "calendar": {"key": "calenderkey"},
             "discord": {
                 "webhook": {
                     "calendar": 1,
                 },
             },
-        },
+        }[key],
     )
 
 

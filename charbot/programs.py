@@ -28,7 +28,6 @@ import random
 import re
 from typing import Final, Literal
 
-import aiohttp
 import discord
 from discord import Interaction, app_commands
 from discord.ext import commands
@@ -45,12 +44,7 @@ class Reputation(commands.Cog, name="Programs"):
 
     def __init__(self, bot: CBot):
         self.bot = bot
-        self.session = aiohttp.ClientSession()
         self.sudoku_regex = re.compile(r"(\d{81}).*([01]{81})")
-
-    async def cog_unload(self) -> None:
-        """Unload the cog."""
-        await self.session.close()
 
     async def interaction_check(self, interaction: Interaction):  # skipcq: PYL-W0221
         """Check if the user is allowed to use the cog."""
@@ -84,7 +78,7 @@ class Reputation(commands.Cog, name="Programs"):
             Whether to turn off formatting that only works on desktop.
         """
         await interaction.response.defer(ephemeral=True)
-        async with self.session.get("https://nine.websudoku.com/?level=2") as response:
+        async with self.bot.session.get("https://nine.websudoku.com/?level=2") as response:
             match = self.sudoku_regex.search(str(await response.content.read()))
             if match is None:
                 await interaction.followup.send("Couldn't find a puzzle.")
