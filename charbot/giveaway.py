@@ -25,7 +25,6 @@
 """Game giveaway extension."""
 import asyncio
 import datetime
-import os
 import random
 import warnings
 from statistics import mean
@@ -38,7 +37,7 @@ from discord import ui
 from discord.ext import commands, tasks
 from discord.utils import MISSING, utcnow
 
-from . import CBot, errors
+from . import CBot, Config, errors
 
 
 class GiveawayView(ui.View):
@@ -628,9 +627,7 @@ class Giveaway(commands.Cog):
             inline=True,
         )
         embed.add_field(name="Total Reputation Bid", value="0", inline=True)
-        channel_id = os.getenv("GIVEAWAY_ID")
-        assert isinstance(channel_id, str)  # skipcq: BAN-B101
-        channel = await self.bot.fetch_channel(int(channel_id))
+        channel = await self.bot.fetch_channel(Config["discord"]["channels"]["giveaway"])
         assert isinstance(channel, discord.TextChannel)  # skipcq: BAN-B101
         self.current_giveaway = GiveawayView(self.bot, channel, embed, game, url)
         self.current_giveaway.message = await self.bot.giveaway_webhook.send(

@@ -24,7 +24,6 @@
 #  ----------------------------------------------------------------------------
 """Charbot discord bot."""
 import datetime
-import os
 import sys
 import traceback
 from typing import Any, ClassVar, Final, Type, TypeVar
@@ -38,7 +37,7 @@ from discord.ext import commands
 from discord.ext.commands import CommandError
 from discord.utils import MISSING
 
-from . import errors
+from . import Config, errors
 
 
 _VT = TypeVar("_VT")
@@ -202,16 +201,11 @@ class CBot(commands.Bot):
         Also loads the cogs, and prints who the bot is logged in as
         """
         print("Setup started")
-        log_webhook = os.getenv("LOG_WEBHOOK")
-        error_webhook = os.getenv("ERROR_WEBHOOK")
-        giveaway_webhook = os.getenv("GIVEAWAY_WEBHOOK")
-        assert isinstance(log_webhook, str)  # skipcq: BAN-B101
-        assert isinstance(error_webhook, str)  # skipcq: BAN-B101
-        assert isinstance(giveaway_webhook, str)  # skipcq: BAN-B101
-        self.program_logs = await self.fetch_webhook(int(log_webhook))
-        self.error_logs = await self.fetch_webhook(int(error_webhook))
-        self.giveaway_webhook = await self.fetch_webhook(int(giveaway_webhook))
-        print("Webhooks loaded")
+        webhooks = Config["discord"]["webhooks"]
+        self.program_logs = await self.fetch_webhook(webhooks["program_logs"])
+        self.error_logs = await self.fetch_webhook(webhooks["error"])
+        self.giveaway_webhook = await self.fetch_webhook(webhooks["giveaway"])
+        print("Webhooks Fetched")
         await self.load_extension("jishaku")
         await self.load_extension("charbot.admin")
         await self.load_extension("charbot.dice")

@@ -23,7 +23,6 @@
 # SOFTWARE.
 #  ----------------------------------------------------------------------------
 """Program classses and functions."""
-import asyncio
 import datetime
 import random
 import re
@@ -251,7 +250,4 @@ async def teardown(bot: CBot):
     ----------
     bot : CBot
     """
-    # noinspection PyProtectedMember
-    while bot.process_pool._shutdown_lock.locked():  # skipcq: PYL-W0212
-        await asyncio.sleep(1)
     await bot.remove_cog("Programs", guild=discord.Object(id=225345178955808768))

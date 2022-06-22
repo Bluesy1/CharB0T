@@ -25,7 +25,6 @@
 """Level system."""
 import datetime
 import functools
-import os
 import random
 from io import BytesIO
 from typing import Callable, Optional
@@ -38,7 +37,7 @@ from discord.ext import commands, tasks
 from discord.utils import utcnow
 from disrank.generator import Generator
 
-from . import CBot
+from . import CBot, Config
 
 
 async def update_level_roles(member: discord.Member, new_level: int) -> None:
@@ -82,11 +81,9 @@ class Leveling(commands.Cog):
         self.generator = Generator()
         self.generator.default_bg = "charbot/media/pools/card.png"
         self.default_profile = "https://raw.githubusercontent.com/Bluesy1/CharB0T/main/charbot/media/pools/profile.png"
-        _token = os.getenv("GITHUB_TOKEN")
-        assert isinstance(_token, str)  # skipcq: BAN-B101
         self.session = aiohttp.ClientSession(
-            auth=aiohttp.BasicAuth(login="Bluesy1", password=_token),
-            headers={"accept": "application/vnd.github.v3+json"},
+            auth=aiohttp.BasicAuth(login="Bluesy1", password=Config["github"]["token"]),
+            headers=Config["github"]["headers"],
         )
         self._post_url = "https://api.github.com/repos/bluesy1/charb0t/actions/workflows/leaderboard.yml/dispatches"
         self._upload: bool = False

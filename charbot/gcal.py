@@ -24,7 +24,6 @@
 #  ----------------------------------------------------------------------------
 """Dynamic stream calendar generator for the next week."""
 import datetime as _datetime
-import os
 from calendar import timegm
 from datetime import datetime, time, timedelta, timezone
 from typing import NamedTuple, Optional
@@ -35,13 +34,10 @@ import discord
 import orjson
 from discord.ext import commands, tasks
 from discord.utils import MISSING, format_dt, utcnow
-from dotenv import load_dotenv
 from validators import url
 
-from . import CBot
+from . import CBot, Config
 
-
-load_dotenv()
 
 ytLink = "https://www.youtube.com/charliepryor/live"
 chartime = ZoneInfo("US/Michigan")
@@ -72,7 +68,7 @@ def getUrl(mintime: datetime, maxtime: datetime):
         The url to query the Google calendar API.
     """
     baseUrl = "https://www.googleapis.com/calendar/v3/calendars"
-    key = f"key={os.getenv('CALKEY')}"
+    key = f"key={Config['calendar']['key']}"
     calendar = "u8n1onpbv9pb5du7gssv2md58s@group.calendar.google.com"
     minTime = f"timeMin={mintime.isoformat()}"
     maxTime = f"timeMax={maxtime.isoformat()}"
@@ -227,9 +223,9 @@ class Calendar(commands.Cog):
 
     async def cog_load(self) -> None:
         """Load hook."""
-        webhook_id = os.getenv("WEBHOOK_ID")
-        assert isinstance(webhook_id, str)  # skipcq: BAN-B101
-        self.webhook = self.bot.holder.pop("webhook", await self.bot.fetch_webhook(int(webhook_id)))
+        self.webhook = self.bot.holder.pop(
+            "webhook", await self.bot.fetch_webhook(Config["discord"]["webhook"]["calendar"])
+        )
         self.message = self.bot.holder.pop("message", MISSING)
         self.calendar.start()
 
@@ -242,9 +238,7 @@ class Calendar(commands.Cog):
         webhook, after parding and formatting the results.
         """
         if self.webhook is None:
-            webhook_id = os.getenv("WEBHOOK_ID")
-            assert isinstance(webhook_id, str)  # skipcq: BAN-B101
-            self.webhook = await self.bot.fetch_webhook(int(webhook_id))
+            self.webhook = await self.bot.fetch_webhook(Config["discord"]["webhook"]["calendar"])
         mindatetime = datetime.now(tz=ZoneInfo("America/New_York"))
         maxdatetime = datetime.now(tz=ZoneInfo("America/New_York")) + timedelta(weeks=1)
         async with aiohttp.ClientSession() as session, session.get(getUrl(mindatetime, maxdatetime)) as response:

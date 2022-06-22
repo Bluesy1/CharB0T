@@ -23,7 +23,57 @@
 # SOFTWARE.
 #  ----------------------------------------------------------------------------
 """Charbot Module."""
-from .bot import CBot, Tree
+from typing import Any
 
 
-__all__ = ("CBot", "Tree")
+__all__ = ("CBot", "Tree", "Config")
+
+
+class _Config:
+    """Config Class.
+
+    This class is used to access the config file.
+
+    You can access the config _file by using the following syntax:
+
+    Config["section"]["key"]
+
+    or by calling the config object:
+
+    Config("section", "subsection", "key")
+
+    Both of these will return the value of the key in the config _file, or raise the appropriate error as if trying to
+     access a nonexistent key in a dict, or incorrect slicing of a str/int.
+    """
+
+    __instance__: "_Config"
+    _file: str = "config.toml"
+
+    def __new__(cls):
+        if not hasattr(cls, "__instance__"):
+            cls.__instance__ = super(_Config, cls).__new__(cls)
+        return cls.__instance__
+
+    def __getitem__(self, item: str) -> Any | dict[str, Any]:
+        try:
+            import tomllib  # type: ignore
+        except ImportError:
+            import tomli as tomllib
+        with open(self._file, "rb") as f:
+            return tomllib.load(f)[item]
+
+    def __call__(self, *args, **kwargs):
+        try:
+            import tomllib  # type: ignore
+        except ImportError:
+            import tomli as tomllib
+        with open(self._file, "rb") as f:
+            config = tomllib.load(f)
+        for item in args:
+            config = config[item]
+        return config
+
+
+Config = _Config()
+
+from .bot import CBot, Tree  # noqa: E402

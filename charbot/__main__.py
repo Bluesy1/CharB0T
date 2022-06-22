@@ -36,13 +36,7 @@ import discord
 import sentry_sdk
 from discord.ext import commands
 
-from . import CBot, Tree
-
-
-try:
-    import tomllib
-except ImportError:
-    import tomli as tomllib
+from . import CBot, Config, Tree
 
 
 # noinspection PyBroadException
@@ -65,20 +59,16 @@ async def main():
     handler.setFormatter(formatter)
     logger.addHandler(handler)
 
-    # load config from config.toml
-    with open("config.toml", "rb") as f:
-        config = tomllib.load(f)
-
     # Setup sentry.io integration so that exceptions are logged to sentry.io as well.
     sentry_sdk.set_user({"id": uuid.uuid4(), "ip_address": "{{ auto }}", "username": socket.gethostname()})
     sentry_sdk.init(
-        dsn=config["sentry"]["dsn"],
+        dsn=Config["sentry"]["dsn"],
         # Set traces_sample_rate to 1.0 to capture 100%
         # of transactions for performance monitoring.
         # We recommend adjusting this value in production.
         traces_sample_rate=1.0,
-        environment=config["sentry"]["environment"],
-        release=config["sentry"]["release"],
+        environment=Config["sentry"]["environment"],
+        release=Config["sentry"]["release"],
         send_default_pii=True,
         attach_stacktrace=True,
         in_app_include=[
@@ -102,14 +92,14 @@ async def main():
     ) as bot, asyncpg.create_pool(  # skipcq: PYL-E1701
         min_size=50,
         max_size=100,
-        host=config["postgres"]["host"],
-        user=config["postgres"]["user"],
-        password=config["postgres"]["password"],
-        database=config["postgres"]["database"],
+        host=Config["postgres"]["host"],
+        user=Config["postgres"]["user"],
+        password=Config["postgres"]["password"],
+        database=Config["postgres"]["database"],
     ) as pool, aiohttp.ClientSession() as session:
         bot.pool = pool
         bot.session = session
-        await bot.start(config["discord"]["token"])
+        await bot.start(Config["discord"]["token"])
 
 
 if __name__ == "__main__":

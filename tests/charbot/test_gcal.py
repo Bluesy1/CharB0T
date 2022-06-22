@@ -6,10 +6,27 @@ import pytest
 from charbot import gcal
 
 
+try:
+    import tomllib  # type: ignore
+except ImportError:
+    import tomli as tomllib
+
+
 @pytest.fixture
 def url_mock_response(monkeypatch):
     """os.env"""
-    monkeypatch.setenv("CALKEY", "calenderkey")
+    monkeypatch.setattr(
+        tomllib,
+        "load",
+        lambda *args: {
+            "calendar": {"key": "calenderkey"},
+            "discord": {
+                "webhook": {
+                    "calendar": 1,
+                },
+            },
+        },
+    )
 
 
 def test_get_url(url_mock_response):
