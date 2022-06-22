@@ -12,14 +12,18 @@ jobs:
         runs-on: ubuntu-latest
         steps:
         - uses: actions/checkout@v3
-        - name  : Install poetry
-          run: pipx install poetry
         - uses: actions/setup-python@v4
           with:
             python-version: "3.10"
-            cache: "poetry"
+        - name: Install Poetry Action
+          uses: snok/install-poetry@v1.3.1
+        - name: Load cached $HOME/.local
+          uses: actions/cache@v2.1.6
+          with:
+            path: ~/.local
+            key: dotlocal-${{ runner.os }}-${{ hashFiles('.github/workflows/codecov.yml') }}
         - name: Dependencies
-          run: python3.10 -m poetry install
+          run: poetry install
         - name: Run pytest
           id: pytest
           run: poetry run pytest --cov-report=xml:coverage/reports/coverage.xml --cov=charbot tests/ --cov-report=term
