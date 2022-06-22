@@ -12,14 +12,14 @@ jobs:
         runs-on: ubuntu-latest
         steps:
         - uses: actions/checkout@v3
+        - name  : Install poetry
+          run: pipx install poetry
         - uses: actions/setup-python@v4
           with:
             python-version: "3.10"
             cache: "poetry"
-        - name: Install Poetry and Dependencies
-          run: |
-            curl -sSL https://install.python-poetry.org | python3 -
-            poetry install
+        - name: Dependencies
+          run: python3.10 poetry install
         - name: Run pytest
           id: pytest
           run: poetry run pytest --cov-report=xml:coverage/reports/coverage.xml --cov=charbot tests/ --cov-report=term

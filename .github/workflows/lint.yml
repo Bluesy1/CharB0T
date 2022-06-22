@@ -25,14 +25,14 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
+      - name  : Install poetry
+        run: pipx install poetry
       - uses: actions/setup-python@v4
         with:
           python-version: "3.10"
           cache: "poetry"
-      - name: Install Poetry and Dependencies
-        run: |
-          curl -sSL https://install.python-poetry.org | python3 -
-          poetry install
+      - name: Dependencies
+        run: python3.10 poetry install
       - name: Pyright
         id: pyright
         run: poetry run pyright .
@@ -79,12 +79,12 @@ jobs:
     runs-on: ubuntu-latest
     steps:
         - uses: actions/checkout@v3
+        - name  : Install poetry
+          run: pipx install poetry
         - uses: actions/setup-python@v4
           with:
             python-version: "3.10"
             cache: "poetry"
-        - name: Install Poetry and Dependencies
-          run: |
-            curl -sSL https://install.python-poetry.org | python3 -
-            poetry install
+        - name: Dependencies
+          run: python3.10 poetry install
         - uses: isort/isort-action@v0.1.0
