@@ -39,12 +39,12 @@
     "discriminator": "8014",
     "xp": "30.8k",
     "detailed_xp": [
-      454,
+      468,
       3620,
-      30766
+      30780
     ],
     "level": 22,
-    "messages": 2104,
+    "messages": 2105,
     "avatar": "https://cdn.discordapp.com/avatars/434764784353804305/079e9acbab412d57da60f98460454d62.png",
     "gang": null,
     "prestige": 0,
@@ -88,14 +88,14 @@
     "id": "268664164543758336",
     "name": "Maltesemt",
     "discriminator": "9829",
-    "xp": "13.7k",
+    "xp": "13.8k",
     "detailed_xp": [
-      1917,
+      1958,
       1975,
-      13742
+      13783
     ],
     "level": 15,
-    "messages": 939,
+    "messages": 942,
     "avatar": "https://cdn.discordapp.com/avatars/268664164543758336/536a483c07eaf86788a1bae92f8fd504.png",
     "gang": null,
     "prestige": 0,
@@ -192,12 +192,12 @@
     "discriminator": "4221",
     "xp": "9.8k",
     "detailed_xp": [
-      1352,
+      1377,
       1595,
-      9803
+      9828
     ],
     "level": 13,
-    "messages": 670,
+    "messages": 672,
     "avatar": "https://cdn.discordapp.com/avatars/329687445010644992/d225ec3818221578bf865e1d82f7c46e.png",
     "gang": null,
     "prestige": 0,
@@ -258,14 +258,14 @@
     "id": "138380316095021056",
     "name": "krios41",
     "discriminator": "1947",
-    "xp": "9.1k",
+    "xp": "9.2k",
     "detailed_xp": [
-      633,
+      665,
       1595,
-      9122
+      9154
     ],
     "level": 13,
-    "messages": 631,
+    "messages": 633,
     "avatar": "https://cdn.discordapp.com/avatars/138380316095021056/f912ef80e2616dbb2221fcb2dbd09ab9.png",
     "gang": null,
     "prestige": 0,
