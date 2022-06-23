@@ -39,12 +39,12 @@
     "discriminator": "8014",
     "xp": "30.9k",
     "detailed_xp": [
-      600,
+      617,
       3620,
-      30912
+      30929
     ],
     "level": 22,
-    "messages": 2114,
+    "messages": 2115,
     "avatar": "https://cdn.discordapp.com/avatars/434764784353804305/079e9acbab412d57da60f98460454d62.png",
     "gang": null,
     "prestige": 0,
@@ -1343,6 +1343,23 @@
     "rank": 79
   },
   {
+    "id": "689740845657751555",
+    "name": "LoG007",
+    "discriminator": "1731",
+    "xp": "215",
+    "detailed_xp": [
+      115,
+      155,
+      215
+    ],
+    "level": 1,
+    "messages": 14,
+    "avatar": "https://cdn.discordapp.com/avatars/689740845657751555/7746d27b4947a71b2a2727989aab3297.png",
+    "gang": null,
+    "prestige": 0,
+    "rank": 80
+  },
+  {
     "id": "431945207437721600",
     "name": "frosty",
     "discriminator": "6511",
@@ -1357,7 +1374,7 @@
     "avatar": "https://cdn.discordapp.com/avatars/431945207437721600/e2b98d1e2df848a852e664d59148e356.png",
     "gang": null,
     "prestige": 0,
-    "rank": 80
+    "rank": 81
   },
   {
     "id": "563099572616822795",
@@ -1374,7 +1391,7 @@
     "avatar": "https://cdn.discordapp.com/avatars/563099572616822795/0b449658e58c0a4b0e5e5ed59529c795.png",
     "gang": null,
     "prestige": 0,
-    "rank": 81
+    "rank": 82
   },
   {
     "id": "693051127930945536",
@@ -1391,7 +1408,7 @@
     "avatar": "https://cdn.discordapp.com/avatars/693051127930945536/abb77bb12589621b501fa9093f1ba999.png",
     "gang": null,
     "prestige": 0,
-    "rank": 82
+    "rank": 83
   },
   {
     "id": "737317309194174574",
@@ -1408,7 +1425,7 @@
     "avatar": "https://cdn.discordapp.com/embed/avatars/1.png",
     "gang": null,
     "prestige": 0,
-    "rank": 83
+    "rank": 84
   },
   {
     "id": "526733082049642497",
@@ -1423,23 +1440,6 @@
     "level": 1,
     "messages": 12,
     "avatar": "https://cdn.discordapp.com/avatars/526733082049642497/143200644ab94f122457652af5f4c1cd.png",
-    "gang": null,
-    "prestige": 0,
-    "rank": 84
-  },
-  {
-    "id": "689740845657751555",
-    "name": "LoG007",
-    "discriminator": "1731",
-    "xp": "181",
-    "detailed_xp": [
-      81,
-      155,
-      181
-    ],
-    "level": 1,
-    "messages": 12,
-    "avatar": "https://cdn.discordapp.com/avatars/689740845657751555/7746d27b4947a71b2a2727989aab3297.png",
     "gang": null,
     "prestige": 0,
     "rank": 85
