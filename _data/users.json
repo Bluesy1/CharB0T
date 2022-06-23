@@ -39,12 +39,12 @@
     "discriminator": "8014",
     "xp": "30.9k",
     "detailed_xp": [
-      572,
+      600,
       3620,
-      30884
+      30912
     ],
     "level": 22,
-    "messages": 2112,
+    "messages": 2114,
     "avatar": "https://cdn.discordapp.com/avatars/434764784353804305/079e9acbab412d57da60f98460454d62.png",
     "gang": null,
     "prestige": 0,
@@ -238,6 +238,23 @@
     "rank": 14
   },
   {
+    "id": "138380316095021056",
+    "name": "krios41",
+    "discriminator": "1947",
+    "xp": "9.2k",
+    "detailed_xp": [
+      718,
+      1595,
+      9207
+    ],
+    "level": 13,
+    "messages": 637,
+    "avatar": "https://cdn.discordapp.com/avatars/138380316095021056/f912ef80e2616dbb2221fcb2dbd09ab9.png",
+    "gang": null,
+    "prestige": 0,
+    "rank": 15
+  },
+  {
     "id": "725373259817811988",
     "name": "General_WCJ",
     "discriminator": "4528",
@@ -250,23 +267,6 @@
     "level": 13,
     "messages": 630,
     "avatar": "https://cdn.discordapp.com/avatars/725373259817811988/f6bb046bfd0f14ceea1dec9e03e70fb8.png",
-    "gang": null,
-    "prestige": 0,
-    "rank": 15
-  },
-  {
-    "id": "138380316095021056",
-    "name": "krios41",
-    "discriminator": "1947",
-    "xp": "9.2k",
-    "detailed_xp": [
-      704,
-      1595,
-      9193
-    ],
-    "level": 13,
-    "messages": 636,
-    "avatar": "https://cdn.discordapp.com/avatars/138380316095021056/f912ef80e2616dbb2221fcb2dbd09ab9.png",
     "gang": null,
     "prestige": 0,
     "rank": 16
@@ -345,12 +345,12 @@
     "discriminator": "2725",
     "xp": "4.1k",
     "detailed_xp": [
-      296,
+      312,
       955,
-      4077
+      4093
     ],
     "level": 9,
-    "messages": 284,
+    "messages": 285,
     "avatar": "https://cdn.discordapp.com/avatars/980079182912561212/9e6bfe52f1e097b1f193ca347be3b68d.png",
     "gang": null,
     "prestige": 0,
