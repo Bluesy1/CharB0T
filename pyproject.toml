@@ -22,7 +22,7 @@ uvloop = "0.16.0"
 validators = "0.20.0"
 yfinance = "0.1.72"
 tomli = "2.0.1"
-sentry-sdk = "^1.5.12"
+sentry-sdk = "^1.6.0"
 
 [tool.poetry.dev-dependencies]
 pytest = "7.1.2"
