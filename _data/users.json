@@ -122,14 +122,14 @@
     "id": "389137667926786060",
     "name": "coolmanfight",
     "discriminator": "1179",
-    "xp": "11.9k",
+    "xp": "12.0k",
     "detailed_xp": [
-      84,
+      116,
       1975,
-      11919
+      11951
     ],
     "level": 15,
-    "messages": 818,
+    "messages": 820,
     "avatar": "https://cdn.discordapp.com/avatars/389137667926786060/a0938cefc089461da843738b184389f5.png",
     "gang": null,
     "prestige": 0,
@@ -156,14 +156,14 @@
     "id": "615334339349184522",
     "name": "ssWinni",
     "discriminator": "7585",
-    "xp": "10.1k",
+    "xp": "10.2k",
     "detailed_xp": [
-      91,
+      104,
       1780,
-      10147
+      10160
     ],
     "level": 14,
-    "messages": 688,
+    "messages": 689,
     "avatar": "https://cdn.discordapp.com/avatars/615334339349184522/f26d5bb99c50ed137bc9069b70e16fbf.png",
     "gang": null,
     "prestige": 0,
@@ -241,14 +241,14 @@
     "id": "138380316095021056",
     "name": "krios41",
     "discriminator": "1947",
-    "xp": "9.2k",
+    "xp": "9.3k",
     "detailed_xp": [
-      718,
+      790,
       1595,
-      9207
+      9279
     ],
     "level": 13,
-    "messages": 637,
+    "messages": 642,
     "avatar": "https://cdn.discordapp.com/avatars/138380316095021056/f912ef80e2616dbb2221fcb2dbd09ab9.png",
     "gang": null,
     "prestige": 0,
@@ -328,12 +328,12 @@
     "discriminator": "8860",
     "xp": "5.5k",
     "detailed_xp": [
-      789,
+      807,
       1100,
-      5464
+      5482
     ],
     "level": 10,
-    "messages": 378,
+    "messages": 379,
     "avatar": "https://cdn.discordapp.com/avatars/710057301264039946/7d7aa20c67865c80e0bd735fe704a5ea.png",
     "gang": null,
     "prestige": 0,
