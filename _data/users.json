@@ -5,12 +5,12 @@
     "discriminator": "8150",
     "xp": "69.3k",
     "detailed_xp": [
-      1718,
+      1787,
       6100,
-      69264
+      69333
     ],
     "level": 30,
-    "messages": 4731,
+    "messages": 4736,
     "avatar": "https://cdn.discordapp.com/avatars/363095569515806722/ccf12c126a6827a5b07a4e579a52b043.png",
     "gang": null,
     "prestige": 0,
@@ -1020,6 +1020,23 @@
     "rank": 60
   },
   {
+    "id": "282592088342659072",
+    "name": "TheNerdTheory",
+    "discriminator": "3959",
+    "xp": "586",
+    "detailed_xp": [
+      108,
+      295,
+      586
+    ],
+    "level": 3,
+    "messages": 41,
+    "avatar": "https://cdn.discordapp.com/avatars/282592088342659072/fd3a59a701138b825dcdfe40ab2a9cdf.png",
+    "gang": null,
+    "prestige": 0,
+    "rank": 61
+  },
+  {
     "id": "612357341794402307",
     "name": "lucian",
     "discriminator": "9800",
@@ -1032,23 +1049,6 @@
     "level": 3,
     "messages": 40,
     "avatar": "https://cdn.discordapp.com/avatars/612357341794402307/f2e402d7a82eca7b63cf8fb1859d7778.png",
-    "gang": null,
-    "prestige": 0,
-    "rank": 61
-  },
-  {
-    "id": "282592088342659072",
-    "name": "TheNerdTheory",
-    "discriminator": "3959",
-    "xp": "531",
-    "detailed_xp": [
-      53,
-      295,
-      531
-    ],
-    "level": 3,
-    "messages": 37,
-    "avatar": "https://cdn.discordapp.com/avatars/282592088342659072/fd3a59a701138b825dcdfe40ab2a9cdf.png",
     "gang": null,
     "prestige": 0,
     "rank": 62
