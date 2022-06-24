@@ -192,12 +192,12 @@
     "discriminator": "4221",
     "xp": "9.9k",
     "detailed_xp": [
-      1405,
+      1416,
       1595,
-      9856
+      9867
     ],
     "level": 13,
-    "messages": 674,
+    "messages": 675,
     "avatar": "https://cdn.discordapp.com/avatars/329687445010644992/d225ec3818221578bf865e1d82f7c46e.png",
     "gang": null,
     "prestige": 0,
@@ -221,6 +221,23 @@
     "rank": 13
   },
   {
+    "id": "138380316095021056",
+    "name": "krios41",
+    "discriminator": "1947",
+    "xp": "9.5k",
+    "detailed_xp": [
+      1060,
+      1595,
+      9549
+    ],
+    "level": 13,
+    "messages": 661,
+    "avatar": "https://cdn.discordapp.com/avatars/138380316095021056/f912ef80e2616dbb2221fcb2dbd09ab9.png",
+    "gang": null,
+    "prestige": 0,
+    "rank": 14
+  },
+  {
     "id": "632990542921334804",
     "name": "Gerwanese",
     "discriminator": "3687",
@@ -233,23 +250,6 @@
     "level": 13,
     "messages": 645,
     "avatar": "https://cdn.discordapp.com/avatars/632990542921334804/45a3fc0247abf90aea5ee8ec7869741a.png",
-    "gang": null,
-    "prestige": 0,
-    "rank": 14
-  },
-  {
-    "id": "138380316095021056",
-    "name": "krios41",
-    "discriminator": "1947",
-    "xp": "9.5k",
-    "detailed_xp": [
-      1018,
-      1595,
-      9507
-    ],
-    "level": 13,
-    "messages": 658,
-    "avatar": "https://cdn.discordapp.com/avatars/138380316095021056/f912ef80e2616dbb2221fcb2dbd09ab9.png",
     "gang": null,
     "prestige": 0,
     "rank": 15
@@ -343,14 +343,14 @@
     "id": "980079182912561212",
     "name": "Tsamoka",
     "discriminator": "2725",
-    "xp": "4.3k",
+    "xp": "4.4k",
     "detailed_xp": [
-      552,
+      570,
       955,
-      4333
+      4351
     ],
     "level": 9,
-    "messages": 302,
+    "messages": 303,
     "avatar": "https://cdn.discordapp.com/avatars/980079182912561212/9e6bfe52f1e097b1f193ca347be3b68d.png",
     "gang": null,
     "prestige": 0,
