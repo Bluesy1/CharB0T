@@ -27,7 +27,7 @@ sentry-sdk = "^1.5.12"
 [tool.poetry.dev-dependencies]
 pytest = "7.1.2"
 pytest-asyncio = "0.18.3"
-pytest-mock = "3.7.0"
+pytest-mock = "3.8.1"
 pytest-cov = "3.0.0"
 asyncpg-stubs = "0.25.4"
 bandit = "1.7.4"
