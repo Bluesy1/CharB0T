@@ -54,3 +54,18 @@ def test_ceil_dt():
     assert dt + (datetime.datetime(datetime.MINYEAR, 1, 1, tzinfo=datetime.timezone.utc) - dt) % delta == gcal.ceil_dt(
         dt, delta
     )
+
+
+def test_default_field():
+    """Test default_fields."""
+    test: dict[int, gcal.EmbedField] = {}
+    fake_time = datetime.datetime(1970, 1, 1, 0, 0, 0, 0, tzinfo=datetime.timezone.utc)
+    sample = {
+        "summary": "test",
+    }
+    gcal.default_field(test, fake_time, sample)
+    assert len(test) == 1
+    assert isinstance(test[0], gcal.EmbedField)
+    assert test[0].name == "test"
+    assert test[0].value == "<t:0:F>\n[(19:00 12/31/69 EST)](https://www.youtube.com/charliepryor/live)"
+    assert test[0].inline is True

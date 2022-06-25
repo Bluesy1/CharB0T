@@ -122,7 +122,7 @@ def default_field(dictionary: dict[int, EmbedField], add_time: datetime, item: d
         {
             timegm(add_time.utctimetuple()): EmbedField(
                 item["summary"],
-                f"{format_dt(add_time, 'F')}\n" f"[({add_time.astimezone(chartime).strftime(time_format)})]({ytLink})",
+                f"{format_dt(add_time, 'F')}\n[({add_time.astimezone(chartime).strftime(time_format)})]({ytLink})",
                 True,
             )
         }
