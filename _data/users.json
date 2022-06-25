@@ -277,12 +277,12 @@
     "discriminator": "7958",
     "xp": "8.6k",
     "detailed_xp": [
-      102,
+      131,
       1595,
-      8572
+      8601
     ],
     "level": 13,
-    "messages": 588,
+    "messages": 590,
     "avatar": "https://cdn.discordapp.com/avatars/244529987510599680/803f09d621468a326fc9f8ff25225579.png",
     "gang": null,
     "prestige": 0,
@@ -292,14 +292,14 @@
     "id": "304410053593661442",
     "name": "MSpears",
     "discriminator": "2802",
-    "xp": "7.5k",
+    "xp": "7.6k",
     "detailed_xp": [
-      445,
+      566,
       1420,
-      7485
+      7606
     ],
     "level": 12,
-    "messages": 512,
+    "messages": 520,
     "avatar": "https://cdn.discordapp.com/avatars/304410053593661442/b046a5b99f4e2f6dad50444728de28cf.png",
     "gang": null,
     "prestige": 0,
@@ -326,14 +326,14 @@
     "id": "710057301264039946",
     "name": "Aru05",
     "discriminator": "8860",
-    "xp": "5.6k",
+    "xp": "5.7k",
     "detailed_xp": [
-      964,
+      977,
       1100,
-      5639
+      5652
     ],
     "level": 10,
-    "messages": 390,
+    "messages": 391,
     "avatar": "https://cdn.discordapp.com/avatars/710057301264039946/7d7aa20c67865c80e0bd735fe704a5ea.png",
     "gang": null,
     "prestige": 0,
@@ -394,14 +394,14 @@
     "id": "384279311009579008",
     "name": "Sammaboi67",
     "discriminator": "2703",
-    "xp": "3.2k",
+    "xp": "3.3k",
     "detailed_xp": [
-      349,
+      383,
       820,
-      3249
+      3283
     ],
     "level": 8,
-    "messages": 218,
+    "messages": 220,
     "avatar": "https://cdn.discordapp.com/avatars/384279311009579008/117fc6a959e7f4ca39f6f7734880c4fe.png",
     "gang": null,
     "prestige": 0,
