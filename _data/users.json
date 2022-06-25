@@ -22,12 +22,12 @@
     "discriminator": "7762",
     "xp": "34.7k",
     "detailed_xp": [
-      704,
+      746,
       3895,
-      34664
+      34706
     ],
     "level": 23,
-    "messages": 2378,
+    "messages": 2381,
     "avatar": "https://cdn.discordapp.com/avatars/465356664657149952/69046661ae37d5aeacd06e8670bd2cd1.png",
     "gang": null,
     "prestige": 0,
@@ -39,12 +39,12 @@
     "discriminator": "8014",
     "xp": "31.5k",
     "detailed_xp": [
-      1151,
+      1196,
       3620,
-      31463
+      31508
     ],
     "level": 22,
-    "messages": 2153,
+    "messages": 2156,
     "avatar": "https://cdn.discordapp.com/avatars/434764784353804305/079e9acbab412d57da60f98460454d62.png",
     "gang": null,
     "prestige": 0,
@@ -54,14 +54,14 @@
     "id": "355127455419203585",
     "name": "Sir Clint Pope",
     "discriminator": "2226",
-    "xp": "21.2k",
+    "xp": "21.3k",
     "detailed_xp": [
-      237,
+      262,
       2855,
-      21237
+      21262
     ],
     "level": 19,
-    "messages": 1444,
+    "messages": 1446,
     "avatar": "https://cdn.discordapp.com/avatars/355127455419203585/095ad3bae31ea645652dd0f7d6c16aee.png",
     "gang": null,
     "prestige": 0,
@@ -90,12 +90,12 @@
     "discriminator": "9829",
     "xp": "13.8k",
     "detailed_xp": [
-      15,
+      29,
       2180,
-      13815
+      13829
     ],
     "level": 16,
-    "messages": 944,
+    "messages": 945,
     "avatar": "https://cdn.discordapp.com/avatars/268664164543758336/536a483c07eaf86788a1bae92f8fd504.png",
     "gang": null,
     "prestige": 0,
@@ -124,12 +124,12 @@
     "discriminator": "1179",
     "xp": "12.2k",
     "detailed_xp": [
-      346,
+      362,
       1975,
-      12181
+      12197
     ],
     "level": 15,
-    "messages": 836,
+    "messages": 837,
     "avatar": "https://cdn.discordapp.com/avatars/389137667926786060/a0938cefc089461da843738b184389f5.png",
     "gang": null,
     "prestige": 0,
@@ -156,14 +156,14 @@
     "id": "254272745779494922",
     "name": "[MSM]Wasan",
     "discriminator": "5792",
-    "xp": "10.8k",
+    "xp": "10.9k",
     "detailed_xp": [
-      783,
+      795,
       1780,
-      10840
+      10852
     ],
     "level": 14,
-    "messages": 742,
+    "messages": 743,
     "avatar": "https://cdn.discordapp.com/avatars/254272745779494922/104c411ce5b4accfc2095084e3dded32.png",
     "gang": null,
     "prestige": 0,
