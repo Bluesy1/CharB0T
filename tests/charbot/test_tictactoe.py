@@ -1,10 +1,10 @@
 # -*- coding: utf-8 -*-
 from io import BytesIO
-from unittest.mock import AsyncMock, Mock
 
 import discord
 import pytest
 from PIL import Image
+from pytest_mock import MockerFixture
 
 from charbot import tictactoe
 
@@ -30,17 +30,17 @@ def _unused_mock_generator(monkeypatch, photo):
 
 
 @pytest.mark.asyncio
-async def test_CBot_view_protocol():
+async def test_CBot_view_protocol(mocker: MockerFixture):
     """Test CBot protocol."""
-    mock_member = Mock(spec=discord.Member)
-    mock_Proto = Mock(spec=tictactoe.view.CBot)
+    mock_member = mocker.Mock(spec=discord.Member)
+    mock_Proto = mocker.Mock(spec=tictactoe.view.CBot)
     assert await tictactoe.view.CBot.give_game_points(mock_Proto, mock_member, "mock", 1) is None
 
 
 @pytest.mark.asyncio
-async def test_view_init():
+async def test_view_init(mocker: MockerFixture):
     """Test TicTacToe view init."""
-    mock_bot = Mock(spec=tictactoe.view.CBot)
+    mock_bot = mocker.Mock(spec=tictactoe.view.CBot)
     view = tictactoe.TicTacView(mock_bot, "X")
     assert view.bot is mock_bot
     assert view.letter == "X"
@@ -48,9 +48,9 @@ async def test_view_init():
 
 
 @pytest.mark.asyncio
-async def test_view_stop_method():
+async def test_view_stop_method(mocker: MockerFixture):
     """Test TicTacToe view stop method."""
-    mock_bot = Mock(spec=tictactoe.view.CBot)
+    mock_bot = mocker.Mock(spec=tictactoe.view.CBot)
     view = tictactoe.TicTacView(mock_bot, "X")
     view.disable()
     assert view.is_finished()
@@ -60,14 +60,14 @@ async def test_view_stop_method():
 
 
 @pytest.mark.asyncio
-async def test_view_move_method(_unused_mock_generator, photo, event_loop):
+async def test_view_move_method(_unused_mock_generator, photo, event_loop, mocker: MockerFixture):
     """Test TicTacToe view move method."""
-    mock_bot = AsyncMock(spec=tictactoe.view.CBot)
+    mock_bot = mocker.AsyncMock(spec=tictactoe.view.CBot)
     mock_bot.loop = event_loop
     view = tictactoe.TicTacView(mock_bot, "X", easy=True)
-    mock_interaction = AsyncMock(spec=discord.Interaction)
-    mock_interaction.user = AsyncMock(spec=discord.Member)
-    mock_interaction.response = AsyncMock(spec=discord.InteractionResponse)
+    mock_interaction = mocker.AsyncMock(spec=discord.Interaction)
+    mock_interaction.user = mocker.AsyncMock(spec=discord.Member)
+    mock_interaction.response = mocker.AsyncMock(spec=discord.InteractionResponse)
     await view.move(mock_interaction, view._buttons[0], 0, 0)
     mock_interaction.response.defer.assert_called_once()
     mock_interaction.edit_original_message.assert_called_once()
@@ -76,15 +76,15 @@ async def test_view_move_method(_unused_mock_generator, photo, event_loop):
 
 
 @pytest.mark.asyncio
-async def test_view_player_win(_unused_mock_generator, photo, event_loop):
+async def test_view_player_win(_unused_mock_generator, photo, event_loop, mocker: MockerFixture):
     """Test TicTacToe view player win method."""
-    mock_bot = AsyncMock(spec=tictactoe.view.CBot)
+    mock_bot = mocker.AsyncMock(spec=tictactoe.view.CBot)
     mock_bot.loop = event_loop
     view = tictactoe.TicTacView(mock_bot, "X", easy=True)
-    view.puzzle.check_win = Mock(spec=tictactoe.TicTacEasy.check_win, return_value=1)
-    mock_interaction = AsyncMock(spec=discord.Interaction)
-    mock_interaction.user = AsyncMock(spec=discord.Member)
-    mock_interaction.response = AsyncMock(spec=discord.InteractionResponse)
+    view.puzzle.check_win = mocker.Mock(spec=tictactoe.TicTacEasy.check_win, return_value=1)
+    mock_interaction = mocker.AsyncMock(spec=discord.Interaction)
+    mock_interaction.user = mocker.AsyncMock(spec=discord.Member)
+    mock_interaction.response = mocker.AsyncMock(spec=discord.InteractionResponse)
     await view.move(mock_interaction, view._buttons[0], 0, 0)
     mock_interaction.response.defer.assert_called_once()
     mock_interaction.edit_original_message.assert_called_once()
@@ -94,9 +94,9 @@ async def test_view_player_win(_unused_mock_generator, photo, event_loop):
 
 
 @pytest.mark.asyncio
-async def test_view_bot_win(_unused_mock_generator, photo, event_loop):
+async def test_view_bot_win(_unused_mock_generator, photo, event_loop, mocker: MockerFixture):
     """Test TicTacToe view bot win method."""
-    mock_bot = AsyncMock(spec=tictactoe.view.CBot)
+    mock_bot = mocker.AsyncMock(spec=tictactoe.view.CBot)
     mock_bot.loop = event_loop
     view = tictactoe.TicTacView(mock_bot, "X", easy=False)
     view.puzzle.board = [
@@ -107,9 +107,9 @@ async def test_view_bot_win(_unused_mock_generator, photo, event_loop):
     view.top_left.disabled = True
     view.mid_left.disabled = True
     view.mid_mid.disabled = True
-    mock_interaction = AsyncMock(spec=discord.Interaction)
-    mock_interaction.user = AsyncMock(spec=discord.Member)
-    mock_interaction.response = AsyncMock(spec=discord.InteractionResponse)
+    mock_interaction = mocker.AsyncMock(spec=discord.Interaction)
+    mock_interaction.user = mocker.AsyncMock(spec=discord.Member)
+    mock_interaction.response = mocker.AsyncMock(spec=discord.InteractionResponse)
     await view.move(mock_interaction, view._buttons[7], 2, 1)
     mock_interaction.response.defer.assert_called_once()
     mock_interaction.edit_original_message.assert_called_once()
@@ -123,9 +123,9 @@ async def test_view_bot_win(_unused_mock_generator, photo, event_loop):
 
 
 @pytest.mark.asyncio
-async def test_view_tie(_unused_mock_generator, photo, event_loop):
+async def test_view_tie(_unused_mock_generator, photo, event_loop, mocker: MockerFixture):
     """Test TicTacToe view tie method."""
-    mock_bot = AsyncMock(spec=tictactoe.view.CBot)
+    mock_bot = mocker.AsyncMock(spec=tictactoe.view.CBot)
     mock_bot.loop = event_loop
     view = tictactoe.TicTacView(mock_bot, "X", easy=True)
     view.puzzle.board = [
@@ -136,9 +136,9 @@ async def test_view_tie(_unused_mock_generator, photo, event_loop):
     for button in view._buttons:
         button.disabled = True
     view.top_mid.disabled = False
-    mock_interaction = AsyncMock(spec=discord.Interaction)
-    mock_interaction.user = AsyncMock(spec=discord.Member)
-    mock_interaction.response = AsyncMock(spec=discord.InteractionResponse)
+    mock_interaction = mocker.AsyncMock(spec=discord.Interaction)
+    mock_interaction.user = mocker.AsyncMock(spec=discord.Member)
+    mock_interaction.response = mocker.AsyncMock(spec=discord.InteractionResponse)
     await view.move(mock_interaction, view._buttons[1], 0, 1)
     mock_interaction.response.defer.assert_called_once()
     mock_interaction.edit_original_message.assert_called_once()
@@ -153,14 +153,14 @@ async def test_view_tie(_unused_mock_generator, photo, event_loop):
 
 @pytest.mark.asyncio
 @pytest.mark.parametrize("button", [0, 1, 2, 3, 4, 5, 6, 7, 8])
-async def test_move_buttons(button, _unused_mock_generator, photo, event_loop):
+async def test_move_buttons(button, _unused_mock_generator, photo, event_loop, mocker: MockerFixture):
     """Test TicTacToe move button methods."""
-    mock_bot = AsyncMock(spec=tictactoe.view.CBot)
+    mock_bot = mocker.AsyncMock(spec=tictactoe.view.CBot)
     mock_bot.loop = event_loop
     view = tictactoe.TicTacView(mock_bot, "X", easy=True)
-    mock_interaction = AsyncMock(spec=discord.Interaction)
-    mock_interaction.user = AsyncMock(spec=discord.Member)
-    mock_interaction.response = AsyncMock(spec=discord.InteractionResponse)
+    mock_interaction = mocker.AsyncMock(spec=discord.Interaction)
+    mock_interaction.user = mocker.AsyncMock(spec=discord.Member)
+    mock_interaction.response = mocker.AsyncMock(spec=discord.InteractionResponse)
     await view._buttons[button].callback(mock_interaction)
     mock_interaction.response.defer.assert_called_once()
     mock_interaction.edit_original_message.assert_called_once()
@@ -169,12 +169,12 @@ async def test_move_buttons(button, _unused_mock_generator, photo, event_loop):
 
 
 @pytest.mark.asyncio
-async def test_cancel_button(_unused_mock_generator, photo):
+async def test_cancel_button(_unused_mock_generator, photo, mocker: MockerFixture):
     """Test TicTacToe cancel button method."""
-    mock_bot = AsyncMock(spec=tictactoe.view.CBot)
+    mock_bot = mocker.AsyncMock(spec=tictactoe.view.CBot)
     view = tictactoe.TicTacView(mock_bot, "X", easy=True)
-    mock_interaction = AsyncMock(spec=discord.Interaction)
-    mock_interaction.response = AsyncMock(spec=discord.InteractionResponse)
+    mock_interaction = mocker.AsyncMock(spec=discord.Interaction)
+    mock_interaction.response = mocker.AsyncMock(spec=discord.InteractionResponse)
     await view.cancel.callback(mock_interaction)
     assert view.is_finished()
     for button in view._buttons:

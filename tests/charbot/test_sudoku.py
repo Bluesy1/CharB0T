@@ -1,17 +1,17 @@
 # -*- coding: utf-8 -*-
 import copy
 import datetime
-from unittest.mock import AsyncMock, Mock
 
 import asyncpg
 import discord
 import pytest
+from pytest_mock import MockerFixture
 
 from charbot import sudoku
 
 
 @pytest.fixture
-def _unused_puzzle_unsolved():
+def _unused_puzzle_unsolved() -> sudoku.Puzzle:
     """Mock puzzle."""
     return sudoku.Puzzle(
         [
@@ -30,7 +30,7 @@ def _unused_puzzle_unsolved():
 
 
 @pytest.fixture
-def _unused_puzzle_solved():
+def _unused_puzzle_solved() -> sudoku.Puzzle:
     """Mock puzzle."""
     return sudoku.Puzzle(
         [
@@ -49,18 +49,18 @@ def _unused_puzzle_solved():
 
 
 @pytest.mark.asyncio
-async def test_CBot_view_protocol():
+async def test_CBot_view_protocol(mocker: MockerFixture):
     """Test CBot protocol."""
-    mock_member = Mock(spec=discord.Member)
-    mock_Proto = Mock(spec=sudoku.view.CBot)
+    mock_member = mocker.Mock(spec=discord.Member)
+    mock_Proto = mocker.Mock(spec=sudoku.view.CBot)
     assert await sudoku.view.CBot.give_game_points(mock_Proto, mock_member, "mock", 1) is None
 
 
 @pytest.mark.asyncio
-async def test_view_init(_unused_puzzle_unsolved):
+async def test_view_init(_unused_puzzle_unsolved, mocker: MockerFixture):
     """Test Sudoku view init."""
-    mock_bot = Mock(spec=sudoku.view.CBot)
-    mock_member = Mock(spec=discord.Member)
+    mock_bot = mocker.Mock(spec=sudoku.view.CBot)
+    mock_member = mocker.Mock(spec=discord.Member)
     view = sudoku.Sudoku(_unused_puzzle_unsolved, mock_member, mock_bot)
     assert view.bot is mock_bot
     assert view.puzzle is _unused_puzzle_unsolved
@@ -68,14 +68,14 @@ async def test_view_init(_unused_puzzle_unsolved):
 
 
 @pytest.mark.asyncio
-async def test_view_keypad_callback_enter_block(_unused_puzzle_unsolved):
+async def test_view_keypad_callback_enter_block(_unused_puzzle_unsolved, mocker: MockerFixture):
     """Test Sudoku view update keypad."""
-    mock_bot = AsyncMock(spec=sudoku.view.CBot)
-    mock_member = AsyncMock(spec=discord.Member)
+    mock_bot = mocker.AsyncMock(spec=sudoku.view.CBot)
+    mock_member = mocker.AsyncMock(spec=discord.Member)
     view = sudoku.Sudoku(_unused_puzzle_unsolved, mock_member, mock_bot)
-    mock_interaction = AsyncMock(spec=discord.Interaction)
-    mock_interaction.response = AsyncMock(spec=discord.InteractionResponse)
-    mock_button = Mock(spec=discord.Button)
+    mock_interaction = mocker.AsyncMock(spec=discord.Interaction)
+    mock_interaction.response = mocker.AsyncMock(spec=discord.InteractionResponse)
+    mock_button = mocker.Mock(spec=discord.Button)
     await view.keypad_callback(mock_interaction, mock_button, 0)
     mock_interaction.response.defer.assert_called_once_with(ephemeral=True)
     assert view.block is _unused_puzzle_unsolved.blocks[0]
@@ -93,14 +93,14 @@ async def test_view_keypad_callback_enter_block(_unused_puzzle_unsolved):
 
 
 @pytest.mark.asyncio
-async def test_view_keypad_callback_enter_cell(_unused_puzzle_unsolved):
+async def test_view_keypad_callback_enter_cell(_unused_puzzle_unsolved, mocker: MockerFixture):
     """Test Sudoku view update keypad."""
-    mock_bot = AsyncMock(spec=sudoku.view.CBot)
-    mock_member = AsyncMock(spec=discord.Member)
+    mock_bot = mocker.AsyncMock(spec=sudoku.view.CBot)
+    mock_member = mocker.AsyncMock(spec=discord.Member)
     view = sudoku.Sudoku(_unused_puzzle_unsolved, mock_member, mock_bot)
-    mock_interaction = AsyncMock(spec=discord.Interaction)
-    mock_interaction.response = AsyncMock(spec=discord.InteractionResponse)
-    mock_button = Mock(spec=discord.Button)
+    mock_interaction = mocker.AsyncMock(spec=discord.Interaction)
+    mock_interaction.response = mocker.AsyncMock(spec=discord.InteractionResponse)
+    mock_button = mocker.Mock(spec=discord.Button)
     await view.keypad_callback(mock_interaction, mock_button, 0)
     mock_interaction.reset_mock()
     mock_interaction.response.reset_mock()
@@ -120,14 +120,14 @@ async def test_view_keypad_callback_enter_cell(_unused_puzzle_unsolved):
 
 
 @pytest.mark.asyncio
-async def test_view_keypad_callback_set_cell_value(_unused_puzzle_unsolved):
+async def test_view_keypad_callback_set_cell_value(_unused_puzzle_unsolved, mocker: MockerFixture):
     """Test Sudoku view update keypad."""
-    mock_bot = AsyncMock(spec=sudoku.view.CBot)
-    mock_member = AsyncMock(spec=discord.Member)
+    mock_bot = mocker.AsyncMock(spec=sudoku.view.CBot)
+    mock_member = mocker.AsyncMock(spec=discord.Member)
     view = sudoku.Sudoku(_unused_puzzle_unsolved, mock_member, mock_bot)
-    mock_interaction = AsyncMock(spec=discord.Interaction)
-    mock_interaction.response = AsyncMock(spec=discord.InteractionResponse)
-    mock_button = Mock(spec=discord.Button)
+    mock_interaction = mocker.AsyncMock(spec=discord.Interaction)
+    mock_interaction.response = mocker.AsyncMock(spec=discord.InteractionResponse)
+    mock_button = mocker.Mock(spec=discord.Button)
     mock_button.label = "9"
     await view.keypad_callback(mock_interaction, mock_button, 0)
     await view.keypad_callback(mock_interaction, mock_button, 2)
@@ -153,15 +153,15 @@ async def test_view_keypad_callback_set_cell_value(_unused_puzzle_unsolved):
 
 
 @pytest.mark.asyncio
-async def test_view_keypad_callback_remove_possible_cell_value(_unused_puzzle_unsolved):
+async def test_view_keypad_callback_remove_possible_cell_value(_unused_puzzle_unsolved, mocker: MockerFixture):
     """Test Sudoku view update keypad."""
-    mock_bot = AsyncMock(spec=sudoku.view.CBot)
-    mock_member = AsyncMock(spec=discord.Member)
+    mock_bot = mocker.AsyncMock(spec=sudoku.view.CBot)
+    mock_member = mocker.AsyncMock(spec=discord.Member)
     view = sudoku.Sudoku(_unused_puzzle_unsolved, mock_member, mock_bot)
     view.noting_mode = True
-    mock_interaction = AsyncMock(spec=discord.Interaction)
-    mock_interaction.response = AsyncMock(spec=discord.InteractionResponse)
-    mock_button = Mock(spec=discord.Button)
+    mock_interaction = mocker.AsyncMock(spec=discord.Interaction)
+    mock_interaction.response = mocker.AsyncMock(spec=discord.InteractionResponse)
+    mock_button = mocker.Mock(spec=discord.Button)
     mock_button.label = "9"
     await view.keypad_callback(mock_interaction, mock_button, 0)
     await view.keypad_callback(mock_interaction, mock_button, 2)
@@ -172,15 +172,15 @@ async def test_view_keypad_callback_remove_possible_cell_value(_unused_puzzle_un
 
 
 @pytest.mark.asyncio
-async def test_view_keypad_callback_add_possible_cell_value(_unused_puzzle_unsolved):
+async def test_view_keypad_callback_add_possible_cell_value(_unused_puzzle_unsolved, mocker: MockerFixture):
     """Test Sudoku view update keypad."""
-    mock_bot = AsyncMock(spec=sudoku.view.CBot)
-    mock_member = AsyncMock(spec=discord.Member)
+    mock_bot = mocker.AsyncMock(spec=sudoku.view.CBot)
+    mock_member = mocker.AsyncMock(spec=discord.Member)
     view = sudoku.Sudoku(_unused_puzzle_unsolved, mock_member, mock_bot)
     view.noting_mode = True
-    mock_interaction = AsyncMock(spec=discord.Interaction)
-    mock_interaction.response = AsyncMock(spec=discord.InteractionResponse)
-    mock_button = Mock(spec=discord.Button)
+    mock_interaction = mocker.AsyncMock(spec=discord.Interaction)
+    mock_interaction.response = mocker.AsyncMock(spec=discord.InteractionResponse)
+    mock_button = mocker.Mock(spec=discord.Button)
     mock_button.label = "9"
     await view.keypad_callback(mock_interaction, mock_button, 0)
     await view.keypad_callback(mock_interaction, mock_button, 2)
@@ -192,14 +192,14 @@ async def test_view_keypad_callback_add_possible_cell_value(_unused_puzzle_unsol
 
 
 @pytest.mark.asyncio
-async def test_view_keypad_callback_try_set_static_cell(_unused_puzzle_unsolved):
+async def test_view_keypad_callback_try_set_static_cell(_unused_puzzle_unsolved, mocker: MockerFixture):
     """Test Sudoku view update keypad."""
-    mock_bot = AsyncMock(spec=sudoku.view.CBot)
-    mock_member = AsyncMock(spec=discord.Member)
+    mock_bot = mocker.AsyncMock(spec=sudoku.view.CBot)
+    mock_member = mocker.AsyncMock(spec=discord.Member)
     view = sudoku.Sudoku(_unused_puzzle_unsolved, mock_member, mock_bot)
-    mock_interaction = AsyncMock(spec=discord.Interaction)
-    mock_interaction.response = AsyncMock(spec=discord.InteractionResponse)
-    mock_button = Mock(spec=discord.Button)
+    mock_interaction = mocker.AsyncMock(spec=discord.Interaction)
+    mock_interaction.response = mocker.AsyncMock(spec=discord.InteractionResponse)
+    mock_button = mocker.Mock(spec=discord.Button)
     await view.keypad_callback(mock_interaction, mock_button, 0)
     await view.keypad_callback(mock_interaction, mock_button, 1)
     mock_interaction.reset_mock()
@@ -211,10 +211,10 @@ async def test_view_keypad_callback_try_set_static_cell(_unused_puzzle_unsolved)
 
 
 @pytest.mark.asyncio
-async def test_view_update_keypad_puzzle_level(_unused_puzzle_unsolved):
+async def test_view_update_keypad_puzzle_level(_unused_puzzle_unsolved, mocker: MockerFixture):
     """Test Sudoku view update keypad."""
-    mock_bot = AsyncMock(spec=sudoku.view.CBot)
-    mock_member = AsyncMock(spec=discord.Member)
+    mock_bot = mocker.AsyncMock(spec=sudoku.view.CBot)
+    mock_member = mocker.AsyncMock(spec=discord.Member)
     view = sudoku.Sudoku(_unused_puzzle_unsolved, mock_member, mock_bot)
     view.disable_keypad()
     view.update_keypad()
@@ -231,10 +231,10 @@ async def test_view_update_keypad_puzzle_level(_unused_puzzle_unsolved):
 
 
 @pytest.mark.asyncio
-async def test_view_block_choose_embed(_unused_puzzle_unsolved):
+async def test_view_block_choose_embed(_unused_puzzle_unsolved, mocker: MockerFixture):
     """Test Sudoku view block choose embed."""
-    mock_bot = AsyncMock(spec=sudoku.view.CBot)
-    mock_member = AsyncMock(spec=discord.Member)
+    mock_bot = mocker.AsyncMock(spec=sudoku.view.CBot)
+    mock_member = mocker.AsyncMock(spec=discord.Member)
     view = sudoku.Sudoku(_unused_puzzle_unsolved, mock_member, mock_bot)
     embed = view.block_choose_embed()
     assert embed.title == "Sudoku"
@@ -243,17 +243,17 @@ async def test_view_block_choose_embed(_unused_puzzle_unsolved):
 
 
 @pytest.mark.asyncio
-async def test_view_on_win(_unused_puzzle_solved):
+async def test_view_on_win(_unused_puzzle_solved, mocker: MockerFixture):
     """Test Sudoku view on win."""
-    mock_bot = AsyncMock(spec=sudoku.view.CBot)
-    mock_bot.pool = AsyncMock(spec=asyncpg.Pool)
-    mock_member = AsyncMock(spec=discord.Member)
+    mock_bot = mocker.AsyncMock(spec=sudoku.view.CBot)
+    mock_bot.pool = mocker.AsyncMock(spec=asyncpg.Pool)
+    mock_member = mocker.AsyncMock(spec=discord.Member)
     _unused_puzzle_solved.blocks[0][0]._editable = True
     _unused_puzzle_solved.blocks[0][0].value = 0
     view = sudoku.Sudoku(_unused_puzzle_solved, mock_member, mock_bot)
-    mock_interaction = AsyncMock(spec=discord.Interaction)
-    mock_interaction.response = AsyncMock(spec=discord.InteractionResponse)
-    mock_button = AsyncMock(spec=discord.Button)
+    mock_interaction = mocker.AsyncMock(spec=discord.Interaction)
+    mock_interaction.response = mocker.AsyncMock(spec=discord.InteractionResponse)
+    mock_button = mocker.AsyncMock(spec=discord.Button)
     mock_button.label = "7"
     await view.keypad_callback(mock_interaction, mock_button, 0)
     await view.keypad_callback(mock_interaction, mock_button, 0)
@@ -268,13 +268,13 @@ async def test_view_on_win(_unused_puzzle_solved):
 
 
 @pytest.mark.asyncio
-async def test_view_back_button_callback(_unused_puzzle_unsolved):
+async def test_view_back_button_callback(_unused_puzzle_unsolved, mocker: MockerFixture):
     """Test Sudoku view back button callback."""
-    mock_bot = AsyncMock(spec=sudoku.view.CBot)
-    mock_member = AsyncMock(spec=discord.Member)
+    mock_bot = mocker.AsyncMock(spec=sudoku.view.CBot)
+    mock_member = mocker.AsyncMock(spec=discord.Member)
     view = sudoku.Sudoku(_unused_puzzle_unsolved, mock_member, mock_bot)
-    mock_interaction = AsyncMock(spec=discord.Interaction)
-    mock_interaction.response = AsyncMock(spec=discord.InteractionResponse)
+    mock_interaction = mocker.AsyncMock(spec=discord.Interaction)
+    mock_interaction.response = mocker.AsyncMock(spec=discord.InteractionResponse)
     view.back.disabled = False
     await view.back.callback(mock_interaction)
     mock_interaction.response.edit_message.assert_called_once()
@@ -308,52 +308,52 @@ async def test_view_back_button_callback(_unused_puzzle_unsolved):
 
 # noinspection DuplicatedCode
 @pytest.mark.asyncio
-async def test_one_button_callback(_unused_puzzle_unsolved):
+async def test_one_button_callback(_unused_puzzle_unsolved, mocker: MockerFixture):
     """Test Sudoku one button callback."""
-    mock_bot = AsyncMock(spec=sudoku.view.CBot)
-    mock_member = AsyncMock(spec=discord.Member)
+    mock_bot = mocker.AsyncMock(spec=sudoku.view.CBot)
+    mock_member = mocker.AsyncMock(spec=discord.Member)
     view = sudoku.Sudoku(_unused_puzzle_unsolved, mock_member, mock_bot)
-    mock_interaction = AsyncMock(spec=discord.Interaction)
-    mock_interaction.response = AsyncMock(spec=discord.InteractionResponse)
+    mock_interaction = mocker.AsyncMock(spec=discord.Interaction)
+    mock_interaction.response = mocker.AsyncMock(spec=discord.InteractionResponse)
     await view.one.callback(mock_interaction)
     mock_interaction.response.defer.assert_called_once()
     mock_interaction.edit_original_message.assert_called_once()
 
 
 @pytest.mark.asyncio
-async def test_two_button_callback(_unused_puzzle_unsolved):
+async def test_two_button_callback(_unused_puzzle_unsolved, mocker: MockerFixture):
     """Test Sudoku two button callback."""
-    mock_bot = AsyncMock(spec=sudoku.view.CBot)
-    mock_member = AsyncMock(spec=discord.Member)
+    mock_bot = mocker.AsyncMock(spec=sudoku.view.CBot)
+    mock_member = mocker.AsyncMock(spec=discord.Member)
     view = sudoku.Sudoku(_unused_puzzle_unsolved, mock_member, mock_bot)
-    mock_interaction = AsyncMock(spec=discord.Interaction)
-    mock_interaction.response = AsyncMock(spec=discord.InteractionResponse)
+    mock_interaction = mocker.AsyncMock(spec=discord.Interaction)
+    mock_interaction.response = mocker.AsyncMock(spec=discord.InteractionResponse)
     await view.two.callback(mock_interaction)
     mock_interaction.response.defer.assert_called_once()
     mock_interaction.edit_original_message.assert_called_once()
 
 
 @pytest.mark.asyncio
-async def test_three_button_callback(_unused_puzzle_unsolved):
+async def test_three_button_callback(_unused_puzzle_unsolved, mocker: MockerFixture):
     """Test Sudoku three button callback."""
-    mock_bot = AsyncMock(spec=sudoku.view.CBot)
-    mock_member = AsyncMock(spec=discord.Member)
+    mock_bot = mocker.AsyncMock(spec=sudoku.view.CBot)
+    mock_member = mocker.AsyncMock(spec=discord.Member)
     view = sudoku.Sudoku(_unused_puzzle_unsolved, mock_member, mock_bot)
-    mock_interaction = AsyncMock(spec=discord.Interaction)
-    mock_interaction.response = AsyncMock(spec=discord.InteractionResponse)
+    mock_interaction = mocker.AsyncMock(spec=discord.Interaction)
+    mock_interaction.response = mocker.AsyncMock(spec=discord.InteractionResponse)
     await view.three.callback(mock_interaction)
     mock_interaction.response.defer.assert_called_once()
     mock_interaction.edit_original_message.assert_called_once()
 
 
 @pytest.mark.asyncio
-async def test_four_button_callback(_unused_puzzle_unsolved):
+async def test_four_button_callback(_unused_puzzle_unsolved, mocker: MockerFixture):
     """Test Sudoku four button callback."""
-    mock_bot = AsyncMock(spec=sudoku.view.CBot)
-    mock_member = AsyncMock(spec=discord.Member)
+    mock_bot = mocker.AsyncMock(spec=sudoku.view.CBot)
+    mock_member = mocker.AsyncMock(spec=discord.Member)
     view = sudoku.Sudoku(_unused_puzzle_unsolved, mock_member, mock_bot)
-    mock_interaction = AsyncMock(spec=discord.Interaction)
-    mock_interaction.response = AsyncMock(spec=discord.InteractionResponse)
+    mock_interaction = mocker.AsyncMock(spec=discord.Interaction)
+    mock_interaction.response = mocker.AsyncMock(spec=discord.InteractionResponse)
     await view.four.callback(mock_interaction)
     mock_interaction.response.defer.assert_called_once()
     mock_interaction.edit_original_message.assert_called_once()
@@ -361,90 +361,90 @@ async def test_four_button_callback(_unused_puzzle_unsolved):
 
 # noinspection DuplicatedCode
 @pytest.mark.asyncio
-async def test_five_button_callback(_unused_puzzle_unsolved):
+async def test_five_button_callback(_unused_puzzle_unsolved, mocker: MockerFixture):
     """Test Sudoku five button callback."""
-    mock_bot = AsyncMock(spec=sudoku.view.CBot)
-    mock_member = AsyncMock(spec=discord.Member)
+    mock_bot = mocker.AsyncMock(spec=sudoku.view.CBot)
+    mock_member = mocker.AsyncMock(spec=discord.Member)
     view = sudoku.Sudoku(_unused_puzzle_unsolved, mock_member, mock_bot)
-    mock_interaction = AsyncMock(spec=discord.Interaction)
-    mock_interaction.response = AsyncMock(spec=discord.InteractionResponse)
+    mock_interaction = mocker.AsyncMock(spec=discord.Interaction)
+    mock_interaction.response = mocker.AsyncMock(spec=discord.InteractionResponse)
     await view.five.callback(mock_interaction)
     mock_interaction.response.defer.assert_called_once()
     mock_interaction.edit_original_message.assert_called_once()
 
 
 @pytest.mark.asyncio
-async def test_six_button_callback(_unused_puzzle_unsolved):
+async def test_six_button_callback(_unused_puzzle_unsolved, mocker: MockerFixture):
     """Test Sudoku six button callback."""
-    mock_bot = AsyncMock(spec=sudoku.view.CBot)
-    mock_member = AsyncMock(spec=discord.Member)
+    mock_bot = mocker.AsyncMock(spec=sudoku.view.CBot)
+    mock_member = mocker.AsyncMock(spec=discord.Member)
     view = sudoku.Sudoku(_unused_puzzle_unsolved, mock_member, mock_bot)
-    mock_interaction = AsyncMock(spec=discord.Interaction)
-    mock_interaction.response = AsyncMock(spec=discord.InteractionResponse)
+    mock_interaction = mocker.AsyncMock(spec=discord.Interaction)
+    mock_interaction.response = mocker.AsyncMock(spec=discord.InteractionResponse)
     await view.six.callback(mock_interaction)
     mock_interaction.response.defer.assert_called_once()
     mock_interaction.edit_original_message.assert_called_once()
 
 
 @pytest.mark.asyncio
-async def test_seven_button_callback(_unused_puzzle_unsolved):
+async def test_seven_button_callback(_unused_puzzle_unsolved, mocker: MockerFixture):
     """Test Sudoku seven button callback."""
-    mock_bot = AsyncMock(spec=sudoku.view.CBot)
-    mock_member = AsyncMock(spec=discord.Member)
+    mock_bot = mocker.AsyncMock(spec=sudoku.view.CBot)
+    mock_member = mocker.AsyncMock(spec=discord.Member)
     view = sudoku.Sudoku(_unused_puzzle_unsolved, mock_member, mock_bot)
-    mock_interaction = AsyncMock(spec=discord.Interaction)
-    mock_interaction.response = AsyncMock(spec=discord.InteractionResponse)
+    mock_interaction = mocker.AsyncMock(spec=discord.Interaction)
+    mock_interaction.response = mocker.AsyncMock(spec=discord.InteractionResponse)
     await view.seven.callback(mock_interaction)
     mock_interaction.response.defer.assert_called_once()
     mock_interaction.edit_original_message.assert_called_once()
 
 
 @pytest.mark.asyncio
-async def test_eight_button_callback(_unused_puzzle_unsolved):
+async def test_eight_button_callback(_unused_puzzle_unsolved, mocker: MockerFixture):
     """Test Sudoku eight button callback."""
-    mock_bot = AsyncMock(spec=sudoku.view.CBot)
-    mock_member = AsyncMock(spec=discord.Member)
+    mock_bot = mocker.AsyncMock(spec=sudoku.view.CBot)
+    mock_member = mocker.AsyncMock(spec=discord.Member)
     view = sudoku.Sudoku(_unused_puzzle_unsolved, mock_member, mock_bot)
-    mock_interaction = AsyncMock(spec=discord.Interaction)
-    mock_interaction.response = AsyncMock(spec=discord.InteractionResponse)
+    mock_interaction = mocker.AsyncMock(spec=discord.Interaction)
+    mock_interaction.response = mocker.AsyncMock(spec=discord.InteractionResponse)
     await view.eight.callback(mock_interaction)
     mock_interaction.response.defer.assert_called_once()
     mock_interaction.edit_original_message.assert_called_once()
 
 
 @pytest.mark.asyncio
-async def test_nine_button_callback(_unused_puzzle_unsolved):
+async def test_nine_button_callback(_unused_puzzle_unsolved, mocker: MockerFixture):
     """Test Sudoku nine button callback."""
-    mock_bot = AsyncMock(spec=sudoku.view.CBot)
-    mock_member = AsyncMock(spec=discord.Member)
+    mock_bot = mocker.AsyncMock(spec=sudoku.view.CBot)
+    mock_member = mocker.AsyncMock(spec=discord.Member)
     view = sudoku.Sudoku(_unused_puzzle_unsolved, mock_member, mock_bot)
-    mock_interaction = AsyncMock(spec=discord.Interaction)
-    mock_interaction.response = AsyncMock(spec=discord.InteractionResponse)
+    mock_interaction = mocker.AsyncMock(spec=discord.Interaction)
+    mock_interaction.response = mocker.AsyncMock(spec=discord.InteractionResponse)
     await view.nine.callback(mock_interaction)
     mock_interaction.response.defer.assert_called_once()
     mock_interaction.edit_original_message.assert_called_once()
 
 
 @pytest.mark.asyncio
-async def test_mode_select(_unused_puzzle_unsolved):
+async def test_mode_select(_unused_puzzle_unsolved, mocker: MockerFixture):
     """Test sudoku mode select."""
-    mock_bot = AsyncMock(spec=sudoku.view.CBot)
-    mock_member = AsyncMock(spec=discord.Member)
+    mock_bot = mocker.AsyncMock(spec=sudoku.view.CBot)
+    mock_member = mocker.AsyncMock(spec=discord.Member)
     view = sudoku.Sudoku(_unused_puzzle_unsolved, mock_member, mock_bot)
-    mock_interaction = AsyncMock(spec=discord.Interaction)
-    mock_interaction.response = AsyncMock(spec=discord.InteractionResponse)
+    mock_interaction = mocker.AsyncMock(spec=discord.Interaction)
+    mock_interaction.response = mocker.AsyncMock(spec=discord.InteractionResponse)
     with pytest.raises(NotImplementedError):
         await view.mode.callback(mock_interaction)
 
 
 @pytest.mark.asyncio
-async def test_cancel_callback(_unused_puzzle_unsolved):
+async def test_cancel_callback(_unused_puzzle_unsolved, mocker: MockerFixture):
     """Test sudoku cancel callback."""
-    mock_bot = AsyncMock(spec=sudoku.view.CBot)
-    mock_member = AsyncMock(spec=discord.Member)
+    mock_bot = mocker.AsyncMock(spec=sudoku.view.CBot)
+    mock_member = mocker.AsyncMock(spec=discord.Member)
     view = sudoku.Sudoku(_unused_puzzle_unsolved, mock_member, mock_bot)
-    mock_interaction = AsyncMock(spec=discord.Interaction)
-    mock_interaction.response = AsyncMock(spec=discord.InteractionResponse)
+    mock_interaction = mocker.AsyncMock(spec=discord.Interaction)
+    mock_interaction.response = mocker.AsyncMock(spec=discord.InteractionResponse)
     await view.cancel.callback(mock_interaction)
     mock_interaction.response.edit_message.assert_called_once()
     view = sudoku.Sudoku(_unused_puzzle_unsolved, mock_member, mock_bot)
@@ -457,13 +457,13 @@ async def test_cancel_callback(_unused_puzzle_unsolved):
 
 
 @pytest.mark.asyncio
-async def test_clear_callback(_unused_puzzle_unsolved):
+async def test_clear_callback(_unused_puzzle_unsolved, mocker: MockerFixture):
     """Test sudoku clear callback."""
-    mock_bot = AsyncMock(spec=sudoku.view.CBot)
-    mock_member = AsyncMock(spec=discord.Member)
+    mock_bot = mocker.AsyncMock(spec=sudoku.view.CBot)
+    mock_member = mocker.AsyncMock(spec=discord.Member)
     view = sudoku.Sudoku(_unused_puzzle_unsolved, mock_member, mock_bot)
-    mock_interaction = AsyncMock(spec=discord.Interaction)
-    mock_interaction.response = AsyncMock(spec=discord.InteractionResponse)
+    mock_interaction = mocker.AsyncMock(spec=discord.Interaction)
+    mock_interaction.response = mocker.AsyncMock(spec=discord.InteractionResponse)
     await view.clear.callback(mock_interaction)
     mock_interaction.response.edit_message.assert_called_once()
     await view.one.callback(mock_interaction)
@@ -519,6 +519,7 @@ def test_cell_location(_unused_puzzle_unsolved):
     else:
         assert False
     with pytest.raises(TypeError):
+        # noinspection PyTypeChecker
         _unused_puzzle_unsolved.location_of_cell("This is not a cell")  # skipcq
 
 
@@ -533,6 +534,7 @@ def test_row_of_cell(_unused_puzzle_unsolved):
     else:
         assert False
     with pytest.raises(TypeError):
+        # noinspection PyTypeChecker
         _unused_puzzle_unsolved.row_of_cell("This is not a cell")  # skipcq
 
 
@@ -550,6 +552,7 @@ def test_column_of_cell(_unused_puzzle_unsolved):
     else:
         assert False
     with pytest.raises(TypeError):
+        # noinspection PyTypeChecker
         _unused_puzzle_unsolved.column_of_cell("This is not a cell")  # skipcq
 
 
@@ -567,6 +570,7 @@ def test_block_of_cell(_unused_puzzle_unsolved):
     else:
         assert False
     with pytest.raises(TypeError):
+        # noinspection PyTypeChecker
         _unused_puzzle_unsolved.block_of_cell("This is not a cell")  # skipcq
 
 
@@ -581,6 +585,7 @@ def test_block_index(_unused_puzzle_unsolved):
     else:
         assert False
     with pytest.raises(TypeError):
+        # noinspection PyTypeChecker
         _unused_puzzle_unsolved.block_index("This is not a block")  # skipcq
 
 

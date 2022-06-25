@@ -1,10 +1,10 @@
 # -*- coding: utf-8 -*-
 import random
-from unittest.mock import Mock
 
 import discord
 import pytest
 from discord.ext import commands
+from pytest_mock import MockerFixture
 
 from charbot import dice
 
@@ -52,10 +52,10 @@ def test_invalid_die():
 
 
 @pytest.mark.asyncio
-async def test_valid_roll_async():
+async def test_valid_roll_async(mocker: MockerFixture):
     """Test valid roll command."""
-    mock_ctx = Mock(spec=commands.Context)
-    mock_bot = Mock(spec=commands.Bot)
+    mock_ctx = mocker.Mock(spec=commands.Context)
+    mock_bot = mocker.Mock(spec=commands.Bot)
     mock_ctx.author.mention = "mock"
     cog = dice.Roll(mock_bot)
     await cog.roll.__call__(mock_ctx, mock_ctx, dice="1d4+5")  # type: ignore  # skipcq: PYL-E1102
@@ -65,10 +65,10 @@ async def test_valid_roll_async():
 
 
 @pytest.mark.asyncio
-async def test_invalid_roll_async():
+async def test_invalid_roll_async(mocker: MockerFixture):
     """Test invalid roll command."""
-    mock_ctx = Mock(spec=commands.Context)
-    mock_bot = Mock(spec=commands.Bot)
+    mock_ctx = mocker.Mock(spec=commands.Context)
+    mock_bot = mocker.Mock(spec=commands.Bot)
     mock_ctx.author.mention = "mock"
     cog = dice.Roll(mock_bot)
     await cog.roll.__call__(mock_ctx, mock_ctx, dice="1e4+5")  # type: ignore  # skipcq: PYL-E1102
@@ -79,44 +79,44 @@ async def test_invalid_roll_async():
     )
 
 
-def test_cog_check_no_guild():
+def test_cog_check_no_guild(mocker: MockerFixture):
     """Test cog_check when no guild is present."""
-    mock_ctx = Mock(spec=commands.Context)
+    mock_ctx = mocker.Mock(spec=commands.Context)
     mock_ctx.guild = None
-    mock_bot = Mock(spec=commands.Bot)
+    mock_bot = mocker.Mock(spec=commands.Bot)
     cog = dice.Roll(mock_bot)
     assert cog.cog_check(mock_ctx) is False
 
 
-def test_cog_check_not_allowed():
+def test_cog_check_not_allowed(mocker: MockerFixture):
     """Test cog_check when user is not allowed."""
-    mock_ctx = Mock(spec=commands.Context)
-    mock_ctx.guild = Mock(spec=discord.Guild)
-    mock_ctx.author = Mock(spec=discord.Member)
-    mock_role = Mock(spec=discord.Role)
+    mock_ctx = mocker.Mock(spec=commands.Context)
+    mock_ctx.guild = mocker.Mock(spec=discord.Guild)
+    mock_ctx.author = mocker.Mock(spec=discord.Member)
+    mock_role = mocker.Mock(spec=discord.Role)
     mock_role.id = 0
     mock_ctx.author.roles = [mock_role]
-    mock_bot = Mock(spec=commands.Bot)
+    mock_bot = mocker.Mock(spec=commands.Bot)
     cog = dice.Roll(mock_bot)
     assert cog.cog_check(mock_ctx) is False
 
 
-def test_cog_check_allowed():
+def test_cog_check_allowed(mocker: MockerFixture):
     """Test cog_check when user is allowed."""
-    mock_ctx = Mock(spec=commands.Context)
-    mock_ctx.guild = Mock(spec=discord.Guild)
-    mock_ctx.author = Mock(spec=discord.Member)
-    mock_role = Mock(spec=discord.Role)
+    mock_ctx = mocker.Mock(spec=commands.Context)
+    mock_ctx.guild = mocker.Mock(spec=discord.Guild)
+    mock_ctx.author = mocker.Mock(spec=discord.Member)
+    mock_role = mocker.Mock(spec=discord.Role)
     mock_role.id = 338173415527677954
     mock_ctx.author.roles = [mock_role]
-    mock_bot = Mock(spec=commands.Bot)
+    mock_bot = mocker.Mock(spec=commands.Bot)
     cog = dice.Roll(mock_bot)
     assert cog.cog_check(mock_ctx) is True
 
 
 @pytest.mark.asyncio
-async def test_cog_load():
+async def test_cog_load(mocker: MockerFixture):
     """Test cog_load."""
-    mock_bot = Mock(spec=commands.Bot)
+    mock_bot = mocker.Mock(spec=commands.Bot)
     await dice.setup(mock_bot)
     mock_bot.add_cog.assert_called_once()
