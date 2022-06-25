@@ -39,12 +39,12 @@
     "discriminator": "8014",
     "xp": "31.4k",
     "detailed_xp": [
-      1093,
+      1133,
       3620,
-      31405
+      31445
     ],
     "level": 22,
-    "messages": 2149,
+    "messages": 2152,
     "avatar": "https://cdn.discordapp.com/avatars/434764784353804305/079e9acbab412d57da60f98460454d62.png",
     "gang": null,
     "prestige": 0,
@@ -124,12 +124,12 @@
     "discriminator": "1179",
     "xp": "12.2k",
     "detailed_xp": [
-      320,
+      332,
       1975,
-      12155
+      12167
     ],
     "level": 15,
-    "messages": 834,
+    "messages": 835,
     "avatar": "https://cdn.discordapp.com/avatars/389137667926786060/a0938cefc089461da843738b184389f5.png",
     "gang": null,
     "prestige": 0,
@@ -156,14 +156,14 @@
     "id": "254272745779494922",
     "name": "[MSM]Wasan",
     "discriminator": "5792",
-    "xp": "10.7k",
+    "xp": "10.8k",
     "detailed_xp": [
-      667,
+      739,
       1780,
-      10724
+      10796
     ],
     "level": 14,
-    "messages": 734,
+    "messages": 739,
     "avatar": "https://cdn.discordapp.com/avatars/254272745779494922/104c411ce5b4accfc2095084e3dded32.png",
     "gang": null,
     "prestige": 0,
@@ -275,14 +275,14 @@
     "id": "244529987510599680",
     "name": "Petrat852",
     "discriminator": "7958",
-    "xp": "8.4k",
+    "xp": "8.5k",
     "detailed_xp": [
-      1392,
-      1420,
-      8441
+      71,
+      1595,
+      8541
     ],
-    "level": 12,
-    "messages": 579,
+    "level": 13,
+    "messages": 586,
     "avatar": "https://cdn.discordapp.com/avatars/244529987510599680/803f09d621468a326fc9f8ff25225579.png",
     "gang": null,
     "prestige": 0,
