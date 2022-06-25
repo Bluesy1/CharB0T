@@ -3,14 +3,14 @@
     "id": "363095569515806722",
     "name": "Bluesy",
     "discriminator": "8150",
-    "xp": "69.5k",
+    "xp": "69.6k",
     "detailed_xp": [
-      1979,
+      2009,
       6100,
-      69525
+      69555
     ],
     "level": 30,
-    "messages": 4749,
+    "messages": 4751,
     "avatar": "https://cdn.discordapp.com/avatars/363095569515806722/ccf12c126a6827a5b07a4e579a52b043.png",
     "gang": null,
     "prestige": 0,
@@ -39,12 +39,12 @@
     "discriminator": "8014",
     "xp": "31.6k",
     "detailed_xp": [
-      1239,
+      1257,
       3620,
-      31551
+      31569
     ],
     "level": 22,
-    "messages": 2159,
+    "messages": 2160,
     "avatar": "https://cdn.discordapp.com/avatars/434764784353804305/079e9acbab412d57da60f98460454d62.png",
     "gang": null,
     "prestige": 0,
@@ -158,12 +158,12 @@
     "discriminator": "5792",
     "xp": "10.9k",
     "detailed_xp": [
-      795,
+      839,
       1780,
-      10852
+      10896
     ],
     "level": 14,
-    "messages": 743,
+    "messages": 746,
     "avatar": "https://cdn.discordapp.com/avatars/254272745779494922/104c411ce5b4accfc2095084e3dded32.png",
     "gang": null,
     "prestige": 0,
@@ -275,14 +275,14 @@
     "id": "244529987510599680",
     "name": "Petrat852",
     "discriminator": "7958",
-    "xp": "8.6k",
+    "xp": "8.7k",
     "detailed_xp": [
-      131,
+      194,
       1595,
-      8601
+      8664
     ],
     "level": 13,
-    "messages": 590,
+    "messages": 595,
     "avatar": "https://cdn.discordapp.com/avatars/244529987510599680/803f09d621468a326fc9f8ff25225579.png",
     "gang": null,
     "prestige": 0,
@@ -292,14 +292,14 @@
     "id": "304410053593661442",
     "name": "MSpears",
     "discriminator": "2802",
-    "xp": "7.6k",
+    "xp": "7.7k",
     "detailed_xp": [
-      566,
+      659,
       1420,
-      7606
+      7699
     ],
     "level": 12,
-    "messages": 520,
+    "messages": 527,
     "avatar": "https://cdn.discordapp.com/avatars/304410053593661442/b046a5b99f4e2f6dad50444728de28cf.png",
     "gang": null,
     "prestige": 0,
@@ -1037,6 +1037,23 @@
     "rank": 61
   },
   {
+    "id": "612357341794402307",
+    "name": "lucian",
+    "discriminator": "9800",
+    "xp": "596",
+    "detailed_xp": [
+      118,
+      295,
+      596
+    ],
+    "level": 3,
+    "messages": 41,
+    "avatar": "https://cdn.discordapp.com/avatars/612357341794402307/f2e402d7a82eca7b63cf8fb1859d7778.png",
+    "gang": null,
+    "prestige": 0,
+    "rank": 62
+  },
+  {
     "id": "282592088342659072",
     "name": "TheNerdTheory",
     "discriminator": "3959",
@@ -1049,23 +1066,6 @@
     "level": 3,
     "messages": 41,
     "avatar": "https://cdn.discordapp.com/avatars/282592088342659072/fd3a59a701138b825dcdfe40ab2a9cdf.png",
-    "gang": null,
-    "prestige": 0,
-    "rank": 62
-  },
-  {
-    "id": "612357341794402307",
-    "name": "lucian",
-    "discriminator": "9800",
-    "xp": "579",
-    "detailed_xp": [
-      101,
-      295,
-      579
-    ],
-    "level": 3,
-    "messages": 40,
-    "avatar": "https://cdn.discordapp.com/avatars/612357341794402307/f2e402d7a82eca7b63cf8fb1859d7778.png",
     "gang": null,
     "prestige": 0,
     "rank": 63
