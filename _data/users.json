@@ -39,12 +39,12 @@
     "discriminator": "8014",
     "xp": "31.6k",
     "detailed_xp": [
-      1271,
+      1286,
       3620,
-      31583
+      31598
     ],
     "level": 22,
-    "messages": 2161,
+    "messages": 2162,
     "avatar": "https://cdn.discordapp.com/avatars/434764784353804305/079e9acbab412d57da60f98460454d62.png",
     "gang": null,
     "prestige": 0,
@@ -73,12 +73,12 @@
     "discriminator": "6862",
     "xp": "19.2k",
     "detailed_xp": [
-      819,
+      834,
       2620,
-      19196
+      19211
     ],
     "level": 18,
-    "messages": 1315,
+    "messages": 1316,
     "avatar": "https://cdn.discordapp.com/avatars/470021089104494598/609eb666ab567abadd68dcfc4d7c042c.png",
     "gang": null,
     "prestige": 0,
@@ -204,6 +204,23 @@
     "rank": 12
   },
   {
+    "id": "138380316095021056",
+    "name": "krios41",
+    "discriminator": "1947",
+    "xp": "9.7k",
+    "detailed_xp": [
+      1221,
+      1595,
+      9710
+    ],
+    "level": 13,
+    "messages": 672,
+    "avatar": "https://cdn.discordapp.com/avatars/138380316095021056/f912ef80e2616dbb2221fcb2dbd09ab9.png",
+    "gang": null,
+    "prestige": 0,
+    "rank": 13
+  },
+  {
     "id": "208476626999181312",
     "name": "scooterchamp",
     "discriminator": "1161",
@@ -216,23 +233,6 @@
     "level": 13,
     "messages": 662,
     "avatar": "https://cdn.discordapp.com/avatars/208476626999181312/1f40bcab313e9db88174ce00f7de5c31.png",
-    "gang": null,
-    "prestige": 0,
-    "rank": 13
-  },
-  {
-    "id": "138380316095021056",
-    "name": "krios41",
-    "discriminator": "1947",
-    "xp": "9.7k",
-    "detailed_xp": [
-      1188,
-      1595,
-      9677
-    ],
-    "level": 13,
-    "messages": 670,
-    "avatar": "https://cdn.discordapp.com/avatars/138380316095021056/f912ef80e2616dbb2221fcb2dbd09ab9.png",
     "gang": null,
     "prestige": 0,
     "rank": 14
@@ -1428,23 +1428,6 @@
     "rank": 84
   },
   {
-    "id": "737317309194174574",
-    "name": "Vascof",
-    "discriminator": "8431",
-    "xp": "190",
-    "detailed_xp": [
-      90,
-      155,
-      190
-    ],
-    "level": 1,
-    "messages": 12,
-    "avatar": "https://cdn.discordapp.com/embed/avatars/1.png",
-    "gang": null,
-    "prestige": 0,
-    "rank": 85
-  },
-  {
     "id": "96072409815195648",
     "name": "Pdiddy973",
     "discriminator": "0973",
@@ -1457,6 +1440,23 @@
     "level": 1,
     "messages": 13,
     "avatar": "https://cdn.discordapp.com/avatars/96072409815195648/ac69b3bb713a4095261b6a28ea20f6d8.png",
+    "gang": null,
+    "prestige": 0,
+    "rank": 85
+  },
+  {
+    "id": "737317309194174574",
+    "name": "Vascof",
+    "discriminator": "8431",
+    "xp": "190",
+    "detailed_xp": [
+      90,
+      155,
+      190
+    ],
+    "level": 1,
+    "messages": 12,
+    "avatar": "https://cdn.discordapp.com/embed/avatars/1.png",
     "gang": null,
     "prestige": 0,
     "rank": 86
