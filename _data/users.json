@@ -5,12 +5,12 @@
     "discriminator": "8150",
     "xp": "69.7k",
     "detailed_xp": [
-      2159,
+      2185,
       6100,
-      69705
+      69731
     ],
     "level": 30,
-    "messages": 4761,
+    "messages": 4763,
     "avatar": "https://cdn.discordapp.com/avatars/363095569515806722/ccf12c126a6827a5b07a4e579a52b043.png",
     "gang": null,
     "prestige": 0,
@@ -107,12 +107,12 @@
     "discriminator": "0001",
     "xp": "13.4k",
     "detailed_xp": [
-      1593,
+      1610,
       1975,
-      13420
+      13437
     ],
     "level": 15,
-    "messages": 909,
+    "messages": 910,
     "avatar": "https://cdn.discordapp.com/avatars/225344348903047168/a_44adaea1066b1489bfe2aeebb0922d33.png",
     "gang": null,
     "prestige": 0,
@@ -972,14 +972,14 @@
     "id": "396749467292008460",
     "name": "Daisukekun13",
     "discriminator": "0967",
-    "xp": "703",
+    "xp": "721",
     "detailed_xp": [
-      223,
+      241,
       295,
-      703
+      721
     ],
     "level": 3,
-    "messages": 48,
+    "messages": 49,
     "avatar": "https://cdn.discordapp.com/avatars/396749467292008460/3c8762a5fd9dcb8b0b24b19cb83e7bf5.png",
     "gang": null,
     "prestige": 0,
@@ -1428,6 +1428,23 @@
     "rank": 84
   },
   {
+    "id": "96072409815195648",
+    "name": "Pdiddy973",
+    "discriminator": "0973",
+    "xp": "190",
+    "detailed_xp": [
+      85,
+      155,
+      190
+    ],
+    "level": 1,
+    "messages": 13,
+    "avatar": "https://cdn.discordapp.com/avatars/96072409815195648/ac69b3bb713a4095261b6a28ea20f6d8.png",
+    "gang": null,
+    "prestige": 0,
+    "rank": 85
+  },
+  {
     "id": "737317309194174574",
     "name": "Vascof",
     "discriminator": "8431",
@@ -1442,7 +1459,7 @@
     "avatar": "https://cdn.discordapp.com/embed/avatars/1.png",
     "gang": null,
     "prestige": 0,
-    "rank": 85
+    "rank": 86
   },
   {
     "id": "526733082049642497",
@@ -1459,7 +1476,7 @@
     "avatar": "https://cdn.discordapp.com/avatars/526733082049642497/143200644ab94f122457652af5f4c1cd.png",
     "gang": null,
     "prestige": 0,
-    "rank": 86
+    "rank": 87
   },
   {
     "id": "301545333006139393",
@@ -1476,7 +1493,7 @@
     "avatar": "https://cdn.discordapp.com/avatars/301545333006139393/2a1df33c96d88da09b9afaba5cc9754e.png",
     "gang": null,
     "prestige": 0,
-    "rank": 87
+    "rank": 88
   },
   {
     "id": "766828466922324058",
@@ -1491,23 +1508,6 @@
     "level": 1,
     "messages": 12,
     "avatar": "https://cdn.discordapp.com/avatars/766828466922324058/5b5f24af8bb6316127dd0f70e79fcf4e.png",
-    "gang": null,
-    "prestige": 0,
-    "rank": 88
-  },
-  {
-    "id": "96072409815195648",
-    "name": "Pdiddy973",
-    "discriminator": "0973",
-    "xp": "173",
-    "detailed_xp": [
-      68,
-      155,
-      173
-    ],
-    "level": 1,
-    "messages": 12,
-    "avatar": "https://cdn.discordapp.com/avatars/96072409815195648/ac69b3bb713a4095261b6a28ea20f6d8.png",
     "gang": null,
     "prestige": 0,
     "rank": 89
@@ -1666,23 +1666,6 @@
     "rank": 98
   },
   {
-    "id": "342296474257719308",
-    "name": "Alexander Berner",
-    "discriminator": "0926",
-    "xp": "119",
-    "detailed_xp": [
-      19,
-      155,
-      119
-    ],
-    "level": 1,
-    "messages": 8,
-    "avatar": "https://cdn.discordapp.com/avatars/342296474257719308/98a086f9fc81f8c66025e499e3601a06.png",
-    "gang": null,
-    "prestige": 0,
-    "rank": 99
-  },
-  {
     "id": "791742375117455381",
     "name": "Magpie",
     "discriminator": "5751",
@@ -1695,6 +1678,23 @@
     "level": 1,
     "messages": 8,
     "avatar": "https://cdn.discordapp.com/avatars/791742375117455381/1bde9e89e74cfedbb72e489e55d4bfd8.png",
+    "gang": null,
+    "prestige": 0,
+    "rank": 99
+  },
+  {
+    "id": "342296474257719308",
+    "name": "Alexander Berner",
+    "discriminator": "0926",
+    "xp": "119",
+    "detailed_xp": [
+      19,
+      155,
+      119
+    ],
+    "level": 1,
+    "messages": 8,
+    "avatar": "https://cdn.discordapp.com/avatars/342296474257719308/98a086f9fc81f8c66025e499e3601a06.png",
     "gang": null,
     "prestige": 0,
     "rank": 100
