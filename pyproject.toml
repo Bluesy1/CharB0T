@@ -7,7 +7,7 @@ license = "MIT"
 
 [tool.poetry.dependencies]
 python = "^3.10.4,<3.11"
-"discord.py" = {extras = ["speed"], git = "https://github.com/Rapptz/discord.py", rev = "868476c"}
+"discord.py" = {extras = ["speed"], git = "https://github.com/Rapptz/discord.py", rev = "55849d9"}
 aiohttp = {extras = ["speedups"], version = "3.8.1"}
 asyncpg = "0.25.0"
 disrank = "0.0.2"

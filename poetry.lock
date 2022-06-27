@@ -262,7 +262,7 @@ python-versions = ">=3.5"
 
 [[package]]
 name = "discord.py"
-version = "2.0.0a4370+g868476c9"
+version = "2.0.0a4376+g55849d99"
 description = "A Python wrapper for the Discord API"
 category = "main"
 optional = false
@@ -285,8 +285,8 @@ voice = ["PyNaCl (>=1.3.0,<1.6)"]
 [package.source]
 type = "git"
 url = "https://github.com/Rapptz/discord.py"
-reference = "868476c"
-resolved_reference = "868476c99963e72aa529ed6203f86ef529a2c1f1"
+reference = "55849d9"
+resolved_reference = "55849d996e65613a334d73adbfc43bbe7b77d31a"
 
 [[package]]
 name = "disrank"
@@ -1006,7 +1006,7 @@ test = ["pytest (>=2.2.3)", "flake8 (>=2.4.0)", "isort (>=4.2.2)"]
 
 [[package]]
 name = "virtualenv"
-version = "20.14.1"
+version = "20.15.0"
 description = "Virtual Python Environment builder"
 category = "dev"
 optional = false
@@ -1052,7 +1052,7 @@ requests = ">=2.26"
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.10.4,<3.11"
-content-hash = "429963be17d4a2dc7489c67e78cb55d83398c43363a95d86727ccd2ee0f1999b"
+content-hash = "e3d31d040e636ed0af35f3b047cb296cd30ab5f4eead62c2b9168a45c97f5056"
 
 [metadata.files]
 aiodns = [
@@ -2138,8 +2138,8 @@ validators = [
     {file = "validators-0.20.0.tar.gz", hash = "sha256:24148ce4e64100a2d5e267233e23e7afeb55316b47d30faae7eb6e7292bc226a"},
 ]
 virtualenv = [
-    {file = "virtualenv-20.14.1-py2.py3-none-any.whl", hash = "sha256:e617f16e25b42eb4f6e74096b9c9e37713cf10bf30168fb4a739f3fa8f898a3a"},
-    {file = "virtualenv-20.14.1.tar.gz", hash = "sha256:ef589a79795589aada0c1c5b319486797c03b67ac3984c48c669c0e4f50df3a5"},
+    {file = "virtualenv-20.15.0-py2.py3-none-any.whl", hash = "sha256:804cce4de5b8a322f099897e308eecc8f6e2951f1a8e7e2b3598dff865f01336"},
+    {file = "virtualenv-20.15.0.tar.gz", hash = "sha256:4c44b1d77ca81f8368e2d7414f9b20c428ad16b343ac6d226206c5b84e2b4fcc"},
 ]
 yarl = [
     {file = "yarl-1.7.2-cp310-cp310-macosx_10_9_universal2.whl", hash = "sha256:f2a8508f7350512434e41065684076f640ecce176d262a7d54f0da41d99c5a95"},
