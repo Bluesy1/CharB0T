@@ -26,14 +26,14 @@
 import datetime as _datetime
 from calendar import timegm
 from datetime import datetime, time, timedelta, timezone
-from typing import NamedTuple, Optional
+from typing import Literal, NamedTuple, Optional, TypedDict
 from zoneinfo import ZoneInfo
 
-import aiohttp
 import discord
 import orjson
 from discord.ext import commands, tasks
 from discord.utils import MISSING, format_dt, utcnow
+from typing_extensions import NotRequired
 from validators import url
 
 from . import CBot, Config
@@ -52,6 +52,32 @@ class EmbedField(NamedTuple):
     inline: bool
 
 
+class CalEventTime(TypedDict):
+    """A typed dictionary for a calendar event time."""
+
+    dateTime: str
+    timeZone: str
+
+
+class CalEvent(TypedDict):
+    """A typed dictionary for a calendar event."""
+
+    status: Literal["cancelled", "tentative", "confirmed"]
+    created: str
+    updated: str
+    summary: str
+    description: NotRequired[str]  # Not required, YT link is used as a fallback
+    start: CalEventTime
+    end: CalEventTime
+    originalStartTime: CalEventTime
+
+
+class CalResponse(TypedDict):
+    """A typed dictionary for the response from the Google calendar API."""
+
+    items: list[CalEvent]
+
+
 def getUrl(mintime: datetime, maxtime: datetime):
     """Create an url for the Google calendar API query.
 
@@ -68,8 +94,8 @@ def getUrl(mintime: datetime, maxtime: datetime):
         The url to query the Google calendar API.
     """
     baseUrl = "https://www.googleapis.com/calendar/v3/calendars"
-    key = f"key={Config['calendar']['key']}"
     calendar = "u8n1onpbv9pb5du7gssv2md58s@group.calendar.google.com"
+    key = f"key={Config['calendar']['key']}"
     minTime = f"timeMin={mintime.isoformat()}"
     maxTime = f"timeMax={maxtime.isoformat()}"
     return f"{baseUrl}/{calendar}/events?{key}&{minTime}&{maxTime}"
@@ -106,7 +132,7 @@ def ceil_dt(dt: datetime, delta: timedelta) -> datetime:
     return dt + (datetime(_datetime.MINYEAR, 1, 1, tzinfo=timezone.utc) - dt) % delta
 
 
-def default_field(dictionary: dict[int, EmbedField], add_time: datetime, item: dict) -> None:
+def default_field(dictionary: dict[int, EmbedField], add_time: datetime, item: CalEvent) -> None:
     """Add the default dict field for a specific time.
 
     Parameters
@@ -212,7 +238,7 @@ class Calendar(commands.Cog):
             - timedelta(days=utcnow().weekday())
             + timedelta(days=7)
         )
-        self.webhook: Optional[discord.Webhook] = None
+        self.webhook: Optional[discord.Webhook] = MISSING
         self.calendar.change_interval(time=list(half_hour_intervals()))
 
     async def cog_unload(self) -> None:  # skipcq: PYL-W0236
@@ -223,8 +249,8 @@ class Calendar(commands.Cog):
 
     async def cog_load(self) -> None:
         """Load hook."""
-        self.webhook = self.bot.holder.pop(
-            "webhook", await self.bot.fetch_webhook(Config["discord"]["webhook"]["calendar"])
+        self.webhook = self.bot.holder.pop("webhook", None) or await self.bot.fetch_webhook(
+            Config["discord"]["webhook"]["calendar"]
         )
         self.message = self.bot.holder.pop("message", MISSING)
         self.calendar.start()
@@ -237,12 +263,10 @@ class Calendar(commands.Cog):
         It queries the Google calendar API and posts the results to the
         webhook, after parding and formatting the results.
         """
-        if self.webhook is None:
-            self.webhook = await self.bot.fetch_webhook(Config["discord"]["webhook"]["calendar"])
         mindatetime = datetime.now(tz=ZoneInfo("America/New_York"))
         maxdatetime = datetime.now(tz=ZoneInfo("America/New_York")) + timedelta(weeks=1)
-        async with aiohttp.ClientSession() as session, session.get(getUrl(mindatetime, maxdatetime)) as response:
-            items = await response.json(loads=orjson.loads)
+        async with self.bot.session.get(getUrl(mindatetime, maxdatetime)) as response:
+            items: CalResponse = await response.json(loads=orjson.loads)
         fields: dict[int, EmbedField] = {}
         cancelled_times = []
         times: set[datetime] = set()
@@ -264,44 +288,33 @@ class Calendar(commands.Cog):
                 times.add(sub_time)
             if mindatetime < sub_time > maxdatetime:
                 continue
-            if "description" not in item.keys():
+            try:
+                desc = item["description"]
+            except KeyError:
                 default_field(fields, sub_time, item)
-            elif url(item["description"]):
-                fields.update(
-                    {
-                        timegm(sub_time.utctimetuple()): EmbedField(
-                            f"{item['summary']}",
-                            f"{format_dt(sub_time, 'F')}\n[({sub_time.astimezone(chartime).strftime(time_format)})"
-                            f"]({item['description']})",
-                            True,
-                        )
-                    }
-                )
             else:
-                default_field(fields, sub_time, item)
+                if url(desc):
+                    fields.update(
+                        {
+                            timegm(sub_time.utctimetuple()): EmbedField(
+                                f"{item['summary']}",
+                                f"{format_dt(sub_time, 'F')}\n[({sub_time.astimezone(chartime).strftime(time_format)})"
+                                f"]({desc})",
+                                True,
+                            )
+                        }
+                    )
+                else:
+                    default_field(fields, sub_time, item)
         for sub_time in cancelled_times:
             fields.pop(timegm(sub_time.utctimetuple()), None)
             times.discard(sub_time)
         bot_user = self.bot.user
         assert isinstance(bot_user, discord.ClientUser)  # skipcq: BAN-B101
         if self.message is MISSING:
-            self.message = await self.webhook.send(
-                username=bot_user.name,
-                avatar_url=bot_user.display_avatar.url,
-                embed=calendar_embed(fields, min(times, default=None)),
-                wait=True,
-            )
-        elif utcnow() > self.week_end:
-            await self.message.delete()
-            self.message = await self.webhook.send(
-                username=bot_user.name,
-                avatar_url=bot_user.display_avatar.url,
-                embed=calendar_embed(fields, min(times, default=None)),
-                wait=True,
-            )
-            self.week_end += timedelta(days=7)
-        else:
-            self.message = await self.message.edit(embed=calendar_embed(fields, min(times, default=None)))
+            assert self.webhook is not None  # skipcq: BAN-B101
+            self.message = await self.webhook.fetch_message(Config["discord"]["message"]["calendar"])
+        self.message = await self.message.edit(embed=calendar_embed(fields, min(times, default=None)))
 
 
 async def setup(bot: CBot):
