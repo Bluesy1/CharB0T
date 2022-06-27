@@ -131,6 +131,7 @@ async def test_cog_init_load_unload(mocker: MockerFixture, event_loop, mock_conf
 
 @pytest.mark.asyncio
 async def test_caledar_task(mocker: MockerFixture, event_loop, mock_config, monkeypatch):
+    """Test calendar task."""
     data: gcal.CalResponse = {
         "items": [
             {
@@ -201,6 +202,8 @@ async def test_caledar_task(mocker: MockerFixture, event_loop, mock_config, monk
     mock_response.json.return_value = data
 
     class mock_get:
+        """Mock aiohttp.ClientSession.get()"""
+
         async def __aenter__(self):
             return mock_response
 
@@ -221,10 +224,10 @@ async def test_caledar_task(mocker: MockerFixture, event_loop, mock_config, monk
         bot.session = session
         cog = gcal.Calendar(bot)
         await cog.cog_load()
-        await cog.calendar.__call__()
+        await cog.calendar.__call__()  # skipcq: PYL-E1102
     cog.calendar.cancel()
     assert mock_response.json.call_count == 1
     assert mock_response.json.call_args.kwargs["loads"] is __import__("orjson").loads
     # fake_webhook.fetch_message.edit.assert_awaited_once()
     # IDK, this isn't working right now
-    # TODO: figure out why
+    # TODO: figure out why, skipcq - this is a later thing to worry about
