@@ -5,12 +5,12 @@
     "discriminator": "8150",
     "xp": "70.6k",
     "detailed_xp": [
-      3080,
+      3092,
       6100,
-      70626
+      70638
     ],
     "level": 30,
-    "messages": 4824,
+    "messages": 4825,
     "avatar": "https://cdn.discordapp.com/avatars/363095569515806722/ccf12c126a6827a5b07a4e579a52b043.png",
     "gang": null,
     "prestige": 0,
@@ -39,12 +39,12 @@
     "discriminator": "8014",
     "xp": "32.1k",
     "detailed_xp": [
-      1754,
+      1772,
       3620,
-      32066
+      32084
     ],
     "level": 22,
-    "messages": 2194,
+    "messages": 2195,
     "avatar": "https://cdn.discordapp.com/avatars/434764784353804305/079e9acbab412d57da60f98460454d62.png",
     "gang": null,
     "prestige": 0,
@@ -73,12 +73,12 @@
     "discriminator": "6862",
     "xp": "19.4k",
     "detailed_xp": [
-      1001,
+      1015,
       2620,
-      19378
+      19392
     ],
     "level": 18,
-    "messages": 1328,
+    "messages": 1329,
     "avatar": "https://cdn.discordapp.com/avatars/470021089104494598/609eb666ab567abadd68dcfc4d7c042c.png",
     "gang": null,
     "prestige": 0,
@@ -90,12 +90,12 @@
     "discriminator": "9829",
     "xp": "13.9k",
     "detailed_xp": [
-      59,
+      125,
       2180,
-      13859
+      13925
     ],
     "level": 16,
-    "messages": 947,
+    "messages": 952,
     "avatar": "https://cdn.discordapp.com/avatars/268664164543758336/536a483c07eaf86788a1bae92f8fd504.png",
     "gang": null,
     "prestige": 0,
@@ -122,14 +122,14 @@
     "id": "389137667926786060",
     "name": "coolmanfight",
     "discriminator": "1179",
-    "xp": "12.4k",
+    "xp": "12.5k",
     "detailed_xp": [
-      605,
+      620,
       1975,
-      12440
+      12455
     ],
     "level": 15,
-    "messages": 853,
+    "messages": 854,
     "avatar": "https://cdn.discordapp.com/avatars/389137667926786060/a0938cefc089461da843738b184389f5.png",
     "gang": null,
     "prestige": 0,
@@ -685,12 +685,12 @@
     "discriminator": "0647",
     "xp": "1.6k",
     "detailed_xp": [
-      0,
+      11,
       580,
-      1637
+      1648
     ],
     "level": 6,
-    "messages": 114,
+    "messages": 115,
     "avatar": "https://cdn.discordapp.com/avatars/272563498251321344/bdb2b85eff2a0ffca1d138056e3ff695.png",
     "gang": null,
     "prestige": 0,
