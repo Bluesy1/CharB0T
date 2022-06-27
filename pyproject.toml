@@ -47,6 +47,9 @@ build-backend = "poetry.core.masonry.api"
 minversion = "7.1.2"
 asyncio_mode = "strict"
 
+[tool.coverage.run]
+omit = ["*/__main__.py", "*/tests/*.py"]
+
 [tool.pyright]
 pythonPlatform = "Linux"
 reportUnnecessaryTypeIgnoreComment = true
