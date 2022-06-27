@@ -177,19 +177,7 @@ def generate_card(
     blank.paste(status, (169, 169))
 
     final = Image.alpha_composite(pre, blank)
-    if __name__ == "__main__":
-        final.show()
     final_bytes = BytesIO()
     final.save(final_bytes, "png")
     final_bytes.seek(0)
     return final_bytes
-
-
-if __name__ == "__main__":
-    generate_card(
-        level=1,
-        current_rep=0,
-        completed_rep=100,
-        pool_name="Lorem ipsum",
-        reward="dolor sit amet, consectetur adipiscing elit, sed",
-    )
