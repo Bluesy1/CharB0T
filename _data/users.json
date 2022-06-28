@@ -309,14 +309,14 @@
     "id": "718188351508971542",
     "name": "StealthHydrac",
     "discriminator": "8476",
-    "xp": "7.0k",
+    "xp": "7.1k",
     "detailed_xp": [
-      0,
+      15,
       1420,
-      7046
+      7061
     ],
     "level": 12,
-    "messages": 484,
+    "messages": 485,
     "avatar": "https://cdn.discordapp.com/avatars/718188351508971542/4d61f718cb0602a9fa2121459306be1e.png",
     "gang": null,
     "prestige": 0,
