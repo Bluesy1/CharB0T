@@ -3,14 +3,14 @@
     "id": "363095569515806722",
     "name": "Bluesy",
     "discriminator": "8150",
-    "xp": "71.1k",
+    "xp": "71.3k",
     "detailed_xp": [
-      3579,
+      3734,
       6100,
-      71125
+      71280
     ],
     "level": 30,
-    "messages": 4857,
+    "messages": 4868,
     "avatar": "https://cdn.discordapp.com/avatars/363095569515806722/ccf12c126a6827a5b07a4e579a52b043.png",
     "gang": null,
     "prestige": 0,
@@ -20,14 +20,14 @@
     "id": "465356664657149952",
     "name": "Mordakai Slivermoon",
     "discriminator": "7762",
-    "xp": "35.4k",
+    "xp": "35.5k",
     "detailed_xp": [
-      1467,
+      1527,
       3895,
-      35427
+      35487
     ],
     "level": 23,
-    "messages": 2430,
+    "messages": 2434,
     "avatar": "https://cdn.discordapp.com/avatars/465356664657149952/69046661ae37d5aeacd06e8670bd2cd1.png",
     "gang": null,
     "prestige": 0,
@@ -54,14 +54,14 @@
     "id": "355127455419203585",
     "name": "Sir Clint Pope",
     "discriminator": "2226",
-    "xp": "21.4k",
+    "xp": "21.5k",
     "detailed_xp": [
-      440,
+      499,
       2855,
-      21440
+      21499
     ],
     "level": 19,
-    "messages": 1458,
+    "messages": 1462,
     "avatar": "https://cdn.discordapp.com/avatars/355127455419203585/095ad3bae31ea645652dd0f7d6c16aee.png",
     "gang": null,
     "prestige": 0,
@@ -192,12 +192,12 @@
     "discriminator": "5307",
     "xp": "10.0k",
     "detailed_xp": [
-      1527,
+      1560,
       1595,
-      9977
+      10010
     ],
     "level": 13,
-    "messages": 682,
+    "messages": 684,
     "avatar": "https://cdn.discordapp.com/avatars/361315683243524097/7ab62327b597a48fd2fd179a6791694f.png",
     "gang": null,
     "prestige": 0,
@@ -343,14 +343,14 @@
     "id": "980079182912561212",
     "name": "Tsamoka",
     "discriminator": "2725",
-    "xp": "5.2k",
+    "xp": "5.4k",
     "detailed_xp": [
-      444,
+      651,
       1100,
-      5186
+      5393
     ],
     "level": 10,
-    "messages": 357,
+    "messages": 371,
     "avatar": "https://cdn.discordapp.com/avatars/980079182912561212/9e6bfe52f1e097b1f193ca347be3b68d.png",
     "gang": null,
     "prestige": 0,
@@ -464,12 +464,12 @@
     "discriminator": "4496",
     "xp": "3.1k",
     "detailed_xp": [
-      149,
+      179,
       820,
-      3054
+      3084
     ],
     "level": 8,
-    "messages": 208,
+    "messages": 210,
     "avatar": "https://cdn.discordapp.com/avatars/287990529461846017/292e7ecdd52f9086934133da4e4eb9c4.png",
     "gang": null,
     "prestige": 0,
@@ -2975,23 +2975,6 @@
     "rank": 175
   },
   {
-    "id": "406847887365111813",
-    "name": "Adam Gweleg",
-    "discriminator": "1421",
-    "xp": "18",
-    "detailed_xp": [
-      18,
-      100,
-      18
-    ],
-    "level": 0,
-    "messages": 1,
-    "avatar": "https://cdn.discordapp.com/avatars/406847887365111813/8a40472ec75ce0a1141f600186d08fa6.png",
-    "gang": null,
-    "prestige": 0,
-    "rank": 176
-  },
-  {
     "id": "932336139493310598",
     "name": "Darthravager",
     "discriminator": "4168",
@@ -3004,6 +2987,23 @@
     "level": 0,
     "messages": 1,
     "avatar": "https://cdn.discordapp.com/embed/avatars/3.png",
+    "gang": null,
+    "prestige": 0,
+    "rank": 176
+  },
+  {
+    "id": "406847887365111813",
+    "name": "Adam Gweleg",
+    "discriminator": "1421",
+    "xp": "18",
+    "detailed_xp": [
+      18,
+      100,
+      18
+    ],
+    "level": 0,
+    "messages": 1,
+    "avatar": "https://cdn.discordapp.com/avatars/406847887365111813/8a40472ec75ce0a1141f600186d08fa6.png",
     "gang": null,
     "prestige": 0,
     "rank": 177
