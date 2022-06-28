@@ -343,14 +343,14 @@
     "id": "980079182912561212",
     "name": "Tsamoka",
     "discriminator": "2725",
-    "xp": "5.4k",
+    "xp": "5.5k",
     "detailed_xp": [
-      699,
+      710,
       1100,
-      5441
+      5452
     ],
     "level": 10,
-    "messages": 374,
+    "messages": 375,
     "avatar": "https://cdn.discordapp.com/avatars/980079182912561212/9e6bfe52f1e097b1f193ca347be3b68d.png",
     "gang": null,
     "prestige": 0,
@@ -629,6 +629,23 @@
     "rank": 37
   },
   {
+    "id": "272563498251321344",
+    "name": "iiPartyKing",
+    "discriminator": "0647",
+    "xp": "1.8k",
+    "detailed_xp": [
+      158,
+      580,
+      1795
+    ],
+    "level": 6,
+    "messages": 125,
+    "avatar": "https://cdn.discordapp.com/avatars/272563498251321344/bdb2b85eff2a0ffca1d138056e3ff695.png",
+    "gang": null,
+    "prestige": 0,
+    "rank": 38
+  },
+  {
     "id": "439128031152570389",
     "name": "DeFc0n",
     "discriminator": "3052",
@@ -641,23 +658,6 @@
     "level": 6,
     "messages": 121,
     "avatar": "https://cdn.discordapp.com/avatars/439128031152570389/2c440e9e23cde6d55eac869f1278b37a.png",
-    "gang": null,
-    "prestige": 0,
-    "rank": 38
-  },
-  {
-    "id": "272563498251321344",
-    "name": "iiPartyKing",
-    "discriminator": "0647",
-    "xp": "1.8k",
-    "detailed_xp": [
-      143,
-      580,
-      1780
-    ],
-    "level": 6,
-    "messages": 124,
-    "avatar": "https://cdn.discordapp.com/avatars/272563498251321344/bdb2b85eff2a0ffca1d138056e3ff695.png",
     "gang": null,
     "prestige": 0,
     "rank": 39
