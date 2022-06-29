@@ -3,14 +3,14 @@
     "id": "363095569515806722",
     "name": "Bluesy",
     "discriminator": "8150",
-    "xp": "72.0k",
+    "xp": "72.1k",
     "detailed_xp": [
-      4456,
+      4519,
       6100,
-      72002
+      72065
     ],
     "level": 30,
-    "messages": 4919,
+    "messages": 4923,
     "avatar": "https://cdn.discordapp.com/avatars/363095569515806722/ccf12c126a6827a5b07a4e579a52b043.png",
     "gang": null,
     "prestige": 0,
@@ -20,14 +20,14 @@
     "id": "465356664657149952",
     "name": "Mordakai Slivermoon",
     "discriminator": "7762",
-    "xp": "37.1k",
+    "xp": "37.2k",
     "detailed_xp": [
-      3151,
+      3223,
       3895,
-      37111
+      37183
     ],
     "level": 23,
-    "messages": 2543,
+    "messages": 2548,
     "avatar": "https://cdn.discordapp.com/avatars/465356664657149952/69046661ae37d5aeacd06e8670bd2cd1.png",
     "gang": null,
     "prestige": 0,
@@ -141,12 +141,12 @@
     "discriminator": "1947",
     "xp": "11.2k",
     "detailed_xp": [
-      1133,
+      1145,
       1780,
-      11227
+      11239
     ],
     "level": 14,
-    "messages": 774,
+    "messages": 775,
     "avatar": "https://cdn.discordapp.com/avatars/138380316095021056/f912ef80e2616dbb2221fcb2dbd09ab9.png",
     "gang": null,
     "prestige": 0,
@@ -1309,6 +1309,23 @@
     "rank": 77
   },
   {
+    "id": "201159016259256321",
+    "name": "Shade, Superb Slayling",
+    "discriminator": "3455",
+    "xp": "286",
+    "detailed_xp": [
+      16,
+      220,
+      286
+    ],
+    "level": 2,
+    "messages": 20,
+    "avatar": "https://cdn.discordapp.com/avatars/201159016259256321/3cc3ffb454e20f56d88e7d5da70cdaf7.png",
+    "gang": null,
+    "prestige": 0,
+    "rank": 78
+  },
+  {
     "id": "760850029786562568",
     "name": "itslars",
     "discriminator": "3994",
@@ -1323,7 +1340,7 @@
     "avatar": "https://cdn.discordapp.com/avatars/760850029786562568/8302246d5be62e08e05ebd7da5b98cd6.png",
     "gang": null,
     "prestige": 0,
-    "rank": 78
+    "rank": 79
   },
   {
     "id": "278385083109474304",
@@ -1338,23 +1355,6 @@
     "level": 2,
     "messages": 19,
     "avatar": "https://cdn.discordapp.com/embed/avatars/2.png",
-    "gang": null,
-    "prestige": 0,
-    "rank": 79
-  },
-  {
-    "id": "201159016259256321",
-    "name": "Shade, Superb Slayling",
-    "discriminator": "3455",
-    "xp": "270",
-    "detailed_xp": [
-      0,
-      220,
-      270
-    ],
-    "level": 2,
-    "messages": 19,
-    "avatar": "https://cdn.discordapp.com/avatars/201159016259256321/3cc3ffb454e20f56d88e7d5da70cdaf7.png",
     "gang": null,
     "prestige": 0,
     "rank": 80
