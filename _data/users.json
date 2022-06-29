@@ -20,14 +20,14 @@
     "id": "465356664657149952",
     "name": "Mordakai Slivermoon",
     "discriminator": "7762",
-    "xp": "36.8k",
+    "xp": "36.9k",
     "detailed_xp": [
-      2861,
+      2910,
       3895,
-      36821
+      36870
     ],
     "level": 23,
-    "messages": 2525,
+    "messages": 2528,
     "avatar": "https://cdn.discordapp.com/avatars/465356664657149952/69046661ae37d5aeacd06e8670bd2cd1.png",
     "gang": null,
     "prestige": 0,
@@ -442,6 +442,23 @@
     "rank": 26
   },
   {
+    "id": "287990529461846017",
+    "name": "DinoMaster1290",
+    "discriminator": "4496",
+    "xp": "3.1k",
+    "detailed_xp": [
+      222,
+      820,
+      3127
+    ],
+    "level": 8,
+    "messages": 213,
+    "avatar": "https://cdn.discordapp.com/avatars/287990529461846017/292e7ecdd52f9086934133da4e4eb9c4.png",
+    "gang": null,
+    "prestige": 0,
+    "rank": 27
+  },
+  {
     "id": "925449738705338368",
     "name": "MarsOmega77",
     "discriminator": "8763",
@@ -454,23 +471,6 @@
     "level": 8,
     "messages": 218,
     "avatar": "https://cdn.discordapp.com/avatars/925449738705338368/4155be38f3591a54d5b63451109f3c9e.png",
-    "gang": null,
-    "prestige": 0,
-    "rank": 27
-  },
-  {
-    "id": "287990529461846017",
-    "name": "DinoMaster1290",
-    "discriminator": "4496",
-    "xp": "3.1k",
-    "detailed_xp": [
-      211,
-      820,
-      3116
-    ],
-    "level": 8,
-    "messages": 212,
-    "avatar": "https://cdn.discordapp.com/avatars/287990529461846017/292e7ecdd52f9086934133da4e4eb9c4.png",
     "gang": null,
     "prestige": 0,
     "rank": 28
