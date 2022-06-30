@@ -1,0 +1,10 @@
+asyncpg-stubs == 0.25.4
+black == 22.3.0
+flake8 == 4.0.1
+pre-commit == 2.19.0
+pyright == 1.1.255
+pytest == 7.1.2
+pytest-asyncio == 0.18.3
+pytest-cov == 3.0.0
+pytest-mock == 3.8.1
+toml == 0.10.2

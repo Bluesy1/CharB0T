@@ -26,6 +26,7 @@
 """Card generator for Charbot."""
 import math
 from io import BytesIO
+from typing import Callable
 
 from discord.utils import MISSING
 from PIL import Image, ImageDraw, ImageFont
@@ -124,11 +125,11 @@ def generate_card(
     # noinspection PyUnusedLocal
     YELLOW = (255, 234, 167)  # noqa: F841
 
-    get_str = (
+    get_str: Callable[[int], str] = (
         lambda xp: str(xp) if xp < 1000 else f"{xp / 1000:.1f}k" if xp < 1000000 else f"{xp / 1000000:.1f}M"
     )  # noqa: F731
 
-    draw = ImageDraw.Draw(card)
+    draw = ImageDraw.Draw(card, None)
     draw.text((245, 22), pool_name, WHITE, font=font_normal)
     draw.text((245, 98), f"Pool Level {level}", WHITE, font=font_small)
     draw.text((245, 123), reward, WHITE, font=font_small)

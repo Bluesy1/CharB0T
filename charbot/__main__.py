@@ -24,11 +24,10 @@
 #  ----------------------------------------------------------------------------
 """Charbot discord bot."""
 import asyncio
-import logging
+import logging.config
 import os
 import socket
 import uuid
-from logging.handlers import RotatingFileHandler
 
 import aiohttp
 import asyncpg
@@ -44,20 +43,7 @@ async def main():
     """Run charbot."""
     # set up logging because i'm using `client.start()`, not `client.run()`
     # so i don't get the sane loging defaults set by discord.py
-    logger = logging.getLogger("discord")
-    logger.setLevel(logging.DEBUG)
-    logging.getLogger("discord.http").setLevel(logging.INFO)
-
-    handler = RotatingFileHandler(
-        filename="discord.log",
-        encoding="utf-8",
-        maxBytes=32 * 1024 * 1024,  # 32 MiB
-        backupCount=5,  # Rotate through 5 files
-    )
-    dt_fmt = "%Y-%m-%d %H:%M:%S"
-    formatter = logging.Formatter("[{asctime}] [{levelname:<8}] {name}: {message}", dt_fmt, style="{")
-    handler.setFormatter(formatter)
-    logger.addHandler(handler)
+    logging.config.dictConfig(Config["logging"])
 
     # Setup sentry.io integration so that exceptions are logged to sentry.io as well.
     sentry_sdk.set_user({"id": uuid.uuid4(), "ip_address": "{{ auto }}", "username": socket.gethostname()})

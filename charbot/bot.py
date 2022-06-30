@@ -24,6 +24,7 @@
 #  ----------------------------------------------------------------------------
 """Charbot discord bot."""
 import datetime
+import logging
 import sys
 import traceback
 from typing import Any, ClassVar, Final, Type, TypeVar
@@ -34,7 +35,6 @@ import asyncpg
 import discord
 from discord import app_commands
 from discord.ext import commands
-from discord.ext.commands import CommandError
 from discord.utils import MISSING
 
 from . import Config, errors
@@ -43,7 +43,7 @@ from . import Config, errors
 _VT = TypeVar("_VT")
 
 
-class Holder(dict):
+class Holder(dict[str, Any]):
     """Holder for data."""
 
     def __getitem__(self, k: Any) -> Any:
@@ -138,19 +138,6 @@ class CBot(commands.Bot):
         the ``command_prefix`` is set to ``!``. Defaults to ``False``.
     tree_cls: Type[:class:`~discord.app_commands.CommandTree`]
         The type of application command tree to use. Defaults to :class:`~discord.app_commands.CommandTree`.
-
-    Attributes
-    ----------
-    executor : ThreadPoolExecutor
-        The executor used to run IO tasks in the background, must be set after opening bot in an async manager,
-         before connecting to the websocket.
-    process_pool : ProcessPoolExecutor
-        The executor used to run CPU tasks in the background, must be set after opening bot in an async manager,
-         before connecting to the websocket.
-    pool : asyncpg.Pool
-        The connection pool to the database.
-    program_logs : discord.Webhook
-        The webhook to send program logs to.
     """
 
     ZONEINFO: ClassVar[ZoneInfo] = ZoneInfo("America/Detroit")
@@ -184,9 +171,9 @@ class CBot(commands.Bot):
             - datetime.timedelta(days=1)
         )
 
-    def __init__(self, *args, strip_after_prefix: bool = True, tree_cls: Type[app_commands.CommandTree], **kwargs):
+    def __init__(self, *args: Any, strip_after_prefix: bool = True, tree_cls: Type["Tree"], **kwargs: Any) -> None:
         super().__init__(*args, strip_after_prefix=strip_after_prefix, tree_cls=tree_cls, **kwargs)
-        self.pool: asyncpg.Pool = MISSING
+        self.pool: asyncpg.Pool[Any] = MISSING
         self.session: aiohttp.ClientSession = MISSING
         self.program_logs: discord.Webhook = MISSING
         self.error_logs: discord.Webhook = MISSING
@@ -353,7 +340,9 @@ class CBot(commands.Bot):
         return points + bonus
 
     # for some reason deepsource doesn't like this, so i'm skipcq'ing the definition header
-    async def on_command_error(self, ctx: commands.Context, exception: CommandError, /) -> None:  # skipcq: PYL-W0221
+    async def on_command_error(
+        self, ctx: commands.Context[Any], exception: commands.CommandError, /
+    ) -> None:  # skipcq: PYL-W0221
         """Event triggered when an error is raised while invoking a command.
 
         Parameters
@@ -424,13 +413,14 @@ class CBot(commands.Bot):
         traceback.print_exc()
 
 
-class Tree(app_commands.CommandTree):
+class Tree(app_commands.CommandTree[CBot]):
     """Command tree for charbot."""
 
     def __init__(self, bot: CBot):
         """Initialize the command tree."""
         super().__init__(client=bot)
         self.client: CBot = bot
+        self.logger = logging.getLogger("charbot.tree")
 
     async def on_error(self, interaction: discord.Interaction, error: app_commands.AppCommandError) -> None:
         """Event triggered when an error is raised while invoking a command.
@@ -476,6 +466,5 @@ class Tree(app_commands.CommandTree):
             else:
                 await interaction.response.send_message(message, ephemeral=True)
         else:
-            print(f"Ignoring exception in command tree: {error}", file=sys.stderr)
             await self.client.error_logs.send(f"Ignoring exception in command tree: {error}")
-            traceback.print_exception(error.__class__, error, error.__traceback__, file=sys.stderr)
+            self.logger.error("Ignoring exception in command tree", exc_info=error)
