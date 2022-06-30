@@ -5,12 +5,12 @@
     "discriminator": "8150",
     "xp": "73.0k",
     "detailed_xp": [
-      5468,
+      5483,
       6100,
-      73014
+      73029
     ],
     "level": 30,
-    "messages": 4989,
+    "messages": 4990,
     "avatar": "https://cdn.discordapp.com/avatars/363095569515806722/ccf12c126a6827a5b07a4e579a52b043.png",
     "gang": null,
     "prestige": 0,
@@ -105,14 +105,14 @@
     "id": "225344348903047168",
     "name": "CharliePryor",
     "discriminator": "0001",
-    "xp": "13.9k",
+    "xp": "14.0k",
     "detailed_xp": [
-      128,
+      157,
       2180,
-      13936
+      13965
     ],
     "level": 16,
-    "messages": 944,
+    "messages": 946,
     "avatar": "https://cdn.discordapp.com/avatars/225344348903047168/a_44adaea1066b1489bfe2aeebb0922d33.png",
     "gang": null,
     "prestige": 0,
@@ -124,12 +124,12 @@
     "discriminator": "1179",
     "xp": "12.7k",
     "detailed_xp": [
-      815,
+      831,
       1975,
-      12650
+      12666
     ],
     "level": 15,
-    "messages": 867,
+    "messages": 868,
     "avatar": "https://cdn.discordapp.com/avatars/389137667926786060/a0938cefc089461da843738b184389f5.png",
     "gang": null,
     "prestige": 0,
@@ -207,14 +207,14 @@
     "id": "725373259817811988",
     "name": "General_WCJ",
     "discriminator": "4528",
-    "xp": "10.0k",
+    "xp": "10.1k",
     "detailed_xp": [
-      1568,
+      1584,
       1595,
-      10035
+      10051
     ],
     "level": 13,
-    "messages": 686,
+    "messages": 687,
     "avatar": "https://cdn.discordapp.com/avatars/725373259817811988/f6bb046bfd0f14ceea1dec9e03e70fb8.png",
     "gang": null,
     "prestige": 0,
@@ -360,14 +360,14 @@
     "id": "82495450153750528",
     "name": "Kaitlin🐱 Goddess of annihilation",
     "discriminator": "7803",
-    "xp": "4.1k",
+    "xp": "4.2k",
     "detailed_xp": [
-      413,
+      448,
       955,
-      4133
+      4168
     ],
     "level": 9,
-    "messages": 283,
+    "messages": 286,
     "avatar": "https://cdn.discordapp.com/avatars/82495450153750528/f2d1f7b0118324478743227ddb67ecfa.png",
     "gang": null,
     "prestige": 0,
@@ -1040,14 +1040,14 @@
     "id": "612357341794402307",
     "name": "lucian",
     "discriminator": "9800",
-    "xp": "596",
+    "xp": "613",
     "detailed_xp": [
-      118,
+      135,
       295,
-      596
+      613
     ],
     "level": 3,
-    "messages": 41,
+    "messages": 42,
     "avatar": "https://cdn.discordapp.com/avatars/612357341794402307/f2e402d7a82eca7b63cf8fb1859d7778.png",
     "gang": null,
     "prestige": 0,
