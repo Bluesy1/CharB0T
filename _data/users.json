@@ -3,14 +3,14 @@
     "id": "363095569515806722",
     "name": "Bluesy",
     "discriminator": "8150",
-    "xp": "73.4k",
+    "xp": "73.5k",
     "detailed_xp": [
-      5860,
+      5937,
       6100,
-      73406
+      73483
     ],
     "level": 30,
-    "messages": 5016,
+    "messages": 5021,
     "avatar": "https://cdn.discordapp.com/avatars/363095569515806722/ccf12c126a6827a5b07a4e579a52b043.png",
     "gang": null,
     "prestige": 0,
@@ -88,14 +88,14 @@
     "id": "268664164543758336",
     "name": "Maltesemt",
     "discriminator": "9829",
-    "xp": "14.0k",
+    "xp": "14.1k",
     "detailed_xp": [
-      249,
+      320,
       2180,
-      14049
+      14120
     ],
     "level": 16,
-    "messages": 960,
+    "messages": 965,
     "avatar": "https://cdn.discordapp.com/avatars/268664164543758336/536a483c07eaf86788a1bae92f8fd504.png",
     "gang": null,
     "prestige": 0,
@@ -124,12 +124,12 @@
     "discriminator": "1179",
     "xp": "12.8k",
     "detailed_xp": [
-      958,
+      971,
       1975,
-      12793
+      12806
     ],
     "level": 15,
-    "messages": 877,
+    "messages": 878,
     "avatar": "https://cdn.discordapp.com/avatars/389137667926786060/a0938cefc089461da843738b184389f5.png",
     "gang": null,
     "prestige": 0,
@@ -209,12 +209,12 @@
     "discriminator": "4528",
     "xp": "10.1k",
     "detailed_xp": [
-      0,
+      16,
       1780,
-      10065
+      10081
     ],
     "level": 14,
-    "messages": 688,
+    "messages": 689,
     "avatar": "https://cdn.discordapp.com/avatars/725373259817811988/f6bb046bfd0f14ceea1dec9e03e70fb8.png",
     "gang": null,
     "prestige": 0,
