@@ -37,14 +37,14 @@
     "id": "434764784353804305",
     "name": "Caspar",
     "discriminator": "8014",
-    "xp": "33.3k",
+    "xp": "33.4k",
     "detailed_xp": [
-      3030,
+      3047,
       3620,
-      33342
+      33359
     ],
     "level": 22,
-    "messages": 2282,
+    "messages": 2283,
     "avatar": "https://cdn.discordapp.com/avatars/434764784353804305/079e9acbab412d57da60f98460454d62.png",
     "gang": null,
     "prestige": 0,
@@ -1037,6 +1037,23 @@
     "rank": 61
   },
   {
+    "id": "257855396050501632",
+    "name": "shirish",
+    "discriminator": "3268",
+    "xp": "617",
+    "detailed_xp": [
+      111,
+      295,
+      617
+    ],
+    "level": 3,
+    "messages": 43,
+    "avatar": "https://cdn.discordapp.com/avatars/257855396050501632/9475f93fc0772fb8b28ff14c174b03ec.png",
+    "gang": null,
+    "prestige": 0,
+    "rank": 62
+  },
+  {
     "id": "612357341794402307",
     "name": "lucian",
     "discriminator": "9800",
@@ -1049,23 +1066,6 @@
     "level": 3,
     "messages": 42,
     "avatar": "https://cdn.discordapp.com/avatars/612357341794402307/f2e402d7a82eca7b63cf8fb1859d7778.png",
-    "gang": null,
-    "prestige": 0,
-    "rank": 62
-  },
-  {
-    "id": "257855396050501632",
-    "name": "shirish",
-    "discriminator": "3268",
-    "xp": "604",
-    "detailed_xp": [
-      98,
-      295,
-      604
-    ],
-    "level": 3,
-    "messages": 42,
-    "avatar": "https://cdn.discordapp.com/avatars/257855396050501632/9475f93fc0772fb8b28ff14c174b03ec.png",
     "gang": null,
     "prestige": 0,
     "rank": 63
