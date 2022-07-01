@@ -20,14 +20,14 @@
     "id": "465356664657149952",
     "name": "Mordakai Slivermoon",
     "discriminator": "7762",
-    "xp": "38.0k",
+    "xp": "38.1k",
     "detailed_xp": [
-      165,
+      196,
       4180,
-      38029
+      38060
     ],
     "level": 24,
-    "messages": 2606,
+    "messages": 2608,
     "avatar": "https://cdn.discordapp.com/avatars/465356664657149952/69046661ae37d5aeacd06e8670bd2cd1.png",
     "gang": null,
     "prestige": 0,
@@ -124,12 +124,12 @@
     "discriminator": "1179",
     "xp": "12.7k",
     "detailed_xp": [
-      855,
+      871,
       1975,
-      12690
+      12706
     ],
     "level": 15,
-    "messages": 870,
+    "messages": 871,
     "avatar": "https://cdn.discordapp.com/avatars/389137667926786060/a0938cefc089461da843738b184389f5.png",
     "gang": null,
     "prestige": 0,
@@ -3553,23 +3553,6 @@
     "rank": 209
   },
   {
-    "id": "721373766755811348",
-    "name": "GhastlyGhost",
-    "discriminator": "1683",
-    "xp": "13",
-    "detailed_xp": [
-      13,
-      100,
-      13
-    ],
-    "level": 0,
-    "messages": 1,
-    "avatar": "https://cdn.discordapp.com/avatars/721373766755811348/5c2df09d89a6dbf507338aa3bc9619fd.png",
-    "gang": null,
-    "prestige": 0,
-    "rank": 210
-  },
-  {
     "id": "492918092872024067",
     "name": "hegner864",
     "discriminator": "2565",
@@ -3582,6 +3565,23 @@
     "level": 0,
     "messages": 1,
     "avatar": "https://cdn.discordapp.com/embed/avatars/0.png",
+    "gang": null,
+    "prestige": 0,
+    "rank": 210
+  },
+  {
+    "id": "721373766755811348",
+    "name": "GhastlyGhost",
+    "discriminator": "1683",
+    "xp": "13",
+    "detailed_xp": [
+      13,
+      100,
+      13
+    ],
+    "level": 0,
+    "messages": 1,
+    "avatar": "https://cdn.discordapp.com/avatars/721373766755811348/5c2df09d89a6dbf507338aa3bc9619fd.png",
     "gang": null,
     "prestige": 0,
     "rank": 211
