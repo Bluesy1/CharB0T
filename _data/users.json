@@ -39,12 +39,12 @@
     "discriminator": "8014",
     "xp": "33.3k",
     "detailed_xp": [
-      2999,
+      3030,
       3620,
-      33311
+      33342
     ],
     "level": 22,
-    "messages": 2280,
+    "messages": 2282,
     "avatar": "https://cdn.discordapp.com/avatars/434764784353804305/079e9acbab412d57da60f98460454d62.png",
     "gang": null,
     "prestige": 0,
@@ -124,12 +124,12 @@
     "discriminator": "1179",
     "xp": "12.7k",
     "detailed_xp": [
-      898,
+      912,
       1975,
-      12733
+      12747
     ],
     "level": 15,
-    "messages": 873,
+    "messages": 874,
     "avatar": "https://cdn.discordapp.com/avatars/389137667926786060/a0938cefc089461da843738b184389f5.png",
     "gang": null,
     "prestige": 0,
@@ -139,14 +139,14 @@
     "id": "138380316095021056",
     "name": "krios41",
     "discriminator": "1947",
-    "xp": "12.0k",
+    "xp": "12.1k",
     "detailed_xp": [
-      133,
+      173,
       1975,
-      12022
+      12062
     ],
     "level": 15,
-    "messages": 830,
+    "messages": 833,
     "avatar": "https://cdn.discordapp.com/avatars/138380316095021056/f912ef80e2616dbb2221fcb2dbd09ab9.png",
     "gang": null,
     "prestige": 0,
@@ -1071,6 +1071,23 @@
     "rank": 63
   },
   {
+    "id": "257855396050501632",
+    "name": "shirish",
+    "discriminator": "3268",
+    "xp": "542",
+    "detailed_xp": [
+      36,
+      295,
+      542
+    ],
+    "level": 3,
+    "messages": 38,
+    "avatar": "https://cdn.discordapp.com/avatars/257855396050501632/9475f93fc0772fb8b28ff14c174b03ec.png",
+    "gang": null,
+    "prestige": 0,
+    "rank": 64
+  },
+  {
     "id": "529837776816832524",
     "name": "ThunderClan57",
     "discriminator": "0716",
@@ -1083,23 +1100,6 @@
     "level": 3,
     "messages": 35,
     "avatar": "https://cdn.discordapp.com/avatars/529837776816832524/a3d65f8d93702140961de70c367c6fe1.png",
-    "gang": null,
-    "prestige": 0,
-    "rank": 64
-  },
-  {
-    "id": "257855396050501632",
-    "name": "shirish",
-    "discriminator": "3268",
-    "xp": "449",
-    "detailed_xp": [
-      167,
-      220,
-      449
-    ],
-    "level": 2,
-    "messages": 31,
-    "avatar": "https://cdn.discordapp.com/avatars/257855396050501632/9475f93fc0772fb8b28ff14c174b03ec.png",
     "gang": null,
     "prestige": 0,
     "rank": 65
@@ -2720,23 +2720,6 @@
     "rank": 160
   },
   {
-    "id": "326740167425785866",
-    "name": "Starkiller09",
-    "discriminator": "6949",
-    "xp": "27",
-    "detailed_xp": [
-      27,
-      100,
-      27
-    ],
-    "level": 0,
-    "messages": 2,
-    "avatar": "https://cdn.discordapp.com/embed/avatars/4.png",
-    "gang": null,
-    "prestige": 0,
-    "rank": 161
-  },
-  {
     "id": "899586789235388416",
     "name": "Dawsondude11",
     "discriminator": "4588",
@@ -2749,6 +2732,23 @@
     "level": 0,
     "messages": 2,
     "avatar": "https://cdn.discordapp.com/embed/avatars/3.png",
+    "gang": null,
+    "prestige": 0,
+    "rank": 161
+  },
+  {
+    "id": "326740167425785866",
+    "name": "Starkiller09",
+    "discriminator": "6949",
+    "xp": "27",
+    "detailed_xp": [
+      27,
+      100,
+      27
+    ],
+    "level": 0,
+    "messages": 2,
+    "avatar": "https://cdn.discordapp.com/embed/avatars/4.png",
     "gang": null,
     "prestige": 0,
     "rank": 162
