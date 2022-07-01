@@ -141,12 +141,12 @@
     "discriminator": "1947",
     "xp": "12.1k",
     "detailed_xp": [
-      173,
+      216,
       1975,
-      12062
+      12105
     ],
     "level": 15,
-    "messages": 833,
+    "messages": 836,
     "avatar": "https://cdn.discordapp.com/avatars/138380316095021056/f912ef80e2616dbb2221fcb2dbd09ab9.png",
     "gang": null,
     "prestige": 0,
@@ -1054,6 +1054,23 @@
     "rank": 62
   },
   {
+    "id": "257855396050501632",
+    "name": "shirish",
+    "discriminator": "3268",
+    "xp": "604",
+    "detailed_xp": [
+      98,
+      295,
+      604
+    ],
+    "level": 3,
+    "messages": 42,
+    "avatar": "https://cdn.discordapp.com/avatars/257855396050501632/9475f93fc0772fb8b28ff14c174b03ec.png",
+    "gang": null,
+    "prestige": 0,
+    "rank": 63
+  },
+  {
     "id": "282592088342659072",
     "name": "TheNerdTheory",
     "discriminator": "3959",
@@ -1066,23 +1083,6 @@
     "level": 3,
     "messages": 41,
     "avatar": "https://cdn.discordapp.com/avatars/282592088342659072/fd3a59a701138b825dcdfe40ab2a9cdf.png",
-    "gang": null,
-    "prestige": 0,
-    "rank": 63
-  },
-  {
-    "id": "257855396050501632",
-    "name": "shirish",
-    "discriminator": "3268",
-    "xp": "542",
-    "detailed_xp": [
-      36,
-      295,
-      542
-    ],
-    "level": 3,
-    "messages": 38,
-    "avatar": "https://cdn.discordapp.com/avatars/257855396050501632/9475f93fc0772fb8b28ff14c174b03ec.png",
     "gang": null,
     "prestige": 0,
     "rank": 64
@@ -2720,23 +2720,6 @@
     "rank": 160
   },
   {
-    "id": "899586789235388416",
-    "name": "Dawsondude11",
-    "discriminator": "4588",
-    "xp": "27",
-    "detailed_xp": [
-      27,
-      100,
-      27
-    ],
-    "level": 0,
-    "messages": 2,
-    "avatar": "https://cdn.discordapp.com/embed/avatars/3.png",
-    "gang": null,
-    "prestige": 0,
-    "rank": 161
-  },
-  {
     "id": "326740167425785866",
     "name": "Starkiller09",
     "discriminator": "6949",
@@ -2749,6 +2732,23 @@
     "level": 0,
     "messages": 2,
     "avatar": "https://cdn.discordapp.com/embed/avatars/4.png",
+    "gang": null,
+    "prestige": 0,
+    "rank": 161
+  },
+  {
+    "id": "899586789235388416",
+    "name": "Dawsondude11",
+    "discriminator": "4588",
+    "xp": "27",
+    "detailed_xp": [
+      27,
+      100,
+      27
+    ],
+    "level": 0,
+    "messages": 2,
+    "avatar": "https://cdn.discordapp.com/embed/avatars/3.png",
     "gang": null,
     "prestige": 0,
     "rank": 162
