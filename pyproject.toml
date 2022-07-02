@@ -7,7 +7,7 @@ minversion = "7.1.2"
 asyncio_mode = "strict"
 
 [tool.coverage.run]
-omit = ["*/__main__.py", "*/tests/*.py"]
+omit = ["*/__main__.py", "*/tests/*.py", "*/types/*.py"]
 
 [tool.pyright]
 pythonPlatform = "Linux"

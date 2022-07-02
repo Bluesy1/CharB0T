@@ -23,10 +23,15 @@
 # SOFTWARE.
 #  ----------------------------------------------------------------------------
 """Charbot Module."""
+import logging
 from typing import Any
+from pkgutil import iter_modules
 
 
-__all__ = ("CBot", "Tree", "Config")
+__all__ = ("EXTENSIONS", "CBot", "Tree", "Config")
+__blacklist__ = [f"{__package__}.{item}" for item in ("__main__", "bot", "card", "errors", "types")]
+
+EXTENSIONS = [module.name for module in iter_modules(__path__, f"{__package__}.") if module.name not in __blacklist__]
 
 
 class _Config:
@@ -43,11 +48,12 @@ class _Config:
     Config("section", "subsection", "key")
 
     Both of these will return the value of the key in the config _file, or raise the appropriate error as if trying to
-     access a nonexistent key in a dict, or incorrect slicing of a str/int.
+        access a nonexistent key in a dict, or incorrect slicing of a str/int.
     """
 
     __instance__: "_Config"
     _file: str = "config.toml"
+    logger = logging.getLogger("charbot.config")
 
     def __new__(cls):
         if not hasattr(cls, "__instance__"):
@@ -60,18 +66,42 @@ class _Config:
         except ImportError:
             import tomli as tomllib
         with open(self._file, "rb") as f:
-            return tomllib.load(f)[item]
+            try:
+                return tomllib.load(f)[item]
+            except KeyError:
+                self.logger.exception("Tried to get key %s from config file, but it was not found.", item)
+                raise
+            finally:
+                self.logger.info("Got key %s from config file.", item)
 
-    def __call__(self, *args, **kwargs):
+    def __call__(self, *args: str) -> Any:
         try:
             import tomllib  # type: ignore
         except ImportError:
             import tomli as tomllib
         with open(self._file, "rb") as f:
             config = tomllib.load(f)
-        for item in args:
-            config = config[item]
-        return config
+        badkey: Any = ""
+        try:
+            for item in args:
+                if not isinstance(item, str):
+                    badkey = item
+                    raise TypeError(f"Config keys must be strings, {item!r} is a {type(item)}.")
+                config = config[item]
+            return config
+        except KeyError:
+            self.logger.exception("Tried to get key %s from config file, but it was not found.", ":".join(args))
+            raise
+        except TypeError:
+            self.logger.exception(
+                "Tried to get key %s from config file, but a non string key %s of type %s was passed.",
+                ":".join([repr(arg) for arg in args]),
+                str(badkey),
+                type(badkey),
+            )
+            raise
+        finally:
+            self.logger.info("Got key %s from config file.", ":".join(args))
 
 
 Config = _Config()

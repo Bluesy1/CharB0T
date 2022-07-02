@@ -1,4 +1,5 @@
 /backup/
+/.vscode/
 /.idea
 /virtual-enviornment
 *.pyc

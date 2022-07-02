@@ -26,13 +26,17 @@
 import datetime
 import random
 from enum import Enum
-from typing import Protocol
+from typing import TYPE_CHECKING
 
 import discord
 from discord import ui
 from discord.utils import utcnow
 
 from . import modal
+
+
+if TYPE_CHECKING:
+    from ...types.bot import CBot
 
 
 __all__ = ("Shrugman", "words")
@@ -45,16 +49,6 @@ FailStates = Enum(
 
 with open("charbot/media/shrugman/words.csv") as f:
     words = [word.replace("\n", "") for word in f.readlines()]
-
-
-class CBot(Protocol):
-    """Protocol for the CBot class."""
-
-    async def give_game_points(
-        self, member: discord.Member | discord.User, game: str, points: int, bonus: int = 0
-    ) -> int:
-        """Give points to a member for a game."""
-        ...
 
 
 class Shrugman(ui.View):
@@ -93,7 +87,7 @@ class Shrugman(ui.View):
         The time the game started. Timzone aware.
     """
 
-    def __init__(self, bot: CBot, word: str, *, fail_enum=FailStates):
+    def __init__(self, bot: "CBot", word: str, *, fail_enum=FailStates):
         super().__init__(timeout=600)
         self.bot = bot
         self.word = word or random.choice(words)

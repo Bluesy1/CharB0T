@@ -23,8 +23,7 @@
 # SOFTWARE.
 #  ----------------------------------------------------------------------------
 """Tic-tac-toe game view."""
-import asyncio
-from typing import Protocol
+from typing import TYPE_CHECKING
 
 import discord
 from discord import ButtonStyle, Interaction, ui
@@ -33,16 +32,8 @@ from discord.utils import utcnow
 from . import TicTacABC, TicTacEasy, TicTacHard
 
 
-class CBot(Protocol):
-    """Protocol for the CBot class."""
-
-    loop: asyncio.AbstractEventLoop
-
-    async def give_game_points(
-        self, member: discord.Member | discord.User, game: str, points: int, bonus: int = 0
-    ) -> int:
-        """Give points to a member for a game."""
-        ...
+if TYPE_CHECKING:
+    from ...types.bot import CBot
 
 
 class TicTacView(ui.View):
@@ -71,7 +62,7 @@ class TicTacView(ui.View):
         The time when the game started.
     """
 
-    def __init__(self, bot: CBot, letter: str = "X", easy: bool = True):
+    def __init__(self, bot: "CBot", letter: str = "X", easy: bool = True):
         super(TicTacView, self).__init__(timeout=300)
         self.letter = letter
         self.puzzle: TicTacABC = TicTacEasy(self.letter) if easy else TicTacHard(self.letter)

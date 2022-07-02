@@ -26,13 +26,17 @@
 import datetime
 import random
 import re
-from typing import Final, Literal
+from typing import Final, Literal, TYPE_CHECKING
 
 import discord
 from discord import Interaction, app_commands
 from discord.ext import commands
 
-from . import CBot, errors, shrugman, sudoku, tictactoe
+from . import shrugman, sudoku, tictactoe
+from .. import errors
+
+if TYPE_CHECKING:
+    from ..types.bot import CBot
 
 
 MESSAGE: Final = "You must be at least level 1 to participate in the giveaways system and be in <#969972085445238784>."
@@ -42,7 +46,7 @@ MESSAGE: Final = "You must be at least level 1 to participate in the giveaways s
 class Reputation(commands.Cog, name="Programs"):
     """Programs."""
 
-    def __init__(self, bot: CBot):
+    def __init__(self, bot: "CBot"):
         self.bot = bot
         self.sudoku_regex = re.compile(r"(\d{81}).*([01]{81})")
 
@@ -227,7 +231,7 @@ class Reputation(commands.Cog, name="Programs"):
         )
 
 
-async def setup(bot: CBot):
+async def setup(bot: "CBot"):
     """Load the cog.
 
     Parameters
@@ -237,7 +241,7 @@ async def setup(bot: CBot):
     await bot.add_cog(Reputation(bot), guild=discord.Object(id=225345178955808768), override=True)
 
 
-async def teardown(bot: CBot):
+async def teardown(bot: "CBot"):
     """Unload the cog.
 
     Parameters

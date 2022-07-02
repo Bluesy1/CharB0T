@@ -23,8 +23,7 @@
 # SOFTWARE.
 #  ----------------------------------------------------------------------------
 """Mod Support cog."""
-import sys
-import traceback
+import logging
 from datetime import timedelta
 
 import discord
@@ -391,6 +390,8 @@ class ModSupportModal(ui.Modal, title="Mod Support Form"):
         The name of the file to be used to store the blacklist.
     """
 
+    logger = logging.getLogger("charbot.mod_support")
+
     def __init__(
         self,
         perm_overrides: dict[discord.Role | discord.Member, discord.PermissionOverwrite],
@@ -480,8 +481,7 @@ class ModSupportModal(ui.Modal, title="Mod Support Form"):
             "Oh no! Something went wrong. Please ask for a mod's help in this " "channel and let Bluesy know.",
             ephemeral=True,
         )
-        print(f"Ignoring exception in modal {self}:", file=sys.stderr)
-        traceback.print_exception(error.__class__, error, error.__traceback__, file=sys.stderr)
+        self.logger.error("Ignoring exception in modal %r.", self, exc_info=error)
 
 
 async def setup(bot: CBot):

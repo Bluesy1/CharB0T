@@ -220,7 +220,7 @@ async def test_caledar_task(mocker: MockerFixture, event_loop, mock_config, monk
     bot.fetch_webhook.retun_value = fake_webhook
     bot.loop = event_loop
     async with aiohttp.ClientSession() as session:
-        session.get = lambda *args, **kwargs: mock_get()  # pyright: ignore [reportGeneralTypeIssues]
+        session.get = lambda *args, **kwargs: mock_get()  # type: ignore
         bot.session = session
         cog = gcal.Calendar(bot)
         await cog.cog_load()

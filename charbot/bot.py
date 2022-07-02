@@ -25,9 +25,7 @@
 """Charbot discord bot."""
 import datetime
 import logging
-import sys
-import traceback
-from typing import Any, ClassVar, Final, Type, TypeVar
+from typing import Any, ClassVar, Final, TypeVar
 from zoneinfo import ZoneInfo
 
 import aiohttp
@@ -37,7 +35,7 @@ from discord import app_commands
 from discord.ext import commands
 from discord.utils import MISSING
 
-from . import Config, errors
+from . import Config, EXTENSIONS, errors
 
 
 _VT = TypeVar("_VT")
@@ -136,7 +134,7 @@ class CBot(commands.Bot):
         Whether to strip whitespace characters after encountering the command
         prefix. This allows for ``!   hello`` and ``!hello`` to both work if
         the ``command_prefix`` is set to ``!``. Defaults to ``False``.
-    tree_cls: Type[:class:`~discord.app_commands.CommandTree`]
+    tree_cls: type[:class:`~discord.app_commands.CommandTree`]
         The type of application command tree to use. Defaults to :class:`~discord.app_commands.CommandTree`.
     """
 
@@ -171,7 +169,7 @@ class CBot(commands.Bot):
             - datetime.timedelta(days=1)
         )
 
-    def __init__(self, *args: Any, strip_after_prefix: bool = True, tree_cls: Type["Tree"], **kwargs: Any) -> None:
+    def __init__(self, *args: Any, strip_after_prefix: bool = True, tree_cls: type["Tree"], **kwargs: Any) -> None:
         super().__init__(*args, strip_after_prefix=strip_after_prefix, tree_cls=tree_cls, **kwargs)
         self.pool: asyncpg.Pool[Any] = MISSING
         self.session: aiohttp.ClientSession = MISSING
@@ -194,17 +192,8 @@ class CBot(commands.Bot):
         self.giveaway_webhook = await self.fetch_webhook(webhooks["giveaway"])
         print("Webhooks Fetched")
         await self.load_extension("jishaku")
-        await self.load_extension("charbot.admin")
-        await self.load_extension("charbot.dice")
-        await self.load_extension("charbot.events")
-        await self.load_extension("charbot.gcal")
-        await self.load_extension("charbot.giveaway")
-        await self.load_extension("charbot.levels")
-        await self.load_extension("charbot.mod_support")
-        await self.load_extension("charbot.pools")
-        await self.load_extension("charbot.programs")
-        await self.load_extension("charbot.query")
-        await self.load_extension("charbot.reputation_admin")
+        for extension in EXTENSIONS:
+            await self.load_extension(extension)
         print("Extensions loaded")
         user = self.user
         assert isinstance(user, discord.ClientUser)  # skipcq: BAN-B101
@@ -390,11 +379,10 @@ class CBot(commands.Bot):
             await ctx.send(f"Bad argument for command {command.name}.")
 
         else:
-            await ctx.send(f"An error occurred while running {command.name}.")
+            await ctx.send(f"An error occurred while running {command.name}, Bluesy has been notified.")
             # All other Errors not returned come here. And we can just print the default TraceBack.
             await self.error_logs.send(f"{command.name} raised an error: {exception}")
-            print("Ignoring exception in command {}:".format(command), file=sys.stderr)
-            traceback.print_exception(type(exception), exception, exception.__traceback__, file=sys.stderr)
+            logging.getLogger("charbot.commands").error("Ignoring exception in command %s", command, exc_info=exception)
 
     async def on_error(self, event_method: str, /, *args: Any, **kwargs: Any) -> None:
         """Event triggered when an error is raised.
@@ -409,8 +397,7 @@ class CBot(commands.Bot):
             The keyword arguments passed to the event.
         """
         await self.error_logs.send(f"{event_method} raised an error: {args} {kwargs}")
-        print(f"Ignoring exception in {event_method}", file=sys.stderr)
-        traceback.print_exc()
+        logging.getLogger("charbot").exception("Ignoring exception in %s", event_method)
 
 
 class Tree(app_commands.CommandTree[CBot]):
@@ -457,8 +444,7 @@ class Tree(app_commands.CommandTree[CBot]):
                     f"{interaction.user.mention} tried to execute command {command.name!r} but an error "
                     f"occurred:\n{orig_error}"
                 )
-                print(f"Ignoring exception in command {command.name!r}", file=sys.stderr)
-                traceback.print_exception(orig_error.__class__, orig_error, orig_error.__traceback__, file=sys.stderr)
+                self.logger.error("Ignoring exception in command %r", command.name, exc_info=error)
             else:
                 message = "An error occurred while executing the command."
             if interaction.response.is_done():

@@ -24,9 +24,8 @@
 #  ----------------------------------------------------------------------------
 """View class."""
 import datetime
-from typing import Literal, Protocol
+from typing import TYPE_CHECKING, Literal
 
-import asyncpg
 import discord
 from discord import ButtonStyle, Interaction, SelectOption, ui
 from discord.utils import MISSING, utcnow
@@ -34,16 +33,8 @@ from discord.utils import MISSING, utcnow
 from . import Block, Cell, Puzzle
 
 
-class CBot(Protocol):
-    """Protocol for the CBot class."""
-
-    pool: asyncpg.Pool
-
-    async def give_game_points(
-        self, member: discord.Member | discord.User, game: str, points: int, bonus: int = 0
-    ) -> int:
-        """Give points to a member for a game."""
-        ...
+if TYPE_CHECKING:
+    from ...types.bot import CBot
 
 
 # noinspection GrazieInspection
@@ -79,7 +70,7 @@ class Sudoku(ui.View):
         Time the game started, used for calculating time taken. Timezone aware.
     """
 
-    def __init__(self, puzzle: Puzzle, author: discord.Member, bot: CBot):
+    def __init__(self, puzzle: Puzzle, author: discord.Member, bot: "CBot"):
         super().__init__(timeout=None)
         self.puzzle = puzzle
         self.author = author

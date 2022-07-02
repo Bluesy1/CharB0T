@@ -6,8 +6,8 @@ import discord
 import pytest
 from pytest_mock import MockerFixture
 
-from charbot import shrugman
-
+from charbot import CBot
+from charbot.programs import shrugman
 
 pytestmark = pytest.mark.asyncio
 
@@ -18,16 +18,9 @@ def _unused_not_random(monkeypatch):
     monkeypatch.setattr(random, "choice", lambda *args: "mock")
 
 
-async def test_CBot_view_protocol(mocker: MockerFixture):
-    """Test CBot protocol."""
-    mock_member = mocker.Mock(spec=discord.Member)
-    mock_Proto = mocker.Mock(spec=shrugman.view.CBot)
-    assert await shrugman.view.CBot.give_game_points(mock_Proto, mock_member, "mock", 1) is None
-
-
 async def test_view_init(_unused_not_random, mocker: MockerFixture):
     """Test Shrugman view init."""
-    mock_bot = mocker.Mock(spec=shrugman.view.CBot)
+    mock_bot = mocker.Mock(spec=CBot)
     view = shrugman.Shrugman(mock_bot, "mock")
     assert view.bot is mock_bot
     assert view.word == "mock"
@@ -35,7 +28,7 @@ async def test_view_init(_unused_not_random, mocker: MockerFixture):
 
 async def test_view_buttons_alive(_unused_not_random, mocker: MockerFixture):
     """Test Shrugman view buttons."""
-    mock_bot = mocker.AsyncMock(spec=shrugman.view.CBot)
+    mock_bot = mocker.AsyncMock(spec=CBot)
     view = shrugman.Shrugman(mock_bot, "mock")
     mock_interaction = mocker.AsyncMock(spec=discord.Interaction)
     mock_interaction.response = mocker.AsyncMock(spec=discord.InteractionResponse)
@@ -49,7 +42,7 @@ async def test_view_buttons_alive(_unused_not_random, mocker: MockerFixture):
 
 async def test_view_buttons_dead(_unused_not_random, mocker: MockerFixture):
     """Test Shrugman view buttons."""
-    mock_bot = mocker.AsyncMock(spec=shrugman.view.CBot)
+    mock_bot = mocker.AsyncMock(spec=CBot)
     view = shrugman.Shrugman(mock_bot, "mock")
     view.dead = True
     mock_interaction = mocker.AsyncMock(spec=discord.Interaction)
@@ -64,7 +57,7 @@ async def test_view_buttons_dead(_unused_not_random, mocker: MockerFixture):
 
 async def test_view_cancel_long_game(_unused_not_random, mocker: MockerFixture):
     """Test Shrugman view cancel."""
-    mock_bot = mocker.AsyncMock(spec=shrugman.view.CBot)
+    mock_bot = mocker.AsyncMock(spec=CBot)
     view = shrugman.Shrugman(mock_bot, "mock")
     view.start_time = discord.utils.utcnow() - datetime.timedelta(minutes=2)
     view.guess_count = 6
@@ -80,7 +73,7 @@ async def test_view_cancel_long_game(_unused_not_random, mocker: MockerFixture):
 
 async def test_modal_valid_guess(_unused_not_random, mocker: MockerFixture):
     """Test Shrugman modal proper guess."""
-    mock_bot = mocker.AsyncMock(spec=shrugman.view.CBot)
+    mock_bot = mocker.AsyncMock(spec=CBot)
     game = shrugman.Shrugman(mock_bot, "a")
     modal = shrugman.GuessModal(game)
     modal.guess._value = "a"
@@ -97,7 +90,7 @@ async def test_modal_valid_guess(_unused_not_random, mocker: MockerFixture):
 
 async def test_modal_wrong_guess(_unused_not_random, mocker: MockerFixture):
     """Test Shrugman modal wrong guess."""
-    mock_bot = mocker.AsyncMock(spec=shrugman.view.CBot)
+    mock_bot = mocker.AsyncMock(spec=CBot)
     game = shrugman.Shrugman(mock_bot, "a")
     game.mistakes = 8
     modal = shrugman.GuessModal(game)

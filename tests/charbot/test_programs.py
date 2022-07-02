@@ -4,6 +4,7 @@ import discord
 import pytest
 from pytest_mock import MockerFixture
 
+from charbot import CBot
 from charbot import errors, programs
 
 
@@ -13,9 +14,9 @@ pytestmark = pytest.mark.asyncio
 @pytest.fixture
 def mock_bot(mocker: MockerFixture):
     """Mock discord.Client."""
-    mock_bot = mocker.AsyncMock(spec=programs.CBot)
-    mock_bot.CHANNEL_ID = programs.CBot.CHANNEL_ID
-    mock_bot.ALLOWED_ROLES = programs.CBot.ALLOWED_ROLES
+    mock_bot = mocker.AsyncMock(spec=CBot)
+    mock_bot.CHANNEL_ID = CBot.CHANNEL_ID
+    mock_bot.ALLOWED_ROLES = CBot.ALLOWED_ROLES
     return mock_bot
 
 
