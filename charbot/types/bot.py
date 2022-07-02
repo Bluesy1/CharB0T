@@ -11,6 +11,8 @@ from discord.ext import commands
 
 
 class CBot(commands.Bot):
+    """Charbot Class."""
+
     ZONEINFO: ClassVar[ZoneInfo]
     ALLOWED_ROLES: ClassVar[list[int | str]]
     CHANNEL_ID: ClassVar[int]
@@ -23,8 +25,11 @@ class CBot(commands.Bot):
     giveaway_user: Callable[[int], Coroutine[None, None, None | asyncpg.Record]]
 
     async def give_game_points(self, member: Member | User, game: str, points: int, bonus: int = 0) -> int:
+        """Give points to a member for a game."""
         ...
 
 
 class Tree(app_commands.CommandTree[CBot]):
+    """Tree Class."""
+
     ...

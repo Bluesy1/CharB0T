@@ -13,8 +13,11 @@ def unused_patch_datetime_now(monkeypatch: pytest.MonkeyPatch):
     """Patch the datetime.now() method to return a fixed time"""
 
     class mydatetime(datetime.datetime):
+        """A datetime class that returns a fixed time"""
+
         @classmethod
         def now(cls, tz: datetime.tzinfo | None = ...):
+            """Return a fixed time"""
             return datetime.datetime(1, 1, 2, 1, 0, 0, 0, tzinfo=tz)
 
     monkeypatch.setattr(datetime, "datetime", mydatetime)
