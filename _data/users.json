@@ -20,14 +20,14 @@
     "id": "465356664657149952",
     "name": "Mordakai Slivermoon",
     "discriminator": "7762",
-    "xp": "38.9k",
+    "xp": "39.0k",
     "detailed_xp": [
-      1082,
+      1097,
       4180,
-      38946
+      38961
     ],
     "level": 24,
-    "messages": 2671,
+    "messages": 2672,
     "avatar": "https://cdn.discordapp.com/avatars/465356664657149952/69046661ae37d5aeacd06e8670bd2cd1.png",
     "gang": null,
     "prestige": 0,
@@ -71,14 +71,14 @@
     "id": "470021089104494598",
     "name": "Copperspikes",
     "discriminator": "6862",
-    "xp": "19.6k",
+    "xp": "19.7k",
     "detailed_xp": [
-      1263,
+      1276,
       2620,
-      19640
+      19653
     ],
     "level": 18,
-    "messages": 1346,
+    "messages": 1347,
     "avatar": "https://cdn.discordapp.com/avatars/470021089104494598/609eb666ab567abadd68dcfc4d7c042c.png",
     "gang": null,
     "prestige": 0,
@@ -139,14 +139,14 @@
     "id": "138380316095021056",
     "name": "krios41",
     "discriminator": "1947",
-    "xp": "12.3k",
+    "xp": "12.4k",
     "detailed_xp": [
-      433,
+      480,
       1975,
-      12322
+      12369
     ],
     "level": 15,
-    "messages": 851,
+    "messages": 854,
     "avatar": "https://cdn.discordapp.com/avatars/138380316095021056/f912ef80e2616dbb2221fcb2dbd09ab9.png",
     "gang": null,
     "prestige": 0,
@@ -326,14 +326,14 @@
     "id": "980079182912561212",
     "name": "Tsamoka",
     "discriminator": "2725",
-    "xp": "6.7k",
+    "xp": "6.8k",
     "detailed_xp": [
-      876,
+      902,
       1255,
-      6731
+      6757
     ],
     "level": 11,
-    "messages": 467,
+    "messages": 469,
     "avatar": "https://cdn.discordapp.com/avatars/980079182912561212/9e6bfe52f1e097b1f193ca347be3b68d.png",
     "gang": null,
     "prestige": 0,
@@ -2499,23 +2499,6 @@
     "rank": 147
   },
   {
-    "id": "297482064951902208",
-    "name": "cdmadgamer",
-    "discriminator": "2873",
-    "xp": "38",
-    "detailed_xp": [
-      38,
-      100,
-      38
-    ],
-    "level": 0,
-    "messages": 3,
-    "avatar": "https://cdn.discordapp.com/avatars/297482064951902208/483602bcd257bbbce138dfe4e7d539be.png",
-    "gang": null,
-    "prestige": 0,
-    "rank": 148
-  },
-  {
     "id": "495333386232266792",
     "name": "sule",
     "discriminator": "1469",
@@ -2528,6 +2511,23 @@
     "level": 0,
     "messages": 3,
     "avatar": "https://cdn.discordapp.com/embed/avatars/4.png",
+    "gang": null,
+    "prestige": 0,
+    "rank": 148
+  },
+  {
+    "id": "297482064951902208",
+    "name": "cdmadgamer",
+    "discriminator": "2873",
+    "xp": "38",
+    "detailed_xp": [
+      38,
+      100,
+      38
+    ],
+    "level": 0,
+    "messages": 3,
+    "avatar": "https://cdn.discordapp.com/avatars/297482064951902208/483602bcd257bbbce138dfe4e7d539be.png",
     "gang": null,
     "prestige": 0,
     "rank": 149
