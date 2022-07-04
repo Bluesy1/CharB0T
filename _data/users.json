@@ -3,14 +3,14 @@
     "id": "363095569515806722",
     "name": "Bluesy",
     "discriminator": "8150",
-    "xp": "75.4k",
+    "xp": "75.5k",
     "detailed_xp": [
-      1708,
+      1810,
       6455,
-      75359
+      75461
     ],
     "level": 31,
-    "messages": 5148,
+    "messages": 5155,
     "avatar": "https://cdn.discordapp.com/avatars/363095569515806722/ccf12c126a6827a5b07a4e579a52b043.png",
     "gang": null,
     "prestige": 0,
@@ -22,12 +22,12 @@
     "discriminator": "7762",
     "xp": "39.5k",
     "detailed_xp": [
-      1644,
+      1673,
       4180,
-      39508
+      39537
     ],
     "level": 24,
-    "messages": 2710,
+    "messages": 2712,
     "avatar": "https://cdn.discordapp.com/avatars/465356664657149952/69046661ae37d5aeacd06e8670bd2cd1.png",
     "gang": null,
     "prestige": 0,
@@ -139,14 +139,14 @@
     "id": "138380316095021056",
     "name": "krios41",
     "discriminator": "1947",
-    "xp": "12.9k",
+    "xp": "13.0k",
     "detailed_xp": [
-      982,
+      1085,
       1975,
-      12871
+      12974
     ],
     "level": 15,
-    "messages": 889,
+    "messages": 896,
     "avatar": "https://cdn.discordapp.com/avatars/138380316095021056/f912ef80e2616dbb2221fcb2dbd09ab9.png",
     "gang": null,
     "prestige": 0,
@@ -175,12 +175,12 @@
     "discriminator": "7585",
     "xp": "11.3k",
     "detailed_xp": [
-      1262,
+      1273,
       1780,
-      11318
+      11329
     ],
     "level": 14,
-    "messages": 771,
+    "messages": 772,
     "avatar": "https://cdn.discordapp.com/avatars/615334339349184522/f26d5bb99c50ed137bc9069b70e16fbf.png",
     "gang": null,
     "prestige": 0,
@@ -192,12 +192,12 @@
     "discriminator": "4528",
     "xp": "10.8k",
     "detailed_xp": [
-      742,
+      754,
       1780,
-      10807
+      10819
     ],
     "level": 14,
-    "messages": 738,
+    "messages": 739,
     "avatar": "https://cdn.discordapp.com/avatars/725373259817811988/f6bb046bfd0f14ceea1dec9e03e70fb8.png",
     "gang": null,
     "prestige": 0,
