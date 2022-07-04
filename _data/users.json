@@ -39,12 +39,12 @@
     "discriminator": "8014",
     "xp": "34.5k",
     "detailed_xp": [
-      578,
+      590,
       3895,
-      34511
+      34523
     ],
     "level": 23,
-    "messages": 2362,
+    "messages": 2363,
     "avatar": "https://cdn.discordapp.com/avatars/434764784353804305/079e9acbab412d57da60f98460454d62.png",
     "gang": null,
     "prestige": 0,
@@ -124,12 +124,12 @@
     "discriminator": "1179",
     "xp": "13.2k",
     "detailed_xp": [
-      1344,
+      1359,
       1975,
-      13179
+      13194
     ],
     "level": 15,
-    "messages": 903,
+    "messages": 904,
     "avatar": "https://cdn.discordapp.com/avatars/389137667926786060/a0938cefc089461da843738b184389f5.png",
     "gang": null,
     "prestige": 0,
@@ -1037,6 +1037,23 @@
     "rank": 61
   },
   {
+    "id": "612357341794402307",
+    "name": "lucian",
+    "discriminator": "9800",
+    "xp": "648",
+    "detailed_xp": [
+      170,
+      295,
+      648
+    ],
+    "level": 3,
+    "messages": 44,
+    "avatar": "https://cdn.discordapp.com/avatars/612357341794402307/f2e402d7a82eca7b63cf8fb1859d7778.png",
+    "gang": null,
+    "prestige": 0,
+    "rank": 62
+  },
+  {
     "id": "746906063533768814",
     "name": "pixi76",
     "discriminator": "7196",
@@ -1051,7 +1068,7 @@
     "avatar": "https://cdn.discordapp.com/embed/avatars/1.png",
     "gang": null,
     "prestige": 0,
-    "rank": 62
+    "rank": 63
   },
   {
     "id": "438900626601148417",
@@ -1066,23 +1083,6 @@
     "level": 3,
     "messages": 44,
     "avatar": "https://cdn.discordapp.com/avatars/438900626601148417/5939919a88f67ffa49bb260edaf2d3bb.png",
-    "gang": null,
-    "prestige": 0,
-    "rank": 63
-  },
-  {
-    "id": "612357341794402307",
-    "name": "lucian",
-    "discriminator": "9800",
-    "xp": "631",
-    "detailed_xp": [
-      153,
-      295,
-      631
-    ],
-    "level": 3,
-    "messages": 43,
-    "avatar": "https://cdn.discordapp.com/avatars/612357341794402307/f2e402d7a82eca7b63cf8fb1859d7778.png",
     "gang": null,
     "prestige": 0,
     "rank": 64
