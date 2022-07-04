@@ -1074,14 +1074,14 @@
     "id": "612357341794402307",
     "name": "lucian",
     "discriminator": "9800",
-    "xp": "613",
+    "xp": "631",
     "detailed_xp": [
-      135,
+      153,
       295,
-      613
+      631
     ],
     "level": 3,
-    "messages": 42,
+    "messages": 43,
     "avatar": "https://cdn.discordapp.com/avatars/612357341794402307/f2e402d7a82eca7b63cf8fb1859d7778.png",
     "gang": null,
     "prestige": 0,
