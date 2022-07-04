@@ -5,7 +5,7 @@ disrank == 0.0.2
 jishaku == 2.5.0
 matplotlib == 3.5.2
 numpy == 1.23.0
-orjson == 3.7.5
+orjson == 3.7.6
 pandas == 1.4.3
 Pillow == 9.2.0
 scipy == 1.8.1
