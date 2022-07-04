@@ -20,14 +20,14 @@
     "id": "465356664657149952",
     "name": "Mordakai Slivermoon",
     "discriminator": "7762",
-    "xp": "39.1k",
+    "xp": "39.3k",
     "detailed_xp": [
-      1262,
+      1400,
       4180,
-      39126
+      39264
     ],
     "level": 24,
-    "messages": 2683,
+    "messages": 2693,
     "avatar": "https://cdn.discordapp.com/avatars/465356664657149952/69046661ae37d5aeacd06e8670bd2cd1.png",
     "gang": null,
     "prestige": 0,
@@ -39,12 +39,12 @@
     "discriminator": "8014",
     "xp": "34.5k",
     "detailed_xp": [
-      590,
+      603,
       3895,
-      34523
+      34536
     ],
     "level": 23,
-    "messages": 2363,
+    "messages": 2364,
     "avatar": "https://cdn.discordapp.com/avatars/434764784353804305/079e9acbab412d57da60f98460454d62.png",
     "gang": null,
     "prestige": 0,
@@ -54,14 +54,14 @@
     "id": "355127455419203585",
     "name": "Sir Clint Pope",
     "discriminator": "2226",
-    "xp": "21.9k",
+    "xp": "22.0k",
     "detailed_xp": [
-      937,
+      953,
       2855,
-      21937
+      21953
     ],
     "level": 19,
-    "messages": 1493,
+    "messages": 1494,
     "avatar": "https://cdn.discordapp.com/avatars/355127455419203585/095ad3bae31ea645652dd0f7d6c16aee.png",
     "gang": null,
     "prestige": 0,
@@ -124,12 +124,12 @@
     "discriminator": "1179",
     "xp": "13.2k",
     "detailed_xp": [
-      1359,
+      1385,
       1975,
-      13194
+      13220
     ],
     "level": 15,
-    "messages": 904,
+    "messages": 906,
     "avatar": "https://cdn.discordapp.com/avatars/389137667926786060/a0938cefc089461da843738b184389f5.png",
     "gang": null,
     "prestige": 0,
