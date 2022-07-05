@@ -5,12 +5,12 @@
     "discriminator": "8150",
     "xp": "76.0k",
     "detailed_xp": [
-      2302,
+      2380,
       6455,
-      75953
+      76031
     ],
     "level": 31,
-    "messages": 5188,
+    "messages": 5193,
     "avatar": "https://cdn.discordapp.com/avatars/363095569515806722/ccf12c126a6827a5b07a4e579a52b043.png",
     "gang": null,
     "prestige": 0,
@@ -37,14 +37,14 @@
     "id": "434764784353804305",
     "name": "Caspar",
     "discriminator": "8014",
-    "xp": "34.7k",
+    "xp": "34.8k",
     "detailed_xp": [
-      813,
+      915,
       3895,
-      34746
+      34848
     ],
     "level": 23,
-    "messages": 2379,
+    "messages": 2385,
     "avatar": "https://cdn.discordapp.com/avatars/434764784353804305/079e9acbab412d57da60f98460454d62.png",
     "gang": null,
     "prestige": 0,
@@ -56,12 +56,12 @@
     "discriminator": "2226",
     "xp": "22.1k",
     "detailed_xp": [
-      1083,
+      1094,
       2855,
-      22083
+      22094
     ],
     "level": 19,
-    "messages": 1503,
+    "messages": 1504,
     "avatar": "https://cdn.discordapp.com/avatars/355127455419203585/095ad3bae31ea645652dd0f7d6c16aee.png",
     "gang": null,
     "prestige": 0,
@@ -124,12 +124,12 @@
     "discriminator": "1179",
     "xp": "13.4k",
     "detailed_xp": [
-      1572,
+      1587,
       1975,
-      13407
+      13422
     ],
     "level": 15,
-    "messages": 918,
+    "messages": 919,
     "avatar": "https://cdn.discordapp.com/avatars/389137667926786060/a0938cefc089461da843738b184389f5.png",
     "gang": null,
     "prestige": 0,
@@ -139,14 +139,14 @@
     "id": "138380316095021056",
     "name": "krios41",
     "discriminator": "1947",
-    "xp": "13.1k",
+    "xp": "13.2k",
     "detailed_xp": [
-      1222,
+      1307,
       1975,
-      13111
+      13196
     ],
     "level": 15,
-    "messages": 905,
+    "messages": 911,
     "avatar": "https://cdn.discordapp.com/avatars/138380316095021056/f912ef80e2616dbb2221fcb2dbd09ab9.png",
     "gang": null,
     "prestige": 0,
@@ -190,14 +190,14 @@
     "id": "725373259817811988",
     "name": "General_WCJ",
     "discriminator": "4528",
-    "xp": "10.8k",
+    "xp": "10.9k",
     "detailed_xp": [
-      781,
+      798,
       1780,
-      10846
+      10863
     ],
     "level": 14,
-    "messages": 741,
+    "messages": 742,
     "avatar": "https://cdn.discordapp.com/avatars/725373259817811988/f6bb046bfd0f14ceea1dec9e03e70fb8.png",
     "gang": null,
     "prestige": 0,
@@ -311,12 +311,12 @@
     "discriminator": "8476",
     "xp": "7.3k",
     "detailed_xp": [
-      229,
+      246,
       1420,
-      7275
+      7292
     ],
     "level": 12,
-    "messages": 500,
+    "messages": 501,
     "avatar": "https://cdn.discordapp.com/avatars/718188351508971542/4d61f718cb0602a9fa2121459306be1e.png",
     "gang": null,
     "prestige": 0,
@@ -345,12 +345,12 @@
     "discriminator": "8860",
     "xp": "5.9k",
     "detailed_xp": [
-      66,
+      80,
       1255,
-      5851
+      5865
     ],
     "level": 11,
-    "messages": 405,
+    "messages": 406,
     "avatar": "https://cdn.discordapp.com/avatars/710057301264039946/7d7aa20c67865c80e0bd735fe704a5ea.png",
     "gang": null,
     "prestige": 0,
@@ -360,14 +360,14 @@
     "id": "82495450153750528",
     "name": "Kaitlin🐱 Goddess of annihilation",
     "discriminator": "7803",
-    "xp": "4.2k",
+    "xp": "4.3k",
     "detailed_xp": [
-      520,
+      531,
       955,
-      4240
+      4251
     ],
     "level": 9,
-    "messages": 291,
+    "messages": 292,
     "avatar": "https://cdn.discordapp.com/avatars/82495450153750528/f2d1f7b0118324478743227ddb67ecfa.png",
     "gang": null,
     "prestige": 0,
@@ -1870,23 +1870,6 @@
     "rank": 110
   },
   {
-    "id": "137426826191568896",
-    "name": "UnknownTrainer",
-    "discriminator": "1031",
-    "xp": "100",
-    "detailed_xp": [
-      0,
-      155,
-      100
-    ],
-    "level": 1,
-    "messages": 7,
-    "avatar": "https://cdn.discordapp.com/avatars/137426826191568896/64a3efb0fed7010a92921c7e73379a96.png",
-    "gang": null,
-    "prestige": 0,
-    "rank": 111
-  },
-  {
     "id": "754318396543336478",
     "name": "pjoter",
     "discriminator": "6211",
@@ -1901,24 +1884,24 @@
     "avatar": "https://cdn.discordapp.com/embed/avatars/1.png",
     "gang": null,
     "prestige": 0,
-    "rank": 112
+    "rank": 111
   },
   {
-    "id": "726744245729230910",
-    "name": "DEADBOLT",
-    "discriminator": "9604",
-    "xp": "93",
+    "id": "137426826191568896",
+    "name": "UnknownTrainer",
+    "discriminator": "1031",
+    "xp": "100",
     "detailed_xp": [
-      93,
-      100,
-      93
+      0,
+      155,
+      100
     ],
-    "level": 0,
-    "messages": 6,
-    "avatar": "https://cdn.discordapp.com/avatars/726744245729230910/ad7eedd301ec7b538985504f98fdfb1c.png",
+    "level": 1,
+    "messages": 7,
+    "avatar": "https://cdn.discordapp.com/avatars/137426826191568896/64a3efb0fed7010a92921c7e73379a96.png",
     "gang": null,
     "prestige": 0,
-    "rank": 113
+    "rank": 112
   },
   {
     "id": "586092537438273546",
@@ -1933,6 +1916,23 @@
     "level": 0,
     "messages": 6,
     "avatar": "https://cdn.discordapp.com/avatars/586092537438273546/4ebc229f919c76eeebb6e5ded3616e78.png",
+    "gang": null,
+    "prestige": 0,
+    "rank": 113
+  },
+  {
+    "id": "726744245729230910",
+    "name": "DEADBOLT",
+    "discriminator": "9604",
+    "xp": "93",
+    "detailed_xp": [
+      93,
+      100,
+      93
+    ],
+    "level": 0,
+    "messages": 6,
+    "avatar": "https://cdn.discordapp.com/avatars/726744245729230910/ad7eedd301ec7b538985504f98fdfb1c.png",
     "gang": null,
     "prestige": 0,
     "rank": 114
@@ -2040,23 +2040,6 @@
     "rank": 120
   },
   {
-    "id": "346324078740635650",
-    "name": "Zork",
-    "discriminator": "7511",
-    "xp": "74",
-    "detailed_xp": [
-      74,
-      100,
-      74
-    ],
-    "level": 0,
-    "messages": 5,
-    "avatar": "https://cdn.discordapp.com/avatars/346324078740635650/c97f46a9590da9992483f66cb8f39b00.png",
-    "gang": null,
-    "prestige": 0,
-    "rank": 121
-  },
-  {
     "id": "160171748195696640",
     "name": "Saigith",
     "discriminator": "8288",
@@ -2069,6 +2052,23 @@
     "level": 0,
     "messages": 5,
     "avatar": "https://cdn.discordapp.com/avatars/160171748195696640/2cd8df62fe77d80ca78703e2687d20bd.png",
+    "gang": null,
+    "prestige": 0,
+    "rank": 121
+  },
+  {
+    "id": "346324078740635650",
+    "name": "Zork",
+    "discriminator": "7511",
+    "xp": "74",
+    "detailed_xp": [
+      74,
+      100,
+      74
+    ],
+    "level": 0,
+    "messages": 5,
+    "avatar": "https://cdn.discordapp.com/avatars/346324078740635650/c97f46a9590da9992483f66cb8f39b00.png",
     "gang": null,
     "prestige": 0,
     "rank": 122
@@ -3791,9 +3791,9 @@
     "rank": 223
   },
   {
-    "id": "725264055161323679",
-    "name": "gshoey65",
-    "discriminator": "0719",
+    "id": "443555839270453248",
+    "name": "ivanissacelb",
+    "discriminator": "1733",
     "xp": "11",
     "detailed_xp": [
       11,
@@ -3802,7 +3802,7 @@
     ],
     "level": 0,
     "messages": 1,
-    "avatar": "https://cdn.discordapp.com/avatars/725264055161323679/97b18b57679f275fc35dacb6880fe485.png",
+    "avatar": "https://cdn.discordapp.com/avatars/443555839270453248/adb32289ed1ae649cd87b0fa4cccf475.png",
     "gang": null,
     "prestige": 0,
     "rank": 224
@@ -3927,9 +3927,9 @@
     "rank": 231
   },
   {
-    "id": "443555839270453248",
-    "name": "ivanissacelb",
-    "discriminator": "1733",
+    "id": "725264055161323679",
+    "name": "gshoey65",
+    "discriminator": "0719",
     "xp": "11",
     "detailed_xp": [
       11,
@@ -3938,7 +3938,7 @@
     ],
     "level": 0,
     "messages": 1,
-    "avatar": "https://cdn.discordapp.com/avatars/443555839270453248/adb32289ed1ae649cd87b0fa4cccf475.png",
+    "avatar": "https://cdn.discordapp.com/avatars/725264055161323679/97b18b57679f275fc35dacb6880fe485.png",
     "gang": null,
     "prestige": 0,
     "rank": 232
