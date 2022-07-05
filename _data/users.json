@@ -3,14 +3,14 @@
     "id": "363095569515806722",
     "name": "Bluesy",
     "discriminator": "8150",
-    "xp": "75.5k",
+    "xp": "75.8k",
     "detailed_xp": [
-      1885,
+      2137,
       6455,
-      75536
+      75788
     ],
     "level": 31,
-    "messages": 5160,
+    "messages": 5177,
     "avatar": "https://cdn.discordapp.com/avatars/363095569515806722/ccf12c126a6827a5b07a4e579a52b043.png",
     "gang": null,
     "prestige": 0,
@@ -22,12 +22,12 @@
     "discriminator": "7762",
     "xp": "39.6k",
     "detailed_xp": [
-      1726,
+      1741,
       4180,
-      39590
+      39605
     ],
     "level": 24,
-    "messages": 2715,
+    "messages": 2716,
     "avatar": "https://cdn.discordapp.com/avatars/465356664657149952/69046661ae37d5aeacd06e8670bd2cd1.png",
     "gang": null,
     "prestige": 0,
@@ -141,12 +141,12 @@
     "discriminator": "1947",
     "xp": "13.0k",
     "detailed_xp": [
-      1100,
+      1116,
       1975,
-      12989
+      13005
     ],
     "level": 15,
-    "messages": 897,
+    "messages": 898,
     "avatar": "https://cdn.discordapp.com/avatars/138380316095021056/f912ef80e2616dbb2221fcb2dbd09ab9.png",
     "gang": null,
     "prestige": 0,
@@ -156,14 +156,14 @@
     "id": "615334339349184522",
     "name": "ssWinni",
     "discriminator": "7585",
-    "xp": "11.4k",
+    "xp": "11.6k",
     "detailed_xp": [
-      1387,
+      1541,
       1780,
-      11443
+      11597
     ],
     "level": 14,
-    "messages": 780,
+    "messages": 791,
     "avatar": "https://cdn.discordapp.com/avatars/615334339349184522/f26d5bb99c50ed137bc9069b70e16fbf.png",
     "gang": null,
     "prestige": 0,
@@ -311,12 +311,12 @@
     "discriminator": "8476",
     "xp": "7.3k",
     "detailed_xp": [
-      217,
+      229,
       1420,
-      7263
+      7275
     ],
     "level": 12,
-    "messages": 499,
+    "messages": 500,
     "avatar": "https://cdn.discordapp.com/avatars/718188351508971542/4d61f718cb0602a9fa2121459306be1e.png",
     "gang": null,
     "prestige": 0,
