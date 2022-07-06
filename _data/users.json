@@ -3,14 +3,14 @@
     "id": "363095569515806722",
     "name": "Bluesy",
     "discriminator": "8150",
-    "xp": "76.9k",
+    "xp": "77.0k",
     "detailed_xp": [
-      3282,
+      3314,
       6455,
-      76933
+      76965
     ],
     "level": 31,
-    "messages": 5253,
+    "messages": 5255,
     "avatar": "https://cdn.discordapp.com/avatars/363095569515806722/ccf12c126a6827a5b07a4e579a52b043.png",
     "gang": null,
     "prestige": 0,
@@ -192,12 +192,12 @@
     "discriminator": "4528",
     "xp": "11.0k",
     "detailed_xp": [
-      911,
+      938,
       1780,
-      10976
+      11003
     ],
     "level": 14,
-    "messages": 750,
+    "messages": 752,
     "avatar": "https://cdn.discordapp.com/avatars/725373259817811988/f6bb046bfd0f14ceea1dec9e03e70fb8.png",
     "gang": null,
     "prestige": 0,
@@ -328,12 +328,12 @@
     "discriminator": "2725",
     "xp": "6.9k",
     "detailed_xp": [
-      1032,
+      1065,
       1255,
-      6887
+      6920
     ],
     "level": 11,
-    "messages": 477,
+    "messages": 479,
     "avatar": "https://cdn.discordapp.com/avatars/980079182912561212/9e6bfe52f1e097b1f193ca347be3b68d.png",
     "gang": null,
     "prestige": 0,
@@ -2839,23 +2839,6 @@
     "rank": 167
   },
   {
-    "id": "611268253544873986",
-    "name": "Ataluin",
-    "discriminator": "7892",
-    "xp": "24",
-    "detailed_xp": [
-      24,
-      100,
-      24
-    ],
-    "level": 0,
-    "messages": 2,
-    "avatar": "https://cdn.discordapp.com/avatars/611268253544873986/a_6abe4bcb26085a27dbc284ab62c3633c.png",
-    "gang": null,
-    "prestige": 0,
-    "rank": 168
-  },
-  {
     "id": "790310825613066291",
     "name": "tf2 heavy",
     "discriminator": "6376",
@@ -2868,6 +2851,23 @@
     "level": 0,
     "messages": 2,
     "avatar": "https://cdn.discordapp.com/avatars/790310825613066291/81536aa890441bc9f02e1f67d6e88b9d.png",
+    "gang": null,
+    "prestige": 0,
+    "rank": 168
+  },
+  {
+    "id": "611268253544873986",
+    "name": "Ataluin",
+    "discriminator": "7892",
+    "xp": "24",
+    "detailed_xp": [
+      24,
+      100,
+      24
+    ],
+    "level": 0,
+    "messages": 2,
+    "avatar": "https://cdn.discordapp.com/avatars/611268253544873986/a_6abe4bcb26085a27dbc284ab62c3633c.png",
     "gang": null,
     "prestige": 0,
     "rank": 169
