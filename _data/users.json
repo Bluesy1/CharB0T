@@ -39,12 +39,12 @@
     "discriminator": "8014",
     "xp": "35.0k",
     "detailed_xp": [
-      1061,
+      1092,
       3895,
-      34994
+      35025
     ],
     "level": 23,
-    "messages": 2395,
+    "messages": 2397,
     "avatar": "https://cdn.discordapp.com/avatars/434764784353804305/079e9acbab412d57da60f98460454d62.png",
     "gang": null,
     "prestige": 0,
@@ -139,14 +139,14 @@
     "id": "389137667926786060",
     "name": "coolmanfight",
     "discriminator": "1179",
-    "xp": "13.5k",
+    "xp": "13.6k",
     "detailed_xp": [
-      1701,
+      1727,
       1975,
-      13536
+      13562
     ],
     "level": 15,
-    "messages": 927,
+    "messages": 929,
     "avatar": "https://cdn.discordapp.com/avatars/389137667926786060/a0938cefc089461da843738b184389f5.png",
     "gang": null,
     "prestige": 0,
@@ -175,12 +175,12 @@
     "discriminator": "5792",
     "xp": "11.5k",
     "detailed_xp": [
-      1469,
+      1487,
       1780,
-      11526
+      11544
     ],
     "level": 14,
-    "messages": 791,
+    "messages": 792,
     "avatar": "https://cdn.discordapp.com/avatars/254272745779494922/104c411ce5b4accfc2095084e3dded32.png",
     "gang": null,
     "prestige": 0,
@@ -717,14 +717,14 @@
     "id": "510193035024531491",
     "name": "Kazgeroth",
     "discriminator": "7595",
-    "xp": "1.5k",
+    "xp": "1.6k",
     "detailed_xp": [
-      379,
+      404,
       475,
-      1535
+      1560
     ],
     "level": 5,
-    "messages": 107,
+    "messages": 109,
     "avatar": "https://cdn.discordapp.com/avatars/510193035024531491/173b4f4accd45a2827b7ab8f43229ec4.png",
     "gang": null,
     "prestige": 0,
