@@ -5,12 +5,12 @@
     "discriminator": "8150",
     "xp": "77.2k",
     "detailed_xp": [
-      3535,
+      3575,
       6455,
-      77186
+      77226
     ],
     "level": 31,
-    "messages": 5271,
+    "messages": 5274,
     "avatar": "https://cdn.discordapp.com/avatars/363095569515806722/ccf12c126a6827a5b07a4e579a52b043.png",
     "gang": null,
     "prestige": 0,
@@ -39,12 +39,12 @@
     "discriminator": "8014",
     "xp": "35.0k",
     "detailed_xp": [
-      1092,
+      1115,
       3895,
-      35025
+      35048
     ],
     "level": 23,
-    "messages": 2397,
+    "messages": 2399,
     "avatar": "https://cdn.discordapp.com/avatars/434764784353804305/079e9acbab412d57da60f98460454d62.png",
     "gang": null,
     "prestige": 0,
@@ -54,14 +54,14 @@
     "id": "355127455419203585",
     "name": "Sir Clint Pope",
     "discriminator": "2226",
-    "xp": "22.2k",
+    "xp": "22.3k",
     "detailed_xp": [
-      1216,
+      1326,
       2855,
-      22216
+      22326
     ],
     "level": 19,
-    "messages": 1513,
+    "messages": 1521,
     "avatar": "https://cdn.discordapp.com/avatars/355127455419203585/095ad3bae31ea645652dd0f7d6c16aee.png",
     "gang": null,
     "prestige": 0,
@@ -88,14 +88,14 @@
     "id": "138380316095021056",
     "name": "krios41",
     "discriminator": "1947",
-    "xp": "14.2k",
+    "xp": "14.3k",
     "detailed_xp": [
-      352,
+      405,
       2180,
-      14219
+      14272
     ],
     "level": 16,
-    "messages": 980,
+    "messages": 984,
     "avatar": "https://cdn.discordapp.com/avatars/138380316095021056/f912ef80e2616dbb2221fcb2dbd09ab9.png",
     "gang": null,
     "prestige": 0,
@@ -173,14 +173,14 @@
     "id": "254272745779494922",
     "name": "[MSM]Wasan",
     "discriminator": "5792",
-    "xp": "11.5k",
+    "xp": "11.6k",
     "detailed_xp": [
-      1487,
+      1557,
       1780,
-      11544
+      11614
     ],
     "level": 14,
-    "messages": 792,
+    "messages": 797,
     "avatar": "https://cdn.discordapp.com/avatars/254272745779494922/104c411ce5b4accfc2095084e3dded32.png",
     "gang": null,
     "prestige": 0,
