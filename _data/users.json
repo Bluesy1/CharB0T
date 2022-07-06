@@ -3,14 +3,14 @@
     "id": "363095569515806722",
     "name": "Bluesy",
     "discriminator": "8150",
-    "xp": "77.4k",
+    "xp": "77.5k",
     "detailed_xp": [
-      3755,
+      3832,
       6455,
-      77406
+      77483
     ],
     "level": 31,
-    "messages": 5287,
+    "messages": 5292,
     "avatar": "https://cdn.discordapp.com/avatars/363095569515806722/ccf12c126a6827a5b07a4e579a52b043.png",
     "gang": null,
     "prestige": 0,
@@ -20,14 +20,14 @@
     "id": "465356664657149952",
     "name": "Mordakai Slivermoon",
     "discriminator": "7762",
-    "xp": "39.9k",
+    "xp": "40.0k",
     "detailed_xp": [
-      2085,
+      2103,
       4180,
-      39949
+      39967
     ],
     "level": 24,
-    "messages": 2740,
+    "messages": 2741,
     "avatar": "https://cdn.discordapp.com/avatars/465356664657149952/69046661ae37d5aeacd06e8670bd2cd1.png",
     "gang": null,
     "prestige": 0,
@@ -88,14 +88,14 @@
     "id": "138380316095021056",
     "name": "krios41",
     "discriminator": "1947",
-    "xp": "14.4k",
+    "xp": "14.5k",
     "detailed_xp": [
-      554,
+      597,
       2180,
-      14421
+      14464
     ],
     "level": 16,
-    "messages": 994,
+    "messages": 997,
     "avatar": "https://cdn.discordapp.com/avatars/138380316095021056/f912ef80e2616dbb2221fcb2dbd09ab9.png",
     "gang": null,
     "prestige": 0,
@@ -153,6 +153,23 @@
     "rank": 9
   },
   {
+    "id": "254272745779494922",
+    "name": "[MSM]Wasan",
+    "discriminator": "5792",
+    "xp": "11.8k",
+    "detailed_xp": [
+      1711,
+      1780,
+      11768
+    ],
+    "level": 14,
+    "messages": 808,
+    "avatar": "https://cdn.discordapp.com/avatars/254272745779494922/104c411ce5b4accfc2095084e3dded32.png",
+    "gang": null,
+    "prestige": 0,
+    "rank": 10
+  },
+  {
     "id": "615334339349184522",
     "name": "ssWinni",
     "discriminator": "7585",
@@ -165,23 +182,6 @@
     "level": 14,
     "messages": 802,
     "avatar": "https://cdn.discordapp.com/avatars/615334339349184522/f26d5bb99c50ed137bc9069b70e16fbf.png",
-    "gang": null,
-    "prestige": 0,
-    "rank": 10
-  },
-  {
-    "id": "254272745779494922",
-    "name": "[MSM]Wasan",
-    "discriminator": "5792",
-    "xp": "11.8k",
-    "detailed_xp": [
-      1696,
-      1780,
-      11753
-    ],
-    "level": 14,
-    "messages": 807,
-    "avatar": "https://cdn.discordapp.com/avatars/254272745779494922/104c411ce5b4accfc2095084e3dded32.png",
     "gang": null,
     "prestige": 0,
     "rank": 11
@@ -243,12 +243,12 @@
     "discriminator": "2802",
     "xp": "9.8k",
     "detailed_xp": [
-      1309,
+      1323,
       1595,
-      9776
+      9790
     ],
     "level": 13,
-    "messages": 670,
+    "messages": 671,
     "avatar": "https://cdn.discordapp.com/avatars/304410053593661442/b046a5b99f4e2f6dad50444728de28cf.png",
     "gang": null,
     "prestige": 0,
@@ -294,12 +294,12 @@
     "discriminator": "7958",
     "xp": "8.9k",
     "detailed_xp": [
-      440,
+      455,
       1595,
-      8910
+      8925
     ],
     "level": 13,
-    "messages": 611,
+    "messages": 612,
     "avatar": "https://cdn.discordapp.com/avatars/244529987510599680/803f09d621468a326fc9f8ff25225579.png",
     "gang": null,
     "prestige": 0,
