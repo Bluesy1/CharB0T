@@ -3,14 +3,14 @@
     "id": "363095569515806722",
     "name": "Bluesy",
     "discriminator": "8150",
-    "xp": "77.8k",
+    "xp": "78.0k",
     "detailed_xp": [
-      4190,
+      4335,
       6455,
-      77841
+      77986
     ],
     "level": 31,
-    "messages": 5318,
+    "messages": 5328,
     "avatar": "https://cdn.discordapp.com/avatars/363095569515806722/ccf12c126a6827a5b07a4e579a52b043.png",
     "gang": null,
     "prestige": 0,
@@ -37,14 +37,14 @@
     "id": "434764784353804305",
     "name": "Caspar",
     "discriminator": "8014",
-    "xp": "35.2k",
+    "xp": "35.3k",
     "detailed_xp": [
-      1308,
+      1322,
       3895,
-      35241
+      35255
     ],
     "level": 23,
-    "messages": 2412,
+    "messages": 2413,
     "avatar": "https://cdn.discordapp.com/avatars/434764784353804305/079e9acbab412d57da60f98460454d62.png",
     "gang": null,
     "prestige": 0,
@@ -88,14 +88,14 @@
     "id": "138380316095021056",
     "name": "krios41",
     "discriminator": "1947",
-    "xp": "14.7k",
+    "xp": "14.9k",
     "detailed_xp": [
-      865,
+      1002,
       2180,
-      14732
+      14869
     ],
     "level": 16,
-    "messages": 1016,
+    "messages": 1026,
     "avatar": "https://cdn.discordapp.com/avatars/138380316095021056/f912ef80e2616dbb2221fcb2dbd09ab9.png",
     "gang": null,
     "prestige": 0,
@@ -192,12 +192,12 @@
     "discriminator": "4528",
     "xp": "11.1k",
     "detailed_xp": [
-      1045,
+      1056,
       1780,
-      11110
+      11121
     ],
     "level": 14,
-    "messages": 759,
+    "messages": 760,
     "avatar": "https://cdn.discordapp.com/avatars/725373259817811988/f6bb046bfd0f14ceea1dec9e03e70fb8.png",
     "gang": null,
     "prestige": 0,
@@ -243,12 +243,12 @@
     "discriminator": "2802",
     "xp": "10.0k",
     "detailed_xp": [
-      1485,
+      1518,
       1595,
-      9952
+      9985
     ],
     "level": 13,
-    "messages": 681,
+    "messages": 683,
     "avatar": "https://cdn.discordapp.com/avatars/304410053593661442/b046a5b99f4e2f6dad50444728de28cf.png",
     "gang": null,
     "prestige": 0,
