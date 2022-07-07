@@ -3,14 +3,14 @@
     "id": "363095569515806722",
     "name": "Bluesy",
     "discriminator": "8150",
-    "xp": "78.9k",
+    "xp": "79.0k",
     "detailed_xp": [
-      5208,
+      5332,
       6455,
-      78859
+      78983
     ],
     "level": 31,
-    "messages": 5388,
+    "messages": 5397,
     "avatar": "https://cdn.discordapp.com/avatars/363095569515806722/ccf12c126a6827a5b07a4e579a52b043.png",
     "gang": null,
     "prestige": 0,
@@ -39,12 +39,12 @@
     "discriminator": "8014",
     "xp": "35.9k",
     "detailed_xp": [
-      1960,
+      1975,
       3895,
-      35893
+      35908
     ],
     "level": 23,
-    "messages": 2457,
+    "messages": 2458,
     "avatar": "https://cdn.discordapp.com/avatars/434764784353804305/079e9acbab412d57da60f98460454d62.png",
     "gang": null,
     "prestige": 0,
@@ -90,12 +90,12 @@
     "discriminator": "1947",
     "xp": "15.9k",
     "detailed_xp": [
-      2013,
+      2040,
       2180,
-      15880
+      15907
     ],
     "level": 16,
-    "messages": 1098,
+    "messages": 1100,
     "avatar": "https://cdn.discordapp.com/avatars/138380316095021056/f912ef80e2616dbb2221fcb2dbd09ab9.png",
     "gang": null,
     "prestige": 0,
@@ -328,12 +328,12 @@
     "discriminator": "8476",
     "xp": "7.4k",
     "detailed_xp": [
-      369,
+      384,
       1420,
-      7415
+      7430
     ],
     "level": 12,
-    "messages": 509,
+    "messages": 510,
     "avatar": "https://cdn.discordapp.com/avatars/718188351508971542/4d61f718cb0602a9fa2121459306be1e.png",
     "gang": null,
     "prestige": 0,
@@ -816,6 +816,23 @@
     "rank": 48
   },
   {
+    "id": "621453799390838784",
+    "name": "Dr.Drumbas",
+    "discriminator": "2564",
+    "xp": "1.2k",
+    "detailed_xp": [
+      50,
+      475,
+      1212
+    ],
+    "level": 5,
+    "messages": 85,
+    "avatar": "https://cdn.discordapp.com/avatars/621453799390838784/0da83d8258f9eb2c0c1518aec2e0db22.png",
+    "gang": null,
+    "prestige": 0,
+    "rank": 49
+  },
+  {
     "id": "970444057417498635",
     "name": "lime",
     "discriminator": "2794",
@@ -830,7 +847,7 @@
     "avatar": "https://cdn.discordapp.com/avatars/970444057417498635/db5b5928be9783c9026cb5140d619c5d.png",
     "gang": null,
     "prestige": 0,
-    "rank": 49
+    "rank": 50
   },
   {
     "id": "254322038817292289",
@@ -845,23 +862,6 @@
     "level": 5,
     "messages": 82,
     "avatar": "https://cdn.discordapp.com/avatars/254322038817292289/c52472a9f4dc45be30de2160c6a0fd38.png",
-    "gang": null,
-    "prestige": 0,
-    "rank": 50
-  },
-  {
-    "id": "621453799390838784",
-    "name": "Dr.Drumbas",
-    "discriminator": "2564",
-    "xp": "1.1k",
-    "detailed_xp": [
-      374,
-      380,
-      1146
-    ],
-    "level": 4,
-    "messages": 80,
-    "avatar": "https://cdn.discordapp.com/avatars/621453799390838784/0da83d8258f9eb2c0c1518aec2e0db22.png",
     "gang": null,
     "prestige": 0,
     "rank": 51
