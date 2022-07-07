@@ -90,12 +90,12 @@
     "discriminator": "1947",
     "xp": "15.0k",
     "detailed_xp": [
-      1170,
+      1181,
       2180,
-      15037
+      15048
     ],
     "level": 16,
-    "messages": 1038,
+    "messages": 1039,
     "avatar": "https://cdn.discordapp.com/avatars/138380316095021056/f912ef80e2616dbb2221fcb2dbd09ab9.png",
     "gang": null,
     "prestige": 0,
@@ -158,12 +158,12 @@
     "discriminator": "5792",
     "xp": "11.8k",
     "detailed_xp": [
-      1739,
+      1766,
       1780,
-      11796
+      11823
     ],
     "level": 14,
-    "messages": 810,
+    "messages": 812,
     "avatar": "https://cdn.discordapp.com/avatars/254272745779494922/104c411ce5b4accfc2095084e3dded32.png",
     "gang": null,
     "prestige": 0,
@@ -306,6 +306,23 @@
     "rank": 18
   },
   {
+    "id": "980079182912561212",
+    "name": "Tsamoka",
+    "discriminator": "2725",
+    "xp": "7.4k",
+    "detailed_xp": [
+      256,
+      1420,
+      7367
+    ],
+    "level": 12,
+    "messages": 510,
+    "avatar": "https://cdn.discordapp.com/avatars/980079182912561212/9e6bfe52f1e097b1f193ca347be3b68d.png",
+    "gang": null,
+    "prestige": 0,
+    "rank": 19
+  },
+  {
     "id": "718188351508971542",
     "name": "StealthHydrac",
     "discriminator": "8476",
@@ -318,23 +335,6 @@
     "level": 12,
     "messages": 505,
     "avatar": "https://cdn.discordapp.com/avatars/718188351508971542/4d61f718cb0602a9fa2121459306be1e.png",
-    "gang": null,
-    "prestige": 0,
-    "rank": 19
-  },
-  {
-    "id": "980079182912561212",
-    "name": "Tsamoka",
-    "discriminator": "2725",
-    "xp": "7.3k",
-    "detailed_xp": [
-      227,
-      1420,
-      7338
-    ],
-    "level": 12,
-    "messages": 508,
-    "avatar": "https://cdn.discordapp.com/avatars/980079182912561212/9e6bfe52f1e097b1f193ca347be3b68d.png",
     "gang": null,
     "prestige": 0,
     "rank": 20
