@@ -20,14 +20,14 @@
     "id": "465356664657149952",
     "name": "Mordakai Slivermoon",
     "discriminator": "7762",
-    "xp": "40.0k",
+    "xp": "40.1k",
     "detailed_xp": [
-      2135,
+      2214,
       4180,
-      39999
+      40078
     ],
     "level": 24,
-    "messages": 2743,
+    "messages": 2748,
     "avatar": "https://cdn.discordapp.com/avatars/465356664657149952/69046661ae37d5aeacd06e8670bd2cd1.png",
     "gang": null,
     "prestige": 0,
@@ -37,14 +37,14 @@
     "id": "434764784353804305",
     "name": "Caspar",
     "discriminator": "8014",
-    "xp": "35.6k",
+    "xp": "35.7k",
     "detailed_xp": [
-      1704,
+      1721,
       3895,
-      35637
+      35654
     ],
     "level": 23,
-    "messages": 2440,
+    "messages": 2441,
     "avatar": "https://cdn.discordapp.com/avatars/434764784353804305/079e9acbab412d57da60f98460454d62.png",
     "gang": null,
     "prestige": 0,
@@ -54,14 +54,14 @@
     "id": "355127455419203585",
     "name": "Sir Clint Pope",
     "discriminator": "2226",
-    "xp": "22.4k",
+    "xp": "22.5k",
     "detailed_xp": [
-      1411,
+      1455,
       2855,
-      22411
+      22455
     ],
     "level": 19,
-    "messages": 1527,
+    "messages": 1530,
     "avatar": "https://cdn.discordapp.com/avatars/355127455419203585/095ad3bae31ea645652dd0f7d6c16aee.png",
     "gang": null,
     "prestige": 0,
@@ -90,12 +90,12 @@
     "discriminator": "1947",
     "xp": "15.3k",
     "detailed_xp": [
-      1388,
+      1447,
       2180,
-      15255
+      15314
     ],
     "level": 16,
-    "messages": 1055,
+    "messages": 1059,
     "avatar": "https://cdn.discordapp.com/avatars/138380316095021056/f912ef80e2616dbb2221fcb2dbd09ab9.png",
     "gang": null,
     "prestige": 0,
@@ -139,14 +139,14 @@
     "id": "389137667926786060",
     "name": "coolmanfight",
     "discriminator": "1179",
-    "xp": "13.6k",
+    "xp": "13.7k",
     "detailed_xp": [
-      1809,
+      1837,
       1975,
-      13644
+      13672
     ],
     "level": 15,
-    "messages": 935,
+    "messages": 937,
     "avatar": "https://cdn.discordapp.com/avatars/389137667926786060/a0938cefc089461da843738b184389f5.png",
     "gang": null,
     "prestige": 0,
