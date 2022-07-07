@@ -109,7 +109,7 @@ class TicTacView(ui.View):
         y : int
             The y coordinate of the button
         """
-        await interaction.response.defer()
+        await interaction.response.edit_message(view=None)
         self.puzzle.move(x, y)
         button.disabled = True
         if self.puzzle.check_win() == 1:

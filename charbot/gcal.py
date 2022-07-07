@@ -250,7 +250,7 @@ class Calendar(commands.Cog):
     async def cog_load(self) -> None:
         """Load hook."""
         self.webhook = self.bot.holder.pop("webhook", None) or await self.bot.fetch_webhook(
-            Config["discord"]["webhook"]["calendar"]
+            Config["discord"]["webhooks"]["calendar"]
         )
         self.message = self.bot.holder.pop("message", MISSING)
         self.calendar.start()
@@ -313,7 +313,7 @@ class Calendar(commands.Cog):
         assert isinstance(bot_user, discord.ClientUser)  # skipcq: BAN-B101
         if self.message is MISSING:
             assert self.webhook is not None  # skipcq: BAN-B101
-            self.message = await self.webhook.fetch_message(Config["discord"]["message"]["calendar"])
+            self.message = await self.webhook.fetch_message(Config["discord"]["messages"]["calendar"])
         self.message = await self.message.edit(embed=calendar_embed(fields, min(times, default=None)))
 
 

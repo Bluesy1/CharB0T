@@ -5,12 +5,13 @@ disrank == 0.0.2
 jishaku == 2.5.0
 matplotlib == 3.5.2
 numpy == 1.23.0
-orjson == 3.7.5
+orjson == 3.7.7
 pandas == 1.4.3
 Pillow == 9.2.0
 scipy == 1.8.1
 sentry-sdk == 1.6.0
 tomli == 2.0.1
+typing-extensions == 4.3.0
 uvloop == 0.16.0
 validators == 0.20.0
 yfinance == 0.1.72
