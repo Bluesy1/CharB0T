@@ -3,14 +3,14 @@
     "id": "363095569515806722",
     "name": "Bluesy",
     "discriminator": "8150",
-    "xp": "79.9k",
+    "xp": "80.0k",
     "detailed_xp": [
-      6233,
+      6345,
       6455,
-      79884
+      79996
     ],
     "level": 31,
-    "messages": 5459,
+    "messages": 5467,
     "avatar": "https://cdn.discordapp.com/avatars/363095569515806722/ccf12c126a6827a5b07a4e579a52b043.png",
     "gang": null,
     "prestige": 0,
@@ -39,12 +39,12 @@
     "discriminator": "8014",
     "xp": "36.3k",
     "detailed_xp": [
-      2388,
+      2405,
       3895,
-      36321
+      36338
     ],
     "level": 23,
-    "messages": 2486,
+    "messages": 2487,
     "avatar": "https://cdn.discordapp.com/avatars/434764784353804305/079e9acbab412d57da60f98460454d62.png",
     "gang": null,
     "prestige": 0,
@@ -90,12 +90,12 @@
     "discriminator": "1947",
     "xp": "16.3k",
     "detailed_xp": [
-      218,
+      250,
       2395,
-      16273
+      16305
     ],
     "level": 17,
-    "messages": 1125,
+    "messages": 1127,
     "avatar": "https://cdn.discordapp.com/avatars/138380316095021056/f912ef80e2616dbb2221fcb2dbd09ab9.png",
     "gang": null,
     "prestige": 0,
@@ -1360,6 +1360,23 @@
     "rank": 80
   },
   {
+    "id": "774462171756363776",
+    "name": "Alexander Muise",
+    "discriminator": "9099",
+    "xp": "259",
+    "detailed_xp": [
+      0,
+      220,
+      259
+    ],
+    "level": 2,
+    "messages": 18,
+    "avatar": "https://cdn.discordapp.com/avatars/774462171756363776/cfde2040b9f68a93985a709b148278cd.png",
+    "gang": null,
+    "prestige": 0,
+    "rank": 81
+  },
+  {
     "id": "652242001147854849",
     "name": "erraw",
     "discriminator": "0113",
@@ -1374,7 +1391,7 @@
     "avatar": "https://cdn.discordapp.com/avatars/652242001147854849/1e2fe7b85012ec744d2e05fd5a627201.png",
     "gang": null,
     "prestige": 0,
-    "rank": 81
+    "rank": 82
   },
   {
     "id": "317765699768680448",
@@ -1391,7 +1408,7 @@
     "avatar": "https://cdn.discordapp.com/avatars/317765699768680448/15db05b5e5839bdb620092d6482c9003.png",
     "gang": null,
     "prestige": 0,
-    "rank": 82
+    "rank": 83
   },
   {
     "id": "728234986628710570",
@@ -1408,7 +1425,7 @@
     "avatar": "https://cdn.discordapp.com/embed/avatars/1.png",
     "gang": null,
     "prestige": 0,
-    "rank": 83
+    "rank": 84
   },
   {
     "id": "766828466922324058",
@@ -1425,7 +1442,7 @@
     "avatar": "https://cdn.discordapp.com/avatars/766828466922324058/5b5f24af8bb6316127dd0f70e79fcf4e.png",
     "gang": null,
     "prestige": 0,
-    "rank": 84
+    "rank": 85
   },
   {
     "id": "689740845657751555",
@@ -1440,23 +1457,6 @@
     "level": 1,
     "messages": 14,
     "avatar": "https://cdn.discordapp.com/avatars/689740845657751555/7746d27b4947a71b2a2727989aab3297.png",
-    "gang": null,
-    "prestige": 0,
-    "rank": 85
-  },
-  {
-    "id": "774462171756363776",
-    "name": "Alexander Muise",
-    "discriminator": "9099",
-    "xp": "213",
-    "detailed_xp": [
-      109,
-      155,
-      213
-    ],
-    "level": 1,
-    "messages": 15,
-    "avatar": "https://cdn.discordapp.com/avatars/774462171756363776/cfde2040b9f68a93985a709b148278cd.png",
     "gang": null,
     "prestige": 0,
     "rank": 86
