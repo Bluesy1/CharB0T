@@ -3,14 +3,14 @@
     "id": "363095569515806722",
     "name": "Bluesy",
     "discriminator": "8150",
-    "xp": "79.4k",
+    "xp": "79.5k",
     "detailed_xp": [
-      5790,
+      5825,
       6455,
-      79441
+      79476
     ],
     "level": 31,
-    "messages": 5429,
+    "messages": 5431,
     "avatar": "https://cdn.discordapp.com/avatars/363095569515806722/ccf12c126a6827a5b07a4e579a52b043.png",
     "gang": null,
     "prestige": 0,
@@ -54,14 +54,14 @@
     "id": "355127455419203585",
     "name": "Sir Clint Pope",
     "discriminator": "2226",
-    "xp": "22.7k",
+    "xp": "22.8k",
     "detailed_xp": [
-      1701,
+      1763,
       2855,
-      22701
+      22763
     ],
     "level": 19,
-    "messages": 1549,
+    "messages": 1553,
     "avatar": "https://cdn.discordapp.com/avatars/355127455419203585/095ad3bae31ea645652dd0f7d6c16aee.png",
     "gang": null,
     "prestige": 0,
@@ -141,16 +141,33 @@
     "discriminator": "1179",
     "xp": "13.7k",
     "detailed_xp": [
-      1891,
+      1907,
       1975,
-      13726
+      13742
     ],
     "level": 15,
-    "messages": 941,
+    "messages": 942,
     "avatar": "https://cdn.discordapp.com/avatars/389137667926786060/a0938cefc089461da843738b184389f5.png",
     "gang": null,
     "prestige": 0,
     "rank": 9
+  },
+  {
+    "id": "254272745779494922",
+    "name": "[MSM]Wasan",
+    "discriminator": "5792",
+    "xp": "11.9k",
+    "detailed_xp": [
+      58,
+      1975,
+      11899
+    ],
+    "level": 15,
+    "messages": 817,
+    "avatar": "https://cdn.discordapp.com/avatars/254272745779494922/104c411ce5b4accfc2095084e3dded32.png",
+    "gang": null,
+    "prestige": 0,
+    "rank": 10
   },
   {
     "id": "615334339349184522",
@@ -165,23 +182,6 @@
     "level": 15,
     "messages": 812,
     "avatar": "https://cdn.discordapp.com/avatars/615334339349184522/f26d5bb99c50ed137bc9069b70e16fbf.png",
-    "gang": null,
-    "prestige": 0,
-    "rank": 10
-  },
-  {
-    "id": "254272745779494922",
-    "name": "[MSM]Wasan",
-    "discriminator": "5792",
-    "xp": "11.8k",
-    "detailed_xp": [
-      1766,
-      1780,
-      11823
-    ],
-    "level": 14,
-    "messages": 812,
-    "avatar": "https://cdn.discordapp.com/avatars/254272745779494922/104c411ce5b4accfc2095084e3dded32.png",
     "gang": null,
     "prestige": 0,
     "rank": 11
@@ -209,12 +209,12 @@
     "discriminator": "5307",
     "xp": "10.3k",
     "detailed_xp": [
-      222,
+      260,
       1780,
-      10277
+      10315
     ],
     "level": 14,
-    "messages": 702,
+    "messages": 705,
     "avatar": "https://cdn.discordapp.com/avatars/361315683243524097/7ab62327b597a48fd2fd179a6791694f.png",
     "gang": null,
     "prestige": 0,
@@ -343,14 +343,14 @@
     "id": "710057301264039946",
     "name": "Aru05",
     "discriminator": "8860",
-    "xp": "6.0k",
+    "xp": "6.1k",
     "detailed_xp": [
-      262,
+      291,
       1255,
-      6047
+      6076
     ],
     "level": 11,
-    "messages": 419,
+    "messages": 421,
     "avatar": "https://cdn.discordapp.com/avatars/710057301264039946/7d7aa20c67865c80e0bd735fe704a5ea.png",
     "gang": null,
     "prestige": 0,
