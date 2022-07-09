@@ -3,14 +3,14 @@
     "id": "363095569515806722",
     "name": "Bluesy",
     "discriminator": "8150",
-    "xp": "80.0k",
+    "xp": "80.2k",
     "detailed_xp": [
-      6345,
-      6455,
-      79996
+      44,
+      6820,
+      80155
     ],
-    "level": 31,
-    "messages": 5467,
+    "level": 32,
+    "messages": 5478,
     "avatar": "https://cdn.discordapp.com/avatars/363095569515806722/ccf12c126a6827a5b07a4e579a52b043.png",
     "gang": null,
     "prestige": 0,
@@ -37,14 +37,14 @@
     "id": "434764784353804305",
     "name": "Caspar",
     "discriminator": "8014",
-    "xp": "36.3k",
+    "xp": "36.4k",
     "detailed_xp": [
-      2405,
+      2502,
       3895,
-      36338
+      36435
     ],
     "level": 23,
-    "messages": 2487,
+    "messages": 2494,
     "avatar": "https://cdn.discordapp.com/avatars/434764784353804305/079e9acbab412d57da60f98460454d62.png",
     "gang": null,
     "prestige": 0,
@@ -173,14 +173,14 @@
     "id": "615334339349184522",
     "name": "ssWinni",
     "discriminator": "7585",
-    "xp": "11.9k",
+    "xp": "12.0k",
     "detailed_xp": [
-      98,
+      112,
       1975,
-      11945
+      11959
     ],
     "level": 15,
-    "messages": 816,
+    "messages": 817,
     "avatar": "https://cdn.discordapp.com/avatars/615334339349184522/f26d5bb99c50ed137bc9069b70e16fbf.png",
     "gang": null,
     "prestige": 0,
@@ -1309,6 +1309,23 @@
     "rank": 77
   },
   {
+    "id": "774462171756363776",
+    "name": "Alexander Muise",
+    "discriminator": "9099",
+    "xp": "287",
+    "detailed_xp": [
+      28,
+      220,
+      287
+    ],
+    "level": 2,
+    "messages": 20,
+    "avatar": "https://cdn.discordapp.com/avatars/774462171756363776/cfde2040b9f68a93985a709b148278cd.png",
+    "gang": null,
+    "prestige": 0,
+    "rank": 78
+  },
+  {
     "id": "201159016259256321",
     "name": "Shade, Superb Slayling",
     "discriminator": "3455",
@@ -1323,7 +1340,7 @@
     "avatar": "https://cdn.discordapp.com/avatars/201159016259256321/3cc3ffb454e20f56d88e7d5da70cdaf7.png",
     "gang": null,
     "prestige": 0,
-    "rank": 78
+    "rank": 79
   },
   {
     "id": "760850029786562568",
@@ -1340,7 +1357,7 @@
     "avatar": "https://cdn.discordapp.com/avatars/760850029786562568/8302246d5be62e08e05ebd7da5b98cd6.png",
     "gang": null,
     "prestige": 0,
-    "rank": 79
+    "rank": 80
   },
   {
     "id": "278385083109474304",
@@ -1355,23 +1372,6 @@
     "level": 2,
     "messages": 19,
     "avatar": "https://cdn.discordapp.com/embed/avatars/2.png",
-    "gang": null,
-    "prestige": 0,
-    "rank": 80
-  },
-  {
-    "id": "774462171756363776",
-    "name": "Alexander Muise",
-    "discriminator": "9099",
-    "xp": "259",
-    "detailed_xp": [
-      0,
-      220,
-      259
-    ],
-    "level": 2,
-    "messages": 18,
-    "avatar": "https://cdn.discordapp.com/avatars/774462171756363776/cfde2040b9f68a93985a709b148278cd.png",
     "gang": null,
     "prestige": 0,
     "rank": 81
