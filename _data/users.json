@@ -5,12 +5,12 @@
     "discriminator": "8150",
     "xp": "80.3k",
     "detailed_xp": [
-      142,
+      218,
       6820,
-      80253
+      80329
     ],
     "level": 32,
-    "messages": 5485,
+    "messages": 5490,
     "avatar": "https://cdn.discordapp.com/avatars/363095569515806722/ccf12c126a6827a5b07a4e579a52b043.png",
     "gang": null,
     "prestige": 0,
@@ -20,14 +20,14 @@
     "id": "465356664657149952",
     "name": "Mordakai Slivermoon",
     "discriminator": "7762",
-    "xp": "40.7k",
+    "xp": "40.8k",
     "detailed_xp": [
-      2881,
+      2897,
       4180,
-      40745
+      40761
     ],
     "level": 24,
-    "messages": 2795,
+    "messages": 2796,
     "avatar": "https://cdn.discordapp.com/avatars/465356664657149952/69046661ae37d5aeacd06e8670bd2cd1.png",
     "gang": null,
     "prestige": 0,
@@ -39,12 +39,12 @@
     "discriminator": "8014",
     "xp": "36.6k",
     "detailed_xp": [
-      2645,
+      2716,
       3895,
-      36578
+      36649
     ],
     "level": 23,
-    "messages": 2504,
+    "messages": 2509,
     "avatar": "https://cdn.discordapp.com/avatars/434764784353804305/079e9acbab412d57da60f98460454d62.png",
     "gang": null,
     "prestige": 0,
@@ -141,12 +141,12 @@
     "discriminator": "1179",
     "xp": "13.9k",
     "detailed_xp": [
-      50,
+      83,
       2180,
-      13862
+      13895
     ],
     "level": 16,
-    "messages": 951,
+    "messages": 953,
     "avatar": "https://cdn.discordapp.com/avatars/389137667926786060/a0938cefc089461da843738b184389f5.png",
     "gang": null,
     "prestige": 0,
@@ -175,12 +175,12 @@
     "discriminator": "7585",
     "xp": "12.0k",
     "detailed_xp": [
-      125,
+      141,
       1975,
-      11972
+      11988
     ],
     "level": 15,
-    "messages": 818,
+    "messages": 819,
     "avatar": "https://cdn.discordapp.com/avatars/615334339349184522/f26d5bb99c50ed137bc9069b70e16fbf.png",
     "gang": null,
     "prestige": 0,
@@ -309,14 +309,14 @@
     "id": "718188351508971542",
     "name": "StealthHydrac",
     "discriminator": "8476",
-    "xp": "7.6k",
+    "xp": "7.7k",
     "detailed_xp": [
-      572,
+      638,
       1420,
-      7618
+      7684
     ],
     "level": 12,
-    "messages": 523,
+    "messages": 527,
     "avatar": "https://cdn.discordapp.com/avatars/718188351508971542/4d61f718cb0602a9fa2121459306be1e.png",
     "gang": null,
     "prestige": 0,
