@@ -3,14 +3,14 @@
     "id": "363095569515806722",
     "name": "Bluesy",
     "discriminator": "8150",
-    "xp": "81.3k",
+    "xp": "81.4k",
     "detailed_xp": [
-      1183,
+      1263,
       6820,
-      81294
+      81374
     ],
     "level": 32,
-    "messages": 5556,
+    "messages": 5561,
     "avatar": "https://cdn.discordapp.com/avatars/363095569515806722/ccf12c126a6827a5b07a4e579a52b043.png",
     "gang": null,
     "prestige": 0,
@@ -22,12 +22,12 @@
     "discriminator": "7762",
     "xp": "40.8k",
     "detailed_xp": [
-      2940,
+      2954,
       4180,
-      40804
+      40818
     ],
     "level": 24,
-    "messages": 2799,
+    "messages": 2800,
     "avatar": "https://cdn.discordapp.com/avatars/465356664657149952/69046661ae37d5aeacd06e8670bd2cd1.png",
     "gang": null,
     "prestige": 0,
@@ -56,12 +56,12 @@
     "discriminator": "2226",
     "xp": "23.5k",
     "detailed_xp": [
-      2477,
+      2488,
       2855,
-      23477
+      23488
     ],
     "level": 19,
-    "messages": 1602,
+    "messages": 1603,
     "avatar": "https://cdn.discordapp.com/avatars/355127455419203585/095ad3bae31ea645652dd0f7d6c16aee.png",
     "gang": null,
     "prestige": 0,
@@ -192,12 +192,12 @@
     "discriminator": "4528",
     "xp": "11.8k",
     "detailed_xp": [
-      1694,
+      1711,
       1780,
-      11759
+      11776
     ],
     "level": 14,
-    "messages": 803,
+    "messages": 804,
     "avatar": "https://cdn.discordapp.com/avatars/725373259817811988/f6bb046bfd0f14ceea1dec9e03e70fb8.png",
     "gang": null,
     "prestige": 0,
@@ -224,14 +224,14 @@
     "id": "304410053593661442",
     "name": "MSpears",
     "discriminator": "2802",
-    "xp": "10.1k",
+    "xp": "10.2k",
     "detailed_xp": [
-      42,
+      113,
       1780,
-      10112
+      10183
     ],
     "level": 14,
-    "messages": 692,
+    "messages": 697,
     "avatar": "https://cdn.discordapp.com/avatars/304410053593661442/b046a5b99f4e2f6dad50444728de28cf.png",
     "gang": null,
     "prestige": 0,
@@ -564,14 +564,14 @@
     "id": "272563498251321344",
     "name": "iiPartyKing",
     "discriminator": "0647",
-    "xp": "2.0k",
+    "xp": "2.1k",
     "detailed_xp": [
-      407,
+      453,
       580,
-      2044
+      2090
     ],
     "level": 6,
-    "messages": 143,
+    "messages": 146,
     "avatar": "https://cdn.discordapp.com/avatars/272563498251321344/bdb2b85eff2a0ffca1d138056e3ff695.png",
     "gang": null,
     "prestige": 0,
