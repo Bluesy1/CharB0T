@@ -23,9 +23,8 @@
 # SOFTWARE.
 #  ----------------------------------------------------------------------------
 """Reputation pools."""
-import functools
-from io import BytesIO
-from typing import Callable, Final
+import asyncio
+from typing import Final
 
 import asyncpg
 import discord
@@ -166,7 +165,7 @@ class Pools(commands.GroupCog, name="pools", description="Reputation pools for c
             after = await conn.fetchval(
                 "UPDATE pools SET current = current + $1 WHERE pool = $2 returning current", amount, pool
             )
-        image_generator: Callable[[], BytesIO] = functools.partial(
+        image_bytes = await asyncio.to_thread(
             generate_card,
             level=pool_record["level"],
             base_rep=pool_record["start"],
@@ -175,7 +174,6 @@ class Pools(commands.GroupCog, name="pools", description="Reputation pools for c
             pool_name=pool,
             reward=pool_record["reward"],
         )
-        image_bytes = await self.bot.loop.run_in_executor(None, image_generator)
         image = discord.File(image_bytes, filename=f"{pool}.png")
         await interaction.followup.send(
             f"You have added {amount} rep to {pool} you now have {remaining} rep remaining.", file=image
@@ -195,7 +193,7 @@ class Pools(commands.GroupCog, name="pools", description="Reputation pools for c
                 avatar_url=clientuser.display_avatar.url,
                 allowed_mentions=discord.AllowedMentions(users=False, roles=False, everyone=False),
             )
-            image_generator: Callable[[], BytesIO] = functools.partial(
+            image_bytes = await asyncio.to_thread(
                 generate_card,
                 level=pool_record["level"],
                 base_rep=pool_record["start"],
@@ -204,7 +202,6 @@ class Pools(commands.GroupCog, name="pools", description="Reputation pools for c
                 pool_name=pool,
                 reward=pool_record["reward"],
             )
-            image_bytes = await self.bot.loop.run_in_executor(None, image_generator)
             image = discord.File(image_bytes, filename=f"{pool}.png")
             channel = interaction.channel
             assert isinstance(channel, discord.abc.Messageable)  # skipcq: BAN-B101
@@ -237,8 +234,7 @@ class Pools(commands.GroupCog, name="pools", description="Reputation pools for c
             if not any(role.id in pool_record["required_roles"] for role in user.roles):
                 await interaction.followup.send("Pool not found. Please choose one from the autocomplete.")
                 return
-
-        image_generator: Callable[[], BytesIO] = functools.partial(
+        image_bytes = await asyncio.to_thread(
             generate_card,
             level=pool_record["level"],
             base_rep=pool_record["start"],
@@ -247,7 +243,6 @@ class Pools(commands.GroupCog, name="pools", description="Reputation pools for c
             pool_name=pool,
             reward=pool_record["reward"],
         )
-        image_bytes = await self.bot.loop.run_in_executor(None, image_generator)
         await interaction.followup.send(file=discord.File(image_bytes, filename=f"{pool}.png"))
 
 

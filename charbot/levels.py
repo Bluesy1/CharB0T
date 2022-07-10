@@ -23,6 +23,7 @@
 # SOFTWARE.
 #  ----------------------------------------------------------------------------
 """Level system."""
+import asyncio
 import datetime
 import functools
 import random
@@ -249,7 +250,7 @@ class Leveling(commands.Cog):
             user_name=f"{member.name}#{member.discriminator}",
             user_status=cached_member.status.value if not isinstance(cached_member.status, str) else "offline",
         )
-        image = await self.bot.loop.run_in_executor(None, card)
+        image = await asyncio.to_thread(card)
         await interaction.followup.send(file=discord.File(image, "profile.png"))
 
 

@@ -23,9 +23,8 @@
 # SOFTWARE.
 #  ----------------------------------------------------------------------------
 """Admin commands for the reputation system."""
-from functools import partial
-from io import BytesIO
-from typing import Callable, Optional
+import asyncio
+from typing import Optional
 
 import asyncpg
 import discord
@@ -306,7 +305,7 @@ class ReputationAdmin(
             current,
             start,
         )
-        _partial_image: Callable[[], BytesIO] = partial(
+        image_bytes = await asyncio.to_thread(
             generate_card,
             level=level,
             base_rep=start,
@@ -315,7 +314,6 @@ class ReputationAdmin(
             pool_name=name,
             reward=reward,
         )
-        image_bytes = await self.bot.loop.run_in_executor(None, _partial_image)
         image = discord.File(image_bytes, f"{name}.png")
         await interaction.followup.send(f"Pool {name} created with reward {reward}!", file=image)
         clientuser = self.bot.user
@@ -436,7 +434,7 @@ class ReputationAdmin(
             start if start is not None else previous["start"],
             pool,
         )
-        _partial_image: Callable[[], BytesIO] = partial(
+        image_bytes = await asyncio.to_thread(
             generate_card,
             level=level if level is not None else previous["level"],
             base_rep=start if start is not None else previous["start"],
@@ -445,7 +443,6 @@ class ReputationAdmin(
             pool_name=name or pool,
             reward=reward or previous["reward"],
         )
-        image_bytes = await self.bot.loop.run_in_executor(None, _partial_image)
         image = discord.File(image_bytes, f"{previous['pool']}.png")
         await interaction.followup.send(
             f"Pool {name or pool}{f' (formerly {pool})' if name is not None else ''} edited!", file=image
@@ -558,7 +555,7 @@ class ReputationAdmin(
             if _pool is None:
                 await interaction.followup.send(f"Error: Pool `{pool}` not found.")
             else:
-                _partial_image: Callable[[], BytesIO] = partial(
+                image_bytes = await asyncio.to_thread(
                     generate_card,
                     level=_pool["level"],
                     base_rep=_pool["start"],
@@ -567,7 +564,6 @@ class ReputationAdmin(
                     pool_name=pool,
                     reward=_pool["reward"],
                 )
-                image_bytes = await self.bot.loop.run_in_executor(None, _partial_image)
                 image = discord.File(image_bytes, f"{_pool['pool']}.png")
                 await interaction.followup.send(
                     f"Pool `{pool}`: {_pool['level']} level pool with {_pool['start']} base rep, {_pool['current']}"

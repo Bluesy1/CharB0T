@@ -23,6 +23,7 @@
 # SOFTWARE.
 #  ----------------------------------------------------------------------------
 """Tic-tac-toe game view."""
+import asyncio
 from typing import TYPE_CHECKING
 
 import discord
@@ -128,14 +129,14 @@ class TicTacView(ui.View):
             ).set_image(url="attachment://tictactoe.png")
             embed.set_footer(text="Start playing by typing /programs tictactoe")
             self.disable()
-            image = await self.bot.loop.run_in_executor(None, self.puzzle.display)
+            image = await asyncio.to_thread(self.puzzle.display)
             await interaction.edit_original_message(attachments=[image], embed=embed, view=self)
             return
-        move = await self.bot.loop.run_in_executor(None, self.puzzle.next)
+        move = await asyncio.to_thread(self.puzzle.next)
         self._buttons[move[0] * 3 + move[1]].disabled = True
         if self.puzzle.board[move[0]][move[1]] == "blur":
             self.puzzle.board[move[0]][move[1]] = "O" if self.letter == "X" else "X"
-        image = await self.bot.loop.run_in_executor(None, self.puzzle.display)
+        image = await asyncio.to_thread(self.puzzle.display)
         if self.puzzle.check_win() == -1 and all(button.disabled for button in self._buttons):
             points = self.puzzle.points
             member = interaction.user

@@ -23,6 +23,7 @@
 # SOFTWARE.
 #  ----------------------------------------------------------------------------
 """Program classses and functions."""
+import asyncio
 import datetime
 import random
 import re
@@ -58,6 +59,8 @@ class Reputation(commands.Cog, name="Programs"):
             raise app_commands.NoPrivateMessage("Programs can't be used in this server.")
         channel = interaction.channel
         assert isinstance(channel, discord.abc.GuildChannel)  # skipcq: BAN-B101
+        if channel.id == 839690221083820032:
+            return True
         if channel.id != self.bot.CHANNEL_ID:
             raise errors.WrongChannelError(self.bot.CHANNEL_ID)
         user = interaction.user
@@ -114,10 +117,10 @@ class Reputation(commands.Cog, name="Programs"):
         await interaction.response.defer(ephemeral=True)
         game = tictactoe.TicTacView(self.bot, letter, easy)
         if not easy:
-            move = await self.bot.loop.run_in_executor(None, game.puzzle.next)
+            move = await asyncio.to_thread(game.puzzle.next)
             # noinspection PyProtectedMember
             game._buttons[move[0] * 3 + move[1]].disabled = True  # skipcq: PYL-W0212
-        image = await self.bot.loop.run_in_executor(None, game.puzzle.display)
+        image = await asyncio.to_thread(game.puzzle.display)
         embed = discord.Embed(title="TicTacToe").set_image(url="attachment://tictactoe.png")
         embed.set_footer(text="Play by typing /programs tictactoe")
         await interaction.followup.send(embed=embed, file=image, view=game)
@@ -220,13 +223,14 @@ class Reputation(commands.Cog, name="Programs"):
                 "last_particip_dt": 0,
                 "particip": 0,
             }
+            wins = await conn.fetchval("SELECT wins FROM winners WHERE id = $1", interaction.user.id) or 0
         claim = "have" if limits["last_claim"] == self.bot.TIME() else "haven't"
         particip = (
             "have" if (limits["last_particip_dt"] == self.bot.TIME()) and (limits["particip"] >= 10) else "haven't"
         )
         await interaction.followup.send(
             f"You have {points} reputation, you {claim} claimed your daily bonus, and you {particip} hit"
-            f" your daily program cap.",
+            f" your daily program cap, and have {wins}/3 wins in the last month.",
             ephemeral=True,
         )
 
