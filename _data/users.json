@@ -141,12 +141,12 @@
     "discriminator": "1179",
     "xp": "14.0k",
     "detailed_xp": [
-      171,
+      198,
       2180,
-      13983
+      14010
     ],
     "level": 16,
-    "messages": 959,
+    "messages": 961,
     "avatar": "https://cdn.discordapp.com/avatars/389137667926786060/a0938cefc089461da843738b184389f5.png",
     "gang": null,
     "prestige": 0,
@@ -158,12 +158,12 @@
     "discriminator": "5792",
     "xp": "12.1k",
     "detailed_xp": [
-      254,
+      267,
       1975,
-      12095
+      12108
     ],
     "level": 15,
-    "messages": 831,
+    "messages": 832,
     "avatar": "https://cdn.discordapp.com/avatars/254272745779494922/104c411ce5b4accfc2095084e3dded32.png",
     "gang": null,
     "prestige": 0,
@@ -1462,6 +1462,23 @@
     "rank": 86
   },
   {
+    "id": "685417147039875092",
+    "name": "r05.ank",
+    "discriminator": "6815",
+    "xp": "209",
+    "detailed_xp": [
+      103,
+      155,
+      209
+    ],
+    "level": 1,
+    "messages": 14,
+    "avatar": "https://cdn.discordapp.com/embed/avatars/0.png",
+    "gang": null,
+    "prestige": 0,
+    "rank": 87
+  },
+  {
     "id": "563099572616822795",
     "name": "Chris Tucker",
     "discriminator": "7755",
@@ -1476,7 +1493,7 @@
     "avatar": "https://cdn.discordapp.com/avatars/563099572616822795/0b449658e58c0a4b0e5e5ed59529c795.png",
     "gang": null,
     "prestige": 0,
-    "rank": 87
+    "rank": 88
   },
   {
     "id": "96072409815195648",
@@ -1493,7 +1510,7 @@
     "avatar": "https://cdn.discordapp.com/avatars/96072409815195648/ac69b3bb713a4095261b6a28ea20f6d8.png",
     "gang": null,
     "prestige": 0,
-    "rank": 88
+    "rank": 89
   },
   {
     "id": "693051127930945536",
@@ -1508,23 +1525,6 @@
     "level": 1,
     "messages": 13,
     "avatar": "https://cdn.discordapp.com/avatars/693051127930945536/abb77bb12589621b501fa9093f1ba999.png",
-    "gang": null,
-    "prestige": 0,
-    "rank": 89
-  },
-  {
-    "id": "685417147039875092",
-    "name": "r05.ank",
-    "discriminator": "6815",
-    "xp": "197",
-    "detailed_xp": [
-      91,
-      155,
-      197
-    ],
-    "level": 1,
-    "messages": 13,
-    "avatar": "https://cdn.discordapp.com/embed/avatars/0.png",
     "gang": null,
     "prestige": 0,
     "rank": 90
