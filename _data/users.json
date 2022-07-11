@@ -326,14 +326,14 @@
     "id": "980079182912561212",
     "name": "Tsamoka",
     "discriminator": "2725",
-    "xp": "7.6k",
+    "xp": "7.7k",
     "detailed_xp": [
-      537,
+      553,
       1420,
-      7648
+      7664
     ],
     "level": 12,
-    "messages": 529,
+    "messages": 530,
     "avatar": "https://cdn.discordapp.com/avatars/980079182912561212/9e6bfe52f1e097b1f193ca347be3b68d.png",
     "gang": null,
     "prestige": 0,
@@ -3281,9 +3281,9 @@
     "rank": 193
   },
   {
-    "id": "691479796831485973",
-    "name": "Rosavaire",
-    "discriminator": "1149",
+    "id": "178549986055815168",
+    "name": "BigManOnCampus",
+    "discriminator": "8323",
     "xp": "16",
     "detailed_xp": [
       16,
@@ -3292,7 +3292,7 @@
     ],
     "level": 0,
     "messages": 1,
-    "avatar": "https://cdn.discordapp.com/avatars/691479796831485973/c3cacd5e5819e1e4c193e489699d6a22.png",
+    "avatar": "https://cdn.discordapp.com/avatars/178549986055815168/537fc261e16ff97da656cc95b39981b0.png",
     "gang": null,
     "prestige": 0,
     "rank": 194
@@ -3383,9 +3383,9 @@
     "rank": 199
   },
   {
-    "id": "178549986055815168",
-    "name": "BigManOnCampus",
-    "discriminator": "8323",
+    "id": "691479796831485973",
+    "name": "Rosavaire",
+    "discriminator": "1149",
     "xp": "16",
     "detailed_xp": [
       16,
@@ -3394,7 +3394,7 @@
     ],
     "level": 0,
     "messages": 1,
-    "avatar": "https://cdn.discordapp.com/avatars/178549986055815168/537fc261e16ff97da656cc95b39981b0.png",
+    "avatar": "https://cdn.discordapp.com/avatars/691479796831485973/c3cacd5e5819e1e4c193e489699d6a22.png",
     "gang": null,
     "prestige": 0,
     "rank": 200
