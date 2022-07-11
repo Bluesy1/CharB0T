@@ -3,14 +3,14 @@
     "id": "363095569515806722",
     "name": "Bluesy",
     "discriminator": "8150",
-    "xp": "81.8k",
+    "xp": "81.9k",
     "detailed_xp": [
-      1730,
+      1753,
       6820,
-      81841
+      81864
     ],
     "level": 32,
-    "messages": 5594,
+    "messages": 5596,
     "avatar": "https://cdn.discordapp.com/avatars/363095569515806722/ccf12c126a6827a5b07a4e579a52b043.png",
     "gang": null,
     "prestige": 0,
@@ -39,12 +39,12 @@
     "discriminator": "8014",
     "xp": "37.7k",
     "detailed_xp": [
-      3739,
+      3815,
       3895,
-      37672
+      37748
     ],
     "level": 23,
-    "messages": 2578,
+    "messages": 2583,
     "avatar": "https://cdn.discordapp.com/avatars/434764784353804305/079e9acbab412d57da60f98460454d62.png",
     "gang": null,
     "prestige": 0,
@@ -54,14 +54,14 @@
     "id": "355127455419203585",
     "name": "Sir Clint Pope",
     "discriminator": "2226",
-    "xp": "23.8k",
+    "xp": "23.9k",
     "detailed_xp": [
-      2825,
+      2851,
       2855,
-      23825
+      23851
     ],
     "level": 19,
-    "messages": 1626,
+    "messages": 1628,
     "avatar": "https://cdn.discordapp.com/avatars/355127455419203585/095ad3bae31ea645652dd0f7d6c16aee.png",
     "gang": null,
     "prestige": 0,
@@ -430,12 +430,12 @@
     "discriminator": "6856",
     "xp": "3.3k",
     "detailed_xp": [
-      363,
+      407,
       820,
-      3263
+      3307
     ],
     "level": 8,
-    "messages": 223,
+    "messages": 226,
     "avatar": "https://cdn.discordapp.com/avatars/492512818948603904/239b001a472c3d8a465acb3e9d5be235.png",
     "gang": null,
     "prestige": 0,
