@@ -328,12 +328,12 @@
     "discriminator": "2725",
     "xp": "7.7k",
     "detailed_xp": [
-      553,
+      570,
       1420,
-      7664
+      7681
     ],
     "level": 12,
-    "messages": 530,
+    "messages": 531,
     "avatar": "https://cdn.discordapp.com/avatars/980079182912561212/9e6bfe52f1e097b1f193ca347be3b68d.png",
     "gang": null,
     "prestige": 0,
@@ -544,6 +544,23 @@
     "rank": 32
   },
   {
+    "id": "272563498251321344",
+    "name": "iiPartyKing",
+    "discriminator": "0647",
+    "xp": "2.1k",
+    "detailed_xp": [
+      467,
+      580,
+      2104
+    ],
+    "level": 6,
+    "messages": 147,
+    "avatar": "https://cdn.discordapp.com/avatars/272563498251321344/bdb2b85eff2a0ffca1d138056e3ff695.png",
+    "gang": null,
+    "prestige": 0,
+    "rank": 33
+  },
+  {
     "id": "759798566897188874",
     "name": "PinkOrange09",
     "discriminator": "1060",
@@ -556,23 +573,6 @@
     "level": 6,
     "messages": 141,
     "avatar": "https://cdn.discordapp.com/embed/avatars/0.png",
-    "gang": null,
-    "prestige": 0,
-    "rank": 33
-  },
-  {
-    "id": "272563498251321344",
-    "name": "iiPartyKing",
-    "discriminator": "0647",
-    "xp": "2.1k",
-    "detailed_xp": [
-      453,
-      580,
-      2090
-    ],
-    "level": 6,
-    "messages": 146,
-    "avatar": "https://cdn.discordapp.com/avatars/272563498251321344/bdb2b85eff2a0ffca1d138056e3ff695.png",
     "gang": null,
     "prestige": 0,
     "rank": 34
