@@ -18,10 +18,10 @@ def mock_config(monkeypatch):
     data = {
         "calendar": {"key": "calenderkey"},
         "discord": {
-            "webhook": {
+            "webhooks": {
                 "calendar": 1,
             },
-            "message": {
+            "messages": {
                 "calendar": 1,
             },
         },
