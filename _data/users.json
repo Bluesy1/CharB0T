@@ -54,14 +54,14 @@
     "id": "355127455419203585",
     "name": "Sir Clint Pope",
     "discriminator": "2226",
-    "xp": "23.6k",
+    "xp": "23.7k",
     "detailed_xp": [
-      2641,
+      2657,
       2855,
-      23641
+      23657
     ],
     "level": 19,
-    "messages": 1614,
+    "messages": 1615,
     "avatar": "https://cdn.discordapp.com/avatars/355127455419203585/095ad3bae31ea645652dd0f7d6c16aee.png",
     "gang": null,
     "prestige": 0,
@@ -158,12 +158,12 @@
     "discriminator": "5792",
     "xp": "12.1k",
     "detailed_xp": [
-      239,
+      254,
       1975,
-      12080
+      12095
     ],
     "level": 15,
-    "messages": 830,
+    "messages": 831,
     "avatar": "https://cdn.discordapp.com/avatars/254272745779494922/104c411ce5b4accfc2095084e3dded32.png",
     "gang": null,
     "prestige": 0,
@@ -209,12 +209,12 @@
     "discriminator": "5307",
     "xp": "10.5k",
     "detailed_xp": [
-      451,
+      467,
       1780,
-      10506
+      10522
     ],
     "level": 14,
-    "messages": 719,
+    "messages": 720,
     "avatar": "https://cdn.discordapp.com/avatars/361315683243524097/7ab62327b597a48fd2fd179a6791694f.png",
     "gang": null,
     "prestige": 0,
