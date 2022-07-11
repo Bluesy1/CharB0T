@@ -5,12 +5,12 @@
     "discriminator": "8150",
     "xp": "81.7k",
     "detailed_xp": [
-      1550,
+      1626,
       6820,
-      81661
+      81737
     ],
     "level": 32,
-    "messages": 5581,
+    "messages": 5587,
     "avatar": "https://cdn.discordapp.com/avatars/363095569515806722/ccf12c126a6827a5b07a4e579a52b043.png",
     "gang": null,
     "prestige": 0,
@@ -71,14 +71,14 @@
     "id": "470021089104494598",
     "name": "Copperspikes",
     "discriminator": "6862",
-    "xp": "19.9k",
+    "xp": "20.0k",
     "detailed_xp": [
-      1534,
+      1617,
       2620,
-      19911
+      19994
     ],
     "level": 18,
-    "messages": 1365,
+    "messages": 1371,
     "avatar": "https://cdn.discordapp.com/avatars/470021089104494598/609eb666ab567abadd68dcfc4d7c042c.png",
     "gang": null,
     "prestige": 0,
