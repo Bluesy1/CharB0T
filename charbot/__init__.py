@@ -104,27 +104,27 @@ class _Config:
             self.logger.info("Got key %s from config file.", ":".join(args))
 
 
-class Interaction(discord.Interaction, Generic[T]):
+class Interaction(discord.Interaction, Generic[T]):  # skipcq: PY-D0002
     client: T
 
 
-class GuildInteraction(Interaction[T]):
+class GuildInteraction(Interaction[T]):  # skipcq: PY-D0002
     client: T
     guild: discord.Guild
 
 
-class ComponentInteraction(Interaction[T]):
+class ComponentInteraction(Interaction[T]):  # skipcq: PY-D0002
     client: T
     message: discord.Message
 
 
-class GuildComponentInteraction(Interaction[T]):
+class GuildComponentInteraction(Interaction[T]):  # skipcq: PY-D0002
     client: T
     guild: discord.Guild
     message: discord.Message
 
 
-class PresenceFilter(logging.Filter):
+class PresenceFilter(logging.Filter):  # skipcq: PY-A6006
     """Custom logging filter to filtr out presence events from the main debug log.
 
     This filter is used to filter out presence events from the main debug log, but can be configured to leave them in

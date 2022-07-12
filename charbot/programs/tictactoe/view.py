@@ -59,7 +59,7 @@ class TicTacView(ui.View):
         The time when the game started.
     """
 
-    def __init__(self, bot: "CBot", letter: str = "X", easy: bool = True):
+    def __init__(self, bot: CBot, letter: str = "X", easy: bool = True):
         super(TicTacView, self).__init__(timeout=300)
         self.letter = letter
         self.puzzle: TicTacABC = TicTacEasy(self.letter) if easy else TicTacHard(self.letter)

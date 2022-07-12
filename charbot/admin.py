@@ -23,7 +23,7 @@
 # SOFTWARE.
 #  ----------------------------------------------------------------------------
 """Admin commands for charbot."""
-from datetime import datetime, timedelta, timezone
+from datetime import datetime, timezone
 from time import perf_counter
 
 import discord
@@ -31,7 +31,7 @@ import orjson
 from discord import Color, Embed, app_commands
 from discord.ext import commands
 
-from . import CBot
+from . import CBot, GuildInteraction
 
 
 class Admin(commands.Cog):
@@ -209,34 +209,37 @@ class Admin(commands.Cog):
             )
         )
 
-    @app_commands.command(name="confirm", description="[Charlie only] confirm a winner")
+    @app_commands.command(
+        name="confirm", description="[Charlie only] confirm a winner"
+    )  # pyright: ignore[reportGeneralTypeIssues]
     @app_commands.guilds(225345178955808768)
-    async def confirm(
-        self,
-        interaction: discord.Interaction,
-        user: discord.Member,
-        time: app_commands.Range[int, 1, 30] = 6,
-    ) -> None:
+    @app_commands.default_permissions(administrator=True)
+    @app_commands.checks.cooldown(1, 3600, key=lambda i: i.namespace.member)
+    async def confirm(self, interaction: GuildInteraction[CBot], member: discord.Member) -> None:
         """Confirm a winner.
 
         Parameters
         ----------
-        interaction: discord.Interaction
-            The interaction of the command invocation.
-        user : discord.Member
+        interaction: charbot.GuildInteraction[CBot]
+            The interaction of the command invocation. At runtime, this is a discord.Interaction object, buy for
+             typechecking, it's a charbot.GuildInteraction object to help infer the properties of the object.
+        member : discord.Member
             The user to confirm as a winner.
-        time : Optional[IntToTimeDeltaTransformer] = None
-            [OPTIONAL, Default 6] How many days should the winner be blocked from bidding again?"
         """
         if interaction.user.id != 225344348903047168:
             await interaction.response.send_message("Only Charlie can confirm a winner.", ephemeral=True)
             return
-        await self.bot.pool.execute(
-            "INSERT INTO winners (id, expiry) VALUES ($1, $2) ON CONFLICT (id) DO UPDATE SET expiry = $2",
-            user.id,
-            self.bot.TIME() + timedelta(days=time),
+        async with self.bot.pool.acquire() as conn:
+            await conn.execute(
+                "INSERT INTO winners (id, wins) VALUES ($1, 1) ON CONFLICT (id) DO UPDATE SET wins = winners.wins + 1",
+                member.id,
+            )
+            wins = await conn.fetchrow("SELECT wins FROM winners WHERE id = $1", member.id)
+        await interaction.response.send_message(
+            f"Confirmed {member.name}#{member.discriminator} (ID: {member.id}) as having won a giveaway,"
+            f" ({wins}/3 this month for them)",
+            ephemeral=True,
         )
-        await interaction.response.send_message("Confirmed.", ephemeral=True)
 
 
 async def setup(bot: CBot):

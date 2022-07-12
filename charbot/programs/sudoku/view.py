@@ -67,7 +67,7 @@ class Sudoku(ui.View):
         Time the game started, used for calculating time taken. Timezone aware.
     """
 
-    def __init__(self, puzzle: Puzzle, author: discord.Member, bot: "CBot"):
+    def __init__(self, puzzle: Puzzle, author: discord.Member, bot: CBot):
         super().__init__(timeout=None)
         self.puzzle = puzzle
         self.author = author

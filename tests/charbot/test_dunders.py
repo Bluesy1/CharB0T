@@ -43,7 +43,7 @@ def test_config(monkeypatch, caplog):
     assert log[1] == logging.ERROR
     assert log[2] == "Tried to get key calendar:badkey from config file, but it was not found."
 
-    class Test(object):
+    class Test:
         def __str__(self):
             return "Test"
 
@@ -97,7 +97,6 @@ def test_config(monkeypatch, caplog):
 )
 def test_filter(name, level, text, expected, last, expected_last):
     """Test filter."""
-
     log_filter = charbot.PresenceFilter()
     log_filter.last_presence = last
     test_record = logging.LogRecord(name, level, __file__, 67, text, (), None)

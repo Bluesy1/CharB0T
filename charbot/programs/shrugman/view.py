@@ -83,7 +83,7 @@ class Shrugman(ui.View):
         The time the game started. Timzone aware.
     """
 
-    def __init__(self, bot: "CBot", word: str, *, fail_enum=FailStates):
+    def __init__(self, bot: CBot, word: str, *, fail_enum=FailStates):
         super().__init__(timeout=600)
         self.bot = bot
         self.word = word or random.choice(words)

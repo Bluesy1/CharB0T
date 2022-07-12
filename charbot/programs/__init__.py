@@ -233,7 +233,7 @@ class Reputation(commands.Cog, name="Programs"):
         )
 
 
-async def setup(bot: "CBot"):
+async def setup(bot: CBot):
     """Load the cog.
 
     Parameters
@@ -243,7 +243,7 @@ async def setup(bot: "CBot"):
     await bot.add_cog(Reputation(bot), guild=discord.Object(id=225345178955808768), override=True)
 
 
-async def teardown(bot: "CBot"):
+async def teardown(bot: CBot):
     """Unload the cog.
 
     Parameters

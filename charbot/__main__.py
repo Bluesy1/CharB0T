@@ -41,7 +41,7 @@ async def main():
     """Run charbot."""
     # set up logging because i'm using `client.start()`, not `client.run()`
     # so i don't get the sane loging defaults set by discord.py
-    logging.config.dictConfig(Config["logging"])  # skpicq: PY-A6006
+    logging.config.dictConfig(Config["logging"])  # skipcq: PY-A6006
 
     # Setup sentry.io integration so that exceptions are logged to sentry.io as well.
     sentry_sdk.init(
