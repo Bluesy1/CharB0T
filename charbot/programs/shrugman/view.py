@@ -26,17 +26,13 @@
 import datetime
 import random
 from enum import Enum
-from typing import TYPE_CHECKING
 
 import discord
 from discord import ui
 from discord.utils import utcnow
 
 from . import modal
-
-
-if TYPE_CHECKING:
-    from ...types.bot import CBot
+from .. import CBot
 
 
 __all__ = ("Shrugman", "words")

@@ -24,17 +24,14 @@
 #  ----------------------------------------------------------------------------
 """View class."""
 import datetime
-from typing import TYPE_CHECKING, Literal
+from typing import Literal
 
 import discord
 from discord import ButtonStyle, Interaction, SelectOption, ui
 from discord.utils import MISSING, utcnow
 
 from . import Block, Cell, Puzzle
-
-
-if TYPE_CHECKING:
-    from ...types.bot import CBot
+from .. import CBot
 
 
 # noinspection GrazieInspection

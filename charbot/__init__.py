@@ -24,14 +24,25 @@
 #  ----------------------------------------------------------------------------
 """Charbot Module."""
 import logging
-from typing import Any
+from typing import Any, Generic, TypeVar
 from pkgutil import iter_modules
 
+import discord
 
-__all__ = ("EXTENSIONS", "CBot", "Tree", "Config")
+__all__ = (
+    "EXTENSIONS",
+    "CBot",
+    "Tree",
+    "Config",
+    "Interaction",
+    "GuildInteraction",
+    "ComponentInteraction",
+    "GuildComponentInteraction",
+)
 __blacklist__ = [f"{__package__}.{item}" for item in ("__main__", "bot", "card", "errors", "types")]
 
 EXTENSIONS = [module.name for module in iter_modules(__path__, f"{__package__}.") if module.name not in __blacklist__]
+T = TypeVar("T", bound="CBot")
 
 
 class _Config:
@@ -60,21 +71,10 @@ class _Config:
             cls.__instance__ = super(_Config, cls).__new__(cls)
         return cls.__instance__
 
-    def __getitem__(self, item: str) -> Any | dict[str, Any]:
-        try:
-            import tomllib  # type: ignore
-        except ImportError:
-            import tomli as tomllib
-        with open(self._file, "rb") as f:
-            try:
-                return tomllib.load(f)[item]
-            except KeyError:
-                self.logger.exception("Tried to get key %s from config file, but it was not found.", item)
-                raise
-            finally:
-                self.logger.info("Got key %s from config file.", item)
+    def __getitem__(self, item: str) -> dict[str, str | int | dict[str, Any]]:
+        return self(item)
 
-    def __call__(self, *args: str) -> Any:
+    def __call__(self, *args: str) -> str | int | dict[str, str | int | dict[str, Any]]:
         try:
             import tomllib  # type: ignore
         except ImportError:
@@ -94,14 +94,74 @@ class _Config:
             raise
         except TypeError:
             self.logger.exception(
-                "Tried to get key %s from config file, but a non string key %s of type %s was passed.",
-                ":".join([repr(arg) for arg in args]),
-                str(badkey),
+                "Tried to get key %s from config file, but a non string key %r of type %s was passed.",
+                ":".join([str(arg) for arg in args]),
+                badkey,
                 type(badkey),
             )
             raise
         finally:
             self.logger.info("Got key %s from config file.", ":".join(args))
+
+
+class Interaction(discord.Interaction, Generic[T]):
+    client: T
+
+
+class GuildInteraction(Interaction[T]):
+    client: T
+    guild: discord.Guild
+
+
+class ComponentInteraction(Interaction[T]):
+    client: T
+    message: discord.Message
+
+
+class GuildComponentInteraction(Interaction[T]):
+    client: T
+    guild: discord.Guild
+    message: discord.Message
+
+
+class PresenceFilter(logging.Filter):
+    """Custom logging filter to filtr out presence events from the main debug log.
+
+    This filter is used to filter out presence events from the main debug log, but can be configured to leave them in
+        the log by setting detailed to True.
+    """
+
+    last_presence: bool
+
+    def filter(self, record):
+        """Determine if the specified record is to be logged.
+
+        Returns True if the record should be logged, or False otherwise.
+
+        Parameters
+        ----------
+        record: logging.LogRecord
+            The record to be logged.
+
+        Returns
+        -------
+        bool
+            Whether the record should be logged.
+        """
+        if record.levelno > logging.DEBUG:
+            self.last_presence = False
+            return True
+        if "'t': 'PRESENCE_UPDATE'" in record.msg:
+            self.last_presence = True
+            return False
+        if "socket_event_type" in record.msg and self.last_presence:
+            self.last_presence = False
+            return False
+        if "presence_update" in record.msg:
+            self.last_presence = False
+            return False
+        self.last_presence = False
+        return True
 
 
 Config = _Config()

@@ -130,12 +130,12 @@ class GiveawayView(ui.View):
             assert isinstance(game, str)  # skipcq: BAN-B101
             view = cls(bot, channel, embed, game, url)
             view.message = message
-            bid = embed.fields[4].value
-            assert isinstance(bid, str)  # skipcq: BAN-B101
-            view.top_bid = int(bid)
+            view.top_bid = 0
             total = embed.fields[3].value
             assert isinstance(total, str)  # skipcq: BAN-B101
             view.total_entries = int(total)
+            if view.total_entries:
+                view.check.disabled = False
         except (IndexError, ValueError, TypeError, AssertionError) as e:
             raise KeyError("Invalid giveaway embed.") from e
         return view
@@ -254,7 +254,7 @@ class GiveawayView(ui.View):
         list[asyncpg.Record]
         """
         async with self.bot.pool.acquire() as conn:
-            blocked: list[int] = [block["id"] for block in await conn.fetch("SELECT id FROM winners")]
+            blocked: list[int] = [block["id"] for block in await conn.fetch("SELECT id FROM winners WHERE wins >= 3")]
             raw_bidders = await conn.fetch("SELECT * FROM bids WHERE bid > 0 ORDER BY bid DESC")
             bidders = [bid for bid in raw_bidders if bid["id"] not in blocked]
             return_bids = [(bid["bid"], bid["id"]) for bid in raw_bidders if bid["id"] in blocked]
@@ -343,18 +343,13 @@ class GiveawayView(ui.View):
             The button that was pressed.
         """
         async with self.bot.pool.acquire() as conn:
-            last_win = await conn.fetchval(
-                "SELECT expiry FROM winners WHERE id = $1", interaction.user.id
-            ) or self.bot.TIME() - datetime.timedelta(days=1)
-            if last_win >= self.bot.TIME():
+            wins = await conn.fetchval("SELECT wins FROM winners WHERE id = $1", interaction.user.id) or 0
+            if wins >= 3:
                 await interaction.response.send_message(
-                    f"You have won a giveaway recently, please wait until after {last_win.strftime('%a %d %B %Y')}"
-                    f" to bid again.",
+                    "You have won a giveaway recently, please wait until the first of the next month to bid again.",
                     ephemeral=True,
                 )
                 return
-            if last_win != self.bot.TIME() - datetime.timedelta(days=1):
-                await conn.execute("DELETE FROM winners WHERE id = $1", interaction.user.id)
         modal = BidModal(self.bot, self)
         await interaction.response.send_modal(modal)
         await modal.wait()
@@ -378,23 +373,20 @@ class GiveawayView(ui.View):
             The button that was pressed.
         """
         async with self.bot.pool.acquire() as conn:
-            last_win = await conn.fetchval(
-                "SELECT expiry FROM winners WHERE id = $1", interaction.user.id
-            ) or self.bot.TIME() - datetime.timedelta(days=1)
-            if last_win >= self.bot.TIME():
+            wins = await conn.fetchval("SELECT wins FROM winners WHERE id = $1", interaction.user.id) or 0
+            if wins >= 3:
                 await interaction.response.send_message(
-                    f"You have won a giveaway recently, please wait until after {last_win.strftime('%a %d %B %Y')}"
-                    f" to bid again.",
+                    "You have won a giveaway recently, please wait until the first of the next month to bid again.",
                     ephemeral=True,
                 )
                 return
-            if last_win != self.bot.TIME() - datetime.timedelta(days=1):
-                await conn.execute("DELETE FROM winners WHERE id = $1", interaction.user.id)
             record = await conn.fetchval("SELECT bid FROM bids WHERE id = $1", interaction.user.id)
             bid: int = record if record is not None else 0
         chance = bid * 100 / self.total_entries
         await interaction.response.send_message(
-            f"You have bid {bid} entries, giving you a {chance:.2f}% chance of winning!", ephemeral=True
+            f"You have bid {bid} entries, giving you a {chance:.2f}% chance of winning, and you have"
+            f" won {wins}/3 giveaways you can this month!",
+            ephemeral=True,
         )
 
     # noinspection PyUnusedLocal
@@ -567,11 +559,16 @@ class Giveaway(commands.Cog):
         self.yesterdays_giveaway: GiveawayView = bot.holder.pop("yesterdays_giveaway")
         self.current_giveaway: GiveawayView = bot.holder.pop("current_giveaway")
         self.charlie: discord.Member = MISSING
-        self.games: pd.DataFrame = self.load_game_csv()
+        self.games: pd.DataFrame = pd.read_csv(
+            "charbot/giveaway.csv", index_col=0, usecols=[0, 1, 2, 4], names=["date", "game", "url", "source"]
+        )
 
     async def cog_load(self) -> None:
         """Call when the cog is loaded."""
         self.daily_giveaway.start()
+        current_giveaway = GiveawayView.recreate_from_message(self.current_giveaway.message, self.bot)
+        await current_giveaway.message.edit(view=current_giveaway)
+        self.current_giveaway = current_giveaway
 
     async def cog_unload(self) -> None:  # skipcq: PYL-W0236
         """Call when the cog is unloaded."""
@@ -579,30 +576,20 @@ class Giveaway(commands.Cog):
         self.bot.holder["yesterdays_giveaway"] = self.yesterdays_giveaway
         self.bot.holder["current_giveaway"] = self.current_giveaway
 
-    @staticmethod
-    def load_game_csv() -> pd.DataFrame:
-        """Load the game CSV file.
-
-        This loads the game CSV file into the games list variable as a dataframe.
-
-        Returns
-        -------
-        pd.DataFrame
-            The games dataframe, with the index date in the form (m)m/(d)d/yyyy., and columns game, url, and source.
-        """
-        return pd.read_csv(
-            "charbot/giveaway.csv", index_col=0, usecols=[0, 1, 2, 4], names=["date", "game", "url", "source"]
-        )
-
     @tasks.loop(time=datetime.time(hour=9, minute=0, second=0, tzinfo=CBot.ZONEINFO))  # skipcq: PYL-E1123
     async def daily_giveaway(self):
         """Run the daily giveaway."""
+        if self.bot.TIME().day == 1:
+            # noinspection SqlWithoutWhere
+            await self.bot.pool.execute("DELETE FROM winners")  # clear the table the start of each month
         if self.current_giveaway is not MISSING:
             self.yesterdays_giveaway = self.current_giveaway
             await self.yesterdays_giveaway.end()
         if not isinstance(self.charlie, discord.Member):
             self.charlie = await (await self.bot.fetch_guild(225345178955808768)).fetch_member(225344348903047168)
-        self.games = self.load_game_csv()
+        self.games = pd.read_csv(
+            "charbot/giveaway.csv", index_col=0, usecols=[0, 1, 2, 4], names=["date", "game", "url", "source"]
+        )
         try:
             gameinfo: dict[str, str] = dict(self.games.loc[self.bot.TIME().strftime("%-m/%-d/%Y")])
         except KeyError:

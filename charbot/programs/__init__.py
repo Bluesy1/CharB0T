@@ -27,17 +27,15 @@ import asyncio
 import datetime
 import random
 import re
-from typing import Final, Literal, TYPE_CHECKING
+from typing import Final, Literal
 
 import discord
 from discord import Interaction, app_commands
 from discord.ext import commands
 
+from ..types.bot import CBot
 from . import shrugman, sudoku, tictactoe
 from .. import errors
-
-if TYPE_CHECKING:
-    from ..types.bot import CBot
 
 
 MESSAGE: Final = "You must be at least level 1 to participate in the giveaways system and be in <#969972085445238784>."

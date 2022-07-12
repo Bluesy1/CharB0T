@@ -26,8 +26,6 @@
 import asyncio
 import logging.config
 import os
-import socket
-import uuid
 
 import aiohttp
 import asyncpg
@@ -46,7 +44,6 @@ async def main():
     logging.config.dictConfig(Config["logging"])  # skpicq: PY-A6006
 
     # Setup sentry.io integration so that exceptions are logged to sentry.io as well.
-    sentry_sdk.set_user({"id": uuid.uuid4(), "ip_address": "{{ auto }}", "username": socket.gethostname()})
     sentry_sdk.init(
         dsn=Config["sentry"]["dsn"],
         # Set traces_sample_rate to 1.0 to capture 100%

@@ -99,16 +99,16 @@ class GuessModal(ui.Modal, title="Shrugman Guess"):
         interaction : discord.Interaction
             The interaction object.
         """
+        await interaction.response.defer()
         _value = self.guess.value
         assert isinstance(_value, str)  # skipcq: BAN-B101
         value: str = _value.lower()
         if value not in __valid_guesses__:
-            await interaction.response.send_message("Invalid guess.", ephemeral=True)
+            await interaction.followup.send("Invalid guess.")
             return
         if value in self.game.guesses:
-            await interaction.response.send_message(f"You already guessed {value}.", ephemeral=True)
+            await interaction.followup.send(f"You already guessed {value}.")
             return
-        await interaction.response.defer()
         self.game.guesses.append(value)
         self.game.guess_count += 1
         if value not in self.game.word:

@@ -24,17 +24,13 @@
 #  ----------------------------------------------------------------------------
 """Tic-tac-toe game view."""
 import asyncio
-from typing import TYPE_CHECKING
 
 import discord
 from discord import ButtonStyle, Interaction, ui
 from discord.utils import utcnow
 
 from . import TicTacABC, TicTacEasy, TicTacHard
-
-
-if TYPE_CHECKING:
-    from ...types.bot import CBot
+from .. import CBot
 
 
 class TicTacView(ui.View):

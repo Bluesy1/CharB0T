@@ -442,7 +442,8 @@ class Tree(app_commands.CommandTree[CBot]):
                 )
                 await self.client.error_logs.send(
                     f"{interaction.user.mention} tried to execute command {command.name!r} but an error "
-                    f"occurred:\n{orig_error}"
+                    f"occurred:\n{orig_error}",
+                    allowed_mentions=discord.AllowedMentions(users=False, roles=False, everyone=False),
                 )
                 self.logger.error("Ignoring exception in command %r", command.name, exc_info=error)
             else:
