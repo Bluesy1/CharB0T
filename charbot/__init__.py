@@ -71,10 +71,10 @@ class _Config:
             cls.__instance__ = super(_Config, cls).__new__(cls)
         return cls.__instance__
 
-    def __getitem__(self, item: str) -> dict[str, str | int | dict[str, Any]]:
-        return self(item)
+    def __getitem__(self, item: str) -> dict[str, Any]:
+        return self(item)  # pyright: ignore[reportGeneralTypeIssues]
 
-    def __call__(self, *args: str) -> str | int | dict[str, str | int | dict[str, Any]]:
+    def __call__(self, *args: str) -> str | int | dict[str, Any]:
         try:
             import tomllib  # type: ignore
         except ImportError:

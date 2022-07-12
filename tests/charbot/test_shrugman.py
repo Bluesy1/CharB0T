@@ -113,8 +113,10 @@ async def test_modal_invalid_guess(_unused_not_random, mocker: MockerFixture):
     modal.guess._value = "1"
     mock_interaction = mocker.AsyncMock(spec=discord.Interaction)
     mock_interaction.response = mocker.AsyncMock(spec=discord.InteractionResponse)
+    mock_interaction.followup = mocker.AsyncMock(spec=discord.Webhook)
     await modal.on_submit(mock_interaction)
-    mock_interaction.response.send_message.assert_called_once_with("Invalid guess.", ephemeral=True)
+    mock_interaction.followup.send.assert_called_once_with("Invalid guess.", ephemeral=True)
+    mock_interaction.response.defer.assert_called_once_with(ephemeral=True)
 
 
 async def test_modal_duplicate_guess(_unused_not_random, mocker: MockerFixture):
@@ -125,5 +127,7 @@ async def test_modal_duplicate_guess(_unused_not_random, mocker: MockerFixture):
     modal.guess._value = "a"
     mock_interaction = mocker.AsyncMock(spec=discord.Interaction)
     mock_interaction.response = mocker.AsyncMock(spec=discord.InteractionResponse)
+    mock_interaction.followup = mocker.AsyncMock(spec=discord.Webhook)
     await modal.on_submit(mock_interaction)
-    mock_interaction.response.send_message.assert_called_once_with("You already guessed a.", ephemeral=True)
+    mock_interaction.followup.send.assert_called_once_with("You already guessed a.", ephemeral=True)
+    mock_interaction.response.defer.assert_called_once_with(ephemeral=True)
