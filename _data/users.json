@@ -5,12 +5,12 @@
     "discriminator": "8150",
     "xp": "83.0k",
     "detailed_xp": [
-      2916,
+      2933,
       6820,
-      83027
+      83044
     ],
     "level": 32,
-    "messages": 5679,
+    "messages": 5680,
     "avatar": "https://cdn.discordapp.com/avatars/363095569515806722/ccf12c126a6827a5b07a4e579a52b043.png",
     "gang": null,
     "prestige": 0,
@@ -39,12 +39,12 @@
     "discriminator": "8014",
     "xp": "38.7k",
     "detailed_xp": [
-      885,
+      917,
       4180,
-      38717
+      38749
     ],
     "level": 24,
-    "messages": 2650,
+    "messages": 2652,
     "avatar": "https://cdn.discordapp.com/avatars/434764784353804305/079e9acbab412d57da60f98460454d62.png",
     "gang": null,
     "prestige": 0,
@@ -105,14 +105,14 @@
     "id": "225344348903047168",
     "name": "CharliePryor",
     "discriminator": "0001",
-    "xp": "14.6k",
+    "xp": "14.7k",
     "detailed_xp": [
-      807,
+      870,
       2180,
-      14615
+      14678
     ],
     "level": 16,
-    "messages": 990,
+    "messages": 994,
     "avatar": "https://cdn.discordapp.com/avatars/225344348903047168/a_44adaea1066b1489bfe2aeebb0922d33.png",
     "gang": null,
     "prestige": 0,
@@ -190,14 +190,14 @@
     "id": "725373259817811988",
     "name": "General_WCJ",
     "discriminator": "4528",
-    "xp": "11.8k",
+    "xp": "11.9k",
     "detailed_xp": [
-      1773,
-      1780,
-      11838
+      31,
+      1975,
+      11882
     ],
-    "level": 14,
-    "messages": 808,
+    "level": 15,
+    "messages": 811,
     "avatar": "https://cdn.discordapp.com/avatars/725373259817811988/f6bb046bfd0f14ceea1dec9e03e70fb8.png",
     "gang": null,
     "prestige": 0,
@@ -309,14 +309,14 @@
     "id": "718188351508971542",
     "name": "StealthHydrac",
     "discriminator": "8476",
-    "xp": "8.1k",
+    "xp": "8.2k",
     "detailed_xp": [
-      1096,
+      1111,
       1420,
-      8142
+      8157
     ],
     "level": 12,
-    "messages": 559,
+    "messages": 560,
     "avatar": "https://cdn.discordapp.com/avatars/718188351508971542/4d61f718cb0602a9fa2121459306be1e.png",
     "gang": null,
     "prestige": 0,
