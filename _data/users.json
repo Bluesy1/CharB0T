@@ -3,14 +3,14 @@
     "id": "363095569515806722",
     "name": "Bluesy",
     "discriminator": "8150",
-    "xp": "82.8k",
+    "xp": "82.9k",
     "detailed_xp": [
-      2730,
+      2746,
       6820,
-      82841
+      82857
     ],
     "level": 32,
-    "messages": 5666,
+    "messages": 5667,
     "avatar": "https://cdn.discordapp.com/avatars/363095569515806722/ccf12c126a6827a5b07a4e579a52b043.png",
     "gang": null,
     "prestige": 0,
@@ -124,12 +124,12 @@
     "discriminator": "1179",
     "xp": "14.3k",
     "detailed_xp": [
-      461,
+      472,
       2180,
-      14273
+      14284
     ],
     "level": 16,
-    "messages": 979,
+    "messages": 980,
     "avatar": "https://cdn.discordapp.com/avatars/389137667926786060/a0938cefc089461da843738b184389f5.png",
     "gang": null,
     "prestige": 0,
@@ -226,12 +226,12 @@
     "discriminator": "2802",
     "xp": "10.4k",
     "detailed_xp": [
-      348,
+      364,
       1780,
-      10418
+      10434
     ],
     "level": 14,
-    "messages": 713,
+    "messages": 714,
     "avatar": "https://cdn.discordapp.com/avatars/304410053593661442/b046a5b99f4e2f6dad50444728de28cf.png",
     "gang": null,
     "prestige": 0,
@@ -1108,14 +1108,14 @@
     "id": "250022004206469130",
     "name": "Art",
     "discriminator": "6205",
-    "xp": "539",
+    "xp": "570",
     "detailed_xp": [
-      61,
+      92,
       295,
-      539
+      570
     ],
     "level": 3,
-    "messages": 38,
+    "messages": 40,
     "avatar": "https://cdn.discordapp.com/avatars/250022004206469130/bd0cbe993b64a0920a0927f204f4fe93.png",
     "gang": null,
     "prestige": 0,
