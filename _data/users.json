@@ -37,14 +37,14 @@
     "id": "434764784353804305",
     "name": "Caspar",
     "discriminator": "8014",
-    "xp": "38.8k",
+    "xp": "38.9k",
     "detailed_xp": [
-      1016,
+      1031,
       4180,
-      38848
+      38863
     ],
     "level": 24,
-    "messages": 2659,
+    "messages": 2660,
     "avatar": "https://cdn.discordapp.com/avatars/434764784353804305/079e9acbab412d57da60f98460454d62.png",
     "gang": null,
     "prestige": 0,
@@ -394,14 +394,14 @@
     "id": "925449738705338368",
     "name": "MarsOmega77",
     "discriminator": "8763",
-    "xp": "3.5k",
+    "xp": "3.6k",
     "detailed_xp": [
-      619,
+      651,
       820,
-      3530
+      3562
     ],
     "level": 8,
-    "messages": 246,
+    "messages": 248,
     "avatar": "https://cdn.discordapp.com/avatars/925449738705338368/4155be38f3591a54d5b63451109f3c9e.png",
     "gang": null,
     "prestige": 0,
@@ -1394,6 +1394,23 @@
     "rank": 82
   },
   {
+    "id": "685417147039875092",
+    "name": "r05.ank",
+    "discriminator": "6815",
+    "xp": "270",
+    "detailed_xp": [
+      0,
+      220,
+      270
+    ],
+    "level": 2,
+    "messages": 18,
+    "avatar": "https://cdn.discordapp.com/embed/avatars/0.png",
+    "gang": null,
+    "prestige": 0,
+    "rank": 83
+  },
+  {
     "id": "652242001147854849",
     "name": "erraw",
     "discriminator": "0113",
@@ -1408,7 +1425,7 @@
     "avatar": "https://cdn.discordapp.com/avatars/652242001147854849/1e2fe7b85012ec744d2e05fd5a627201.png",
     "gang": null,
     "prestige": 0,
-    "rank": 83
+    "rank": 84
   },
   {
     "id": "317765699768680448",
@@ -1425,7 +1442,7 @@
     "avatar": "https://cdn.discordapp.com/avatars/317765699768680448/15db05b5e5839bdb620092d6482c9003.png",
     "gang": null,
     "prestige": 0,
-    "rank": 84
+    "rank": 85
   },
   {
     "id": "968975188962181160",
@@ -1442,7 +1459,7 @@
     "avatar": "https://cdn.discordapp.com/embed/avatars/2.png",
     "gang": null,
     "prestige": 0,
-    "rank": 85
+    "rank": 86
   },
   {
     "id": "728234986628710570",
@@ -1457,23 +1474,6 @@
     "level": 1,
     "messages": 17,
     "avatar": "https://cdn.discordapp.com/embed/avatars/1.png",
-    "gang": null,
-    "prestige": 0,
-    "rank": 86
-  },
-  {
-    "id": "685417147039875092",
-    "name": "r05.ank",
-    "discriminator": "6815",
-    "xp": "235",
-    "detailed_xp": [
-      129,
-      155,
-      235
-    ],
-    "level": 1,
-    "messages": 16,
-    "avatar": "https://cdn.discordapp.com/embed/avatars/0.png",
     "gang": null,
     "prestige": 0,
     "rank": 87
