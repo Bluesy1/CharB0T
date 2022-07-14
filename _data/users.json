@@ -39,12 +39,12 @@
     "discriminator": "8014",
     "xp": "38.8k",
     "detailed_xp": [
-      956,
+      1004,
       4180,
-      38788
+      38836
     ],
     "level": 24,
-    "messages": 2655,
+    "messages": 2658,
     "avatar": "https://cdn.discordapp.com/avatars/434764784353804305/079e9acbab412d57da60f98460454d62.png",
     "gang": null,
     "prestige": 0,
@@ -921,14 +921,14 @@
     "id": "250022004206469130",
     "name": "Art",
     "discriminator": "6205",
-    "xp": "818",
+    "xp": "877",
     "detailed_xp": [
-      33,
+      92,
       380,
-      818
+      877
     ],
     "level": 4,
-    "messages": 57,
+    "messages": 61,
     "avatar": "https://cdn.discordapp.com/avatars/250022004206469130/bd0cbe993b64a0920a0927f204f4fe93.png",
     "gang": null,
     "prestige": 0,
