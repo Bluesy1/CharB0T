@@ -56,12 +56,12 @@
     "discriminator": "2226",
     "xp": "24.5k",
     "detailed_xp": [
-      615,
+      646,
       3100,
-      24482
+      24513
     ],
     "level": 20,
-    "messages": 1671,
+    "messages": 1673,
     "avatar": "https://cdn.discordapp.com/avatars/355127455419203585/095ad3bae31ea645652dd0f7d6c16aee.png",
     "gang": null,
     "prestige": 0,
@@ -90,12 +90,12 @@
     "discriminator": "1947",
     "xp": "16.7k",
     "detailed_xp": [
-      646,
+      657,
       2395,
-      16701
+      16712
     ],
     "level": 17,
-    "messages": 1155,
+    "messages": 1156,
     "avatar": "https://cdn.discordapp.com/avatars/138380316095021056/f912ef80e2616dbb2221fcb2dbd09ab9.png",
     "gang": null,
     "prestige": 0,
@@ -122,14 +122,14 @@
     "id": "389137667926786060",
     "name": "coolmanfight",
     "discriminator": "1179",
-    "xp": "14.4k",
+    "xp": "14.5k",
     "detailed_xp": [
-      625,
+      650,
       2180,
-      14437
+      14462
     ],
     "level": 16,
-    "messages": 991,
+    "messages": 993,
     "avatar": "https://cdn.discordapp.com/avatars/389137667926786060/a0938cefc089461da843738b184389f5.png",
     "gang": null,
     "prestige": 0,
