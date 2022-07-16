@@ -173,14 +173,14 @@
     "id": "615334339349184522",
     "name": "ssWinni",
     "discriminator": "7585",
-    "xp": "12.1k",
+    "xp": "12.2k",
     "detailed_xp": [
-      298,
+      378,
       1975,
-      12145
+      12225
     ],
     "level": 15,
-    "messages": 830,
+    "messages": 836,
     "avatar": "https://cdn.discordapp.com/avatars/615334339349184522/f26d5bb99c50ed137bc9069b70e16fbf.png",
     "gang": null,
     "prestige": 0,
@@ -207,14 +207,14 @@
     "id": "304410053593661442",
     "name": "MSpears",
     "discriminator": "2802",
-    "xp": "10.6k",
+    "xp": "10.7k",
     "detailed_xp": [
-      512,
+      609,
       1780,
-      10582
+      10679
     ],
     "level": 14,
-    "messages": 725,
+    "messages": 732,
     "avatar": "https://cdn.discordapp.com/avatars/304410053593661442/b046a5b99f4e2f6dad50444728de28cf.png",
     "gang": null,
     "prestige": 0,
@@ -651,12 +651,12 @@
     "discriminator": "7595",
     "xp": "1.8k",
     "detailed_xp": [
-      158,
+      174,
       580,
-      1801
+      1817
     ],
     "level": 6,
-    "messages": 125,
+    "messages": 126,
     "avatar": "https://cdn.discordapp.com/avatars/510193035024531491/173b4f4accd45a2827b7ab8f43229ec4.png",
     "gang": null,
     "prestige": 0,
