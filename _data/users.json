@@ -90,12 +90,12 @@
     "discriminator": "1947",
     "xp": "16.8k",
     "detailed_xp": [
-      716,
+      727,
       2395,
-      16771
+      16782
     ],
     "level": 17,
-    "messages": 1160,
+    "messages": 1161,
     "avatar": "https://cdn.discordapp.com/avatars/138380316095021056/f912ef80e2616dbb2221fcb2dbd09ab9.png",
     "gang": null,
     "prestige": 0,
@@ -190,14 +190,14 @@
     "id": "725373259817811988",
     "name": "General_WCJ",
     "discriminator": "4528",
-    "xp": "11.9k",
+    "xp": "12.0k",
     "detailed_xp": [
-      96,
+      125,
       1975,
-      11947
+      11976
     ],
     "level": 15,
-    "messages": 816,
+    "messages": 818,
     "avatar": "https://cdn.discordapp.com/avatars/725373259817811988/f6bb046bfd0f14ceea1dec9e03e70fb8.png",
     "gang": null,
     "prestige": 0,
