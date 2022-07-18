@@ -105,14 +105,14 @@
     "id": "225344348903047168",
     "name": "CharliePryor",
     "discriminator": "0001",
-    "xp": "14.7k",
+    "xp": "14.8k",
     "detailed_xp": [
-      932,
+      943,
       2180,
-      14740
+      14751
     ],
     "level": 16,
-    "messages": 998,
+    "messages": 999,
     "avatar": "https://cdn.discordapp.com/avatars/225344348903047168/a_44adaea1066b1489bfe2aeebb0922d33.png",
     "gang": null,
     "prestige": 0,
