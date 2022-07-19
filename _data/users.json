@@ -3,14 +3,14 @@
     "id": "363095569515806722",
     "name": "Bluesy",
     "discriminator": "8150",
-    "xp": "85.1k",
+    "xp": "85.3k",
     "detailed_xp": [
-      4972,
+      5161,
       6820,
-      85083
+      85272
     ],
     "level": 32,
-    "messages": 5820,
+    "messages": 5833,
     "avatar": "https://cdn.discordapp.com/avatars/363095569515806722/ccf12c126a6827a5b07a4e579a52b043.png",
     "gang": null,
     "prestige": 0,
@@ -20,14 +20,14 @@
     "id": "465356664657149952",
     "name": "Mordakai Slivermoon",
     "discriminator": "7762",
-    "xp": "43.2k",
+    "xp": "43.5k",
     "detailed_xp": [
-      1147,
+      1465,
       4475,
-      43196
+      43514
     ],
     "level": 25,
-    "messages": 2962,
+    "messages": 2984,
     "avatar": "https://cdn.discordapp.com/avatars/465356664657149952/69046661ae37d5aeacd06e8670bd2cd1.png",
     "gang": null,
     "prestige": 0,
@@ -190,14 +190,14 @@
     "id": "725373259817811988",
     "name": "General_WCJ",
     "discriminator": "4528",
-    "xp": "12.0k",
+    "xp": "12.1k",
     "detailed_xp": [
-      141,
+      214,
       1975,
-      11992
+      12065
     ],
     "level": 15,
-    "messages": 819,
+    "messages": 824,
     "avatar": "https://cdn.discordapp.com/avatars/725373259817811988/f6bb046bfd0f14ceea1dec9e03e70fb8.png",
     "gang": null,
     "prestige": 0,
@@ -207,14 +207,14 @@
     "id": "304410053593661442",
     "name": "MSpears",
     "discriminator": "2802",
-    "xp": "10.8k",
+    "xp": "11.0k",
     "detailed_xp": [
-      745,
+      914,
       1780,
-      10815
+      10984
     ],
     "level": 14,
-    "messages": 742,
+    "messages": 753,
     "avatar": "https://cdn.discordapp.com/avatars/304410053593661442/b046a5b99f4e2f6dad50444728de28cf.png",
     "gang": null,
     "prestige": 0,
