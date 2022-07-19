@@ -3,14 +3,14 @@
     "id": "363095569515806722",
     "name": "Bluesy",
     "discriminator": "8150",
-    "xp": "84.8k",
+    "xp": "84.9k",
     "detailed_xp": [
-      4738,
+      4764,
       6820,
-      84849
+      84875
     ],
     "level": 32,
-    "messages": 5803,
+    "messages": 5805,
     "avatar": "https://cdn.discordapp.com/avatars/363095569515806722/ccf12c126a6827a5b07a4e579a52b043.png",
     "gang": null,
     "prestige": 0,
@@ -20,14 +20,14 @@
     "id": "465356664657149952",
     "name": "Mordakai Slivermoon",
     "discriminator": "7762",
-    "xp": "42.9k",
+    "xp": "43.0k",
     "detailed_xp": [
-      881,
+      916,
       4475,
-      42930
+      42965
     ],
     "level": 25,
-    "messages": 2945,
+    "messages": 2947,
     "avatar": "https://cdn.discordapp.com/avatars/465356664657149952/69046661ae37d5aeacd06e8670bd2cd1.png",
     "gang": null,
     "prestige": 0,
@@ -311,12 +311,12 @@
     "discriminator": "2725",
     "xp": "8.8k",
     "detailed_xp": [
-      285,
+      299,
       1595,
-      8819
+      8833
     ],
     "level": 13,
-    "messages": 608,
+    "messages": 609,
     "avatar": "https://cdn.discordapp.com/avatars/980079182912561212/9e6bfe52f1e097b1f193ca347be3b68d.png",
     "gang": null,
     "prestige": 0,
