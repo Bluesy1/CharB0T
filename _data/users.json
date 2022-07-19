@@ -56,12 +56,12 @@
     "discriminator": "2226",
     "xp": "24.8k",
     "detailed_xp": [
-      908,
+      924,
       3100,
-      24775
+      24791
     ],
     "level": 20,
-    "messages": 1692,
+    "messages": 1693,
     "avatar": "https://cdn.discordapp.com/avatars/355127455419203585/095ad3bae31ea645652dd0f7d6c16aee.png",
     "gang": null,
     "prestige": 0,
@@ -411,14 +411,14 @@
     "id": "492512818948603904",
     "name": "Sentient Floating Orb",
     "discriminator": "6856",
-    "xp": "3.6k",
+    "xp": "3.7k",
     "detailed_xp": [
-      735,
+      753,
       820,
-      3635
+      3653
     ],
     "level": 8,
-    "messages": 247,
+    "messages": 248,
     "avatar": "https://cdn.discordapp.com/avatars/492512818948603904/239b001a472c3d8a465acb3e9d5be235.png",
     "gang": null,
     "prestige": 0,
