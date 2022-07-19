@@ -39,12 +39,12 @@
     "discriminator": "8014",
     "xp": "39.2k",
     "detailed_xp": [
-      1403,
+      1417,
       4180,
-      39235
+      39249
     ],
     "level": 24,
-    "messages": 2687,
+    "messages": 2688,
     "avatar": "https://cdn.discordapp.com/avatars/434764784353804305/079e9acbab412d57da60f98460454d62.png",
     "gang": null,
     "prestige": 0,
@@ -107,12 +107,12 @@
     "discriminator": "1179",
     "xp": "14.9k",
     "detailed_xp": [
-      1044,
+      1056,
       2180,
-      14856
+      14868
     ],
     "level": 16,
-    "messages": 1020,
+    "messages": 1021,
     "avatar": "https://cdn.discordapp.com/avatars/389137667926786060/a0938cefc089461da843738b184389f5.png",
     "gang": null,
     "prestige": 0,
@@ -292,14 +292,14 @@
     "id": "244529987510599680",
     "name": "Petrat852",
     "discriminator": "7958",
-    "xp": "9.2k",
+    "xp": "9.3k",
     "detailed_xp": [
-      778,
+      808,
       1595,
-      9248
+      9278
     ],
     "level": 13,
-    "messages": 635,
+    "messages": 637,
     "avatar": "https://cdn.discordapp.com/avatars/244529987510599680/803f09d621468a326fc9f8ff25225579.png",
     "gang": null,
     "prestige": 0,
@@ -413,12 +413,12 @@
     "discriminator": "6856",
     "xp": "3.7k",
     "detailed_xp": [
-      781,
+      808,
       820,
-      3681
+      3708
     ],
     "level": 8,
-    "messages": 250,
+    "messages": 252,
     "avatar": "https://cdn.discordapp.com/avatars/492512818948603904/239b001a472c3d8a465acb3e9d5be235.png",
     "gang": null,
     "prestige": 0,
