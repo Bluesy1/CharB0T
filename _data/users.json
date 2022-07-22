@@ -3,14 +3,14 @@
     "id": "363095569515806722",
     "name": "Bluesy",
     "discriminator": "8150",
-    "xp": "87.3k",
+    "xp": "87.5k",
     "detailed_xp": [
-      384,
+      523,
       7195,
-      87319
+      87458
     ],
     "level": 33,
-    "messages": 5971,
+    "messages": 5981,
     "avatar": "https://cdn.discordapp.com/avatars/363095569515806722/ccf12c126a6827a5b07a4e579a52b043.png",
     "gang": null,
     "prestige": 0,
@@ -37,14 +37,14 @@
     "id": "434764784353804305",
     "name": "Caspar",
     "discriminator": "8014",
-    "xp": "39.5k",
+    "xp": "39.6k",
     "detailed_xp": [
-      1643,
+      1787,
       4180,
-      39475
+      39619
     ],
     "level": 24,
-    "messages": 2705,
+    "messages": 2715,
     "avatar": "https://cdn.discordapp.com/avatars/434764784353804305/079e9acbab412d57da60f98460454d62.png",
     "gang": null,
     "prestige": 0,
@@ -309,14 +309,14 @@
     "id": "980079182912561212",
     "name": "Tsamoka",
     "discriminator": "2725",
-    "xp": "9.1k",
+    "xp": "9.2k",
     "detailed_xp": [
-      598,
+      626,
       1595,
-      9132
+      9160
     ],
     "level": 13,
-    "messages": 631,
+    "messages": 633,
     "avatar": "https://cdn.discordapp.com/avatars/980079182912561212/9e6bfe52f1e097b1f193ca347be3b68d.png",
     "gang": null,
     "prestige": 0,
@@ -4046,23 +4046,6 @@
     "rank": 238
   },
   {
-    "id": "314901202070667274",
-    "name": "Axi",
-    "discriminator": "8520",
-    "xp": "11",
-    "detailed_xp": [
-      11,
-      100,
-      11
-    ],
-    "level": 0,
-    "messages": 1,
-    "avatar": "https://cdn.discordapp.com/embed/avatars/0.png",
-    "gang": null,
-    "prestige": 0,
-    "rank": 239
-  },
-  {
     "id": "163876042203856896",
     "name": "Lagzilla",
     "discriminator": "2526",
@@ -4075,6 +4058,23 @@
     "level": 0,
     "messages": 1,
     "avatar": "https://cdn.discordapp.com/avatars/163876042203856896/d210549f0327e3eddd69026d577e8898.png",
+    "gang": null,
+    "prestige": 0,
+    "rank": 239
+  },
+  {
+    "id": "314901202070667274",
+    "name": "Axi",
+    "discriminator": "8520",
+    "xp": "11",
+    "detailed_xp": [
+      11,
+      100,
+      11
+    ],
+    "level": 0,
+    "messages": 1,
+    "avatar": "https://cdn.discordapp.com/embed/avatars/0.png",
     "gang": null,
     "prestige": 0,
     "rank": 240
