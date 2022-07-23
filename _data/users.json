@@ -22,12 +22,12 @@
     "discriminator": "7762",
     "xp": "45.3k",
     "detailed_xp": [
-      3247,
+      3258,
       4475,
-      45296
+      45307
     ],
     "level": 25,
-    "messages": 3107,
+    "messages": 3108,
     "avatar": "https://cdn.discordapp.com/avatars/465356664657149952/69046661ae37d5aeacd06e8670bd2cd1.png",
     "gang": null,
     "prestige": 0,
@@ -105,14 +105,14 @@
     "id": "389137667926786060",
     "name": "coolmanfight",
     "discriminator": "1179",
-    "xp": "15.3k",
+    "xp": "15.4k",
     "detailed_xp": [
-      1537,
+      1561,
       2180,
-      15349
+      15373
     ],
     "level": 16,
-    "messages": 1055,
+    "messages": 1057,
     "avatar": "https://cdn.discordapp.com/avatars/389137667926786060/a0938cefc089461da843738b184389f5.png",
     "gang": null,
     "prestige": 0,
@@ -396,12 +396,12 @@
     "discriminator": "6856",
     "xp": "4.1k",
     "detailed_xp": [
-      363,
+      393,
       955,
-      4088
+      4118
     ],
     "level": 9,
-    "messages": 277,
+    "messages": 279,
     "avatar": "https://cdn.discordapp.com/avatars/492512818948603904/f24d025a08ad2431ed93c5235e7cccbb.png",
     "gang": null,
     "prestige": 0,
@@ -530,14 +530,14 @@
     "id": "272563498251321344",
     "name": "iiPartyKing",
     "discriminator": "0647",
-    "xp": "2.2k",
+    "xp": "2.3k",
     "detailed_xp": [
-      18,
+      33,
       695,
-      2236
+      2251
     ],
     "level": 7,
-    "messages": 156,
+    "messages": 157,
     "avatar": "https://cdn.discordapp.com/avatars/272563498251321344/bdb2b85eff2a0ffca1d138056e3ff695.png",
     "gang": null,
     "prestige": 0,
