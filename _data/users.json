@@ -612,6 +612,23 @@
     "rank": 36
   },
   {
+    "id": "246847874254635018",
+    "name": "Crazy Man",
+    "discriminator": "2917",
+    "xp": "1.9k",
+    "detailed_xp": [
+      281,
+      580,
+      1932
+    ],
+    "level": 6,
+    "messages": 133,
+    "avatar": "https://cdn.discordapp.com/avatars/246847874254635018/cad3a706e3e04eaac2f05c8a0f59aadc.png",
+    "gang": null,
+    "prestige": 0,
+    "rank": 37
+  },
+  {
     "id": "891685600992837682",
     "name": "MFIA_Drae",
     "discriminator": "6164",
@@ -626,7 +643,7 @@
     "avatar": "https://cdn.discordapp.com/avatars/891685600992837682/a7dfee28a1a055e1842c2adea35dd188.png",
     "gang": null,
     "prestige": 0,
-    "rank": 37
+    "rank": 38
   },
   {
     "id": "956443889496125480",
@@ -641,23 +658,6 @@
     "level": 6,
     "messages": 134,
     "avatar": "https://cdn.discordapp.com/avatars/956443889496125480/4bb1348075efc7d701146e555bd6453a.png",
-    "gang": null,
-    "prestige": 0,
-    "rank": 38
-  },
-  {
-    "id": "246847874254635018",
-    "name": "Crazy Man",
-    "discriminator": "2917",
-    "xp": "1.9k",
-    "detailed_xp": [
-      265,
-      580,
-      1916
-    ],
-    "level": 6,
-    "messages": 132,
-    "avatar": "https://cdn.discordapp.com/avatars/246847874254635018/cad3a706e3e04eaac2f05c8a0f59aadc.png",
     "gang": null,
     "prestige": 0,
     "rank": 39
