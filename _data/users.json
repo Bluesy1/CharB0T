@@ -5,12 +5,12 @@
     "discriminator": "8150",
     "xp": "87.7k",
     "detailed_xp": [
-      747,
+      788,
       7195,
-      87682
+      87723
     ],
     "level": 33,
-    "messages": 5996,
+    "messages": 5999,
     "avatar": "https://cdn.discordapp.com/avatars/363095569515806722/ccf12c126a6827a5b07a4e579a52b043.png",
     "gang": null,
     "prestige": 0,
@@ -158,12 +158,12 @@
     "discriminator": "5792",
     "xp": "13.2k",
     "detailed_xp": [
-      1356,
+      1385,
       1975,
-      13197
+      13226
     ],
     "level": 15,
-    "messages": 907,
+    "messages": 909,
     "avatar": "https://cdn.discordapp.com/avatars/254272745779494922/104c411ce5b4accfc2095084e3dded32.png",
     "gang": null,
     "prestige": 0,
@@ -175,12 +175,12 @@
     "discriminator": "7585",
     "xp": "12.5k",
     "detailed_xp": [
-      649,
+      696,
       1975,
-      12496
+      12543
     ],
     "level": 15,
-    "messages": 854,
+    "messages": 857,
     "avatar": "https://cdn.discordapp.com/avatars/615334339349184522/f26d5bb99c50ed137bc9069b70e16fbf.png",
     "gang": null,
     "prestige": 0,
@@ -377,14 +377,14 @@
     "id": "925449738705338368",
     "name": "MarsOmega77",
     "discriminator": "8763",
-    "xp": "4.3k",
+    "xp": "4.4k",
     "detailed_xp": [
-      603,
+      632,
       955,
-      4336
+      4365
     ],
     "level": 9,
-    "messages": 301,
+    "messages": 303,
     "avatar": "https://cdn.discordapp.com/avatars/925449738705338368/4155be38f3591a54d5b63451109f3c9e.png",
     "gang": null,
     "prestige": 0,
@@ -396,12 +396,12 @@
     "discriminator": "6856",
     "xp": "4.3k",
     "detailed_xp": [
-      537,
+      551,
       955,
-      4262
+      4276
     ],
     "level": 9,
-    "messages": 288,
+    "messages": 289,
     "avatar": "https://cdn.discordapp.com/avatars/492512818948603904/f24d025a08ad2431ed93c5235e7cccbb.png",
     "gang": null,
     "prestige": 0,
