@@ -56,12 +56,12 @@
     "discriminator": "2226",
     "xp": "26.1k",
     "detailed_xp": [
-      2200,
+      2227,
       3100,
-      26067
+      26094
     ],
     "level": 20,
-    "messages": 1780,
+    "messages": 1782,
     "avatar": "https://cdn.discordapp.com/avatars/355127455419203585/095ad3bae31ea645652dd0f7d6c16aee.png",
     "gang": null,
     "prestige": 0,
@@ -107,12 +107,12 @@
     "discriminator": "1179",
     "xp": "15.4k",
     "detailed_xp": [
-      1561,
+      1592,
       2180,
-      15373
+      15404
     ],
     "level": 16,
-    "messages": 1057,
+    "messages": 1059,
     "avatar": "https://cdn.discordapp.com/avatars/389137667926786060/a0938cefc089461da843738b184389f5.png",
     "gang": null,
     "prestige": 0,
@@ -394,14 +394,14 @@
     "id": "492512818948603904",
     "name": "Sentient Floating Orb",
     "discriminator": "6856",
-    "xp": "4.2k",
+    "xp": "4.3k",
     "detailed_xp": [
-      524,
+      537,
       955,
-      4249
+      4262
     ],
     "level": 9,
-    "messages": 287,
+    "messages": 288,
     "avatar": "https://cdn.discordapp.com/avatars/492512818948603904/f24d025a08ad2431ed93c5235e7cccbb.png",
     "gang": null,
     "prestige": 0,
