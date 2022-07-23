@@ -5,12 +5,12 @@
     "discriminator": "8150",
     "xp": "87.7k",
     "detailed_xp": [
-      731,
+      747,
       7195,
-      87666
+      87682
     ],
     "level": 33,
-    "messages": 5995,
+    "messages": 5996,
     "avatar": "https://cdn.discordapp.com/avatars/363095569515806722/ccf12c126a6827a5b07a4e579a52b043.png",
     "gang": null,
     "prestige": 0,
@@ -124,12 +124,12 @@
     "discriminator": "0001",
     "xp": "15.0k",
     "detailed_xp": [
-      1156,
+      1185,
       2180,
-      14964
+      14993
     ],
     "level": 16,
-    "messages": 1014,
+    "messages": 1016,
     "avatar": "https://cdn.discordapp.com/avatars/225344348903047168/a_44adaea1066b1489bfe2aeebb0922d33.png",
     "gang": null,
     "prestige": 0,
@@ -379,12 +379,12 @@
     "discriminator": "8763",
     "xp": "4.3k",
     "detailed_xp": [
-      590,
+      603,
       955,
-      4323
+      4336
     ],
     "level": 9,
-    "messages": 300,
+    "messages": 301,
     "avatar": "https://cdn.discordapp.com/avatars/925449738705338368/4155be38f3591a54d5b63451109f3c9e.png",
     "gang": null,
     "prestige": 0,
