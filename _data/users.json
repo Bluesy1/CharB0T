@@ -56,12 +56,12 @@
     "discriminator": "2226",
     "xp": "26.1k",
     "detailed_xp": [
-      2227,
+      2242,
       3100,
-      26094
+      26109
     ],
     "level": 20,
-    "messages": 1782,
+    "messages": 1783,
     "avatar": "https://cdn.discordapp.com/avatars/355127455419203585/095ad3bae31ea645652dd0f7d6c16aee.png",
     "gang": null,
     "prestige": 0,
@@ -156,14 +156,14 @@
     "id": "254272745779494922",
     "name": "[MSM]Wasan",
     "discriminator": "5792",
-    "xp": "13.2k",
+    "xp": "13.3k",
     "detailed_xp": [
-      1399,
+      1411,
       1975,
-      13240
+      13252
     ],
     "level": 15,
-    "messages": 910,
+    "messages": 911,
     "avatar": "https://cdn.discordapp.com/avatars/254272745779494922/104c411ce5b4accfc2095084e3dded32.png",
     "gang": null,
     "prestige": 0,
@@ -357,6 +357,23 @@
     "rank": 21
   },
   {
+    "id": "925449738705338368",
+    "name": "MarsOmega77",
+    "discriminator": "8763",
+    "xp": "4.4k",
+    "detailed_xp": [
+      645,
+      955,
+      4378
+    ],
+    "level": 9,
+    "messages": 304,
+    "avatar": "https://cdn.discordapp.com/avatars/925449738705338368/4155be38f3591a54d5b63451109f3c9e.png",
+    "gang": null,
+    "prestige": 0,
+    "rank": 22
+  },
+  {
     "id": "82495450153750528",
     "name": "Kaitlin🐱 Goddess of annihilation",
     "discriminator": "7803",
@@ -369,23 +386,6 @@
     "level": 9,
     "messages": 300,
     "avatar": "https://cdn.discordapp.com/avatars/82495450153750528/f2d1f7b0118324478743227ddb67ecfa.png",
-    "gang": null,
-    "prestige": 0,
-    "rank": 22
-  },
-  {
-    "id": "925449738705338368",
-    "name": "MarsOmega77",
-    "discriminator": "8763",
-    "xp": "4.4k",
-    "detailed_xp": [
-      632,
-      955,
-      4365
-    ],
-    "level": 9,
-    "messages": 303,
-    "avatar": "https://cdn.discordapp.com/avatars/925449738705338368/4155be38f3591a54d5b63451109f3c9e.png",
     "gang": null,
     "prestige": 0,
     "rank": 23
