@@ -96,7 +96,7 @@ class Admin(commands.Cog):
         )
 
     @commands.hybrid_group(name="sensitive")
-    @app_commands.guilds(225345178955808768)
+    @app_commands.guild_only()
     async def sensitive(self, ctx: commands.Context):
         """Command group for configuring the sensitive words filter.
 
@@ -212,7 +212,7 @@ class Admin(commands.Cog):
     @app_commands.command(
         name="confirm", description="[Charlie only] confirm a winner"
     )  # pyright: ignore[reportGeneralTypeIssues]
-    @app_commands.guilds(225345178955808768)
+    @app_commands.guild_only()
     @app_commands.default_permissions(administrator=True)
     @app_commands.checks.cooldown(1, 3600, key=lambda i: i.namespace.member)
     async def confirm(self, interaction: GuildInteraction[CBot], member: discord.Member) -> None:
@@ -250,4 +250,4 @@ async def setup(bot: CBot):
     bot : commands.Bot
         The bot object.
     """
-    await bot.add_cog(Admin(bot), guild=discord.Object(id=225345178955808768))
+    await bot.add_cog(Admin(bot))

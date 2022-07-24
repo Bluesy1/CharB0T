@@ -14,3 +14,4 @@ giveaway.csv
 .coverage
 /charbot.egg-info
 /config.toml
+/charbot/giveaway.json

@@ -84,7 +84,9 @@ class ModSupport(GroupCog, name="modsupport", description="mod support command g
     async def cog_load(self) -> None:
         """Cog load func."""
         self.check_mod_support_channels.start()
-        guild = await self.bot.fetch_guild(225345178955808768)
+        guild = self.bot.get_guild(225345178955808768)
+        if guild is None:
+            guild = await self.bot.fetch_guild(225345178955808768)
         everyone = guild.default_role
         mod_roles = guild.get_role(338173415527677954)
         assert isinstance(mod_roles, discord.Role)  # skipcq: BAN-B101
@@ -100,7 +102,9 @@ class ModSupport(GroupCog, name="modsupport", description="mod support command g
     @tasks.loop(hours=8)
     async def check_mod_support_channels(self):
         """Remove stale modmail channels."""
-        guild = await self.bot.fetch_guild(225345178955808768)
+        guild = self.bot.get_guild(225345178955808768)
+        if guild is None:
+            guild = await self.bot.fetch_guild(225345178955808768)
         channels = await guild.fetch_channels()
         cared: list[discord.TextChannel] = []
         for channel in channels:
@@ -119,6 +123,7 @@ class ModSupport(GroupCog, name="modsupport", description="mod support command g
                 await channel.delete()
 
     @app_commands.command(name="query", description="queries list of users banned from mod support")
+    @app_commands.guild_only()
     async def query(self, interaction: Interaction):
         """Modmail blacklist query command.
 
@@ -143,7 +148,7 @@ class ModSupport(GroupCog, name="modsupport", description="mod support command g
         name="edit",
         description="adds or removes a user from the list of users banned from mod" " support",
     )
-    @app_commands.describe(add="True to add to blacklist, False to remove", user="user to change")
+    @app_commands.guild_only()
     async def edit(self, interaction: Interaction, add: bool, user: discord.Member):
         """Modmail edit blacklist command.
 
@@ -486,4 +491,4 @@ class ModSupportModal(ui.Modal, title="Mod Support Form"):
 
 async def setup(bot: CBot):
     """Load Plugin."""
-    await bot.add_cog(ModSupport(bot), override=True, guild=discord.Object(id=225345178955808768))
+    await bot.add_cog(ModSupport(bot), override=True)

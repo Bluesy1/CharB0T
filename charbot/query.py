@@ -118,8 +118,8 @@ class Query(Cog):
         )
 
     @commands.hybrid_command(name="source", description="Info about the source code")
+    @app_commands.guild_only()
     @commands.cooldown(1, 60, commands.BucketType.channel)
-    @app_commands.guilds(225345178955808768)
     async def source(self, ctx: Context):
         """Return a reference to the source code for the bot and its liscense.
 
@@ -138,17 +138,17 @@ class Query(Cog):
         """
         await ctx.reply(f"https://bluesy1.github.io/CharB0T/\n{__source__}\nMIT License")
 
-    @commands.hybrid_command(name="imgscam", description="Info about the semi fake image scam on discord")
-    @app_commands.guilds(225345178955808768)
+    """@commands.hybrid_command(name="imgscam", description="Info about the semi fake image scam on discord")
     async def imgscam(self, ctx: Context):
-        """Send the image scam info url.
+        \"""Send the image scam info url.
 
         Parameters
         ----------
         ctx: discord.ext.commands.Context
             The context of the command
-        """
+        \"""
         await ctx.reply("https://blog.hyperphish.com/articles/001-loading/")
+    """
 
 
 async def setup(bot: commands.Bot):
@@ -159,4 +159,4 @@ async def setup(bot: commands.Bot):
     bot : commands.Bot
         The bot object to bind the cog to.
     """
-    await bot.add_cog(Query(bot), override=True, guild=discord.Object(id=225345178955808768))
+    await bot.add_cog(Query(bot), override=True)

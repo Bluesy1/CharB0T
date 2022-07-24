@@ -24,6 +24,7 @@
 #  ----------------------------------------------------------------------------
 """Dynamic stream calendar generator for the next week."""
 import datetime as _datetime
+import re
 from calendar import timegm
 from datetime import datetime, time, timedelta, timezone
 from typing import Literal, NamedTuple, Optional, TypedDict
@@ -67,6 +68,7 @@ class CalEvent(TypedDict):
     updated: str
     summary: str
     description: NotRequired[str]  # Not required, YT link is used as a fallback
+    recurrence: NotRequired[list[str]]  # Not required, Only used if it exists to filter out an event
     start: CalEventTime
     end: CalEventTime
     originalStartTime: CalEventTime
@@ -78,7 +80,7 @@ class CalResponse(TypedDict):
     items: list[CalEvent]
 
 
-def getUrl(mintime: datetime, maxtime: datetime):
+def get_params(mintime: datetime, maxtime: datetime) -> dict[str, str]:
     """Create an url for the Google calendar API query.
 
     Parameters
@@ -93,12 +95,12 @@ def getUrl(mintime: datetime, maxtime: datetime):
     str
         The url to query the Google calendar API.
     """
-    baseUrl = "https://www.googleapis.com/calendar/v3/calendars"
-    calendar = "u8n1onpbv9pb5du7gssv2md58s@group.calendar.google.com"
-    key = f"key={Config['calendar']['key']}"
-    minTime = f"timeMin={mintime.isoformat()}"
-    maxTime = f"timeMax={maxtime.isoformat()}"
-    return f"{baseUrl}/{calendar}/events?{key}&{minTime}&{maxTime}"
+    return {
+        "key": Config["calendar"]["key"],
+        "singleEvents": "True",
+        "timeMin": mintime.isoformat(),
+        "timeMax": maxtime.isoformat(),
+    }
 
 
 def half_hour_intervals():
@@ -199,6 +201,24 @@ def calendar_embed(fields: dict[int, EmbedField], next_event: datetime | None) -
     return embed.set_footer(text="Last Updated")
 
 
+def update_time(convert: datetime) -> datetime:
+    """Update the time to the correct week.
+
+    Parameters
+    ----------
+    convert : datetime
+        The time to update.
+
+    Returns
+    -------
+    datetime
+        The updated time.
+    """
+    while convert < utcnow():
+        convert = convert + timedelta(days=7)
+    return convert
+
+
 # noinspection GrazieInspection
 class Calendar(commands.Cog):
     """
@@ -219,16 +239,12 @@ class Calendar(commands.Cog):
         The end of the week.
     webhook : discord.Webhook
         Webhook the bot is posting to.
-
-    Methods
-    -------
-    get_calendar()
-        Gets the calendar for the next week.
-    cog_unload()
-        Unloads the cog.
-    cog_load()
-        Loads the cog.
     """
+
+    reccurence_regex = re.compile(
+        r"RRULE:FREQ=WEEKLY;UNTIL=(?P<year>\d{4})(?P<month>\d{2})(?P<day>\d{2})T"
+        r"(?P<hour>\d{2})(?P<minute>\d{2})(?P<second>\d{2})"
+    )  # in case this is ever needed, leaving it in
 
     def __init__(self, bot: CBot):
         self.bot: CBot = bot
@@ -265,7 +281,11 @@ class Calendar(commands.Cog):
         """
         mindatetime = datetime.now(tz=ZoneInfo("America/New_York"))
         maxdatetime = datetime.now(tz=ZoneInfo("America/New_York")) + timedelta(weeks=1)
-        async with self.bot.session.get(getUrl(mindatetime, maxdatetime)) as response:
+        async with self.bot.session.get(
+            "https://www.googleapis.com/calendar/v3/calendars/"
+            "u8n1onpbv9pb5du7gssv2md58s@group.calendar.google.com/events",
+            params=get_params(mindatetime, maxdatetime),
+        ) as response:
             items: CalResponse = await response.json(loads=orjson.loads)
         fields: dict[int, EmbedField] = {}
         cancelled_times = []
@@ -282,8 +302,8 @@ class Calendar(commands.Cog):
             if mindatetime < sub_time + timedelta(hours=2):
                 times.add(sub_time)
                 flag = False
-            while sub_time < utcnow():
-                sub_time = sub_time + timedelta(days=7)
+            if sub_time < utcnow():
+                continue
             if flag:
                 times.add(sub_time)
             if mindatetime < sub_time > maxdatetime:

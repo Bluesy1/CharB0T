@@ -40,8 +40,8 @@ _ALLOWED_MENTIONS = discord.AllowedMentions(roles=False, users=False, everyone=F
 
 
 @app_commands.default_permissions(manage_messages=True)
-@app_commands.guilds(225345178955808768)
 @app_commands.checks.has_any_role(225413350874546176, 253752685357039617, 725377514414932030, 338173415527677954)
+@app_commands.guild_only()
 class ReputationAdmin(
     commands.GroupCog, group_name="admin", group_description="Administration commands for the reputation system."
 ):
@@ -104,9 +104,7 @@ class ReputationAdmin(
 
     async def cog_unload(self) -> None:
         """Unload the cog."""
-        self.bot.tree.remove_command(
-            self.ctx_menu.name, type=self.ctx_menu.type, guild=discord.Object(id=225345178955808768)
-        )
+        self.bot.tree.remove_command(self.ctx_menu.name, type=self.ctx_menu.type)
 
     pools = app_commands.Group(name="pools", description="Administration commands for the reputation pools.")
     reputation = app_commands.Group(name="reputation", description="Administration commands for the reputation system.")
@@ -664,7 +662,6 @@ class ReputationAdmin(
                 await interaction.followup.send(f"User `{user.name}` has {_user['points']} reputation.")
 
     @app_commands.default_permissions(manage_messages=True)
-    @app_commands.guilds(225345178955808768)
     @app_commands.checks.has_any_role(225413350874546176, 253752685357039617, 725377514414932030, 338173415527677954)
     async def check_reputation_context(self, interaction: Interaction, user: discord.User):
         """Check a user's reputation.

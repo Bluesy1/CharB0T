@@ -32,6 +32,7 @@ from typing import Any
 
 import asyncpg
 import discord
+import orjson
 import pandas as pd
 from discord import ui
 from discord.ext import commands, tasks
@@ -126,7 +127,7 @@ class GiveawayView(ui.View):
             game = embed.title
             url = embed.url
             channel = message.channel
-            assert isinstance(channel, discord.TextChannel)  # skipcq: BAN-B101
+            assert isinstance(channel, (discord.TextChannel, discord.PartialMessageable))  # skipcq: BAN-B101
             assert isinstance(game, str)  # skipcq: BAN-B101
             view = cls(bot, channel, embed, game, url)
             view.message = message
@@ -303,7 +304,7 @@ class GiveawayView(ui.View):
         """End the giveaway."""
         self._prep_view_for_draw()
         bidders = await self._get_bidders()
-        self.top_bid = max(bid["bid"] for bid in bidders)
+        self.top_bid = max(bidders, key=lambda bid: bid["bid"], default=0)
         self.total_entries = sum(bid["bid"] for bid in bidders)
         winners, avg_bid = await self._draw_winner(bidders)
         if winners:
@@ -566,13 +567,20 @@ class Giveaway(commands.Cog):
     async def cog_load(self) -> None:
         """Call when the cog is loaded."""
         self.daily_giveaway.start()
-        current_giveaway = GiveawayView.recreate_from_message(self.current_giveaway.message, self.bot)
+        if self.current_giveaway is not MISSING:
+            message = self.current_giveaway.message
+        else:
+            with open("charbot/giveaway.json", "rb") as f:
+                message = await self.bot.giveaway_webhook.fetch_message(orjson.loads(f.read())["messageId"])
+        current_giveaway = GiveawayView.recreate_from_message(message, self.bot)
         await current_giveaway.message.edit(view=current_giveaway)
         self.current_giveaway = current_giveaway
 
     async def cog_unload(self) -> None:  # skipcq: PYL-W0236
         """Call when the cog is unloaded."""
         self.daily_giveaway.cancel()
+        with open("charbot/giveaway.json", "wb") as f:
+            f.write(orjson.dumps({"messageId": self.current_giveaway.message.id}))
         self.bot.holder["yesterdays_giveaway"] = self.yesterdays_giveaway
         self.bot.holder["current_giveaway"] = self.current_giveaway
 
@@ -586,7 +594,10 @@ class Giveaway(commands.Cog):
             self.yesterdays_giveaway = self.current_giveaway
             await self.yesterdays_giveaway.end()
         if not isinstance(self.charlie, discord.Member):
-            self.charlie = await (await self.bot.fetch_guild(225345178955808768)).fetch_member(225344348903047168)
+            guild = self.bot.get_guild(225345178955808768)
+            if guild is None:
+                guild = await self.bot.fetch_guild(225345178955808768)
+            self.charlie = await guild.fetch_member(225344348903047168)
         self.games = pd.read_csv(
             "charbot/giveaway.csv", index_col=0, usecols=[0, 1, 2, 4], names=["date", "game", "url", "source"]
         )

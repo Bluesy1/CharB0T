@@ -40,7 +40,7 @@ CHANNEL_ID: Final[int] = 969972085445238784
 MESSAGE: Final = "You must be in <#969972085445238784> to participate in the pools system."
 
 
-@app_commands.guilds(225345178955808768)
+@app_commands.guild_only()
 class Pools(commands.GroupCog, name="pools", description="Reputation pools for certain features."):
     """Reputation pools.
 

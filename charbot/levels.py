@@ -104,8 +104,8 @@ class Leveling(commands.Cog):
     async def update_pages(self) -> None:
         """Update the page."""
         if self._upload:
-            async with self.session.post(self._post_url, json={"ref": "gh-pages"}) as resp:
-                print(resp)
+            async with self.session.post(self._post_url, json={"ref": "gh-pages"}) as _:
+                pass
         self._upload = False
 
     @commands.Cog.listener()
@@ -211,7 +211,7 @@ class Leveling(commands.Cog):
                 await member.add_roles(discord.Object(969629622453039104), reason=f"Rejoined at level {level}")
 
     @app_commands.command(name="rank")
-    @app_commands.guilds(225345178955808768)
+    @app_commands.guild_only()
     @app_commands.checks.cooldown(1, 3600, key=lambda interaction: interaction.user.id)
     async def rank_command(self, interaction: Interaction, user: Optional[discord.Member] = None):
         """Check your or someone's level and rank.

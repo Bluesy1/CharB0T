@@ -38,7 +38,7 @@ def test_get_url(mock_config):
     assert (
         f"https://www.googleapis.com/calendar/v3/calendars/u8n1onpbv9pb5du7gssv2md58s@group.calendar.google.com/events?"
         f"key={mock_config['calendar']['key']}&timeMin=0001-01-01T00:00:00&timeMax=0010-10-10T10:10:10.000010"
-        == gcal.getUrl(date_min, date_max)
+        == gcal.get_params(date_min, date_max)
     )
 
 
@@ -132,7 +132,7 @@ async def test_cog_init_load_unload(mocker: MockerFixture, event_loop, mock_conf
 @pytest.mark.asyncio
 async def test_caledar_task(mocker: MockerFixture, event_loop, mock_config, monkeypatch):
     """Test calendar task."""
-    data: gcal.CalResponse = {
+    data = {
         "items": [
             {
                 "status": "cancelled",

@@ -112,7 +112,9 @@ class Events(Cog):
         log_untimeout task and the members cache
         """
         self.log_untimeout.start()
-        guild = await self.bot.fetch_guild(225345178955808768)
+        guild = self.bot.get_guild(225345178955808768)
+        if guild is None:
+            guild = await self.bot.fetch_guild(225345178955808768)
         generator = guild.fetch_members(limit=None)
         self.members.update({user.id: user.joined_at async for user in generator if user.joined_at is not None})
         with open("charbot/sensitive_settings.json", "rb") as json_dict:
@@ -210,7 +212,10 @@ class Events(Cog):
         removeable = []
         for i, j in self.timeouts.copy().items():
             if j < datetime.now(tz=timezone.utc):
-                member = await (await self.bot.fetch_guild(225345178955808768)).fetch_member(i)
+                guild = self.bot.get_guild(225345178955808768)
+                if guild is None:
+                    guild = await self.bot.fetch_guild(225345178955808768)
+                member = await guild.fetch_member(i)
                 if not member.is_timed_out():
                     embed = Embed(color=Color.green())
                     embed.set_author(name=f"[UNTIMEOUT] {member.name}#{member.discriminator}")
