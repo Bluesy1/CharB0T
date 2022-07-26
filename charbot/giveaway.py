@@ -304,7 +304,7 @@ class GiveawayView(ui.View):
         """End the giveaway."""
         self._prep_view_for_draw()
         bidders = await self._get_bidders()
-        self.top_bid = max(bidders, key=lambda bid: bid["bid"], default=0)
+        self.top_bid = max(bidders, key=lambda bid: bid["bid"], default=0)["bid"]
         self.total_entries = sum(bid["bid"] for bid in bidders)
         winners, avg_bid = await self._draw_winner(bidders)
         if winners:
