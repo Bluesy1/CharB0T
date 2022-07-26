@@ -50,8 +50,6 @@ class GiveawayView(ui.View):
     ----------
     bot : CBot
         The bot instance.
-    channel : discord.TextChannel
-        The channel the giveaway is in.
     embed : discord.Embed
         The embed of the giveaway.
     game : str
@@ -63,8 +61,6 @@ class GiveawayView(ui.View):
     ----------
     bot : CBot
         The bot instance.
-    channel : discord.TextChannel
-        The channel the giveaway is in.
     embed : discord.Embed
         The embed of the giveaway.
     total_entries : int
@@ -81,12 +77,9 @@ class GiveawayView(ui.View):
         The list of bidders. Only filled when the end() method is called.
     """
 
-    def __init__(
-        self, bot: CBot, channel: discord.TextChannel, embed: discord.Embed, game: str, url: str | None = None
-    ):
+    def __init__(self, bot: CBot, embed: discord.Embed, game: str, url: str | None = None):
         super().__init__(timeout=None)
         self.bot = bot
-        self.channel = channel
         self.embed = embed
         self.total_entries = 0
         self.top_bid = 0
@@ -129,7 +122,7 @@ class GiveawayView(ui.View):
             channel = message.channel
             assert isinstance(channel, (discord.TextChannel, discord.PartialMessageable))  # skipcq: BAN-B101
             assert isinstance(game, str)  # skipcq: BAN-B101
-            view = cls(bot, channel, embed, game, url)
+            view = cls(bot, embed, game, url)
             view.message = message
             view.top_bid = 0
             total = embed.fields[3].value
@@ -294,7 +287,10 @@ class GiveawayView(ui.View):
                 new_winner = random.sample(bids[0], k=1, counts=bids[1])
                 if new_winner[0] not in winners_:
                     winners_.append(new_winner[0])
-            winners = [await self.channel.guild.fetch_member(winner) for winner in winners_]
+            winners = [
+                await self.message.guild.fetch_member(winner)  # pyright: ignore[reportOptionalMemberAccess]
+                for winner in winners_
+            ]
         else:
             winners = []
             avg_bid = 0
@@ -304,7 +300,7 @@ class GiveawayView(ui.View):
         """End the giveaway."""
         self._prep_view_for_draw()
         bidders = await self._get_bidders()
-        self.top_bid = max(bidders, key=lambda bid: bid["bid"], default=0)
+        self.top_bid = max(bidders, key=lambda bid: bid["bid"], default={"bid": 0})["bid"]
         self.total_entries = sum(bid["bid"] for bid in bidders)
         winners, avg_bid = await self._draw_winner(bidders)
         if winners:
@@ -627,7 +623,7 @@ class Giveaway(commands.Cog):
         embed.add_field(name="Total Reputation Bid", value="0", inline=True)
         channel = await self.bot.fetch_channel(Config["discord"]["channels"]["giveaway"])
         assert isinstance(channel, discord.TextChannel)  # skipcq: BAN-B101
-        self.current_giveaway = GiveawayView(self.bot, channel, embed, game, url)
+        self.current_giveaway = GiveawayView(self.bot, embed, game, url)
         self.current_giveaway.message = await self.bot.giveaway_webhook.send(
             "<@&972886729231044638>",
             embed=embed,

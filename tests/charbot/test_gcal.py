@@ -30,16 +30,17 @@ def mock_config(monkeypatch):
     return data
 
 
-def test_get_url(mock_config):
+def test_get_params(mock_config):
     """Test get_url."""
     date_min = datetime.datetime(1, 1, 1, 0, 0, 0, 0)
     date_max = datetime.datetime(10, 10, 10, 10, 10, 10, 10)
 
-    assert (
-        f"https://www.googleapis.com/calendar/v3/calendars/u8n1onpbv9pb5du7gssv2md58s@group.calendar.google.com/events?"
-        f"key={mock_config['calendar']['key']}&timeMin=0001-01-01T00:00:00&timeMax=0010-10-10T10:10:10.000010"
-        == gcal.get_params(date_min, date_max)
-    )
+    assert {
+        "key": "calenderkey",
+        "singleEvents": "True",
+        "timeMin": "0001-01-01T00:00:00",
+        "timeMax": "0010-10-10T10:10:10.000010",
+    } == gcal.get_params(date_min, date_max)
 
 
 def test_half_hour_intervals():

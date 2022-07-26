@@ -84,16 +84,6 @@ async def test_source_command(mocker: MockerFixture):
 
 
 @pytest.mark.asyncio
-async def test_imgscam_command(mocker: MockerFixture):
-    """Test imgscam command."""
-    mock_ctx = mocker.Mock(spec=commands.Context)
-    mock_bot = mocker.Mock(spec=commands.Bot)
-    cog = query.Query(mock_bot)
-    await cog.imgscam.__call__(mock_ctx, mock_ctx)  # type: ignore  # skipcq: PYL-E1102
-    mock_ctx.reply.assert_called_once_with("https://blog.hyperphish.com/articles/001-loading/")
-
-
-@pytest.mark.asyncio
 async def test_setup_function(mocker: MockerFixture):
     """Test setup function."""
     mock_bot = mocker.AsyncMock(spec=commands.Bot)
