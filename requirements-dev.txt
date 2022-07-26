@@ -1,4 +1,4 @@
-asyncpg-stubs == 0.25.4
+asyncpg-stubs == 0.26.0
 black == 22.6.0
 flake8 == 4.0.1
 maturin[zig]==0.13.0
