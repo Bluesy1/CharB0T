@@ -9,7 +9,7 @@ from discord import ButtonStyle, ui
 from discord.utils import utcnow
 
 from .. import GuildComponentInteraction as Interaction, CBot
-from charbot_rust.tictactoe import Game, Difficulty, Piece
+from charbot_rust.tictactoe import Game, Difficulty, Piece  # pyright: ignore[reportGeneralTypeIssues]
 
 
 class TicTacToe(ui.View):
