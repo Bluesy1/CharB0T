@@ -6,8 +6,8 @@ use rand::prelude::SliceRandom;
 use crate::minesweeper::common::MoveDestination;
 use crate::minesweeper::game::ReturnCell;
 
-const TILE_PATH: &str = "charbot_rust/assets/minesweeper/tiles/";
-const LABEL_PATH: &str = "charbot_rust/assets/minesweeper/labels/";
+const TILE_PATH: &str = "charbot/media/minesweeper/tiles/";
+const LABEL_PATH: &str = "charbot/media/minesweeper/labels/";
 pub const TILE_WIDTH: u32 = 50;
 pub const TILE_HEIGHT: u32 = 50;
 

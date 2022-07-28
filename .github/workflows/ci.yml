@@ -59,7 +59,7 @@ jobs:
           pip install wheel
           pip install -Ur requirements.txt
           pip install -Ur requirements-dev.txt
-          rm *.tar.gz
+          find . -name "*.tar.gz" | xargs rm
           pip install wheels/*
       - name: Pyright
         id: pyright

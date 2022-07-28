@@ -4,7 +4,7 @@
 [![CodeFactor](https://www.codefactor.io/repository/github/bluesy1/charb0t/badge)](https://www.codefactor.io/repository/github/bluesy1/charb0t)
 [![codecov](https://codecov.io/gh/Bluesy1/CharB0T/branch/main/graph/badge.svg?token=QDBTWB57NC)](https://codecov.io/gh/Bluesy1/CharB0T)
 
-[![Lint](https://github.com/Bluesy1/CharB0T/actions/workflows/lint.yml/badge.svg)](https://github.com/Bluesy1/CharB0T/actions/workflows/lint.yml)
+[![CI](https://github.com/Bluesy1/CharB0T/actions/workflows/ci.yml/badge.svg)](https://github.com/Bluesy1/CharB0T/actions/workflows/ci.yml)
 [![CodeQL](https://github.com/Bluesy1/CharB0T/actions/workflows/codeql-analysis.yml/badge.svg)](https://github.com/Bluesy1/CharB0T/actions/workflows/codeql-analysis.yml)
 [![pages-build-deployment](https://github.com/Bluesy1/CharB0T/actions/workflows/pages/pages-build-deployment/badge.svg?branch=gh-pages)](https://github.com/Bluesy1/CharB0T/actions/workflows/pages/pages-build-deployment)
 
@@ -31,6 +31,12 @@
 [![Discord](https://img.shields.io/discord/225345178955808768)](https://cpry.net/discord)
 
 ![Contributors](https://contrib.rocks/image?repo=BLuesy1/CharB0T)
+
+## Native portion:
+
+Do note - if you wish to use the native portion of the bot, you will need to manually build it for your platform and
+python version using maturin and rust. Also, the native code expects the assests for minesweeper to be in
+`charbot/media/...` under the current working directory, unless modified.
 
 ## Docs
 
