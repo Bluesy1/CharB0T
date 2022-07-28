@@ -1,4 +1,4 @@
-use rand;
+
 use std::collections::VecDeque;
 use image::{ImageBuffer, RgbImage, open, imageops, Rgb};
 use imageproc::{rect::Rect, drawing::draw_filled_rect_mut};
@@ -79,10 +79,10 @@ pub struct Field {
 impl Field {
     pub fn new(width: u32, height: u32, mines: u32) -> Field {
         let mut field = Field {
-            width: width,
-            height: height,
+            width,
+            height,
             cells: vec![],
-            mines: mines,
+            mines,
             size: width * height,
             selected_x: width / 2,
             selected_y: height / 2,
@@ -160,35 +160,32 @@ impl Field {
         let w = self.width as i32;
         while i < (self.size - 1) as i32 {
             i += 1;
-            match self.get_content_safe(i) {
-                Some(&Content::None) => {
-                    let ct_mine = |b| {
-                        match b {
-                            true => 1,
-                            false => 0,
-                        }
-                    };
-                    // don`t care about row
-                    let mut ct = ct_mine(self.is_mine_safe(i - w)) +
-                                 ct_mine(self.is_mine_safe(i + w));
-                    if i % w > 0 {
-                        // check left side position
-                        ct += ct_mine(self.is_mine_safe(i - w - 1)) +
-                              ct_mine(self.is_mine_safe(i - 1)) +
-                              ct_mine(self.is_mine_safe(i + w - 1));
+            if let Some(&Content::None) = self.get_content_safe(i) {
+                let ct_mine = |b| {
+                    match b {
+                        true => 1,
+                        false => 0,
                     }
-                    if i % w < w - 1 {
-                        // check right side position
-                        ct += ct_mine(self.is_mine_safe(i - w + 1)) +
-                              ct_mine(self.is_mine_safe(i + 1)) +
-                              ct_mine(self.is_mine_safe(i + w + 1));
-                    }
-                    if ct > 0 {
-                        self.get_cell_mut(i as u32).content = Content::Number(ct);
-                        self.nubmers_total += 1;
-                    }
+                };
+                // don`t care about row
+                let mut ct = ct_mine(self.is_mine_safe(i - w)) +
+                             ct_mine(self.is_mine_safe(i + w));
+                if i % w > 0 {
+                    // check left side position
+                    ct += ct_mine(self.is_mine_safe(i - w - 1)) +
+                          ct_mine(self.is_mine_safe(i - 1)) +
+                          ct_mine(self.is_mine_safe(i + w - 1));
                 }
-                _ => {}
+                if i % w < w - 1 {
+                    // check right side position
+                    ct += ct_mine(self.is_mine_safe(i - w + 1)) +
+                          ct_mine(self.is_mine_safe(i + 1)) +
+                          ct_mine(self.is_mine_safe(i + w + 1));
+                }
+                if ct > 0 {
+                    self.get_cell_mut(i as u32).content = Content::Number(ct);
+                    self.nubmers_total += 1;
+                }
             }
         }
     }
@@ -260,7 +257,7 @@ impl Field {
                 self.nubmers_opened += 1;
             }
         }
-        &self.get_content(i)
+        self.get_content(i)
     }
 
     pub fn revealed(&self, i: u32) -> bool {
@@ -310,10 +307,7 @@ impl Field {
     }
 
     fn is_mine_safe(&self, i: i32) -> bool {
-        match self.get_content_safe(i) {
-            Some(&Content::Mine(_)) => true,
-            _ => false,
-        }
+        matches!(self.get_content_safe(i), Some(&Content::Mine(_)))
     }
 
     pub fn get_width(&self) -> u32 {

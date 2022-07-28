@@ -48,6 +48,7 @@ impl MinimaxPlayer {
         (best_move, counter)
     }
 
+    #[allow(clippy::too_many_arguments)]
     fn minimax_step(
         &self,
         board: Board,

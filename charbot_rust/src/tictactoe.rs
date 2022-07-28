@@ -42,7 +42,7 @@ unsafe impl Send for Game {}
 impl Game {
     #[getter]
     fn board(&self) -> PyResult<Vec<Piece>> {
-        Ok(self.board.board.iter().cloned().collect())
+        Ok(self.board.board.to_vec())
     }
 
     #[new]
@@ -75,18 +75,16 @@ impl Game {
                 human_first = false;
             },
             Difficulty::Random => {
-                let comp_mode: &str;
-                match vec!["m", "a", "r"].choose(&mut rng){
-                    Some(s) => {comp_mode = *s;},
+                let comp_mode: &str = match vec!["m", "a", "r"].choose(&mut rng){
+                    Some(s) => {*s},
                     None => {return Err(PyErr::new::<PyException, _>("Logic error occurred"));}
-                }
-                let chance: f64;
-                match comp_mode{
-                    "m" => {chance = 0.5;},
-                    "a" => {chance = 0.25;},
-                    "r" => {chance = 0.75},
-                    _ => {chance = 0.0}
-                }
+                };
+                let chance: f64 = match comp_mode {
+                    "m" => {0.5},
+                    "a" => {0.25},
+                    "r" => {0.75},
+                    _ => {0.0}
+                };
                 if rng.gen_bool(chance) {
                     x = player::choose_player("h");
                     o = player::choose_player(comp_mode);
@@ -106,7 +104,7 @@ impl Game {
                     points
                     };
                 if !human_first {
-                    let action = game.player_x.play(&mut game.board, Piece::X);
+                    let action = game.player_x.play(&game.board, Piece::X);
                     game.board.place_piece(action, Piece::X);
                 }
                 Ok(game)
@@ -132,7 +130,7 @@ impl Game {
         if self.board.is_victory_for_player(human) {
             return None;
         }
-        let comp_move = computer.play(&mut self.board, computer_piece);
+        let comp_move = computer.play(&self.board, computer_piece);
         self.board.place_piece(comp_move, computer_piece);
         Some(comp_move)
     }

@@ -1,0 +1,109 @@
+name: CI
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    types: [ opened, reopened, synchronize ]
+
+jobs:
+
+  maturin:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: messense/maturin-action@v1
+        with:
+          manylinux: auto
+          command: build
+          args: --release --sdist -o dist --find-interpreter
+      - name: Upload wheels
+        uses: actions/upload-artifact@v2
+        with:
+          name: wheels
+          path: dist
+          retention-days: 5
+  black:
+    needs: maturin
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-python@v4
+        with:
+          python-version: "3.10"
+      - name: Dependencies
+        run: |
+          pip install black
+      - name: Black
+        id: black
+        run: black --check --verbose --line-length=120 .
+  pyright:
+    needs: maturin
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-python@v4
+        with:
+          python-version: "3.10"
+          cache: "pip"
+          cache-dependency-path: |
+            requirements.txt
+            requirements-dev.txt
+      - name: Dependencies
+        run: |
+          pip install -U pip
+          pip install -Ur requirements.txt -Ur requirements-dev.txt
+      - name: Pyright
+        id: pyright
+        run: pyright .
+  flake8:
+    needs: maturin
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-python@v4
+        with:
+          python-version: "3.10"
+      - name: Dependencies
+        run: |
+          pip install flake8
+      - name: Flake8
+        id: flake8
+        run: flake8 . --max-line-length=120 --indent-size=4
+  codecov:
+    needs: [maturin, pyright]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-python@v4
+        with:
+          python-version: "3.10"
+          cache: "pip"
+          cache-dependency-path: |
+            requirements.txt
+            requirements-dev.txt
+      - name: Dependencies
+        run: |
+          pip install -U pip
+          pip install -Ur requirements.txt -Ur requirements-dev.txt
+          pip install -e .
+      - name: Run pytest
+        id: pytest
+        run: pytest --cov-report=xml:coverage/reports/coverage.xml --cov=charbot tests/ --cov-report=term --cov-config=pyproject.toml
+      - name: Upload coverage report
+        uses: codecov/codecov-action@v2
+        with:
+          directory: ./coverage/reports/
+          env_vars: OS,PYTHON
+          fail_ci_if_error: false
+          flags: unittests
+          name: codecov-umbrella
+          path_to_write_report: ./coverage/codecov_report.txt
+          verbose: false
+      - name: Report test coverage to DeepSource
+        uses: deepsourcelabs/test-coverage-action@master
+        with:
+          key: python
+          coverage-file: ./coverage/reports/coverage.xml
+          dsn: ${{ secrets.DEEPSOURCE_DSN }}

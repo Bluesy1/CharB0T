@@ -141,7 +141,7 @@ impl Offset {
 
 pub type Index = usize;
 
-static WINNING_INDECES: &'static [(Index, Index, Index)] = &[
+static WINNING_INDECES: &[(Index, Index, Index)] = &[
     (0, 1, 2),
     (3, 4, 5),
     (6, 7, 8),
@@ -164,7 +164,13 @@ pub struct Board {
 impl Board {
     #[getter]
     fn board(&self) -> PyResult<Vec<Piece>> {
-        Ok(self.board.iter().cloned().collect())
+        Ok(self.board.to_vec())
+    }
+}
+
+impl Default for Board {
+    fn default() -> Self {
+        Self::new()
     }
 }
 
@@ -208,7 +214,7 @@ impl Board {
                 return true;
             }
         }
-        return false;
+        false
     }
 
     pub fn is_victory(&self) -> Option<Piece> {
@@ -233,12 +239,12 @@ impl Display for Board {
         self.format_cell(0, formatter)?;
         self.format_cell(1, formatter)?;
         self.format_cell(2, formatter)?;
-        writeln!(formatter, "")?;
+        writeln!(formatter)?;
 
         self.format_cell(3, formatter)?;
         self.format_cell(4, formatter)?;
         self.format_cell(5, formatter)?;
-        writeln!(formatter, "")?;
+        writeln!(formatter)?;
 
         self.format_cell(6, formatter)?;
         self.format_cell(7, formatter)?;

@@ -151,17 +151,17 @@ impl Game {
             self.toggle_flag();
             return RevealResult::Flagged;
         }
-        match self.field.reveal(ind){
-            &Content::None => {
+        match *self.field.reveal(ind){
+            Content::None => {
                 self.field.chain_reveal(ind);
                 RevealResult::Empty
             },
-            &Content::Mine(_) => {
+            Content::Mine(_) => {
                 self.field.reveal_all();
                 self.field.set_killer(ind);
                 RevealResult::Mine
             },
-            &Content::Number(_) => RevealResult::Number
+            Content::Number(_) => RevealResult::Number
         }
     }
 
@@ -177,12 +177,12 @@ impl Game {
                 for id in surrounding {
                     if !self.field.marked(id) {
                         match self.field.reveal(id) {
-                            &Content::Mine(_) => {
+                            Content::Mine(_) => {
                                 self.field.set_killer(id);
                                 self.field.reveal_all();
                                 return ChordResult::Death;
                             },
-                            &Content::None => {
+                            Content::None => {
                                 self.field.chain_reveal(id);
                             },
                             _ => {}
