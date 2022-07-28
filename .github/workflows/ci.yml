@@ -13,13 +13,11 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
-      - name: Get into correct subdir
-        run: cd charbot_rust
       - uses: messense/maturin-action@v1
         with:
           manylinux: auto
           command: build
-          args: --release --sdist -o dist --find-interpreter
+          args: --release --sdist -o dist --find-interpreter -m charbot_rust/Cargo.toml
       - name: Upload wheels
         uses: actions/upload-artifact@v2
         with:
