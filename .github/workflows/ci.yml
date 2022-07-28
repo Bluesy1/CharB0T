@@ -56,11 +56,14 @@ jobs:
       - name: Dependencies
         run: |
           pip install -U pip
-          pip install -Ur requirements.txt -Ur requirements-dev.txt
+          pip install wheel
+          pip install -Ur requirements.txt
+          pip install -Ur requirements-dev.txt
+          rm *.tar.gz
           pip install wheels/*
       - name: Pyright
         id: pyright
-        run: pyright .
+        run: pyright charbot
   flake8:
     runs-on: ubuntu-latest
     steps:
