@@ -1,0 +1,15 @@
+[package]
+name = "charbot_rust"
+version = "0.1.1"
+edition = "2021"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+[lib]
+name = "charbot_rust"
+crate-type = ["cdylib"]
+
+[dependencies]
+pyo3 = { version = "0.16.5", features = ["extension-module"] }
+rand = "0.8.5"
+image = "0.24.3"
+imageproc = "0.23.0"

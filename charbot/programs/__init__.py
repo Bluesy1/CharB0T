@@ -36,12 +36,12 @@ from discord.ext import commands
 from ..types.bot import CBot
 from . import shrugman, sudoku, tictactoe
 from .. import errors
+from . import rtictactoe
 
 
 MESSAGE: Final = "You must be at least level 1 to participate in the giveaways system and be in <#969972085445238784>."
 
 
-@app_commands.guilds(225345178955808768)
 class Reputation(commands.Cog, name="Programs"):
     """Programs."""
 
@@ -67,9 +67,8 @@ class Reputation(commands.Cog, name="Programs"):
             raise errors.MissingProgramRole(self.bot.ALLOWED_ROLES)
         return True
 
-    programs = app_commands.Group(
-        name="programs", description="Programs to gain you rep.", guild_ids=[225345178955808768]
-    )
+    programs = app_commands.Group(name="programs", description="Programs to gain you rep.", guild_only=True)
+    beta = app_commands.Group(name="beta", description="Beta programs..", parent=programs)
 
     @programs.command(name="sudoku", description="Play a Sudoku puzzle")
     async def sudoku(self, interaction: discord.Interaction, mobile: bool):
@@ -154,8 +153,26 @@ class Reputation(commands.Cog, name="Programs"):
         view = shrugman.Shrugman(self.bot, word)
         await interaction.followup.send(embed=embed, view=view)
 
+    @beta.command()
+    async def rtictactoe(self, interaction: discord.Interaction, difficulty: rtictactoe.Difficulty):
+        """[Beta] Play a game of Tic Tac Toe to help me test the new implemenatation. Doesn't give rep.
+
+        Parameters
+        ----------
+        interaction: discord.Interaction
+            The interaction of the command.
+        difficulty: rtictactoe.Difficulty
+            The difficulty of the game.
+        """
+        await interaction.response.defer(ephemeral=True)
+        view = rtictactoe.TicTacToe(difficulty)
+        embed = discord.Embed(title="TicTacToe").set_image(url="attachment://tictactoe.png")
+        embed.set_footer(text="Play by typing /programs beta rtictactoe")
+        image = await asyncio.to_thread(view.display)
+        await interaction.followup.send(embed=embed, view=view, file=image)
+
     @app_commands.command(name="rollcall", description="Claim your daily reputation bonus")
-    @app_commands.guilds(225345178955808768)
+    @app_commands.guild_only()
     async def rollcall(self, interaction: discord.Interaction):
         """Get a daily reputation bonus.
 
@@ -204,7 +221,7 @@ class Reputation(commands.Cog, name="Programs"):
         )
 
     @app_commands.command(name="reputation", description="Check your reputation")
-    @app_commands.guilds(225345178955808768)
+    @app_commands.guild_only()
     async def query_points(self, interaction: discord.Interaction):
         """Query your reputation.
 
@@ -240,7 +257,7 @@ async def setup(bot: CBot):
     ----------
     bot : CBot
     """
-    await bot.add_cog(Reputation(bot), guild=discord.Object(id=225345178955808768), override=True)
+    await bot.add_cog(Reputation(bot), override=True)
 
 
 async def teardown(bot: CBot):
@@ -250,4 +267,4 @@ async def teardown(bot: CBot):
     ----------
     bot : CBot
     """
-    await bot.remove_cog("Programs", guild=discord.Object(id=225345178955808768))
+    await bot.remove_cog("Programs")
