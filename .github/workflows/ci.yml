@@ -25,7 +25,6 @@ jobs:
           path: dist
           retention-days: 5
   black:
-    needs: maturin
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
@@ -43,6 +42,9 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
+      - uses: actions/download-artifact@v3
+        with:
+          name: wheels
       - uses: actions/setup-python@v4
         with:
           python-version: "3.10"
@@ -54,11 +56,11 @@ jobs:
         run: |
           pip install -U pip
           pip install -Ur requirements.txt -Ur requirements-dev.txt
+          pip install wheels/*
       - name: Pyright
         id: pyright
         run: pyright .
   flake8:
-    needs: maturin
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
@@ -72,7 +74,7 @@ jobs:
         id: flake8
         run: flake8 . --max-line-length=120 --indent-size=4
   codecov:
-    needs: [maturin, pyright]
+    needs: [maturin, pyright, black, flake8]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
