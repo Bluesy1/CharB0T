@@ -1,0 +1,14 @@
+branch: false
+ignore-not-existing: true
+llvm: true
+filter: covered
+output-type: lcov
+output-path: ./lcov.info
+prefix-dir: /home/runner/work/CharB0T/CharB0T/charbot_rust/
+ignore:
+  - "/*"
+  - "C:/*"
+  - "../*"
+path-mapping:
+  - "/path1"
+  - "/path2"

@@ -128,3 +128,27 @@ impl Player for MinimaxPlayer {
         best_move
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_player_no_alphabeta(){
+        let player = MinimaxPlayer::new(false);
+        let board = Board::new();
+        let piece = Piece::X;
+        let index = player.play(&board, piece);
+        assert!(Board::VALID_INDECES.contains(&index));
+        assert_eq!("Minimax player", format!("{}", player));
+    }
+    #[test]
+    fn test_player_alphabeta(){
+        let player = MinimaxPlayer::new(true);
+        let board = Board::new();
+        let piece = Piece::X;
+        let index = player.play(&board, piece);
+        assert!(Board::VALID_INDECES.contains(&index));
+        assert_eq!("Minimax player", format!("{}", player));
+    }
+}

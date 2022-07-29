@@ -1,16 +1,17 @@
-
+use std::io::Cursor;
 use std::collections::VecDeque;
-use image::{ImageBuffer, RgbImage, open, imageops, Rgb};
-use imageproc::{rect::Rect, drawing::draw_filled_rect_mut};
+use image::{ImageBuffer, RgbImage, imageops, Rgb, io::Reader as ImageReader};
+use imageproc::{rect::Rect, drawing::{draw_filled_rect_mut, draw_hollow_rect_mut}};
+use rand::rngs::StdRng;
 use rand::prelude::SliceRandom;
 use crate::minesweeper::common::MoveDestination;
+use crate::minesweeper::common;
 use crate::minesweeper::game::ReturnCell;
 
-const TILE_PATH: &str = "charbot/media/minesweeper/tiles/";
-const LABEL_PATH: &str = "charbot/media/minesweeper/labels/";
 pub const TILE_WIDTH: u32 = 50;
 pub const TILE_HEIGHT: u32 = 50;
 
+#[derive(PartialEq, Debug)]
 pub enum Content {
     Number(u8),
     Mine(bool), // bool is true when this is the mine that caused you to loose the game.
@@ -61,6 +62,10 @@ impl Cell {
             marked: self.marked,
         }
     }
+
+    pub fn content(&self) -> &Content {
+        &self.content
+    }
 }
 
 pub struct Field {
@@ -74,10 +79,11 @@ pub struct Field {
     nubmers_total: u32,
     nubmers_opened: u32,
     need_regen: bool,
+    rng: StdRng,
 }
 
 impl Field {
-    pub fn new(width: u32, height: u32, mines: u32) -> Field {
+    pub fn new(width: u32, height: u32, mines: u32, rng: StdRng) -> Field {
         let mut field = Field {
             width,
             height,
@@ -89,6 +95,7 @@ impl Field {
             nubmers_total: 0,
             nubmers_opened: 0,
             need_regen: true,
+            rng
         };
         field.reinit_vec();
         field
@@ -127,8 +134,7 @@ impl Field {
         }
 
         // shuffle them
-        let mut rng = rand::thread_rng();
-        new_cells.shuffle(&mut rng);
+        new_cells.shuffle(&mut self.rng);
 
         // push empty cells near with cursor to avoid mines in this positions
         for ind in cursor_near_cells {
@@ -385,21 +391,19 @@ impl Field {
 
     pub fn draw(&self) -> RgbImage {
         let mut img: RgbImage = ImageBuffer::new(self.width * TILE_WIDTH + 50, self.height * TILE_HEIGHT + 50);
-        let letters: Vec<String> = "ABCDEFGHIJKLMNOPQRSTUVWXY".chars().map(|char| char.to_string()).collect();
+        let labels = vec![common::LABEL_A, common::LABEL_B, common::LABEL_C, common::LABEL_D, common::LABEL_E, common::LABEL_F, common::LABEL_G, common::LABEL_H, common::LABEL_I, common::LABEL_J, common::LABEL_K, common::LABEL_L, common::LABEL_M, common::LABEL_N, common::LABEL_O, common::LABEL_P, common::LABEL_Q, common::LABEL_R, common::LABEL_S, common::LABEL_T, common::LABEL_U, common::LABEL_V, common::LABEL_W, common::LABEL_X, common::LABEL_Y];
         //labels
         //cols
         for i in 1..=self.height {
             let y = (i * 50) as i64;
-            let letter_path = LABEL_PATH.to_owned() + &*letters[i as usize - 1] + ".png";
-            let letter = open(letter_path).unwrap().to_rgb8();
-            imageops::replace(&mut img, &letter, 0, y);
+            let label = ImageReader::new(Cursor::new(labels[i as usize])).with_guessed_format().unwrap().decode().unwrap();
+            imageops::replace(&mut img, &label.to_rgb8(), 0, y);
         }
         //rows
         for i in 1..=self.width {
             let x = (i * 50) as i64;
-            let letter_path = LABEL_PATH.to_owned() + &*letters[i as usize - 1] + ".png";
-            let letter = open(letter_path).unwrap().to_rgb8();
-            imageops::replace(&mut img, &letter, x, 0);
+            let label = ImageReader::new(Cursor::new(labels[i as usize])).with_guessed_format().unwrap().decode().unwrap();
+            imageops::replace(&mut img, &label.to_rgb8(), x, 0);
         }
         //cells
         for (i, cell) in self.cells.iter().enumerate().map(|(i, cell)| (i as u32, cell)) {
@@ -407,46 +411,66 @@ impl Field {
             let col = i % self.width;
             let x = ((col + 1) * TILE_WIDTH) as i64;
             let y = ((row + 1) * TILE_HEIGHT) as i64;
-            let val: String;
-            let cell_path: String = TILE_PATH.to_owned() + match cell.content {
+            let cell_bytes: &[u8] = match cell.content {
                 Content::None => {
                     if cell.revealed {
-                        "empty.png"
+                        common::TILE_EMPTY
                     } else if cell.marked{
-                        "flag.png"
+                        common::TILE_FLAG
                     } else {
-                        "default.png"
+                        common::TILE_DEFAULT
                     }
                 },
                 Content::Number(n) => {
                     if cell.revealed  {
-                        val = format!("{}.png", n).to_string();
-                        &*val
+                        match n {
+                            1 => common::TILE_1,
+                            2 => common::TILE_2,
+                            3 => common::TILE_3,
+                            4 => common::TILE_4,
+                            5 => common::TILE_5,
+                            6 => common::TILE_6,
+                            7 => common::TILE_7,
+                            8 => common::TILE_8,
+                            _ => common::TILE_DEFAULT
+                        }
                     } else if cell.marked{
-                        "flag.png"
+                        common::TILE_FLAG
                     } else {
-                        "default.png"
+                        common::TILE_DEFAULT
                     }
                 },
                 Content::Mine(trigger) => {
                     if trigger {
-                        "mine3.png"
+                        common::TILE_MINE_TRGGER
                     } else if cell.revealed && cell.marked {
-                        "mine2.png"
+                        common::TILE_MINE_UNEXPLODED
                     } else if cell.revealed{
-                        "mine1.png"
+                        common::TILE_MINE_EXPLODED
                     }else if cell.marked {
-                        "flag.png"
+                        common::TILE_FLAG
                     } else {
-                        "default.png"
+                        common::TILE_DEFAULT
                     }
                 },
             };
-            let cell_img = open(cell_path).unwrap().to_rgb8();
-            imageops::replace(&mut img, &cell_img, x, y);
+            let tile = ImageReader::new(Cursor::new(cell_bytes)).with_guessed_format().unwrap().decode().unwrap();
+            imageops::replace(&mut img, &tile.to_rgb8(), x, y);
         }
         //fill top corner
         draw_filled_rect_mut(&mut img, Rect::at(0, 0).of_size(50, 50), Rgb([21, 71, 52]));
+
+        //highlight row
+        let row_start = (self.selected_y + 1) * TILE_HEIGHT;
+        draw_hollow_rect_mut(
+            &mut img, Rect::at(0, row_start as i32).of_size((self.width + 1) * TILE_WIDTH, 50), Rgb([255, 255, 255])
+        );
+
+        //highlight col
+        let col_start = (self.selected_x + 1) * TILE_WIDTH;
+        draw_hollow_rect_mut(
+            &mut img, Rect::at(col_start as i32, 0).of_size(50, (self.height + 1) * TILE_HEIGHT), Rgb([255, 255, 255])
+        );
         img
     }
 

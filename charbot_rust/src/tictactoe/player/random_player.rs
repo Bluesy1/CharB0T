@@ -21,3 +21,16 @@ impl Player for RandomPlayer {
             .unwrap()
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    #[test]
+    fn test_random_player() {
+        let player = RandomPlayer;
+        let board = Board::new();
+        let index = player.play(&board, Piece::X);
+        assert!(Board::VALID_INDECES.contains(&index));
+        assert_eq!("Random player", format!("{}", player));
+    }
+}
