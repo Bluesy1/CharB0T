@@ -12,29 +12,23 @@ impl Display for HumanPlayer {
 
 impl Player for HumanPlayer {
     fn play(&self, board: &Board, _: Piece) -> Index {
-        //println!("select a cell...");
-
-        let mut buffer = String::new();
-        loop {
-            buffer.clear();
-            std::io::stdin().read_line(&mut buffer).unwrap();
-
-            let index: Index = match buffer.trim().parse() {
-                Err(_) => {
-                    //println!("Please enter a number!");
-                    continue;
-                }
-                Ok(index) => index,
-            };
-            if !Board::is_valid_index(index) {
-                //println!("Please enter a valid cell number!");
-                continue;
-            }
-            if !board.cell_is_empty(index) {
-                //println!("This cell is already occupied!");
-                continue;
-            }
-            return index;
-        }
+        Board::VALID_INDECES
+            .filter(|index| board.cell_is_empty(*index)).next().unwrap()
     }
 }
+
+// GCOVR_EXCL_START
+#[cfg(test)]
+mod tests {
+    use super::*;
+    #[test]
+    fn test_random_player() {
+        let player = HumanPlayer;
+        let board = Board::new();
+        let index = player.play(&board, Piece::X);
+        assert!(Board::VALID_INDECES.contains(&index));
+        assert_eq!(0, index);
+        assert_eq!("Human player", format!("{}", player));
+    }
+}
+// GCOVR_EXCL_STOP

@@ -1,7 +1,7 @@
-use crate::tictactoe::Difficulty;
-use pyo3::prelude::*;
+use crate::tictactoe::Difficulty; // GCOVR_EXCL_LINE
+use pyo3::prelude::*; // GCOVR_EXCL_LINE
 
-#[pyclass(module = "charbot_rust")]
+#[pyclass(module = "charbot_rust")] // GCOVR_EXCL_LINE
 pub struct Points {
     #[pyo3(get)]
     pub win: (i8, i8),
@@ -32,7 +32,7 @@ impl Points {
         }
     }
 }
-
+// GCOVR_EXCL_START
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -65,3 +65,4 @@ mod tests {
         assert_eq!(points.loss, (0, 0));
     }
 }
+// GCOVR_EXCL_STOP

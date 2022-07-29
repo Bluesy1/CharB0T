@@ -22,6 +22,7 @@ impl Player for RandomPlayer {
     }
 }
 
+// GCOVR_EXCL_START
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -34,3 +35,4 @@ mod tests {
         assert_eq!("Random player", format!("{}", player));
     }
 }
+// GCOVR_EXCL_STOP

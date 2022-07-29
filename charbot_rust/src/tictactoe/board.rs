@@ -1,17 +1,20 @@
+// GCOVR_EXCL_START
 use std::fmt::{Display, Error, Formatter, Write};
 use std::ops::Deref;
 use pyo3::{IntoPy, pyclass, pymethods, PyObject, PyResult, Python};
 use pyo3::types::PyString;
+// GCOVR_EXCL_STOP
 
-#[pyclass(module = "tictactoe")]
-#[derive(PartialEq, Eq, Clone, Copy)]
+
+#[pyclass(module = "tictactoe")] // GCOVR_EXCL_LINE
+#[derive(PartialEq, Eq, Clone, Copy)] // GCOVR_EXCL_LINE
 pub enum Piece {
     X,
     O,
     Empty
 }
 
-#[pymethods]
+#[pymethods] // GCOVR_EXCL_LINE
 impl Piece {
     pub fn swap(&self) -> Self {
         match self {
@@ -25,7 +28,7 @@ impl Piece {
         Ok(self.value())
     }
 
-    #[getter]
+    #[getter] // GCOVR_EXCL_LINE
     fn value(&self) -> String {
         match self {
             Self::X => String::from("X"),
@@ -34,7 +37,7 @@ impl Piece {
         }
     }
 
-    #[getter]
+    #[getter] // GCOVR_EXCL_LINE
     fn name(&self) -> String {
         match self {
             Self::X => String::from("X"),
@@ -53,6 +56,7 @@ impl Display for Piece {
         Ok(())
     }
 }
+// GCOVR_EXCL_START
 impl IntoPy<PyResult<String>> for Piece {
     fn into_py(self, _py: Python<'_>) -> PyResult<String> {
         match self {
@@ -71,10 +75,11 @@ impl IntoPy<PyResult<PyObject>> for Piece {
         }
     }
 }
+// GCOVR_EXCL_STOP
 
 /// Offsets for creating a graphical representation of the board.
-#[pyclass(module = "tictactoe")]
-#[derive(PartialEq, Eq, Clone, Copy)]
+#[pyclass(module = "tictactoe")] // GCOVR_EXCL_LINE
+#[derive(PartialEq, Eq, Clone, Copy)] // GCOVR_EXCL_LINE
 pub enum Offset  {
     TopLeft,
     TopMiddle,
@@ -104,7 +109,8 @@ impl Offset {
         }
     }
 }
-#[pymethods]
+
+#[pymethods] // GCOVR_EXCL_LINE
 impl Offset {
     /// Name of the offset
     #[getter]
@@ -123,7 +129,7 @@ impl Offset {
     }
 
     /// The value of the offset as a tuple of (x, y), 2 u16s
-    #[getter]
+    #[getter] // GCOVR_EXCL_LINE
     pub(crate) fn value(&self) -> (u16, u16) {
         match self {
             Offset::TopLeft => (0, 0),
@@ -152,15 +158,15 @@ static WINNING_INDECES: &[(Index, Index, Index)] = &[
     (2, 4, 6),
 ];
 
-#[pyclass(module = "tictactoe")]
-#[derive(Clone)]
+#[pyclass(module = "tictactoe")] // GCOVR_EXCL_LINE
+#[derive(Clone)] // GCOVR_EXCL_LINE
 pub struct Board {
     pub(crate) board: [Piece; 9],
     n_pieces: u8,
 }
 
 
-#[pymethods]
+#[pymethods] // GCOVR_EXCL_LINE
 impl Board {
     #[getter]
     fn board(&self) -> PyResult<Vec<Piece>> {
@@ -253,3 +259,28 @@ impl Display for Board {
         Ok(())
     }
 }
+
+// GCOVR_EXCL_START
+#[cfg(test)]
+mod tests {
+    use super::*;
+    #[test]
+    fn piece_swap() {
+        assert_eq!(Piece::X.swap(), Piece::O);
+        assert_eq!(Piece::O.swap(), Piece::X);
+        assert_eq!(Piece::Empty.swap(), Piece::Empty);
+    }
+    #[test]
+    fn piece_value() {
+        assert_eq!(Piece::X.__str__().unwrap(), String::from("X"));
+        assert_eq!(Piece::O.__str__().unwrap(), String::from("O"));
+        assert_eq!(Piece::Empty.__str__().unwrap(), String::from(" "));
+        assert_eq!(Piece::X.name(), String::from("X"));
+        assert_eq!(Piece::O.name(), String::from("O"));
+        assert_eq!(Piece::Empty.name(), String::from("Empty"));
+        asset_eq!(Piece::X.value(), String::from("X"));
+        asset_eq!(Piece::O.value(), String::from("O"));
+        asset_eq!(Piece::Empty.value(), String::from(" "));
+    }
+}
+// GCOVR_EXCL_STOP

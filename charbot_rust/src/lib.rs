@@ -1,3 +1,4 @@
+// GCOVR_EXCL_START
 use pyo3::prelude::*;
 mod tictactoe;
 mod points;
@@ -11,3 +12,4 @@ fn charbot_rust(py: Python, m: &PyModule) -> PyResult<()> {
     minesweeper::register_minesweeper(py, m)?;
     Ok(())
 }
+// GCOVR_EXCL_STOP

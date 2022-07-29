@@ -129,6 +129,7 @@ impl Player for MinimaxPlayer {
     }
 }
 
+// GCOVR_EXCL_START
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -152,3 +153,4 @@ mod tests {
         assert_eq!("Minimax player", format!("{}", player));
     }
 }
+// GCOVR_EXCL_STOP
