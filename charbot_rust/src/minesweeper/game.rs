@@ -190,6 +190,7 @@ impl Game {
             Content::Mine(_) => {
                 self.field.reveal_all();
                 self.field.set_killer(ind);
+                self.quit = true;
                 RevealResult::Mine
             },
             Content::Number(_) => RevealResult::Number

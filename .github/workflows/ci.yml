@@ -29,22 +29,24 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       - uses: actions-rs/toolchain@v1
-        env:
-          CARGO_MANIFEST_DIR: "charbot_rust"
         with:
           toolchain: nightly
           override: true
-      - uses: actions-rs/cargo@v1
+      - name: Run tests
+        run: |
+          cd charbot_rust
+          rustup component add llvm-tools-preview
+          cargo build
+          cargo test --no-default-features
+          genhtml -o ./target/debug/coverage/ --show-details --highlight --ignore-errors source --legend ../lcov.info
         with:
           command: test
           args: --all-features --no-fail-fast
         env:
-          CARGO_MANIFEST_DIR: "charbot_rust"
           CARGO_INCREMENTAL: '0'
-          RUSTFLAGS: '-Zprofile -Ccodegen-units=1 -Cinline-threshold=0 -Clink-dead-code -Coverflow-checks=off -Cpanic=abort -Zpanic_abort_tests'
-          RUSTDOCFLAGS: '-Zprofile -Ccodegen-units=1 -Cinline-threshold=0 -Clink-dead-code -Coverflow-checks=off -Cpanic=abort -Zpanic_abort_tests'
-      - id: coverage
-        uses: actions-rs/grcov@v0.1
+          RUSTFLAGS: '-Zprofile -Ccodegen-units=1 -Copt-level=0 -Clink-dead-code -Coverflow-checks=off -Zpanic_abort_tests -Cpanic=abort'
+          RUSTDOCFLAGS: '-Cpanic=abort'
+          LLVM_PROFILE_FILE: 'GHA-%p-%m.profraw'
       - name: Upload coverage report
         uses: codecov/codecov-action@v2
         with:
