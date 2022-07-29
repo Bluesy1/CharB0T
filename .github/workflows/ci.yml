@@ -13,6 +13,16 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
+      - name: Configure cache
+        uses: actions/cache@v2
+        with:
+          path: |
+            ~/.cargo/bin/
+            ~/.cargo/registry/index/
+            ~/.cargo/registry/cache/
+            ~/.cargo/git/db/
+            target/
+          key: build-${{ hashFiles('**/Cargo.lock') }}
       - uses: messense/maturin-action@v1
         with:
           manylinux: auto
@@ -32,6 +42,16 @@ jobs:
         with:
           toolchain: nightly
           override: true
+      - name: Configure cache
+        uses: actions/cache@v2
+        with:
+          path: |
+            ~/.cargo/bin/
+            ~/.cargo/registry/index/
+            ~/.cargo/registry/cache/
+            ~/.cargo/git/db/
+            target/
+          key: test-${{ hashFiles('**/Cargo.lock') }}
       - name: Run tests
         run: |
           cd charbot_rust
@@ -39,7 +59,7 @@ jobs:
           rustup component add llvm-tools-preview
           cargo build
           cargo test --no-default-features
-          genhtml -o ./target/debug/coverage/ --show-details --highlight --ignore-errors source --legend ../lcov.info
+          grcov . -s . --binary-path ./target/debug/ -t lcov --branch --ignore-not-existing -o ../lcov.info
         env:
           CARGO_INCREMENTAL: '0'
           RUSTFLAGS: '-Zprofile -Ccodegen-units=1 -Copt-level=0 -Clink-dead-code -Coverflow-checks=off -Zpanic_abort_tests -Cpanic=abort'
