@@ -29,6 +29,8 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       - uses: actions-rs/toolchain@v1
+        env:
+          CARGO_MANIFEST_DIR: "charbot_rust"
         with:
           toolchain: nightly
           override: true
