@@ -34,14 +34,12 @@ jobs:
           override: true
       - name: Run tests
         run: |
+          curl -L https://github.com/mozilla/grcov/releases/latest/download/grcov-x86_64-unknown-linux-gnu.tar.bz2 | tar jxf -
           cd charbot_rust
           rustup component add llvm-tools-preview
           cargo build
           cargo test --no-default-features
           genhtml -o ./target/debug/coverage/ --show-details --highlight --ignore-errors source --legend ../lcov.info
-        with:
-          command: test
-          args: --all-features --no-fail-fast
         env:
           CARGO_INCREMENTAL: '0'
           RUSTFLAGS: '-Zprofile -Ccodegen-units=1 -Copt-level=0 -Clink-dead-code -Coverflow-checks=off -Zpanic_abort_tests -Cpanic=abort'
