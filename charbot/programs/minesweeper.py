@@ -24,7 +24,7 @@ class Minesweeper(ui.View):
         The game to display and run.
     """
 
-    def __init__(self, game: minesweeper.Game):
+    def __init__(self, game: minesweeper.Game):  # pyright: ignore[reportGeneralTypeIssues]
         super().__init__()
         self.game = game
         x = self.game.x
@@ -66,7 +66,7 @@ class Minesweeper(ui.View):
         bytesio = BytesIO()
         img.save(bytesio, "PNG")
         bytesio.seek(0)
-        file = discord.File(bytesio, filename="minesweeper.png", description="Minesweeper board")
+        file = discord.File(bytesio, filename="minesweeper.png", description="Minesweeper board")  # skipcq: PYL-E1123
         return file
 
     async def handle_lose(self, interaction: Interaction[CBot]):
@@ -113,7 +113,7 @@ class Minesweeper(ui.View):
         await interaction.response.edit_message(attachments=[file], embed=embed, view=None)
         self.stop()
 
-    @ui.select(placeholder="Select a row")
+    @ui.select(placeholder="Select a row")  # pyright: ignore[reportGeneralTypeIssues]
     async def row(self, interaction: Interaction[CBot], select: ui.Select[Self]):
         """Change the row.
 
@@ -133,7 +133,7 @@ class Minesweeper(ui.View):
             opt.default = opt.value == val
         await interaction.response.edit_message(attachments=[file], view=self)
 
-    @ui.select(placeholder="Select a column")
+    @ui.select(placeholder="Select a column")  # pyright: ignore[reportGeneralTypeIssues]
     async def column(self, interaction: Interaction[CBot], select: ui.Select[Self]):
         """Change the column.
 
@@ -153,7 +153,7 @@ class Minesweeper(ui.View):
             opt.default = opt.value == val
         await interaction.response.edit_message(attachments=[file], view=self)
 
-    @ui.button(label="Reveal", style=ButtonStyle.primary, emoji="\u26cf")
+    @ui.button(label="Reveal", style=ButtonStyle.primary, emoji="\u26cf")  # pyright: ignore[reportGeneralTypeIssues]
     async def reveal(self, interaction: Interaction[CBot], _button: ui.Button[Self]):
         """Reveal a tile.
 
@@ -167,14 +167,14 @@ class Minesweeper(ui.View):
             The button.
         """
         res = self.game.reveal()
-        if res is minesweeper.RevealResult.Mine:
+        if res is minesweeper.RevealResult.Mine:  # pyright: ignore[reportGeneralTypeIssues]
             await self.handle_lose(interaction)
         elif self.game.is_win():
             await self.handle_win(interaction)
         else:
             file = await self.draw()
             await interaction.response.edit_message(attachments=[file], view=self)
-            if res is minesweeper.RevealResult.Flagged:
+            if res is minesweeper.RevealResult.Flagged:  # pyright: ignore[reportGeneralTypeIssues]
                 await interaction.followup.send(
                     "WARNING: you tried to reveal a flagged cell. Instead of revealing it, it was unflagged. "
                     "If you meant to reveal it, press reveal again.",
@@ -182,7 +182,7 @@ class Minesweeper(ui.View):
                 )
 
     # noinspection GrazieInspection
-    @ui.button(label="Chord", style=ButtonStyle.primary, emoji="\u2692")
+    @ui.button(label="Chord", style=ButtonStyle.primary, emoji="\u2692")  # pyright: ignore[reportGeneralTypeIssues]
     async def chord(self, interaction: Interaction[CBot], _button: ui.Button[Self]):
         """Chord a tile.
 
@@ -196,19 +196,19 @@ class Minesweeper(ui.View):
             The button.
         """
         res = self.game.chord()
-        if res is minesweeper.ChordResult.Failed:
+        if res is minesweeper.ChordResult.Failed:  # pyright: ignore[reportGeneralTypeIssues]
             await interaction.response.send_message(
                 "WARNING: you tried to chord a cell that was not revealed, not a number, or didn't have the "
                 "appropriate number of surrounding tles marked.",
                 ephemeral=True,
             )
-        elif minesweeper.ChordResult.Success:
+        elif minesweeper.ChordResult.Success:  # pyright: ignore[reportGeneralTypeIssues]
             if self.game.is_win():
                 await self.handle_win(interaction)
             else:
                 file = await self.draw()
                 await interaction.response.edit_message(attachments=[file], view=self)
-                if res is minesweeper.RevealResult.Flagged:
+                if res is minesweeper.RevealResult.Flagged:  # pyright: ignore[reportGeneralTypeIssues]
                     await interaction.followup.send(
                         "WARNING: you tried to reveal a flagged cell. Instead of revealing it, it was unflagged. "
                         "If you meant to reveal it, press reveal again.",
@@ -217,7 +217,7 @@ class Minesweeper(ui.View):
         else:
             await self.handle_lose(interaction)
 
-    @ui.button(label="Flag", style=ButtonStyle.success, emoji="\U0001f6a9")
+    @ui.button(label="Flag", style=ButtonStyle.success, emoji="\U0001f6a9")  # pyright: ignore[reportGeneralTypeIssues]
     async def flag(self, interaction: Interaction[CBot], _button: ui.Button[Self]):
         """Flag a tile.
 
@@ -234,7 +234,7 @@ class Minesweeper(ui.View):
         file = await self.draw()
         await interaction.response.edit_message(attachments=[file], view=self)
 
-    @ui.button(label="Quit", style=ButtonStyle.danger, emoji="\u2620")
+    @ui.button(label="Quit", style=ButtonStyle.danger, emoji="\u2620")  # pyright: ignore[reportGeneralTypeIssues]
     async def quit(self, interaction: Interaction[CBot], _button: ui.Button[Self]):
         """Quit the game.
 
@@ -256,7 +256,7 @@ class Minesweeper(ui.View):
         await interaction.response.edit_message(attachments=[file], embed=embed, view=None)
         self.stop()
 
-    @ui.button(label="Help", style=ButtonStyle.secondary, emoji="\u2049")
+    @ui.button(label="Help", style=ButtonStyle.secondary, emoji="\u2049")  # pyright: ignore[reportGeneralTypeIssues]
     async def help(self, interaction: Interaction[CBot], _button: ui.Button[Self]):
         """Display the help message.
 
@@ -269,7 +269,7 @@ class Minesweeper(ui.View):
         _button : ui.Button[Self]
             The button.
         """
-        await interaction.response.defer(epehemral=True)
+        await interaction.response.defer(ephemeral=True)
         embed = discord.Embed(
             title="Minesweeper",
             color=0x00FF00,
@@ -288,7 +288,7 @@ class Minesweeper(ui.View):
         embed.add_field(name="Help \u2049", value="Show this help.", inline=True)
         await interaction.followup.send(
             embed=embed,
-            file=discord.File(
+            file=discord.File(  # skipcq: PYL-E1123
                 fp="charbot/media/minesweeper/help.gif",
                 filename="help.gif",
                 description="Example playthrough of Minesweeper.",
