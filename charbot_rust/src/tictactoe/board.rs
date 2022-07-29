@@ -7,7 +7,7 @@ use pyo3::types::PyString;
 
 
 #[pyclass(module = "tictactoe")] // GCOVR_EXCL_LINE
-#[derive(PartialEq, Eq, Clone, Copy)] // GCOVR_EXCL_LINE
+#[derive(PartialEq, Eq, Clone, Copy, Debug)] // GCOVR_EXCL_LINE
 pub enum Piece {
     X,
     O,
@@ -278,9 +278,9 @@ mod tests {
         assert_eq!(Piece::X.name(), String::from("X"));
         assert_eq!(Piece::O.name(), String::from("O"));
         assert_eq!(Piece::Empty.name(), String::from("Empty"));
-        asset_eq!(Piece::X.value(), String::from("X"));
-        asset_eq!(Piece::O.value(), String::from("O"));
-        asset_eq!(Piece::Empty.value(), String::from(" "));
+        assert_eq!(Piece::X.value(), String::from("X"));
+        assert_eq!(Piece::O.value(), String::from("O"));
+        assert_eq!(Piece::Empty.value(), String::from(" "));
     }
 }
 // GCOVR_EXCL_STOP

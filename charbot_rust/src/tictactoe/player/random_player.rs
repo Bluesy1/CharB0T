@@ -3,6 +3,7 @@ use crate::tictactoe::board::{Board, Index, Piece};
 use rand::seq::IteratorRandom;
 use std::fmt::{Display, Error, Formatter};
 
+#[derive(Debug, PartialEq)] // GCOVR_EXCL_LINE
 pub struct RandomPlayer;
 
 impl Display for RandomPlayer {
