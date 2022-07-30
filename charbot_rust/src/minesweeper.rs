@@ -1,7 +1,7 @@
 mod field;
 pub mod game;
 mod common;
-// GCOVR_EXCL_START
+// LCOV_EXCL_START
 use pyo3::prelude::*;
 
 const DOCSTRING: &str = "Rust based reimplementation of minesweeper";
@@ -15,4 +15,4 @@ pub(crate) fn register_minesweeper(py: Python, m: &PyModule) -> PyResult<()> {
     m.add_submodule(minesweeper)?;
     Ok(())
 }
-// GCOVR_EXCL_STOP
+// LCOV_EXCL_STOP

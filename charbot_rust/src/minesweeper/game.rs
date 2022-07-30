@@ -1,13 +1,13 @@
-// GCOVR_EXCL_START
+// LCOV_EXCL_START
 use pyo3::exceptions::PyValueError;
 use crate::minesweeper::{field::{Field, Content, TILE_HEIGHT, TILE_WIDTH}, common::MoveDestination};
 use pyo3::prelude::*;
 use rand::rngs::StdRng;
 use rand::SeedableRng;
-// GCOVR_EXCL_STOP
+// LCOV_EXCL_STOP
 
-#[pyclass(module = "minesweeper")] // GCOVR_EXCL_LINE
-#[derive(PartialEq, Debug)] // GCOVR_EXCL_LINE
+#[pyclass(module = "minesweeper")] // LCOV_EXCL_LINE
+#[derive(PartialEq, Debug)] // LCOV_EXCL_LINE
 pub enum RevealResult{
     Flagged = 0,
     Mine = 1,
@@ -15,16 +15,16 @@ pub enum RevealResult{
     Number = 3,
 }
 
-#[pyclass(module = "minesweeper")] // GCOVR_EXCL_LINE
-#[derive(PartialEq, Debug)] // GCOVR_EXCL_LINE
+#[pyclass(module = "minesweeper")] // LCOV_EXCL_LINE
+#[derive(PartialEq, Debug)] // LCOV_EXCL_LINE
 pub enum ChordResult{
     Failed = 0,
     Success = 1,
     Death = 2,
 }
 
-#[pyclass(module = "minesweeper")] // GCOVR_EXCL_LINE
-#[derive(PartialEq, Debug)] // GCOVR_EXCL_LINE
+#[pyclass(module = "minesweeper")] // LCOV_EXCL_LINE
+#[derive(PartialEq, Debug)] // LCOV_EXCL_LINE
 pub struct ReturnCell {
     #[pyo3(get)]
     pub revealed: bool,
@@ -32,7 +32,7 @@ pub struct ReturnCell {
     pub marked: bool,
 }
 
-#[pyclass(module = "minesweeper")] // GCOVR_EXCL_LINE
+#[pyclass(module = "minesweeper")] // LCOV_EXCL_LINE
 pub struct Game {
     field: Field,
     win_points: (u8, u8),
@@ -40,9 +40,9 @@ pub struct Game {
     quit: bool,
 }
 
-#[pymethods] // GCOVR_EXCL_LINE
+#[pymethods] // LCOV_EXCL_LINE
 impl Game {
-    #[new] // GCOVR_EXCL_LINE
+    #[new] // LCOV_EXCL_LINE
     fn new(width: u32, height: u32, mines: u32) -> Self {
         let rng = StdRng::from_entropy();
         Game {
@@ -53,7 +53,7 @@ impl Game {
         }
     }
 
-    #[staticmethod] // GCOVR_EXCL_LINE
+    #[staticmethod] // LCOV_EXCL_LINE
     fn beginner() -> Self {
         Game {
             field: Field::new(8, 8, 10, StdRng::from_entropy()),
@@ -63,7 +63,7 @@ impl Game {
         }
     }
 
-    #[staticmethod] // GCOVR_EXCL_LINE
+    #[staticmethod] // LCOV_EXCL_LINE
     fn intermediate() -> Self {
         Game {
             field: Field::new(16, 16, 40, StdRng::from_entropy()),
@@ -73,7 +73,7 @@ impl Game {
         }
     }
 
-    #[staticmethod] // GCOVR_EXCL_LINE
+    #[staticmethod] // LCOV_EXCL_LINE
     fn expert() -> Self {
         Game {
             field: Field::new(22, 22, 100, StdRng::from_entropy()),
@@ -83,7 +83,7 @@ impl Game {
         }
     }
 
-    #[staticmethod] // GCOVR_EXCL_LINE
+    #[staticmethod] // LCOV_EXCL_LINE
     fn super_expert() -> Self {
         Game {
             field: Field::new(25, 25, 130, StdRng::from_entropy()),
@@ -93,7 +93,7 @@ impl Game {
         }
     }
 
-    #[getter] // GCOVR_EXCL_LINE
+    #[getter] // LCOV_EXCL_LINE
     fn points(&self) -> (u8, u8) {
         if self.is_win() {
             self.win_points
@@ -101,37 +101,37 @@ impl Game {
             self.lose_points
         }
     }
-    #[getter] // GCOVR_EXCL_LINE
+    #[getter] // LCOV_EXCL_LINE
     fn flagged_count(&self) -> u32 {
         self.field.count_marked()
     }
 
-    #[getter] // GCOVR_EXCL_LINE
+    #[getter] // LCOV_EXCL_LINE
     fn mine_count(&self) -> u32 {
         self.field.total_mines()
     }
 
-    #[getter] // GCOVR_EXCL_LINE
+    #[getter] // LCOV_EXCL_LINE
     fn size(&self) -> u32 {
         self.field.get_size()
     }
 
-    #[getter] // GCOVR_EXCL_LINE
+    #[getter] // LCOV_EXCL_LINE
     fn width(&self) -> u32 {
         self.field.get_width()
     }
 
-    #[getter] // GCOVR_EXCL_LINE
+    #[getter] // LCOV_EXCL_LINE
     fn height(&self) -> u32 {
         self.field.get_height()
     }
 
-    #[getter] // GCOVR_EXCL_LINE
+    #[getter] // LCOV_EXCL_LINE
     fn x(&self) -> u32 {
         self.field.get_x()
     }
 
-    #[getter] // GCOVR_EXCL_LINE
+    #[getter] // LCOV_EXCL_LINE
     fn y(&self) -> u32 {
         self.field.get_y()
     }
@@ -250,7 +250,7 @@ impl Game {
     }
 }
 
-// GCOVR_EXCL_START
+// LCOV_EXCL_START
 #[cfg(test)]
 mod tests {
     use super::*;

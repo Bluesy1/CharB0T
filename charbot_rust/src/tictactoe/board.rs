@@ -1,20 +1,20 @@
-// GCOVR_EXCL_START
+// LCOV_EXCL_START
 use std::fmt::{Display, Error, Formatter, Write};
 use std::ops::Deref;
 use pyo3::{IntoPy, pyclass, pymethods, PyObject, PyResult, Python};
 use pyo3::types::PyString;
-// GCOVR_EXCL_STOP
+// LCOV_EXCL_STOP
 
 
-#[pyclass(module = "tictactoe")] // GCOVR_EXCL_LINE
-#[derive(PartialEq, Eq, Clone, Copy, Debug)] // GCOVR_EXCL_LINE
+#[pyclass(module = "tictactoe")] // LCOV_EXCL_LINE
+#[derive(PartialEq, Eq, Clone, Copy, Debug)] // LCOV_EXCL_LINE
 pub enum Piece {
     X,
     O,
     Empty
 }
 
-#[pymethods] // GCOVR_EXCL_LINE
+#[pymethods] // LCOV_EXCL_LINE
 impl Piece {
     pub fn swap(&self) -> Self {
         match self {
@@ -28,7 +28,7 @@ impl Piece {
         Ok(self.value())
     }
 
-    #[getter] // GCOVR_EXCL_LINE
+    #[getter] // LCOV_EXCL_LINE
     fn value(&self) -> String {
         match self {
             Self::X => String::from("X"),
@@ -37,7 +37,7 @@ impl Piece {
         }
     }
 
-    #[getter] // GCOVR_EXCL_LINE
+    #[getter] // LCOV_EXCL_LINE
     fn name(&self) -> String {
         match self {
             Self::X => String::from("X"),
@@ -56,7 +56,7 @@ impl Display for Piece {
         Ok(())
     }
 }
-// GCOVR_EXCL_START
+// LCOV_EXCL_START
 impl IntoPy<PyResult<String>> for Piece {
     fn into_py(self, _py: Python<'_>) -> PyResult<String> {
         match self {
@@ -75,11 +75,11 @@ impl IntoPy<PyResult<PyObject>> for Piece {
         }
     }
 }
-// GCOVR_EXCL_STOP
+// LCOV_EXCL_STOP
 
 /// Offsets for creating a graphical representation of the board.
-#[pyclass(module = "tictactoe")] // GCOVR_EXCL_LINE
-#[derive(PartialEq, Eq, Clone, Copy)] // GCOVR_EXCL_LINE
+#[pyclass(module = "tictactoe")] // LCOV_EXCL_LINE
+#[derive(PartialEq, Eq, Clone, Copy)] // LCOV_EXCL_LINE
 pub enum Offset  {
     TopLeft,
     TopMiddle,
@@ -110,7 +110,7 @@ impl Offset {
     }
 }
 
-#[pymethods] // GCOVR_EXCL_LINE
+#[pymethods] // LCOV_EXCL_LINE
 impl Offset {
     /// Name of the offset
     #[getter]
@@ -129,7 +129,7 @@ impl Offset {
     }
 
     /// The value of the offset as a tuple of (x, y), 2 u16s
-    #[getter] // GCOVR_EXCL_LINE
+    #[getter] // LCOV_EXCL_LINE
     pub(crate) fn value(&self) -> (u16, u16) {
         match self {
             Offset::TopLeft => (0, 0),
@@ -158,15 +158,15 @@ static WINNING_INDECES: &[(Index, Index, Index)] = &[
     (2, 4, 6),
 ];
 
-#[pyclass(module = "tictactoe")] // GCOVR_EXCL_LINE
-#[derive(Clone)] // GCOVR_EXCL_LINE
+#[pyclass(module = "tictactoe")] // LCOV_EXCL_LINE
+#[derive(Clone)] // LCOV_EXCL_LINE
 pub struct Board {
     pub(crate) board: [Piece; 9],
     n_pieces: u8,
 }
 
 
-#[pymethods] // GCOVR_EXCL_LINE
+#[pymethods] // LCOV_EXCL_LINE
 impl Board {
     #[getter]
     fn board(&self) -> PyResult<Vec<Piece>> {
@@ -260,7 +260,7 @@ impl Display for Board {
     }
 }
 
-// GCOVR_EXCL_START
+// LCOV_EXCL_START
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -283,4 +283,4 @@ mod tests {
         assert_eq!(Piece::Empty.value(), String::from(" "));
     }
 }
-// GCOVR_EXCL_STOP
+// LCOV_EXCL_STOP

@@ -3,7 +3,7 @@ use crate::tictactoe::board::{Board, Index, Piece};
 use rand::seq::IteratorRandom;
 use std::fmt::{Display, Error, Formatter};
 
-#[derive(Debug, PartialEq)] // GCOVR_EXCL_LINE
+#[derive(Debug, PartialEq)] // LCOV_EXCL_LINE
 pub struct RandomPlayer;
 
 impl Display for RandomPlayer {
@@ -23,7 +23,7 @@ impl Player for RandomPlayer {
     }
 }
 
-// GCOVR_EXCL_START
+// LCOV_EXCL_START
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -36,4 +36,4 @@ mod tests {
         assert_eq!("Random player", format!("{}", player));
     }
 }
-// GCOVR_EXCL_STOP
+// LCOV_EXCL_STOP

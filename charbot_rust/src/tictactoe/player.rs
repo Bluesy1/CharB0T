@@ -1,14 +1,14 @@
 mod human_player;
 mod minimax_player;
 mod random_player;
-// GCOVR_EXCL_START
+// LCOV_EXCL_START
 use super::board::{Board, Index, Piece};
 use std::fmt::{Debug, Display};
 
 pub use human_player::HumanPlayer;
 pub use minimax_player::MinimaxPlayer;
 pub use random_player::RandomPlayer;
-// GCOVR_EXCL_STOP
+// LCOV_EXCL_STOP
 
 pub trait Player: Display + Debug {
     fn play(&self, board: &Board, piece: Piece) -> Index;
@@ -44,7 +44,7 @@ pub fn choose_player(c: &str) -> Option<Box<dyn Player>> {
 // }
 
 
-// GCOVR_EXCL_START
+// LCOV_EXCL_START
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -62,4 +62,4 @@ mod tests {
         assert!(choose_player("not a player").is_none(), "Could create player");
     }
 }
-// GCOVR_EXCL_STOP
+// LCOV_EXCL_STOP
