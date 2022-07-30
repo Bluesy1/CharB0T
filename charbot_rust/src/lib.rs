@@ -1,4 +1,4 @@
-// LCOV_EXCL_START
+// COV_EXCL_START
 use pyo3::prelude::*;
 mod tictactoe;
 mod points;
@@ -12,4 +12,4 @@ fn charbot_rust(py: Python, m: &PyModule) -> PyResult<()> {
     minesweeper::register_minesweeper(py, m)?;
     Ok(())
 }
-// LCOV_EXCL_STOP
+// COV_EXCL_STOP

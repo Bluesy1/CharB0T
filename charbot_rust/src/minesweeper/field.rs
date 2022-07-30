@@ -1,4 +1,4 @@
-// LCOV_EXCL_START
+// COV_EXCL_START
 use std::io::Cursor;
 use std::collections::VecDeque;
 use image::{ImageBuffer, RgbImage, imageops, Rgb, io::Reader as ImageReader};
@@ -8,12 +8,12 @@ use rand::prelude::SliceRandom;
 use crate::minesweeper::common::MoveDestination;
 use crate::minesweeper::common;
 use crate::minesweeper::game::ReturnCell;
-// LCOV_EXCL_STOP
+// COV_EXCL_STOP
 
 pub const TILE_WIDTH: u32 = 50;
 pub const TILE_HEIGHT: u32 = 50;
 
-#[derive(PartialEq, Debug)] // LCOV_EXCL_LINE
+#[derive(PartialEq, Debug)] // COV_EXCL_LINE
 pub enum Content {
     Number(u8),
     Mine(bool), // bool is true when this is the mine that caused you to loose the game.

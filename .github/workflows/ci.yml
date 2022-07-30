@@ -59,7 +59,7 @@ jobs:
           rustup component add llvm-tools-preview
           cargo build
           cargo test --no-default-features
-          ./grcov . -s . --binary-path ./target/debug/ -t lcov --branch --ignore-not-existing -o ../lcov.info
+          ./grcov . -s . -- --excl-line COV_EXCL_LINE --excl-start COV_EXCL_START --excl-stop COV_EXCL_STOP --binary-path ./target/debug/ -t lcov --branch --ignore-not-existing -o ../lcov.info
         env:
           CARGO_INCREMENTAL: '0'
           RUSTFLAGS: '-Zprofile -Ccodegen-units=1 -Copt-level=0 -Clink-dead-code -Coverflow-checks=off -Zpanic_abort_tests -Cpanic=abort'

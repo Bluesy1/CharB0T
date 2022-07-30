@@ -1,7 +1,7 @@
-use crate::tictactoe::Difficulty; // LCOV_EXCL_LINE
-use pyo3::prelude::*; // LCOV_EXCL_LINE
+use crate::tictactoe::Difficulty; // COV_EXCL_LINE
+use pyo3::prelude::*; // COV_EXCL_LINE
 
-#[pyclass(module = "charbot_rust")] // LCOV_EXCL_LINE
+#[pyclass(module = "charbot_rust")] // COV_EXCL_LINE
 pub struct Points {
     #[pyo3(get)]
     pub win: (i8, i8),
@@ -32,7 +32,7 @@ impl Points {
         }
     }
 }
-// LCOV_EXCL_START
+// COV_EXCL_START
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -65,4 +65,4 @@ mod tests {
         assert_eq!(points.loss, (0, 0));
     }
 }
-// LCOV_EXCL_STOP
+// COV_EXCL_STOP

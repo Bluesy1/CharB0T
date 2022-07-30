@@ -2,7 +2,7 @@ use super::Player;
 use crate::tictactoe::board::{Board, Index, Piece};
 use std::fmt::{Display, Error, Formatter};
 
-#[derive(Debug, PartialEq)] // LCOV_EXCL_LINE
+#[derive(Debug, PartialEq)] // COV_EXCL_LINE
 pub struct HumanPlayer;
 
 impl Display for HumanPlayer {
@@ -18,7 +18,7 @@ impl Player for HumanPlayer {
     }
 }
 
-// LCOV_EXCL_START
+// COV_EXCL_START
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -32,4 +32,4 @@ mod tests {
         assert_eq!("Human player", format!("{}", player));
     }
 }
-// LCOV_EXCL_STOP
+// COV_EXCL_STOP

@@ -3,7 +3,7 @@ use crate::tictactoe::board::{Board, Index, Piece};
 use rand::seq::SliceRandom;
 use std::fmt::{Display, Error, Formatter};
 
-#[derive(Debug, PartialEq)] // LCOV_EXCL_LINE
+#[derive(Debug, PartialEq)] // COV_EXCL_LINE
 pub struct MinimaxPlayer {
     alpha_beta: bool,
 }
@@ -130,7 +130,7 @@ impl Player for MinimaxPlayer {
     }
 }
 
-// LCOV_EXCL_START
+// COV_EXCL_START
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -154,4 +154,4 @@ mod tests {
         assert_eq!("Minimax player", format!("{}", player));
     }
 }
-// LCOV_EXCL_STOP
+// COV_EXCL_STOP
