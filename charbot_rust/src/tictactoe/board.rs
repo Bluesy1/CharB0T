@@ -79,7 +79,7 @@ impl IntoPy<PyResult<PyObject>> for Piece {
 
 /// Offsets for creating a graphical representation of the board.
 #[pyclass(module = "tictactoe")] // COV_EXCL_LINE
-#[derive(PartialEq, Eq, Clone, Copy)] // COV_EXCL_LINE
+#[derive(PartialEq, Eq, Clone, Copy, Debug)] // COV_EXCL_LINE
 pub enum Offset  {
     TopLeft,
     TopMiddle,
@@ -174,12 +174,6 @@ impl Board {
     }
 }
 
-impl Default for Board {
-    fn default() -> Self {
-        Self::new()
-    }
-}
-
 impl Board {
     pub fn new() -> Self {
         Board {
@@ -265,13 +259,10 @@ impl Display for Board {
 mod tests {
     use super::*;
     #[test]
-    fn piece_swap() {
+    fn piece() {
         assert_eq!(Piece::X.swap(), Piece::O);
         assert_eq!(Piece::O.swap(), Piece::X);
         assert_eq!(Piece::Empty.swap(), Piece::Empty);
-    }
-    #[test]
-    fn piece_value() {
         assert_eq!(Piece::X.__str__().unwrap(), String::from("X"));
         assert_eq!(Piece::O.__str__().unwrap(), String::from("O"));
         assert_eq!(Piece::Empty.__str__().unwrap(), String::from(" "));
@@ -281,6 +272,57 @@ mod tests {
         assert_eq!(Piece::X.value(), String::from("X"));
         assert_eq!(Piece::O.value(), String::from("O"));
         assert_eq!(Piece::Empty.value(), String::from(" "));
+        assert_eq!(format!("{}", Piece::X), String::from("X"));
+        assert_eq!(format!("{}", Piece::O), String::from("O"));
+        assert_eq!(format!("{}", Piece::Empty), String::from(" "));
+    }
+    #[test]
+    fn offset() {
+        let zero = Offset::new(0).expect("Failed to create Offset::TopLeft");
+        assert_eq!(zero.value(), (0, 0));
+        assert_eq!(zero.name(), String::from("TopLeft"));
+        let one = Offset::new(1).expect("Failed to create Offset::TopMiddle");
+        assert_eq!(one.value(), (179, 0));
+        assert_eq!(one.name(), String::from("TopMiddle"));
+        let two = Offset::new(2).expect("Failed to create Offset::TopRight");
+        assert_eq!(two.value(), (355, 0));
+        assert_eq!(two.name(), String::from("TopRight"));
+        let three = Offset::new(3).expect("Failed to create Offset::MiddleLeft");
+        assert_eq!(three.value(), (0, 179));
+        assert_eq!(three.name(), String::from("MiddleLeft"));
+        let four = Offset::new(4).expect("Failed to create Offset::MiddleMiddle");
+        assert_eq!(four.value(), (179, 179));
+        assert_eq!(four.name(), String::from("MiddleMiddle"));
+        let five = Offset::new(5).expect("Failed to create Offset::MiddleRight");
+        assert_eq!(five.value(), (355, 179));
+        assert_eq!(five.name(), String::from("MiddleRight"));
+        let six = Offset::new(6).expect("Failed to create Offset::BottomLeft");
+        assert_eq!(six.value(), (0, 357));
+        assert_eq!(six.name(), String::from("BottomLeft"));
+        let seven = Offset::new(7).expect("Failed to create Offset::BottomMiddle");
+        assert_eq!(seven.value(), (179, 357));
+        assert_eq!(seven.name(), String::from("BottomMiddle"));
+        let eight = Offset::new(8).expect("Failed to create Offset::BottomRight");
+        assert_eq!(eight.value(), (355, 357));
+        assert_eq!(eight.name(), String::from("BottomRight"));
+        Offset::new(9).expect_err("Failed to reject index 9");
+    }
+    #[test]
+    fn board() {
+        let mut board = Board::new();
+        assert_eq!(format!("{}", board), "012\n345\n678");
+        assert_eq!(board.n_pieces, 0);
+        assert!(!board.is_draw());
+        for index in 0..9 {
+            assert_eq!(board.board[index], Piece::Empty);
+            assert!(Board::is_valid_index(index));
+            assert!(board.place_piece(index, Piece::X), "Failed to place piece at index {}", index);
+            assert_eq!(board.n_pieces, (index + 1) as u8);
+        }
+        assert_eq!(board.is_victory(), Some(Piece::X));
+        assert!(board.is_victory_for_player(Piece::X));
+        assert!(!board.is_victory_for_player(Piece::O));
+        assert_eq!(format!("{}", board), "XXX\nXXX\nXXX");
     }
 }
 // COV_EXCL_STOP
