@@ -231,7 +231,7 @@ mod tests{
     fn creator() {
         let easy = Game::new(1, StdRng::from_entropy()).expect("Failed to create game");
         assert!(easy.human_first);
-        let medium = Game::new(2,StdRng::from_entropy()).expect("Failed to create game");
+        let medium = Game::new(2,StdRng::from_seed([0; 32])).expect("Failed to create game");
         assert!(medium.human_first);
         let hard = Game::new(3, StdRng::from_seed([0; 32])).expect("Failed to create game");
         assert!(!hard.human_first);
