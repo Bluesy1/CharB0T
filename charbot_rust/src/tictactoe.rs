@@ -2,12 +2,12 @@ mod board;
 mod player;
 
 use rand::prelude::*;
-use pyo3::exceptions::{PyException, PyValueError};
+use pyo3::exceptions::PyException;
 use pyo3::prelude::*;
-//use pyo3::types::PyTuple;
 use crate::tictactoe::board::{Offset, Piece};
 use crate::points::Points;
 
+#[derive(Debug, PartialEq)] // COV_EXCL_LINE
 pub enum Difficulty {
     Easy,
     Medium,
@@ -16,13 +16,13 @@ pub enum Difficulty {
 }
 
 impl Difficulty {
-    fn extract(obj: i32) -> PyResult<Self> {
+    fn extract(obj: i32) -> Result<Self, String> {
          match obj {
             1 => Ok(Difficulty::Easy),
             2 => Ok(Difficulty::Medium),
             3 => Ok(Difficulty::Hard),
             4 => Ok(Difficulty::Random),
-            _ => Err(PyErr::new::<PyValueError, _>("Invalid difficulty value")),
+            _ => Err("Invalid difficulty value".to_string()),
         }
     }
 }
@@ -38,21 +38,13 @@ struct Game {
 
 unsafe impl Send for Game {}
 
-#[pymethods]
 impl Game {
-    #[getter]
-    fn board(&self) -> PyResult<Vec<Piece>> {
-        Ok(self.board.board.to_vec())
-    }
-
-    #[new]
-    fn __new__(difficulty: i32) -> PyResult<Self> {
+        fn new(difficulty: i32, mut rng: StdRng) -> Result<Self, String> {
         let difficulty = Difficulty::extract(difficulty)?;
         let points = Points::new(&difficulty);
         let x: Option<Box<dyn player::Player>>;
         let o: Option<Box<dyn player::Player>>;
         let mut human_first: bool = true;
-        let mut rng = thread_rng();
         match difficulty {
             Difficulty::Easy => {
                 x = player::choose_player("h");
@@ -77,7 +69,7 @@ impl Game {
             Difficulty::Random => {
                 let comp_mode: &str = match vec!["m", "a", "r"].choose(&mut rng){
                     Some(s) => {*s},
-                    None => {return Err(PyErr::new::<PyException, _>("Logic error occurred"));}
+                    None => {return Err("Logic error occurred".to_string());}
                 };
                 let chance: f64 = match comp_mode {
                     "m" => {0.5},
@@ -109,9 +101,24 @@ impl Game {
                 }
                 Ok(game)
             },
-            _ => {Err(PyErr::new::<PyException, _> ("Unexpected Logic Error"))}
+            _ => {Err("Unexpected Logic Error".to_string())}
         }
     }
+}
+
+#[pymethods]
+impl Game {
+    #[getter]
+    fn board(&self) -> PyResult<Vec<Piece>> {
+        Ok(self.board.board.to_vec())
+    }
+
+    #[new]
+    fn __new__(difficulty: i32) -> PyResult<Self> {
+        Self::new(difficulty, StdRng::from_entropy())
+            .map_err(|e| PyErr::new::<PyException, _>(e.to_string()))
+    }
+
 
     fn play(&mut self, index: board::Index) -> Option<board::Index> {
         let human = match self.human_first {
@@ -182,6 +189,7 @@ impl Game {
     }
 }
 
+// COV_EXCL_START
 const DOCSTRING: &str = "Rust based reimplementation of tictactoe";
 
 pub(crate) fn register_tictactoe(py: Python, m: &PyModule) -> PyResult<()> {
@@ -189,14 +197,46 @@ pub(crate) fn register_tictactoe(py: Python, m: &PyModule) -> PyResult<()> {
     tictactoe.add_class::<Game>()?;
     tictactoe.add_class::<Piece>()?;
     tictactoe.add_class::<Offset>()?;
-    //let all = [
-    //    "Game",
-    //    "Piece",
-    //    "Offset",
-    //];
-    //let pyall = PyTuple::new(py, all.into_iter());
-    //tictactoe.add("__all__", pyall)?;
     tictactoe.add("__doc__", DOCSTRING)?;
     m.add_submodule(tictactoe)?;
     Ok(())
 }
+
+#[cfg(test)]
+mod tests{
+    use super::*;
+    #[test]
+    fn dificulty() {
+        Difficulty::extract(0).expect_err("Expected error");
+        let difficulty = Difficulty::extract(1).unwrap();
+        assert_eq!(difficulty, Difficulty::Easy);
+        let difficulty = Difficulty::extract(2).unwrap();
+        assert_eq!(difficulty, Difficulty::Medium);
+        let difficulty = Difficulty::extract(3).unwrap();
+        assert_eq!(difficulty, Difficulty::Hard);
+        let difficulty = Difficulty::extract(4).unwrap();
+        assert_eq!(difficulty, Difficulty::Random);
+        Difficulty::extract(5).expect_err("Expected error");
+    }
+    #[test]
+    fn board() {
+        let game = Game::__new__(1).expect("Failed to create game");
+        let board_as_vec = game.board().expect("Failed to get board");
+        assert_eq!(board_as_vec.len(), 9);
+        for i in 0..9 {
+            assert_eq!(board_as_vec[i as usize], Piece::Empty);
+        }
+    }
+    #[test]
+    fn creator() {
+        let easy = Game::new(1, StdRng::from_entropy()).expect("Failed to create game");
+        assert!(easy.human_first);
+        let medium = Game::new(2,StdRng::from_entropy()).expect("Failed to create game");
+        assert!(medium.human_first);
+        let hard = Game::new(3, StdRng::from_seed([0; 32])).expect("Failed to create game");
+        assert!(!hard.human_first);
+        let random = Game::new(4, StdRng::from_seed([0; 32])).expect("Failed to create game");
+        assert!(random.human_first);
+    }
+}
+// COV_EXCL_END
