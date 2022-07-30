@@ -35,6 +35,9 @@ jobs:
           path: dist
           retention-days: 5
   rust-codecov:
+    continue-on-error: true
+    strategy:
+      fail-fast: false
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
@@ -59,7 +62,7 @@ jobs:
           rustup component add llvm-tools-preview
           cargo build
           cargo test --no-default-features
-          ./grcov . -s . -- --excl-line COV_EXCL_LINE --excl-start COV_EXCL_START --excl-stop COV_EXCL_STOP --binary-path ./target/debug/ -t lcov --branch --ignore-not-existing -o ../lcov.info
+          ./grcov . -s . -- --binary-path ./target/debug/ -t lcov --branch --ignore-not-existing -o ../lcov.info --excl-line COV_EXCL_LINE --excl-start COV_EXCL_START --excl-stop COV_EXCL_STOP
         env:
           CARGO_INCREMENTAL: '0'
           RUSTFLAGS: '-Zprofile -Ccodegen-units=1 -Copt-level=0 -Clink-dead-code -Coverflow-checks=off -Zpanic_abort_tests -Cpanic=abort'
@@ -118,6 +121,9 @@ jobs:
         run: pyright charbot
   flake8:
     runs-on: ubuntu-latest
+    continue-on-error: true
+    strategy:
+      fail-fast: false
     steps:
       - uses: actions/checkout@v3
       - uses: actions/setup-python@v4
