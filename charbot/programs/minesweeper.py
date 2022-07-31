@@ -266,6 +266,7 @@ class Minesweeper(ui.View):
         await interaction.response.defer(ephemeral=True)
         embed = discord.Embed(
             title="Minesweeper",
+            description="How to play minesweeper:",
             color=0x00FF00,
         ).set_image(url="attachment://help.gif")
         embed.add_field(name="Reveal \u26cf", value="Reveal a covered tile.", inline=True)
