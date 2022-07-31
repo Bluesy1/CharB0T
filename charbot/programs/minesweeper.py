@@ -202,18 +202,12 @@ class Minesweeper(ui.View):
                 "appropriate number of surrounding tles marked.",
                 ephemeral=True,
             )
-        elif minesweeper.ChordResult.Success:  # pyright: ignore[reportGeneralTypeIssues]
+        elif res is minesweeper.ChordResult.Success:  # pyright: ignore[reportGeneralTypeIssues]
             if self.game.is_win():
                 await self.handle_win(interaction)
             else:
                 file = await self.draw()
                 await interaction.response.edit_message(attachments=[file], view=self)
-                if res is minesweeper.RevealResult.Flagged:  # pyright: ignore[reportGeneralTypeIssues]
-                    await interaction.followup.send(
-                        "WARNING: you tried to reveal a flagged cell. Instead of revealing it, it was unflagged. "
-                        "If you meant to reveal it, press reveal again.",
-                        ephemeral=True,
-                    )
         else:
             await self.handle_lose(interaction)
 
