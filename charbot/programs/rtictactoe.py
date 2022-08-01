@@ -2,6 +2,7 @@
 import asyncio
 import datetime
 from io import BytesIO
+from typing_extensions import Self
 
 import discord
 from PIL import Image
@@ -79,7 +80,7 @@ class TicTacToe(ui.View):
         buffer.seek(0)
         return discord.File(buffer, filename="tictactoe.png")
 
-    async def move(self, interaction: Interaction[CBot], button: ui.Button["TicTacToe"], pos: int) -> None:
+    async def move(self, interaction: Interaction[CBot], button: ui.Button[Self], pos: int) -> None:
         """Call this to handle a move button press.
 
         Parameters
