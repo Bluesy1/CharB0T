@@ -3,6 +3,8 @@ codecov:
   notify:
     wait_for_ci: false
     after_n_builds: 2
+ignore:
+  - "**/lib.rs"
 
 coverage:
   precision: 2
