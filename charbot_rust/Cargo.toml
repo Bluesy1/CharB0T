@@ -9,7 +9,11 @@ name = "charbot_rust"
 crate-type = ["cdylib"]
 
 [dependencies]
-pyo3 = { version = "0.16.5", features = ["extension-module"] }
+pyo3 = { version = "0.16.5" }
 rand = "0.8.5"
 image = "0.24.3"
 imageproc = "0.23.0"
+
+[features]
+extension-module = ["pyo3/extension-module"]
+default = ["extension-module"]

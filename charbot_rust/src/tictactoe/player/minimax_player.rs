@@ -3,8 +3,9 @@ use crate::tictactoe::board::{Board, Index, Piece};
 use rand::seq::SliceRandom;
 use std::fmt::{Display, Error, Formatter};
 
+#[derive(Debug, PartialEq)] // COV_EXCL_LINE
 pub struct MinimaxPlayer {
-    alpha_beta: bool,
+    alpha_beta: bool, // COV_EXCL_LINE
 }
 impl MinimaxPlayer {
     pub fn new(alpha_beta: bool) -> Self {
@@ -12,7 +13,7 @@ impl MinimaxPlayer {
     }
 }
 
-#[derive(PartialEq, Eq, PartialOrd, Ord, Clone, Copy, Debug)]
+#[derive(PartialEq, Eq, PartialOrd, Ord, Clone, Copy, Debug)] // COV_EXCL_LINE
 enum GameResult {
     Defeat,
     Draw,
@@ -76,7 +77,7 @@ impl MinimaxPlayer {
         }
 
         let mut best_result = if maximizing { Defeat } else { Victory };
-        for &index in indeces {
+        for &index in indeces { // COV_EXCL_LINE
             if !board.cell_is_empty(index) {
                 continue;
             }
@@ -128,3 +129,29 @@ impl Player for MinimaxPlayer {
         best_move
     }
 }
+
+// COV_EXCL_START
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_player_no_alphabeta(){
+        let player = MinimaxPlayer::new(false);
+        let board = Board::new();
+        let piece = Piece::X;
+        let index = player.play(&board, piece);
+        assert!(Board::VALID_INDECES.contains(&index));
+        assert_eq!("Minimax player", format!("{}", player));
+    }
+    #[test]
+    fn test_player_alphabeta(){
+        let player = MinimaxPlayer::new(true);
+        let board = Board::new();
+        let piece = Piece::X;
+        let index = player.play(&board, piece);
+        assert!(Board::VALID_INDECES.contains(&index));
+        assert_eq!("Minimax player", format!("{}", player));
+    }
+}
+// COV_EXCL_STOP

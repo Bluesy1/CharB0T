@@ -1,21 +1,18 @@
-mod field;
+mod field; // COV_EXCL_LINE
 pub mod game;
 mod common;
+// COV_EXCL_START
 use pyo3::prelude::*;
 
-pub(crate) fn register_minesweeper(_py: Python, m: &PyModule) -> PyResult<()> {
-    //let tictactoe = PyModule::new(py, "tictactoe")?;
-    m.add_class::<game::Game>()?;
-    m.add_class::<game::ChordResult>()?;
-    m.add_class::<game::RevealResult>()?;
-    //let all = [
-    //    "Game",
-    //    "Piece",
-    //    "Offset",
-    //];
-    //let pyall = PyTuple::new(py, all.into_iter());
-    //tictactoe.add("__all__", pyall)?;
-    //tictactoe.add("__doc__", DOCSTRING)?;
-    //m.add_submodule(tictactoe)?;
+const DOCSTRING: &str = "Rust based reimplementation of minesweeper";
+
+pub(crate) fn register_minesweeper(py: Python, m: &PyModule) -> PyResult<()> {
+    let minesweeper = PyModule::new(py, "minesweeper")?;
+    minesweeper.add_class::<game::Game>()?;
+    minesweeper.add_class::<game::ChordResult>()?;
+    minesweeper.add_class::<game::RevealResult>()?;
+    minesweeper.add("__doc__", DOCSTRING)?;
+    m.add_submodule(minesweeper)?;
     Ok(())
 }
+// COV_EXCL_STOP

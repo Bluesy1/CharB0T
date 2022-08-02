@@ -1,6 +1,6 @@
-asyncpg-stubs == 0.26.1
+asyncpg-stubs==0.26.2
 black == 22.6.0
-flake8 == 4.0.1
+flake8==5.0.3
 maturin[zig]==0.13.1
 pre-commit == 2.20.0
 pyright==1.1.264

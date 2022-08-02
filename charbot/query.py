@@ -138,6 +138,7 @@ class Query(Cog):
         """
         await ctx.reply(f"https://bluesy1.github.io/CharB0T/\n{__source__}\nMIT License")
 
+    # skipcq: PYL-W0105
     """@commands.hybrid_command(name="imgscam", description="Info about the semi fake image scam on discord")
     async def imgscam(self, ctx: Context):
         \"""Send the image scam info url.

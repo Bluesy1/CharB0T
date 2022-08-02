@@ -120,6 +120,46 @@ class Game:
             The size of the game board.
         """
         ...
+    @property
+    def width(self) -> int:
+        """Returns the width of the game board.
+
+        Returns
+        -------
+        width: int
+            The width of the game board.
+        """
+        ...
+    @property
+    def height(self) -> int:
+        """Returns the height of the game board.
+
+        Returns
+        -------
+        height: int
+            The height of the game board.
+        """
+        ...
+    @property
+    def x(self) -> int:
+        """Returns the x coordinate of the selected cell.
+
+        Returns
+        -------
+        x: int
+            The x coordinate of the selected cell.
+        """
+        ...
+    @property
+    def y(self) -> int:
+        """Returns the y coordinate of the selected cell.
+
+        Returns
+        -------
+        y: int
+            The y coordinate of the selected cell.
+        """
+        ...
     def draw(self) -> tuple[list[int], tuple[int, int]]:
         """Draws the board and returns it alongside its size.
 

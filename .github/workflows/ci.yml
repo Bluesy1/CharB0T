@@ -13,6 +13,16 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
+      - name: Configure cache
+        uses: actions/cache@v2
+        with:
+          path: |
+            ~/.cargo/bin/
+            ~/.cargo/registry/index/
+            ~/.cargo/registry/cache/
+            ~/.cargo/git/db/
+            target/
+          key: build-${{ hashFiles('**/Cargo.lock') }}
       - uses: messense/maturin-action@v1
         with:
           manylinux: auto
@@ -24,6 +34,51 @@ jobs:
           name: wheels
           path: dist
           retention-days: 5
+  rust-codecov:
+    continue-on-error: true
+    strategy:
+      fail-fast: false
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions-rs/toolchain@v1
+        with:
+          toolchain: nightly
+          override: true
+      - name: Configure cache
+        uses: actions/cache@v2
+        with:
+          path: |
+            ~/.cargo/bin/
+            ~/.cargo/registry/index/
+            ~/.cargo/registry/cache/
+            ~/.cargo/git/db/
+            target/
+          key: test-${{ hashFiles('**/Cargo.lock') }}
+      - name: Run tests
+        run: |
+          cd charbot_rust
+          curl -L https://github.com/mozilla/grcov/releases/latest/download/grcov-x86_64-unknown-linux-gnu.tar.bz2 | tar jxf -
+          rustup component add llvm-tools-preview
+          cargo build
+          cargo test --no-default-features
+          ./grcov . -s . --binary-path ./target/debug/ -t lcov --ignore-not-existing -o ../lcov.info --excl-line "COV_EXCL_LINE" --excl-start "COV_EXCL_START" --excl-stop "COV_EXCL_STOP" --excl-br-line "COV_EXCL_LINE" --excl-br-start "COV_EXCL_START" --excl-br-stop "COV_EXCL_STOP"
+        env:
+          CARGO_INCREMENTAL: '0'
+          RUSTFLAGS: '-Zprofile -Ccodegen-units=1 -Copt-level=0 -Clink-dead-code -Coverflow-checks=off -Zpanic_abort_tests -Cpanic=abort'
+          RUSTDOCFLAGS: '-Cpanic=abort'
+          LLVM_PROFILE_FILE: 'GHA-%p-%m.profraw'
+      - name: Upload coverage report
+        uses: codecov/codecov-action@v2
+        with:
+          files: ./lcov.info
+          env_vars: OS,RUST
+          fail_ci_if_error: false
+          flags: unittests
+          name: codecov-umbrella
+          path_to_write_report: ./coverage/codecov_report_rust.txt
+          verbose: false
+          gcov: true
   black:
     runs-on: ubuntu-latest
     steps:
@@ -66,6 +121,9 @@ jobs:
         run: pyright charbot
   flake8:
     runs-on: ubuntu-latest
+    continue-on-error: true
+    strategy:
+      fail-fast: false
     steps:
       - uses: actions/checkout@v3
       - uses: actions/setup-python@v4

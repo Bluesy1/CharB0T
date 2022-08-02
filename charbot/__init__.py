@@ -111,6 +111,7 @@ class Interaction(discord.Interaction, Generic[T]):  # skipcq: PY-D0002
 class GuildInteraction(Interaction[T]):  # skipcq: PY-D0002
     client: T
     guild: discord.Guild
+    user: discord.Member
 
 
 class ComponentInteraction(Interaction[T]):  # skipcq: PY-D0002
@@ -122,6 +123,7 @@ class GuildComponentInteraction(Interaction[T]):  # skipcq: PY-D0002
     client: T
     guild: discord.Guild
     message: discord.Message
+    user: discord.Member
 
 
 class PresenceFilter(logging.Filter):  # skipcq: PY-A6006
