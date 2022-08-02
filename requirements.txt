@@ -2,6 +2,7 @@ aiohttp[speedups] == 3.8.1
 asyncpg == 0.26.0
 discord.py[speed] @ git+https://github.com/Rapptz/discord.py@dc50736bfc3340d7b999d9f165808f8dcb8f1a60#egg=discord.py
 disrank == 0.0.2
+fluent.runtime == 0.3.1
 jishaku==2.5.1
 matplotlib == 3.5.2
 numpy==1.23.1

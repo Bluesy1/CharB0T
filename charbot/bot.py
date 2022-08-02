@@ -34,6 +34,7 @@ import discord
 from discord import app_commands
 from discord.ext import commands
 from discord.utils import MISSING
+from fluent.runtime import FluentResourceLoader
 
 from . import Config, EXTENSIONS, errors
 
@@ -177,6 +178,7 @@ class CBot(commands.Bot):
         self.error_logs: discord.Webhook = MISSING
         self.giveaway_webhook: discord.Webhook = MISSING
         self.holder: Holder = Holder()
+        self.localizer_loader = FluentResourceLoader("i18n/{locale}")
 
     async def setup_hook(self):
         """Initialize hook for the bot.
