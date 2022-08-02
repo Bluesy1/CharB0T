@@ -2,6 +2,7 @@ use crate::tictactoe::Difficulty; // COV_EXCL_LINE
 use pyo3::prelude::*; // COV_EXCL_LINE
 
 #[pyclass(module = "charbot_rust")] // COV_EXCL_LINE
+#[derive(Debug)] // COV_EXCL_LINE
 pub struct Points {
     #[pyo3(get)]
     pub win: (i8, i8),

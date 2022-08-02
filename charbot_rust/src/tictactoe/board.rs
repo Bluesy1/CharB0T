@@ -159,10 +159,10 @@ static WINNING_INDECES: &[(Index, Index, Index)] = &[
 ];
 
 #[pyclass(module = "tictactoe")] // COV_EXCL_LINE
-#[derive(Clone)] // COV_EXCL_LINE
+#[derive(Clone, Debug)] // COV_EXCL_LINE
 pub struct Board {
     pub(crate) board: [Piece; 9],
-    n_pieces: u8,
+    pub(crate) n_pieces: u8,
 }
 
 
@@ -188,7 +188,7 @@ impl Board {
 
     pub fn place_piece(&mut self, index: Index, piece: Piece) -> bool {
         if !self.cell_is_empty(index) {
-            panic!("Tried to place a piece on an occupied cell");
+            panic!("Tried to place a piece on an occupied cell, Index: {}", index);
         }
         self.board[index] = piece;
         self.n_pieces += 1;

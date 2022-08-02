@@ -1,4 +1,4 @@
-mod board;
+mod board; // COV_EXCL_LINE
 mod player;
 
 use rand::prelude::*;
@@ -27,7 +27,8 @@ impl Difficulty {
     }
 }
 
-#[pyclass(module = "tictactoe")]
+#[pyclass(module = "tictactoe")] // COV_EXCL_LINE
+#[derive(Debug)] // COV_EXCL_LINE
 struct Game {
     pub board: board::Board,
     pub player_x: Box<dyn player::Player>,
@@ -67,22 +68,21 @@ impl Game {
                 human_first = false;
             },
             Difficulty::Random => {
-                let comp_mode: &str = match vec!["m", "a", "r"].choose(&mut rng){
-                    Some(s) => {*s},
-                    None => {return Err("Logic error occurred".to_string());}
-                };
+                let comp_mode: &str = vec!["m", "a", "r"].choose(&mut rng).unwrap();
                 let chance: f64 = match comp_mode {
                     "m" => {0.5},
                     "a" => {0.25},
                     "r" => {0.75},
-                    _ => {0.0}
+                    _ => {0.0} // COV_EXCL_LINE
                 };
                 if rng.gen_bool(chance) {
-                    x = player::choose_player("h");
-                    o = player::choose_player(comp_mode);
-                } else {
                     x = player::choose_player(comp_mode);
                     o = player::choose_player("h");
+                    human_first = false;
+
+                } else {
+                    x = player::choose_player("h");
+                    o = player::choose_player(comp_mode);
                 }
             },
         };
@@ -101,12 +101,12 @@ impl Game {
                 }
                 Ok(game)
             },
-            _ => {Err("Unexpected Logic Error".to_string())}
+            _ => {Err("Unexpected Logic Error".to_string())} // COV_EXCL_LINE
         }
     }
 }
 
-#[pymethods]
+#[pymethods] // COV_EXCL_LINE
 impl Game {
     #[getter]
     fn board(&self) -> PyResult<Vec<Piece>> {
@@ -142,16 +142,12 @@ impl Game {
         Some(comp_move)
     }
 
-    fn display_commands(&self) -> PyResult<Vec<(Offset, Piece)>> {
+    fn display_commands(&self) -> Vec<(Offset, Piece)> {
         let mut commands = Vec::new();
         for i in 0..9 {
-            if let Ok(offset) = Offset::new(i) {
-                commands.push((offset, self.board.board[i]));
-            } else {
-                return Err(PyErr::new::<PyException, _>("Too large board"));
-            }
+            commands.push((Offset::new(i).unwrap(), self.board.board[i]));
         }
-        Ok(commands)
+        commands
     }
 
     fn is_draw(&self) -> bool {
@@ -203,8 +199,9 @@ pub(crate) fn register_tictactoe(py: Python, m: &PyModule) -> PyResult<()> {
 }
 
 #[cfg(test)]
-mod tests{
+mod tests {
     use super::*;
+
     #[test]
     fn dificulty() {
         Difficulty::extract(0).expect_err("Expected error");
@@ -218,8 +215,11 @@ mod tests{
         assert_eq!(difficulty, Difficulty::Random);
         Difficulty::extract(5).expect_err("Expected error");
     }
+
     #[test]
     fn board() {
+        Game::__new__(0).expect_err("Expected error");
+        Game::__new__(5).expect_err("Expected error");
         let game = Game::__new__(1).expect("Failed to create game");
         let board_as_vec = game.board().expect("Failed to get board");
         assert_eq!(board_as_vec.len(), 9);
@@ -227,16 +227,71 @@ mod tests{
             assert_eq!(board_as_vec[i as usize], Piece::Empty);
         }
     }
+
     #[test]
     fn creator() {
+        Game::new(5, StdRng::from_entropy()).expect_err("Created game with invalid difficulty");
+        Game::new(0, StdRng::from_entropy()).expect_err("Created game with invalid difficulty");
         let easy = Game::new(1, StdRng::from_entropy()).expect("Failed to create game");
         assert!(easy.human_first);
-        let medium = Game::new(2,StdRng::from_seed([0; 32])).expect("Failed to create game");
+        let medium = Game::new(2, StdRng::from_seed([0; 32])).expect("Failed to create game");
         assert!(medium.human_first);
         let hard = Game::new(3, StdRng::from_seed([0; 32])).expect("Failed to create game");
         assert!(!hard.human_first);
         let random = Game::new(4, StdRng::from_seed([0; 32])).expect("Failed to create game");
-        assert!(random.human_first);
+        assert!(!random.human_first);
+        let random = Game::new(4, StdRng::from_seed([1; 32])).expect("Failed to create game");
+        assert!(!random.human_first);
+    }
+
+    #[test]
+    fn play() {
+        let mut human_first = Game::new(1, StdRng::from_entropy()).expect("Failed to create game");
+        let mut computer_first = Game::new(3, StdRng::from_entropy()).expect("Failed to create game");
+        human_first.board.board = [Piece::X, Piece::X, Piece::Empty, Piece::Empty, Piece::O, Piece::Empty, Piece::O, Piece::Empty, Piece::Empty];
+        assert_eq!(None, human_first.play(2));
+        if computer_first.board.cell_is_empty(0) {
+            computer_first.play(0).expect("Failed to play");
+        } else {
+            computer_first.play(1).expect("Failed to play");
+        }
+
+    }
+    #[test]
+    fn display() {
+        let mut game = Game::new(1, StdRng::from_entropy()).expect("Failed to create game");
+        game.play(1).expect("Failed to play");
+        let commands = game.display_commands();
+        assert_eq!(commands.len(), 9);
+        for (i ,(_, command)) in commands.iter().enumerate() {
+            if game.board.cell_is_empty(i) {
+                assert_eq!(command, &Piece::Empty);
+            } else {
+                assert_ne!(command, &Piece::Empty);
+            }
+        }
+    }
+    #[test]
+    fn win_cases() {
+        let human_first = Game::new(1, StdRng::from_entropy()).expect("Failed to create game");
+        let computer_first = Game::new(3, StdRng::from_entropy()).expect("Failed to create game");
+        assert!(!human_first.is_draw());
+        assert!(!computer_first.is_draw());
+        assert_eq!(None, human_first.is_victory_for());
+        assert_eq!(None, computer_first.is_victory_for());
+        assert!(!human_first.has_player_won());
+        assert!(!computer_first.has_player_won());
+        assert!(!human_first.has_player_lost());
+        assert!(!computer_first.has_player_lost());
+    }
+    #[test]
+    fn points() {
+        let mut game = Game::new(1, StdRng::from_entropy()).expect("Failed to create game");
+        assert_eq!(game.points(), game.points.loss, "1");
+        game.board.board = [Piece::X, Piece::X, Piece::X, Piece::Empty, Piece::O, Piece::Empty, Piece::O, Piece::Empty, Piece::Empty];
+        assert_eq!(game.points(), game.points.win, "2");
+        game.board.n_pieces = 9;
+        assert_eq!(game.points(), game.points.draw, "3");
     }
 }
 // COV_EXCL_END
