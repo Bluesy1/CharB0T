@@ -1,4 +1,4 @@
-mod field;
+mod field; // COV_EXCL_LINE
 pub mod game;
 mod common;
 // COV_EXCL_START

@@ -1,4 +1,4 @@
-// COV_EXCL_START
+// COV_EXCL_START COV_EXCL_LINE
 use pyo3::prelude::*;
 mod tictactoe;
 mod points;

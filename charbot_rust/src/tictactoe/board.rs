@@ -8,7 +8,7 @@ use pyo3::types::PyString;
 
 #[pyclass(module = "tictactoe")] // COV_EXCL_LINE
 #[derive(PartialEq, Eq, Clone, Copy, Debug)] // COV_EXCL_LINE
-pub enum Piece {
+pub enum Piece { // COV_EXCL_LINE
     X,
     O,
     Empty
@@ -17,7 +17,7 @@ pub enum Piece {
 #[pymethods] // COV_EXCL_LINE
 impl Piece {
     pub fn swap(&self) -> Self {
-        match self {
+        match self { // COV_EXCL_LINE
             Self::X => Self::O,
             Self::O => Self::X,
             Self::Empty => Self::Empty
@@ -30,7 +30,7 @@ impl Piece {
 
     #[getter] // COV_EXCL_LINE
     fn value(&self) -> String {
-        match self {
+        match self { // COV_EXCL_LINE
             Self::X => String::from("X"),
             Self::O => String::from("O"),
             Self::Empty => String::from(" ")
@@ -39,7 +39,7 @@ impl Piece {
 
     #[getter] // COV_EXCL_LINE
     fn name(&self) -> String {
-        match self {
+        match self { // COV_EXCL_LINE
             Self::X => String::from("X"),
             Self::O => String::from("O"),
             Self::Empty => String::from("Empty")
@@ -48,10 +48,10 @@ impl Piece {
 }
 impl Display for Piece {
     fn fmt(&self, formatter: &mut Formatter<'_>) -> Result<(), Error> {
-        match *self {
-            Self::X => formatter.write_char('X')?,
-            Self::O => formatter.write_char('O')?,
-            Self::Empty => formatter.write_char(' ')?
+        match *self { // COV_EXCL_LINE
+            Self::X => formatter.write_char('X')?, // COV_EXCL_LINE
+            Self::O => formatter.write_char('O')?, // COV_EXCL_LINE
+            Self::Empty => formatter.write_char(' ')? // COV_EXCL_LINE
         }
         Ok(())
     }
@@ -80,7 +80,7 @@ impl IntoPy<PyResult<PyObject>> for Piece {
 /// Offsets for creating a graphical representation of the board.
 #[pyclass(module = "tictactoe")] // COV_EXCL_LINE
 #[derive(PartialEq, Eq, Clone, Copy, Debug)] // COV_EXCL_LINE
-pub enum Offset  {
+pub enum Offset  { // COV_EXCL_LINE
     TopLeft,
     TopMiddle,
     TopRight,
@@ -115,7 +115,7 @@ impl Offset {
     /// Name of the offset
     #[getter]
     fn name(&self) -> String {
-        match self {
+        match self { // COV_EXCL_LINE
             Offset::TopLeft => String::from("TopLeft"),
             Offset::TopMiddle => String::from("TopMiddle"),
             Offset::TopRight => String::from("TopRight"),
@@ -131,7 +131,7 @@ impl Offset {
     /// The value of the offset as a tuple of (x, y), 2 u16s
     #[getter] // COV_EXCL_LINE
     pub(crate) fn value(&self) -> (u16, u16) {
-        match self {
+        match self { // COV_EXCL_LINE
             Offset::TopLeft => (0, 0),
             Offset::TopMiddle => (179, 0),
             Offset::TopRight => (355, 0),
@@ -166,13 +166,14 @@ pub struct Board {
 }
 
 
-#[pymethods] // COV_EXCL_LINE
+#[pymethods] // COV_EXCL_START
 impl Board {
     #[getter]
-    fn board(&self) -> PyResult<Vec<Piece>> {
-        Ok(self.board.to_vec())
+    fn board(&self) -> Vec<Piece> {
+        self.board.to_vec()
     }
 }
+// COV_EXCL_STOP
 
 impl Board {
     pub fn new() -> Self {
@@ -188,9 +189,9 @@ impl Board {
 
     pub fn place_piece(&mut self, index: Index, piece: Piece) -> bool {
         if !self.cell_is_empty(index) {
-            panic!("Tried to place a piece on an occupied cell, Index: {}", index);
+            panic!("Tried to place a piece on an occupied cell, Index: {}", index); // COV_EXCL_LINE
         }
-        self.board[index] = piece;
+        self.board[index] = piece; // COV_EXCL_LINE
         self.n_pieces += 1;
         true
     }
@@ -206,10 +207,10 @@ impl Board {
     }
 
     pub fn is_victory_for_player(&self, player: Piece) -> bool {
-        for &(a, b, c) in WINNING_INDECES {
-            if self.board[a] == player
-                && self.board[b] == player
-                && self.board[c] == player
+        for &(a, b, c) in WINNING_INDECES { // COV_EXCL_LINE
+            if self.board[a] == player // COV_EXCL_LINE
+                && self.board[b] == player // COV_EXCL_LINE
+                && self.board[c] == player // COV_EXCL_LINE
             {
                 return true;
             }
@@ -220,20 +221,21 @@ impl Board {
     pub fn is_victory(&self) -> Option<Piece> {
         if self.is_victory_for_player(Piece::X) {
             Some(Piece::X)
-        } else if self.is_victory_for_player(Piece::O) {
-            Some(Piece::O)
+        } else if self.is_victory_for_player(Piece::O) { // COV_EXCL_LINE
+            Some(Piece::O) // COV_EXCL_LINE
         } else {
             None
         }
     }
 
-    fn format_cell(&self, index: Index, formatter: &mut Formatter<'_>) -> Result<(), Error> {
+    fn format_cell(&self, index: Index, formatter: &mut Formatter<'_>) -> Result<(), Error> { // COV_EXCL_LINE
         match self.board[index] {
             Piece::Empty => write!(formatter, "{}", index),
             player => player.fmt(formatter),
         }
     }
 }
+// COV_EXCL_START
 impl Display for Board {
     fn fmt(&self, formatter: &mut Formatter<'_>) -> Result<(), Error> {
         self.format_cell(0, formatter)?;
@@ -253,6 +255,7 @@ impl Display for Board {
         Ok(())
     }
 }
+// COV_EXCL_STOP
 
 // COV_EXCL_START
 #[cfg(test)]

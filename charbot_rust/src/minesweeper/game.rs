@@ -8,7 +8,7 @@ use rand::SeedableRng;
 
 #[pyclass(module = "minesweeper")] // COV_EXCL_LINE
 #[derive(PartialEq, Debug)] // COV_EXCL_LINE
-pub enum RevealResult{
+pub enum RevealResult{ // COV_EXCL_LINE
     Flagged = 0,
     Mine = 1,
     Empty = 2,
@@ -17,7 +17,7 @@ pub enum RevealResult{
 
 #[pyclass(module = "minesweeper")] // COV_EXCL_LINE
 #[derive(PartialEq, Debug)] // COV_EXCL_LINE
-pub enum ChordResult{
+pub enum ChordResult{ // COV_EXCL_LINE
     Failed = 0,
     Success = 1,
     Death = 2,
@@ -29,7 +29,7 @@ pub struct ReturnCell {
     #[pyo3(get)]
     pub revealed: bool,
     #[pyo3(get)]
-    pub marked: bool,
+    pub marked: bool, // COV_EXCL_LINE
 }
 
 #[pyclass(module = "minesweeper")] // COV_EXCL_LINE
@@ -43,7 +43,7 @@ pub struct Game {
 #[pymethods] // COV_EXCL_LINE
 impl Game {
     #[new] // COV_EXCL_LINE
-    fn new(width: u32, height: u32, mines: u32) -> Self {
+    fn new(width: u32, height: u32, mines: u32) -> Self { // COV_EXCL_LINE
         let rng = StdRng::from_entropy();
         Game {
             field: Field::new(width, height, mines, rng,),
@@ -146,7 +146,7 @@ impl Game {
         )
     }
 
-    fn change_row(&mut self, row: u32) -> PyResult<ReturnCell> {
+    fn change_row(&mut self, row: u32) -> PyResult<ReturnCell> { // COV_EXCL_LINE
         if row >= self.field.get_height() {
             return Err(PyValueError::new_err("Row index out of range"));
         }
@@ -159,7 +159,7 @@ impl Game {
         Ok(self.field.get_selected_cell().to_return_cell())
     }
 
-    fn change_col(&mut self, col: u32) -> PyResult<ReturnCell> {
+    fn change_col(&mut self, col: u32) -> PyResult<ReturnCell> { // COV_EXCL_LINE
         if col >= self.field.get_width() {
             return Err(PyValueError::new_err("Column index out of range"));
         }
@@ -184,7 +184,7 @@ impl Game {
             self.toggle_flag();
             return RevealResult::Flagged;
         }
-        match *self.field.reveal(ind){
+        match *self.field.reveal(ind){ // COV_EXCL_LINE
             Content::None => {
                 self.field.chain_reveal(ind);
                 RevealResult::Empty
@@ -207,8 +207,8 @@ impl Game {
             }
             let surrounding = self.field.get_near_cells_ids(ind);
             let count = self.field.get_neighborhood_count(ind);
-            if count == n {
-                for id in surrounding {
+            if count == n { // COV_EXCL_LINE
+                for id in surrounding { // COV_EXCL_LINE
                     if !self.field.marked(id) {
                         match self.field.reveal(id) {
                             Content::Mine(_) => {
@@ -225,9 +225,9 @@ impl Game {
                 }
                 ChordResult::Success
             } else {
-                ChordResult::Failed
+                ChordResult::Failed // COV_EXCL_LINE
             }
-        } else {
+        } else { // COV_EXCL_LINE
             ChordResult::Failed
         }
     }

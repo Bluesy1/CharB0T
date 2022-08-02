@@ -5,16 +5,16 @@ use pyo3::prelude::*; // COV_EXCL_LINE
 #[derive(Debug)] // COV_EXCL_LINE
 pub struct Points {
     #[pyo3(get)]
-    pub win: (i8, i8),
+    pub win: (i8, i8), // COV_EXCL_LINE
     #[pyo3(get)]
-    pub draw: (i8, i8),
+    pub draw: (i8, i8), // COV_EXCL_LINE
     #[pyo3(get)]
-    pub loss: (i8, i8),
+    pub loss: (i8, i8), // COV_EXCL_LINE
 }
 
 impl Points {
     pub fn new(difficulty: &Difficulty) -> Self {
-        match difficulty {
+        match difficulty { // COV_EXCL_LINE
             Difficulty::Easy | Difficulty::Random => Points {
                 win: (1, 1),
                 draw: (1, 0),

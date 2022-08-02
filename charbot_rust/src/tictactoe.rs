@@ -27,8 +27,9 @@ impl Difficulty {
     }
 }
 
-#[pyclass(module = "tictactoe")] // COV_EXCL_LINE
-#[derive(Debug)] // COV_EXCL_LINE
+// COV_EXCL_START
+#[pyclass(module = "tictactoe")]
+#[derive(Debug)]
 struct Game {
     pub board: board::Board,
     pub player_x: Box<dyn player::Player>,
@@ -36,12 +37,13 @@ struct Game {
     pub human_first: bool,
     points: Points,
 }
+// COV_EXCL_STOP
 
 unsafe impl Send for Game {}
 
 impl Game {
         fn new(difficulty: i32, mut rng: StdRng) -> Result<Self, String> {
-        let difficulty = Difficulty::extract(difficulty)?;
+        let difficulty = Difficulty::extract(difficulty)?; // COV_EXCL_LINE
         let points = Points::new(&difficulty);
         let x: Option<Box<dyn player::Player>>;
         let o: Option<Box<dyn player::Player>>;
@@ -52,13 +54,13 @@ impl Game {
                 o = player::choose_player("r");
             },
             Difficulty::Medium => {
-                if rng.gen_bool(0.5){
+                if rng.gen_bool(0.5){ // COV_EXCL_LINE
                     x = player::choose_player("h");
                     o = player::choose_player("m");
                 } else {
-                    x = player::choose_player("m");
-                    o =player::choose_player("h");
-                    human_first = false;
+                    x = player::choose_player("m"); // COV_EXCL_LINE
+                    o =player::choose_player("h"); // COV_EXCL_LINE
+                    human_first = false; // COV_EXCL_LINE
 
                 }
             },
@@ -70,23 +72,23 @@ impl Game {
             Difficulty::Random => {
                 let comp_mode: &str = vec!["m", "a", "r"].choose(&mut rng).unwrap();
                 let chance: f64 = match comp_mode {
-                    "m" => {0.5},
+                    "m" => {0.5}, // COV_EXCL_LINE
                     "a" => {0.25},
-                    "r" => {0.75},
+                    "r" => {0.75}, // COV_EXCL_LINE
                     _ => {0.0} // COV_EXCL_LINE
                 };
-                if rng.gen_bool(chance) {
+                if rng.gen_bool(chance) { // COV_EXCL_LINE
                     x = player::choose_player(comp_mode);
                     o = player::choose_player("h");
                     human_first = false;
 
                 } else {
-                    x = player::choose_player("h");
-                    o = player::choose_player(comp_mode);
+                    x = player::choose_player("h"); // COV_EXCL_LINE
+                    o = player::choose_player(comp_mode); // COV_EXCL_LINE
                 }
             },
         };
-        match (x, o) {
+        match (x, o) { // COV_EXCL_LINE
             (Some(player_x), Some(player_o)) => {
                 let mut game = Game{
                     board: board::Board::new(),
@@ -103,7 +105,7 @@ impl Game {
             },
             _ => {Err("Unexpected Logic Error".to_string())} // COV_EXCL_LINE
         }
-    }
+    } // COV_EXCL_LINE
 }
 
 #[pymethods] // COV_EXCL_LINE
@@ -114,7 +116,7 @@ impl Game {
     }
 
     #[new]
-    fn __new__(difficulty: i32) -> PyResult<Self> {
+    fn __new__(difficulty: i32) -> PyResult<Self> { // COV_EXCL_LINE
         Self::new(difficulty, StdRng::from_entropy())
             .map_err(|e| PyErr::new::<PyException, _>(e.to_string()))
     }
@@ -144,8 +146,8 @@ impl Game {
 
     fn display_commands(&self) -> Vec<(Offset, Piece)> {
         let mut commands = Vec::new();
-        for i in 0..9 {
-            commands.push((Offset::new(i).unwrap(), self.board.board[i]));
+        for i in 0..9 { // COV_EXCL_LINE
+            commands.push((Offset::new(i).unwrap(), self.board.board[i])); // COV_EXCL_LINE
         }
         commands
     }

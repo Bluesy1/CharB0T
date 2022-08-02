@@ -306,8 +306,8 @@ impl Field {
 
     pub fn count_marked(&self) -> u32 {
         (0..self.size).fold(0, |acc, i: u32| {
-            if self.marked(i) {
-                acc + 1
+            if self.marked(i) { // COV_EXCL_LINE
+                acc + 1 // COV_EXCL_LINE
             } else {
                 acc
             }
@@ -413,12 +413,12 @@ impl Field {
             let col = i % self.width; // COV_EXCL_LINE
             let x = ((col + 1) * TILE_WIDTH) as i64;
             let y = ((row + 1) * TILE_HEIGHT) as i64;
-            let cell_bytes: &[u8] = match cell.content {
+            let cell_bytes: &[u8] = match cell.content { // COV_EXCL_LINE
                 Content::None => {
-                    if cell.revealed {
-                        common::TILE_EMPTY
-                    } else if cell.marked{
-                        common::TILE_FLAG
+                    if cell.revealed { // COV_EXCL_LINE
+                        common::TILE_EMPTY // COV_EXCL_LINE
+                    } else if cell.marked{ // COV_EXCL_LINE
+                        common::TILE_FLAG // COV_EXCL_LINE
                     } else {
                         common::TILE_DEFAULT
                     }
@@ -426,15 +426,15 @@ impl Field {
                 Content::Number(n) => {
                     if cell.revealed  {
                         match n {
-                            1 => common::TILE_1,
-                            2 => common::TILE_2,
-                            3 => common::TILE_3,
-                            4 => common::TILE_4,
-                            5 => common::TILE_5,
-                            6 => common::TILE_6,
-                            7 => common::TILE_7,
-                            8 => common::TILE_8,
-                            _ => common::TILE_DEFAULT
+                            1 => common::TILE_1, // COV_EXCL_LINE
+                            2 => common::TILE_2, // COV_EXCL_LINE
+                            3 => common::TILE_3, // COV_EXCL_LINE
+                            4 => common::TILE_4, // COV_EXCL_LINE
+                            5 => common::TILE_5, // COV_EXCL_LINE
+                            6 => common::TILE_6, // COV_EXCL_LINE
+                            7 => common::TILE_7, // COV_EXCL_LINE
+                            8 => common::TILE_8, // COV_EXCL_LINE
+                            _ => common::TILE_DEFAULT // COV_EXCL_LINE
                         }
                     } else if cell.marked{
                         common::TILE_FLAG
@@ -477,7 +477,7 @@ impl Field {
     }
 
     pub fn move_selection(&mut self, dest: MoveDestination) {
-        match dest {
+        match dest { // COV_EXCL_LINE
             MoveDestination::Up => {
                 if self.selected_y > 0 { // COV_EXCL_LINE
                     self.selected_y -= 1;

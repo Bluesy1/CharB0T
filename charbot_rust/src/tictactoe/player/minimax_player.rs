@@ -5,7 +5,7 @@ use std::fmt::{Display, Error, Formatter};
 
 #[derive(Debug, PartialEq)] // COV_EXCL_LINE
 pub struct MinimaxPlayer {
-    alpha_beta: bool,
+    alpha_beta: bool, // COV_EXCL_LINE
 }
 impl MinimaxPlayer {
     pub fn new(alpha_beta: bool) -> Self {
@@ -13,7 +13,7 @@ impl MinimaxPlayer {
     }
 }
 
-#[derive(PartialEq, Eq, PartialOrd, Ord, Clone, Copy, Debug)]
+#[derive(PartialEq, Eq, PartialOrd, Ord, Clone, Copy, Debug)] // COV_EXCL_LINE
 enum GameResult {
     Defeat,
     Draw,
@@ -77,7 +77,7 @@ impl MinimaxPlayer {
         }
 
         let mut best_result = if maximizing { Defeat } else { Victory };
-        for &index in indeces {
+        for &index in indeces { // COV_EXCL_LINE
             if !board.cell_is_empty(index) {
                 continue;
             }
