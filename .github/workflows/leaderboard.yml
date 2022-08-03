@@ -47,7 +47,6 @@ jobs:
       #    git add .
       #    git commit -m "Update leaderboard"
       #    git push origin gh-pages
-      name: Deploy Jekyll with GitHub Pages dependencies preinstalled
   # Build job
   build:
     runs-on: ubuntu-latest
