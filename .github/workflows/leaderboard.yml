@@ -5,7 +5,7 @@ on:
       - '**/_data/users.json**'
   workflow_dispatch:
     push:
-      branches: gh-pages 
+      branches: [gh-pages] 
 # Sets permissions of the GITHUB_TOKEN to allow deployment to GitHub Pages
 permissions:
   contents: read
