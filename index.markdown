@@ -8,7 +8,7 @@ layout: default
 [![DeepSource](https://deepsource.io/gh/Bluesy1/CharB0T.svg/?label=resolved+issues&show_trend=true&token=wb08Mu693aFli6scALkkEmql)](https://deepsource.io/gh/Bluesy1/CharB0T/?ref=repository-badge)
 [![CodeFactor](https://www.codefactor.io/repository/github/bluesy1/charb0t/badge)](https://www.codefactor.io/repository/github/bluesy1/charb0t)
 
-[![Lint](https://github.com/Bluesy1/CharB0T/actions/workflows/lint.yml/badge.svg)](https://github.com/Bluesy1/CharB0T/actions/workflows/lint.yml)
+[![CI](https://github.com/Bluesy1/CharB0T/actions/workflows/ci.yml/badge.svg)](https://github.com/Bluesy1/CharB0T/actions/workflows/ci.yml)
 [![CodeQL](https://github.com/Bluesy1/CharB0T/actions/workflows/codeql-analysis.yml/badge.svg)](https://github.com/Bluesy1/CharB0T/actions/workflows/codeql-analysis.yml)
 [![pages-build-deployment](https://github.com/Bluesy1/CharB0T/actions/workflows/pages/pages-build-deployment/badge.svg?branch=gh-pages)](https://github.com/Bluesy1/CharB0T/actions/workflows/pages/pages-build-deployment)
 
