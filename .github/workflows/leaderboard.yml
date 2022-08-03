@@ -1,12 +1,7 @@
 name: Update GitHub Pages Site
 on:
   push:
-    paths-ignore:
-      - '**/_data/users.json**'
   workflow_dispatch:
-
-  push:
-    branches: [gh-pages]
 # Sets permissions of the GITHUB_TOKEN to allow deployment to GitHub Pages
 permissions:
   contents: read
