@@ -1,4 +1,4 @@
-name: Leaderboard Pull
+name: Update GitHub Pages Site
 on:
   push:
     paths-ignore:
