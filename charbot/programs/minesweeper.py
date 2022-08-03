@@ -105,7 +105,7 @@ class Minesweeper(ui.View):
         # awarded = await interaction.client.give_game_points(interaction.user, "minesweeper", *points)
         embed = discord.Embed(
             title="You won!",
-            description=f"You revealed all the mines and won the game. If not for beta testing, you would have "
+            description=f"You revealed all the safe tiles and won the game. If not for beta testing, you would have "
             f"gained {awarded} points. {'Hit daily cap' if awarded != points else ''}",
             color=discord.Color.green(),
         ).set_image(url="attachment://minesweeper.png")
