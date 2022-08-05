@@ -32,11 +32,9 @@
 
 ![Contributors](https://contrib.rocks/image?repo=BLuesy1/CharB0T)
 
-## Native portion:
+## Funding
 
-Do note - if you wish to use the native portion of the bot, you will need to manually build it for your platform and
-python version using maturin and rust. Also, the native code expects the assests for minesweeper to be in
-`charbot/media/...` under the current working directory, unless modified.
+I work on this project, for free for the most part at this point. If you've gained from my work on this project at any point and can afford it, I would appreciate any small sponsorhip or contribution you're willing to make, throught [GitHub Sponsors](https://github.com/sponsors/Bluesy1).
 
 ## Docs
 
