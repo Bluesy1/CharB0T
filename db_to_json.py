@@ -30,9 +30,8 @@ with conn, conn.cursor() as cur:
                     "level": user[5],
                     "messages": user[6],
                     "avatar": avatar(user[7], user[0], int(user[2])),
-                    "gang": user[8],
-                    "prestige": user[9],
-                    "rank": user[10],
+                    "prestige": user[8],
+                    "rank": user[9],
                 }
                 for user in cur.fetchall()
             ],
