@@ -177,7 +177,7 @@ class Events(Cog):
             count_found = 0
             for word in fulldict["words"]:
                 if word in message.content.lower():
-                    if word =="war" and all(word not in fulldict["words"] for word in message.content.lower()):
+                    if word == "war" and all(word not in fulldict["words"] for word in message.content.lower()):
                         continue
                     count_found += 1
                     used_words.add(word)
