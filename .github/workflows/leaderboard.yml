@@ -14,12 +14,13 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  download-users:
+  build:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
+      - name: Checkout
+        uses: actions/checkout@v3
       - name: Set up Python 3.10
-        uses: actions/setup-python@v2
+        uses: actions/setup-python@v4
         with:
           python-version: "3.10"
           cache: "pip"
@@ -37,21 +38,6 @@ jobs:
         run: |
           python db_to_json.py
           echo ${{ env.DO_COMMIT }}
-      #- name: Push to GitHub
-      #  if: ${{ env.DO_COMMIT == 'true' }}
-      #  run: |
-      #    git config user.name "GitHub Actions Bot"
-      #    git config user.email "<>"
-      #    git add .
-      #    git commit -m "Update leaderboard"
-      #    git push origin gh-pages
-  # Build job
-  build:
-    runs-on: ubuntu-latest
-    needs: download-users
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v3
       - name: Setup Pages
         uses: actions/configure-pages@v1
       - name: Build with Jekyll
