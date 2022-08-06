@@ -831,7 +831,10 @@ class ReputationAdmin(
         await interaction.followup.send(
             f"{user.mention} has been given their deal role for {days} days.", ephemeral=True
         )
-        self._del_role.start()
+        try:
+            self._del_role.start()
+        except RuntimeError:
+            pass
 
     @tasks.loop(hours=1)
     async def _del_role(self):
