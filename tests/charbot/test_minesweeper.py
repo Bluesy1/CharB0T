@@ -7,7 +7,7 @@ from pytest_mock import MockerFixture
 
 from charbot import CBot, GuildComponentInteraction as Interaction
 from charbot.programs import minesweeper
-from charbot_rust.minesweeper import Game, RevealResult, ChordResult
+from charbot_rust.minesweeper import Game, RevealResult, ChordResult  # pyright: ignore[reportGeneralTypeIssues]
 
 
 @pytest.fixture()

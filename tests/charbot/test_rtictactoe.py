@@ -5,7 +5,7 @@ from pytest_mock import MockerFixture
 
 from charbot.programs import rtictactoe
 
-from charbot_rust.tictactoe import Difficulty, Game
+from charbot_rust.tictactoe import Difficulty, Game  # pyright: ignore[reportGeneralTypeIssues]
 
 
 @pytest.mark.asyncio
@@ -46,7 +46,7 @@ async def test_view_player_win(mocker: MockerFixture):
     view.game = mocker.Mock(spec=Game)
     view.game.play = lambda position: None
     view.game.points = lambda: (1, 1)
-    view.display = lambda: None
+    view.display = lambda: None  # pyright: ignore[reportGeneralTypeIssues]
     mock_interaction = mocker.AsyncMock(spec=discord.Interaction)
     mock_interaction.user = mocker.AsyncMock(spec=discord.Member)
     mock_interaction.response = mocker.AsyncMock(spec=discord.InteractionResponse)
@@ -65,7 +65,7 @@ async def test_view_bot_win(mocker: MockerFixture):
     view.game.is_draw = lambda: False
     view.game.has_player_lost = lambda: True
     view.game.points = lambda: (1, 1)
-    view.display = lambda: None
+    view.display = lambda: None  # pyright: ignore[reportGeneralTypeIssues]
     view.top_left.disabled = True
     view.mid_left.disabled = True
     view.mid_mid.disabled = True
@@ -89,7 +89,7 @@ async def test_view_tie(mocker: MockerFixture):
     view.game.play = lambda position: 1
     view.game.is_draw = lambda: True
     view.game.points = lambda: (1, 1)
-    view.display = lambda: None
+    view.display = lambda: None  # pyright: ignore[reportGeneralTypeIssues]
     for button in view._buttons:
         button.disabled = True
     view.top_mid.disabled = False

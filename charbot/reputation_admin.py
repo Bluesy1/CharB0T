@@ -60,7 +60,7 @@ class ReputationAdmin(
         self.bot = bot
         self.ctx_menu = app_commands.ContextMenu(
             name="Check User's Reputation",
-            callback=self.check_reputation_context,
+            callback=self.check_reputation_context,  # pyright: ignore[reportGeneralTypeIssues]
         )
         self.bot.tree.add_command(self.ctx_menu)
         self._allowed_roles: list[int | str] = [
@@ -74,7 +74,7 @@ class ReputationAdmin(
         @self.edit_pool.autocomplete("pool")
         @self.pool_role.autocomplete("pool")
         @self.check_pool.autocomplete("pool")
-        @self.delete_pool.autocomplete("pool")
+        @self.delete_pool.autocomplete("pool")  # pyright: ignore[reportGeneralTypeIssues]
         async def pool_autocomplete(
             interaction: Interaction[CBot], current: str  # skipcq: PYL-W0613
         ) -> list[app_commands.Choice[str]]:
@@ -134,7 +134,7 @@ class ReputationAdmin(
                 raise app_commands.MissingAnyRole(self.allowed_roles)
             return True
 
-    @pools.command(name="create", description="Create a new reputation pool.")
+    @pools.command(name="create")  # pyright: ignore[reportGeneralTypeIssues]
     async def create_pool(
         self,
         interaction: Interaction[CBot],
@@ -324,7 +324,7 @@ class ReputationAdmin(
             avatar_url=clientuser.display_avatar.url,
         )
 
-    @pools.command(name="edit", description="Edits a pool.")
+    @pools.command(name="edit")  # pyright: ignore[reportGeneralTypeIssues]
     async def edit_pool(
         self,
         interaction: Interaction[CBot],
@@ -447,7 +447,7 @@ class ReputationAdmin(
             f"Pool {name or pool}{f' (formerly {pool})' if name is not None else ''} edited!", file=image
         )
 
-    @pools.command(name="list", description="Lists all pools.")
+    @pools.command(name="list")  # pyright: ignore[reportGeneralTypeIssues]
     async def list_pools(self, interaction: Interaction[CBot]):
         """List all pools.
 
@@ -461,7 +461,7 @@ class ReputationAdmin(
             pools = [pool["pool"] for pool in await conn.fetch("SELECT pool FROM pools")]
             await interaction.followup.send(f"Pools: {', '.join(pools)}")
 
-    @pools.command(name="role", description="Toggles a roles ability to participate in a pool.")
+    @pools.command(name="role")  # pyright: ignore[reportGeneralTypeIssues]
     async def pool_role(self, interaction: Interaction[CBot], pool: str, role: discord.Role):
         """Toggle a role's ability to participate in a pool.
 
@@ -509,7 +509,7 @@ class ReputationAdmin(
                         avatar_url=clientuser.display_avatar.url,
                     )
 
-    @pools.command(name="delete", description="Deletes a pool.")
+    @pools.command(name="delete")  # pyright: ignore[reportGeneralTypeIssues]
     async def delete_pool(self, interaction: Interaction[CBot], pool: str):
         """Delete a pool.
 
@@ -537,7 +537,7 @@ class ReputationAdmin(
                     avatar_url=clientuser.display_avatar.url,
                 )
 
-    @pools.command(name="check", description="Checks a pool.")
+    @pools.command(name="check")  # pyright: ignore[reportGeneralTypeIssues]
     async def check_pool(self, interaction: Interaction[CBot], pool: str):
         """Check a pool.
 
@@ -572,7 +572,7 @@ class ReputationAdmin(
                     allowed_mentions=_ALLOWED_MENTIONS,
                 )
 
-    @reputation.command(name="add", description="Adds reputation to a user.")
+    @reputation.command()  # pyright: ignore[reportGeneralTypeIssues]
     async def add_reputation(self, interaction: Interaction[CBot], user: discord.User, amount: int):
         """Add reputation to a user.
 
@@ -604,7 +604,7 @@ class ReputationAdmin(
                     avatar_url=clientuser.display_avatar.url,
                 )
 
-    @reputation.command(name="remove", description="Removes reputation from a user.")
+    @reputation.command()  # pyright: ignore[reportGeneralTypeIssues]
     async def remove_reputation(self, interaction: Interaction[CBot], user: discord.User, amount: int):
         """Remove reputation from a user.
 
@@ -643,7 +643,7 @@ class ReputationAdmin(
                     avatar_url=clientuser.display_avatar.url,
                 )
 
-    @reputation.command(name="check", description="Checks a user's reputation.")
+    @reputation.command()  # pyright: ignore[reportGeneralTypeIssues]
     async def check_reputation(self, interaction: Interaction[CBot], user: discord.User):
         """Check a user's reputation.
 
@@ -682,7 +682,7 @@ class ReputationAdmin(
             else:
                 await interaction.followup.send(f"User `{user.name}` has {_user['points']} reputation.")
 
-    @levels.command(name="noxp_role", description="Toggles a roles ability to block xp gain.")
+    @levels.command()  # pyright: ignore[reportGeneralTypeIssues]
     async def noxp_role(self, interaction: Interaction[CBot], role: discord.Role):
         """Toggles a roles ability to block xp gain.
 
@@ -714,9 +714,9 @@ class ReputationAdmin(
                     )
                     await interaction.followup.send(f"Role `{role.name}` added to noxp.")
 
-    @levels.command(name="noxp_channel", description="Toggles a channels ability to give xp.")
+    @levels.command()  # pyright: ignore[reportGeneralTypeIssues]
     async def noxp_channel(self, interaction: Interaction[CBot], channel: discord.TextChannel | discord.VoiceChannel):
-        """Toggles a roles ability to block xp gain.
+        """Toggles a chanels ability to block xp gain.
 
         Parameters
         ----------
@@ -746,7 +746,7 @@ class ReputationAdmin(
                     )
                     await interaction.followup.send(f"{channel.mention} added to noxp.")
 
-    @levels.command(name="noxp_query", description="Sees teh channels and roles that are banned from gaining xp.")
+    @levels.command()  # pyright: ignore[reportGeneralTypeIssues]
     async def noxp_query(self, interaction: Interaction[CBot]):
         """Sees the channels and roles that are banned from gaining xp.
 
@@ -775,7 +775,7 @@ class ReputationAdmin(
                 embed.add_field(name="Roles", value=", ".join(f"<@&{r}>" for r in noxp["roles"]), inline=False)
                 await interaction.followup.send(embed=embed)
 
-    @app_commands.command()
+    @app_commands.command()  # pyright: ignore[reportGeneralTypeIssues]
     async def deal_role(
         self,
         interaction: Interaction[CBot],
