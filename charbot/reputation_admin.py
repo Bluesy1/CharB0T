@@ -154,20 +154,6 @@ class ReputationAdmin(
         role2: Optional[discord.Role] = None,
         role3: Optional[discord.Role] = None,
         role4: Optional[discord.Role] = None,
-        role5: Optional[discord.Role] = None,
-        role6: Optional[discord.Role] = None,
-        role7: Optional[discord.Role] = None,
-        role8: Optional[discord.Role] = None,
-        role9: Optional[discord.Role] = None,
-        role10: Optional[discord.Role] = None,
-        role11: Optional[discord.Role] = None,
-        role12: Optional[discord.Role] = None,
-        role13: Optional[discord.Role] = None,
-        role14: Optional[discord.Role] = None,
-        role15: Optional[discord.Role] = None,
-        role16: Optional[discord.Role] = None,
-        role17: Optional[discord.Role] = None,
-        role18: Optional[discord.Role] = None,
     ):
         """Create a new reputation pool.
 
@@ -197,34 +183,6 @@ class ReputationAdmin(
             [OPTIONAL] Additional slot for a role to whitelist to participate in the pool.
         role4 : discord.Role
             [OPTIONAL] Additional slot for a role to whitelist to participate in the pool.
-        role5 : discord.Role
-            [OPTIONAL] Additional slot for a role to whitelist to participate in the pool.
-        role6 : discord.Role
-            [OPTIONAL] Additional slot for a role to whitelist to participate in the pool.
-        role7 : discord.Role
-            [OPTIONAL] Additional slot for a role to whitelist to participate in the pool.
-        role8 : discord.Role
-            [OPTIONAL] Additional slot for a role to whitelist to participate in the pool.
-        role9 : discord.Role
-            [OPTIONAL] Additional slot for a role to whitelist to participate in the pool.
-        role10 : discord.Role
-            [OPTIONAL] Additional slot for a role to whitelist to participate in the pool.
-        role11 : discord.Role
-            [OPTIONAL] Additional slot for a role to whitelist to participate in the pool.
-        role12 : discord.Role
-            [OPTIONAL] Additional slot for a role to whitelist to participate in the pool.
-        role13 : discord.Role
-            [OPTIONAL] Additional slot for a role to whitelist to participate in the pool.
-        role14 : discord.Role
-            [OPTIONAL] Additional slot for a role to whitelist to participate in the pool.
-        role15 : discord.Role
-            [OPTIONAL] Additional slot for a role to whitelist to participate in the pool.
-        role16 : discord.Role
-            [OPTIONAL] Additional slot for a role to whitelist to participate in the pool.
-        role17 : discord.Role
-            [OPTIONAL] Additional slot for a role to whitelist to participate in the pool.
-        role18 : discord.Role
-            [OPTIONAL] Additional slot for a role to whitelist to participate in the pool.
         """
         if level != 1 and 0 in (current, start):
             await interaction.response.send_message(
@@ -248,20 +206,6 @@ class ReputationAdmin(
             role2,
             role3,
             role4,
-            role5,
-            role6,
-            role7,
-            role8,
-            role9,
-            role10,
-            role11,
-            role12,
-            role13,
-            role14,
-            role15,
-            role16,
-            role17,
-            role18,
         ]
         roles = list({r.id for r in filter(lambda x: x is not None, _roles)})
         await self._finish_pool_create(interaction, name, reward, capacity, level, current, start, roles)
