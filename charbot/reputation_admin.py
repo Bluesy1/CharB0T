@@ -30,7 +30,7 @@ from typing import Optional
 import asyncpg
 import discord
 from discord import app_commands
-from discord.ext import commands
+from discord.ext import commands, tasks
 from discord.utils import utcnow
 
 from . import CBot, GuildInteraction as Interaction
@@ -103,9 +103,14 @@ class ReputationAdmin(
         """Allow roles."""
         return self._allowed_roles
 
+    async def cog_load(self) -> None:
+        """Load the cog."""
+        self._del_role.start()
+
     async def cog_unload(self) -> None:
         """Unload the cog."""
         self.bot.tree.remove_command(self.ctx_menu.name, type=self.ctx_menu.type)
+        self._del_role.cancel()
 
     pools = app_commands.Group(name="pools", description="Administration commands for the reputation pools.")
     reputation = app_commands.Group(name="reputation", description="Administration commands for the reputation system.")
@@ -781,7 +786,7 @@ class ReputationAdmin(
         interaction: Interaction[CBot],
         user: discord.Member,
         color: str,
-        days: app_commands.Range[int, 0, 28],
+        days: app_commands.Range[int, 1, 28],
         above: discord.Role,
         hoist: bool = False,
     ):
@@ -826,6 +831,23 @@ class ReputationAdmin(
         await interaction.followup.send(
             f"{user.mention} has been given their deal role for {days} days.", ephemeral=True
         )
+        self._del_role.start()
+
+    @tasks.loop(hours=1)
+    async def _del_role(self):
+        """Removes the deal role from users who have it."""
+        async with self.bot.pool.acquire() as conn, conn.transaction():
+            rle = await conn.fetchrow("SELECT * FROM deal_no_deal ORDER BY until LIMIT 1")
+            if rle is None:
+                self._del_role.stop()
+                return
+            guild = self.bot.get_guild(225345178955808768) or await self.bot.fetch_guild(225345178955808768)
+            role = guild.get_role(rle["role_id"])
+            if role is not None:
+                await role.delete(reason="Deal role expired")
+            await conn.execute("DELETE FROM deal_no_deal WHERE role_id = $1", rle["id"])
+            if len(await conn.fetch("SELECT * FROM deal_no_deal")) == 0:
+                self._del_role.stop()
 
 
 async def setup(bot: CBot):
