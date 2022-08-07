@@ -140,8 +140,8 @@ class Leveling(commands.Cog):
                 if user is None:
                     await conn.execute(
                         "INSERT INTO xp_users "
-                        "(id, username, discriminator, xp, detailed_xp, level, messages, avatar, gang, prestige)"
-                        " VALUES ($1, $2, $3, $4, $5, 0, 1, $6, null, 0) ON CONFLICT (id) DO NOTHING",
+                        "(id, username, discriminator, xp, detailed_xp, level, messages, avatar, prestige)"
+                        " VALUES ($1, $2, $3, $4, $5, 0, 1, $6, 0) ON CONFLICT (id) DO NOTHING",
                         message.author.id,
                         message.author.name,
                         message.author.discriminator,

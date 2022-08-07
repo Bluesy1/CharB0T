@@ -31,7 +31,7 @@ import asyncpg
 import discord
 from discord import app_commands
 from discord.ext import commands, tasks
-from discord.utils import utcnow
+from discord.utils import utcnow, sleep_until
 
 from . import CBot, GuildInteraction as Interaction
 from .card import generate_card
@@ -772,19 +772,24 @@ class ReputationAdmin(
             role.id,
             utcnow() + datetime.timedelta(days=days),
         )
+        await user.add_roles(role, reason="Deal role")
         await interaction.followup.send(
             f"{user.mention} has been given their deal role for {days} days.", ephemeral=True
         )
         try:
-            self._del_role.start()
+            self._del_role.cancel()
         except RuntimeError:
             pass
+        finally:
+            self._del_role.start()
 
     @tasks.loop(hours=1)
     async def _del_role(self):
         """Removes the deal role from users who have it."""
         async with self.bot.pool.acquire() as conn, conn.transaction():
             rle = await conn.fetchrow("SELECT * FROM deal_no_deal ORDER BY until LIMIT 1")
+            if rle["until"] < utcnow():
+                await sleep_until(rle["until"])
             if rle is None:
                 self._del_role.stop()
                 return
@@ -792,7 +797,7 @@ class ReputationAdmin(
             role = guild.get_role(rle["role_id"])
             if role is not None:
                 await role.delete(reason="Deal role expired")
-            await conn.execute("DELETE FROM deal_no_deal WHERE role_id = $1", rle["id"])
+            await conn.execute("DELETE FROM deal_no_deal WHERE role_id = $1", rle["role_id"])
             if len(await conn.fetch("SELECT * FROM deal_no_deal")) == 0:
                 self._del_role.stop()
 
