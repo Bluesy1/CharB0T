@@ -12,4 +12,7 @@ if hasattr(minesweeper, "__all__"):
     __name: str
     for __name in minesweeper.__all__:
         setattr(__sys.modules[__name__], __name, getattr(minesweeper, __name))  # pyright: ignore[reportUnboundVariable]
-    del __name
+    try:
+        del __name
+    except NameError:
+        pass
