@@ -126,7 +126,7 @@ class TicTacView(ui.View):
             embed.set_footer(text="Start playing by typing /programs tictactoe")
             self.disable()
             image = await asyncio.to_thread(self.puzzle.display)
-            await interaction.edit_original_message(attachments=[image], embed=embed, view=self)
+            await interaction.edit_original_response(attachments=[image], embed=embed, view=self)
             return
         move = await asyncio.to_thread(self.puzzle.next)
         self._buttons[move[0] * 3 + move[1]].disabled = True
@@ -149,7 +149,7 @@ class TicTacView(ui.View):
             ).set_image(url="attachment://tictactoe.png")
             embed.set_footer(text="Start playing by typing /programs tictactoe")
             self.disable()
-            await interaction.edit_original_message(attachments=[image], embed=embed, view=self)
+            await interaction.edit_original_response(attachments=[image], embed=embed, view=self)
             return
         if self.puzzle.check_win() == 0:
             points = self.puzzle.points
@@ -167,9 +167,9 @@ class TicTacView(ui.View):
             ).set_image(url="attachment://tictactoe.png")
             embed.set_footer(text="Start playing by typing /programs tictactoe")
             self.disable()
-            await interaction.edit_original_message(attachments=[image], embed=embed, view=self)
+            await interaction.edit_original_response(attachments=[image], embed=embed, view=self)
             return
-        await interaction.edit_original_message(attachments=[image], view=self)
+        await interaction.edit_original_response(attachments=[image], view=self)
 
     @ui.button(style=ButtonStyle.green, emoji="✅")
     async def top_left(self, interaction: Interaction, button: ui.Button):

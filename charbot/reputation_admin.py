@@ -776,23 +776,20 @@ class ReputationAdmin(
         await interaction.followup.send(
             f"{user.mention} has been given their deal role for {days} days.", ephemeral=True
         )
-        try:
+        if self._del_role.is_running():
             self._del_role.cancel()
-        except RuntimeError:
-            pass
-        finally:
-            self._del_role.start()
+        self._del_role.start(role, days)
 
     @tasks.loop(hours=1)
     async def _del_role(self):
         """Removes the deal role from users who have it."""
         async with self.bot.pool.acquire() as conn, conn.transaction():
             rle = await conn.fetchrow("SELECT * FROM deal_no_deal ORDER BY until LIMIT 1")
-            if rle["until"] < utcnow():
-                await sleep_until(rle["until"])
             if rle is None:
                 self._del_role.stop()
                 return
+            if rle["until"] < utcnow():
+                await sleep_until(rle["until"])
             guild = self.bot.get_guild(225345178955808768) or await self.bot.fetch_guild(225345178955808768)
             role = guild.get_role(rle["role_id"])
             if role is not None:
