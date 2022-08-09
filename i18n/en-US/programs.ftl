@@ -1,33 +1,34 @@
-### programs/__init__.py
+### programs/--init--.py
 
 # Command Groups
-programs_name = programs
-programs_description = Programs to gain you rep.
-programs_beta_name = beta
-programs_beta_description = Beta programs..
+programs-name = programs
+programs-description = Programs to gain you rep.
+programs-beta-name = beta
+programs-beta-description = Beta programs..
 
 # Commands
-sudoku_name = sudoku
-sudoku_description = Play a Sudoku puzzle
-sudoku_opt_mobile = Whether to turn off formatting that only works on desktop.
+sudoku-name = sudoku
+sudoku-description = Play a Sudoku puzzle
+parameter-mobile-name = mobile
+parameter-mobile-description = Whether to turn off formatting that only works on desktop.
 
-tictactoe_name = tictactoe
-tictactoe_description = Play a game of Tic Tac Toe game
-tictactoe_letter_option_name = letter
-tictactoe_letter_option_description = Do you want to play as X or O?
-tictactoe_easy_option_name = easy
-tictactoe_easy_option_description = Set this to false for a harder variant of the AI.
+tictactoe-name = tictactoe
+tictactoe-description = Play a game of Tic Tac Toe game
+parameter-letter-name = letter
+parameter-letter-description = Do you want to play as X or O?
+parameter-easy-name = easy
+parameter-easy-description = Set this to false for a harder variant of the AI.
 
-shrugman_name = shrugman
-shrugman_description = Play the shrugman minigame. (Hangman clone)
+shrugman-name = shrugman
+shrugman-description = Play the shrugman minigame. (Hangman clone)
 
-rtictactoe_name = rtictactoe
-rtictactoe_description = [Beta] Play a game of Tic Tac Toe to help me test the new implemenatation. Doesn't give rep.
-rtictactoe_difficulty_option_name = difficulty
-rtictactoe_difficulty_option_description = The difficulty of the game.
+rtictactoe-name = rtictactoe
+rtictactoe-description = [Beta] Play a game of Tic Tac Toe to help me test the new implemenatation. Doesn't give rep.
+parameter-difficulty-name = difficulty
+parameter-difficulty-description = The difficulty of the game.
 
-rollcall_name = rollcall
-rollcall_description = Claim your daily reputation bonus.
+rollcall-name = rollcall
+rollcall-description = Claim your daily reputation bonus.
 
-repuation_name = repuation
-repuation_description = Check your reputation.
+repuation-name = repuation
+repuation-description = Check your reputation.

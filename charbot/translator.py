@@ -25,7 +25,7 @@
 import pathlib
 
 from discord import app_commands, Locale
-from discord.app_commands import locale_str, TranslationContext
+from discord.app_commands import TranslationContext, TranslationContextLocation, locale_str
 from fluent.runtime import FluentResourceLoader, FluentLocalization
 
 
@@ -34,24 +34,27 @@ class Translator(app_commands.Translator):
         self.loader = FluentResourceLoader("i18n")
 
     async def translate(self, string: locale_str, locale: Locale, context: TranslationContext) -> str | None:
-        if locale is Locale.american_english:
-            return string.message
         path = pathlib.Path(f"i18n/{locale.value}")
         if not path.exists():
             return None
-        translator = FluentLocalization([locale.value], ["dice.ftl", "minesweeper.ftl", "programs.ftl"], self.loader)
-        suffix = ""
-        if context is TranslationContext.command_name:
-            suffix = "_name"
-        elif context is TranslationContext.command_description:
-            suffix = "_description"
-        elif context is TranslationContext.parameter_name:
-            suffix = "_option_name"
-        elif context is TranslationContext.parameter_description:
-            suffix = "_option_description"
-        elif context is TranslationContext.choice_name:
-            suffix = "_choice_name"
-        translated = translator.format_value(f"{string.message}{suffix}")
-        if translated == f"{string.message}{suffix}" or translated is None:
+        fluent = FluentLocalization([locale.value], ["dice.ftl", "minesweeper.ftl", "programs.ftl"], self.loader)
+        if context.location is TranslationContextLocation.command_name:
+            key = f"{context.data.qualified_name.replace(' ', '-')}-name"
+        elif context.location is TranslationContextLocation.command_description:
+            key = f"{context.data.qualified_name.replace(' ', '-')}-description"
+        elif context.location is TranslationContextLocation.group_name:
+            key = f"{context.data.qualified_name.replace(' ', '-')}-name"
+        elif context.location is TranslationContextLocation.group_description:
+            key = f"{context.data.qualified_name.replace(' ', '-')}-description"
+        elif context.location is TranslationContextLocation.parameter_name:
+            key = f"parameter-{context.data.name}-name"
+        elif context.location is TranslationContextLocation.parameter_description:
+            key = f"parameter-{context.data.name}-description"
+        elif context.location is TranslationContextLocation.choice_name:
+            key = f"choice-{context.data.name}-name"
+        else:
+            key = f"other-{string.message.replace(' ', '-')}"
+        translated = fluent.format_value(key)
+        if translated == key or translated is None:
             return None
         return translated

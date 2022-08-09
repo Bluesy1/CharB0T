@@ -1,7 +1,6 @@
 aiohttp[speedups]==3.8.1
 asyncpg==0.26.0
-charbot==0.0.0
-discord.py[speed] @ git+https://github.com/Rapptz/discord.py@cc0c261925829a03c269b0b1058942a8cd750298#egg=discord.py
+discord.py[speed] @ git+https://github.com/Rapptz/discord.py@4fbafcd718b069459dec33369e0964d6c810a882#egg=discord.py
 disrank==0.0.2
 fluent.runtime == 0.3.1
 jishaku==2.5.1
@@ -12,7 +11,7 @@ pandas==1.4.3
 Pillow==9.2.0
 pytest==7.1.2
 scipy==1.9.0
-sentry-sdk==1.9.2
+sentry-sdk==1.9.3
 tomli == 2.0.1
 typing-extensions == 4.3.0
 uvloop == 0.16.0
