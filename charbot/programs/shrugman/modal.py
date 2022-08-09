@@ -140,7 +140,7 @@ class GuessModal(ui.Modal, title="Shrugman Guess"):
                 value="2 Reputation" if points == 2 else f"{points} Reputation (Daily Cap Hit)",
                 inline=True,
             )
-            await interaction.edit_original_message(embed=embed, view=self.game)
+            await interaction.edit_original_response(embed=embed, view=self.game)
             return
         for i, letter in enumerate(self.game.word):
             if letter == value:
@@ -178,4 +178,4 @@ class GuessModal(ui.Modal, title="Shrugman Guess"):
                 value=f"{points} Reputation" if points == (2 + bonus) else f"{points} Reputation (Daily Cap Hit)",
                 inline=True,
             )
-        await interaction.edit_original_message(embed=embed, view=self.game)
+        await interaction.edit_original_response(embed=embed, view=self.game)

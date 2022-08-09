@@ -118,7 +118,7 @@ jobs:
           pip install wheels/*
       - name: Pyright
         id: pyright
-        run: pyright charbot
+        run: pyright .
   flake8:
     runs-on: ubuntu-latest
     continue-on-error: true

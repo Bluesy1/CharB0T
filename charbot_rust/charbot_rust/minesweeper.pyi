@@ -29,10 +29,10 @@ class RevealResult(__enum.Enum):
         The cell was adjacent to mines.
     """
 
-    Flagged: int = ...
-    Mine: int = ...
-    Empty: int = ...
-    Number: int = ...
+    Flagged: int = ...  # pyright: ignore[reportGeneralTypeIssues]
+    Mine: int = ...  # pyright: ignore[reportGeneralTypeIssues]
+    Empty: int = ...  # pyright: ignore[reportGeneralTypeIssues]
+    Number: int = ...  # pyright: ignore[reportGeneralTypeIssues]
 
 class ChordResult(__enum.Enum):
     """An enum that represents the result of a chard operation.
@@ -45,9 +45,9 @@ class ChordResult(__enum.Enum):
         The chord was performed, but a mine was revealed, ending the game.
     """
 
-    Failed: int = ...
-    Success: int = ...
-    Death: int = ...
+    Failed: int = ...  # pyright: ignore[reportGeneralTypeIssues]
+    Success: int = ...  # pyright: ignore[reportGeneralTypeIssues]
+    Death: int = ...  # pyright: ignore[reportGeneralTypeIssues]
 
 class Game:
     """A class that represents a game of minesweeper.

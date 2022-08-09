@@ -129,7 +129,8 @@ class Admin(commands.Cog):
         with open("charbot/sensitive_settings.json", "rb") as json_dict:
             fulldict = orjson.loads(json_dict.read())
         if word.lower() not in fulldict["words"]:
-            fulldict["words"].append(word.lower()).sort()
+            fulldict["words"].append(word.lower())
+            fulldict["words"].sort()
             with open("charbot/sensitive_settings.json", "wb") as json_dict:
                 json_dict.write(orjson.dumps(fulldict))
             await ctx.send(
@@ -166,7 +167,8 @@ class Admin(commands.Cog):
         with open("charbot/sensitive_settings.json", "rb") as file:
             fulldict = orjson.loads(file.read())
         if word.lower() in fulldict["words"]:
-            fulldict["words"].remove(word.lower()).sort()
+            fulldict["words"].remove(word.lower())
+            fulldict["words"].sort()
             await ctx.send(
                 embed=Embed(
                     title="New list of words defined as sensitive",

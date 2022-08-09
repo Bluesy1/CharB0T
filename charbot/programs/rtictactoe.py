@@ -116,7 +116,7 @@ class TicTacToe(ui.View):
             embed.set_footer(text="Start playing by typing /programs beta rtictactoe")
             self.disable()
             image = await asyncio.to_thread(self.display)
-            await interaction.edit_original_message(attachments=[image], embed=embed, view=self)
+            await interaction.edit_original_response(attachments=[image], embed=embed, view=self)
         elif self.game.is_draw():
             points = self.game.points()
             member = interaction.user
@@ -136,7 +136,7 @@ class TicTacToe(ui.View):
             embed.set_footer(text="Start playing by typing /programs beta rtictactoe")
             self.disable()
             image = await asyncio.to_thread(self.display)
-            await interaction.edit_original_message(attachments=[image], embed=embed, view=self)
+            await interaction.edit_original_response(attachments=[image], embed=embed, view=self)
         elif self.game.has_player_lost():
             points = self.game.points()
             member = interaction.user
@@ -156,10 +156,10 @@ class TicTacToe(ui.View):
             embed.set_footer(text="Start playing by typing /programs beta rtictactoe")
             self.disable()
             image = await asyncio.to_thread(self.display)
-            await interaction.edit_original_message(attachments=[image], embed=embed, view=self)
+            await interaction.edit_original_response(attachments=[image], embed=embed, view=self)
         else:
             image = await asyncio.to_thread(self.display)
-            await interaction.edit_original_message(attachments=[image], view=self)
+            await interaction.edit_original_response(attachments=[image], view=self)
 
     @ui.button(style=ButtonStyle.green, emoji="✅")  # pyright: ignore[reportGeneralTypeIssues]
     async def top_left(self, interaction: Interaction[CBot], button: ui.Button):

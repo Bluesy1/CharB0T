@@ -24,15 +24,16 @@
 #  ----------------------------------------------------------------------------
 """Admin commands for the reputation system."""
 import asyncio
+import datetime
 from typing import Optional
 
 import asyncpg
 import discord
-from discord import Interaction, app_commands
-from discord.ext import commands
-from discord.utils import utcnow
+from discord import app_commands
+from discord.ext import commands, tasks
+from discord.utils import utcnow, sleep_until
 
-from . import CBot
+from . import CBot, GuildInteraction as Interaction
 from .card import generate_card
 
 
@@ -59,7 +60,7 @@ class ReputationAdmin(
         self.bot = bot
         self.ctx_menu = app_commands.ContextMenu(
             name="Check User's Reputation",
-            callback=self.check_reputation_context,
+            callback=self.check_reputation_context,  # pyright: ignore[reportGeneralTypeIssues]
         )
         self.bot.tree.add_command(self.ctx_menu)
         self._allowed_roles: list[int | str] = [
@@ -73,9 +74,9 @@ class ReputationAdmin(
         @self.edit_pool.autocomplete("pool")
         @self.pool_role.autocomplete("pool")
         @self.check_pool.autocomplete("pool")
-        @self.delete_pool.autocomplete("pool")
+        @self.delete_pool.autocomplete("pool")  # pyright: ignore[reportGeneralTypeIssues]
         async def pool_autocomplete(
-            interaction: Interaction, current: str  # skipcq: PYL-W0613
+            interaction: Interaction[CBot], current: str  # skipcq: PYL-W0613
         ) -> list[app_commands.Choice[str]]:
             """Autocomplete a pool name.
 
@@ -102,15 +103,20 @@ class ReputationAdmin(
         """Allow roles."""
         return self._allowed_roles
 
+    async def cog_load(self) -> None:
+        """Load the cog."""
+        self._del_role.start()
+
     async def cog_unload(self) -> None:
         """Unload the cog."""
         self.bot.tree.remove_command(self.ctx_menu.name, type=self.ctx_menu.type)
+        self._del_role.cancel()
 
     pools = app_commands.Group(name="pools", description="Administration commands for the reputation pools.")
     reputation = app_commands.Group(name="reputation", description="Administration commands for the reputation system.")
     levels = app_commands.Group(name="levels", description="Administration commands for the leveling system.")
 
-    async def interaction_check(self, interaction: Interaction) -> bool:
+    async def interaction_check(self, interaction: Interaction[CBot]) -> bool:
         """Check if the interaction is allowed.
 
         Parameters
@@ -133,10 +139,10 @@ class ReputationAdmin(
                 raise app_commands.MissingAnyRole(self.allowed_roles)
             return True
 
-    @pools.command(name="create", description="Create a new reputation pool.")
+    @pools.command(name="create")  # pyright: ignore[reportGeneralTypeIssues]
     async def create_pool(
         self,
-        interaction: Interaction,
+        interaction: Interaction[CBot],
         name: str,
         capacity: int,
         reward: str,
@@ -148,20 +154,6 @@ class ReputationAdmin(
         role2: Optional[discord.Role] = None,
         role3: Optional[discord.Role] = None,
         role4: Optional[discord.Role] = None,
-        role5: Optional[discord.Role] = None,
-        role6: Optional[discord.Role] = None,
-        role7: Optional[discord.Role] = None,
-        role8: Optional[discord.Role] = None,
-        role9: Optional[discord.Role] = None,
-        role10: Optional[discord.Role] = None,
-        role11: Optional[discord.Role] = None,
-        role12: Optional[discord.Role] = None,
-        role13: Optional[discord.Role] = None,
-        role14: Optional[discord.Role] = None,
-        role15: Optional[discord.Role] = None,
-        role16: Optional[discord.Role] = None,
-        role17: Optional[discord.Role] = None,
-        role18: Optional[discord.Role] = None,
     ):
         """Create a new reputation pool.
 
@@ -191,34 +183,6 @@ class ReputationAdmin(
             [OPTIONAL] Additional slot for a role to whitelist to participate in the pool.
         role4 : discord.Role
             [OPTIONAL] Additional slot for a role to whitelist to participate in the pool.
-        role5 : discord.Role
-            [OPTIONAL] Additional slot for a role to whitelist to participate in the pool.
-        role6 : discord.Role
-            [OPTIONAL] Additional slot for a role to whitelist to participate in the pool.
-        role7 : discord.Role
-            [OPTIONAL] Additional slot for a role to whitelist to participate in the pool.
-        role8 : discord.Role
-            [OPTIONAL] Additional slot for a role to whitelist to participate in the pool.
-        role9 : discord.Role
-            [OPTIONAL] Additional slot for a role to whitelist to participate in the pool.
-        role10 : discord.Role
-            [OPTIONAL] Additional slot for a role to whitelist to participate in the pool.
-        role11 : discord.Role
-            [OPTIONAL] Additional slot for a role to whitelist to participate in the pool.
-        role12 : discord.Role
-            [OPTIONAL] Additional slot for a role to whitelist to participate in the pool.
-        role13 : discord.Role
-            [OPTIONAL] Additional slot for a role to whitelist to participate in the pool.
-        role14 : discord.Role
-            [OPTIONAL] Additional slot for a role to whitelist to participate in the pool.
-        role15 : discord.Role
-            [OPTIONAL] Additional slot for a role to whitelist to participate in the pool.
-        role16 : discord.Role
-            [OPTIONAL] Additional slot for a role to whitelist to participate in the pool.
-        role17 : discord.Role
-            [OPTIONAL] Additional slot for a role to whitelist to participate in the pool.
-        role18 : discord.Role
-            [OPTIONAL] Additional slot for a role to whitelist to participate in the pool.
         """
         if level != 1 and 0 in (current, start):
             await interaction.response.send_message(
@@ -242,27 +206,13 @@ class ReputationAdmin(
             role2,
             role3,
             role4,
-            role5,
-            role6,
-            role7,
-            role8,
-            role9,
-            role10,
-            role11,
-            role12,
-            role13,
-            role14,
-            role15,
-            role16,
-            role17,
-            role18,
         ]
         roles = list({r.id for r in filter(lambda x: x is not None, _roles)})
         await self._finish_pool_create(interaction, name, reward, capacity, level, current, start, roles)
 
     async def _finish_pool_create(
         self,
-        interaction: Interaction,
+        interaction: Interaction[CBot],
         name: str,
         reward: str,
         capacity: int,
@@ -323,10 +273,10 @@ class ReputationAdmin(
             avatar_url=clientuser.display_avatar.url,
         )
 
-    @pools.command(name="edit", description="Edits a pool.")
+    @pools.command(name="edit")  # pyright: ignore[reportGeneralTypeIssues]
     async def edit_pool(
         self,
-        interaction: Interaction,
+        interaction: Interaction[CBot],
         pool: str,
         name: Optional[str] = None,
         capacity: Optional[app_commands.Range[int, 0]] = None,
@@ -388,7 +338,7 @@ class ReputationAdmin(
 
     async def _finish_pool_edit(
         self,
-        interaction: Interaction,
+        interaction: Interaction[CBot],
         previous: asyncpg.Record,
         pool: str,
         name: str | None,
@@ -446,8 +396,8 @@ class ReputationAdmin(
             f"Pool {name or pool}{f' (formerly {pool})' if name is not None else ''} edited!", file=image
         )
 
-    @pools.command(name="list", description="Lists all pools.")
-    async def list_pools(self, interaction: Interaction):
+    @pools.command(name="list")  # pyright: ignore[reportGeneralTypeIssues]
+    async def list_pools(self, interaction: Interaction[CBot]):
         """List all pools.
 
         Parameters
@@ -460,8 +410,8 @@ class ReputationAdmin(
             pools = [pool["pool"] for pool in await conn.fetch("SELECT pool FROM pools")]
             await interaction.followup.send(f"Pools: {', '.join(pools)}")
 
-    @pools.command(name="role", description="Toggles a roles ability to participate in a pool.")
-    async def pool_role(self, interaction: Interaction, pool: str, role: discord.Role):
+    @pools.command(name="role")  # pyright: ignore[reportGeneralTypeIssues]
+    async def pool_role(self, interaction: Interaction[CBot], pool: str, role: discord.Role):
         """Toggle a role's ability to participate in a pool.
 
         Parameters
@@ -508,8 +458,8 @@ class ReputationAdmin(
                         avatar_url=clientuser.display_avatar.url,
                     )
 
-    @pools.command(name="delete", description="Deletes a pool.")
-    async def delete_pool(self, interaction: Interaction, pool: str):
+    @pools.command(name="delete")  # pyright: ignore[reportGeneralTypeIssues]
+    async def delete_pool(self, interaction: Interaction[CBot], pool: str):
         """Delete a pool.
 
         Parameters
@@ -536,8 +486,8 @@ class ReputationAdmin(
                     avatar_url=clientuser.display_avatar.url,
                 )
 
-    @pools.command(name="check", description="Checks a pool.")
-    async def check_pool(self, interaction: Interaction, pool: str):
+    @pools.command(name="check")  # pyright: ignore[reportGeneralTypeIssues]
+    async def check_pool(self, interaction: Interaction[CBot], pool: str):
         """Check a pool.
 
         Parameters
@@ -571,8 +521,8 @@ class ReputationAdmin(
                     allowed_mentions=_ALLOWED_MENTIONS,
                 )
 
-    @reputation.command(name="add", description="Adds reputation to a user.")
-    async def add_reputation(self, interaction: Interaction, user: discord.User, amount: int):
+    @reputation.command()  # pyright: ignore[reportGeneralTypeIssues]
+    async def add_reputation(self, interaction: Interaction[CBot], user: discord.User, amount: int):
         """Add reputation to a user.
 
         Parameters
@@ -603,8 +553,8 @@ class ReputationAdmin(
                     avatar_url=clientuser.display_avatar.url,
                 )
 
-    @reputation.command(name="remove", description="Removes reputation from a user.")
-    async def remove_reputation(self, interaction: Interaction, user: discord.User, amount: int):
+    @reputation.command()  # pyright: ignore[reportGeneralTypeIssues]
+    async def remove_reputation(self, interaction: Interaction[CBot], user: discord.User, amount: int):
         """Remove reputation from a user.
 
         Parameters
@@ -642,8 +592,8 @@ class ReputationAdmin(
                     avatar_url=clientuser.display_avatar.url,
                 )
 
-    @reputation.command(name="check", description="Checks a user's reputation.")
-    async def check_reputation(self, interaction: Interaction, user: discord.User):
+    @reputation.command()  # pyright: ignore[reportGeneralTypeIssues]
+    async def check_reputation(self, interaction: Interaction[CBot], user: discord.User):
         """Check a user's reputation.
 
         Parameters
@@ -663,7 +613,7 @@ class ReputationAdmin(
 
     @app_commands.default_permissions(manage_messages=True)
     @app_commands.checks.has_any_role(225413350874546176, 253752685357039617, 725377514414932030, 338173415527677954)
-    async def check_reputation_context(self, interaction: Interaction, user: discord.User):
+    async def check_reputation_context(self, interaction: Interaction[CBot], user: discord.User):
         """Check a user's reputation.
 
         Parameters
@@ -681,8 +631,8 @@ class ReputationAdmin(
             else:
                 await interaction.followup.send(f"User `{user.name}` has {_user['points']} reputation.")
 
-    @levels.command(name="noxp_role", description="Toggles a roles ability to block xp gain.")
-    async def noxp_role(self, interaction: Interaction, role: discord.Role):
+    @levels.command()  # pyright: ignore[reportGeneralTypeIssues]
+    async def noxp_role(self, interaction: Interaction[CBot], role: discord.Role):
         """Toggles a roles ability to block xp gain.
 
         Parameters
@@ -713,9 +663,9 @@ class ReputationAdmin(
                     )
                     await interaction.followup.send(f"Role `{role.name}` added to noxp.")
 
-    @levels.command(name="noxp_channel", description="Toggles a channels ability to give xp.")
-    async def noxp_channel(self, interaction: Interaction, channel: discord.TextChannel | discord.VoiceChannel):
-        """Toggles a roles ability to block xp gain.
+    @levels.command()  # pyright: ignore[reportGeneralTypeIssues]
+    async def noxp_channel(self, interaction: Interaction[CBot], channel: discord.TextChannel | discord.VoiceChannel):
+        """Toggles a chanels ability to block xp gain.
 
         Parameters
         ----------
@@ -745,8 +695,8 @@ class ReputationAdmin(
                     )
                     await interaction.followup.send(f"{channel.mention} added to noxp.")
 
-    @levels.command(name="noxp_query", description="Sees teh channels and roles that are banned from gaining xp.")
-    async def noxp_query(self, interaction: Interaction):
+    @levels.command()  # pyright: ignore[reportGeneralTypeIssues]
+    async def noxp_query(self, interaction: Interaction[CBot]):
         """Sees the channels and roles that are banned from gaining xp.
 
         Parameters
@@ -773,6 +723,80 @@ class ReputationAdmin(
                 embed.add_field(name="Channels", value=", ".join(f"<#{c}>" for c in noxp["channels"]), inline=False)
                 embed.add_field(name="Roles", value=", ".join(f"<@&{r}>" for r in noxp["roles"]), inline=False)
                 await interaction.followup.send(embed=embed)
+
+    @app_commands.command()  # pyright: ignore[reportGeneralTypeIssues]
+    async def deal_role(
+        self,
+        interaction: Interaction[CBot],
+        user: discord.Member,
+        color: str,
+        days: app_commands.Range[int, 1, 28],
+        above: discord.Role,
+        hoist: bool = False,
+    ):
+        """Give a user a role that lasts for a certain amount of days.
+
+        Parameters
+        ----------
+        interaction : Interaction
+            The interaction object.
+        user : discord.Member
+            The user to give the role to.
+        color : str
+            The color of the role.
+        days : app_commands.Range[int, 0, 28]
+            The amount of days the role lasts.
+        above : discord.Role
+            The role that the new role should be moved above.
+        hoist : bool
+            Whether the role should be hoisted.
+        """
+        await interaction.response.defer(ephemeral=True)
+        try:
+            _color = discord.Color.from_str(color)
+        except ValueError:
+            await interaction.followup.send("Invalid color, it is being ignored.")
+            _color = discord.utils.MISSING
+        role = await interaction.guild.create_role(
+            name=f"{user.name}'s deal",
+            color=_color,
+            hoist=hoist,
+            permissions=discord.Permissions(139589959744),
+            reason=f"{interaction.user} (id: {interaction.user.id}) requested a deal or no deal role role for"
+            f" {user.name} (id: {user.id})",
+        )
+        await interaction.guild.edit_role_positions({role: above.position + 1}, reason="Correct placement of deal role")
+        await self.bot.pool.execute(
+            "INSERT INTO deal_no_deal (user_id, role_id, until) VALUES ($1, $2, $3)",
+            user.id,
+            role.id,
+            utcnow() + datetime.timedelta(days=days),
+        )
+        await user.add_roles(role, reason="Deal role")
+        await interaction.followup.send(
+            f"{user.mention} has been given their deal role for {days} days.", ephemeral=True
+        )
+        if self._del_role.is_running():
+            self._del_role.cancel()
+        self._del_role.start(role, days)
+
+    @tasks.loop(hours=1)
+    async def _del_role(self):
+        """Removes the deal role from users who have it."""
+        async with self.bot.pool.acquire() as conn, conn.transaction():
+            rle = await conn.fetchrow("SELECT * FROM deal_no_deal ORDER BY until LIMIT 1")
+            if rle is None:
+                self._del_role.stop()
+                return
+            if rle["until"] < utcnow():
+                await sleep_until(rle["until"])
+            guild = self.bot.get_guild(225345178955808768) or await self.bot.fetch_guild(225345178955808768)
+            role = guild.get_role(rle["role_id"])
+            if role is not None:
+                await role.delete(reason="Deal role expired")
+            await conn.execute("DELETE FROM deal_no_deal WHERE role_id = $1", rle["role_id"])
+            if len(await conn.fetch("SELECT * FROM deal_no_deal")) == 0:
+                self._del_role.stop()
 
 
 async def setup(bot: CBot):
