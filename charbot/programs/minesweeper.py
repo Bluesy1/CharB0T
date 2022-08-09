@@ -38,7 +38,7 @@ class Minesweeper(ui.View):
                 default=i == y,
                 description=f"Change the row to {letter}",
             )
-            for i, letter in enumerate(string.ascii_uppercase[: self.game.height])  # pyright: ignore
+            for i, letter in enumerate(string.ascii_uppercase[: self.game.height])
         ]
         self.column.options = [
             SelectOption(
@@ -48,7 +48,7 @@ class Minesweeper(ui.View):
                 default=i == x,
                 description=f"Change the column to {letter}",
             )
-            for i, letter in enumerate(string.ascii_uppercase[: self.game.width])  # pyright: ignore
+            for i, letter in enumerate(string.ascii_uppercase[: self.game.width])
         ]
 
     async def draw(self) -> discord.File:

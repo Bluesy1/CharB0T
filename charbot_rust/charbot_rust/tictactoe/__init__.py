@@ -16,7 +16,7 @@ if hasattr(tictactoe, "__all__"):
     )  # pyright: ignore[reportUnsupportedDunderAll]
     __name: str
     for __name in tictactoe.__all__:
-        setattr(__sys.modules[__name__], __name, getattr(tictactoe, __name))
+        setattr(__sys.modules[__name__], __name, getattr(tictactoe, __name))  # pyright: ignore[reportUnboundVariable]
     del __name
 else:
     __all__ = ("Difficulty",)  # noqa: F405

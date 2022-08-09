@@ -11,5 +11,5 @@ if hasattr(minesweeper, "__all__"):
     __all__ = (*minesweeper.__all__,)  # pyright: ignore[reportUnsupportedDunderAll]
     __name: str
     for __name in minesweeper.__all__:
-        setattr(__sys.modules[__name__], __name, getattr(minesweeper, __name))
+        setattr(__sys.modules[__name__], __name, getattr(minesweeper, __name))  # pyright: ignore[reportUnboundVariable]
     del __name

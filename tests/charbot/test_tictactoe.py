@@ -63,8 +63,8 @@ async def test_view_move_method(_unused_mock_generator, photo, event_loop, mocke
     mock_interaction.response = mocker.AsyncMock(spec=discord.InteractionResponse)
     await view.move(mock_interaction, view._buttons[0], 0, 0)
     mock_interaction.response.edit_message.assert_called_once_with(view=None)
-    mock_interaction.edit_original_message.assert_called_once()
-    assert mock_interaction.edit_original_message.call_args.kwargs["attachments"][0] is photo
+    mock_interaction.edit_original_response.assert_called_once()
+    assert mock_interaction.edit_original_response.call_args.kwargs["attachments"][0] is photo
     assert view.top_left.disabled
 
 
@@ -80,8 +80,8 @@ async def test_view_player_win(_unused_mock_generator, photo, event_loop, mocker
     mock_interaction.response = mocker.AsyncMock(spec=discord.InteractionResponse)
     await view.move(mock_interaction, view._buttons[0], 0, 0)
     mock_interaction.response.edit_message.assert_called_once_with(view=None)
-    mock_interaction.edit_original_message.assert_called_once()
-    assert mock_interaction.edit_original_message.call_args.kwargs["attachments"][0] is photo
+    mock_interaction.edit_original_response.assert_called_once()
+    assert mock_interaction.edit_original_response.call_args.kwargs["attachments"][0] is photo
     assert view.top_left.disabled
     mock_bot.give_game_points.assert_called_once_with(mock_interaction.user, "tictactoe", 1, 1)
 
@@ -105,8 +105,8 @@ async def test_view_bot_win(_unused_mock_generator, photo, event_loop, mocker: M
     mock_interaction.response = mocker.AsyncMock(spec=discord.InteractionResponse)
     await view.move(mock_interaction, view._buttons[7], 2, 1)
     mock_interaction.response.edit_message.assert_called_once_with(view=None)
-    mock_interaction.edit_original_message.assert_called_once()
-    assert mock_interaction.edit_original_message.call_args.kwargs["attachments"][0] is photo
+    mock_interaction.edit_original_response.assert_called_once()
+    assert mock_interaction.edit_original_response.call_args.kwargs["attachments"][0] is photo
     mock_bot.give_game_points.assert_called_once_with(mock_interaction.user, "tictactoe", 0, 0)
     assert view.is_finished()
     for button in view._buttons:
@@ -134,8 +134,8 @@ async def test_view_tie(_unused_mock_generator, photo, event_loop, mocker: Mocke
     mock_interaction.response = mocker.AsyncMock(spec=discord.InteractionResponse)
     await view.move(mock_interaction, view._buttons[1], 0, 1)
     mock_interaction.response.edit_message.assert_called_once_with(view=None)
-    mock_interaction.edit_original_message.assert_called_once()
-    assert mock_interaction.edit_original_message.call_args.kwargs["attachments"][0] is photo
+    mock_interaction.edit_original_response.assert_called_once()
+    assert mock_interaction.edit_original_response.call_args.kwargs["attachments"][0] is photo
     mock_bot.give_game_points.assert_called_once_with(mock_interaction.user, "tictactoe", 1, 0)
     assert view.is_finished()
     for button in view._buttons:
@@ -156,8 +156,8 @@ async def test_move_buttons(button, _unused_mock_generator, photo, event_loop, m
     mock_interaction.response = mocker.AsyncMock(spec=discord.InteractionResponse)
     await view._buttons[button].callback(mock_interaction)
     mock_interaction.response.edit_message.assert_called_once_with(view=None)
-    mock_interaction.edit_original_message.assert_called_once()
-    assert mock_interaction.edit_original_message.call_args.kwargs["attachments"][0] is photo
+    mock_interaction.edit_original_response.assert_called_once()
+    assert mock_interaction.edit_original_response.call_args.kwargs["attachments"][0] is photo
     assert view._buttons[button].disabled
 
 
