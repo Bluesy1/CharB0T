@@ -37,6 +37,7 @@ from discord.utils import MISSING
 from fluent.runtime import FluentResourceLoader
 
 from . import Config, EXTENSIONS, errors
+from .translator import Translator
 
 
 _VT = TypeVar("_VT")
@@ -188,6 +189,8 @@ class CBot(commands.Bot):
         Also loads the cogs, and prints who the bot is logged in as
         """
         print("Setup started")
+        await self.tree.set_translator(Translator())
+        print("Loaded translator")
         webhooks = Config["discord"]["webhooks"]
         self.program_logs = await self.fetch_webhook(webhooks["program_logs"])
         self.error_logs = await self.fetch_webhook(webhooks["error"])
