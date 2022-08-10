@@ -30,11 +30,29 @@ from fluent.runtime import FluentResourceLoader, FluentLocalization
 
 
 class Translator(app_commands.Translator):
+    """Custom translator class for Charbot"""
+
     def __init__(self):
         self.loader = FluentResourceLoader("i18n/{locale}")
         self.supported_locales = [Locale.american_english]
 
     async def translate(self, string: locale_str, locale: Locale, context: TranslationContext) -> str | None:
+        """Translate a string using the Fluent syntax
+
+        Parameters
+        ----------
+        string: locale_str
+            The string to translate
+        locale: Locale
+            The locale to translate to
+        context: TranslationContext
+            The context to use for translation
+
+        Returns
+        -------
+        str | None
+            The translated string or None if the string is not found
+        """
         if locale not in self.supported_locales:
             return None
         path = pathlib.Path(__file__).parent.parent / "i18n" / locale.value

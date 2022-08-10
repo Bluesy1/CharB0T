@@ -47,7 +47,7 @@ class MissingProgramRole(MissingAnyRole):
         missing = [f"'{role}'" for role in roles]
 
         if len(missing) > 2:
-            fmt = "{}, or {}".format(", ".join(missing[:-1]), missing[-1])
+            fmt = f"{', '.join(missing[:-1])}, or {missing[-1]}"
         else:
             fmt = " or ".join(missing)
         translator = FluentLocalization([locale.value, "en-US"], ["errors.ftl"], LOADER)
