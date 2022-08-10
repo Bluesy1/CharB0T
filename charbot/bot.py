@@ -34,8 +34,10 @@ import discord
 from discord import app_commands
 from discord.ext import commands
 from discord.utils import MISSING
+from fluent.runtime import FluentResourceLoader, FluentLocalization
 
 from . import Config, EXTENSIONS, errors
+from .translator import Translator
 
 
 _VT = TypeVar("_VT")
@@ -177,6 +179,7 @@ class CBot(commands.Bot):
         self.error_logs: discord.Webhook = MISSING
         self.giveaway_webhook: discord.Webhook = MISSING
         self.holder: Holder = Holder()
+        self.localizer_loader = FluentResourceLoader("i18n/{locale}")
 
     async def setup_hook(self):
         """Initialize hook for the bot.
@@ -186,6 +189,8 @@ class CBot(commands.Bot):
         Also loads the cogs, and prints who the bot is logged in as
         """
         print("Setup started")
+        await self.tree.set_translator(Translator())
+        print("Loaded translator")
         webhooks = Config["discord"]["webhooks"]
         self.program_logs = await self.fetch_webhook(webhooks["program_logs"])
         self.error_logs = await self.fetch_webhook(webhooks["error"])
@@ -403,6 +408,8 @@ class CBot(commands.Bot):
 class Tree(app_commands.CommandTree[CBot]):
     """Command tree for charbot."""
 
+    translator: Translator
+
     def __init__(self, bot: CBot):
         """Initialize the command tree."""
         super().__init__(client=bot)
@@ -420,38 +427,43 @@ class Tree(app_commands.CommandTree[CBot]):
         error: discord.app_commands.AppCommandError
             The Exception raised.
         """
+        if not interaction.response.is_done():
+            await interaction.response.defer(ephemeral=True)
+        fluent = FluentLocalization(
+            [interaction.locale.value, "en-US"],
+            ["errors.ftl"],
+            self.client.localizer_loader,
+        )
         command = interaction.command
         if isinstance(command, (app_commands.Command, app_commands.ContextMenu)):
-            if isinstance(error, (errors.MissingProgramRole, errors.NoPoolFound)):
+            if isinstance(error, (errors.MissingProgramRole, errors.NoPoolFound, errors.WrongChannelError)):
                 message = error.message
             elif isinstance(error, app_commands.MissingAnyRole):
-                message = (
-                    f"{interaction.user.mention}, you don't have any of the required role(s) to use {command.name}."
+                message = fluent.format_value(
+                    "missing-any-role", {"user": interaction.user.mention, "command": command.qualified_name}
                 )
+                if message == "missing-any-role" or message is None:
+                    message = "You are missing a role to use this command."
             elif isinstance(error, errors.WrongChannelError):
                 message = f"{interaction.user.mention}, {error}"
             elif isinstance(error, app_commands.NoPrivateMessage):
                 message = error.args[0]
             elif isinstance(error, app_commands.CheckFailure):
-                message = f"{interaction.user.mention}, you can't use {command.name}."
+                message = fluent.format_value(
+                    "check-failed", {"user": interaction.user.mention, "command": command.qualified_name}
+                )
+                if message == "check-failed" or message is None:
+                    message = "You can't use this command."
             elif isinstance(error, app_commands.CommandInvokeError):
-                orig_error = error.original or error
-                message = (
-                    f"{interaction.user.mention}, an error occurred while executing {command.name}"
-                    f", Bluesy has been notified."
+                message = fluent.format_value(
+                    "bad-code", {"user": interaction.user.mention, "command": command.qualified_name}
                 )
-                await self.client.error_logs.send(
-                    f"{interaction.user.mention} tried to execute command {command.name!r} but an error "
-                    f"occurred:\n{orig_error}",
-                    allowed_mentions=discord.AllowedMentions(users=False, roles=False, everyone=False),
-                )
+                if message == "bad-code" or message is None:
+                    message = "An error occured, Bluesy has been notified."
                 self.logger.error("Ignoring exception in command %r", command.name, exc_info=error)
             else:
                 message = "An error occurred while executing the command."
-            if interaction.response.is_done():
-                await interaction.followup.send(message)
-            else:
-                await interaction.response.send_message(message, ephemeral=True)
+            await interaction.response.send_message(message, ephemeral=True)
         else:
             await self.client.error_logs.send(f"Ignoring exception in command tree: {error}")
             self.logger.error("Ignoring exception in command tree", exc_info=error)

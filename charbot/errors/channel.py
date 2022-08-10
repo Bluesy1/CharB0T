@@ -23,7 +23,12 @@
 # SOFTWARE.
 #  ----------------------------------------------------------------------------
 """Wrong channel error."""
+import discord
 from discord.app_commands import AppCommandError
+from fluent.runtime import FluentResourceLoader, FluentLocalization
+from fluent.runtime.types import fluent_number
+
+LOADER = FluentResourceLoader("i18n/{locale}")
 
 
 class WrongChannelError(AppCommandError):
@@ -37,11 +42,15 @@ class WrongChannelError(AppCommandError):
         The channel ID the command should be run in.
     """
 
-    def __init__(self, channel: int):
+    def __init__(self, channel: int, locale: discord.Locale):
         """Init."""
         super().__init__()
+        translator = FluentLocalization([locale.value, "en-US"], ["errors.ftl"], LOADER)
+        self.message = translator.format_value(
+            "wrong-channel", {"channelid": fluent_number(channel, useGrouping=False)}
+        )
         self._channel: int = channel
 
     def __str__(self):
         """Get the error as a string."""
-        return f"This command can only be run in the channel <#{self._channel}> ."
+        return self.message

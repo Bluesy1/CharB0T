@@ -37,6 +37,7 @@ from discord import Interaction, app_commands
 from discord.ext import commands, tasks
 from discord.utils import utcnow
 from disrank.generator import Generator
+from fluent.runtime import FluentLocalization
 
 from . import CBot, Config
 
@@ -210,10 +211,10 @@ class Leveling(commands.Cog):
             elif level >= 30:
                 await member.add_roles(discord.Object(969629622453039104), reason=f"Rejoined at level {level}")
 
-    @app_commands.command(name="rank")
+    @app_commands.command()
     @app_commands.guild_only()
     @app_commands.checks.cooldown(1, 3600, key=lambda interaction: interaction.user.id)
-    async def rank_command(self, interaction: Interaction, user: Optional[discord.Member] = None):
+    async def rank(self, interaction: Interaction, user: Optional[discord.Member] = None):
         """Check your or someone's level and rank.
 
         Parameters
@@ -237,7 +238,11 @@ class Leveling(commands.Cog):
             try:
                 user_record: asyncpg.Record = list(filter(lambda x: x["id"] == member.id, users))[0]
             except IndexError:
-                await interaction.followup.send("🚫 You aren't ranked yet. Send some messages first, then try again.")
+                await interaction.followup.send(
+                    FluentLocalization(
+                        [interaction.locale.value, "en-US"], ["dice.ftl"], self.bot.localizer_loader
+                    ).format_value("rank-error")
+                )
                 return
         card: Callable[[], BytesIO] = functools.partial(
             self.generator.generate_profile,

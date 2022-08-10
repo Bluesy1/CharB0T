@@ -28,20 +28,21 @@ import random
 import discord
 from discord.ext import commands
 from discord.ext.commands import Cog, Context
+from fluent.runtime import FluentLocalization
+
+from charbot import CBot
 
 
-def roll(arg: str) -> str:
+def roll(arg: str, user: str, i18n: FluentLocalization) -> str:
     """Dice roller.
 
     Parameters
     ----------
     arg : str
         Dice roll string
+    user: str
+        Name to atribute to the user
     """
-    roll_error = (
-        "Error invalid argument: specified dice can only be d<int>, or if a constant modifier must be a perfect integer"
-        ", positive or negative, connected with `+`, and no spaces."
-    )
     if "+" in arg:
         dice = arg.split("+")
     else:
@@ -68,14 +69,13 @@ def roll(arg: str) -> str:
                     rolls.append(int(die))
                     sums += int(die)
                 except ValueError:
-                    return roll_error
-        output = "`"
-        for roll1 in rolls:
-            output += str(roll1) + ", "
-        output = output[:-2]
-        return f"rolled `{arg}` got {output}` for a total value of: {str(sums)}"
+                    return i18n.format_value("error", args={"user": user})
+        output = ", ".join(f"{res}" for res in rolls)
+        return i18n.format_value(
+            "success", args={"user": user, "dice": arg, "total": sums, "result": output, "locale": "en-US"}
+        )
     except Exception:  # skipcq: PYL-W0703
-        return roll_error
+        return i18n.format_value("error", args={"user": user})
 
 
 class Roll(Cog):
@@ -118,7 +118,7 @@ class Roll(Cog):
         return any(role.id in (338173415527677954, 253752685357039617, 225413350874546176) for role in author.roles)
 
     @commands.command()
-    async def roll(self, ctx: Context, *, dice: str):
+    async def roll(self, ctx: Context[CBot], *, dice: str):
         """Dice roller.
 
         Parameters
@@ -128,7 +128,10 @@ class Roll(Cog):
         dice : str
             The dice to roll.
         """
-        await ctx.reply(f"{ctx.author.mention} {roll(dice)}", mention_author=True)
+        await ctx.reply(
+            roll(dice, ctx.author.mention, FluentLocalization(["en-US"], ["dice.ftl"], ctx.bot.localizer_loader)),
+            mention_author=True,
+        )
 
 
 async def setup(bot: commands.Bot):
