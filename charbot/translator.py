@@ -31,7 +31,7 @@ from fluent.runtime import FluentResourceLoader, FluentLocalization
 
 class Translator(app_commands.Translator):
     def __init__(self):
-        self.loader = FluentResourceLoader("i18n")
+        self.loader = FluentResourceLoader("i18n/{locale}")
         self.supported_locales = [Locale.american_english]
 
     async def translate(self, string: locale_str, locale: Locale, context: TranslationContext) -> str | None:

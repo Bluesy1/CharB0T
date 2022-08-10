@@ -28,7 +28,7 @@ from discord.app_commands import MissingAnyRole
 from fluent.runtime import FluentResourceLoader, FluentLocalization
 
 
-LOADER = FluentResourceLoader("i18n")
+LOADER = FluentResourceLoader("i18n/{locale}")
 
 
 class MissingProgramRole(MissingAnyRole):
@@ -50,7 +50,7 @@ class MissingProgramRole(MissingAnyRole):
             fmt = "{}, or {}".format(", ".join(missing[:-1]), missing[-1])
         else:
             fmt = " or ".join(missing)
-        translator = FluentLocalization(LOADER, [locale.value, "en-US"], ["errors.ftl"])
+        translator = FluentLocalization([locale.value, "en-US"], ["errors.ftl"], LOADER)
         self.message = translator.format_value("missing-program-role", {"roles": fmt})
 
     def __str__(self):

@@ -26,9 +26,9 @@
 import discord
 from discord.app_commands import AppCommandError
 from fluent.runtime import FluentResourceLoader, FluentLocalization
+from fluent.runtime.types import fluent_number
 
-
-LOADER = FluentResourceLoader("i18n")
+LOADER = FluentResourceLoader("i18n/{locale}")
 
 
 class WrongChannelError(AppCommandError):
@@ -45,8 +45,10 @@ class WrongChannelError(AppCommandError):
     def __init__(self, channel: int, locale: discord.Locale):
         """Init."""
         super().__init__()
-        translator = FluentLocalization(LOADER, [locale.value, "en-US"], ["errors.ftl"])
-        self.message = translator.format_value("wrong-channel", {"channelid": self._channel})
+        translator = FluentLocalization([locale.value, "en-US"], ["errors.ftl"], LOADER)
+        self.message = translator.format_value(
+            "wrong-channel", {"channelid": fluent_number(channel, useGrouping=False)}
+        )
         self._channel: int = channel
 
     def __str__(self):

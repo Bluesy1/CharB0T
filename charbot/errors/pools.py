@@ -28,7 +28,7 @@ from discord.app_commands import CheckFailure
 from fluent.runtime import FluentResourceLoader, FluentLocalization
 
 
-LOADER = FluentResourceLoader("i18n")
+LOADER = FluentResourceLoader("i18n/{locale}")
 
 
 class NoPoolFound(CheckFailure):
@@ -36,7 +36,7 @@ class NoPoolFound(CheckFailure):
 
     def __init__(self, pool: str, locale: discord.Locale):
         """Init."""
-        translator = FluentLocalization(LOADER, [locale.value, "en-US"], ["errors.ftl"])
+        translator = FluentLocalization([locale.value, "en-US"], ["errors.ftl"], LOADER)
         message = translator.format_value("no-pool-found", {"pool": pool})
         super().__init__(pool, message)
         self.message = message
