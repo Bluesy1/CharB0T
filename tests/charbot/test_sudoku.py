@@ -82,7 +82,7 @@ async def test_view_keypad_callback_enter_block(_unused_puzzle_unsolved, mocker:
     assert not view.seven.disabled
     assert view.eight.disabled
     assert view.nine.disabled
-    mock_interaction.edit_original_message.assert_called_once()
+    mock_interaction.edit_original_response.assert_called_once()
 
 
 @pytest.mark.asyncio
@@ -109,7 +109,7 @@ async def test_view_keypad_callback_enter_cell(_unused_puzzle_unsolved, mocker: 
     assert not view.seven.disabled
     assert not view.eight.disabled
     assert not view.nine.disabled
-    mock_interaction.edit_original_message.assert_called_once()
+    mock_interaction.edit_original_response.assert_called_once()
 
 
 @pytest.mark.asyncio
@@ -142,7 +142,7 @@ async def test_view_keypad_callback_set_cell_value(_unused_puzzle_unsolved, mock
     assert view.eight.disabled
     assert view.nine.disabled
     assert view.block is _unused_puzzle_unsolved.blocks[0]
-    mock_interaction.edit_original_message.assert_called_once()
+    mock_interaction.edit_original_response.assert_called_once()
 
 
 @pytest.mark.asyncio
@@ -198,7 +198,7 @@ async def test_view_keypad_callback_try_set_static_cell(_unused_puzzle_unsolved,
     mock_interaction.reset_mock()
     mock_interaction.response.reset_mock()
     await view.keypad_callback(mock_interaction, mock_button, 2)
-    mock_interaction.edit_original_message.assert_called_once()
+    mock_interaction.edit_original_response.assert_called_once()
     assert view.cell is discord.utils.MISSING
     assert view.block.selected
 
@@ -253,7 +253,7 @@ async def test_view_on_win(_unused_puzzle_solved, mocker: MockerFixture):
     mock_interaction.reset_mock()
     mock_interaction.response.reset_mock()
     await view.keypad_callback(mock_interaction, mock_button, 7)
-    mock_interaction.edit_original_message.assert_called_once()
+    mock_interaction.edit_original_response.assert_called_once()
     assert view.is_finished()
     args = mock_bot.pool.execute.call_args.args
     assert args[0] == "UPDATE users SET sudoku_time = $1 WHERE id = $2 and sudoku_time > $1"
@@ -310,7 +310,7 @@ async def test_one_button_callback(_unused_puzzle_unsolved, mocker: MockerFixtur
     mock_interaction.response = mocker.AsyncMock(spec=discord.InteractionResponse)
     await view.one.callback(mock_interaction)
     mock_interaction.response.defer.assert_called_once()
-    mock_interaction.edit_original_message.assert_called_once()
+    mock_interaction.edit_original_response.assert_called_once()
 
 
 @pytest.mark.asyncio
@@ -323,7 +323,7 @@ async def test_two_button_callback(_unused_puzzle_unsolved, mocker: MockerFixtur
     mock_interaction.response = mocker.AsyncMock(spec=discord.InteractionResponse)
     await view.two.callback(mock_interaction)
     mock_interaction.response.defer.assert_called_once()
-    mock_interaction.edit_original_message.assert_called_once()
+    mock_interaction.edit_original_response.assert_called_once()
 
 
 @pytest.mark.asyncio
@@ -336,7 +336,7 @@ async def test_three_button_callback(_unused_puzzle_unsolved, mocker: MockerFixt
     mock_interaction.response = mocker.AsyncMock(spec=discord.InteractionResponse)
     await view.three.callback(mock_interaction)
     mock_interaction.response.defer.assert_called_once()
-    mock_interaction.edit_original_message.assert_called_once()
+    mock_interaction.edit_original_response.assert_called_once()
 
 
 @pytest.mark.asyncio
@@ -349,7 +349,7 @@ async def test_four_button_callback(_unused_puzzle_unsolved, mocker: MockerFixtu
     mock_interaction.response = mocker.AsyncMock(spec=discord.InteractionResponse)
     await view.four.callback(mock_interaction)
     mock_interaction.response.defer.assert_called_once()
-    mock_interaction.edit_original_message.assert_called_once()
+    mock_interaction.edit_original_response.assert_called_once()
 
 
 # noinspection DuplicatedCode
@@ -363,7 +363,7 @@ async def test_five_button_callback(_unused_puzzle_unsolved, mocker: MockerFixtu
     mock_interaction.response = mocker.AsyncMock(spec=discord.InteractionResponse)
     await view.five.callback(mock_interaction)
     mock_interaction.response.defer.assert_called_once()
-    mock_interaction.edit_original_message.assert_called_once()
+    mock_interaction.edit_original_response.assert_called_once()
 
 
 @pytest.mark.asyncio
@@ -376,7 +376,7 @@ async def test_six_button_callback(_unused_puzzle_unsolved, mocker: MockerFixtur
     mock_interaction.response = mocker.AsyncMock(spec=discord.InteractionResponse)
     await view.six.callback(mock_interaction)
     mock_interaction.response.defer.assert_called_once()
-    mock_interaction.edit_original_message.assert_called_once()
+    mock_interaction.edit_original_response.assert_called_once()
 
 
 @pytest.mark.asyncio
@@ -389,7 +389,7 @@ async def test_seven_button_callback(_unused_puzzle_unsolved, mocker: MockerFixt
     mock_interaction.response = mocker.AsyncMock(spec=discord.InteractionResponse)
     await view.seven.callback(mock_interaction)
     mock_interaction.response.defer.assert_called_once()
-    mock_interaction.edit_original_message.assert_called_once()
+    mock_interaction.edit_original_response.assert_called_once()
 
 
 @pytest.mark.asyncio
@@ -402,7 +402,7 @@ async def test_eight_button_callback(_unused_puzzle_unsolved, mocker: MockerFixt
     mock_interaction.response = mocker.AsyncMock(spec=discord.InteractionResponse)
     await view.eight.callback(mock_interaction)
     mock_interaction.response.defer.assert_called_once()
-    mock_interaction.edit_original_message.assert_called_once()
+    mock_interaction.edit_original_response.assert_called_once()
 
 
 @pytest.mark.asyncio
@@ -415,7 +415,7 @@ async def test_nine_button_callback(_unused_puzzle_unsolved, mocker: MockerFixtu
     mock_interaction.response = mocker.AsyncMock(spec=discord.InteractionResponse)
     await view.nine.callback(mock_interaction)
     mock_interaction.response.defer.assert_called_once()
-    mock_interaction.edit_original_message.assert_called_once()
+    mock_interaction.edit_original_response.assert_called_once()
 
 
 @pytest.mark.asyncio

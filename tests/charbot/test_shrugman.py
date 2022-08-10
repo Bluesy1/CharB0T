@@ -82,9 +82,9 @@ async def test_modal_valid_guess(_unused_not_random, mocker: MockerFixture):
     mock_interaction.user = mocker.Mock(spec=discord.Member)
     await modal.on_submit(mock_interaction)
     mock_interaction.response.defer.assert_called_once()
-    mock_interaction.edit_original_message.assert_called_once()
+    mock_interaction.edit_original_response.assert_called_once()
     mock_bot.give_game_points.assert_called_once_with(mock_interaction.user, "shrugman", 2, 5)
-    embed = mock_interaction.edit_original_message.call_args.kwargs["embed"]
+    embed = mock_interaction.edit_original_response.call_args.kwargs["embed"]
     assert embed.footer.text == "Play by typing /programs shrugman"
 
 
@@ -100,9 +100,9 @@ async def test_modal_wrong_guess(_unused_not_random, mocker: MockerFixture):
     mock_interaction.user = mocker.Mock(spec=discord.Member)
     await modal.on_submit(mock_interaction)
     mock_interaction.response.defer.assert_called_once()
-    mock_interaction.edit_original_message.assert_called_once()
+    mock_interaction.edit_original_response.assert_called_once()
     mock_bot.give_game_points.assert_called_once_with(mock_interaction.user, "shrugman", 2, 0)
-    embed = mock_interaction.edit_original_message.call_args.kwargs["embed"]
+    embed = mock_interaction.edit_original_response.call_args.kwargs["embed"]
     assert embed.footer.text == "Play by typing /programs shrugman"
 
 

@@ -35,7 +35,7 @@ async def test_view_move_method(mocker: MockerFixture):
     mock_interaction.response = mocker.AsyncMock(spec=discord.InteractionResponse)
     await view.move(mock_interaction, view._buttons[0], 0)
     mock_interaction.response.edit_message.assert_called_once_with(view=None)
-    mock_interaction.edit_original_message.assert_called_once()
+    mock_interaction.edit_original_response.assert_called_once()
     assert view.top_left.disabled
 
 
@@ -52,7 +52,7 @@ async def test_view_player_win(mocker: MockerFixture):
     mock_interaction.response = mocker.AsyncMock(spec=discord.InteractionResponse)
     await view.move(mock_interaction, view._buttons[0], 0)
     mock_interaction.response.edit_message.assert_called_once_with(view=None)
-    mock_interaction.edit_original_message.assert_called_once()
+    mock_interaction.edit_original_response.assert_called_once()
     assert view.top_left.disabled
 
 
@@ -74,7 +74,7 @@ async def test_view_bot_win(mocker: MockerFixture):
     mock_interaction.response = mocker.AsyncMock(spec=discord.InteractionResponse)
     await view.move(mock_interaction, view._buttons[7], 7)
     mock_interaction.response.edit_message.assert_called_once_with(view=None)
-    mock_interaction.edit_original_message.assert_called_once()
+    mock_interaction.edit_original_response.assert_called_once()
     assert view.is_finished()
     for button in view._buttons:
         assert button.disabled
@@ -98,7 +98,7 @@ async def test_view_tie(mocker: MockerFixture):
     mock_interaction.response = mocker.AsyncMock(spec=discord.InteractionResponse)
     await view.move(mock_interaction, view._buttons[1], 1)
     mock_interaction.response.edit_message.assert_called_once_with(view=None)
-    mock_interaction.edit_original_message.assert_called_once()
+    mock_interaction.edit_original_response.assert_called_once()
     assert view.is_finished()
     for button in view._buttons:
         assert button.disabled
@@ -115,7 +115,7 @@ async def test_move_buttons(button, mocker: MockerFixture):
     mock_interaction.response = mocker.AsyncMock(spec=discord.InteractionResponse)
     await view._buttons[button].callback(mock_interaction)
     mock_interaction.response.edit_message.assert_called_once_with(view=None)
-    mock_interaction.edit_original_message.assert_called_once()
+    mock_interaction.edit_original_response.assert_called_once()
     assert view._buttons[button].disabled
 
 
