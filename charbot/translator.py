@@ -72,9 +72,9 @@ class Translator(app_commands.Translator):
         elif context.location is TranslationContextLocation.group_description:
             key = f"{context.data.qualified_name.replace(' ', '-')}-description"
         elif context.location is TranslationContextLocation.parameter_name:
-            key = f"parameter-{context.data.name}-name"
+            key = f"{context.data.command.qualified_name.replace(' ', '-')}-parameter-{context.data.name}-name"
         elif context.location is TranslationContextLocation.parameter_description:
-            key = f"parameter-{context.data.name}-description"
+            key = f"{context.data.command.qualified_name.replace(' ', '-')}-parameter-{context.data.name}-description"
         elif context.location is TranslationContextLocation.choice_name:
             key = f"choice-{context.data.name}-name"
         else:

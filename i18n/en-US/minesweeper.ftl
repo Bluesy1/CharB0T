@@ -3,6 +3,7 @@ select-row-placehholder = Select a row
 select-col-description = Change the column to {$letter}
 select-col-placehholder = Select a column
 
+#Chord is not in the musical sense, but as the follwing move: http://www.minesweeper.info/wiki/Chord
 reveal-label = Reveal
 chord-label = Chord
 flag-label = Flag

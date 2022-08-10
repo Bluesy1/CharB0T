@@ -5,25 +5,25 @@ programs-beta-name = beta
 programs-beta-description = Beta programs..
 
 # Commands
-sudoku-name = sudoku
-sudoku-description = Play a Sudoku puzzle
-parameter-mobile-name = mobile
-parameter-mobile-description = Whether to turn off formatting that only works on desktop.
+programs-sudoku-name = sudoku
+programs-sudoku-description = Play a Sudoku puzzle
+programs-sudoku-parameter-mobile-name = mobile
+programs-sudoku-parameter-mobile-description = Whether to turn off formatting that only works on desktop.
 
-tictactoe-name = tictactoe
-tictactoe-description = Play a game of Tic Tac Toe game
-parameter-letter-name = letter
-parameter-letter-description = Do you want to play as X or O?
-parameter-easy-name = easy
-parameter-easy-description = Set this to false for a harder variant of the AI.
+programs-tictactoe-name = tictactoe
+programs-tictactoe-description = Play a game of Tic Tac Toe game
+programs-tictactoe-parameter-letter-name = letter
+programs-tictactoe-parameter-letter-description = Do you want to play as X or O?
+programs-tictactoe-parameter-easy-name = easy
+programs-tictactoe-parameter-easy-description = Set this to false for a harder variant of the AI.
 
-shrugman-name = shrugman
-shrugman-description = Play the shrugman minigame. (Hangman clone)
+programs-shrugman-name = shrugman
+programs-shrugman-description = Play the shrugman minigame. (Hangman clone)
 
-rtictactoe-name = rtictactoe
-rtictactoe-description = [Beta] Play a game of Tic Tac Toe to help me test the new implemenatation. Doesn't give rep.
-parameter-difficulty-name = difficulty
-parameter-difficulty-description = The difficulty of the game.
+programs-beta-rtictactoe-name = rtictactoe
+programs-beta-rtictactoe-description = [Beta] Play a game of Tic Tac Toe to help me test the new implemenatation. Doesn't give rep.
+programs-beta-rtictactoe-parameter-difficulty-name = difficulty
+programs-beta-rtictactoe-parameter-difficulty-description = The difficulty of the game.
 
 rollcall-name = rollcall
 rollcall-description = Claim your daily reputation bonus.
