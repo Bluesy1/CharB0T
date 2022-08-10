@@ -60,11 +60,11 @@ class Reputation(commands.Cog, name="Programs"):
         if channel.id == 839690221083820032:
             return True
         if channel.id != self.bot.CHANNEL_ID:
-            raise errors.WrongChannelError(self.bot.CHANNEL_ID)
+            raise errors.WrongChannelError(self.bot.CHANNEL_ID, interaction.locale)
         user = interaction.user
         assert isinstance(user, discord.Member)  # skipcq: BAN-B101
         if not any(role.id in self.bot.ALLOWED_ROLES for role in user.roles):
-            raise errors.MissingProgramRole(self.bot.ALLOWED_ROLES)
+            raise errors.MissingProgramRole(self.bot.ALLOWED_ROLES, interaction.locale)
         return True
 
     programs = app_commands.Group(name="programs", description="Programs to gain you rep.", guild_only=True)

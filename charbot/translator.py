@@ -32,12 +32,19 @@ from fluent.runtime import FluentResourceLoader, FluentLocalization
 class Translator(app_commands.Translator):
     def __init__(self):
         self.loader = FluentResourceLoader("i18n")
+        self.supported_locales = [Locale.american_english]
 
     async def translate(self, string: locale_str, locale: Locale, context: TranslationContext) -> str | None:
-        path = pathlib.Path(f"i18n/{locale.value}")
+        if locale not in self.supported_locales:
+            return None
+        path = pathlib.Path(__file__).parent.parent / "i18n" / locale.value
         if not path.exists():
             return None
-        fluent = FluentLocalization([locale.value], ["dice.ftl", "minesweeper.ftl", "programs.ftl"], self.loader)
+        fluent = FluentLocalization(
+            [locale.value],
+            ["dice.ftl", "minesweeper.ftl", "programs.ftl", "errors.ftl", "giveaway.ftl", "levels.ftl"],
+            self.loader,
+        )
         if context.location is TranslationContextLocation.command_name:
             key = f"{context.data.qualified_name.replace(' ', '-')}-name"
         elif context.location is TranslationContextLocation.command_description:
@@ -54,7 +61,7 @@ class Translator(app_commands.Translator):
             key = f"choice-{context.data.name}-name"
         else:
             key = f"other-{string.message.replace(' ', '-')}"
-        translated = fluent.format_value(key)
+        translated = fluent.format_value(key, string.extras)
         if translated == key or translated is None:
             return None
         return translated

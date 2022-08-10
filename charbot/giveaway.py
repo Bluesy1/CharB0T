@@ -37,6 +37,7 @@ import pandas as pd
 from discord import ui
 from discord.ext import commands, tasks
 from discord.utils import MISSING, utcnow
+from fluent.runtime import FluentLocalization
 
 from . import CBot, Config, errors
 
@@ -155,7 +156,7 @@ class GiveawayView(ui.View):
         user = interaction.user
         assert isinstance(user, discord.Member)  # skipcq: BAN-B101
         if not any(role.id in self.bot.ALLOWED_ROLES for role in user.roles):
-            raise errors.MissingProgramRole(self.bot.ALLOWED_ROLES)
+            raise errors.MissingProgramRole(self.bot.ALLOWED_ROLES, interaction.locale)
         return True
 
     async def on_error(self, interaction: discord.Interaction, error: Exception, item: ui.Item[Any]) -> None:
@@ -173,7 +174,6 @@ class GiveawayView(ui.View):
         if isinstance(error, errors.MissingProgramRole):
             await interaction.response.send_message(error.message, ephemeral=True)
         else:
-            await self.bot.error_logs.send(f"Ignoring exception in view {self} for item {item}: {error}")
             await super(GiveawayView, self).on_error(interaction, error, item)
 
     def _prep_view_for_draw(self):
@@ -342,10 +342,10 @@ class GiveawayView(ui.View):
         async with self.bot.pool.acquire() as conn:
             wins = await conn.fetchval("SELECT wins FROM winners WHERE id = $1", interaction.user.id) or 0
             if wins >= 3:
-                await interaction.response.send_message(
-                    "You have won a giveaway recently, please wait until the first of the next month to bid again.",
-                    ephemeral=True,
+                translator = FluentLocalization(
+                    [interaction.locale.value, "en-US"], ["giveaway.ftl"], self.bot.localizer_loader
                 )
+                await interaction.response.send_message(translator.format_value("giveaway-try-later"), ephemeral=True)
                 return
         modal = BidModal(self.bot, self)
         await interaction.response.send_modal(modal)
@@ -370,19 +370,18 @@ class GiveawayView(ui.View):
             The button that was pressed.
         """
         async with self.bot.pool.acquire() as conn:
+            translator = FluentLocalization(
+                [interaction.locale.value, "en-US"], ["giveaway.ftl"], self.bot.localizer_loader
+            )
             wins = await conn.fetchval("SELECT wins FROM winners WHERE id = $1", interaction.user.id) or 0
             if wins >= 3:
-                await interaction.response.send_message(
-                    "You have won a giveaway recently, please wait until the first of the next month to bid again.",
-                    ephemeral=True,
-                )
+                await interaction.response.send_message(translator.format_value("giveaway-try-later"), ephemeral=True)
                 return
             record = await conn.fetchval("SELECT bid FROM bids WHERE id = $1", interaction.user.id)
             bid: int = record if record is not None else 0
         chance = bid * 100 / self.total_entries
         await interaction.response.send_message(
-            f"You have bid {bid} entries, giving you a {chance:.2f}% chance of winning, and you have"
-            f" won {wins}/3 giveaways you can this month!",
+            translator.format_value("giveaway-check-success", {"bid": bid, "chance": chance, "wins": wins}),
             ephemeral=True,
         )
 
@@ -404,9 +403,12 @@ class GiveawayView(ui.View):
         assert isinstance(user, discord.Member)  # skipcq: BAN-B101
         assert isinstance(clientuser, discord.ClientUser)  # skipcq: BAN-B101
         async with self.role_semaphore:
+            translator = FluentLocalization(
+                [interaction.locale.value, "en-US"], ["giveaway.ftl"], self.bot.localizer_loader
+            )
             if not any(role.id == 972886729231044638 for role in user.roles):
                 await user.add_roles(discord.Object(id=972886729231044638), reason="Toggled giveaway alerts.")
-                await interaction.followup.send("You will now receive giveaway alerts.")
+                await interaction.followup.send(translator.format_value("giveaway-alerts-enable"))
                 await self.bot.program_logs.send(
                     f"Added giveaway alerts to {user.mention}.",
                     username=clientuser.name,
@@ -415,7 +417,7 @@ class GiveawayView(ui.View):
                 )
             else:
                 await user.remove_roles(discord.Object(id=972886729231044638), reason="Toggled giveaway alerts.")
-                await interaction.followup.send("You will no longer receive giveaway alerts.")
+                await interaction.followup.send(translator.format_value("giveaway-alerts-disable"))
                 await self.bot.program_logs.send(
                     f"Removed giveaway alerts from {user.mention}.",
                     username=clientuser.name,

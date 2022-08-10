@@ -23,13 +23,20 @@
 # SOFTWARE.
 #  ----------------------------------------------------------------------------
 """Wrong roles error."""
+import discord
 from discord.app_commands import CheckFailure
+from fluent.runtime import FluentResourceLoader, FluentLocalization
+
+
+LOADER = FluentResourceLoader("i18n")
 
 
 class NoPoolFound(CheckFailure):
     """No pool found."""
 
-    def __init__(self, pool: str, message: str | None = None):
+    def __init__(self, pool: str, locale: discord.Locale):
         """Init."""
-        super().__init__(pool, message or f"{pool} pool not found. Please choose one from the autocomplete.")
-        self.message = message or f"{pool} pool not found. Please choose one from the autocomplete."
+        translator = FluentLocalization(LOADER, [locale.value, "en-US"], ["errors.ftl"])
+        message = translator.format_value("no-pool-found", {"pool": pool})
+        super().__init__(pool, message)
+        self.message = message

@@ -4,7 +4,7 @@ import sys as __sys
 from .enums import *  # noqa: F403,F401
 
 # noinspection PyUnresolvedReferences
-from ..charbot_rust import tictactoe  # pyright: ignore[reportMissingImports]
+from ..charbot_rust import tictactoe
 
 if hasattr(tictactoe, "__doc__"):
     __doc__ = tictactoe.__doc__
@@ -18,7 +18,7 @@ if hasattr(tictactoe, "__all__"):
     for __name in tictactoe.__all__:
         setattr(__sys.modules[__name__], __name, getattr(tictactoe, __name))
     try:
-        del __name
+        del __name  # pyright: ignore[reportUnboundVariable]
     except NameError:
         pass
 else:

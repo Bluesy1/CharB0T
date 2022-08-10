@@ -1,5 +1,3 @@
-### programs/minesweeper.py
-
 select-row-description = Change the row to {$letter}
 select-row-placehholder = Select a row
 select-col-description = Change the column to {$letter}

@@ -1,5 +1,3 @@
-### programs/--init--.py
-
 # Command Groups
 programs-name = programs
 programs-description = Programs to gain you rep.
