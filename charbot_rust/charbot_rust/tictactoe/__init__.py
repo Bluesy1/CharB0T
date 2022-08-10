@@ -4,7 +4,7 @@ import sys as __sys
 from .enums import *  # noqa: F403,F401
 
 # noinspection PyUnresolvedReferences
-from ..charbot_rust import tictactoe
+from ..charbot_rust import tictactoe  # pyright: ignore[reportMissingImports]
 
 if hasattr(tictactoe, "__doc__"):
     __doc__ = tictactoe.__doc__
