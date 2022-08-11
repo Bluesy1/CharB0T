@@ -84,11 +84,11 @@ def banner(base: str | Color | tuple[Color, Color], username: str, profile: Byte
             raise ValueError("Invalid filepath for base image")
         else:
             if img.size != (1000, 500):
-                img = img.resize((1000, 500))
+                img = img.resize((1000, 250))
     elif isinstance(base, Color):
-        img = Image.new("RGBA", (1000, 500), base.to_rgb())
+        img = Image.new("RGBA", (1000, 250), base.to_rgb())
     else:
-        img = Image.new("RGBA", (1000, 500), 0)
+        img = Image.new("RGBA", (1000, 250), 0)
         draw = ImageDraw.Draw(img)
         for i, color in enumerate(interpolate(base[0].to_rgb(), base[1].to_rgb(), 2000)):
             draw.line([(i, 0), (0, i)], tuple(color), width=1)
