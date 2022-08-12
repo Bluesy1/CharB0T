@@ -51,12 +51,14 @@ def interpolate(f_co: tuple[int, int, int], t_co: tuple[int, int, int], interval
         yield [round(f + det * i) for f, det in zip(f_co, det_co)]
 
 
-def banner(base: str | Color | tuple[Color, Color], username: str, profile: BytesIO, name: str, quote: str) -> BytesIO:
+def banner(
+    base: BytesIO | Color | tuple[Color, Color], username: str, profile: BytesIO, name: str, quote: str
+) -> BytesIO:
     """Create a banner image.
 
     Parameters
     ----------
-    base : str | Color | tuple[Color, Color]
+    base : BytesIO | Color | tuple[Color, Color]
         The file, color, or gradient to use as the base.
     username : str
         The username of the member who owns the banner.
@@ -77,11 +79,11 @@ def banner(base: str | Color | tuple[Color, Color], username: str, profile: Byte
     ValueError
         If the base is invalid.
     """
-    if isinstance(base, str):
+    if isinstance(base, BytesIO):
         try:
             img = Image.open(base)
         except (OSError, ValueError, TypeError):
-            raise ValueError("Invalid filepath for base image")
+            raise ValueError("Invalid base image")
         else:
             if img.size != (1000, 500):
                 img = img.resize((1000, 250))

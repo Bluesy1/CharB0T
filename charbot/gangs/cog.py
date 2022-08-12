@@ -25,11 +25,14 @@
 """Gang war cog file."""
 import asyncio
 import datetime
+import pathlib
+from io import BytesIO
 from typing import cast
 from zoneinfo import ZoneInfo
 
 import asyncpg
 import discord
+from PIL import Image
 from discord import app_commands, ui, utils
 from discord.ext import commands
 
@@ -65,6 +68,7 @@ class Gangs(commands.Cog):
     participate = app_commands.Group(
         name="participate", description="Base group for starting participation in a gang war", parent=gang
     )
+    banner = app_commands.Group(name="banner", description="Base group for managing the user bannera", parent=gang)
 
     async def start_dues_cycle(self):
         """Start the dues cycle."""
@@ -313,3 +317,93 @@ class Gangs(commands.Cog):
                 f"You now have {remaining} rep remaining.\nYou have joined the {gang} Gang!"
             )
             await channel.send(f"Welcome {interaction.user.mention} to the {gang} Gang!")
+
+    @banner.command()  # pyright: ignore[reportGeneralTypeIssues]
+    async def request(
+        self,
+        interaction: Interaction[CBot],
+        quote: app_commands.Range[str, 0, 100],
+        base: discord.Attachment | None = None,
+        color: ColorOpts | None = None,
+        gradient: bool = False,
+    ) -> None:
+        """
+
+        Parameters
+        ----------
+        interaction : Interaction
+            The interaction object for the current context
+        quote: str
+            The quote to use for the banner
+        base: discord.Attachment | None, default None
+            The base image to use for the banner, leave empty if you want a gradient or solid color banner
+        color: ColorOpts | None, default None
+            The color to use for the banner, leave empty if you want a solid gang color banner or image banner
+        gradient: bool, default False
+            Whether to use a gradient banner or solid color, set to true to gradient with your gangs color
+        """
+        await interaction.response.defer(ephemeral=True)
+        conn: asyncpg.Connection
+        async with interaction.client.pool.acquire() as conn, conn.transaction():
+            leader = await conn.fetchrow(
+                "SELECT leader, leadership, u.points AS points FROM gang_members"
+                " JOIN users u on u.id = gang_members.user_id WHERE user_id = $1",
+                interaction.user.id,
+            )
+            if leader is None:
+                await interaction.followup.send("You are not in a gang!")
+                return
+            if leader["leader"] is False and leader["leadership"] is False:
+                await interaction.followup.send("You are not the leadership of your gang!")
+                return
+            if leader["points"] < 500:
+                await interaction.followup.send(
+                    f"You don't have enough rep to request a banner! (Have: {leader['points']}, Need: 500)"
+                )
+                return
+            if base is None and color is None:
+                await interaction.followup.send("You need to specify a base image or color!")
+                return
+            if base is not None and color is not None:
+                await interaction.followup.send("You can't specify both a base image and a color!")
+                return
+            if base is not None:
+                if content_type := base.content_type:
+                    if content_type not in ("image/png", "image/jpeg"):
+                        await interaction.followup.send("The base image must be a PNG or JPEG!")
+                        return
+                try:
+                    path = pathlib.Path(__file__).parent / "user_assets" / f"{interaction.user.id}.png"
+                    img: bytes | None = await base.read()
+
+                    def sync_code(_img: bytes, _path: pathlib.Path):
+                        """Blocking code to run in an executor"""
+                        image = Image.open(BytesIO(_img))
+                        image.save(_path, format="PNG")
+
+                    await asyncio.to_thread(sync_code, img, path)
+                except (discord.DiscordException, OSError, ValueError, TypeError):
+                    await interaction.followup.send("Failed to grab image, try again.")
+                    return
+                insert_color: int | None = None
+            else:
+                if color is None:
+                    _color: int = await conn.fetchval(
+                        "SELECT color FROM gangs WHERE name = (SELECT gang FROM gang_members WHERE user_id = $1)",
+                        interaction.user.id,
+                    )
+                else:
+                    _color = color.value.value
+                img: bytes | None = None
+                insert_color: int | None = _color
+            await conn.execute(
+                "INSERT INTO banners (user_id, quote, color, gradient) VALUES ($1, $2, $3, $4)",
+                interaction.user.id,
+                quote,
+                insert_color,
+                gradient,
+            )
+            remaining: int = await conn.fetchval(
+                "UPDATE users SET points = points - 500 WHERE id = $1 RETURNING points", interaction.user.id
+            )
+            await interaction.followup.send(f"You now have {remaining} rep remaining.\nYou have requested a banner!")
