@@ -33,12 +33,21 @@
 ![Contributors](https://contrib.rocks/image?repo=BLuesy1/CharB0T)
 
 ## Funding
+[![Sponsors](https://img.shields.io/github/sponsors/Bluesy1)](https://github.com/sponsors/Bluesy1)
 
 I work on this project, for free for the most part at this point. If you've gained from my work on this project at any point and can afford it, I would appreciate any small sponsorhip or contribution you're willing to make, throught [GitHub Sponsors](https://github.com/sponsors/Bluesy1).
 
 ## Docs
 
 You can find the documentation for the bot [here](https://bluesy1.github.io/CharB0T/docs/) and the changelog is [here](https://bluesy1.github.io/CharB0T/changes).
+
+## Sponsors
+
+| [@charliepryor](https://github.com/charliepryor)                               |
+|--------------------------------------------------------------------------------|
+| ![charliepryor](https://avatars.githubusercontent.com/u/11860948?v=4&size=120) |
+
+
 
 ## Contributing
 
