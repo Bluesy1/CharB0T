@@ -42,7 +42,15 @@ You can find the documentation for the bot [here](./docs/).
 The changelog is [here](./changes).
 
 ## Funding
-I work on this project, for free for the most part at this point. If you've gained from my work on this project at any point and can afford it, I would appreciate any small sponsorhip or contribution you're willing to make, throught [GitHub Sponsors](https://github.com/sponsors/Bluesy1).
+[![Sponsors](https://img.shields.io/github/sponsors/Bluesy1)](https://github.com/sponsors/Bluesy1)
+
+I work on this project, for free for the most part at this point. If you've gained from my work on this project at any point and can afford it, I would appreciate any small sponsorship or contribution you're willing to make, through [GitHub Sponsors](https://github.com/sponsors/Bluesy1).
+
+### Sponsors
+
+| [@charliepryor](https://github.com/charliepryor)                               |
+|--------------------------------------------------------------------------------|
+| ![charliepryor](https://avatars.githubusercontent.com/u/11860948?v=4&size=128) |
 
 ## Contributing
 
