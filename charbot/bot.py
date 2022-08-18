@@ -31,7 +31,8 @@ from zoneinfo import ZoneInfo
 import aiohttp
 import asyncpg
 import discord
-from discord import app_commands
+from discord import app_commands, Locale
+from discord.app_commands import locale_str, TranslationContext, TranslationContextLocation
 from discord.ext import commands
 from discord.utils import MISSING
 from fluent.runtime import FluentResourceLoader, FluentLocalization
@@ -332,6 +333,29 @@ class CBot(commands.Bot):
             )
             return 0
         return points + bonus
+
+    async def translate(self, string: locale_str, locale: Locale, *, data: Any | None = None) -> str | None:
+        """Translate a string.
+
+        Parameters
+        ----------
+        string : locale_str
+            The string to translate.
+        locale : Locale
+            The locale to translate to.
+        data : Any, optional
+            The extra data to pass to the translator.
+
+        Returns
+        -------
+        str | None
+            The translated string, or None if the string isn't translatable.
+        """
+        translator = self.tree.translator
+        if translator is None:
+            return None
+        context = TranslationContext(TranslationContextLocation.other, data=data)
+        return await translator.translate(string, locale, context)
 
     # for some reason deepsource doesn't like this, so i'm skipcq'ing the definition header
     async def on_command_error(

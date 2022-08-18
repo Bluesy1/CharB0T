@@ -25,7 +25,7 @@
 import pathlib
 
 from discord import app_commands, Locale
-from discord.app_commands import TranslationContext, TranslationContextLocation, locale_str
+from discord.app_commands import TranslationContextLocation, TranslationContextTypes, locale_str
 from fluent.runtime import FluentResourceLoader, FluentLocalization
 
 
@@ -36,7 +36,7 @@ class Translator(app_commands.Translator):
         self.loader = FluentResourceLoader("i18n/{locale}")
         self.supported_locales = [Locale.american_english]
 
-    async def translate(self, string: locale_str, locale: Locale, context: TranslationContext) -> str | None:
+    async def translate(self, string: locale_str, locale: Locale, context: TranslationContextTypes) -> str | None:
         """Translate a string using the Fluent syntax
 
         Parameters
@@ -45,7 +45,7 @@ class Translator(app_commands.Translator):
             The string to translate
         locale: Locale
             The locale to translate to
-        context: TranslationContext
+        context: TranslationContextTypes
             The context to use for translation
 
         Returns
@@ -72,13 +72,17 @@ class Translator(app_commands.Translator):
         elif context.location is TranslationContextLocation.group_description:
             key = f"{context.data.qualified_name.replace(' ', '-')}-description"
         elif context.location is TranslationContextLocation.parameter_name:
+            # noinspection PyUnresolvedReferences
             key = f"{context.data.command.qualified_name.replace(' ', '-')}-parameter-{context.data.name}-name"
         elif context.location is TranslationContextLocation.parameter_description:
+            # noinspection PyUnresolvedReferences
             key = f"{context.data.command.qualified_name.replace(' ', '-')}-parameter-{context.data.name}-description"
         elif context.location is TranslationContextLocation.choice_name:
             key = f"choice-{context.data.name}-name"
-        else:
+        elif context.location is TranslationContextLocation.other:
             key = f"other-{string.message.replace(' ', '-')}"
+        else:
+            return None
         translated = fluent.format_value(key, string.extras)
         if translated == key or translated is None:
             return None
