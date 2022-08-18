@@ -76,7 +76,6 @@ jobs:
           fail_ci_if_error: false
           flags: rust-unit
           name: codecov-umbrella
-          path_to_write_report: ./coverage/codecov_report_rust.txt
           verbose: false
           gcov: true
   black:
@@ -174,5 +173,4 @@ jobs:
           fail_ci_if_error: false
           flags: python-unit
           name: codecov-umbrella
-          path_to_write_report: ./coverage/codecov_report.txt
           verbose: false
