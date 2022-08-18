@@ -5,7 +5,7 @@ disrank==0.0.2
 fluent.runtime == 0.3.1
 jishaku==2.5.1
 matplotlib == 3.5.3
-numpy==1.23.1
+numpy==1.23.2
 orjson == 3.7.12
 pandas == 1.4.3
 Pillow == 9.2.0
