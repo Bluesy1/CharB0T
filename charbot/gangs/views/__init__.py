@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+# flake8: noqa
 #  ----------------------------------------------------------------------------
 #  MIT License
 #
@@ -22,15 +23,6 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 #  ----------------------------------------------------------------------------
-"""Gang war package."""
-from .. import CBot
-from .models import ColorOpts, GANGS, SQL_MONTHLY
-from .dues import DuesButton
-from .cog import Gangs
+"""Gang war views."""
 
-__all__ = ("Gangs", "DuesButton", "ColorOpts", "GANGS", "SQL_MONTHLY")
-
-
-async def setup(bot: CBot):
-    """Setup."""
-    await bot.add_cog(Gangs(bot))
+from . import banner

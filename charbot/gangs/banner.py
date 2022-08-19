@@ -23,15 +23,22 @@
 # SOFTWARE.
 #  ----------------------------------------------------------------------------
 """Gang banner code."""
+import asyncio
 from collections.abc import Iterable
 from io import BytesIO
+from pathlib import Path
 from textwrap import fill
 from typing import Final
 
+import discord
 from discord import Color
 from PIL import Image, ImageDraw, ImageFont
 
-FONT: Final = ImageFont.truetype("/home/gavin/PycharmProjects/CharB0T/charbot/media/pools/font.ttf", 30)
+from ._types import BannerStatus
+
+
+FONT: Final = ImageFont.truetype((Path(__file__).parent.parent / "media" / "pools" / "font.ttf").read_bytes(), 30)
+BASE_PATH: Final[Path] = Path(__file__).parent / "user_assets"
 
 
 def interpolate(f_co: tuple[int, int, int], t_co: tuple[int, int, int], interval: int) -> Iterable[list[int]]:
@@ -51,14 +58,12 @@ def interpolate(f_co: tuple[int, int, int], t_co: tuple[int, int, int], interval
         yield [round(f + det * i) for f, det in zip(f_co, det_co)]
 
 
-def banner(
-    base: BytesIO | Color | tuple[Color, Color], username: str, profile: BytesIO, name: str, quote: str
-) -> BytesIO:
+def banner(base: Path | Color | tuple[Color, Color], username: str, profile: BytesIO, name: str, quote: str) -> BytesIO:
     """Create a banner image.
 
     Parameters
     ----------
-    base : BytesIO | Color | tuple[Color, Color]
+    base : Path | Color | tuple[Color, Color]
         The file, color, or gradient to use as the base.
     username : str
         The username of the member who owns the banner.
@@ -79,13 +84,13 @@ def banner(
     ValueError
         If the base is invalid.
     """
-    if isinstance(base, BytesIO):
+    if isinstance(base, Path):
         try:
             img = Image.open(base)
         except (OSError, ValueError, TypeError):
             raise ValueError("Invalid base image")
         else:
-            if img.size != (1000, 500):
+            if img.size != (1000, 250):
                 img = img.resize((1000, 250))
     elif isinstance(base, Color):
         img = Image.new("RGBA", (1000, 250), base.to_rgb())
@@ -116,3 +121,40 @@ def banner(
     img.save(res, format="PNG")
     res.seek(0)
     return res
+
+
+async def generate_banner(payload: BannerStatus, member: discord.Member) -> BytesIO:
+    """Generate a banner image.
+
+    Parameters
+    ----------
+    payload : BannerStatus
+        The infor about the banner being generated
+    member : discord.Member
+        The member who owns the banner.
+    """
+    c = payload["color"]
+    prof = BytesIO()
+    await member.display_avatar.replace(size=128, format="png", static_format="png").save(prof)
+    if c is not None:
+        if payload["gradient"] is True:
+            color: Color | tuple[Color, Color] = (Color.from_str(c), Color(payload["gang_color"]))
+        else:
+            color = Color.from_str(c)
+        return await asyncio.to_thread(
+            banner,
+            color,
+            member.display_name,
+            prof,
+            payload["name"],
+            payload["quote"],
+        )
+    else:
+        return await asyncio.to_thread(
+            banner,
+            BASE_PATH / f"{member.id}.png",
+            member.display_name,
+            prof,
+            payload["name"],
+            payload["quote"],
+        )

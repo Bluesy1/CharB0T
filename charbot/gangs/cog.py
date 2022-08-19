@@ -25,9 +25,9 @@
 """Gang war cog file."""
 import asyncio
 import datetime
-import pathlib
 from io import BytesIO
-from typing import cast
+from pathlib import Path
+from typing import Final, cast
 from zoneinfo import ZoneInfo
 
 import asyncpg
@@ -36,8 +36,13 @@ from PIL import Image
 from discord import app_commands, ui, utils
 from discord.ext import commands
 
-from . import ColorOpts, DuesButton, SQL_MONTHLY, GANGS
+from . import ColorOpts, DuesButton, SQL_MONTHLY, GANGS, views
+from .banner import generate_banner
+from ._types import BannerRequestLeader, BannerStatus, BannerStatusPoints
 from .. import GuildInteraction as Interaction, CBot
+
+
+BASE_PATH: Final[Path] = Path(__file__).parent / "user_assets"
 
 
 class Gangs(commands.Cog):
@@ -68,7 +73,7 @@ class Gangs(commands.Cog):
     participate = app_commands.Group(
         name="participate", description="Base group for starting participation in a gang war", parent=gang
     )
-    banner = app_commands.Group(name="banner", description="Base group for managing the user bannera", parent=gang)
+    banner = app_commands.Group(name="banner", description="Base group for managing the user banner", parent=gang)
 
     async def start_dues_cycle(self):
         """Start the dues cycle."""
@@ -76,7 +81,7 @@ class Gangs(commands.Cog):
             datetime.datetime.now(tz=ZoneInfo("US/Michigan")).replace(day=1) + datetime.timedelta(days=32)
         ).replace(day=1, hour=0, minute=0, second=0, microsecond=0)
         await utils.sleep_until(next_month)
-        conn: asyncpg.Connection
+        conn: asyncpg.pool.PoolConnectionProxy
         async with self.bot.pool.acquire() as conn, conn.transaction():
             await conn.execute(SQL_MONTHLY)
             gangs: list[asyncpg.Record] = await conn.fetch(
@@ -91,8 +96,8 @@ class Gangs(commands.Cog):
                 )
                 if not row["complete"]:
                     view = ui.View(timeout=60 * 60 * 24 * 7)
-                    view.dues_button = DuesButton(row["name"])
-                    view.add_item(view.dues_button)
+                    view.dues_button = DuesButton(row["name"])  # type: ignore
+                    view.add_item(view.dues_button)  # type: ignore
                     until = next_month + datetime.timedelta(days=7)
                     msg = await channel.send(
                         f"<@&{row['role_id']}> At least one member of this gang did not have enough rep to "
@@ -115,7 +120,7 @@ class Gangs(commands.Cog):
             datetime.datetime.now(tz=ZoneInfo("US/Michigan")).replace(day=1) + datetime.timedelta(days=32)
         ).replace(day=8, hour=0, minute=0, second=0, microsecond=0)
         await utils.sleep_until(next_month)
-        conn: asyncpg.Connection
+        conn: asyncpg.pool.PoolConnectionProxy
         async with self.bot.pool.acquire() as conn, conn.transaction():
             gangs: list[asyncpg.Record] = await conn.fetch(
                 "SELECT name, channel_id, role_id,"
@@ -155,7 +160,7 @@ class Gangs(commands.Cog):
                         )
                 await channel.send(
                     f"<@&{row['role_id']}> All but {len(members)} members of this gang have paid their dues. Those who"
-                    f" haven't have been temporatially removed from the gang, but may rejoin. {leader_removed} Thank "
+                    f" haven't have been temporarily removed from the gang, but may rejoin. {leader_removed} Thank "
                     f"you for participating in the gang war!"
                 )
                 await conn.execute("DELETE FROM gang_members WHERE gang = $1 AND paid IS FALSE", row["name"])
@@ -164,12 +169,43 @@ class Gangs(commands.Cog):
             )
             if lost_members > 0:
                 await self.gang_announcements.send(
-                    f"{lost_members} member(s) of the gangs have been removed from thier gangs for not paying their "
+                    f"{lost_members} member(s) of the gangs have been removed from their gangs for not paying their "
                     f"dues. If you were one of the member(s) removed, remember you can always rejoin a gang if you have"
                     f" enough rep! Thank you for participating in the gang war! {len(empty_gangs)} ran out of members"
                     f" and got disbanded temporarily."
                 )
             await conn.execute("DELETE FROM gangs WHERE name in $1", [row["name"] for row in empty_gangs])
+
+    @commands.Cog.listener()
+    async def on_message(self, message: discord.Message):
+        """Handle messages."""
+        if message.author.bot or message.guild is None:
+            return
+        member = cast(discord.Member, message.author)
+        if "my gang" in message.content.lower() and message.channel.id == 225345178955808768:
+            async with self.bot.pool.acquire() as conn:
+                banner_rec: BannerStatusPoints | None = await conn.fetchrow(
+                    "SELECT banners.user_id as user_id, quote, banners.color as color, gradient, cooldown, approved,"
+                    " g.color as gang_color, g.name as name, u.points as POINTS FROM banners JOIN gang_members gm ON"
+                    " banners.user_id = gm.user_id JOIN gangs g on g.name = gm.gang JOIN users u on g.leader_id = u.id"
+                    " WHERE banners.user_id = $1",
+                    member.id,
+                )
+                if (
+                    banner_rec is not None
+                    and banner_rec["cooldown"] < utils.utcnow()
+                    and banner_rec["approved"]
+                    and banner_rec["points"] > 50
+                ):
+                    banner_bytes = await generate_banner(banner_rec, member)
+                    banner_file = discord.File(banner_bytes, filename="banner.png")
+                    await message.reply(file=banner_file)
+                    await conn.execute(
+                        "UPDATE banners SET cooldown = $1 WHERE user_id = $2",
+                        utils.utcnow() + datetime.timedelta(days=7),
+                        member.id,
+                    )
+                    await conn.execute("UPDATE users SET points = points - 50 WHERE id = $1", member.id)
 
     @participate.command()  # pyright: ignore[reportGeneralTypeIssues]
     async def create(
@@ -199,8 +235,8 @@ class Gangs(commands.Cog):
             Scale of recurring cost, to go up per for each member in the gang
         """
         await interaction.response.defer(ephemeral=True)
-        conn: asyncpg.Connection
         name = ColorOpts(color).name
+        conn: asyncpg.pool.PoolConnectionProxy
         async with interaction.client.pool.acquire() as conn, conn.transaction():
             # Check if teh gang already exists, the user is already in a gang, or the user doesn't have enough points
             if await conn.fetchval("SELECT 1 FROM gangs WHERE name = $1", name):
@@ -261,7 +297,7 @@ class Gangs(commands.Cog):
                 f"NOTE: You have been given the manage messages permission for the channel, so you can pin messages and"
                 f" delete other's messages if needed. You have to have 2 Factor Authentication enabled to be able to"
                 f" use the manage messages permission. You also have the ability to mention everyone in the channel. "
-                f"Please restict this to only pinging your gang's role. Do not abuse these permissions, or we may "
+                f"Please restrict this to only pinging your gang's role. Do not abuse these permissions, or we may "
                 f"revoke either or both of them and/or replace you with a different member as leader.",
             )
             await self.gang_announcements.send(f"{interaction.user.mention} created a new gang, the {name} Gang!")
@@ -278,7 +314,7 @@ class Gangs(commands.Cog):
             Name of the gang to join
         """
         await interaction.response.defer(ephemeral=True)
-        conn: asyncpg.Connection
+        conn: asyncpg.pool.PoolConnectionProxy
         async with interaction.client.pool.acquire() as conn, conn.transaction():
             # check if the gang exists, and if the user has enough rep to join
             if not await conn.fetchval("SELECT 1 FROM gangs WHERE name = $1", gang):
@@ -319,6 +355,7 @@ class Gangs(commands.Cog):
             await channel.send(f"Welcome {interaction.user.mention} to the {gang} Gang!")
 
     @banner.command()  # pyright: ignore[reportGeneralTypeIssues]
+    @app_commands.checks.cooldown(2, 60 * 60 * 24 * 7 * 4, key=lambda i: i.user.id)
     async def request(
         self,
         interaction: Interaction[CBot],
@@ -327,7 +364,7 @@ class Gangs(commands.Cog):
         color: ColorOpts | None = None,
         gradient: bool = False,
     ) -> None:
-        """
+        """Request a banner or an edit to an existing banner if an update is rejected, you will need to reapply
 
         Parameters
         ----------
@@ -343,11 +380,11 @@ class Gangs(commands.Cog):
             Whether to use a gradient banner or solid color, set to true to gradient with your gangs color
         """
         await interaction.response.defer(ephemeral=True)
-        conn: asyncpg.Connection
+        conn: asyncpg.pool.PoolConnectionProxy
         async with interaction.client.pool.acquire() as conn, conn.transaction():
-            leader = await conn.fetchrow(
-                "SELECT leader, leadership, u.points AS points FROM gang_members"
-                " JOIN users u on u.id = gang_members.user_id WHERE user_id = $1",
+            leader: BannerRequestLeader | None = await conn.fetchrow(
+                "SELECT leader, leadership, u.points AS points "
+                "FROM gang_members JOIN users u on u.id = gang_members.user_id WHERE user_id = $1",
                 interaction.user.id,
             )
             if leader is None:
@@ -373,15 +410,17 @@ class Gangs(commands.Cog):
                         await interaction.followup.send("The base image must be a PNG or JPEG!")
                         return
                 try:
-                    path = pathlib.Path(__file__).parent / "user_assets" / f"{interaction.user.id}.png"
-                    img: bytes | None = await base.read()
 
-                    def sync_code(_img: bytes, _path: pathlib.Path):
+                    def sync_code(img: bytes, path: Path):
                         """Blocking code to run in an executor"""
-                        image = Image.open(BytesIO(_img))
-                        image.save(_path, format="PNG")
+                        image = Image.open(BytesIO(img))
+                        image.save(path, format="PNG")
 
-                    await asyncio.to_thread(sync_code, img, path)
+                    await asyncio.to_thread(
+                        sync_code,
+                        await base.read(),
+                        BASE_PATH / f"{interaction.user.id}.png",
+                    )
                 except (discord.DiscordException, OSError, ValueError, TypeError):
                     await interaction.followup.send("Failed to grab image, try again.")
                     return
@@ -394,10 +433,11 @@ class Gangs(commands.Cog):
                     )
                 else:
                     _color = color.value.value
-                img: bytes | None = None
                 insert_color: int | None = _color
             await conn.execute(
-                "INSERT INTO banners (user_id, quote, color, gradient) VALUES ($1, $2, $3, $4)",
+                "INSERT INTO banners (user_id, quote, color, gradient) VALUES ($1, $2, $3, $4)"
+                " ON CONFLICT (user_id) DO UPDATE SET"
+                " quote = EXCLUDED.quote, color = EXCLUDED.color, gradient = EXCLUDED.gradient, approved = FALSE",
                 interaction.user.id,
                 quote,
                 insert_color,
@@ -407,3 +447,62 @@ class Gangs(commands.Cog):
                 "UPDATE users SET points = points - 500 WHERE id = $1 RETURNING points", interaction.user.id
             )
             await interaction.followup.send(f"You now have {remaining} rep remaining.\nYou have requested a banner!")
+
+    @banner.command()  # pyright: ignore[reportGeneralTypeIssues]
+    async def status(self, interaction: Interaction[CBot]) -> None:
+        """Check the status of your banner request.
+
+        Parameters
+        ----------
+        interaction : Interaction
+            The interaction object for the current context
+        """
+        await interaction.response.defer(ephemeral=True)
+        conn: asyncpg.Connection
+        banner_rec: BannerStatus | None = await interaction.client.pool.fetchrow(
+            "SELECT banners.user_id as user_id, quote, banners.color as color, gradient, cooldown, approved,"
+            " g.color as gang_color, g.name as name "
+            "FROM banners JOIN gang_members gm on banners.user_id = gm.user_id JOIN gangs g on g.name = gm.gang"
+            " WHERE banners.user_id = $1",
+            interaction.user.id,
+        )
+        if banner_rec is None:
+            await interaction.followup.send("You don't have a banner_rec, or haven't requested one!")
+            return
+        if banner_rec["approved"] is False:
+            await interaction.followup.send("Your banner_rec is still pending approval!")
+            return
+        banner_bytes = await generate_banner(banner_rec, interaction.user)
+        banner_file = discord.File(banner_bytes, filename="banner.png")
+        await interaction.followup.send(
+            f"Your banner has been approved and is as follows! Cooldown until: "
+            f"{utils.format_dt(banner_rec['cooldown'], 'R')}",
+            file=banner_file,
+        )
+
+    @commands.command(name="approve")
+    @commands.guild_only()
+    async def approve_cmd(self, ctx: commands.Context[CBot]):
+        """Approve a banner request"""
+        member = cast(discord.Member, ctx.author)
+        if not member.guild_permissions.manage_roles:
+            return
+        banner_rec: BannerStatus | None = await ctx.bot.pool.fetchrow(
+            "SELECT banners.user_id as user_id, quote, banners.color as color, gradient, cooldown, approved,"
+            " g.color as gang_color, g.name as name "
+            "FROM banners JOIN gang_members gm on banners.user_id = gm.user_id JOIN gangs g on g.name = gm.gang"
+            " WHERE approved = FALSE ORDER BY cooldown LIMIT 1",
+            member.id,
+        )
+        if banner_rec is None:
+            await ctx.reply("There are currently no banner awaiting approval!")
+            return
+        guild = cast(discord.Guild, ctx.guild)
+        requester = guild.get_member(banner_rec["user_id"]) or await guild.fetch_member(banner_rec["user_id"])
+        banner_bytes = await generate_banner(banner_rec, requester)
+        await ctx.reply(
+            "Approve, deny, or cancel?",
+            file=discord.File(banner_bytes, filename="banner.png"),
+            view=views.banner.ApprovalView(banner_rec, member.id),
+        )
+        banner_bytes.close()

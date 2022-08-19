@@ -23,6 +23,8 @@
 # SOFTWARE.
 #  ----------------------------------------------------------------------------
 """Gang war."""
+from typing import cast
+
 import asyncpg
 
 import discord
@@ -40,7 +42,7 @@ class DuesButton(ui.Button):
         super().__init__(style=discord.ButtonStyle.success, custom_id=f"dues_{gang}", label="Pay", emoji="\U0001F4B0")
         self.gang = gang
 
-    async def callback(self, interaction: CInteraction[CBot]):  # pyright: ignore[reportGeneralTypeIssues]
+    async def callback(self, interaction: CInteraction[CBot]):
         """Buttons callback."""
         await interaction.response.defer(ephemeral=True)
         conn: asyncpg.pool.PoolConnectionProxy
@@ -57,12 +59,16 @@ class DuesButton(ui.Button):
                 interaction.user.id,
                 self.gang,
             ):
-                details = await conn.fetchrow(
-                    "SELECT (SELECT upkeep_base + (upkeep_slope * (SELECT COUNT(*) FROM gang_members WHERE gang = $1))"
-                    " FROM gangs WHERE name = $1) AS upkeep,"
-                    " (SELECT points FROM users WHERE id = $2) AS points",
-                    self.gang,
-                    interaction.user.id,
+                details = cast(
+                    asyncpg.Record,
+                    await conn.fetchrow(
+                        "SELECT "
+                        "(SELECT upkeep_base + (upkeep_slope * (SELECT COUNT(*) FROM gang_members WHERE gang = $1))"
+                        " FROM gangs WHERE name = $1) AS upkeep,"
+                        " (SELECT points FROM users WHERE id = $2) AS points",
+                        self.gang,
+                        interaction.user.id,
+                    ),
                 )
                 await interaction.followup.send(
                     f"You do not have enough rep to pay your dues, you have {details['points']} rep and need "
