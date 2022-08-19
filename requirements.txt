@@ -1,16 +1,16 @@
 aiohttp[speedups]==3.8.1
 asyncpg==0.26.0
-discord.py[speed] @ git+https://github.com/Rapptz/discord.py@11278d55e80fb7b1e928ce95b2eff32a1b4e0596#egg=discord.py
+discord.py[speed]==2.0.0
 disrank==0.0.2
 fluent.runtime == 0.3.1
 jishaku==2.5.1
 matplotlib == 3.5.3
-numpy==1.23.1
-orjson == 3.7.11
+numpy==1.23.2
+orjson == 3.7.12
 pandas == 1.4.3
 Pillow == 9.2.0
 scipy==1.9.0
-sentry-sdk==1.9.4
+sentry-sdk==1.9.5
 tomli == 2.0.1
 typing-extensions == 4.3.0
 uvloop == 0.16.0

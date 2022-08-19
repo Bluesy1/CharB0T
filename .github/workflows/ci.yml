@@ -72,11 +72,10 @@ jobs:
         uses: codecov/codecov-action@v2
         with:
           files: ./lcov.info
-          env_vars: OS,RUST
+          env_vars: OS=LINUX,RUST=nightly
           fail_ci_if_error: false
-          flags: unittests
+          flags: rust-unit
           name: codecov-umbrella
-          path_to_write_report: ./coverage/codecov_report_rust.txt
           verbose: false
           gcov: true
   black:
@@ -138,6 +137,9 @@ jobs:
   codecov:
     needs: [maturin, black, flake8]
     runs-on: ubuntu-latest
+    continue-on-error: true
+    strategy:
+      fail-fast: false
     steps:
       - uses: actions/checkout@v3
       - uses: actions/download-artifact@v3
@@ -167,15 +169,8 @@ jobs:
         uses: codecov/codecov-action@v2
         with:
           directory: ./coverage/reports/
-          env_vars: OS,PYTHON
+          env_vars: OS=LINUX,PYTHON=3.10
           fail_ci_if_error: false
-          flags: unittests
+          flags: python-unit
           name: codecov-umbrella
-          path_to_write_report: ./coverage/codecov_report.txt
           verbose: false
-      - name: Report test coverage to DeepSource
-        uses: deepsourcelabs/test-coverage-action@master
-        with:
-          key: python
-          coverage-file: ./coverage/reports/coverage.xml
-          dsn: ${{ secrets.DEEPSOURCE_DSN }}
