@@ -39,6 +39,7 @@ from ._types import BannerStatus
 
 FONT: Final = ImageFont.truetype((Path(__file__).parent.parent / "media" / "pools" / "font.ttf").read_bytes(), 30)
 BASE_PATH: Final[Path] = Path(__file__).parent / "user_assets"
+STAR_COLOR: Final[tuple[int, int, int]] = (69, 79, 191)
 
 
 def interpolate(f_co: tuple[int, int, int], t_co: tuple[int, int, int], interval: int) -> Iterable[list[int]]:
@@ -52,13 +53,39 @@ def interpolate(f_co: tuple[int, int, int], t_co: tuple[int, int, int], interval
         The second color as a tuple of 0 to 255 ints as an RGB tuple.
     interval : int
         The number of steps to interpolate between the two colors.
+
+    Yields
+    ------
+    list[int]
+        The next color as a list of 0 to 255 ints as an RGB tuple.
     """
     det_co = [(t - f) / interval for f, t in zip(f_co, t_co)]
     for i in range(interval):
         yield [round(f + det * i) for f, det in zip(f_co, det_co)]
 
 
-def banner(base: Path | Color | tuple[Color, Color], username: str, profile: BytesIO, name: str, quote: str) -> BytesIO:
+def prestige_positions(prestige: int) -> Iterable[tuple[int, int, int]]:
+    """Get the positions for the prestige stars
+
+    Parameters
+    ----------
+    prestige: int
+        The prestige of the user.
+
+    Yields
+    -------
+    tuple[int, int, int]
+        The positions for the prestige stars.
+    """
+    for i in range(prestige):
+        if i >= 19:
+            return
+        yield 955 - (i * 50), 220, 25
+
+
+def banner(
+    base: Path | Color | tuple[Color, Color], username: str, profile: BytesIO, name: str, quote: str, prestige: int
+) -> BytesIO:
     """Create a banner image.
 
     Parameters
@@ -73,6 +100,8 @@ def banner(base: Path | Color | tuple[Color, Color], username: str, profile: Byt
         The name of the gang.
     quote : str
         The quote to display.
+    prestige : int
+        The prestige of the user.
 
     Returns
     -------
@@ -100,6 +129,9 @@ def banner(base: Path | Color | tuple[Color, Color], username: str, profile: Byt
         for i, color in enumerate(interpolate(base[0].to_rgb(), base[1].to_rgb(), 2000)):
             draw.line([(i, 0), (0, i)], tuple(color), width=1)
     draw = ImageDraw.Draw(img)
+    for pos in prestige_positions(prestige):
+        draw.regular_polygon(pos, 3, rotation=0, fill=STAR_COLOR, outline=STAR_COLOR)
+        draw.regular_polygon(pos, 3, rotation=180, fill=STAR_COLOR, outline=STAR_COLOR)
     draw.text((img.width - 20, 15), name.upper(), fill=(255, 255, 255), font=FONT, anchor="ra", align="right")
     draw.multiline_text(
         (img.width - 20, 50),
@@ -114,7 +146,6 @@ def banner(base: Path | Color | tuple[Color, Color], username: str, profile: Byt
     mask = Image.new("RGBA", img.size, 0)
     mask_draw = ImageDraw.Draw(mask)
     mask_draw.ellipse((65, 65, 193, 193), fill=(255, 25, 255, 255))  # The part need to be cropped
-    # prof = member.display_avatar.replace(size=128, format="png", static_format="png")
     profile_pic_holder.paste(Image.open(profile), (65, 65, 193, 193))
     img.paste(profile_pic_holder, None, mask)
     res = BytesIO()
@@ -148,6 +179,7 @@ async def generate_banner(payload: BannerStatus, member: discord.Member) -> Byte
             prof,
             payload["name"],
             payload["quote"],
+            payload["prestige"],
         )
     else:
         return await asyncio.to_thread(
@@ -157,4 +189,5 @@ async def generate_banner(payload: BannerStatus, member: discord.Member) -> Byte
             prof,
             payload["name"],
             payload["quote"],
+            payload["prestige"],
         )

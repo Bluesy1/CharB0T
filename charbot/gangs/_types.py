@@ -19,6 +19,7 @@ class BannerStatus(TypedDict):
     approved: bool
     gang_color: int
     name: str
+    prestige: int
 
 
 class BannerStatusPoints(BannerStatus):
