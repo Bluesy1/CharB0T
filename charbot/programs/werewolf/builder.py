@@ -36,6 +36,7 @@ class DiscordActor(mafia.Actor):
 
 class DiscordGame(mafia.Game):
     actors: list[DiscordActor]
+    tally_key: str
 
 
 Placeholder = mafia.Ability.generate(lambda: [], [], "Placeholder", "Fill a gap", "Placeholder")
@@ -58,6 +59,7 @@ def build_werewolf(players: list[discord.Member]) -> DiscordGame:
     game = DiscordGame()
     mafia.GameEnder(game)
     tally = mafia.LynchTally(game)
+    game.tally_key = tally.key
     town = mafia.Faction(game, "Town")
     mafia.OCLastFactionStanding(game, town)
     serial_killer = mafia.Faction(game, "Serial Killer")

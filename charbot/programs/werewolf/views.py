@@ -23,6 +23,8 @@
 # SOFTWARE.
 #  ----------------------------------------------------------------------------
 """View to gather the members for a game."""
+from typing import cast, TypedDict, final
+
 import discord
 import open_mafia_engine.api as mafia
 from discord import ui
@@ -147,10 +149,11 @@ class GetRole(ui.View):
 class DaySection(ui.View):
     """View to process the day actions for a game."""
 
-    def __init__(self, game: DiscordGame, members: list[discord.Member]) -> None:
+    def __init__(self, game: DiscordGame, members: list[discord.Member], previous_kill: DiscordActor | None) -> None:
         super().__init__(timeout=300)
         self.game = game
         self.members = members
+        self.prev_kill = previous_kill
         self.dead: set[DiscordActor] = {actor for actor in self.game.actors if actor.status["dead"]}
         dead = {actor.id for actor in self.dead}
         self.voted: set[discord.Member] = set()
@@ -184,26 +187,52 @@ class DaySection(ui.View):
         self.game.process_event(mafia.EActivate(self.game, ability, target.name))
         await interaction.followup.send(f"You have voted for **{target.name}**.", ephemeral=True)
         if len(self.voted) == len(self.members):
-            await interaction.followup.send("All members have voted, processing events.")
+            await interaction.followup.send("All members have voted, processing votes.")
+            killed: mafia.LynchTally = self.game.aux[self.game.tally_key]
+            leaders = cast(list[DiscordActor], killed.results.vote_leaders)
             self.game.change_phase()
-            dead: set[DiscordActor] = {actor for actor in self.game.actors if actor.status["dead"]}
-            new_death = dead - self.dead
-            if new_death:
-                await interaction.followup.send(
-                    f"The following members have died: {', '.join(a.name for a in new_death)}"
-                )
+            if len(leaders) == 1:
+                await interaction.followup.send(f"{leaders[0].name} has been killed by a majority vote.")
+                over = self.game.current_phase.name == "shutdown"
+                if over:
+                    if leaders[0].role == "Serial Killer":
+                        await interaction.followup.send(
+                            "The Serial Killer has been found and the inmates have won the game."
+                        )
+                        # TODO: add point processing
+                    else:
+                        serial = next(filter(lambda f: f.name == "Serial Killer", self.game.factions)).actors[0]
+                        await interaction.followup.send(f"The serial killer had won the game, they were {serial.name}.")
+                        # TODO: add point processing
+                    self.stop()
+                    await interaction.message.edit(view=None)
+            else:
+                await interaction.followup.send("No one has been killed, the town could not come to a majority vote.")
             self.stop()
+
+
+@final
+class NightEvents(TypedDict):
+    targeted: DiscordActor | None
+    protected: DiscordActor | None
 
 
 class NightSection(ui.View):
     """View to process the night actions for a game."""
 
-    def __init__(self, game: DiscordGame, members: list[discord.Member]) -> None:
+    def __init__(
+        self, game: DiscordGame, members: list[discord.Member], last_night_killed: DiscordActor | None
+    ) -> None:
         super().__init__(timeout=300)
         self.game = game
         self.members = members
+        self.killed = last_night_killed
         self.dead: set[DiscordActor] = {actor for actor in self.game.actors if actor.status["dead"]}
-        self.voted: set[discord.Member] = set()
+        self.acts: set[int] = {
+            actor.id for actor in self.game.actors if (not actor.status["dead"]) and actor.role != "Inmate"
+        }
+        self.acted: set[discord.Member] = set()
+        self.events: NightEvents = {"targeted": None, "protected": None}
 
     async def interaction_check(self, interaction: Interaction[CBot]) -> bool:
         """Check if the interaction is valid for this view."""
@@ -213,12 +242,71 @@ class NightSection(ui.View):
         if interaction.user.id in self.dead:
             await interaction.response.send_message("You are dead.")
             return False
-        actor = next(filter(lambda a: a.id == interaction.user.id, self.game.actors))
-        if len(actor.abilities) == 1:
+        if interaction.user.id not in self.acts:
             await interaction.response.send_message("You have no night abilities.")
             return False
         return True
 
     @ui.select(placeholder="Select an action to take.")
     async def night_action(self, interaction: Interaction[CBot], select: ui.Select) -> None:
-        ...
+        """Take a night action."""
+        await interaction.response.defer(ephemeral=True, thinking=True)
+        actor = next(filter(lambda a: a.id == interaction.user.id, self.game.actors))
+        if actor.role == "Cleaner":
+            if self.killed:
+                await interaction.followup.send(f"Last night's victim was a(n): {self.killed.role}.", ephemeral=True)
+            else:
+                await interaction.followup.send("Last night's victim was nobody.", ephemeral=True)
+            self.game.process_event(
+                mafia.EActivate(self.game, next(filter(lambda a: a.name == "Placeholder", actor.abilities)))
+            )
+        else:
+            targeted = next(filter(lambda a: a.id == int(select.values[0]), self.game.actors))
+            if actor.role == "Serial Killer":
+                await interaction.followup.send(f"You have targeted {targeted.name} tonight.", ephemeral=True)
+                self.game.process_event(
+                    mafia.EActivate(
+                        self.game, next(filter(lambda a: a.name == "Kill", actor.abilities)), target=targeted.name
+                    )
+                )
+                self.events["targeted"] = targeted
+            elif actor.role == "Doctor":
+                await interaction.followup.send(f"You have protected {targeted.name} tonight.", ephemeral=True)
+                self.game.process_event(
+                    mafia.EActivate(
+                        self.game, next(filter(lambda a: a.name == "Heal", actor.abilities)), target=targeted.name
+                    )
+                )
+                self.events["protected"] = targeted
+            else:
+                await interaction.followup.send(f"{targeted.name} is a(n) {targeted.role}.", ephemeral=True)
+                self.game.process_event(
+                    mafia.EActivate(self.game, next(filter(lambda a: a.name == "Placeholder", actor.abilities)))
+                )
+        self.acted.add(interaction.user)
+        if len(self.acted) == len(self.acts):
+            await interaction.followup.send("All night actions have been taken, processing actions.")
+            await interaction.message.edit(view=None)
+            self.game.change_phase()
+            self.stop()
+            targeted = cast(DiscordActor, self.events["targeted"])
+            if targeted == self.events["protected"]:
+                await interaction.followup.send(
+                    f"The serial killer targeted {targeted.name}, but was healed by the doctor."
+                )
+                new_view = DaySection(self.game, self.members, None)
+            else:
+                await interaction.followup.send(f"The serial killer killed {targeted.name}.")
+                over = self.game.current_phase.name == "shutdown"
+                if over:
+                    serial = next(filter(lambda f: f.name == "Serial Killer", self.game.factions)).actors[0]
+                    await interaction.followup.send(f"The serial killer had won the game, they were {serial.name}.")
+                    # TODO: add point processing
+                    return
+                new_view = DaySection(self.game, self.members, self.events["targeted"])
+            embed = discord.Embed(
+                title="Daytime",
+                description="The day has begun, discuss and then vote. You have 5 minutes, or until everyone has voted,"
+                " whichever comes first.",
+            )
+            await interaction.followup.send(embed=embed, view=new_view)
