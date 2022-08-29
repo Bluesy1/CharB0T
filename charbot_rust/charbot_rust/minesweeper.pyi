@@ -24,7 +24,7 @@ class RevealResult(__enum.Enum):
     Mine:
         The cell was a mine, the game is over.
     Empty:
-        The cell was empty, floodfill has occured.
+        The cell was empty, floodfill has occurred.
     Number:
         The cell was adjacent to mines.
     """

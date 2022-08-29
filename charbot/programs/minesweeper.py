@@ -171,14 +171,14 @@ class Minesweeper(ui.View):
             The button.
         """
         res = self.game.reveal()
-        if res is minesweeper.RevealResult.Mine:  # pyright: ignore[reportGeneralTypeIssues]
+        if res == minesweeper.RevealResult.Mine:  # pyright: ignore[reportGeneralTypeIssues]
             await self.handle_lose(interaction)
         elif self.game.is_win():
             await self.handle_win(interaction)
         else:
             file = await self.draw()
             await interaction.response.edit_message(attachments=[file], view=self)
-            if res is minesweeper.RevealResult.Flagged:  # pyright: ignore[reportGeneralTypeIssues]
+            if res == minesweeper.RevealResult.Flagged:  # pyright: ignore[reportGeneralTypeIssues]
                 await interaction.followup.send(
                     "WARNING: you tried to reveal a flagged cell. Instead of revealing it, it was unflagged. "
                     "If you meant to reveal it, press reveal again.",
@@ -200,13 +200,13 @@ class Minesweeper(ui.View):
             The button.
         """
         res = self.game.chord()
-        if res is minesweeper.ChordResult.Failed:  # pyright: ignore[reportGeneralTypeIssues]
+        if res == minesweeper.ChordResult.Failed:  # pyright: ignore[reportGeneralTypeIssues]
             await interaction.response.send_message(
                 "WARNING: you tried to chord a cell that was not revealed, not a number, or didn't have the "
                 "appropriate number of surrounding tiles marked.",
                 ephemeral=True,
             )
-        elif res is minesweeper.ChordResult.Success:  # pyright: ignore[reportGeneralTypeIssues]
+        elif res == minesweeper.ChordResult.Success:  # pyright: ignore[reportGeneralTypeIssues]
             if self.game.is_win():
                 await self.handle_win(interaction)
             else:
