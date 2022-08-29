@@ -1,0 +1,26 @@
+select-row-description = Changer la ligne en { $letter }
+select-row-placehholder = Sélectionnez une ligne
+select-col-description = Changer la colonne en { $letter }
+select-col-placehholder = Sélectionnez une colonne
+#Chord is not in the musical sense, but as the follwing move: http://www.minesweeper.info/wiki/Chord
+reveal-label = Révéler
+chord-label = Accord
+flag-label = Signaler
+quit-label = Quitter
+help-label = Aide
+lose-title = Vous avez perdu !
+lose-description = Vous avez révélé une mine et perdu la partie. Vous avez gagné { $awarded } points.
+lose-hit-cap-description = { lose-description } (Limite journalière)
+win-title = Vous avez gagné!
+win-description = Vous avez révélé toutes les tuiles de sécurité et gagné la partie. Vous avez gagné { $awarded } points.
+win-hit-cap-description = { win-description } (Limite journalière)
+help-title = Démineur
+help-description = Comment jouer au pistolet de mines:
+help-chord-title = Accord { "\u2692" }
+help-chord-description = Révéler toutes les tuiles autour d'un nombre exposé qui a le nombre correct de tuiles signalées autour d'elle. Cela explosera les mines.
+help-flag-title = Signaler { "\U01f6A9" }
+help-flag-description = Marquez une tuile, ou retirez le drapeau d'une tuile signalée.
+help-quit-title = Quitter { "\u2620" }
+help-quit-description = Quitter la partie.
+help-help-title = Aide { "\u2049" }
+help-help-description = Afficher ce message d'aide.
