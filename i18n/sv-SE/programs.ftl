@@ -1,0 +1,32 @@
+# Command Groups
+programs-name = program
+programs-description = Program för att få dig rep.
+programs-beta-name = beta
+programs-beta-description = Beta-program..
+# Commands
+programs-sudoku-name = sudoku
+programs-sudoku-description = Spela ett Sudoku pussel
+programs-sudoku-parameter-mobile-name = mobil
+programs-sudoku-parameter-mobile-description = Om du vill stänga av formatering som bara fungerar på skrivbordet.
+programs-tictactoe-name = taktoe
+programs-tictactoe-description = Play a game of Tic Tac Toe! Now built with rust.
+programs-tictactoe-parameter-difficulty-name = difficulty
+programs-tictactoe-parameter-difficulty-description = The difficulty of the game.
+choice-EASY-name = EASY
+choice-MEDIUM-name = MEDIUM
+choice-HARD-name = HARD
+choice-RANDOM-name = RANDOM
+programs-shrugman-name = shrugman
+programs-shrugman-description = Spela shrugman minispel. (Hangman klon)
+programs-beta-minesweeper-name = minesweeper
+programs-beta-minesweeper-description = [BETA] Play a game of Minesweeper.
+programs-beta-minesweeper-parameter-difficulty-name = difficulty
+programs-beta-minesweeper-parameter-difficulty-description = The difficulty of the game.
+choice-Beginner-name = Beginner
+choice-Intermediate-name = Intermediate
+choice-Expert-name = Expert
+choice-Super-Expert-name = Super Expert
+rollcall-name = rollcall
+rollcall-description = Begär din dagliga rykte bonus.
+repuation-name = repuation
+repuation-description = Kontrollera ditt rykte.
