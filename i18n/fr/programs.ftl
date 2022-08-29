@@ -1,5 +1,5 @@
 # Command Groups
-programs-name = Programmes
+programs-name = programmes
 programs-description = Programmes pour vous représenter.
 programs-beta-name = bêta
 programs-beta-description = Programmes bêta..

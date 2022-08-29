@@ -79,16 +79,18 @@ class Minesweeper(ui.View):
         interaction : Interaction[CBot]
             The interaction with the user.
         """
-        awarded = points = self.game.points
+        await interaction.response.defer(ephemeral=True)
+        points = self.game.points
+        awarded = sum(points)
         # awarded = await interaction.client.give_game_points(interaction.user, "minesweeper", *points)
         embed = discord.Embed(
             title="You lost!",
             description=f"You revealed a mine and lost the game. If not for beta testing, you would have gained "
-            f"{awarded} points. {'Hit daily cap' if awarded != points else ''}",
+            f"{awarded} points. {'Hit daily cap' if awarded != sum(points) else ''}",
             color=discord.Color.red(),
         ).set_image(url="attachment://minesweeper.png")
         file = await self.draw()
-        await interaction.response.edit_message(attachments=[file], embed=embed, view=None)
+        await interaction.edit_original_response(attachments=[file], embed=embed, view=None)
         self.stop()
 
     async def handle_win(self, interaction: Interaction[CBot]):
@@ -101,16 +103,18 @@ class Minesweeper(ui.View):
         interaction : Interaction[CBot]
             The interaction with the user.
         """
-        awarded = points = self.game.points
+        await interaction.response.defer(ephemeral=True)
+        points = self.game.points
+        awarded = sum(points)
         # awarded = await interaction.client.give_game_points(interaction.user, "minesweeper", *points)
         embed = discord.Embed(
             title="You won!",
             description=f"You revealed all the safe tiles and won the game. If not for beta testing, you would have "
-            f"gained {awarded} points. {'Hit daily cap' if awarded != points else ''}",
+            f"gained {awarded} points. {'Hit daily cap' if awarded != sum(points) else ''}",
             color=discord.Color.green(),
         ).set_image(url="attachment://minesweeper.png")
         file = await self.draw()
-        await interaction.response.edit_message(attachments=[file], embed=embed, view=None)
+        await interaction.edit_original_response(attachments=[file], embed=embed, view=None)
         self.stop()
 
     @ui.select(placeholder="Select a row")  # pyright: ignore[reportGeneralTypeIssues]
@@ -199,7 +203,7 @@ class Minesweeper(ui.View):
         if res is minesweeper.ChordResult.Failed:  # pyright: ignore[reportGeneralTypeIssues]
             await interaction.response.send_message(
                 "WARNING: you tried to chord a cell that was not revealed, not a number, or didn't have the "
-                "appropriate number of surrounding tles marked.",
+                "appropriate number of surrounding tiles marked.",
                 ephemeral=True,
             )
         elif res is minesweeper.ChordResult.Success:  # pyright: ignore[reportGeneralTypeIssues]
