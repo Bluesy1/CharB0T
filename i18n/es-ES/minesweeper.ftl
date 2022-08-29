@@ -1,0 +1,26 @@
+select-row-description = Cambiar la fila a { $letter }
+select-row-placehholder = Seleccione una fila
+select-col-description = Cambiar la columna a { $letter }
+select-col-placehholder = Seleccione una columna
+#Chord is not in the musical sense, but as the follwing move: http://www.minesweeper.info/wiki/Chord
+reveal-label = Revelar
+chord-label = Acorde
+flag-label = Marca
+quit-label = Abandonar
+help-label = Ayuda
+lose-title = ¡Has perdido!
+lose-description = Enviaste una mina y perdiste el juego. Ganaste { $awarded } puntos.
+lose-hit-cap-description = { lose-description } (Golpear tope diario)
+win-title = ¡Has ganado!
+win-description = Has revelado todas las baldosas seguras y has ganado el juego. Has ganado { $awarded } puntos.
+win-hit-cap-description = { win-description } (Golpear tope diario)
+help-title = Barrido de Minas
+help-description = Cómo jugar las minas:
+help-chord-title = Acorde { "\u2692" }
+help-chord-description = Muestra todas las baldosas alrededor de un número expuesto que tiene el número correcto de baldosas marcadas a su alrededor. Esto explotará las minas.
+help-flag-title = Marcar { "\U01f6A9" }
+help-flag-description = Marca una baldosa o remueve la bandera de una baldosa marcada.
+help-quit-title = Salir { "\u2620" }
+help-quit-description = Salir del juego.
+help-help-title = Ayuda { "\u2049" }
+help-help-description = Mostrar este mensaje de ayuda.
