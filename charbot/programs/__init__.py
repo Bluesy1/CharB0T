@@ -22,21 +22,24 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 #  ----------------------------------------------------------------------------
-"""Program classses and functions."""
+"""Program classes and functions."""
 import asyncio
 import datetime
 import random
 import re
-from typing import Final, Literal
+from typing import Final, Literal, TYPE_CHECKING
 
 import discord
-from discord import Interaction, app_commands
+from discord import app_commands
 from discord.ext import commands
 
-from ..types.bot import CBot
 from . import shrugman, sudoku, tictactoe
-from .. import errors
-from . import rtictactoe
+from .. import errors, GuildInteraction as Interaction
+from .minesweeper import Minesweeper
+from charbot_rust.minesweeper import Game as MinesweeperGame  # pyright: ignore[reportGeneralTypeIssues]
+
+if TYPE_CHECKING:
+    from .. import CBot
 
 
 MESSAGE: Final = "You must be at least level 1 to participate in the giveaways system and be in <#969972085445238784>."
@@ -70,13 +73,13 @@ class Reputation(commands.Cog, name="Programs"):
     programs = app_commands.Group(name="programs", description="Programs to gain you rep.", guild_only=True)
     beta = app_commands.Group(name="beta", description="Beta programs..", parent=programs)
 
-    @programs.command(name="sudoku", description="Play a Sudoku puzzle")
-    async def sudoku(self, interaction: discord.Interaction, mobile: bool):
+    @programs.command(name="sudoku", description="Play a Sudoku puzzle")  # pyright: ignore[reportGeneralTypeIssues]
+    async def sudoku(self, interaction: Interaction["CBot"], mobile: bool):
         """Generate a sudoku puzzle.
 
         Parameters
         ----------
-        interaction: discord.Interaction
+        interaction: Interaction[CBot]
             The interaction of the command.
         mobile: bool
             Whether to turn off formatting that only works on desktop.
@@ -96,34 +99,30 @@ class Reputation(commands.Cog, name="Programs"):
         view = sudoku.Sudoku(sudoku.Puzzle(board, mobile), user, self.bot)
         await interaction.followup.send(embed=view.block_choose_embed(), view=view)
 
-    @programs.command(name="tictactoe", description="Play a game of Tic Tac Toe!")
-    async def tictactoe(self, interaction: discord.Interaction, letter: Literal["X", "O"], easy: bool):
-        """Tic Tac Toe! command.
-
-        This command is for playing a game of Tic Tac Toe.
+    @programs.command(
+        name="tictactoe", description="Play a game of Tic Tac Toe!"
+    )  # pyright: ignore[reportGeneralTypeIssues]
+    async def tictactoe(self, interaction: Interaction["CBot"], difficulty: tictactoe.Difficulty):
+        """Play a game of Tic Tac Toe! Now built with rust.
 
         Parameters
         ----------
-        interaction : discord.Interaction
-            The interaction object for the command.
-        letter : app_commands.Choice[str]
-            Do you want to play as X or O?
-        easy : bool
-            Set this to false for a harder variant of the AI.
+        interaction: Interaction[CBot]
+            The interaction of the command.
+        difficulty: tictactoe.Difficulty
+            The difficulty of the game.
         """
         await interaction.response.defer(ephemeral=True)
-        game = tictactoe.TicTacView(self.bot, letter, easy)
-        if not easy:
-            move = await asyncio.to_thread(game.puzzle.next)
-            # noinspection PyProtectedMember
-            game._buttons[move[0] * 3 + move[1]].disabled = True  # skipcq: PYL-W0212
-        image = await asyncio.to_thread(game.puzzle.display)
+        view = tictactoe.TicTacToe(difficulty)
         embed = discord.Embed(title="TicTacToe").set_image(url="attachment://tictactoe.png")
         embed.set_footer(text="Play by typing /programs tictactoe")
-        await interaction.followup.send(embed=embed, file=image, view=game)
+        image = await asyncio.to_thread(view.display)
+        await interaction.followup.send(embed=embed, view=view, file=image)
 
-    @programs.command(name="shrugman", description="Play the shrugman minigame. (Hangman clone)")
-    async def shrugman(self, interaction: discord.Interaction) -> None:
+    @programs.command(
+        name="shrugman", description="Play the shrugman minigame. (Hangman clone)"
+    )  # pyright: ignore[reportGeneralTypeIssues]
+    async def shrugman(self, interaction: Interaction["CBot"]) -> None:
         """Play a game of Shrugman.
 
         This game is a hangman-like game.
@@ -138,7 +137,7 @@ class Reputation(commands.Cog, name="Programs"):
 
         Parameters
         ----------
-        interaction: discord.Interaction
+        interaction: Interaction[CBot]
             The interaction of the command.
         """
         await interaction.response.defer(ephemeral=True)
@@ -153,32 +152,47 @@ class Reputation(commands.Cog, name="Programs"):
         view = shrugman.Shrugman(self.bot, word)
         await interaction.followup.send(embed=embed, view=view)
 
-    @beta.command()
-    async def rtictactoe(self, interaction: discord.Interaction, difficulty: rtictactoe.Difficulty):
-        """[Beta] Play a game of Tic Tac Toe to help me test the new implemenatation. Doesn't give rep.
+    @beta.command()  # pyright: ignore[reportGeneralTypeIssues]
+    async def minesweeper(
+        self,
+        interaction: Interaction["CBot"],
+        difficulty: Literal["Beginner", "Intermediate", "Expert", "Super Expert"],
+    ):
+        """[BETA] Play a game of Minesweeper.
 
         Parameters
         ----------
-        interaction: discord.Interaction
+        interaction: Interaction[CBot]
             The interaction of the command.
-        difficulty: rtictactoe.Difficulty
+        difficulty: {"Beginner", "Intermediate", "Expert", "Super Expert"}
             The difficulty of the game.
         """
         await interaction.response.defer(ephemeral=True)
-        view = rtictactoe.TicTacToe(difficulty)
-        embed = discord.Embed(title="TicTacToe").set_image(url="attachment://tictactoe.png")
-        embed.set_footer(text="Play by typing /programs beta rtictactoe")
-        image = await asyncio.to_thread(view.display)
-        await interaction.followup.send(embed=embed, view=view, file=image)
+        if difficulty == "Beginner":
+            game = MinesweeperGame.beginner()
+        elif difficulty == "Intermediate":
+            game = MinesweeperGame.intermediate()
+        elif difficulty == "Expert":
+            game = MinesweeperGame.expert()
+        else:
+            game = MinesweeperGame.super_expert()
+        view = Minesweeper(game)
+        file = await view.draw()
+        embed = discord.Embed(title="Minesweeper", color=discord.Color.dark_purple())
+        embed.set_footer(text="Play by typing /programs minesweeper")
+        embed.set_author(name=interaction.user.display_name, icon_url=interaction.user.display_avatar.url)
+        embed.set_image(url="attachment://minesweeper.png")
+        await interaction.followup.send(embed=embed, view=view, file=file)
 
-    @app_commands.command(name="rollcall", description="Claim your daily reputation bonus")
+    # noinspection SpellCheckingInspection
+    @app_commands.command()  # pyright: ignore[reportGeneralTypeIssues]
     @app_commands.guild_only()
-    async def rollcall(self, interaction: discord.Interaction):
-        """Get a daily reputation bonus.
+    async def rollcall(self, interaction: Interaction["CBot"]):
+        """Claim your daily reputation bonus.
 
         Parameters
         ----------
-        interaction: discord.Interaction
+        interaction: Interaction[CBot]
             The interaction of the command invocation.
         """
         clientuser = self.bot.user
@@ -220,19 +234,22 @@ class Reputation(commands.Cog, name="Programs"):
             avatar_url=clientuser.display_avatar.url,
         )
 
-    @app_commands.command(name="reputation", description="Check your reputation")
+    @app_commands.command(
+        name="reputation", description="Check your reputation"
+    )  # pyright: ignore[reportGeneralTypeIssues]
     @app_commands.guild_only()
-    async def query_points(self, interaction: discord.Interaction):
+    async def query_points(self, interaction: Interaction["CBot"]):
         """Query your reputation.
 
         Parameters
         ----------
-        interaction: discord.Interaction
+        interaction: Interaction[CBot]
             The interaction of the command invocation.
         """
         await interaction.response.defer(ephemeral=True)
         async with self.bot.pool.acquire() as conn:
             points = await conn.fetchval("SELECT points from users where id = $1", interaction.user.id) or 0
+            # noinspection SpellCheckingInspection
             limits = await conn.fetchrow("SELECT * from daily_points where id = $1", interaction.user.id) or {
                 "last_claim": 0,
                 "last_particip_dt": 0,
@@ -240,6 +257,7 @@ class Reputation(commands.Cog, name="Programs"):
             }
             wins = await conn.fetchval("SELECT wins FROM winners WHERE id = $1", interaction.user.id) or 0
         claim = "have" if limits["last_claim"] == self.bot.TIME() else "haven't"
+        # noinspection SpellCheckingInspection
         particip = (
             "have" if (limits["last_particip_dt"] == self.bot.TIME()) and (limits["particip"] >= 10) else "haven't"
         )
@@ -250,7 +268,7 @@ class Reputation(commands.Cog, name="Programs"):
         )
 
 
-async def setup(bot: CBot):
+async def setup(bot: "CBot"):
     """Load the cog.
 
     Parameters
@@ -260,7 +278,7 @@ async def setup(bot: CBot):
     await bot.add_cog(Reputation(bot), override=True)
 
 
-async def teardown(bot: CBot):
+async def teardown(bot: "CBot"):
     """Unload the cog.
 
     Parameters

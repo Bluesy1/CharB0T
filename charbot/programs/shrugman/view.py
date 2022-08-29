@@ -26,13 +26,16 @@
 import datetime
 import random
 from enum import Enum
+from typing import TYPE_CHECKING
 
 import discord
 from discord import ui
 from discord.utils import utcnow
 
 from . import modal
-from .. import CBot
+
+if TYPE_CHECKING:
+    from ... import CBot
 
 
 __all__ = ("Shrugman", "words")
@@ -83,7 +86,7 @@ class Shrugman(ui.View):
         The time the game started. Timzone aware.
     """
 
-    def __init__(self, bot: CBot, word: str, *, fail_enum=FailStates):
+    def __init__(self, bot: "CBot", word: str, *, fail_enum=FailStates):
         super().__init__(timeout=600)
         self.bot = bot
         self.word = word or random.choice(words)

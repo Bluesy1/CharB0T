@@ -80,7 +80,7 @@ class Translator(app_commands.Translator):
         elif context.location is TranslationContextLocation.choice_name:
             key = f"choice-{context.data.name}-name"
         elif context.location is TranslationContextLocation.other:
-            key = f"other-{string.message.replace(' ', '-')}"
+            key = f"{string.message.replace(' ', '-')}"
         else:
             return None
         translated = fluent.format_value(key, string.extras)

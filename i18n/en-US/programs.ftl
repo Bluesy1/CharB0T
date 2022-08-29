@@ -11,19 +11,25 @@ programs-sudoku-parameter-mobile-name = mobile
 programs-sudoku-parameter-mobile-description = Whether to turn off formatting that only works on desktop.
 
 programs-tictactoe-name = tictactoe
-programs-tictactoe-description = Play a game of Tic Tac Toe game
-programs-tictactoe-parameter-letter-name = letter
-programs-tictactoe-parameter-letter-description = Do you want to play as X or O?
-programs-tictactoe-parameter-easy-name = easy
-programs-tictactoe-parameter-easy-description = Set this to false for a harder variant of the AI.
+programs-tictactoe-description = Play a game of Tic Tac Toe! Now built with rust.
+programs-tictactoe-parameter-difficulty-name = difficulty
+programs-tictactoe-parameter-difficulty-description = The difficulty of the game.
+choice-EASY-name = EASY
+choice-MEDIUM-name = MEDIUM
+choice-HARD-name = HARD
+choice-RANDOM-name = RANDOM
 
 programs-shrugman-name = shrugman
 programs-shrugman-description = Play the shrugman minigame. (Hangman clone)
 
-programs-beta-rtictactoe-name = rtictactoe
-programs-beta-rtictactoe-description = [Beta] Play a game of Tic Tac Toe to help me test the new implemenatation. Doesn't give rep.
-programs-beta-rtictactoe-parameter-difficulty-name = difficulty
-programs-beta-rtictactoe-parameter-difficulty-description = The difficulty of the game.
+programs-beta-minesweeper-name = minesweeper
+programs-beta-minesweeper-description = [BETA] Play a game of Minesweeper.
+programs-beta-minesweeper-parameter-difficulty-name = difficulty
+programs-beta-minesweeper-parameter-difficulty-description = The difficulty of the game.
+choice-Beginner-name = Beginner
+choice-Intermediate-name = Intermediate
+choice-Expert-name = Expert
+choice-Super-Expert-name = Super Expert
 
 rollcall-name = rollcall
 rollcall-description = Claim your daily reputation bonus.
