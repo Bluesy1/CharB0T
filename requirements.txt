@@ -6,7 +6,7 @@ fluent.runtime == 0.3.1
 jishaku @ git+https://github.com/Gorialis/jishaku@2269d68dc1381a0e2ecc7894ae1452f54839055d#egg=jishaku
 matplotlib == 3.5.3
 numpy==1.23.2
-orjson == 3.7.12
+orjson == 3.8.0
 pandas == 1.4.3
 Pillow == 9.2.0
 scipy==1.9.0
