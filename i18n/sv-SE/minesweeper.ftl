@@ -1,0 +1,26 @@
+select-row-description = Ändra raden till { $letter }
+select-row-placehholder = Välj en rad
+select-col-description = Ändra kolumnen till { $letter }
+select-col-placehholder = Välj en kolumn
+#Chord is not in the musical sense, but as the follwing move: http://www.minesweeper.info/wiki/Chord
+reveal-label = Avslöja
+chord-label = Chord
+flag-label = Flagga
+quit-label = Avsluta
+help-label = Hjälp
+lose-title = Du förlorade!
+lose-description = Du avslöjade en gruva och förlorade spelet. Du fick { $awarded } poäng.
+lose-hit-cap-description = { lose-description } (Hit daglig mössa)
+win-title = Du vann!
+win-description = Du avslöjade alla säkra brickor och vann spelet. Du fick { $awarded } poäng.
+win-hit-cap-description = { win-description } (Hit daglig mössa)
+help-title = Gruvarbetare
+help-description = Hur man ska spela minesweeper:
+help-chord-title = Chord { "\u2692" }
+help-chord-description = Avslöja alla plattor runt ett exponerat tal som har rätt antal flaggade plattor runt det. Detta kommer att explodera gruvor.
+help-flag-title = Flagga { "\U01f6A9" }
+help-flag-description = Flagga en platta, eller ta bort flaggan från en flaggad platta.
+help-quit-title = Avsluta { "\u2620" }
+help-quit-description = Avsluta spelet.
+help-help-title = Hjälp { "\u2049" }
+help-help-description = Visa detta hjälpmeddelande.
