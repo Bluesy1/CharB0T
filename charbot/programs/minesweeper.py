@@ -267,24 +267,24 @@ class Minesweeper(ui.View):
         _button : ui.Button[Self]
             The button.
         """
-        await interaction.response.defer(ephemeral=True)
+        await interaction.response.defer(ephemeral=True, thinking=True)
         embed = discord.Embed(
             title="Minesweeper",
             description="How to play minesweeper:",
             color=0x00FF00,
         ).set_image(url="attachment://help.gif")
-        embed.add_field(name="Reveal \u26cf", value="Reveal a covered tile.", inline=True)
+        embed.add_field(name="Reveal \u26cf", value="Reveal a covered tile.", inline=False)
         embed.add_field(
             name="Chord \u2692",
             value="Reveal all tiles around an exposed number that has the correct number of flagged tiles around it. "
             "This will explode mines.",
-            inline=True,
+            inline=False,
         )
         embed.add_field(
-            name="Flag \U0001f6a9", value="Flag a tile, or remove the flag from a flagged tile.", inline=True
+            name="Flag \U0001f6a9", value="Flag a tile, or remove the flag from a flagged tile.", inline=False
         )
-        embed.add_field(name="Quit \u2620", value="Quit the game.", inline=True)
-        embed.add_field(name="Help \u2049", value="Show this help.", inline=True)
+        embed.add_field(name="Quit \u2620", value="Quit the game.", inline=False)
+        embed.add_field(name="Help \u2049", value="Show this help.", inline=False)
         await interaction.followup.send(
             embed=embed,
             file=discord.File(  # skipcq: PYL-E1123

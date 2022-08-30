@@ -45,8 +45,9 @@ async def test_minesweeper_draw(game: Game):
 async def test_handle_lose(game: Game, inter):
     view = minesweeper.Minesweeper(game)
     await view.handle_lose(inter)
-    inter.response.edit_message.assert_awaited_once()
-    kwargs: dict[str, Any] = inter.response.edit_message.await_args.kwargs
+    inter.response.defer.assert_awaited_once_with(ephemeral=True)
+    inter.edit_original_response.assert_awaited_once()
+    kwargs: dict[str, Any] = inter.edit_original_response.await_args.kwargs
     embed: discord.Embed = kwargs["embed"]
     assert embed.title == "You lost!", "Title should be You lost!"
     assert embed.image.url == "attachment://minesweeper.png", "Image should be a reference to the attachment"
@@ -61,8 +62,9 @@ async def test_handle_lose(game: Game, inter):
 async def test_handle_win(game: Game, inter):
     view = minesweeper.Minesweeper(game)
     await view.handle_win(inter)
-    inter.response.edit_message.assert_awaited_once()
-    kwargs: dict[str, Any] = inter.response.edit_message.await_args.kwargs
+    inter.response.defer.assert_awaited_once_with(ephemeral=True)
+    inter.edit_original_response.assert_awaited_once()
+    kwargs: dict[str, Any] = inter.edit_original_response.await_args.kwargs
     embed: discord.Embed = kwargs["embed"]
     assert embed.title == "You won!", "Title should be You won!"
     assert embed.image.url == "attachment://minesweeper.png", "Image should be a reference to the attachment"
@@ -164,7 +166,7 @@ async def test_chord_failure(game, inter, mocker: MockerFixture):
     assert (
         inter.response.send_message.await_args.args[0]
         == "WARNING: you tried to chord a cell that was not revealed, not a number, or didn't have the appropriate"
-        " number of surrounding tles marked."
+        " number of surrounding tiles marked."
     )
 
 
@@ -245,7 +247,7 @@ async def test_help(game, inter, mocker: MockerFixture):
     inter.followup = mocker.AsyncMock(spec=discord.Webhook)
     view = minesweeper.Minesweeper(game)
     await view.help.callback(inter)
-    inter.response.defer.assert_awaited_once_with(ephemeral=True)
+    inter.response.defer.assert_awaited_once_with(ephemeral=True, thinking=True)
     inter.followup.send.assert_awaited_once()
     kwargs = inter.followup.send.await_args.kwargs
     assert "embed" in kwargs, "Embed should be in the kwargs"
