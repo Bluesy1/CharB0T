@@ -203,8 +203,14 @@ class Game:
             The important properties of the cell that is now selected.
         """
         ...
-    def toggle_flag(self) -> None:
-        """Toggles the flag on the cell the internal cursor is on."""
+    def toggle_flag(self) -> bool:
+        """Toggles the flag on the cell the internal cursor is on.
+
+        Returns
+        -------
+        success: bool
+            Whether the flag was toggled or not. If false, the cell was already revealed.
+        """
         ...
     def reveal(self) -> RevealResult:
         """Reveals the cell the internal cursor is on.

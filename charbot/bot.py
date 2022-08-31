@@ -26,6 +26,7 @@
 import datetime
 import logging
 from typing import Any, ClassVar, Final, TypeVar
+from typing_extensions import Self
 from zoneinfo import ZoneInfo
 
 import aiohttp
@@ -334,12 +335,12 @@ class CBot(commands.Bot):
             return 0
         return points + bonus
 
-    async def translate(self, string: locale_str, locale: Locale, *, data: Any | None = None) -> str | None:
+    async def translate(self, string: locale_str | str, locale: Locale, *, data: Any | None = None) -> str:
         """Translate a string.
 
         Parameters
         ----------
-        string : locale_str
+        string : locale_str | str
             The string to translate.
         locale : Locale
             The locale to translate to.
@@ -348,18 +349,30 @@ class CBot(commands.Bot):
 
         Returns
         -------
-        str | None
+        str
             The translated string, or None if the string isn't translatable.
+
+        Raises
+        ------
+        ValueError
+            If the key is not valid.
         """
         translator = self.tree.translator
         if translator is None:
-            return None
+            translator = Translator()
+            await self.tree.set_translator(translator)
         context = TranslationContext(TranslationContextLocation.other, data=data)
-        return await translator.translate(string, locale, context)
+        res = await translator.translate(string if isinstance(str, locale_str) else locale_str(string), locale, context)
+        if res is not None:
+            return res
+        res = await translator.translate(string, Locale.american_english, context)
+        if res is not None:
+            return res
+        raise ValueError(f"Key {string} not a valid key for translation")
 
     # for some reason deepsource doesn't like this, so i'm skipcq'ing the definition header
     async def on_command_error(
-        self, ctx: commands.Context[Any], exception: commands.CommandError, /
+        self, ctx: commands.Context[Self], exception: commands.CommandError, /
     ) -> None:  # skipcq: PYL-W0221
         """Event triggered when an error is raised while invoking a command.
 

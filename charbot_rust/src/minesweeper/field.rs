@@ -550,8 +550,14 @@ impl Field {
     }
     */
 
-    pub fn toggle_mark(&mut self, i: u32) {
-        self.get_cell_mut(i).toggle_mark();
+    pub fn toggle_mark(&mut self, i: u32) -> bool {
+        let mut cell = self.get_cell_mut(i);
+        if cell.revealed {
+            false
+        } else {
+            cell.toggle_mark();
+            true
+        }
     }
 
     pub fn total_mines(&self) -> u32 {

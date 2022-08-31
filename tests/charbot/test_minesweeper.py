@@ -34,10 +34,10 @@ async def test_minesweeper_init(game: Game):
 @pytest.mark.asyncio
 async def test_minesweeper_draw(game: Game):
     view = minesweeper.Minesweeper(game)
-    file = await view.draw()
+    file = await view.draw("Minesweeper Board")
     assert isinstance(file, discord.File), "File should be a discord.File"
     assert file.filename == "minesweeper.png", "File should have the filename minesweeper.png"
-    assert file.description == "Minesweeper board", "File should have the description Minesweeper board"
+    assert file.description == "Minesweeper Board", "File should have the description Minesweeper board"
     assert not file.spoiler, "File should not be marked as a spoiler"
 
 
@@ -49,7 +49,6 @@ async def test_handle_lose(game: Game, inter):
     inter.edit_original_response.assert_awaited_once()
     kwargs: dict[str, Any] = inter.edit_original_response.await_args.kwargs
     embed: discord.Embed = kwargs["embed"]
-    assert embed.title == "You lost!", "Title should be You lost!"
     assert embed.image.url == "attachment://minesweeper.png", "Image should be a reference to the attachment"
     assert kwargs["view"] is None, "View should be None"
     assert view.is_finished(), "Game should be finished"
@@ -66,7 +65,6 @@ async def test_handle_win(game: Game, inter):
     inter.edit_original_response.assert_awaited_once()
     kwargs: dict[str, Any] = inter.edit_original_response.await_args.kwargs
     embed: discord.Embed = kwargs["embed"]
-    assert embed.title == "You won!", "Title should be You won!"
     assert embed.image.url == "attachment://minesweeper.png", "Image should be a reference to the attachment"
     assert kwargs["view"] is None, "View should be None"
     assert view.is_finished(), "Game should be finished"
@@ -119,11 +117,6 @@ async def test_reveal_success(game, inter, mocker: MockerFixture):
     assert len(kwargs) == 2, "Kwargs should have two elements"
     inter.followup.send.assert_awaited_once()
     assert inter.followup.send.await_args.kwargs["ephemeral"], "Ephemeral should be set as true"
-    assert (
-        inter.followup.send.await_args.args[0]
-        == "WARNING: you tried to reveal a flagged cell. Instead of revealing it, it was unflagged."
-        " If you meant to reveal it, press reveal again."
-    )
 
 
 @pytest.mark.asyncio
@@ -163,11 +156,6 @@ async def test_chord_failure(game, inter, mocker: MockerFixture):
     await view.chord.callback(inter)
     inter.response.send_message.assert_awaited_once()
     assert inter.response.send_message.await_args.kwargs["ephemeral"], "Ephemeral should be set as true"
-    assert (
-        inter.response.send_message.await_args.args[0]
-        == "WARNING: you tried to chord a cell that was not revealed, not a number, or didn't have the appropriate"
-        " number of surrounding tiles marked."
-    )
 
 
 @pytest.mark.asyncio
@@ -233,7 +221,6 @@ async def test_quit(game, inter):
     inter.response.edit_message.assert_awaited_once()
     kwargs: dict[str, Any] = inter.response.edit_message.await_args.kwargs
     embed: discord.Embed = kwargs["embed"]
-    assert embed.title == "You quit!", "Title should be You quit!"
     assert embed.image.url == "attachment://minesweeper.png", "Image should be a reference to the attachment"
     assert kwargs["view"] is None, "View should be None"
     assert view.is_finished(), "Game should be finished"
