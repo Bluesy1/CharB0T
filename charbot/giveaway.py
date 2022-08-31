@@ -28,7 +28,7 @@ import datetime
 import random
 import warnings
 from statistics import mean
-from typing import Any
+from typing import Any, cast
 
 import asyncpg
 import discord
@@ -39,7 +39,7 @@ from discord.ext import commands, tasks
 from discord.utils import MISSING, utcnow
 from fluent.runtime import FluentLocalization
 
-from . import CBot, Config, errors
+from . import CBot, errors
 
 
 class GiveawayView(ui.View):
@@ -120,15 +120,10 @@ class GiveawayView(ui.View):
             embed = message.embeds[0]
             game = embed.title
             url = embed.url
-            channel = message.channel
-            assert isinstance(channel, (discord.TextChannel, discord.PartialMessageable))  # skipcq: BAN-B101
-            assert isinstance(game, str)  # skipcq: BAN-B101
             view = cls(bot, embed, game, url)
             view.message = message
             view.top_bid = 0
-            total = embed.fields[3].value
-            assert isinstance(total, str)  # skipcq: BAN-B101
-            view.total_entries = int(total)
+            view.total_entries = int(cast(str, embed.fields[3].value))
             if view.total_entries:
                 view.check.disabled = False
         except (IndexError, ValueError, TypeError, AssertionError) as e:
@@ -153,8 +148,7 @@ class GiveawayView(ui.View):
         errors.MissingProgramRole
             If no program roles are present.
         """
-        user = interaction.user
-        assert isinstance(user, discord.Member)  # skipcq: BAN-B101
+        user = cast(discord.Member, interaction.user)
         if not any(role.id in self.bot.ALLOWED_ROLES for role in user.roles):
             raise errors.MissingProgramRole(self.bot.ALLOWED_ROLES, interaction.locale)
         return True
@@ -310,8 +304,7 @@ class GiveawayView(ui.View):
             winner = None
             winning_bid = 0
         self._create_drawn_embed(winner, winners[1:], winning_bid, avg_bid, len(bidders))
-        message = self.message
-        assert isinstance(message, discord.Message)  # skipcq: BAN-B101
+        message = cast(discord.Message, self.message)
         await message.edit(embed=self.embed, view=self)
         if winner is not None:
             await self.bot.giveaway_webhook.send(
@@ -353,8 +346,7 @@ class GiveawayView(ui.View):
         if self.total_entries > 0:
             self.check.disabled = False
         self.embed.set_field_at(3, name="Total Reputation Bid", value=f"{self.total_entries}")
-        message = self.message
-        assert isinstance(message, discord.WebhookMessage)  # skipcq: BAN-B101
+        message = cast(discord.WebhookMessage, self.message)
         await message.edit(embed=self.embed, view=self)
 
     # noinspection PyUnusedLocal
@@ -379,7 +371,7 @@ class GiveawayView(ui.View):
                 return
             record = await conn.fetchval("SELECT bid FROM bids WHERE id = $1", interaction.user.id)
             bid: int = record if record is not None else 0
-        chance = bid * 100 / self.total_entries
+        chance = bid / self.total_entries
         await interaction.response.send_message(
             translator.format_value("giveaway-check-success", {"bid": bid, "chance": chance, "wins": wins}),
             ephemeral=True,
@@ -398,10 +390,7 @@ class GiveawayView(ui.View):
             The button that was pressed.
         """
         await interaction.response.defer(ephemeral=True, thinking=True)
-        user = interaction.user
-        clientuser = self.bot.user
-        assert isinstance(user, discord.Member)  # skipcq: BAN-B101
-        assert isinstance(clientuser, discord.ClientUser)  # skipcq: BAN-B101
+        user = cast(discord.Member, interaction.user)
         async with self.role_semaphore:
             translator = FluentLocalization(
                 [interaction.locale.value, "en-US"], ["giveaway.ftl"], self.bot.localizer_loader
@@ -409,21 +398,9 @@ class GiveawayView(ui.View):
             if not any(role.id == 972886729231044638 for role in user.roles):
                 await user.add_roles(discord.Object(id=972886729231044638), reason="Toggled giveaway alerts.")
                 await interaction.followup.send(translator.format_value("giveaway-alerts-enable"))
-                await self.bot.program_logs.send(
-                    f"Added giveaway alerts to {user.mention}.",
-                    username=clientuser.name,
-                    avatar_url=clientuser.display_avatar.url,
-                    allowed_mentions=discord.AllowedMentions(users=False),
-                )
             else:
                 await user.remove_roles(discord.Object(id=972886729231044638), reason="Toggled giveaway alerts.")
                 await interaction.followup.send(translator.format_value("giveaway-alerts-disable"))
-                await self.bot.program_logs.send(
-                    f"Removed giveaway alerts from {user.mention}.",
-                    username=clientuser.name,
-                    avatar_url=clientuser.display_avatar.url,
-                    allowed_mentions=discord.AllowedMentions(users=False),
-                )
 
 
 class BidModal(ui.Modal, title="Bid"):
@@ -466,25 +443,31 @@ class BidModal(ui.Modal, title="Bid"):
         interaction : discord.Interaction
             The interaction that was submitted.
         """
+        translator = FluentLocalization(
+            [interaction.locale.value, "en-US"], ["giveaway.ftl"], self.bot.localizer_loader
+        )
         try:
             val = self.bid_str.value
-            assert isinstance(val, str)  # skipcq: BAN-B101
             bid_int = int(val)
         except ValueError:
-            await interaction.response.send_message("Please enter a valid integer between 0 and 32768.", ephemeral=True)
+            await interaction.response.send_message(
+                translator.format_value("giveaway-bid-invalid-bid."), ephemeral=True
+            )
             return self.stop()
         if 0 > bid_int < 32768:
-            await interaction.response.send_message("Please enter a valid integer between 0 and 32768.", ephemeral=True)
+            await interaction.response.send_message(
+                translator.format_value("giveaway-bid-invalid-bid."), ephemeral=True
+            )
             return self.stop()
         await interaction.response.defer(ephemeral=True, thinking=True)
         async with self.view.bid_lock, self.bot.pool.acquire() as conn, conn.transaction():
             points: int | None = await conn.fetchval("SELECT points FROM users WHERE id = $1", interaction.user.id)
             if points is None or points == 0:
-                await interaction.followup.send("You either have never gained reputation or have 0.")
+                await interaction.followup.send(translator.format_value("giveaway-bid-no-rep"))
                 return self.stop()
             if points < bid_int:
                 await interaction.followup.send(
-                    f"You do not have enough reputation to bid {bid_int} more. You have {points} reputation."
+                    translator.format_value("giveaway-bid-not-enough-rep", {"bid": bid_int, "points": points})
                 )
                 return self.stop()
             bid_int = min(bid_int, points)
@@ -498,35 +481,35 @@ class BidModal(ui.Modal, title="Bid"):
                 warnings.warn("Points should not be None at this code.", RuntimeWarning)
                 points = 0
                 await conn.execute("UPDATE users SET points = 0 WHERE id = $1", interaction.user.id)
-            new_bid: int | None = await conn.fetchval(
+            _new_bid: int | None = await conn.fetchval(
                 "UPDATE bids SET bid = bid + $1 WHERE id = $2 RETURNING bid", bid_int, interaction.user.id
             )
-            if new_bid is None:
+            if _new_bid is None:
                 warnings.warn("Bid should not be None at this code.", RuntimeWarning)
-                new_bid = bid_int
+                _new_bid = bid_int
                 await conn.execute(
                     "INSERT INTO bids (bid,id) values ($1, $2) ON CONFLICT DO UPDATE SET bid = $1",
                     bid_int,
                     interaction.user.id,
                 )
             self.view.total_entries += bid_int
-            assert isinstance(new_bid, int)  # skipcq: BAN-B101
-            chance = new_bid * 100 / self.view.total_entries
+            new_bid = cast(int, _new_bid)
+            chance = new_bid / self.view.total_entries
             await interaction.followup.send(
-                f"You have bid {bid_int} more entries, for a total of {new_bid} entries, giving you a"
-                f" {chance:.2f}% chance of winning! You now have {points} reputation left.",
+                translator.format_value(
+                    "giveaway-bid-success",
+                    {
+                        "bid": bid_int,
+                        "new_bid": new_bid,
+                        "chance": chance,
+                        "points": points,
+                        "wins": await conn.fetchval("SELECT wins FROM winners WHERE id = $1", interaction.user.id) or 0,
+                    },
+                ),
                 ephemeral=True,
             )
             self.view.top_bid = max(new_bid, self.view.top_bid)
             self.stop()
-            clientuser = self.bot.user
-            assert isinstance(clientuser, discord.ClientUser)  # skipcq: BAN-B101
-            await self.bot.program_logs.send(
-                f"{interaction.user.mention} has bid {new_bid} reputation on {self.view.game}.",
-                allowed_mentions=discord.AllowedMentions(users=False),
-                username=clientuser.name,
-                avatar_url=clientuser.display_avatar.url,
-            )
 
 
 class Giveaway(commands.Cog):
@@ -616,6 +599,7 @@ class Giveaway(commands.Cog):
         embed.set_footer(text="Started at")
         embed.add_field(name="How to Participate", value="Select bid and enter your bid in the popup.", inline=True)
         embed.add_field(name="How to Win", value="The winner will be chosen at random.", inline=True)
+        # noinspection SpellCheckingInspection
         embed.add_field(
             name="How to get reputation",
             value="You get reputation by attending `rollcall` and by "
@@ -623,8 +607,6 @@ class Giveaway(commands.Cog):
             inline=True,
         )
         embed.add_field(name="Total Reputation Bid", value="0", inline=True)
-        channel = await self.bot.fetch_channel(Config["discord"]["channels"]["giveaway"])
-        assert isinstance(channel, discord.TextChannel)  # skipcq: BAN-B101
         self.current_giveaway = GiveawayView(self.bot, embed, game, url)
         self.current_giveaway.message = await self.bot.giveaway_webhook.send(
             "<@&972886729231044638>",
