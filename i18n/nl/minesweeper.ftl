@@ -1,0 +1,26 @@
+select-row-description = Verander de rij naar { $letter }
+select-row-placehholder = Selecteer een rij
+select-col-description = Verander de kolom in { $letter }
+select-col-placehholder = Selecteer een kolom
+#Chord is not in the musical sense, but as the follwing move: http://www.minesweeper.info/wiki/Chord
+reveal-label = Onthul
+chord-label = Koord
+flag-label = Markeren
+quit-label = Afsluiten
+help-label = Hulp
+lose-title = Je hebt verloren!
+lose-description = Je hebt een mijn onthuld en het spel verloren. Je hebt { $awarded } punten behaald.
+lose-hit-cap-description = { lose-description } (dagelijkse cap)
+win-title = Je hebt gewonnen!
+win-description = Je hebt alle veilige tegels onthuld en het spel gewonnen. Je hebt { $awarded } punten behaald.
+win-hit-cap-description = { win-description } (dagelijkse cap)
+help-title = Mijnwerker
+help-description = Hoe speel je mijnenroller:
+help-chord-title = Chord { "\u2692" }
+help-chord-description = Alle tegels rond een publiek getal met het juiste aantal gemarkeerde tegels eromheen onthullen. Dit zal mijnen ontploffen.
+help-flag-title = Vlag { "\U01f6A9" }
+help-flag-description = Markeer een tegel of verwijder de vlag van een gemarkeerde tegel.
+help-quit-title = Sluit { "\u2620" }
+help-quit-description = Sluit het spel af.
+help-help-title = Help { "\u2049" }
+help-help-description = Toon dit help bericht.
