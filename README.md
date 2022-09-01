@@ -47,6 +47,9 @@ I work on this project, for free for the most part at this point. If you've gain
 
 You can find the documentation for the bot [here](https://bluesy1.github.io/CharB0T/docs/) and the changelog is [here](https://bluesy1.github.io/CharB0T/changes).
 
+## Non python dependencies
+- [Tesseract 5.X](https://github.com/tesseract-ocr/tesseract) for OCR. You can find the installation instructions [here](https://tesseract-ocr.github.io/tessdoc/Installation.html)
+
 ## Contributing
 
 - If you have a good idea for a new feature, create a [Feature Request](https://github.com/Bluesy1/CharB0T/issues/new?assignees=&labels=feature+request&template=feature_request.yml).

@@ -23,13 +23,16 @@
 # SOFTWARE.
 #  ----------------------------------------------------------------------------
 """Query extension."""
+import asyncio
 from datetime import datetime
 from zoneinfo import ZoneInfo
 
 import discord
+import pytesseract
 from discord import app_commands
 from discord.ext import commands
 from discord.ext.commands import Cog, Context
+from PIL import Image
 
 
 __source__ = "<https://github.com/Bluesy1/CharB0T/tree/main/charbot>"
@@ -137,6 +140,52 @@ class Query(Cog):
             The context of the command
         """
         await ctx.reply(f"https://bluesy1.github.io/CharB0T/\n{__source__}\nMIT License")
+
+    @commands.command(aliaes=["ocr"])
+    async def pull_text(self, ctx: Context, image: discord.Attachment | None = None):
+        """Pull the test out of an image using Optical Character Recognition.
+
+        Parameters
+        ----------
+        ctx : Context
+            The context of the command.
+        image : discord.Attachment | None
+            The image to pull text from.
+        """
+        try:
+            langs = pytesseract.get_languages()
+        except pytesseract.TesseractNotFoundError:
+            await ctx.reply("Tesseract is not installed, I cannot read images.")
+            __import__("logging").getLogger("charbot.query").error("Tesseract is not installed, I cannot read images.")
+            return
+        else:
+            if "eng" not in langs:
+                await ctx.reply("Tesseract does not have English installed, I cannot read images.")
+                return
+        async with ctx.typing():
+            if image is None:
+                if ref := ctx.message.reference:
+                    attachments = ref.resolved.attachments
+                    if len(attachments) == 1:
+                        att = attachments[0]
+                        res: str = await asyncio.to_thread(
+                            lambda img: pytesseract.image_to_string(
+                                Image.frombytes("RGBA", (att.width, att.height), img)
+                            ),
+                            att.read(),
+                        )
+                    else:
+                        await ctx.reply("Please provide an image or reply to a message with an image.")
+                        return
+                else:
+                    await ctx.reply("Please provide an image or reply to a message with an image.")
+                    return
+            else:
+                res: str = await asyncio.to_thread(
+                    lambda img: pytesseract.image_to_string(Image.frombytes("RGBA", (image.width, image.height), img)),
+                    await image.read(),
+                )
+            await ctx.reply(f"```\n{res}\n```")
 
     # skipcq: PYL-W0105
     """@commands.hybrid_command(name="imgscam", description="Info about the semi fake image scam on discord")
