@@ -24,6 +24,7 @@
 #  ----------------------------------------------------------------------------
 """Query extension."""
 import asyncio
+from io import BytesIO
 from datetime import datetime
 from zoneinfo import ZoneInfo
 
@@ -141,7 +142,7 @@ class Query(Cog):
         """
         await ctx.reply(f"https://bluesy1.github.io/CharB0T/\n{__source__}\nMIT License")
 
-    @commands.command(aliaes=["ocr"])
+    @commands.command(aliases=["ocr"])
     async def pull_text(self, ctx: Context, image: discord.Attachment | None = None):
         """Pull the test out of an image using Optical Character Recognition.
 
@@ -167,13 +168,8 @@ class Query(Cog):
                 if ref := ctx.message.reference:
                     attachments = ref.resolved.attachments
                     if len(attachments) == 1:
-                        att = attachments[0]
-                        res: str = await asyncio.to_thread(
-                            lambda img: pytesseract.image_to_string(
-                                Image.frombytes("RGBA", (att.width, att.height), img)
-                            ),
-                            att.read(),
-                        )
+                        buffer = BytesIO(await attachments[0].read())
+                        res: str = await asyncio.to_thread(lambda: pytesseract.image_to_string(Image.open(buffer)))
                     else:
                         await ctx.reply("Please provide an image or reply to a message with an image.")
                         return
@@ -181,11 +177,9 @@ class Query(Cog):
                     await ctx.reply("Please provide an image or reply to a message with an image.")
                     return
             else:
-                res: str = await asyncio.to_thread(
-                    lambda img: pytesseract.image_to_string(Image.frombytes("RGBA", (image.width, image.height), img)),
-                    await image.read(),
-                )
-            await ctx.reply(f"```\n{res}\n```")
+                buffer = BytesIO(await image.read())
+                res: str = await asyncio.to_thread(lambda: pytesseract.image_to_string(Image.open(buffer)))
+            await ctx.reply(f"```\n{res.strip()}\n```")
 
     # skipcq: PYL-W0105
     """@commands.hybrid_command(name="imgscam", description="Info about the semi fake image scam on discord")
