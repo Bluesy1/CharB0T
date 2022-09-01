@@ -207,7 +207,7 @@ class CBot(commands.Bot):
         print(f"Logged in: {user.name}#{user.discriminator}")
 
     async def giveaway_user(self, user: int) -> None | asyncpg.Record:
-        """Return an asyncpg entry for the user, joined on all 3 tables for tthe giveaway.
+        """Return an asyncpg entry for the user, joined on all 3 tables for the giveaway.
 
         Parameters
         ----------
@@ -362,10 +362,14 @@ class CBot(commands.Bot):
             translator = Translator()
             await self.tree.set_translator(translator)
         context = TranslationContext(TranslationContextLocation.other, data=data)
-        res = await translator.translate(string if isinstance(str, locale_str) else locale_str(string), locale, context)
+        if isinstance(string, locale_str):
+            key = string
+        else:
+            key = locale_str(string)
+        res = await translator.translate(key, locale, context)
         if res is not None:
             return res
-        res = await translator.translate(string, Locale.american_english, context)
+        res = await translator.translate(key, Locale.american_english, context)
         if res is not None:
             return res
         raise ValueError(f"Key {string} not a valid key for translation")
@@ -496,7 +500,7 @@ class Tree(app_commands.CommandTree[CBot]):
                     "bad-code", {"user": interaction.user.mention, "command": command.qualified_name}
                 )
                 if message == "bad-code" or message is None:
-                    message = "An error occured, Bluesy has been notified."
+                    message = "An error occurred, Bluesy has been notified."
                 self.logger.error("Ignoring exception in command %r", command.name, exc_info=error)
             else:
                 message = "An error occurred while executing the command."

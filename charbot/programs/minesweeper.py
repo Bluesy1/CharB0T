@@ -27,8 +27,10 @@ class Minesweeper(ui.View):
     """
 
     def __init__(
-        self, game: minesweeper.Game, locale: discord.Locale = discord.Locale.american_english
-    ):  # pyright: ignore[reportGeneralTypeIssues]
+        self,
+        game: minesweeper.Game,  # pyright: ignore[reportGeneralTypeIssues]
+        locale: discord.Locale = discord.Locale.american_english,
+    ):
         super().__init__()
         self.game = game
         x = self.game.x

@@ -177,7 +177,7 @@ class Reputation(commands.Cog, name="Programs"):
         else:
             game = MinesweeperGame.super_expert()
         view = Minesweeper(game)
-        file = await view.draw()
+        file = await view.draw(await interaction.client.translate("minesweeper-lose-title", interaction.locale))
         embed = discord.Embed(title="Minesweeper", color=discord.Color.dark_purple())
         embed.set_footer(text="Play by typing /programs minesweeper")
         embed.set_author(name=interaction.user.display_name, icon_url=interaction.user.display_avatar.url)

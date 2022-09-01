@@ -118,7 +118,7 @@ class GiveawayView(ui.View):
         """
         try:
             embed = message.embeds[0]
-            game = embed.title
+            game = cast(str, embed.title)
             url = embed.url
             view = cls(bot, embed, game, url)
             view.message = message
