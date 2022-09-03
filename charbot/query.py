@@ -26,6 +26,7 @@
 import asyncio
 from io import BytesIO
 from datetime import datetime
+from typing import cast
 from zoneinfo import ZoneInfo
 
 import discord
@@ -166,7 +167,7 @@ class Query(Cog):
         async with ctx.typing():
             if image is None:
                 if ref := ctx.message.reference:
-                    attachments = ref.resolved.attachments
+                    attachments = cast(discord.Message, ref.resolved).attachments
                     if len(attachments) == 1:
                         buffer = BytesIO(await attachments[0].read())
                         res: str = await asyncio.to_thread(lambda: pytesseract.image_to_string(Image.open(buffer)))
