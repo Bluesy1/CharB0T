@@ -281,6 +281,9 @@ class GiveawayView(ui.View):
                 new_winner = random.sample(bids[0], k=1, counts=bids[1])
                 if new_winner[0] not in winners_:
                     winners_.append(new_winner[0])
+            if self.message.guild is None:
+                _id = 225345178955808768
+                self.message.guild = self.bot.get_guild(_id) or await self.bot.fetch_guild(_id)
             winners = [
                 await self.message.guild.fetch_member(winner)  # pyright: ignore[reportOptionalMemberAccess]
                 for winner in winners_
