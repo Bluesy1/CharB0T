@@ -284,10 +284,7 @@ class GiveawayView(ui.View):
             if self.message.guild is None:
                 _id = 225345178955808768
                 self.message.guild = self.bot.get_guild(_id) or await self.bot.fetch_guild(_id)
-            winners = [
-                await self.message.guild.fetch_member(winner)  # pyright: ignore[reportOptionalMemberAccess]
-                for winner in winners_
-            ]
+            winners = [await self.message.guild.fetch_member(winner) for winner in winners_]
         else:
             winners = []
             avg_bid = 0
