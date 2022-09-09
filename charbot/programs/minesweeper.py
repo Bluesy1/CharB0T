@@ -296,8 +296,8 @@ class Minesweeper(ui.View):
         """
         await interaction.response.defer(ephemeral=True, thinking=True)
         embed = discord.Embed(
-            title=await interaction.client.translate("minesweeper-help-", interaction.locale),
-            description=await interaction.client.translate("minesweeper-help-", interaction.locale),
+            title=await interaction.client.translate("minesweeper-help-title", interaction.locale),
+            description=await interaction.client.translate("minesweeper-help-description", interaction.locale),
             color=0x00FF00,
         ).set_image(url="attachment://help.gif")
         embed.add_field(
