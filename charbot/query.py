@@ -201,7 +201,7 @@ class Query(Cog):
                     if ref.message_id in self.ocr_done:
                         await ctx.reply("I have already read this image.")
                         return
-                    self.ocr_done.add(ref.message_id)
+                    self.ocr_done.add(cast(int, ref.message_id))
                     attachments = cast(discord.Message, ref.resolved).attachments
                     if len(attachments) == 1:
                         buffer = BytesIO(await attachments[0].read())
@@ -240,7 +240,10 @@ class Query(Cog):
             return
         self.ocr_done.add(payload.message_id)
         guild = cast(discord.Guild, self.bot.get_guild(payload.guild_id))
-        channel = guild.get_channel(payload.channel_id) or await guild.fetch_channel(payload.channel_id)
+        channel = cast(
+            discord.TextChannel | discord.VoiceChannel,
+            guild.get_channel(payload.channel_id) or await guild.fetch_channel(payload.channel_id),
+        )
         message = await channel.fetch_message(payload.message_id)
         if len(message.attachments) < 1:
             await channel.send(f"Please only react to messages with at least one attachment. <@{payload.user_id}>")

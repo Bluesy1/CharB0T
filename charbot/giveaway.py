@@ -551,8 +551,18 @@ class Giveaway(commands.Cog):
         if self.current_giveaway is not MISSING:
             message = self.current_giveaway.message
         else:
-            with open("charbot/giveaway.json", "rb") as f:
-                message = await self.bot.giveaway_webhook.fetch_message(orjson.loads(f.read())["messageId"])
+            message_found = False
+            _message: discord.Message = MISSING
+            async for _message in cast(
+                discord.TextChannel | discord.VoiceChannel, await self.bot.fetch_channel(926307166833487902)
+            ).history(limit=5):
+                if _message.components:
+                    message_found = True
+                    break
+            if message_found is True and _message is not MISSING:
+                message = await self.bot.giveaway_webhook.fetch_message(_message.id)
+            else:
+                raise RuntimeError("Could not find giveaway message.")
         current_giveaway = GiveawayView.recreate_from_message(message, self.bot)
         await current_giveaway.message.edit(view=current_giveaway)
         self.current_giveaway = current_giveaway
