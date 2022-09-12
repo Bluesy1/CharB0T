@@ -5,7 +5,7 @@ disrank==0.0.2
 fluent.runtime == 0.3.1
 jishaku @ git+https://github.com/Gorialis/jishaku@a2a3752e4f540b10a96b5c285771b1534e3040fa#egg=jishaku
 matplotlib == 3.5.3
-numpy==1.23.2
+numpy==1.23.3
 orjson == 3.8.0
 pandas == 1.4.4
 Pillow == 9.2.0
