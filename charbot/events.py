@@ -318,6 +318,11 @@ class Events(Cog):
         """
         if message.content is not None and not message.author.bot:
             await self.sensitive_scan(message)
+            if isinstance(message.channel, discord.Thread):
+                thread = message.channel
+                if isinstance(thread.parent, discord.ForumChannel):
+                    if thread.message_count == 1:
+                        await message.pin(reason="First message in thread")
             if message.guild is None:
                 channel = await self.bot.fetch_channel(906578081496584242)
                 assert isinstance(channel, discord.TextChannel)  # skipcq: BAN-B101
