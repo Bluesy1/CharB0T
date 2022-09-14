@@ -158,7 +158,7 @@ class Events(Cog):
         await self.webhook.send(username=bot_user.name, avatar_url=bot_user.display_avatar.url, embed=embed)
         self.timeouts.update({after.id: after.timed_out_until})
 
-    async def sensitive_scan(self, message: discord.Message) -> None:
+    async def sensitive_scan(self, message: discord.Message) -> bool:
         """Check and take action if a message contains sensitive content.
 
         It uses the list of words defined in the sensitive_settings.json file.
@@ -167,6 +167,11 @@ class Events(Cog):
         ----------
         message : discord.Message
             The message to check.
+
+        Returns
+        -------
+        allowed: bool
+            Whether the message is allowed or not.
         """
         if message.guild is not None and message.guild.id == 225345178955808768:
             channel = message.channel
@@ -193,7 +198,7 @@ class Events(Cog):
                 if channel.id in (837816311722803260, 926532222398369812) or (
                     category is not None and category.id in (360818916861280256, 942578610336837632)
                 ):
-                    return
+                    return True
                 bot_user = self.bot.user
                 assert isinstance(bot_user, discord.ClientUser)  # skipcq: BAN-B101
                 await self.webhook.send(
@@ -202,6 +207,8 @@ class Events(Cog):
                     embed=sensitive_embed(message, used_words),
                 )
                 self.last_sensitive_logged[message.author.id] = datetime.now()
+                return False
+        return True
 
     # noinspection DuplicatedCode
     @tasks.loop(seconds=30)
@@ -317,7 +324,8 @@ class Events(Cog):
             The message sent to the websocket from discord.
         """
         if message.content is not None and not message.author.bot:
-            await self.sensitive_scan(message)
+            if not await self.sensitive_scan(message):
+                return
             if isinstance(message.channel, discord.Thread):
                 thread = message.channel
                 if isinstance(thread.parent, discord.ForumChannel):
