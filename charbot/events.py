@@ -310,6 +310,24 @@ class Events(Cog):
                 await self.parse_timeout(after)
 
     @Cog.listener()
+    async def on_thread_create(self, thread: discord.Thread) -> None:
+        """When a thread (post) is created in a forum channel, pin it.
+
+        Parameters
+        ----------
+        thread : discord.Thread
+            The thread that was created
+        """
+        if not isinstance(thread.parent, discord.ForumChannel):
+            return
+
+        message = thread.get_partial_message(thread.id)
+        try:
+            await message.pin()
+        except discord.HTTPException:
+            pass
+
+    @Cog.listener()
     async def on_message(self, message: discord.Message) -> None:
         """Listen for messages sent that the bot can see.
 
@@ -326,11 +344,6 @@ class Events(Cog):
         if message.content is not None and not message.author.bot:
             if not await self.sensitive_scan(message):
                 return
-            if isinstance(message.channel, discord.Thread):
-                thread = message.channel
-                if isinstance(thread.parent, discord.ForumChannel):
-                    if thread.message_count == 1:
-                        await message.pin(reason="First message in thread")
             if message.guild is None:
                 channel = await self.bot.fetch_channel(906578081496584242)
                 assert isinstance(channel, discord.TextChannel)  # skipcq: BAN-B101
