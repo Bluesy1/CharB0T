@@ -34,7 +34,7 @@ class Translator(app_commands.Translator):
 
     def __init__(self):
         self.loader = FluentResourceLoader("i18n/{locale}")
-        self.supported_locales = [Locale.american_english]
+        self.supported_locales = [Locale.american_english, Locale.spain_spanish, Locale.french]
 
     async def translate(self, string: locale_str, locale: Locale, context: TranslationContextTypes) -> str | None:
         """Translate a string using the Fluent syntax
@@ -80,7 +80,7 @@ class Translator(app_commands.Translator):
         elif context.location is TranslationContextLocation.choice_name:
             key = f"choice-{context.data.name}-name"
         elif context.location is TranslationContextLocation.other:
-            key = f"other-{string.message.replace(' ', '-')}"
+            key = f"{string.message.replace(' ', '-')}"
         else:
             return None
         translated = fluent.format_value(key, string.extras)

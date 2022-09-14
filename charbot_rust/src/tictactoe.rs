@@ -136,7 +136,7 @@ impl Game {
             false => Piece::X,
         };
         self.board.place_piece(index, human);
-        if self.board.is_victory_for_player(human) {
+        if self.board.is_victory_for_player(human) | self.board.is_draw() {
             return None;
         }
         let comp_move = computer.play(&self.board, computer_piece);

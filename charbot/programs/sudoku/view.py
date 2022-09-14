@@ -24,14 +24,16 @@
 #  ----------------------------------------------------------------------------
 """View class."""
 import datetime
-from typing import Literal
+from typing import Literal, TYPE_CHECKING
 
 import discord
 from discord import ButtonStyle, Interaction, SelectOption, ui
 from discord.utils import MISSING, utcnow
 
 from . import Block, Cell, Puzzle
-from .. import CBot
+
+if TYPE_CHECKING:
+    from ... import CBot
 
 
 # noinspection GrazieInspection
@@ -67,7 +69,7 @@ class Sudoku(ui.View):
         Time the game started, used for calculating time taken. Timezone aware.
     """
 
-    def __init__(self, puzzle: Puzzle, author: discord.Member, bot: CBot):
+    def __init__(self, puzzle: Puzzle, author: discord.Member, bot: "CBot"):
         super().__init__(timeout=None)
         self.puzzle = puzzle
         self.author = author

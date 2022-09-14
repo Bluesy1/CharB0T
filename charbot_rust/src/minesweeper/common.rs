@@ -51,7 +51,7 @@ pub const TILE_EMPTY: &'static [u8] = include_bytes!("tiles/empty.png");
 pub const TILE_FLAG: &'static [u8] = include_bytes!("tiles/flag.png");
 pub const TILE_MINE_EXPLODED: &'static [u8] = include_bytes!("tiles/mine1.png");
 pub const TILE_MINE_UNEXPLODED: &'static [u8] = include_bytes!("tiles/mine2.png");
-pub const TILE_MINE_TRGGER: &'static [u8] = include_bytes!("tiles/mine3.png");
+pub const TILE_MINE_TRIGGER: &'static [u8] = include_bytes!("tiles/mine3.png");
 
 #[cfg(test)]
 mod tests {
@@ -96,6 +96,6 @@ mod tests {
         assert!(TILE_FLAG.len() > 0);
         assert!(TILE_MINE_EXPLODED.len() > 0);
         assert!(TILE_MINE_UNEXPLODED.len() > 0);
-        assert!(TILE_MINE_TRGGER.len() > 0);
+        assert!(TILE_MINE_TRIGGER.len() > 0);
     }
 }

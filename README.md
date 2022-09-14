@@ -47,21 +47,13 @@ I work on this project, for free for the most part at this point. If you've gain
 
 You can find the documentation for the bot [here](https://bluesy1.github.io/CharB0T/docs/) and the changelog is [here](https://bluesy1.github.io/CharB0T/changes).
 
+## Non python dependencies
+- [Tesseract 5.X](https://github.com/tesseract-ocr/tesseract) for OCR. You can find the installation instructions [here](https://tesseract-ocr.github.io/tessdoc/Installation.html)
+
 ## Contributing
 
 - If you have a good idea for a new feature, create a [Feature Request](https://github.com/Bluesy1/CharB0T/issues/new?assignees=&labels=feature+request&template=feature_request.yml).
 - If you encounter a bug, create a [Bug Report](https://github.com/Bluesy1/CharB0T/issues/new?assignees=&labels=unconfirmed+bug&template=bug_report.yml).
-
-
-1. Check for an open issue that hasn't been resolved yet.
-2. If there is an open issue, check if it is a bug or a feature request.
-3. If it is a bug that has been confirmed, if it hasn't been assigned, assign it to yourself, fork the repository,
-  fix the bug, and submit a pull request.
-4. If it is an unconfirmed bug, see if you can reproduce it consistently, and report that. If you can't reproduce it,
-  also report it. If you can reproduce it, see if you can fix it, and create a PR through a fork.
-5. If it is a feature request, if it has been approved by Bluesy and you can implement it, create a PR through a fork.
-6. If you implement or change something documented, update the documentation and changelogs and submit a pull request for that too.
-7. Again, **Be sure to update the changelogs and documentation.** If you don't, I will have to write them myself and your PR will be delayed. -
 
 ----------------------------------------------------------------------------
 MIT License

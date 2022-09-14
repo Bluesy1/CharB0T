@@ -39,7 +39,7 @@ __all__ = (
     "ComponentInteraction",
     "GuildComponentInteraction",
 )
-__blacklist__ = [f"{__package__}.{item}" for item in ("__main__", "bot", "card", "errors", "types")]
+__blacklist__ = [f"{__package__}.{item}" for item in ("__main__", "bot", "card", "errors", "types", "translator")]
 
 EXTENSIONS = [module.name for module in iter_modules(__path__, f"{__package__}.") if module.name not in __blacklist__]
 T = TypeVar("T", bound="CBot")

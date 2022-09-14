@@ -2,6 +2,8 @@
 import asyncio
 import datetime
 from io import BytesIO
+from typing import cast
+
 from typing_extensions import Self
 
 import discord
@@ -95,65 +97,53 @@ class TicTacToe(ui.View):
         await interaction.response.edit_message(view=None)
         comp_move = await asyncio.to_thread(self.game.play, pos)
         button.disabled = True
-        if comp_move:
+        if comp_move is not None:
             self._buttons[comp_move].disabled = True
-        if comp_move is None:
+        if self.game.has_player_won():
             points: tuple[int, int] = self.game.points()
-            member = interaction.user
-            assert isinstance(member, discord.Member)  # skipcq: BAN-B101
-            # gained_points = await interaction.client.give_game_points(
-            #    member, "tictactoe", points[0], points[1]
-            # )
-            max_points = gained_points = points[0] + points[1]
+            member = cast(discord.Member, interaction.user)
+            gained_points = await interaction.client.give_game_points(member, "tictactoe", points[0], points[1])
+            max_points = points[0] + points[1]
             embed = discord.Embed(
                 title="You Won!",
                 description=f"You won the game in "
-                f"{utcnow().replace(microsecond=0) - self.time.replace(microsecond=0)} seconds! "
-                f"You would have gained {gained_points} reputation. "
-                f"{'(Daily Cap Reached)' if gained_points != max_points else ''}",
+                f"{utcnow().replace(microsecond=0) - self.time.replace(microsecond=0)} seconds! You gained "
+                f"{gained_points} reputation. {'(Daily Cap Reached)' if gained_points != max_points else ''}",
                 color=discord.Color.green(),
             ).set_image(url="attachment://tictactoe.png")
-            embed.set_footer(text="Start playing by typing /programs beta rtictactoe")
-            self.disable()
-            image = await asyncio.to_thread(self.display)
-            await interaction.edit_original_response(attachments=[image], embed=embed, view=self)
-        elif self.game.is_draw():
-            points = self.game.points()
-            member = interaction.user
-            assert isinstance(member, discord.Member)  # skipcq: BAN-B101
-            # gained_points = await interaction.client.give_game_points(
-            #    member, "tictactoe", points[0], points[1]
-            # )
-            max_points = gained_points = points[0] + points[1]
-            embed = discord.Embed(
-                title="Draw!",
-                description=f"The game ended in a draw in "
-                f"{utcnow().replace(microsecond=0) - self.time.replace(microsecond=0)} seconds! "
-                f"You would have gained {gained_points} reputation. "
-                f"{'(Daily Cap Reached)' if gained_points != max_points else ''}",
-                color=discord.Color.gold(),
-            ).set_image(url="attachment://tictactoe.png")
-            embed.set_footer(text="Start playing by typing /programs beta rtictactoe")
+            embed.set_footer(text="Start playing by typing /programs tictactoe")
             self.disable()
             image = await asyncio.to_thread(self.display)
             await interaction.edit_original_response(attachments=[image], embed=embed, view=self)
         elif self.game.has_player_lost():
             points = self.game.points()
-            member = interaction.user
-            assert isinstance(member, discord.Member)  # skipcq: BAN-B101
-            # gained_points = await interaction.client.give_game_points(
-            #    member, "tictactoe", points[0], points[1]
-            # )
-            max_points = gained_points = points[0] + points[1]
+            member = cast(discord.Member, interaction.user)
+            gained_points = await interaction.client.give_game_points(member, "tictactoe", points[0], points[1])
+            max_points = points[0] + points[1]
             embed = discord.Embed(
                 title="You Lost!",
                 description=f"You lost the game in "
-                f"{utcnow().replace(microsecond=0) - self.time.replace(microsecond=0)} seconds!"
-                f" You would have gained {gained_points} reputation. "
-                f"{'(Daily Cap Reached)' if gained_points != max_points else ''}",
+                f"{utcnow().replace(microsecond=0) - self.time.replace(microsecond=0)} seconds! You gained "
+                f"{gained_points} reputation. {'(Daily Cap Reached)' if gained_points != max_points else ''}",
                 color=discord.Color.red(),
             ).set_image(url="attachment://tictactoe.png")
-            embed.set_footer(text="Start playing by typing /programs beta rtictactoe")
+            embed.set_footer(text="Start playing by typing /programs tictactoe")
+            self.disable()
+            image = await asyncio.to_thread(self.display)
+            await interaction.edit_original_response(attachments=[image], embed=embed, view=self)
+        elif self.game.is_draw():
+            points = self.game.points()
+            member = cast(discord.Member, interaction.user)
+            gained_points = await interaction.client.give_game_points(member, "tictactoe", points[0], points[1])
+            max_points = points[0] + points[1]
+            embed = discord.Embed(
+                title="Draw!",
+                description=f"The game ended in a draw in "
+                f"{utcnow().replace(microsecond=0) - self.time.replace(microsecond=0)} seconds! You gained "
+                f"{gained_points} reputation. {'(Daily Cap Reached)' if gained_points != max_points else ''}",
+                color=discord.Color.gold(),
+            ).set_image(url="attachment://tictactoe.png")
+            embed.set_footer(text="Start playing by typing /programs tictactoe")
             self.disable()
             image = await asyncio.to_thread(self.display)
             await interaction.edit_original_response(attachments=[image], embed=embed, view=self)

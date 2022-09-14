@@ -172,9 +172,9 @@ impl Game {
         Ok(self.field.get_selected_cell().to_return_cell())
     }
 
-    fn toggle_flag(&mut self) {
+    fn toggle_flag(&mut self) -> bool {
         let ind = self.field.get_selected_ind();
-        self.field.toggle_mark(ind);
+        self.field.toggle_mark(ind)
     }
 
     fn reveal(&mut self) -> RevealResult {

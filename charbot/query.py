@@ -23,13 +23,23 @@
 # SOFTWARE.
 #  ----------------------------------------------------------------------------
 """Query extension."""
+import asyncio
+import re
+from io import BytesIO
 from datetime import datetime
+from typing import cast, TYPE_CHECKING
 from zoneinfo import ZoneInfo
 
 import discord
+import pytesseract
 from discord import app_commands
-from discord.ext import commands
+from discord.ext import commands, tasks
 from discord.ext.commands import Cog, Context
+from PIL import Image, ImageOps
+
+
+if TYPE_CHECKING:
+    from . import CBot
 
 
 __source__ = "<https://github.com/Bluesy1/CharB0T/tree/main/charbot>"
@@ -50,8 +60,19 @@ class Query(Cog):
     """
 
     # noinspection PyUnresolvedReferences
-    def __init__(self, bot: commands.Bot):
+    def __init__(self, bot: "CBot"):
+        self.ocr_done: set[int] = set()
         self.bot = bot
+
+    async def cog_load(self) -> None:
+        """Load the cog."""
+        self.ocr_done = self.bot.holder.get("ocr_done", self.ocr_done)
+        self.clear_ocr_done.start()
+
+    async def cog_unload(self) -> None:
+        """Unload the cog."""
+        self.bot.holder["ocr_done"] = self.ocr_done
+        self.clear_ocr_done.cancel()
 
     def cog_check(self, ctx: Context) -> bool:
         """Check to run for all cog commands.
@@ -138,6 +159,102 @@ class Query(Cog):
         """
         await ctx.reply(f"https://bluesy1.github.io/CharB0T/\n{__source__}\nMIT License")
 
+    @staticmethod
+    def get_text(image: BytesIO) -> str:
+        """Get the text from an image using pytesseract"""
+        img = Image.open(image)
+        if img.is_animated:
+            img.seek(0)
+            buf = BytesIO()
+            img.save(buf, format="PNG", save_all=False)
+            img = Image.open(buf)
+        unfiltered = re.sub(r"\n[\n ]*", "\n", pytesseract.image_to_string(ImageOps.grayscale(img)))
+        filtered = re.sub(r"", "", unfiltered, flags=re.IGNORECASE)
+        return filtered
+
+    @commands.command(aliases=["ocr"])
+    @commands.max_concurrency(2, commands.BucketType.channel, wait=True)
+    async def pull_text(self, ctx: Context, image: discord.Attachment | None = None):
+        """Pull the test out of an image using Optical Character Recognition.
+
+        Parameters
+        ----------
+        ctx : Context
+            The context of the command.
+        image : discord.Attachment | None
+            The image to pull text from.
+        """
+        try:
+            langs = pytesseract.get_languages()
+        except pytesseract.TesseractNotFoundError:
+            await ctx.reply("Tesseract is not installed, I cannot read images.")
+            __import__("logging").getLogger("charbot.query").error("Tesseract is not installed, I cannot read images.")
+            return
+        else:
+            if "eng" not in langs:
+                await ctx.reply("Tesseract does not have English installed, I cannot read images.")
+                return
+
+        async with ctx.typing():
+            if image is None:
+                if ref := ctx.message.reference:
+                    if ref.message_id in self.ocr_done:
+                        await ctx.reply("I have already read this image.")
+                        return
+                    self.ocr_done.add(cast(int, ref.message_id))
+                    attachments = cast(discord.Message, ref.resolved).attachments
+                    if len(attachments) == 1:
+                        buffer = BytesIO(await attachments[0].read())
+                        res = await asyncio.to_thread(self.get_text, buffer)
+                    else:
+                        await ctx.reply("Please provide an image or reply to a message with an image.")
+                        return
+                else:
+                    await ctx.reply("Please provide an image or reply to a message with an image.")
+                    return
+            else:
+                self.ocr_done.add(ctx.message.id)
+                buffer = BytesIO(await image.read())
+                res = await asyncio.to_thread(self.get_text, buffer)
+            if len(res.strip()) < 5:
+                await ctx.reply("I could not read any text from the image.")
+            else:
+                await ctx.reply(f"```\n{res.strip()[:300]}\n```")
+
+    @commands.Cog.listener()
+    async def on_raw_reaction_add(self, payload: discord.RawReactionActionEvent):
+        """Called when a reaction is added to a message.
+
+        Parameters
+        ----------
+        payload : discord.RawReactionActionEvent
+            The payload of the reaction.
+        """
+        if payload.guild_id != 225345178955808768:
+            return
+        if not payload.emoji.is_unicode_emoji():
+            return
+        elif payload.emoji.name != "\U0001F984":
+            return
+        if payload.message_id in self.ocr_done:
+            return
+        self.ocr_done.add(payload.message_id)
+        guild = cast(discord.Guild, self.bot.get_guild(payload.guild_id))
+        channel = cast(
+            discord.TextChannel | discord.VoiceChannel,
+            guild.get_channel(payload.channel_id) or await guild.fetch_channel(payload.channel_id),
+        )
+        message = await channel.fetch_message(payload.message_id)
+        if len(message.attachments) < 1:
+            await channel.send(f"Please only react to messages with at least one attachment. <@{payload.user_id}>")
+            return
+        buffer = BytesIO(await message.attachments[0].read())
+        res = await asyncio.to_thread(self.get_text, buffer)
+        if len(res.strip()) < 5:
+            await channel.send(f"<@{payload.user_id}> I could not read any text from the image.")
+        else:
+            await channel.send(f"<@{payload.user_id}>\n```\n{res.strip()[:300]}\n```")
+
     # skipcq: PYL-W0105
     """@commands.hybrid_command(name="imgscam", description="Info about the semi fake image scam on discord")
     async def imgscam(self, ctx: Context):
@@ -151,8 +268,13 @@ class Query(Cog):
         await ctx.reply("https://blog.hyperphish.com/articles/001-loading/")
     """
 
+    @tasks.loop(hours=24)
+    async def clear_ocr_done(self):
+        """Clear the OCR done set."""
+        self.ocr_done.clear()
 
-async def setup(bot: commands.Bot):
+
+async def setup(bot: "CBot"):
     """Load Plugin.
 
     Parameters

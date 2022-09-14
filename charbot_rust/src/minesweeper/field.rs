@@ -396,14 +396,14 @@ impl Field {
         let labels = vec![common::LABEL_A, common::LABEL_B, common::LABEL_C, common::LABEL_D, common::LABEL_E, common::LABEL_F, common::LABEL_G, common::LABEL_H, common::LABEL_I, common::LABEL_J, common::LABEL_K, common::LABEL_L, common::LABEL_M, common::LABEL_N, common::LABEL_O, common::LABEL_P, common::LABEL_Q, common::LABEL_R, common::LABEL_S, common::LABEL_T, common::LABEL_U, common::LABEL_V, common::LABEL_W, common::LABEL_X, common::LABEL_Y];
         //labels
         //cols
-        for i in 1..=self.height { // COV_EXCL_LINE
-            let y = (i * 50) as i64;
+        for i in 0..self.height { // COV_EXCL_LINE
+            let y = ((i + 1) * 50) as i64;
             let label = ImageReader::new(Cursor::new(labels[i as usize])).with_guessed_format().unwrap().decode().unwrap();
             imageops::replace(&mut img, &label.to_rgb8(), 0, y);
         }
         //rows
-        for i in 1..=self.width { // COV_EXCL_LINE
-            let x = (i * 50) as i64;
+        for i in 0..self.width { // COV_EXCL_LINE
+            let x = ((i + 1) * 50) as i64;
             let label = ImageReader::new(Cursor::new(labels[i as usize])).with_guessed_format().unwrap().decode().unwrap();
             imageops::replace(&mut img, &label.to_rgb8(), x, 0);
         }
@@ -444,7 +444,7 @@ impl Field {
                 },
                 Content::Mine(trigger) => {
                     if trigger {
-                        common::TILE_MINE_TRGGER
+                        common::TILE_MINE_TRIGGER
                     } else if cell.revealed && cell.marked {
                         common::TILE_MINE_UNEXPLODED
                     } else if cell.revealed{
@@ -550,8 +550,14 @@ impl Field {
     }
     */
 
-    pub fn toggle_mark(&mut self, i: u32) {
-        self.get_cell_mut(i).toggle_mark();
+    pub fn toggle_mark(&mut self, i: u32) -> bool {
+        let mut cell = self.get_cell_mut(i);
+        if cell.revealed {
+            false
+        } else {
+            cell.toggle_mark();
+            true
+        }
     }
 
     pub fn total_mines(&self) -> u32 {
