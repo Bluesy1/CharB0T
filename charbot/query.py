@@ -282,7 +282,7 @@ class Query(Cog):
         """Clear the OCR done set."""
         self.ocr_done.clear()
 
-    @app_commands.command()
+    @app_commands.command()  # pyright: ignore[reportGeneralTypeIssues]
     @app_commands.guild_only()
     async def rules(
         self,
@@ -302,14 +302,11 @@ class Query(Cog):
             The member to get the rules for, if None, the author is quietly sent the rule(s).
         """
         if not rule:
-            resp = (
-                "\n".join(f"**{num}**: {_rule}" for num, _rule in __rules__.items()) + "The rules can be found here: "
-                "https://docs.google.com/document/d/1BFVIJXSaJmze2czLFK3Ysme2f7qKYhWU17GyQJZdUSc"
-            )
+            resp = "\n".join(f"**{num}**: {_rule}" for num, _rule in __rules__.items())
         else:
             resp = (
-                f"Rule **{rule}** is {__rules__[rule]}\n The rules can be found here: "
-                f"https://docs.google.com/document/d/1BFVIJXSaJmze2czLFK3Ysme2f7qKYhWU17GyQJZdUSc"
+                f"**Rule {rule}** is {__rules__[rule]}\n The rules can be found here: "
+                f"<https://cpry.net/DiscordRules>"
             )
         if member:
             await interaction.response.send_message(
