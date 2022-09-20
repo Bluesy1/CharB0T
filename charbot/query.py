@@ -27,7 +27,7 @@ import asyncio
 import re
 from io import BytesIO
 from datetime import datetime
-from typing import cast, TYPE_CHECKING
+from typing import cast, TYPE_CHECKING, Final
 from zoneinfo import ZoneInfo
 
 import discord
@@ -39,9 +39,31 @@ from PIL import Image, ImageOps
 
 
 if TYPE_CHECKING:
-    from . import CBot
+    from . import CBot, GuildInteraction as Interaction
 
 
+__rules__: Final[dict[int, str]] = {
+    1: "Be respectful to others. Being drunk is not an excuse for being stupid. Common-sense matters."
+    " Just because it isn’t explicitly written here, doesn’t mean it doesn’t break the rules.",
+    2: "Please utilize the text and voice channels as they are described and keep things on topic."
+    " Please be open to explaining and including others for any conversation you have here.",
+    3: "Don't spam. Intentionally spamming gets you kicked or muted. Whether or not you are spamming is subject to"
+    " interpretation of the moderator team. I will side with their judgment.",
+    4: "Please do NOT use this as a venue for asking me when new videos will be released. "
+    "I release stuff as fast as my schedule allows. See <#922613000047824956> for the breakdown",
+    5: "In voice channels, please be courteous and do not hog the mic, scream, play background music, or "
+    "other annoying things.",
+    6: "Please no backseat gaming (we get enough of it on YouTube comments), and don't throw out spoilers to current"
+    " things I or another person is working on.",
+    7: "Feel free to use pictures in the chats, but nothing too crude, and nothing X rated. Insta-ban for anyone "
+    "posting pornography, etc.",
+    8: "Discord invites and promotions of your own content anywhere but <#298485559813210115> are restricted, "
+    "if you wish to post one somewhere please check with Mods",
+    9: "Please respect the Mods here. They are good people who sincerely want this environment to be awesome too. "
+    "If they’re advising you to change your behavior, it’s the same as me doing it. Please listen.",
+    10: "Some language will be deleted. I like the idea of maintaining a PG-13 community environment. "
+    "Find a way to say it another way, if the bot kills your message.",
+}
 __source__ = "<https://github.com/Bluesy1/CharB0T/tree/main/charbot>"
 
 
@@ -255,23 +277,49 @@ class Query(Cog):
         else:
             await channel.send(f"<@{payload.user_id}>\n```\n{res.strip()[:300]}\n```")
 
-    # skipcq: PYL-W0105
-    """@commands.hybrid_command(name="imgscam", description="Info about the semi fake image scam on discord")
-    async def imgscam(self, ctx: Context):
-        \"""Send the image scam info url.
-
-        Parameters
-        ----------
-        ctx: discord.ext.commands.Context
-            The context of the command
-        \"""
-        await ctx.reply("https://blog.hyperphish.com/articles/001-loading/")
-    """
-
     @tasks.loop(hours=24)
     async def clear_ocr_done(self):
         """Clear the OCR done set."""
         self.ocr_done.clear()
+
+    @app_commands.command()
+    @app_commands.guild_only()
+    async def rules(
+        self,
+        interaction: "Interaction[CBot]",
+        rule: app_commands.Range[int, 1, 10] | None = None,
+        member: discord.Member | None = None,
+    ):
+        """Get a rule or the rules of the server.
+
+        Parameters
+        ----------
+        interaction: Interaction[CBot]
+            The interaction of the command.
+        rule: app_commands.Range[int, 1, 10] | None
+            The rule to get, if None, all rules are returned.
+        member: discord.Member | None
+            The member to get the rules for, if None, the author is quietly sent the rule(s).
+        """
+        if not rule:
+            resp = (
+                "\n".join(f"**{num}**: {_rule}" for num, _rule in __rules__.items()) + "The rules can be found here: "
+                "https://docs.google.com/document/d/1BFVIJXSaJmze2czLFK3Ysme2f7qKYhWU17GyQJZdUSc"
+            )
+        else:
+            resp = (
+                f"Rule **{rule}** is {__rules__[rule]}\n The rules can be found here: "
+                f"https://docs.google.com/document/d/1BFVIJXSaJmze2czLFK3Ysme2f7qKYhWU17GyQJZdUSc"
+            )
+        if member:
+            await interaction.response.send_message(
+                f"{member.mention}:\n{resp}",
+                allowed_mentions=discord.AllowedMentions(
+                    users=[member], everyone=False, roles=False, replied_user=False
+                ),
+            )
+        else:
+            await interaction.response.send_message(resp, ephemeral=True)
 
 
 async def setup(bot: "CBot"):
