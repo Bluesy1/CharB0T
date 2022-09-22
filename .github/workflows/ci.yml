@@ -110,14 +110,15 @@ jobs:
       - name: Dependencies
         run: |
           pip install -U pip
-          pip install wheel
+          pip install -U wheel
           pip install -Ur requirements.txt
           pip install -Ur requirements-dev.txt
           find . -name "*.tar.gz" | xargs rm
           pip install wheels/*
-      - name: Pyright
-        id: pyright
-        run: pyright .
+      - name: Run Pyright
+        uses: jakebailey/pyright-action@v1
+        with:
+          warnings: false
   flake8:
     runs-on: ubuntu-latest
     continue-on-error: true
