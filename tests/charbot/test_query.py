@@ -94,7 +94,9 @@ async def test_rule_command(mocker: MockerFixture, rule: int | None, member_id: 
     mock_itx.response = mocker.AsyncMock(spec=discord.InteractionResponse)
     mock_bot = mocker.AsyncMock(spec=commands.Bot)
     cog = query.Query(mock_bot)
-    await cog.rules.callback(cog, mock_itx, rule, mock_itx.user if member_id else None)
+    await cog.rules.callback(
+        cog, mock_itx, rule, mock_itx.user if member_id else None  # pyright: ignore[reportGeneralTypeIssues]
+    )
     mock_itx.response.send_message.assert_awaited_once()
     res = mock_itx.response.send_message.await_args.args[0]
     assert (
