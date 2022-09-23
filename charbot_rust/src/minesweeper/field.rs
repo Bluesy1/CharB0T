@@ -425,7 +425,7 @@ impl Field {
                 },
                 Content::Number(n) => {
                     if cell.revealed  {
-                        match n {
+                        match n { // COV_EXCL_LINE
                             1 => common::TILE_1, // COV_EXCL_LINE
                             2 => common::TILE_2, // COV_EXCL_LINE
                             3 => common::TILE_3, // COV_EXCL_LINE
@@ -553,7 +553,7 @@ impl Field {
     pub fn toggle_mark(&mut self, i: u32) -> bool {
         let mut cell = self.get_cell_mut(i);
         if cell.revealed {
-            false
+            false // COV_EXCL_LINE
         } else {
             cell.toggle_mark();
             true

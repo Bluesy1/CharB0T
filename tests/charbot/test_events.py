@@ -168,3 +168,22 @@ async def test_fail_everyone_ping(mocker: MockerFixture, monkeypatch):
     message.author.add_roles.assert_awaited_once_with(
         discord.Object(id=676250179929636886), discord.Object(id=684936661745795088)
     )
+
+
+@pytest.mark.asyncio
+async def test_fail_link(mocker: MockerFixture, monkeypatch):
+    """Test that the on message deletes everyone pings from non mods"""
+    message = mocker.AsyncMock(spec=discord.Message)
+    message.author = mocker.AsyncMock(spec=discord.Member)
+    message.author.bot = False
+    message.author.roles = []
+    message.content = URL_2
+    message.guild = mocker.AsyncMock(spec=discord.Guild)
+    bot = mocker.AsyncMock(spec=CBot)
+    cog = events.Events(bot)
+    fake_scan = mocker.AsyncMock()
+    fake_scan.return_value = True
+    monkeypatch.setattr(cog, "sensitive_scan", fake_scan)
+    await cog.on_message(message)
+    message.delete.assert_awaited_once()
+    message.author.send.assert_awaited_once()
