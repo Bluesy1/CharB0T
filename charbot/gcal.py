@@ -201,7 +201,7 @@ def calendar_embed(fields: dict[int, EmbedField], next_event: datetime | None) -
     return embed.set_footer(text="Last Updated")
 
 
-def update_time(convert: datetime) -> datetime:
+def update_time(convert: datetime) -> datetime:  # pragma: no cover
     """Update the time to the correct week.
 
     Parameters
@@ -305,14 +305,14 @@ class Calendar(commands.Cog):
             if sub_time < utcnow():
                 continue
             if flag:
-                times.add(sub_time)
+                times.add(sub_time)  # pragma: no cover
             if mindatetime < sub_time > maxdatetime:
                 continue
-            try:
+            try:  # pragma: no cover
                 desc = item["description"]
-            except KeyError:
+            except KeyError:  # pragma: no cover
                 default_field(fields, sub_time, item)
-            else:
+            else:  # pragma: no cover
                 if url(desc):
                     fields.update(
                         {

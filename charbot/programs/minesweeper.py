@@ -253,7 +253,7 @@ class Minesweeper(ui.View):
             file = await self.draw(await interaction.client.translate("minesweeper-image-alt-text", interaction.locale))
             await interaction.response.edit_message(attachments=[file], view=self)
         else:
-            await interaction.response.send_message(
+            await interaction.response.send_message(  # pragma: no cover
                 await interaction.client.translate("minesweeper-flag-error", interaction.locale), ephemeral=True
             )
 

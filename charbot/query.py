@@ -38,7 +38,7 @@ from discord.ext.commands import Cog, Context
 from PIL import Image, ImageOps
 
 
-if TYPE_CHECKING:
+if TYPE_CHECKING:  # pragma: no cover
     from . import CBot, GuildInteraction as Interaction
 
 
@@ -86,12 +86,12 @@ class Query(Cog):
         self.ocr_done: set[int] = set()
         self.bot = bot
 
-    async def cog_load(self) -> None:
+    async def cog_load(self) -> None:  # pragma: no cover
         """Load the cog."""
         self.ocr_done = self.bot.holder.get("ocr_done", self.ocr_done)
         self.clear_ocr_done.start()
 
-    async def cog_unload(self) -> None:
+    async def cog_unload(self) -> None:  # pragma: no cover
         """Unload the cog."""
         self.bot.holder["ocr_done"] = self.ocr_done
         self.clear_ocr_done.cancel()
@@ -277,7 +277,7 @@ class Query(Cog):
         else:
             await channel.send(f"<@{payload.user_id}>\n```\n{res.strip()[:300]}\n```")
 
-    @tasks.loop(hours=24)
+    @tasks.loop(hours=24)  # pragma: no cover
     async def clear_ocr_done(self):
         """Clear the OCR done set."""
         self.ocr_done.clear()
