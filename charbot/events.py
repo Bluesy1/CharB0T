@@ -108,38 +108,33 @@ def url_posting_allowed(
             # if the parent is this, then the channel is the games-forums channel
             # and if the channel has the games-forums tag, then it's a game thread,
             # and we want to allow urls in it
-            url_allowed = any(tag.id == 1019647326601609338 for tag in channel.applied_tags)
-        else:
-            url_allowed = False
-    else:
-        url_allowed = False
+            if any(tag.id == 1019647326601609338 for tag in channel.applied_tags):
+                return True
     if channel.category_id in {360814817457733635, 360818916861280256, 942578610336837632}:
         # if the channel is in an admin or info category, we want to allow urls
-        url_allowed = True
-    if not url_allowed:
-        # If so far the url hasn't been allowed, test if the author has a role that allows it
-        return any(
-            role.id
-            in {
-                337743478190637077,
-                685331877057658888,
-                969629622453039104,
-                969629628249563166,
-                969629632028614699,
-                969628342733119518,
-                969627321239760967,
-                969626979353632790,
-                406690402956083210,
-                387037912782471179,
-                338173415527677954,
-                725377514414932030,
-                925956396057513985,
-                253752685357039617,
-                225413350874546176,
-            }
-            for role in roles
-        )
-    return True
+        return True
+    # If so far the url hasn't been allowed, test if the author has a role that allows it
+    return any(
+        role.id
+        in {
+            337743478190637077,
+            685331877057658888,
+            969629622453039104,
+            969629628249563166,
+            969629632028614699,
+            969628342733119518,
+            969627321239760967,
+            969626979353632790,
+            406690402956083210,
+            387037912782471179,
+            338173415527677954,
+            725377514414932030,
+            925956396057513985,
+            253752685357039617,
+            225413350874546176,
+        }
+        for role in roles
+    )
 
 
 class Events(Cog):
@@ -452,7 +447,7 @@ class Events(Cog):
             return
         if self.extractor.has_urls(message.content):
             if not url_posting_allowed(
-                cast(discord.TextChannel | discord.VoiceChannel | discord.Thread, message.channel), message.author.roles
+                cast(discord.TextChannel | discord.VoiceChannel | discord.Thread, message.channel), author.roles
             ):
                 # if the url still isn't allowed, delete the message
                 await message.delete()
