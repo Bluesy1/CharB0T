@@ -1,18 +1,19 @@
 aiohttp[speedups]==3.8.3
 asyncpg==0.26.0
-discord.py[speed] @ git+https://github.com/Rapptz/discord.py@9971c2e09a0ed989c2c6a8c16a8eaf77f9270897#egg=discord.py
+discord.py[speed] @ git+https://github.com/Rapptz/discord.py@03d7a9a7191f470356df1b4b375e8f2d858a575c#egg=discord.py
 disrank==0.0.2
 fluent.runtime == 0.3.1
 jishaku @ git+https://github.com/Gorialis/jishaku@a2a3752e4f540b10a96b5c285771b1534e3040fa#egg=jishaku
 numpy==1.23.3
-orjson == 3.8.0
-pandas == 1.5.0
-Pillow == 9.2.0
-pytesseract == 0.3.10
+orjson==3.8.0
+pandas==1.5.0
+Pillow==9.2.0
+pytesseract==0.3.10
 scipy==1.9.1
 sentry-sdk==1.9.8
 tomli == 2.0.1
 typing-extensions == 4.3.0
+urlextract==1.6.0
 uvloop == 0.17.0
-validators == 0.20.0
+validators==0.20.0
 yfinance == 0.1.74

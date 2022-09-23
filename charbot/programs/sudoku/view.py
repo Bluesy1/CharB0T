@@ -33,7 +33,7 @@ from discord.utils import MISSING, utcnow
 from . import Block, Cell, Puzzle
 
 if TYPE_CHECKING:
-    from ... import CBot
+    from ... import CBot  # pragma: no cover
 
 
 # noinspection GrazieInspection
