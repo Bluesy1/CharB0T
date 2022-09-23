@@ -86,6 +86,62 @@ async def time_string_from_seconds(delta: float) -> str:
     return f"{year} Year(s), {day} Day(s), {hour} Hour(s)," f" {minutes} Min(s), {sec:.2f} Sec(s)"
 
 
+def url_posting_allowed(
+    channel: discord.TextChannel | discord.VoiceChannel | discord.Thread, roles: list[discord.Role]
+) -> bool:
+    """Check if the combination of roles and channel allows for links to be posted.
+
+    Parameters
+    ----------
+    channel: discord.TextChannel | discord.VoiceChannel | discord.Thread
+        The channel the message was posted in
+    roles: list[discord.Role]
+        The roles the user has
+
+    Returns
+    -------
+    allowed: bool
+        Whether or not the combination is allowed
+    """
+    if isinstance(channel, discord.Thread):
+        if channel.parent_id == 1019647326601609338:
+            # if the parent is this, then the channel is the games-forums channel
+            # and if the channel has the games-forums tag, then it's a game thread,
+            # and we want to allow urls in it
+            url_allowed = any(tag.id == 1019647326601609338 for tag in channel.applied_tags)
+        else:
+            url_allowed = False
+    else:
+        url_allowed = False
+    if channel.category_id in {360814817457733635, 360818916861280256, 942578610336837632}:
+        # if the channel is in an admin or info category, we want to allow urls
+        url_allowed = True
+    if not url_allowed:
+        # If so far the url hasn't been allowed, test if the author has a role that allows it
+        return any(
+            role.id
+            in {
+                337743478190637077,
+                685331877057658888,
+                969629622453039104,
+                969629628249563166,
+                969629632028614699,
+                969628342733119518,
+                969627321239760967,
+                969626979353632790,
+                406690402956083210,
+                387037912782471179,
+                338173415527677954,
+                725377514414932030,
+                925956396057513985,
+                253752685357039617,
+                225413350874546176,
+            }
+            for role in roles
+        )
+    return True
+
+
 class Events(Cog):
     """Event Cog.
 
@@ -184,33 +240,28 @@ class Events(Cog):
             Whether the message is allowed or not.
         """
         if message.guild is not None and message.guild.id == 225345178955808768:
-            channel = message.channel
-            assert isinstance(channel, (discord.abc.GuildChannel, discord.Thread))  # skipcq: BAN-B101
+            channel = cast(discord.abc.GuildChannel | discord.Thread, message.channel)
             with open("charbot/sensitive_settings.json", "rb") as json_dict:
                 fulldict = orjson.loads(json_dict.read())
             used_words = set()
-            count_found = 0
             for word in fulldict["words"]:
                 if word in message.content.lower():
                     if word == "war" and all(word not in fulldict["words"] for word in message.content.lower()):
                         continue
-                    count_found += 1
                     used_words.add(word)
             self.last_sensitive_logged.setdefault(message.author.id, datetime.now() - timedelta(days=1))
             if datetime.now() > (self.last_sensitive_logged[message.author.id] + timedelta(minutes=5)) and any(
                 [
-                    (count_found >= 2 and 25 <= (len(message.content) - len("".join(used_words))) < 50),
-                    (count_found > 2 and (len(message.content) - len("".join(used_words))) >= 50),
-                    (count_found >= 1 and (len(message.content) - len("".join(used_words))) < 25),
+                    (len(used_words) >= 2 and 25 <= (len(message.content) - len("".join(used_words))) < 50),
+                    (len(used_words) > 2 and (len(message.content) - len("".join(used_words))) >= 50),
+                    (len(used_words) >= 1 and (len(message.content) - len("".join(used_words))) < 25),
                 ]
             ):
-                category = channel.category
                 if channel.id in (837816311722803260, 926532222398369812) or (
-                    category is not None and category.id in (360818916861280256, 942578610336837632)
+                    channel.category_id in (360818916861280256, 942578610336837632)
                 ):
                     return True
-                bot_user = self.bot.user
-                assert isinstance(bot_user, discord.ClientUser)  # skipcq: BAN-B101
+                bot_user = cast(discord.ClientUser, self.bot.user)
                 await self.webhook.send(
                     username=bot_user.name,
                     avatar_url=bot_user.display_avatar.url,
@@ -223,12 +274,12 @@ class Events(Cog):
     # noinspection DuplicatedCode
     @tasks.loop(seconds=30)
     async def log_untimeout(self) -> None:
-        """Untimeout Report Task.
+        """Un-timeout Report Task.
 
         This task runs every 30 seconds and checks if any users that have been timed out have had their timeouts
         expired. If they have, it will send a message to the mod channel.
         """
-        removeable = []
+        removable = []
         for i, j in self.timeouts.copy().items():
             if j < datetime.now(tz=timezone.utc):
                 guild = self.bot.get_guild(225345178955808768)
@@ -242,10 +293,10 @@ class Events(Cog):
                     bot_user = self.bot.user
                     assert isinstance(bot_user, discord.ClientUser)  # skipcq: BAN-B101
                     await self.webhook.send(username=bot_user.name, avatar_url=bot_user.display_avatar.url, embed=embed)
-                    removeable.append(i)
+                    removable.append(i)
                 elif member.is_timed_out():
                     self.timeouts.update({i: member.timed_out_until})
-        for i in removeable:
+        for i in removable:
             self.timeouts.pop(i)
 
     @Cog.listener()
@@ -400,44 +451,9 @@ class Events(Cog):
             await message.delete()
             return
         if self.extractor.has_urls(message.content):
-            channel = cast(discord.TextChannel | discord.VoiceChannel | discord.Thread, message.channel)
-            if isinstance(channel, discord.Thread):
-                if channel.parent_id == 1019647326601609338:
-                    # if the parent is this, then the channel is the games-forums channel
-                    # and if the channel has the games-forums tag, then it's a game thread,
-                    # and we want to allow urls in it
-                    url_allowed = any(tag.id == 1019647326601609338 for tag in channel.applied_tags)
-                else:
-                    url_allowed = False
-            else:
-                url_allowed = False
-            if channel.category_id in {360814817457733635, 360818916861280256, 942578610336837632}:
-                # if the channel is in an admin or info category, we want to allow urls
-                url_allowed = True
-            if not url_allowed:
-                # If so far the url hasn't been allowed, test if the author has a role that allows it
-                url_allowed = any(
-                    role.id
-                    in {
-                        337743478190637077,
-                        685331877057658888,
-                        969629622453039104,
-                        969629628249563166,
-                        969629632028614699,
-                        969628342733119518,
-                        969627321239760967,
-                        969626979353632790,
-                        406690402956083210,
-                        387037912782471179,
-                        338173415527677954,
-                        725377514414932030,
-                        925956396057513985,
-                        253752685357039617,
-                        225413350874546176,
-                    }
-                    for role in author.roles
-                )
-            if not url_allowed:
+            if not url_posting_allowed(
+                cast(discord.TextChannel | discord.VoiceChannel | discord.Thread, message.channel), message.author.roles
+            ):
                 # if the url still isn't allowed, delete the message
                 await message.delete()
                 return
