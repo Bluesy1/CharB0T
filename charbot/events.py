@@ -104,13 +104,14 @@ def url_posting_allowed(
     allowed: bool
         Whether or not the combination is allowed
     """
-    if isinstance(channel, discord.Thread):
-        if channel.parent_id == 1019647326601609338:
-            # if the parent is this, then the channel is the games-forums channel
-            # and if the channel has the games-forums tag, then it's a game thread,
-            # and we want to allow urls in it
-            if any(tag.id == 1019647326601609338 for tag in channel.applied_tags):
-                return True
+    if (
+        isinstance(channel, discord.Thread)
+        and channel.parent_id == 1019647326601609338
+        and any(tag.id == 1019647326601609338 for tag in channel.applied_tags)
+    ):
+        # if the parent is this, then the channel is the games-forums channel and if the channel has the
+        # games-forums tag, then it's a game thread, and we want to allow urls in it
+        return True
     if channel.category_id in {360814817457733635, 360818916861280256, 942578610336837632}:
         # if the channel is in an admin or info category, we want to allow urls
         return True
@@ -446,13 +447,12 @@ class Events(Cog):
         if self.tilde_regex.search(message.content):
             await message.delete()
             return
-        if self.extractor.has_urls(message.content):
-            if not url_posting_allowed(
-                cast(discord.TextChannel | discord.VoiceChannel | discord.Thread, message.channel), author.roles
-            ):
-                # if the url still isn't allowed, delete the message
-                await message.delete()
-                return
+        if self.extractor.has_urls(message.content) and not url_posting_allowed(
+            cast(discord.TextChannel | discord.VoiceChannel | discord.Thread, message.channel), author.roles
+        ):
+            # if the url still isn't allowed, delete the message
+            await message.delete()
+            return
         # at this point, all checks for bad messages have passed, and we can let the levels cog assess XP gain
         levels_cog = cast(levels.Leveling | None, self.bot.get_cog("Leveling"))
         if levels_cog is not None:
