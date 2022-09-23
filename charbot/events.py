@@ -33,6 +33,7 @@ from discord import Color, Embed
 from discord.ext import tasks
 from discord.ext.commands import Cog
 from discord.utils import MISSING, utcnow
+from urlextract import URLExtract
 
 from . import CBot
 
@@ -112,16 +113,13 @@ class Events(Cog):
         self.tilde_regex = re.compile(
             r"~~:\.\|:;~~|tilde tilde colon dot vertical bar colon semicolon tilde tilde", re.MULTILINE | re.IGNORECASE
         )
-        self.url_regex = re.compile(
-            r"(?i)\b((?:https?://|www\d{0,3}[.]|[a-z0-9.\-]+[.][a-z]{2,4}/)(?:[^\s()<>]+|\(([^\s()<>]+|"
-            r"(\([^\s()<>]+\)))*\))+(?:\(([^\s()<>]+|(\([^\s()<>]+\)))*\)|[^\s`!()\[\]{};:'\".,<>?«»“”‘’]))"
-        )
+        self.extractor = URLExtract()
 
     async def cog_load(self) -> None:
         """Cog load function.
 
         This is called when the cog is loaded, and initializes the
-        log_untimeout task and the members cache
+        log_un-timeout task and the members cache
         """
         self.log_untimeout.start()
         guild = self.bot.get_guild(225345178955808768)
@@ -401,7 +399,7 @@ class Events(Cog):
         if self.tilde_regex.search(message.content):
             await message.delete()
             return
-        if self.url_regex.search(message.content):
+        if self.extractor.has_urls(message.content):
             channel = cast(discord.TextChannel | discord.VoiceChannel | discord.Thread, message.channel)
             if isinstance(channel, discord.Thread):
                 if channel.parent_id == 1019647326601609338:
