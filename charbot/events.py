@@ -25,7 +25,7 @@
 """Event handling for Charbot."""
 import re
 from datetime import datetime, timedelta, timezone
-from typing import cast
+from typing import cast, TYPE_CHECKING
 
 import discord
 import orjson
@@ -35,7 +35,11 @@ from discord.ext.commands import Cog
 from discord.utils import MISSING, utcnow
 from urlextract import URLExtract
 
-from . import CBot, levels
+from . import CBot
+
+
+if TYPE_CHECKING:  # pragma: no cover
+    from .levels import Leveling
 
 
 def sensitive_embed(message: discord.Message, used: set[str]) -> discord.Embed:
@@ -454,10 +458,14 @@ class Events(Cog):
         ):
             # if the url still isn't allowed, delete the message
             await message.delete()
+            try:
+                await message.author.send(f"You need to be at least level 5 to post links on {message.guild.name}!")
+            except discord.Forbidden:  # pragma: no cover
+                pass
             return
         # at this point, all checks for bad messages have passed, and we can let the levels cog assess XP gain
-        levels_cog = cast(levels.Leveling | None, self.bot.get_cog("Leveling"))
-        if levels_cog is not None:
+        levels_cog = cast("Leveling | None", self.bot.get_cog("Leveling"))  # pragma: no cover
+        if levels_cog is not None:  # pragma: no cover
             await levels_cog.proc_xp(message)
 
 
