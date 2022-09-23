@@ -87,7 +87,7 @@ def test_sensitive_embed(mocker: MockerFixture, monkeypatch):
     message.content = "a"
     message.author = mocker.AsyncMock(spec=discord.Member)
     message.author.display_name = "A"
-    message.author.__str__ = lambda self: "a#1000"
+    message.author.__str__ = lambda self: "a#1000"  # pyright: ignore[reportGeneralTypeIssues]
     message.jump_url = "https://discord.com/channels/0/1/2"
     monkeypatch.setattr(events, "utcnow", lambda: None)
     expected = discord.Embed(
