@@ -109,8 +109,7 @@ class Leveling(commands.Cog):
                 pass
         self._upload = False
 
-    @commands.Cog.listener()
-    async def on_message(self, message: discord.Message):
+    async def proc_xp(self, message: discord.Message):
         """Add XP to the user when they send a message.
 
         Parameters
@@ -118,9 +117,7 @@ class Leveling(commands.Cog):
         message : discord.Message
             The message that was sent.
         """
-        if message.author.bot:
-            return
-        if message.guild is None:
+        if message.author.bot or message.guild is None:
             return
         async with self.bot.pool.acquire() as conn, conn.transaction():
             no_xp = await conn.fetchrow("SELECT * FROM no_xp WHERE guild = $1", message.guild.id)

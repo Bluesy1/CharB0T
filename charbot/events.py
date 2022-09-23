@@ -25,6 +25,7 @@
 """Event handling for Charbot."""
 import re
 from datetime import datetime, timedelta, timezone
+from typing import cast, TYPE_CHECKING
 
 import discord
 import orjson
@@ -34,6 +35,10 @@ from discord.ext.commands import Cog
 from discord.utils import MISSING, utcnow
 
 from . import CBot
+
+
+if TYPE_CHECKING:
+    from .levels import Leveling
 
 
 def sensitive_embed(message: discord.Message, used: set[str]) -> discord.Embed:
@@ -104,6 +109,13 @@ class Events(Cog):
         self.timeouts = {}
         self.members: dict[int, datetime] = {}
         self.webhook: discord.Webhook = MISSING
+        self.tilde_regex = re.compile(
+            r"~~:\.\|:;~~|tilde tilde colon dot vertical bar colon semicolon tilde tilde", re.MULTILINE | re.IGNORECASE
+        )
+        self.url_regex = re.compile(
+            r"(?i)\b((?:https?://|www\d{0,3}[.]|[a-z0-9.\-]+[.][a-z]{2,4}/)(?:[^\s()<>]+|\(([^\s()<>]+|"
+            r"(\([^\s()<>]+\)))*\))+(?:\(([^\s()<>]+|(\([^\s()<>]+\)))*\)|[^\s`!()\[\]{};:'\".,<>?«»“”‘’]))"
+        )
 
     async def cog_load(self) -> None:
         """Cog load function.
@@ -331,7 +343,7 @@ class Events(Cog):
     async def on_message(self, message: discord.Message) -> None:
         """Listen for messages sent that the bot can see.
 
-        If the message is sent by a non-mod user, it will check for an unallowed ping
+        If the message is sent by a non-mod user, it will check for a disallowed ping
         and will delete the message if it is found, and log it.
         Scans guild messages for sensitive content
         If the message is a dm, it logs it in the dm_logs channel and redirects them to the new mod support method.
@@ -341,59 +353,100 @@ class Events(Cog):
         message : discord.Message
             The message sent to the websocket from discord.
         """
-        if message.content is not None and not message.author.bot:
-            if not await self.sensitive_scan(message):
-                return
-            if message.guild is None:
-                channel = await self.bot.fetch_channel(906578081496584242)
-                assert isinstance(channel, discord.TextChannel)  # skipcq: BAN-B101
-                mentions = discord.AllowedMentions(everyone=False, roles=False, users=False)
-                await channel.send(message.author.mention, allowed_mentions=mentions)
-                await channel.send(message.content, allowed_mentions=mentions)
-                await message.channel.send(
-                    "Hi! If this was an attempt to reach the mod team through modmail,"
-                    " that has been removed, in favor of "
-                    "mod support, which you can find in <#398949472840712192>"
+        if message.content is None or message.author.bot:
+            return
+        if message.guild is None:
+            channel = await self.bot.fetch_channel(906578081496584242)
+            assert isinstance(channel, discord.TextChannel)  # skipcq: BAN-B101
+            mentions = discord.AllowedMentions(everyone=False, roles=False, users=False)
+            await channel.send(message.author.mention, allowed_mentions=mentions)
+            await channel.send(message.content, allowed_mentions=mentions)
+            await message.channel.send(
+                "Hi! If this was an attempt to reach the mod team through modmail,"
+                " that has been removed, in favor of "
+                "mod support, which you can find in <#398949472840712192>"
+            )
+            return
+        if not await self.sensitive_scan(message):
+            return
+        author = cast(discord.Member, message.author)
+        if not any(
+            role.id
+            in {
+                338173415527677954,
+                253752685357039617,
+                225413350874546176,
+                387037912782471179,
+                406690402956083210,
+                729368484211064944,
+            }
+            for role in author.roles
+        ) and any(item in message.content for item in [f"<@&{message.guild.id}>", "@everyone", "@here"]):
+            await author.add_roles(
+                discord.Object(id=676250179929636886),
+                discord.Object(id=684936661745795088),
+            )
+            await message.delete()
+            embed = Embed(
+                description=message.content,
+                title="Mute: Everyone/Here Ping sent by non mod",
+                color=Color.red(),
+            ).set_footer(
+                text=f"Sent by {message.author.display_name}-{message.author.id}",
+                icon_url=author.display_avatar.url,
+            )
+            bot_user = cast(discord.ClientUser, self.bot.user)
+            await self.webhook.send(username=bot_user.name, avatar_url=bot_user.display_avatar.url, embed=embed)
+            return
+        if self.tilde_regex.search(message.content):
+            await message.delete()
+            return
+        if self.url_regex.search(message.content):
+            channel = cast(discord.TextChannel | discord.VoiceChannel | discord.Thread, message.channel)
+            if isinstance(channel, discord.Thread):
+                if channel.parent_id == 1019647326601609338:
+                    # if the parent is this, then the channel is the games-forums channel
+                    # and if the channel has the games-forums tag, then it's a game thread,
+                    # and we want to allow urls in it
+                    url_allowed = any(tag.id == 1019647326601609338 for tag in channel.applied_tags)
+                else:
+                    url_allowed = False
+            else:
+                url_allowed = False
+            if channel.category_id in {360814817457733635, 360818916861280256, 942578610336837632}:
+                # if the channel is in an admin or info category, we want to allow urls
+                url_allowed = True
+            if not url_allowed:
+                # If so far the url hasn't been allowed, test if the author has a role that allows it
+                url_allowed = any(
+                    role.id
+                    in {
+                        337743478190637077,
+                        685331877057658888,
+                        969629622453039104,
+                        969629628249563166,
+                        969629632028614699,
+                        969628342733119518,
+                        969627321239760967,
+                        969626979353632790,
+                        406690402956083210,
+                        387037912782471179,
+                        338173415527677954,
+                        725377514414932030,
+                        925956396057513985,
+                        253752685357039617,
+                        225413350874546176,
+                    }
+                    for role in author.roles
                 )
-                return
-            author = message.author
-            assert isinstance(author, discord.Member)  # skipcq: BAN-B101
-            if not any(
-                role.id
-                in [
-                    338173415527677954,
-                    253752685357039617,
-                    225413350874546176,
-                    387037912782471179,
-                    406690402956083210,
-                    729368484211064944,
-                ]
-                for role in author.roles
-            ) and any(item in message.content for item in [f"<@&{message.guild.id}>", "@everyone", "@here"]):
-                await author.add_roles(
-                    discord.Object(id=676250179929636886),
-                    discord.Object(id=684936661745795088),
-                )
+            if not url_allowed:
+                # if the url still isn't allowed, delete the message
                 await message.delete()
-                embed = Embed(
-                    description=message.content,
-                    title="Mute: Everyone/Here Ping sent by non mod",
-                    color=Color.red(),
-                ).set_footer(
-                    text=f"Sent by {message.author.display_name}-{message.author.id}",
-                    icon_url=author.display_avatar.url,
-                )
-                bot_user = self.bot.user
-                assert isinstance(bot_user, discord.ClientUser)  # skipcq: BAN-B101
-                await self.webhook.send(username=bot_user.name, avatar_url=bot_user.display_avatar.url, embed=embed)
-            if message.author.bot or not message.content:
                 return
-            if re.search(r"~~:.|:;~~", message.content, re.MULTILINE | re.IGNORECASE) or re.search(
-                r"tilde tilde colon dot vertical bar colon semicolon tilde tilde",
-                message.content,
-                re.MULTILINE | re.IGNORECASE,
-            ):
-                await message.delete()
+        # at this point, all checks for bad messages have passed, and we can let the levels cog assess XP gain
+        levels_cog = cast("Leveling | None", self.bot.get_cog("Leveling"))
+        if levels_cog is not None:
+            await levels_cog.proc_xp(message)
 
 
 async def setup(bot: CBot):
