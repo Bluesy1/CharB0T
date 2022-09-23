@@ -27,7 +27,9 @@ jobs:
         with:
           manylinux: auto
           command: build
-          args: --release --sdist -o dist --find-interpreter -m charbot_rust/Cargo.toml
+          args: --release --sdist -o dist --interpreter /usr/local/bin/python3.10 -m charbot_rust/Cargo.toml
+      - name: Remove CPython 3.11 wheels
+        run: find . -name "*cp311*" | xargs rm
       - name: Upload wheels
         uses: actions/upload-artifact@v3
         with:
