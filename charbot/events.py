@@ -25,7 +25,7 @@
 """Event handling for Charbot."""
 import re
 from datetime import datetime, timedelta, timezone
-from typing import cast, TYPE_CHECKING
+from typing import cast
 
 import discord
 import orjson
@@ -35,11 +35,7 @@ from discord.ext.commands import Cog
 from discord.utils import MISSING, utcnow
 from urlextract import URLExtract
 
-from . import CBot
-
-
-if TYPE_CHECKING:
-    from .levels import Leveling
+from . import CBot, levels
 
 
 def sensitive_embed(message: discord.Message, used: set[str]) -> discord.Embed:
@@ -56,12 +52,12 @@ def sensitive_embed(message: discord.Message, used: set[str]) -> discord.Embed:
         title="Probable Sensitive Topic Detected",
         description=f"Content:\n {message.content}",
         color=Color.red(),
-        timestamp=datetime.now(tz=timezone.utc),
+        timestamp=utcnow(),
     )
     embed.add_field(name="Words Found:", value=", ".join(used)[0:1024], inline=True)
     embed.add_field(
         name="Author:",
-        value=f"{message.author.display_name}: " f"{message.author.name}#{message.author.discriminator}",
+        value=f"{message.author.display_name}: {message.author}",
         inline=True,
     )
     return embed.add_field(
@@ -71,19 +67,24 @@ def sensitive_embed(message: discord.Message, used: set[str]) -> discord.Embed:
     )
 
 
-async def time_string_from_seconds(delta: float) -> str:
+def time_string_from_seconds(delta: float) -> str:
     """Convert seconds to a string.
 
     Parameters
     ----------
     delta : float
         The number of seconds to convert to a string
+
+    Returns
+    -------
+    delta: str
+        The delta as a string
     """
     minutes, sec = divmod(delta, 60)
     hour, minutes = divmod(minutes, 60)
     day, hour = divmod(hour, 24)
     year, day = divmod(day, 365)
-    return f"{year} Year(s), {day} Day(s), {hour} Hour(s)," f" {minutes} Min(s), {sec:.2f} Sec(s)"
+    return f"{year} Year(s), {day} Day(s), {hour} Hour(s), {minutes} Min(s), {sec:.2f} Sec(s)"
 
 
 def url_posting_allowed(
@@ -319,9 +320,9 @@ class Events(Cog):
             user = payload.user
             if isinstance(user, discord.Member):
                 _time = self.members.pop(user.id, user.joined_at) or utcnow() - timedelta(hours=1)
-                time_string = await time_string_from_seconds(abs(utcnow() - _time).total_seconds())
+                time_string = time_string_from_seconds(abs(utcnow() - _time).total_seconds())
             elif isinstance(user, discord.User) and user.id in self.members:
-                time_string = await time_string_from_seconds(
+                time_string = time_string_from_seconds(
                     abs(utcnow() - self.members.pop(user.id, utcnow() - timedelta(hours=1))).total_seconds()
                 )
             else:
@@ -453,7 +454,7 @@ class Events(Cog):
                 await message.delete()
                 return
         # at this point, all checks for bad messages have passed, and we can let the levels cog assess XP gain
-        levels_cog = cast("Leveling | None", self.bot.get_cog("Leveling"))
+        levels_cog = cast(levels.Leveling | None, self.bot.get_cog("Leveling"))
         if levels_cog is not None:
             await levels_cog.proc_xp(message)
 

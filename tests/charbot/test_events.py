@@ -61,12 +61,12 @@ def test_url_allowed_forum_channel(mocker: MockerFixture):
     assert events.url_posting_allowed(thread, [])
 
 
-@pytest.mark.parametrize("category", [(360814817457733635,), (360818916861280256,), (942578610336837632,)])
+@pytest.mark.parametrize("category", [360814817457733635, 360818916861280256, 942578610336837632])
 def test_url_allowed_category(category: int, mocker: MockerFixture):
     """Test if it properly short circuits on the category with the correct tag."""
     channel = mocker.AsyncMock(spec=discord.TextChannel)
     channel.category_id = category
-    assert not events.url_posting_allowed(channel, [])
+    assert events.url_posting_allowed(channel, [])
 
 
 @pytest.mark.parametrize("role_ids,expected", [([], False), ([0], False), ([337743478190637077], True)])
@@ -79,3 +79,39 @@ def test_url_no_early_exit(role_ids, expected, mocker: MockerFixture):
         role.id = role_id
         roles.append(role)
     assert events.url_posting_allowed(channel, roles) is expected
+
+
+def test_sensitive_embed(mocker: MockerFixture, monkeypatch):
+    """Test that the sensitive embed is constructed properly"""
+    message = mocker.AsyncMock(spec=discord.Message)
+    message.content = "a"
+    message.author = mocker.AsyncMock(spec=discord.Member)
+    message.author.display_name = "A"
+    message.author.__str__ = lambda self: "a#1000"
+    message.jump_url = "https://discord.com/channels/0/1/2"
+    monkeypatch.setattr(events, "utcnow", lambda: None)
+    expected = discord.Embed(
+        title="Probable Sensitive Topic Detected",
+        description="Content:\n a",
+        color=discord.Color.red(),
+        timestamp=None,
+    )
+    expected.add_field(name="Words Found:", value="a", inline=True)
+    expected.add_field(name="Author:", value="A: a#1000", inline=True)
+    expected.add_field(name="Message Link:", value="[Link](https://discord.com/channels/0/1/2)", inline=True)
+    actual = events.sensitive_embed(message, {"a"})
+    assert expected == actual
+
+
+@pytest.mark.parametrize(
+    "value,expected",
+    [
+        (0, "0 Year(s), 0 Day(s), 0 Hour(s), 0 Min(s), 0.00 Sec(s)"),
+        (10, "0 Year(s), 0 Day(s), 0 Hour(s), 0 Min(s), 10.00 Sec(s)"),
+        ((2**15) * (3**8), "6 Year(s), 298 Day(s), 7 Hour(s), 40 Min(s), 48.00 Sec(s)"),
+        ((2**7) * (3**3) * (5**3) * 73, "1 Year(s), 0 Day(s), 0 Hour(s), 0 Min(s), 0.00 Sec(s)"),
+    ],
+)
+def test_time_string_from_seconds(value, expected):
+    """Test that the conversion is done properly"""
+    assert events.time_string_from_seconds(value) == expected
