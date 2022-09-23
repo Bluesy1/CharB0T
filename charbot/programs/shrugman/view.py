@@ -35,7 +35,7 @@ from discord.utils import utcnow
 from . import modal
 
 if TYPE_CHECKING:
-    from ... import CBot
+    from ... import CBot  # pragma: no cover
 
 
 __all__ = ("Shrugman", "words")
