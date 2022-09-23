@@ -402,8 +402,10 @@ class Events(Cog):
         if message.content is None or message.author.bot:
             return
         if message.guild is None:
-            channel = await self.bot.fetch_channel(906578081496584242)
-            assert isinstance(channel, discord.TextChannel)  # skipcq: BAN-B101
+            channel = cast(
+                discord.TextChannel,
+                self.bot.get_channel(906578081496584242) or await self.bot.fetch_channel(906578081496584242),
+            )
             mentions = discord.AllowedMentions(everyone=False, roles=False, users=False)
             await channel.send(message.author.mention, allowed_mentions=mentions)
             await channel.send(message.content, allowed_mentions=mentions)

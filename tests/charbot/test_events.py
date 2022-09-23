@@ -112,6 +112,59 @@ def test_sensitive_embed(mocker: MockerFixture, monkeypatch):
         ((2**7) * (3**3) * (5**3) * 73, "1 Year(s), 0 Day(s), 0 Hour(s), 0 Min(s), 0.00 Sec(s)"),
     ],
 )
-def test_time_string_from_seconds(value, expected):
+def test_time_string_from_seconds(value: float, expected: str):
     """Test that the conversion is done properly"""
     assert events.time_string_from_seconds(value) == expected
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize("bot", [True, False])
+async def test_on_message_bot_user(bot: bool, mocker: MockerFixture):
+    """Test on message where the message author is a bot"""
+    message = mocker.AsyncMock(spec=discord.Message)
+    message.author.bot = bot
+    message.guild = None
+    message.channel = mocker.AsyncMock(spec=discord.DMChannel)
+    bot = mocker.AsyncMock(spec=CBot)
+    bot.get_channel = lambda _: mocker.AsyncMock(spec=discord.TextChannel)
+    cog = events.Events(bot)
+    await cog.on_message(message)
+    if not bot:
+        assert message.channel.send.assert_awaited_once()
+
+
+@pytest.mark.asyncio
+async def test_return_on_sensitive_fail(mocker: MockerFixture, monkeypatch):
+    """Test that the on message short circuits when sensitive scan fails"""
+    message = mocker.AsyncMock(spec=discord.Message)
+    message.author.bot = False
+    message.guild = mocker.AsyncMock(spec=discord.Guild)
+    bot = mocker.AsyncMock(spec=CBot)
+    cog = events.Events(bot)
+    fake_scan = mocker.AsyncMock()
+    fake_scan.return_value = False
+    monkeypatch.setattr(cog, "sensitive_scan", fake_scan)
+    await cog.on_message(message)
+    fake_scan.assert_awaited_once()
+
+
+@pytest.mark.asyncio
+async def test_fail_everyone_ping(mocker: MockerFixture, monkeypatch):
+    """Test that the on message deletes everyone pings from non mods"""
+    message = mocker.AsyncMock(spec=discord.Message)
+    message.author = mocker.AsyncMock(spec=discord.Member)
+    message.author.bot = False
+    message.author.roles = []
+    message.content = "@everyone"
+    message.guild = mocker.AsyncMock(spec=discord.Guild)
+    bot = mocker.AsyncMock(spec=CBot)
+    cog = events.Events(bot)
+    cog.webhook = mocker.AsyncMock(spec=discord.Webhook)
+    fake_scan = mocker.AsyncMock()
+    fake_scan.return_value = True
+    monkeypatch.setattr(cog, "sensitive_scan", fake_scan)
+    await cog.on_message(message)
+    message.delete.assert_awaited_once()
+    message.author.add_roles.assert_awaited_once_with(
+        discord.Object(id=676250179929636886), discord.Object(id=684936661745795088)
+    )
