@@ -126,46 +126,6 @@ class GuildComponentInteraction(Interaction[T]):  # skipcq: PY-D0002
     user: discord.Member
 
 
-class PresenceFilter(logging.Filter):  # skipcq: PY-A6006
-    """Custom logging filter to filtr out presence events from the main debug log.
-
-    This filter is used to filter out presence events from the main debug log, but can be configured to leave them in
-        the log by setting detailed to True.
-    """
-
-    last_presence: bool
-
-    def filter(self, record):
-        """Determine if the specified record is to be logged.
-
-        Returns True if the record should be logged, or False otherwise.
-
-        Parameters
-        ----------
-        record: logging.LogRecord
-            The record to be logged.
-
-        Returns
-        -------
-        bool
-            Whether the record should be logged.
-        """
-        if record.levelno > logging.DEBUG:
-            self.last_presence = False
-            return True
-        if "'t': 'PRESENCE_UPDATE'" in record.msg:
-            self.last_presence = True
-            return False
-        if "socket_event_type" in record.msg and self.last_presence:
-            self.last_presence = False
-            return False
-        if "presence_update" in record.msg:
-            self.last_presence = False
-            return False
-        self.last_presence = False
-        return True
-
-
 Config = _Config()
 
 from .bot import CBot, Tree  # noqa: E402
