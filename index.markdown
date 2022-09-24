@@ -6,7 +6,6 @@ layout: default
 ## Continuous Integration Status
 [![DeepSource](https://deepsource.io/gh/Bluesy1/CharB0T.svg/?label=active+issues&show_trend=true&token=wb08Mu693aFli6scALkkEmql)](https://deepsource.io/gh/Bluesy1/CharB0T/?ref=repository-badge)
 [![DeepSource](https://deepsource.io/gh/Bluesy1/CharB0T.svg/?label=resolved+issues&show_trend=true&token=wb08Mu693aFli6scALkkEmql)](https://deepsource.io/gh/Bluesy1/CharB0T/?ref=repository-badge)
-[![CodeFactor](https://www.codefactor.io/repository/github/bluesy1/charb0t/badge)](https://www.codefactor.io/repository/github/bluesy1/charb0t)
 
 [![CI](https://github.com/Bluesy1/CharB0T/actions/workflows/ci.yml/badge.svg)](https://github.com/Bluesy1/CharB0T/actions/workflows/ci.yml)
 [![CodeQL](https://github.com/Bluesy1/CharB0T/actions/workflows/codeql-analysis.yml/badge.svg)](https://github.com/Bluesy1/CharB0T/actions/workflows/codeql-analysis.yml)
