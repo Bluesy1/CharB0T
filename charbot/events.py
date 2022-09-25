@@ -23,9 +23,10 @@
 # SOFTWARE.
 #  ----------------------------------------------------------------------------
 """Event handling for Charbot."""
+import pathlib
 import re
 from datetime import datetime, timedelta, timezone
-from typing import cast, TYPE_CHECKING
+from typing import cast, TYPE_CHECKING, Final
 
 import discord
 import orjson
@@ -171,6 +172,7 @@ class Events(Cog):
             r"~~:\.\|:;~~|tilde tilde colon dot vertical bar colon semicolon tilde tilde", re.MULTILINE | re.IGNORECASE
         )
         self.extractor = URLExtract()
+        self.sensitive_settings_path: Final[pathlib.Path] = pathlib.Path(__file__).parent / "sensitive_settings.json"
 
     async def cog_load(self) -> None:
         """Cog load function.
@@ -184,7 +186,7 @@ class Events(Cog):
             guild = await self.bot.fetch_guild(225345178955808768)
         generator = guild.fetch_members(limit=None)
         self.members.update({user.id: user.joined_at async for user in generator if user.joined_at is not None})
-        with open("charbot/sensitive_settings.json", "rb") as json_dict:
+        with open(self.sensitive_settings_path, "rb") as json_dict:
             self.webhook = await self.bot.fetch_webhook(orjson.loads(json_dict.read())["webhook_id"])
 
     async def cog_unload(self) -> None:  # skipcq: PYL-W0236
@@ -242,7 +244,7 @@ class Events(Cog):
         """
         if message.guild is not None and message.guild.id == 225345178955808768:
             channel = cast(discord.abc.GuildChannel | discord.Thread, message.channel)
-            with open("charbot/sensitive_settings.json", "rb") as json_dict:
+            with open(self.sensitive_settings_path, "rb") as json_dict:
                 fulldict = orjson.loads(json_dict.read())
             used_words = set()
             for word in fulldict["words"]:

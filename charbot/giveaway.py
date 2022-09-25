@@ -32,7 +32,6 @@ from typing import Any, cast
 
 import asyncpg
 import discord
-import orjson
 import pandas as pd
 from discord import ui
 from discord.ext import commands, tasks
@@ -570,8 +569,6 @@ class Giveaway(commands.Cog):
     async def cog_unload(self) -> None:  # skipcq: PYL-W0236
         """Call when the cog is unloaded."""
         self.daily_giveaway.cancel()
-        with open("charbot/giveaway.json", "wb") as f:
-            f.write(orjson.dumps({"messageId": self.current_giveaway.message.id}))
         self.bot.holder["yesterdays_giveaway"] = self.yesterdays_giveaway
         self.bot.holder["current_giveaway"] = self.current_giveaway
 
