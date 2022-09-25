@@ -66,7 +66,7 @@ class _Config:
     """
 
     __instance__: "_Config"
-    _file: _pathlib.Path = _pathlib.Path(__file__).parent / "config.toml"
+    _file: _pathlib.Path = _pathlib.Path(__file__).parent.parent / "config.toml"
     logger = logging.getLogger("charbot.config")
 
     def clear_cache(self):
