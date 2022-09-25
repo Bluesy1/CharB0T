@@ -24,6 +24,9 @@
 #  ----------------------------------------------------------------------------
 """Charbot Module."""
 import logging
+import functools as _functools
+import pathlib as _pathlib
+import sys as _sys
 from typing import Any, Generic, TypeVar
 from pkgutil import iter_modules
 
@@ -63,8 +66,12 @@ class _Config:
     """
 
     __instance__: "_Config"
-    _file: str = "config.toml"
+    _file: _pathlib.Path = _pathlib.Path(__file__).parent / "config.toml"
     logger = logging.getLogger("charbot.config")
+
+    def clear_cache(self):
+        """Clear the config cache if a config has changed"""
+        self.__call__.cache_clear()
 
     def __new__(cls):
         if not hasattr(cls, "__instance__"):
@@ -74,10 +81,11 @@ class _Config:
     def __getitem__(self, item: str) -> dict[str, Any]:
         return self(item)  # pyright: ignore[reportGeneralTypeIssues]
 
+    @_functools.cache
     def __call__(self, *args: str) -> str | int | dict[str, Any]:
-        try:
+        if _sys.version_info >= (3, 11):
             import tomllib  # type: ignore
-        except ImportError:
+        else:
             import tomli as tomllib
         with open(self._file, "rb") as f:
             config = tomllib.load(f)
