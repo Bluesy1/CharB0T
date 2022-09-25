@@ -1,5 +1,5 @@
 error =
     { $user }:
-    Fout ongeldige argument:
-     Gespecificeerde dobbelsteen kan alleen d<int>zijn, of als een constante modifier een perfect geheel getal, positief of negatief moet zijn, verbonden met `+`, en geen spaties.
-success = { $user } rolde `{ $dice }` en kreeg `{ $result }`voor een totaal van `{ $total }`.
+    Error invalid argument:
+     Specified dice can only be d<int>, or if a constant modifier must be a perfect integer, positive or negative, connected with `+`, and no spaces.
+success = { $user } rolled `{ $dice }` and got `{ $result }`for a total of `{ $total }`.
