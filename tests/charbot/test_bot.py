@@ -12,7 +12,7 @@ from charbot.bot import CBot, Holder
 def unused_patch_datetime_now(monkeypatch: pytest.MonkeyPatch):
     """Patch the datetime.now() method to return a fixed time"""
 
-    class mydatetime(datetime.datetime):
+    class MyDateTime(datetime.datetime):
         """A datetime class that returns a fixed time"""
 
         @classmethod
@@ -20,7 +20,7 @@ def unused_patch_datetime_now(monkeypatch: pytest.MonkeyPatch):
             """Return a fixed time"""
             return datetime.datetime(1, 1, 2, 1, 0, 0, 0, tzinfo=tz)
 
-    monkeypatch.setattr(datetime, "datetime", mydatetime)
+    monkeypatch.setattr(datetime, "datetime", MyDateTime)
 
 
 def test_holder():

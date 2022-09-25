@@ -71,7 +71,11 @@ class _Config:
 
     def clear_cache(self):
         """Clear the config cache if a config has changed"""
-        self.__call__.cache_clear()
+        self.logger.info(
+            "Clearing config cache, this can cause previously expected values to disappear. Cache stats: %r",
+            self.get.cache_info(),
+        )
+        self.get.cache_clear()
 
     def __new__(cls):
         if not hasattr(cls, "__instance__"):
@@ -79,10 +83,10 @@ class _Config:
         return cls.__instance__
 
     def __getitem__(self, item: str) -> dict[str, Any]:
-        return self(item)  # pyright: ignore[reportGeneralTypeIssues]
+        return self.get(item)  # pyright: ignore[reportGeneralTypeIssues]
 
     @_functools.cache
-    def __call__(self, *args: str) -> str | int | dict[str, Any]:
+    def get(self, *args: str) -> str | int | dict[str, Any]:
         if _sys.version_info >= (3, 11):
             import tomllib  # type: ignore
         else:
