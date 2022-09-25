@@ -115,7 +115,7 @@ def generate_card(
 
             card = card.crop((x1, y1, x2, y2)).resize((900, 238))
 
-    profile_bytes: BytesIO | str = profile_image if profile_image is not MISSING else __DEFAULT_PROFILE__
+    profile_bytes: BytesIO | pathlib.Path = profile_image if profile_image is not MISSING else __DEFAULT_PROFILE__
     profile = Image.open(profile_bytes).convert("RGBA").resize((180, 180))
 
     profile_pic_holder = Image.new("RGBA", card.size, (255, 255, 255, 0))  # Is used for a blank image for a mask

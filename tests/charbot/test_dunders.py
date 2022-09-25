@@ -5,7 +5,6 @@ from io import BytesIO
 
 import pytest
 
-import charbot
 from charbot import Config
 
 
@@ -29,7 +28,7 @@ def test_config(monkeypatch, caplog):
     monkeypatch.setattr(builtins, "open", mock_open)
     assert Config["calendar"] == {"key": "key"}
     caplog.clear()
-    assert Config("calendar", "key") == "key"
+    assert Config.get("calendar", "key") == "key"
     log = caplog.record_tuples[0]
     assert log[0] == "charbot.config"
     assert log[1] == logging.INFO
@@ -37,7 +36,7 @@ def test_config(monkeypatch, caplog):
 
     with pytest.raises(KeyError):
         caplog.clear()
-        Config("calendar", "badkey")
+        Config.get("calendar", "badkey")
     log = caplog.record_tuples[0]
     assert log[0] == "charbot.config"
     assert log[1] == logging.ERROR
@@ -50,7 +49,7 @@ def test_config(monkeypatch, caplog):
     obj = Test()
     with pytest.raises(TypeError):
         caplog.clear()
-        Config("calendar", obj)  # pyright: ignore[reportGeneralTypeIssues]
+        Config.get("calendar", obj)  # pyright: ignore[reportGeneralTypeIssues]
     log = caplog.record_tuples[0]
     assert log[0] == "charbot.config"
     assert log[1] == logging.ERROR
@@ -58,47 +57,3 @@ def test_config(monkeypatch, caplog):
         log[2] == f"Tried to get key calendar:Test from config file, but a non string key {obj!r} of type "
         f"{type(obj)} was passed."
     )
-
-
-@pytest.mark.parametrize(
-    ("name", "level", "text", "expected", "last", "expected_last"),
-    [
-        ("Info_Test_Non_Presence", logging.INFO, "Test", True, True, False),
-        ("Info_Test_Presence", logging.INFO, "presence_update", True, False, False),
-        ("Debug_Test_Non_Presence", logging.DEBUG, "Test", True, True, False),
-        (
-            "Debug_Test_Presence_1",
-            logging.DEBUG,
-            "[2022-07-12 01:16:13] [DEBUG   ] discord.gateway: For Shard ID None: WebSocket Event: "
-            "{'t': 'PRESENCE_UPDATE', 's': 346863, 'op': 0, 'd': {'user': {'id': '147223093721563136'}, "
-            "'status': 'online', 'guild_id': '225345178955808768', 'client_status': "
-            "{'mobile': 'online', 'desktop': 'idle'}, 'activities': []}}",
-            False,
-            False,
-            True,
-        ),
-        (
-            "Debug_Test_Presence_2",
-            logging.DEBUG,
-            "[2022-07-12 01:16:13] [DEBUG   ] discord.client: Dispatching event socket_event_type",
-            False,
-            True,
-            False,
-        ),
-        (
-            "Debug_Test_Presence_3",
-            logging.DEBUG,
-            "[2022-07-12 01:16:13] [DEBUG   ] discord.client: Dispatching event presence_update",
-            False,
-            False,
-            False,
-        ),
-    ],
-)
-def test_filter(name, level, text, expected, last, expected_last):
-    """Test filter."""
-    log_filter = charbot.PresenceFilter()
-    log_filter.last_presence = last
-    test_record = logging.LogRecord(name, level, __file__, 67, text, (), None)
-    assert log_filter.filter(test_record) is expected
-    assert log_filter.last_presence is expected_last
