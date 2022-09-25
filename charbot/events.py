@@ -111,7 +111,7 @@ def url_posting_allowed(
     if (
         isinstance(channel, discord.Thread)
         and channel.parent_id == 1019647326601609338
-        and any(tag.id == 1019647326601609338 for tag in channel.applied_tags)
+        and any(tag.id == 1019691620741959730 for tag in channel.applied_tags)
     ):
         # if the parent is this, then the channel is the games-forums channel and if the channel has the
         # games-forums tag, then it's a game thread, and we want to allow urls in it
@@ -459,7 +459,7 @@ class Events(Cog):
             # if the url still isn't allowed, delete the message
             await message.delete()
             try:
-                await message.author.send(f"You need to be at least level 5 to post links on {message.guild.name}!")
+                await message.author.send(f"You need to be at least level 5 to post links in {message.guild.name}!")
             except discord.Forbidden:  # pragma: no cover
                 pass
             return
