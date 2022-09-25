@@ -87,6 +87,7 @@ class _Config:
 
     @_functools.cache
     def get(self, *args: str) -> str | int | dict[str, Any]:
+        """Get a config key"""
         if _sys.version_info >= (3, 11):
             import tomllib  # type: ignore
         else:
