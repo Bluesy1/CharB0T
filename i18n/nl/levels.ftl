@@ -1,3 +1,3 @@
-rank-name = rang
-rank-description = Controleer je of je iemands niveau en rangschikking
-rank-error = { "\U01F6AB" }Je bent nog niet gerangschikt. Stuur eerst een paar berichten en probeer het dan opnieuw.
+rank-name = level
+rank-description = Bekijk je eigen level of die van iemand anders.
+rank-error = { "\U01F6AB" }Je hebt nog geen level. Stuur eerst een paar berichten en probeer het dan opnieuw.
