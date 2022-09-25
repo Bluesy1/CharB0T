@@ -49,7 +49,7 @@ def test_config(monkeypatch, caplog):
     obj = Test()
     with pytest.raises(TypeError):
         caplog.clear()
-        Config.get("calendar", obj)  # pyright: ignore[reportGeneralTypeIssues]
+        Config.get("calendar", obj)
     log = caplog.record_tuples[0]
     assert log[0] == "charbot.config"
     assert log[1] == logging.ERROR
