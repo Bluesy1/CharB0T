@@ -56,7 +56,7 @@ def test_url_allowed_forum_channel(mocker: MockerFixture):
     thread = mocker.AsyncMock(spec=discord.Thread)
     thread.parent_id = 1019647326601609338
     tag = mocker.AsyncMock(spec=discord.ForumTag)
-    tag.id = 1019647326601609338
+    tag.id = 1019691620741959730
     thread.applied_tags = [tag]
     assert events.url_posting_allowed(thread, [])
 
