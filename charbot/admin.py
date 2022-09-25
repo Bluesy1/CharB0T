@@ -23,6 +23,7 @@
 # SOFTWARE.
 #  ----------------------------------------------------------------------------
 """Admin commands for charbot."""
+import pathlib
 from datetime import datetime, timezone
 from time import perf_counter
 
@@ -39,6 +40,7 @@ class Admin(commands.Cog):
 
     def __init__(self, bot: CBot):
         self.bot = bot
+        self.settings: pathlib.Path = pathlib.Path(__file__).parent / "sensitive_settings.json"
 
     def cog_check(self, ctx: commands.Context) -> bool:
         """Check to make sure runner is a moderator.
@@ -126,12 +128,12 @@ class Admin(commands.Cog):
         word : str
             The word to add to the filter.
         """
-        with open("charbot/sensitive_settings.json", "rb") as json_dict:
+        with open(self.settings, "rb") as json_dict:
             fulldict = orjson.loads(json_dict.read())
         if word.lower() not in fulldict["words"]:
             fulldict["words"].append(word.lower())
             fulldict["words"].sort()
-            with open("charbot/sensitive_settings.json", "wb") as json_dict:
+            with open(self.settings, "wb") as json_dict:
                 json_dict.write(orjson.dumps(fulldict))
             await ctx.send(
                 embed=Embed(
@@ -164,7 +166,7 @@ class Admin(commands.Cog):
         word : str
             The word to remove from the filter.
         """
-        with open("charbot/sensitive_settings.json", "rb") as file:
+        with open(self.settings, "rb") as file:
             fulldict = orjson.loads(file.read())
         if word.lower() in fulldict["words"]:
             fulldict["words"].remove(word.lower())
@@ -177,7 +179,7 @@ class Admin(commands.Cog):
                     timestamp=datetime.now(tz=timezone.utc),
                 )
             )
-            with open("charbot/sensitive_settings.json", "wb") as file:
+            with open(self.settings, "wb") as file:
                 file.write(orjson.dumps(fulldict))
         else:
             await ctx.send(
@@ -200,7 +202,7 @@ class Admin(commands.Cog):
         ctx : Context
             The context of the command.
         """
-        with open("charbot/sensitive_settings.json", "rb") as json_dict:
+        with open(self.settings, "rb") as json_dict:
             fulldict = orjson.loads(json_dict.read())
         await ctx.send(
             embed=Embed(

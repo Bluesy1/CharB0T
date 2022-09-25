@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 import asyncio
 import datetime
+import pathlib
 from io import BytesIO
 from typing import cast
 
@@ -67,9 +68,9 @@ class TicTacToe(ui.View):
         discord.File
             The image of the tictactoe game.
         """
-        grid = Image.open("charbot/media/tictactoe/grid.png", "r").convert("RGBA")
-        cross = Image.open("charbot/media/tictactoe/X.png", "r")
-        circle = Image.open("charbot/media/tictactoe/O.png", "r")
+        grid = Image.open(pathlib.Path(__file__).parent.parent / "media/tictactoe/grid.png", "r").convert("RGBA")
+        cross = Image.open(pathlib.Path(__file__).parent.parent / "media/tictactoe/X.png", "r")
+        circle = Image.open(pathlib.Path(__file__).parent.parent / "media/tictactoe/O.png", "r")
         for command, display in self.game.display_commands():
             if display == Piece.Empty:
                 continue
