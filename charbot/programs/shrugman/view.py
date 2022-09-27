@@ -24,6 +24,7 @@
 #  ----------------------------------------------------------------------------
 """Shrugman view."""
 import datetime
+import pathlib
 import random
 from enum import Enum
 from typing import TYPE_CHECKING
@@ -35,18 +36,19 @@ from discord.utils import utcnow
 from . import modal
 
 if TYPE_CHECKING:
-    from ... import CBot
+    from ... import CBot  # pragma: no cover
 
-
+# noinspection SpellCheckingInspection
 __all__ = ("Shrugman", "words")
 
+# noinspection SpellCheckingInspection
 FailStates = Enum(
     "FailStates",
     r"<:KHattip:896043110717608009> `¯` `¯\` `¯\_` `¯\_(` `¯\_(ツ` `¯\_(ツ)` `¯\_(ツ)_` `¯\_(ツ)_/` `¯\_(ツ)_/¯`",
     start=0,
 )
 
-with open("charbot/media/shrugman/words.csv") as f:
+with open(pathlib.Path(__file__).parent.parent.parent / "media/shrugman/words.csv") as f:
     words = [word.replace("\n", "") for word in f.readlines()]
 
 
@@ -79,11 +81,11 @@ class Shrugman(ui.View):
     dead : bool
         Whether the player is dead.
     guess_word_list : list[str]
-        The word to guess represented as a list of characters, with hyphens replacing unguessed letters.
+        The word to guess represented as a list of characters, with hyphens replacing un-guessed letters.
     length : int
         The length of the word to guess.
     start_time : datetime.datetime
-        The time the game started. Timzone aware.
+        The time the game started. Timezone aware.
     """
 
     def __init__(self, bot: "CBot", word: str, *, fail_enum=FailStates):

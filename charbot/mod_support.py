@@ -24,7 +24,9 @@
 #  ----------------------------------------------------------------------------
 """Mod Support cog."""
 import logging
+import pathlib
 from datetime import timedelta
+from typing import Final
 
 import discord
 import orjson
@@ -76,6 +78,7 @@ class ModSupport(GroupCog, name="modsupport", description="mod support command g
     def __init__(self, bot: CBot):
         super(ModSupport, self).__init__()
         self.bot = bot
+        self.blacklist_path: Final[pathlib.Path] = pathlib.Path(__file__).parent / "mod_support_blacklist.json"
 
     async def cog_unload(self) -> None:  # skipcq: PYL-W0236
         """Unload func."""
@@ -135,7 +138,7 @@ class ModSupport(GroupCog, name="modsupport", description="mod support command g
             The interaction object for the command.
         """
         if await edit_check(interaction):
-            with open("charbot/mod_support_blacklist.json", "rb") as file:
+            with open(self.blacklist_path, "rb") as file:
                 blacklisted = [f"<@{item}>" for item in orjson.loads(file.read())["blacklisted"]]
             await interaction.response.send_message(
                 embed=Embed(title="Blacklisted users", description="\n".join(blacklisted)),
@@ -164,20 +167,20 @@ class ModSupport(GroupCog, name="modsupport", description="mod support command g
         if await edit_check(interaction):
             if add:
                 successful = False
-                with open("charbot/mod_support_blacklist.json", "rb") as file:
+                with open(self.blacklist_path, "rb") as file:
                     modmail_blacklist = orjson.loads(file.read())
                 if user.id not in modmail_blacklist["blacklisted"]:
                     modmail_blacklist["blacklisted"].append(user.id)
-                    with open("charbot/mod_support_blacklist.json", "wb") as file:
+                    with open(self.blacklist_path, "wb") as file:
                         file.write(orjson.dumps(modmail_blacklist))
                     successful = True
             else:
                 successful = False
-                with open("charbot/mod_support_blacklist.json", "rb") as file:
+                with open(self.blacklist_path, "rb") as file:
                     modmail_blacklist = orjson.loads(file.read())
                 if user.id in modmail_blacklist["blacklisted"]:
                     modmail_blacklist["blacklisted"].remove(user.id)
-                    with open("charbot/mod_support_blacklist.json", "wb") as file:
+                    with open(self.blacklist_path, "wb") as file:
                         file.write(orjson.dumps(modmail_blacklist))
                     successful = True
             if add and successful:
@@ -242,7 +245,7 @@ class ModSupportButtons(ui.View):
         self.everyone = everyone
         self.mod_role = mod_role
         self.mods = mods
-        self.filename = "charbot/mod_support_blacklist.json"
+        self.filename: Final[pathlib.Path] = pathlib.Path(__file__) / "mod_support_blacklist.json"
 
     async def interaction_check(self, interaction: Interaction) -> bool:
         """Check to run for all interaction instances.

@@ -409,6 +409,12 @@ class CBot(commands.Bot):
         if isinstance(exception, ignored):
             return
 
+        # if owner only, or missing perms/roles we want to say missing permissions
+        elif isinstance(
+            exception, (commands.NotOwner, commands.MissingAnyRole, commands.MissingRole, commands.MissingPermissions)
+        ):
+            await ctx.send(f"You are missing permissions to use {command.name}")
+
         # if the command is disabled, we want to tell the user that
         if isinstance(exception, commands.DisabledCommand):
             await ctx.send(f"{command.name} is disabled.")

@@ -15,3 +15,4 @@ giveaway.csv
 /charbot.egg-info
 /config.toml
 /charbot/giveaway.json
+/charbot.service

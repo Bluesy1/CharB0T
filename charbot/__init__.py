@@ -24,6 +24,9 @@
 #  ----------------------------------------------------------------------------
 """Charbot Module."""
 import logging
+import functools as _functools
+import pathlib as _pathlib
+import sys as _sys
 from typing import Any, Generic, TypeVar
 from pkgutil import iter_modules
 
@@ -63,8 +66,16 @@ class _Config:
     """
 
     __instance__: "_Config"
-    _file: str = "config.toml"
+    _file: _pathlib.Path = _pathlib.Path(__file__).parent.parent / "config.toml"
     logger = logging.getLogger("charbot.config")
+
+    def clear_cache(self):
+        """Clear the config cache if a config has changed"""
+        self.logger.info(
+            "Clearing config cache, this can cause previously expected values to disappear. Cache stats: %r",
+            self.get.cache_info(),
+        )
+        self.get.cache_clear()
 
     def __new__(cls):
         if not hasattr(cls, "__instance__"):
@@ -72,12 +83,14 @@ class _Config:
         return cls.__instance__
 
     def __getitem__(self, item: str) -> dict[str, Any]:
-        return self(item)  # pyright: ignore[reportGeneralTypeIssues]
+        return self.get(item)  # pyright: ignore[reportGeneralTypeIssues]
 
-    def __call__(self, *args: str) -> str | int | dict[str, Any]:
-        try:
+    @_functools.cache
+    def get(self, *args: str) -> str | int | dict[str, Any]:
+        """Get a config key"""
+        if _sys.version_info >= (3, 11):
             import tomllib  # type: ignore
-        except ImportError:
+        else:
             import tomli as tomllib
         with open(self._file, "rb") as f:
             config = tomllib.load(f)
@@ -124,46 +137,6 @@ class GuildComponentInteraction(Interaction[T]):  # skipcq: PY-D0002
     guild: discord.Guild
     message: discord.Message
     user: discord.Member
-
-
-class PresenceFilter(logging.Filter):  # skipcq: PY-A6006
-    """Custom logging filter to filtr out presence events from the main debug log.
-
-    This filter is used to filter out presence events from the main debug log, but can be configured to leave them in
-        the log by setting detailed to True.
-    """
-
-    last_presence: bool
-
-    def filter(self, record):
-        """Determine if the specified record is to be logged.
-
-        Returns True if the record should be logged, or False otherwise.
-
-        Parameters
-        ----------
-        record: logging.LogRecord
-            The record to be logged.
-
-        Returns
-        -------
-        bool
-            Whether the record should be logged.
-        """
-        if record.levelno > logging.DEBUG:
-            self.last_presence = False
-            return True
-        if "'t': 'PRESENCE_UPDATE'" in record.msg:
-            self.last_presence = True
-            return False
-        if "socket_event_type" in record.msg and self.last_presence:
-            self.last_presence = False
-            return False
-        if "presence_update" in record.msg:
-            self.last_presence = False
-            return False
-        self.last_presence = False
-        return True
 
 
 Config = _Config()
