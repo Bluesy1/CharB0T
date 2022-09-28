@@ -76,8 +76,7 @@ class Minesweeper(ui.View):
         bytesio = BytesIO()
         img.save(bytesio, "PNG")
         bytesio.seek(0)
-        file = discord.File(bytesio, filename="minesweeper.png", description=alt)  # skipcq: PYL-E1123
-        return file
+        return discord.File(bytesio, filename="minesweeper.png", description=alt)
 
     async def handle_lose(self, interaction: Interaction[CBot]):
         """Handle a loss.
@@ -248,8 +247,7 @@ class Minesweeper(ui.View):
         _button : ui.Button[Self]
             The button.
         """
-        res = self.game.toggle_flag()
-        if res:
+        if res := self.game.toggle_flag():
             file = await self.draw(await interaction.client.translate("minesweeper-image-alt-text", interaction.locale))
             await interaction.response.edit_message(attachments=[file], view=self)
         else:

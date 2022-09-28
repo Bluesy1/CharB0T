@@ -135,7 +135,7 @@ class ReputationAdmin(
         except AssertionError:
             raise app_commands.NoPrivateMessage("This command can't be used in DMs.")
         else:
-            if not any(role.id in self.allowed_roles for role in member.roles):
+            if all(role.id not in self.allowed_roles for role in member.roles):
                 raise app_commands.MissingAnyRole(self.allowed_roles)
             return True
 
@@ -430,33 +430,32 @@ class ReputationAdmin(
             _pool = await conn.fetchrow("SELECT * FROM pools WHERE pool = $1", pool)
             if _pool is None:
                 await interaction.followup.send(f"Error: Pool `{pool}` not found.")
+            elif role.id in _pool["required_roles"]:
+                await conn.execute(
+                    "UPDATE pools SET required_roles = array_remove(required_roles, $1) WHERE pool = $2",
+                    role.id,
+                    pool,
+                )
+                await interaction.followup.send(f"Role `{role.name}` removed from pool `{pool}`.")
+                await self.bot.program_logs.send(
+                    f"Role `{role.name}` removed from pool `{pool}` by {interaction.user.mention}.",
+                    allowed_mentions=_ALLOWED_MENTIONS,
+                    username=clientuser.name,
+                    avatar_url=clientuser.display_avatar.url,
+                )
             else:
-                if role.id in _pool["required_roles"]:
-                    await conn.execute(
-                        "UPDATE pools SET required_roles = array_remove(required_roles, $1) WHERE pool = $2",
-                        role.id,
-                        pool,
-                    )
-                    await interaction.followup.send(f"Role `{role.name}` removed from pool `{pool}`.")
-                    await self.bot.program_logs.send(
-                        f"Role `{role.name}` removed from pool `{pool}` by {interaction.user.mention}.",
-                        allowed_mentions=_ALLOWED_MENTIONS,
-                        username=clientuser.name,
-                        avatar_url=clientuser.display_avatar.url,
-                    )
-                else:
-                    await conn.execute(
-                        "UPDATE pools SET required_roles = array_append(required_roles, $1) WHERE pool = $2",
-                        role.id,
-                        pool,
-                    )
-                    await interaction.followup.send(f"Role `{role.name}` added to pool `{pool}`.")
-                    await self.bot.program_logs.send(
-                        f"Role `{role.name}` added to pool `{pool}` by {interaction.user.mention}.",
-                        allowed_mentions=_ALLOWED_MENTIONS,
-                        username=clientuser.name,
-                        avatar_url=clientuser.display_avatar.url,
-                    )
+                await conn.execute(
+                    "UPDATE pools SET required_roles = array_append(required_roles, $1) WHERE pool = $2",
+                    role.id,
+                    pool,
+                )
+                await interaction.followup.send(f"Role `{role.name}` added to pool `{pool}`.")
+                await self.bot.program_logs.send(
+                    f"Role `{role.name}` added to pool `{pool}` by {interaction.user.mention}.",
+                    allowed_mentions=_ALLOWED_MENTIONS,
+                    username=clientuser.name,
+                    avatar_url=clientuser.display_avatar.url,
+                )
 
     @pools.command(name="delete")  # pyright: ignore[reportGeneralTypeIssues]
     async def delete_pool(self, interaction: Interaction[CBot], pool: str):
@@ -647,21 +646,20 @@ class ReputationAdmin(
             noxp = await conn.fetchrow("SELECT * FROM no_xp WHERE guild = $1", interaction.guild_id)
             if noxp is None:
                 await interaction.followup.send("Xp is not set up??.")
+            elif role.id in noxp["roles"]:
+                await conn.execute(
+                    "UPDATE no_xp SET roles = array_remove(roles, $1) WHERE guild = $2",
+                    role.id,
+                    interaction.guild_id,
+                )
+                await interaction.followup.send(f"Role `{role.name}` removed from noxp.")
             else:
-                if role.id in noxp["roles"]:
-                    await conn.execute(
-                        "UPDATE no_xp SET roles = array_remove(roles, $1) WHERE guild = $2",
-                        role.id,
-                        interaction.guild_id,
-                    )
-                    await interaction.followup.send(f"Role `{role.name}` removed from noxp.")
-                else:
-                    await conn.execute(
-                        "UPDATE no_xp SET roles = array_append(roles, $1) WHERE guild = $2",
-                        role.id,
-                        interaction.guild_id,
-                    )
-                    await interaction.followup.send(f"Role `{role.name}` added to noxp.")
+                await conn.execute(
+                    "UPDATE no_xp SET roles = array_append(roles, $1) WHERE guild = $2",
+                    role.id,
+                    interaction.guild_id,
+                )
+                await interaction.followup.send(f"Role `{role.name}` added to noxp.")
 
     @levels.command()  # pyright: ignore[reportGeneralTypeIssues]
     async def noxp_channel(self, interaction: Interaction[CBot], channel: discord.TextChannel | discord.VoiceChannel):
@@ -679,21 +677,20 @@ class ReputationAdmin(
             noxp = await conn.fetchrow("SELECT * FROM no_xp WHERE guild = $1", interaction.guild_id)
             if noxp is None:
                 await interaction.followup.send("Xp is not set up??.")
+            elif channel.id in noxp["channels"]:
+                await conn.execute(
+                    "UPDATE no_xp SET channels = array_remove(channels, $1) WHERE guild = $2",
+                    channel.id,
+                    interaction.guild_id,
+                )
+                await interaction.followup.send(f"{channel.mention} removed from noxp.")
             else:
-                if channel.id in noxp["channels"]:
-                    await conn.execute(
-                        "UPDATE no_xp SET channels = array_remove(channels, $1) WHERE guild = $2",
-                        channel.id,
-                        interaction.guild_id,
-                    )
-                    await interaction.followup.send(f"{channel.mention} removed from noxp.")
-                else:
-                    await conn.execute(
-                        "UPDATE no_xp SET channels = array_append(channels, $1) WHERE guild = $2",
-                        channel.id,
-                        interaction.guild_id,
-                    )
-                    await interaction.followup.send(f"{channel.mention} added to noxp.")
+                await conn.execute(
+                    "UPDATE no_xp SET channels = array_append(channels, $1) WHERE guild = $2",
+                    channel.id,
+                    interaction.guild_id,
+                )
+                await interaction.followup.send(f"{channel.mention} added to noxp.")
 
     @levels.command()  # pyright: ignore[reportGeneralTypeIssues]
     async def noxp_query(self, interaction: Interaction[CBot]):

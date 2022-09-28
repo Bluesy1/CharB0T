@@ -43,10 +43,7 @@ def roll(arg: str, user: str, i18n: FluentLocalization) -> str:
     user: str
         Name to atribute to the user
     """
-    if "+" in arg:
-        dice = arg.split("+")
-    else:
-        dice = [str(arg)]
+    dice = arg.split("+") if "+" in arg else [arg]
     try:
         sums = 0
         rolls = []
@@ -56,14 +53,12 @@ def roll(arg: str, user: str, i18n: FluentLocalization) -> str:
                     num_rolls = int(die[: die.find("d")])
                 except ValueError:
                     num_rolls = 1
-                i = 1
-                while i <= num_rolls:
+                for _ in range(1, num_rolls + 1):
                     # fmt: off
                     roll1 = random.randint(1, int(die[die.find("d") + 1:]))
                     # fmt: on
                     rolls.append(roll1)
                     sums += roll1
-                    i += 1
             else:
                 try:
                     rolls.append(int(die))

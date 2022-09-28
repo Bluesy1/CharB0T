@@ -50,9 +50,7 @@ class Holder(dict[str, Any]):
 
     def __getitem__(self, k: Any) -> Any:
         """Get item."""
-        if k not in self:
-            return MISSING
-        return super().__getitem__(k)
+        return MISSING if k not in self else super().__getitem__(k)
 
     def __delitem__(self, key: Any) -> None:
         """Delete item."""
@@ -62,15 +60,11 @@ class Holder(dict[str, Any]):
 
     def pop(self, __key: Any, default: _VT = MISSING) -> _VT:
         """Pop item."""
-        if __key not in self:
-            return default
-        return super().pop(__key)
+        return default if __key not in self else super().pop(__key)
 
     def get(self, __key: Any, default: _VT = MISSING) -> _VT:
         """Get item."""
-        if __key not in self:
-            return default
-        return super().get(__key, default)
+        return default if __key not in self else super().get(__key, default)
 
     def setdefault(self, __key: Any, default: _VT = MISSING) -> _VT:
         """Set default."""
@@ -362,10 +356,7 @@ class CBot(commands.Bot):
             translator = Translator()
             await self.tree.set_translator(translator)
         context = TranslationContext(TranslationContextLocation.other, data=data)
-        if isinstance(string, locale_str):
-            key = string
-        else:
-            key = locale_str(string)
+        key = string if isinstance(string, locale_str) else locale_str(string)
         res = await translator.translate(key, locale, context)
         if res is not None:
             return res
