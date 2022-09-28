@@ -143,6 +143,9 @@ jobs:
       fail-fast: false
     steps:
       - uses: actions/checkout@v3
+      - uses: harmon758/postgresql-action@v1
+        with:
+          postgresql version: '14'
       - uses: actions/download-artifact@v3
         with:
           name: wheels
@@ -167,6 +170,7 @@ jobs:
         id: pytest
         run: pytest --cov-report=xml:coverage/reports/coverage.xml --cov=charbot tests/ --cov-report=term --cov-config=pyproject.toml
       - name: Upload coverage report
+        if: success() || failure()
         uses: codecov/codecov-action@v3
         with:
           directory: ./coverage/reports/
