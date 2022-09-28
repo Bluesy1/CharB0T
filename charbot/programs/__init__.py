@@ -52,7 +52,7 @@ class Reputation(commands.Cog, name="Programs"):
         self.bot = bot
         self.sudoku_regex = re.compile(r"(\d{81}).*([01]{81})")
 
-    async def interaction_check(self, interaction: Interaction):    # skipcq: PYL-W0221
+    async def interaction_check(self, interaction: Interaction):  # skipcq: PYL-W0221
         """Check if the user is allowed to use the cog."""
         if interaction.guild is None:
             raise app_commands.NoPrivateMessage("Programs can't be used in direct messages.")

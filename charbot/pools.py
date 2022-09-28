@@ -231,9 +231,7 @@ class Pools(commands.GroupCog, name="pools", description="Reputation pools for c
                 await interaction.followup.send("Pool not found. Please choose one from the autocomplete.")
                 return
             assert isinstance(pool_record, asyncpg.Record)  # skipcq: BAN-B101
-            if all(
-                role.id not in pool_record["required_roles"] for role in user.roles
-            ):
+            if all(role.id not in pool_record["required_roles"] for role in user.roles):
                 await interaction.followup.send("Pool not found. Please choose one from the autocomplete.")
                 return
         image_bytes = await asyncio.to_thread(

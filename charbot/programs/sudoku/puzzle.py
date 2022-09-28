@@ -235,7 +235,7 @@ class Puzzle:
             used |= span[board[pos], pos]
             empty += 1 if board[pos] else -1
             if empty == len(_empties):
-                yield [board[r:r + size] for r in range(0, size**2, size)]
+                yield [board[r : r + size] for r in range(0, size**2, size)]
                 empty -= 1
 
     def location_of_cell(self, cell: Cell) -> str:
@@ -261,20 +261,12 @@ class Puzzle:
         if not isinstance(cell, Cell):
             raise TypeError("cell must be of type Cell")
         row_index = next(
-            (
-                i
-                for i, row in enumerate(self.rows)
-                if cell.id in [cell.id for cell in row.cells]
-            ),
+            (i for i, row in enumerate(self.rows) if cell.id in [cell.id for cell in row.cells]),
             -1,
         )
 
         column_index = next(
-            (
-                j
-                for j, column in enumerate(self.columns)
-                if cell.id in [cell.id for cell in column.cells]
-            ),
+            (j for j, column in enumerate(self.columns) if cell.id in [cell.id for cell in column.cells]),
             -1,
         )
 

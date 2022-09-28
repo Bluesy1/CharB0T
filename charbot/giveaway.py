@@ -243,11 +243,7 @@ class GiveawayView(ui.View):
             blocked: list[int] = [block["id"] for block in await conn.fetch("SELECT id FROM winners WHERE wins >= 3")]
             raw_bidders = await conn.fetch("SELECT * FROM bids WHERE bid > 0 ORDER BY bid DESC")
             bidders = [bid for bid in raw_bidders if bid["id"] not in blocked]
-            if return_bids := [
-                (bid["bid"], bid["id"])
-                for bid in raw_bidders
-                if bid["id"] in blocked
-            ]:
+            if return_bids := [(bid["bid"], bid["id"]) for bid in raw_bidders if bid["id"] in blocked]:
                 await conn.executemany("UPDATE users SET points = points + $1 WHERE id = $2", return_bids)
         return bidders
 
@@ -380,7 +376,7 @@ class GiveawayView(ui.View):
 
     # noinspection PyUnusedLocal
     @ui.button(label="Toggle Giveaway Alerts", style=discord.ButtonStyle.danger)
-    async def toggle_alerts(self, interaction: discord.Interaction, button: ui.Button) -> None:    # skipcq: PYL-W0613
+    async def toggle_alerts(self, interaction: discord.Interaction, button: ui.Button) -> None:  # skipcq: PYL-W0613
         """Toggle the giveaway alerts.
 
         Parameters
