@@ -22,10 +22,10 @@ choice-RANDOM-name = RANDOM
 programs-shrugman-name = shrugman
 programs-shrugman-description = Play the shrugman minigame. (Hangman clone)
 
-programs-beta-minesweeper-name = minesweeper
-programs-beta-minesweeper-description = [BETA] Play a game of Minesweeper.
-programs-beta-minesweeper-parameter-difficulty-name = difficulty
-programs-beta-minesweeper-parameter-difficulty-description = The difficulty of the game.
+programs-minesweeper-name = minesweeper
+programs-minesweeper-description = Play a game of Minesweeper.
+programs-minesweeper-parameter-difficulty-name = difficulty
+programs-minesweeper-parameter-difficulty-description = The difficulty of the game.
 choice-Beginner-name = Beginner
 choice-Intermediate-name = Intermediate
 choice-Expert-name = Expert

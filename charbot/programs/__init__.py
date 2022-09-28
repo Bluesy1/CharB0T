@@ -152,13 +152,13 @@ class Reputation(commands.Cog, name="Programs"):
         view = shrugman.Shrugman(self.bot, word)
         await interaction.followup.send(embed=embed, view=view)
 
-    @beta.command()  # pyright: ignore[reportGeneralTypeIssues]
+    @programs.command()  # pyright: ignore[reportGeneralTypeIssues]
     async def minesweeper(
         self,
         interaction: Interaction["CBot"],
         difficulty: Literal["Beginner", "Intermediate", "Expert", "Super Expert"],
     ):
-        """[BETA] Play a game of Minesweeper.
+        """Play a game of Minesweeper.
 
         Parameters
         ----------
