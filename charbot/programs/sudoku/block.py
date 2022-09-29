@@ -49,7 +49,7 @@ class Block:
     def __init__(self, cells: list[Cell]):
         if len(cells) != 9:
             raise ValueError("Block must have exactly 9 cells.")
-        self._row1 = cells[0:3]
+        self._row1 = cells[:3]
         self._row2 = cells[3:6]
         self._row3 = cells[6:9]
 

@@ -276,7 +276,7 @@ class Sudoku(ui.View):
                         self.cell = MISSING
                         self.update_keypad()
                         await interaction.edit_original_response(embed=self.cell_choose_embed(), view=self)
-                elif self.cell.editable and self.noting_mode:
+                elif self.cell.editable:
                     val = button.label
                     assert isinstance(val, str)  # skipcq: BAN-B101
                     real_val = int(val)
