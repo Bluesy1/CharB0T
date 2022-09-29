@@ -36,7 +36,7 @@ from discord import app_commands, Locale
 from discord.app_commands import locale_str, TranslationContext, TranslationContextLocation
 from discord.ext import commands
 from discord.utils import MISSING
-from fluent.runtime import FluentResourceLoader, FluentLocalization
+from fluent.runtime import FluentResourceLoader
 
 from . import Config, EXTENSIONS, errors
 from .translator import Translator
@@ -50,9 +50,7 @@ class Holder(dict[str, Any]):
 
     def __getitem__(self, k: Any) -> Any:
         """Get item."""
-        if k not in self:
-            return MISSING
-        return super().__getitem__(k)
+        return MISSING if k not in self else super().__getitem__(k)
 
     def __delitem__(self, key: Any) -> None:
         """Delete item."""
@@ -62,15 +60,11 @@ class Holder(dict[str, Any]):
 
     def pop(self, __key: Any, default: _VT = MISSING) -> _VT:
         """Pop item."""
-        if __key not in self:
-            return default
-        return super().pop(__key)
+        return default if __key not in self else super().pop(__key)
 
     def get(self, __key: Any, default: _VT = MISSING) -> _VT:
         """Get item."""
-        if __key not in self:
-            return default
-        return super().get(__key, default)
+        return default if __key not in self else super().get(__key, default)
 
     def setdefault(self, __key: Any, default: _VT = MISSING) -> _VT:
         """Set default."""
@@ -182,6 +176,7 @@ class CBot(commands.Bot):
         self.giveaway_webhook: discord.Webhook = MISSING
         self.holder: Holder = Holder()
         self.localizer_loader = FluentResourceLoader("i18n/{locale}")
+        self.no_dms: set[int] = set()
 
     async def setup_hook(self):
         """Initialize hook for the bot.
@@ -228,7 +223,7 @@ class CBot(commands.Bot):
 
     async def give_game_points(
         self, member: discord.Member | discord.User, game: str, points: int, bonus: int = 0
-    ) -> int:
+    ) -> int:  # sourcery skip: compare-via-equals
         """Give the user points.
 
         Parameters
@@ -335,7 +330,9 @@ class CBot(commands.Bot):
             return 0
         return points + bonus
 
-    async def translate(self, string: locale_str | str, locale: Locale, *, data: Any | None = None) -> str:
+    async def translate(
+        self, string: locale_str | str, locale: Locale, *, data: Any | None = None, fallback: str | None = None
+    ) -> str:
         """Translate a string.
 
         Parameters
@@ -346,6 +343,8 @@ class CBot(commands.Bot):
             The locale to translate to.
         data : Any, optional
             The extra data to pass to the translator.
+        fallback : str | None, optional
+            String to fall back to if translation lookup fails.
 
         Returns
         -------
@@ -355,23 +354,22 @@ class CBot(commands.Bot):
         Raises
         ------
         ValueError
-            If the key is not valid.
+            If the key is not valid and a fallback was not provided.
         """
         translator = self.tree.translator
         if translator is None:
             translator = Translator()
             await self.tree.set_translator(translator)
         context = TranslationContext(TranslationContextLocation.other, data=data)
-        if isinstance(string, locale_str):
-            key = string
-        else:
-            key = locale_str(string)
+        key = string if isinstance(string, locale_str) else locale_str(string)
         res = await translator.translate(key, locale, context)
         if res is not None:
             return res
         res = await translator.translate(key, Locale.american_english, context)
         if res is not None:
             return res
+        if fallback:
+            return fallback
         raise ValueError(f"Key {string} not a valid key for translation")
 
     # for some reason deepsource doesn't like this, so i'm skipcq'ing the definition header
@@ -421,10 +419,12 @@ class CBot(commands.Bot):
 
         # if the command is guild only and the user is not in a guild, we want to tell the user that
         elif isinstance(exception, commands.NoPrivateMessage):
-            try:
-                await ctx.author.send(f"{command.name} can only be used in a guild.")
-            except discord.HTTPException:
-                pass  # user has DMs off or blocked the bot
+            if ctx.author.id not in self.no_dms:
+                try:
+                    await ctx.author.send(f"{command.name} can only be used in a guild.")
+                except discord.HTTPException:
+                    self.no_dms.add(ctx.author.id)
+                    # user has DMs off or blocked the bot, don't try to DM them anymore
 
         # if the argument(s) are invalid, we want to tell the user that
         elif isinstance(exception, commands.BadArgument):
@@ -476,37 +476,30 @@ class Tree(app_commands.CommandTree[CBot]):
         """
         if not interaction.response.is_done():
             await interaction.response.defer(ephemeral=True)
-        fluent = FluentLocalization(
-            [interaction.locale.value, "en-US"],
-            ["errors.ftl"],
-            self.client.localizer_loader,
-        )
         command = interaction.command
         if isinstance(command, (app_commands.Command, app_commands.ContextMenu)):
+            data = {"user": interaction.user.mention, "command": command.qualified_name}
             if isinstance(error, (errors.MissingProgramRole, errors.NoPoolFound, errors.WrongChannelError)):
                 message = error.message
             elif isinstance(error, app_commands.MissingAnyRole):
-                message = fluent.format_value(
-                    "missing-any-role", {"user": interaction.user.mention, "command": command.qualified_name}
+                message = await self.client.translate(
+                    "missing-any-role",
+                    interaction.locale,
+                    data=data,
+                    fallback="You are missing a role to use this command.",
                 )
-                if message == "missing-any-role" or message is None:
-                    message = "You are missing a role to use this command."
             elif isinstance(error, errors.WrongChannelError):
                 message = f"{interaction.user.mention}, {error}"
             elif isinstance(error, app_commands.NoPrivateMessage):
                 message = error.args[0]
             elif isinstance(error, app_commands.CheckFailure):
-                message = fluent.format_value(
-                    "check-failed", {"user": interaction.user.mention, "command": command.qualified_name}
+                message = await self.client.translate(
+                    "check-failed", interaction.locale, data=data, fallback="You can't use this command."
                 )
-                if message == "check-failed" or message is None:
-                    message = "You can't use this command."
             elif isinstance(error, app_commands.CommandInvokeError):
-                message = fluent.format_value(
-                    "bad-code", {"user": interaction.user.mention, "command": command.qualified_name}
+                message = await self.client.translate(
+                    "bad-code", interaction.locale, data=data, fallback="An error occurred, Bluesy has been notified."
                 )
-                if message == "bad-code" or message is None:
-                    message = "An error occurred, Bluesy has been notified."
                 self.logger.error("Ignoring exception in command %r", command.name, exc_info=error)
             else:
                 message = "An error occurred while executing the command."

@@ -109,10 +109,11 @@ class ModSupport(GroupCog, name="modsupport", description="mod support command g
         if guild is None:
             guild = await self.bot.fetch_guild(225345178955808768)
         channels = await guild.fetch_channels()
-        cared: list[discord.TextChannel] = []
-        for channel in channels:
-            if channel.name.endswith("mod-support") and isinstance(channel, discord.TextChannel):
-                cared.append(channel)
+        cared: list[discord.TextChannel] = [
+            channel
+            for channel in channels
+            if channel.name.endswith("mod-support") and isinstance(channel, discord.TextChannel)
+        ]
         for channel in cared:
             temp = True
             async for message in channel.history(after=utcnow() - timedelta(days=3)):
@@ -165,47 +166,37 @@ class ModSupport(GroupCog, name="modsupport", description="mod support command g
             User to change
         """
         if await edit_check(interaction):
+            successful = False
+            with open(self.blacklist_path, "rb") as file:
+                modmail_blacklist = orjson.loads(file.read())
             if add:
-                successful = False
-                with open(self.blacklist_path, "rb") as file:
-                    modmail_blacklist = orjson.loads(file.read())
                 if user.id not in modmail_blacklist["blacklisted"]:
                     modmail_blacklist["blacklisted"].append(user.id)
                     with open(self.blacklist_path, "wb") as file:
                         file.write(orjson.dumps(modmail_blacklist))
                     successful = True
-            else:
-                successful = False
-                with open(self.blacklist_path, "rb") as file:
-                    modmail_blacklist = orjson.loads(file.read())
-                if user.id in modmail_blacklist["blacklisted"]:
-                    modmail_blacklist["blacklisted"].remove(user.id)
-                    with open(self.blacklist_path, "wb") as file:
-                        file.write(orjson.dumps(modmail_blacklist))
-                    successful = True
+            elif user.id in modmail_blacklist["blacklisted"]:
+                modmail_blacklist["blacklisted"].remove(user.id)
+                with open(self.blacklist_path, "wb") as file:
+                    file.write(orjson.dumps(modmail_blacklist))
+                successful = True
             if add and successful:
                 await interaction.response.send_message(
                     f"<@{user.id}> successfully added to the blacklist", ephemeral=True
                 )
-            elif add and not successful:
+            elif add:
                 await interaction.response.send_message(
                     f"Error: <@{user.id}> was already on the blacklist" f" or was not able to be added to.",
                     ephemeral=True,
                 )
-            elif not add and successful:
+            elif successful:
                 await interaction.response.send_message(
                     f"<@{user.id}> successfully removed from the blacklist",
                     ephemeral=True,
                 )
-            elif not add and not successful:
-                await interaction.response.send_message(
-                    f"<@{user.id}> was not on the blacklist or was" f" not able to be removed from it.",
-                    ephemeral=True,
-                )
             else:
                 await interaction.response.send_message(
-                    "Error: unkown issue occured. If you're seeing this,"
-                    " ping bluesy, something has gone very wrong.",
+                    f"<@{user.id}> was not on the blacklist or was" f" not able to be removed from it.",
                     ephemeral=True,
                 )
         else:
@@ -220,7 +211,7 @@ class ModSupportButtons(ui.View):
     Parameters
     ----------
     everyone : discord.Role
-        The everyone role for the guild.
+        The @everyone role for the guild.
     mod_role : discord.Role
         The mod role for the guild.
     mods : dict
@@ -264,7 +255,7 @@ class ModSupportButtons(ui.View):
             return interaction.user.id not in orjson.loads(file.read())["blacklisted"]
 
     async def standard_callback(self, button: discord.ui.Button, interaction: Interaction):
-        """Just general and important and ememgrency callback helper.
+        """Just general and important and emergency callback helper.
 
         This is the callback for all buttons.
 
@@ -372,7 +363,7 @@ class ModSupportButtons(ui.View):
             user: PermissionOverwrite.from_pair(Permissions(139586817088), Permissions.none()),
         }
         for uid in select.values:
-            perms.update({self.mods[uid]: PermissionOverwrite.from_pair(Permissions(139586817088), Permissions.none())})
+            perms[self.mods[uid]] = PermissionOverwrite.from_pair(Permissions(139586817088), Permissions.none())
         await interaction.response.send_modal(ModSupportModal(perms, f"Private-{user.name}-mod-support"))
 
 
@@ -442,7 +433,7 @@ class ModSupportModal(ui.Modal, title="Mod Support Form"):
         style=discord.TextStyle.paragraph,
         placeholder="Put your full description here ...",
         required=False,
-        custom_id="Long_Desription",
+        custom_id="Long_Description",
     )
 
     async def on_submit(self, interaction: Interaction):

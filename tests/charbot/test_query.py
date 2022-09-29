@@ -103,7 +103,7 @@ async def test_rule_command(mocker: MockerFixture, rule: int | None, member_id: 
         res
         == {
             1: "**1**: Be respectful to others. Being drunk is not an excuse for being stupid. Common-sense matters"
-            ". Just because it isn’t explicitly written here, doesn’t mean it doesn’t break the rules.\n**2**: Please"
+            ". Just because it isn’t explicitly written here, doesn't mean it doesn't break the rules.\n**2**: Please"
             " utilize the text and voice channels as they are described and keep things on topic. Please be open to"
             " explaining and including others for any conversation you have here.\n**3**: Don't spam. Intentionally"
             " spamming gets you kicked or muted. Whether or not you are spamming is subject to interpretation of"
@@ -121,7 +121,7 @@ async def test_rule_command(mocker: MockerFixture, rule: int | None, member_id: 
             " maintaining a PG-13 community environment. Find a way to say it another way, if the bot kills your"
             " message.",
             2: "<@1>:\n**1**: Be respectful to others. Being drunk is not an excuse for being stupid. Common-sense "
-            "matters. Just because it isn’t explicitly written here, doesn’t mean it doesn’t break the rules.\n**2**: "
+            "matters. Just because it isn’t explicitly written here, doesn't mean it doesn't break the rules.\n**2**: "
             "Please utilize the text and voice channels as they are described and keep things on topic. Please be open"
             " to explaining and including others for any conversation you have here.\n**3**: Don't spam. Intentionally"
             " spamming gets you kicked or muted. Whether or not you are spamming is subject to interpretation of"
@@ -139,11 +139,11 @@ async def test_rule_command(mocker: MockerFixture, rule: int | None, member_id: 
             " maintaining a PG-13 community environment. Find a way to say it another way, if the bot kills your"
             " message.",
             3: "**Rule 1** is Be respectful to others. Being drunk is not an excuse for being stupid. "
-            "Common-sense matters. Just because it isn’t explicitly written here, doesn’t mean it doesn’t break the "
+            "Common-sense matters. Just because it isn’t explicitly written here, doesn't mean it doesn't break the "
             "rules.\n The rules can be found here: "
             "<https://cpry.net/DiscordRules>",
             4: "<@1>:\n**Rule 1** is Be respectful to others. Being drunk is not an excuse for being stupid. "
-            "Common-sense matters. Just because it isn’t explicitly written here, doesn’t mean it doesn’t break the "
+            "Common-sense matters. Just because it isn’t explicitly written here, doesn't mean it doesn't break the "
             "rules.\n The rules can be found here: "
             "<https://cpry.net/DiscordRules>",
         }[expected_key]

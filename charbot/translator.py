@@ -84,6 +84,4 @@ class Translator(app_commands.Translator):
         else:
             return None
         translated = fluent.format_value(key, string.extras)
-        if translated == key or translated is None:
-            return None
-        return translated
+        return None if translated == key or translated is None else translated
