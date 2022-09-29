@@ -98,9 +98,7 @@ class Cell:
     @property
     def possible_values(self) -> set[int]:
         """Possible values for the cell, as thought by the user."""
-        if not self._editable:
-            return set()
-        return self._possible_values
+        return self._possible_values if self._editable else set()
 
     @possible_values.setter
     def possible_values(self, values: set[int]) -> None:

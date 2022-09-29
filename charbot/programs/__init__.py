@@ -52,7 +52,7 @@ class Reputation(commands.Cog, name="Programs"):
         self.bot = bot
         self.sudoku_regex = re.compile(r"(\d{81}).*([01]{81})")
 
-    async def interaction_check(self, interaction: Interaction):  # skipcq: PYL-W0221
+    async def interaction_check(self, interaction: Interaction):    # skipcq: PYL-W0221
         """Check if the user is allowed to use the cog."""
         if interaction.guild is None:
             raise app_commands.NoPrivateMessage("Programs can't be used in direct messages.")
@@ -66,7 +66,7 @@ class Reputation(commands.Cog, name="Programs"):
             raise errors.WrongChannelError(self.bot.CHANNEL_ID, interaction.locale)
         user = interaction.user
         assert isinstance(user, discord.Member)  # skipcq: BAN-B101
-        if not any(role.id in self.bot.ALLOWED_ROLES for role in user.roles):
+        if all(role.id not in self.bot.ALLOWED_ROLES for role in user.roles):
             raise errors.MissingProgramRole(self.bot.ALLOWED_ROLES, interaction.locale)
         return True
 
