@@ -235,7 +235,9 @@ class Puzzle:
             used |= span[board[pos], pos]
             empty += 1 if board[pos] else -1
             if empty == len(_empties):
-                yield [board[r : r + size] for r in range(0, size**2, size)]
+                # fmt: off
+                yield [board[r:r + size] for r in range(0, size**2, size)]
+                # fmt: on
                 empty -= 1
 
     def location_of_cell(self, cell: Cell) -> str:
