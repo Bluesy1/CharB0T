@@ -25,7 +25,7 @@
 """Admin commands for the reputation system."""
 import asyncio
 import datetime
-from typing import Optional
+from typing import Optional, cast
 
 import asyncpg
 import discord
@@ -129,15 +129,12 @@ class ReputationAdmin(
         bool
             Whether the interaction is allowed.
         """
-        try:
-            member = interaction.user
-            assert isinstance(member, discord.Member)  # skipcq: BAN-B101
-        except AssertionError:
+        member = interaction.user
+        if not isinstance(member, discord.Member):
             raise app_commands.NoPrivateMessage("This command can't be used in DMs.")
-        else:
-            if not any(role.id in self.allowed_roles for role in member.roles):
-                raise app_commands.MissingAnyRole(self.allowed_roles)
-            return True
+        if all(role.id not in self.allowed_roles for role in member.roles):
+            raise app_commands.MissingAnyRole(self.allowed_roles)
+        return True
 
     @pools.command(name="create")  # pyright: ignore[reportGeneralTypeIssues]
     async def create_pool(
@@ -264,13 +261,12 @@ class ReputationAdmin(
         )
         image = discord.File(image_bytes, f"{name}.png")
         await interaction.followup.send(f"Pool {name} created with reward {reward}!", file=image)
-        clientuser = self.bot.user
-        assert isinstance(clientuser, discord.ClientUser)  # skipcq: BAN-B101
+        client_user = cast(discord.ClientUser, self.bot.user)
         await self.bot.program_logs.send(
             f"Pool {name} created with reward {reward} by {interaction.user.mention}.",
             allowed_mentions=_ALLOWED_MENTIONS,
-            username=clientuser.name,
-            avatar_url=clientuser.display_avatar.url,
+            username=client_user.name,
+            avatar_url=client_user.display_avatar.url,
         )
 
     @pools.command(name="edit")  # pyright: ignore[reportGeneralTypeIssues]
@@ -326,14 +322,13 @@ class ReputationAdmin(
             await interaction.followup.send(f"Error: Pool {pool} does not exist.")
         else:
             await self._finish_pool_edit(interaction, _pool, pool, name, capacity, reward, level, current, start)
-            clientuser = self.bot.user
-            assert isinstance(clientuser, discord.ClientUser)  # skipcq: BAN-B101
+            client_user = cast(discord.ClientUser, self.bot.user)
             await self.bot.program_logs.send(
                 f"Pool {name or pool}{f' (formerly {pool})' if name is not None else ''}"
                 f" edited by {interaction.user.mention}.",
                 allowed_mentions=_ALLOWED_MENTIONS,
-                username=clientuser.name,
-                avatar_url=clientuser.display_avatar.url,
+                username=client_user.name,
+                avatar_url=client_user.display_avatar.url,
             )
 
     async def _finish_pool_edit(
@@ -424,39 +419,37 @@ class ReputationAdmin(
             The role to toggle.
         """
         await interaction.response.defer(ephemeral=True)
-        clientuser = self.bot.user
-        assert isinstance(clientuser, discord.ClientUser)  # skipcq: BAN-B101
+        client_user = cast(discord.ClientUser, self.bot.user)
         async with self.bot.pool.acquire() as conn, conn.transaction():
             _pool = await conn.fetchrow("SELECT * FROM pools WHERE pool = $1", pool)
             if _pool is None:
                 await interaction.followup.send(f"Error: Pool `{pool}` not found.")
+            elif role.id in _pool["required_roles"]:
+                await conn.execute(
+                    "UPDATE pools SET required_roles = array_remove(required_roles, $1) WHERE pool = $2",
+                    role.id,
+                    pool,
+                )
+                await interaction.followup.send(f"Role `{role.name}` removed from pool `{pool}`.")
+                await self.bot.program_logs.send(
+                    f"Role `{role.name}` removed from pool `{pool}` by {interaction.user.mention}.",
+                    allowed_mentions=_ALLOWED_MENTIONS,
+                    username=client_user.name,
+                    avatar_url=client_user.display_avatar.url,
+                )
             else:
-                if role.id in _pool["required_roles"]:
-                    await conn.execute(
-                        "UPDATE pools SET required_roles = array_remove(required_roles, $1) WHERE pool = $2",
-                        role.id,
-                        pool,
-                    )
-                    await interaction.followup.send(f"Role `{role.name}` removed from pool `{pool}`.")
-                    await self.bot.program_logs.send(
-                        f"Role `{role.name}` removed from pool `{pool}` by {interaction.user.mention}.",
-                        allowed_mentions=_ALLOWED_MENTIONS,
-                        username=clientuser.name,
-                        avatar_url=clientuser.display_avatar.url,
-                    )
-                else:
-                    await conn.execute(
-                        "UPDATE pools SET required_roles = array_append(required_roles, $1) WHERE pool = $2",
-                        role.id,
-                        pool,
-                    )
-                    await interaction.followup.send(f"Role `{role.name}` added to pool `{pool}`.")
-                    await self.bot.program_logs.send(
-                        f"Role `{role.name}` added to pool `{pool}` by {interaction.user.mention}.",
-                        allowed_mentions=_ALLOWED_MENTIONS,
-                        username=clientuser.name,
-                        avatar_url=clientuser.display_avatar.url,
-                    )
+                await conn.execute(
+                    "UPDATE pools SET required_roles = array_append(required_roles, $1) WHERE pool = $2",
+                    role.id,
+                    pool,
+                )
+                await interaction.followup.send(f"Role `{role.name}` added to pool `{pool}`.")
+                await self.bot.program_logs.send(
+                    f"Role `{role.name}` added to pool `{pool}` by {interaction.user.mention}.",
+                    allowed_mentions=_ALLOWED_MENTIONS,
+                    username=client_user.name,
+                    avatar_url=client_user.display_avatar.url,
+                )
 
     @pools.command(name="delete")  # pyright: ignore[reportGeneralTypeIssues]
     async def delete_pool(self, interaction: Interaction[CBot], pool: str):
@@ -477,13 +470,12 @@ class ReputationAdmin(
             else:
                 await conn.execute("DELETE FROM pools WHERE pool = $1", pool)
                 await interaction.followup.send(f"Pool `{pool}` deleted.")
-                clientuser = self.bot.user
-                assert isinstance(clientuser, discord.ClientUser)  # skipcq: BAN-B101
+                client_user = cast(discord.ClientUser, self.bot.user)
                 await self.bot.program_logs.send(
                     f"Pool `{pool}` deleted by {interaction.user.mention}.",
                     allowed_mentions=_ALLOWED_MENTIONS,
-                    username=clientuser.name,
-                    avatar_url=clientuser.display_avatar.url,
+                    username=client_user.name,
+                    avatar_url=client_user.display_avatar.url,
                 )
 
     @pools.command(name="check")  # pyright: ignore[reportGeneralTypeIssues]
@@ -544,13 +536,12 @@ class ReputationAdmin(
                     "UPDATE users SET points = points + $1 WHERE id = $2 RETURNING points", amount, user.id
                 )
                 await interaction.followup.send(f"User `{user.name}` now has {new_points} reputation.")
-                clientuser = self.bot.user
-                assert isinstance(clientuser, discord.ClientUser)  # skipcq: BAN-B101
+                client_user = cast(discord.ClientUser, self.bot.user)
                 await self.bot.program_logs.send(
                     f"{user.mention} now has {new_points} reputation by {interaction.user.mention} ({amount} added).",
                     allowed_mentions=_ALLOWED_MENTIONS,
-                    username=clientuser.name,
-                    avatar_url=clientuser.display_avatar.url,
+                    username=client_user.name,
+                    avatar_url=client_user.display_avatar.url,
                 )
 
     @reputation.command()  # pyright: ignore[reportGeneralTypeIssues]
@@ -583,15 +574,15 @@ class ReputationAdmin(
                 await interaction.followup.send(
                     f"User `{user.name}` now has {new_points} reputation. {overflow} reputation overflow."
                 )
-                clientuser = self.bot.user
-                assert isinstance(clientuser, discord.ClientUser)  # skipcq: BAN-B101
+                client_user = cast(discord.ClientUser, self.bot.user)
                 await self.bot.program_logs.send(
                     f"{user.mention} now has {new_points} reputation by {interaction.user.mention} ({amount} removed).",
                     allowed_mentions=_ALLOWED_MENTIONS,
-                    username=clientuser.name,
-                    avatar_url=clientuser.display_avatar.url,
+                    username=client_user.name,
+                    avatar_url=client_user.display_avatar.url,
                 )
 
+    # noinspection DuplicatedCode
     @reputation.command()  # pyright: ignore[reportGeneralTypeIssues]
     async def check_reputation(self, interaction: Interaction[CBot], user: discord.User):
         """Check a user's reputation.
@@ -611,6 +602,7 @@ class ReputationAdmin(
             else:
                 await interaction.followup.send(f"User `{user.name}` has {_user['points']} reputation.")
 
+    # noinspection DuplicatedCode
     @app_commands.default_permissions(manage_messages=True)
     @app_commands.checks.has_any_role(225413350874546176, 253752685357039617, 725377514414932030, 338173415527677954)
     async def check_reputation_context(self, interaction: Interaction[CBot], user: discord.User):
@@ -644,28 +636,27 @@ class ReputationAdmin(
         """
         await interaction.response.defer(ephemeral=True)
         async with self.bot.pool.acquire() as conn, conn.transaction():
-            noxp = await conn.fetchrow("SELECT * FROM no_xp WHERE guild = $1", interaction.guild_id)
-            if noxp is None:
+            no_xp = await conn.fetchrow("SELECT * FROM no_xp WHERE guild = $1", interaction.guild_id)
+            if no_xp is None:
                 await interaction.followup.send("Xp is not set up??.")
+            elif role.id in no_xp["roles"]:
+                await conn.execute(
+                    "UPDATE no_xp SET roles = array_remove(roles, $1) WHERE guild = $2",
+                    role.id,
+                    interaction.guild_id,
+                )
+                await interaction.followup.send(f"Role `{role.name}` removed from noxp.")
             else:
-                if role.id in noxp["roles"]:
-                    await conn.execute(
-                        "UPDATE no_xp SET roles = array_remove(roles, $1) WHERE guild = $2",
-                        role.id,
-                        interaction.guild_id,
-                    )
-                    await interaction.followup.send(f"Role `{role.name}` removed from noxp.")
-                else:
-                    await conn.execute(
-                        "UPDATE no_xp SET roles = array_append(roles, $1) WHERE guild = $2",
-                        role.id,
-                        interaction.guild_id,
-                    )
-                    await interaction.followup.send(f"Role `{role.name}` added to noxp.")
+                await conn.execute(
+                    "UPDATE no_xp SET roles = array_append(roles, $1) WHERE guild = $2",
+                    role.id,
+                    interaction.guild_id,
+                )
+                await interaction.followup.send(f"Role `{role.name}` added to noxp.")
 
     @levels.command()  # pyright: ignore[reportGeneralTypeIssues]
-    async def noxp_channel(self, interaction: Interaction[CBot], channel: discord.TextChannel | discord.VoiceChannel):
-        """Toggles a chanels ability to block xp gain.
+    async def no_xp_channel(self, interaction: Interaction[CBot], channel: discord.TextChannel | discord.VoiceChannel):
+        """Toggles a channels ability to block xp gain.
 
         Parameters
         ----------
@@ -676,24 +667,23 @@ class ReputationAdmin(
         """
         await interaction.response.defer(ephemeral=True)
         async with self.bot.pool.acquire() as conn, conn.transaction():
-            noxp = await conn.fetchrow("SELECT * FROM no_xp WHERE guild = $1", interaction.guild_id)
-            if noxp is None:
+            no_xp = await conn.fetchrow("SELECT * FROM no_xp WHERE guild = $1", interaction.guild_id)
+            if no_xp is None:
                 await interaction.followup.send("Xp is not set up??.")
+            elif channel.id in no_xp["channels"]:
+                await conn.execute(
+                    "UPDATE no_xp SET channels = array_remove(channels, $1) WHERE guild = $2",
+                    channel.id,
+                    interaction.guild_id,
+                )
+                await interaction.followup.send(f"{channel.mention} removed from noxp.")
             else:
-                if channel.id in noxp["channels"]:
-                    await conn.execute(
-                        "UPDATE no_xp SET channels = array_remove(channels, $1) WHERE guild = $2",
-                        channel.id,
-                        interaction.guild_id,
-                    )
-                    await interaction.followup.send(f"{channel.mention} removed from noxp.")
-                else:
-                    await conn.execute(
-                        "UPDATE no_xp SET channels = array_append(channels, $1) WHERE guild = $2",
-                        channel.id,
-                        interaction.guild_id,
-                    )
-                    await interaction.followup.send(f"{channel.mention} added to noxp.")
+                await conn.execute(
+                    "UPDATE no_xp SET channels = array_append(channels, $1) WHERE guild = $2",
+                    channel.id,
+                    interaction.guild_id,
+                )
+                await interaction.followup.send(f"{channel.mention} added to noxp.")
 
     @levels.command()  # pyright: ignore[reportGeneralTypeIssues]
     async def noxp_query(self, interaction: Interaction[CBot]):
@@ -710,8 +700,7 @@ class ReputationAdmin(
             if noxp is None:
                 await interaction.followup.send("Xp is not set up??.")
             else:
-                guild = interaction.guild
-                assert isinstance(guild, discord.Guild)  # skipcq: BAN-B101
+                guild = cast(discord.Guild, interaction.guild)
                 embed = discord.Embed(title="Noxp", description="", timestamp=utcnow())
                 embed.set_author(name=guild.name, icon_url=guild.icon.url if guild.icon else None)
                 embed.set_footer(

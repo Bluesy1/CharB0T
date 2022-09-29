@@ -1,0 +1,31 @@
+ignore: []
+
+refactor:
+  include: []
+  skip:
+  - use-contextlib-suppress
+  - use-named-expression
+  rule_types:
+    - refactoring
+    - suggestion
+    - comment
+  python_version: '3.10'
+
+metrics:
+  quality_threshold: 25.0
+
+github:
+  labels:
+    - python
+  ignore_labels:
+    - sourcery-ignore
+  request_review: owner
+  sourcery_branch: sourcery/refactor/{base_branch}
+
+clone_detection:
+  min_lines: 3
+  min_duplicates: 2
+  identical_clones_only: false
+
+proxy:
+  no_ssl_verify: false
