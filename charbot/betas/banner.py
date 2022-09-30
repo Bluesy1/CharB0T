@@ -165,17 +165,7 @@ async def generate_banner(payload: BannerStatus, member: discord.Member) -> Byte
     c = payload["color"]
     prof = BytesIO()
     await member.display_avatar.replace(size=128, format="png", static_format="png").save(prof)
-    if c is not None:
-        color = Color.from_str(c)
-        return await asyncio.to_thread(
-            banner,
-            color,
-            member.display_name,
-            prof,
-            payload["quote"],
-            0,
-        )
-    else:
+    if c is None:
         return await asyncio.to_thread(
             banner,
             BASE_PATH / f"{member.id}.png",
@@ -184,3 +174,12 @@ async def generate_banner(payload: BannerStatus, member: discord.Member) -> Byte
             payload["quote"],
             0,
         )
+    color = Color.from_str(c)
+    return await asyncio.to_thread(
+        banner,
+        color,
+        member.display_name,
+        prof,
+        payload["quote"],
+        0,
+    )
