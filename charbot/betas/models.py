@@ -33,6 +33,8 @@ __all__ = ("ColorOpts", "COLORS")
 
 
 class ColorOpts(Enum):
+    """Enum mapping of color name to discord colors"""
+
     Black = Color(0x36454F)  # actually called charcoal, but is close enough to black
     Red = Color.dark_red()
     Green = Color.green()

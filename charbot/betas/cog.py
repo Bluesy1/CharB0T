@@ -174,7 +174,6 @@ class Betas(commands.Cog):
             The interaction object for the current context
         """
         await interaction.response.defer(ephemeral=True)
-        conn: asyncpg.Connection
         banner_rec: BannerStatusPoints | None = await interaction.client.pool.fetchrow(
             "SELECT banners.user_id as user_id, quote, banners.color as color, cooldown, approved,"
             "u.points as POINTS FROM banners JOIN users u on banners.user_id = u.id WHERE banners.user_id = $1",
