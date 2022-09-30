@@ -254,7 +254,6 @@ class Events(Cog):
                 if word in message.content.lower()
                 and (word != "war" or any(word in fulldict["words"] for word in message.content.lower()))
             }
-
             self.last_sensitive_logged.setdefault(message.author.id, datetime.now() - timedelta(days=1))
             if datetime.now() > (self.last_sensitive_logged[message.author.id] + timedelta(minutes=5)) and any(
                 [

@@ -14,3 +14,8 @@ updates:
     schedule:
       # Check for updates to GitHub Actions every weekday
       interval: "daily"
+  - package-ecosystem: "cargo"
+    directory: "charbot_rust"
+    schedule:
+      # Check for updates to Rust dependencies every weekday
+      interval: "daily"
