@@ -112,8 +112,7 @@ class ModSupport(GroupCog, name="modsupport", description="mod support command g
         cared: list[discord.TextChannel] = [
             channel
             for channel in channels
-            if channel.name.endswith("mod-support")
-            and isinstance(channel, discord.TextChannel)
+            if channel.name.endswith("mod-support") and isinstance(channel, discord.TextChannel)
         ]
 
         for channel in cared:
@@ -365,9 +364,7 @@ class ModSupportButtons(ui.View):
             user: PermissionOverwrite.from_pair(Permissions(139586817088), Permissions.none()),
         }
         for uid in select.values:
-            perms[self.mods[uid]] = PermissionOverwrite.from_pair(
-                Permissions(139586817088), Permissions.none()
-            )
+            perms[self.mods[uid]] = PermissionOverwrite.from_pair(Permissions(139586817088), Permissions.none())
 
         await interaction.response.send_modal(ModSupportModal(perms, f"Private-{user.name}-mod-support"))
 

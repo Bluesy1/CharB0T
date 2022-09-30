@@ -250,13 +250,7 @@ class Events(Cog):
                 word
                 for word in fulldict["words"]
                 if word in message.content.lower()
-                and (
-                    word != "war"
-                    or any(
-                        word in fulldict["words"]
-                        for word in message.content.lower()
-                    )
-                )
+                and (word != "war" or any(word in fulldict["words"] for word in message.content.lower()))
             }
 
             self.last_sensitive_logged.setdefault(message.author.id, datetime.now() - timedelta(days=1))
@@ -442,10 +436,7 @@ class Events(Cog):
                 729368484211064944,
             }
             for role in author.roles
-        ) and any(
-            item in message.content
-            for item in [f"<@&{message.guild.id}>", "@everyone", "@here"]
-        ):
+        ) and any(item in message.content for item in [f"<@&{message.guild.id}>", "@everyone", "@here"]):
             await author.add_roles(
                 discord.Object(id=676250179929636886),
                 discord.Object(id=684936661745795088),

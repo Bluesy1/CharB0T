@@ -113,12 +113,8 @@ class Query(Cog):
             return False
         author = ctx.author
         assert isinstance(author, discord.Member)  # skipcq: BAN-B101
-        return all(
-            role.id not in (684936661745795088, 676250179929636886)
-            for role in author.roles
-        ) or any(
-            role.id in (338173415527677954, 253752685357039617, 225413350874546176)
-            for role in author.roles
+        return all(role.id not in (684936661745795088, 676250179929636886) for role in author.roles) or any(
+            role.id in (338173415527677954, 253752685357039617, 225413350874546176) for role in author.roles
         )
 
     @commands.command()
@@ -307,9 +303,7 @@ class Query(Cog):
         resp = (
             f"**Rule {rule}** is {__rules__[rule]}\n The rules can be found here: <https://cpry.net/DiscordRules>"
             if rule
-            else "\n".join(
-                f"**{num}**: {_rule}" for num, _rule in __rules__.items()
-            )
+            else "\n".join(f"**{num}**: {_rule}" for num, _rule in __rules__.items())
         )
 
         if member:
