@@ -338,9 +338,7 @@ class Query(Cog):
         resp = (
             f"**Rule {rule}** is {__rules__[rule]}\n The rules can be found here: <https://cpry.net/DiscordRules>"
             if rule
-            else "\n".join(
-                f"**{num}**: {_rule}" for num, _rule in __rules__.items()
-            )
+            else "\n".join(f"**{num}**: {_rule}" for num, _rule in __rules__.items())
         )
 
         if member:
