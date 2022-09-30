@@ -15,7 +15,7 @@ def cluster() -> asyncpg.cluster.TempCluster:  # pyright: ignore[reportGeneralTy
     test_cluster.init()
     test_cluster.start(port="dynamic")
     yield test_cluster
-    cluster.stop()
+    test_cluster.stop()
 
 
 @pytest_asyncio.fixture
