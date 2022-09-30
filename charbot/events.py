@@ -59,7 +59,7 @@ def sensitive_embed(message: discord.Message, used: set[str]) -> discord.Embed:
         color=Color.red(),
         timestamp=utcnow(),
     )
-    embed.add_field(name="Words Found:", value=", ".join(used)[0:1024], inline=True)
+    embed.add_field(name="Words Found:", value=", ".join(used)[:1024], inline=True)
     embed.add_field(
         name="Author:",
         value=f"{message.author.display_name}: {message.author}",
@@ -246,12 +246,19 @@ class Events(Cog):
             channel = cast(discord.abc.GuildChannel | discord.Thread, message.channel)
             with open(self.sensitive_settings_path, "rb") as json_dict:
                 fulldict = orjson.loads(json_dict.read())
-            used_words = set()
-            for word in fulldict["words"]:
-                if word in message.content.lower():
-                    if word == "war" and all(word not in fulldict["words"] for word in message.content.lower()):
-                        continue
-                    used_words.add(word)
+            used_words = {
+                word
+                for word in fulldict["words"]
+                if word in message.content.lower()
+                and (
+                    word != "war"
+                    or any(
+                        word in fulldict["words"]
+                        for word in message.content.lower()
+                    )
+                )
+            }
+
             self.last_sensitive_logged.setdefault(message.author.id, datetime.now() - timedelta(days=1))
             if datetime.now() > (self.last_sensitive_logged[message.author.id] + timedelta(minutes=5)) and any(
                 [
@@ -424,9 +431,9 @@ class Events(Cog):
         if not await self.sensitive_scan(message):
             return
         author = cast(discord.Member, message.author)
-        if not any(
+        if all(
             role.id
-            in {
+            not in {
                 338173415527677954,
                 253752685357039617,
                 225413350874546176,
@@ -435,7 +442,10 @@ class Events(Cog):
                 729368484211064944,
             }
             for role in author.roles
-        ) and any(item in message.content for item in [f"<@&{message.guild.id}>", "@everyone", "@here"]):
+        ) and any(
+            item in message.content
+            for item in [f"<@&{message.guild.id}>", "@everyone", "@here"]
+        ):
             await author.add_roles(
                 discord.Object(id=676250179929636886),
                 discord.Object(id=684936661745795088),

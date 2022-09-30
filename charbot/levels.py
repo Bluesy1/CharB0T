@@ -101,7 +101,7 @@ class Leveling(commands.Cog):
         self.update_pages.cancel()
         await self.session.close()
 
-    @tasks.loop(time=[datetime.time(i) for i in range(0, 24)])  # skipcq: PYL-E1123
+    @tasks.loop(time=[datetime.time(i) for i in range(24)])
     async def update_pages(self) -> None:
         """Update the page."""
         if self._upload:
@@ -243,15 +243,23 @@ class Leveling(commands.Cog):
                 return
         card: Callable[[], BytesIO] = functools.partial(
             self.generator.generate_profile,
-            profile_image=member.avatar.url if member.avatar is not None else self.default_profile,
+            profile_image=member.avatar.url
+            if member.avatar is not None
+            else self.default_profile,
             level=user_record["level"],
-            current_xp=user_record["detailed_xp"][2] - user_record["detailed_xp"][0],
+            current_xp=user_record["detailed_xp"][2]
+            - user_record["detailed_xp"][0],
             user_xp=user_record["xp"],
-            next_xp=user_record["detailed_xp"][2] - user_record["detailed_xp"][0] + user_record["detailed_xp"][1],
+            next_xp=user_record["detailed_xp"][2]
+            - user_record["detailed_xp"][0]
+            + user_record["detailed_xp"][1],
             user_position=user_record["rank"],
             user_name=f"{member.name}#{member.discriminator}",
-            user_status=cached_member.status.value if not isinstance(cached_member.status, str) else "offline",
+            user_status="offline"
+            if isinstance(cached_member.status, str)
+            else cached_member.status.value,
         )
+
         image = await asyncio.to_thread(card)
         await interaction.followup.send(file=discord.File(image, "profile.png"))
 

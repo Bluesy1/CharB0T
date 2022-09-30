@@ -113,8 +113,12 @@ class Query(Cog):
             return False
         author = ctx.author
         assert isinstance(author, discord.Member)  # skipcq: BAN-B101
-        return not any(role.id in (684936661745795088, 676250179929636886) for role in author.roles) or any(
-            role.id in (338173415527677954, 253752685357039617, 225413350874546176) for role in author.roles
+        return all(
+            role.id not in (684936661745795088, 676250179929636886)
+            for role in author.roles
+        ) or any(
+            role.id in (338173415527677954, 253752685357039617, 225413350874546176)
+            for role in author.roles
         )
 
     @commands.command()
@@ -191,8 +195,7 @@ class Query(Cog):
             img.save(buf, format="PNG", save_all=False)
             img = Image.open(buf)
         unfiltered = re.sub(r"\n[\n ]*", "\n", pytesseract.image_to_string(ImageOps.grayscale(img)))
-        filtered = re.sub(r"", "", unfiltered, flags=re.IGNORECASE)
-        return filtered
+        return re.sub(r"", "", unfiltered, flags=re.IGNORECASE)
 
     @commands.command(aliases=["ocr"])
     @commands.max_concurrency(2, commands.BucketType.channel, wait=True)
@@ -301,13 +304,14 @@ class Query(Cog):
         member: discord.Member | None
             The member to get the rules for, if None, the author is quietly sent the rule(s).
         """
-        if not rule:
-            resp = "\n".join(f"**{num}**: {_rule}" for num, _rule in __rules__.items())
-        else:
-            resp = (
-                f"**Rule {rule}** is {__rules__[rule]}\n The rules can be found here: "
-                f"<https://cpry.net/DiscordRules>"
+        resp = (
+            f"**Rule {rule}** is {__rules__[rule]}\n The rules can be found here: <https://cpry.net/DiscordRules>"
+            if rule
+            else "\n".join(
+                f"**{num}**: {_rule}" for num, _rule in __rules__.items()
             )
+        )
+
         if member:
             await interaction.response.send_message(
                 f"{member.mention}:\n{resp}",

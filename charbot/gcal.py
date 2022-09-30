@@ -146,14 +146,10 @@ def default_field(dictionary: dict[int, EmbedField], add_time: datetime, item: C
     item : dict
         The item to add to the dictionary.
     """
-    dictionary.update(
-        {
-            timegm(add_time.utctimetuple()): EmbedField(
-                item["summary"],
-                f"{format_dt(add_time, 'F')}\n[({add_time.astimezone(chartime).strftime(time_format)})]({ytLink})",
-                True,
-            )
-        }
+    dictionary[timegm(add_time.utctimetuple())] = EmbedField(
+        item["summary"],
+        f"{format_dt(add_time, 'F')}\n[({add_time.astimezone(chartime).strftime(time_format)})]({ytLink})",
+        True,
     )
 
 
@@ -314,16 +310,13 @@ class Calendar(commands.Cog):
                 default_field(fields, sub_time, item)
             else:  # pragma: no cover
                 if url(desc):
-                    fields.update(
-                        {
-                            timegm(sub_time.utctimetuple()): EmbedField(
-                                f"{item['summary']}",
-                                f"{format_dt(sub_time, 'F')}\n[({sub_time.astimezone(chartime).strftime(time_format)})"
-                                f"]({desc})",
-                                True,
-                            )
-                        }
+                    fields[timegm(sub_time.utctimetuple())] = EmbedField(
+                        f"{item['summary']}",
+                        f"{format_dt(sub_time, 'F')}\n[({sub_time.astimezone(chartime).strftime(time_format)})"
+                        f"]({desc})",
+                        True,
                     )
+
                 else:
                     default_field(fields, sub_time, item)
         for sub_time in cancelled_times:
