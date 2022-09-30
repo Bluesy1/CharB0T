@@ -130,7 +130,6 @@ def banner(
     for pos in prestige_positions(prestige):
         draw.regular_polygon(pos, 3, rotation=0, fill=STAR_COLOR, outline=STAR_COLOR)
         draw.regular_polygon(pos, 3, rotation=180, fill=STAR_COLOR, outline=STAR_COLOR)
-    #  draw.text((img.width - 20, 15), name.upper(), fill=(255, 255, 255), font=FONT, anchor="ra", align="right")
     draw.multiline_text(
         (img.width - 20, 50),
         fill(quote, width=22, max_lines=5),
