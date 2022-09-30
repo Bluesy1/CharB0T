@@ -335,13 +335,14 @@ class Query(Cog):
         member: discord.Member | None
             The member to get the rules for, if None, the author is quietly sent the rule(s).
         """
-        if not rule:
-            resp = "\n".join(f"**{num}**: {_rule}" for num, _rule in __rules__.items())
-        else:
-            resp = (
-                f"**Rule {rule}** is {__rules__[rule]}\n The rules can be found here: "
-                f"<https://cpry.net/DiscordRules>"
+        resp = (
+            f"**Rule {rule}** is {__rules__[rule]}\n The rules can be found here: <https://cpry.net/DiscordRules>"
+            if rule
+            else "\n".join(
+                f"**{num}**: {_rule}" for num, _rule in __rules__.items()
             )
+        )
+
         if member:
             await interaction.response.send_message(
                 f"{member.mention}:\n{resp}",
