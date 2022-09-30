@@ -25,10 +25,8 @@
 """Level system."""
 import asyncio
 import datetime
-import functools
 import random
-from io import BytesIO
-from typing import Callable, Optional
+from typing import Callable, Optional, cast
 
 import aiohttp
 import asyncpg
@@ -89,6 +87,9 @@ class Leveling(commands.Cog):
         )
         self._post_url = "https://api.github.com/repos/bluesy1/charb0t/actions/workflows/leaderboard.yml/dispatches"
         self._upload: bool = False
+        self.cooldown: commands.CooldownMapping[discord.Message] = commands.CooldownMapping.from_cooldown(
+            1, 60, commands.BucketType.user
+        )
 
     async def cog_load(self) -> None:
         """Load the cog."""
@@ -101,7 +102,7 @@ class Leveling(commands.Cog):
         self.update_pages.cancel()
         await self.session.close()
 
-    @tasks.loop(time=[datetime.time(i) for i in range(0, 24)])  # skipcq: PYL-E1123
+    @tasks.loop(time=[datetime.time(i) for i in range(24)])  # skipcq: PYL-E1123
     async def update_pages(self) -> None:
         """Update the page."""
         if self._upload:
@@ -121,16 +122,13 @@ class Leveling(commands.Cog):
             return
         async with self.bot.pool.acquire() as conn, conn.transaction():
             no_xp = await conn.fetchrow("SELECT * FROM no_xp WHERE guild = $1", message.guild.id)
-            if no_xp is None:
+            if no_xp is None or message.channel.id in no_xp["channels"]:
                 return
-            if message.channel.id in no_xp["channels"]:
-                return
-            member = message.author
-            assert isinstance(member, discord.Member)  # skipcq: BAN-B101
+            member = cast(discord.Member, message.author)
             if any(role.id in no_xp["roles"] for role in member.roles):
                 return
-            last_time = self.off_cooldown.get(message.author.id)
-            if last_time is None or last_time < utcnow():
+            cooldown = self.cooldown.get_bucket(message)
+            if cooldown is None or cooldown.update_rate_limit() is None:
                 self._upload = True
                 self.off_cooldown[message.author.id] = utcnow() + datetime.timedelta(minutes=1)
                 user = await conn.fetchrow("SELECT * FROM xp_users WHERE id = $1", message.author.id)
@@ -140,39 +138,34 @@ class Leveling(commands.Cog):
                         "INSERT INTO xp_users "
                         "(id, username, discriminator, xp, detailed_xp, level, messages, avatar, prestige)"
                         " VALUES ($1, $2, $3, $4, $5, 0, 1, $6, 0) ON CONFLICT (id) DO NOTHING",
-                        message.author.id,
-                        message.author.name,
-                        message.author.discriminator,
+                        member.id,
+                        member.name,
+                        member.discriminator,
                         gained,
                         [gained, self._xp_function(0), gained],
-                        message.author.avatar.key if message.author.avatar else None,
+                        member.avatar.key if member.avatar else None,
                     )
                     return
                 if gained + user["detailed_xp"][0] >= self._xp_function(user["level"]):
                     new_level = user["level"] + 1
-                    new_detailed = [0, self._xp_function(new_level), user["xp"] + gained]
-                    new_xp = new_detailed[2]
-                    await conn.execute(
-                        "UPDATE xp_users SET level = $1, detailed_xp = $2, xp = $3, messages = messages + 1,"
-                        " avatar = $4 WHERE id = $5",
-                        new_level,
-                        new_detailed,
-                        new_xp,
-                        message.author.avatar.key if message.author.avatar else None,
-                        message.author.id,
-                    )
+                    detailed = [0, self._xp_function(new_level), user["xp"] + gained]
+                    new_xp = detailed[2]
                     await message.channel.send(
                         f"{message.author.mention} has done some time, and is now level **{new_level}**."
                     )
                     await update_level_roles(member, new_level)
-                    return
+                else:
+                    detailed = user["detailed_xp"]
+                    new_level = user["level"]
+                    new_xp = user["xp"] + gained
                 await conn.execute(
-                    "UPDATE xp_users SET xp = xp + $1, detailed_xp = $2, messages = messages + 1, avatar = $3"
-                    " WHERE id = $4",
-                    gained,
-                    [user["detailed_xp"][0] + gained, user["detailed_xp"][1], user["detailed_xp"][2] + gained],
-                    message.author.avatar.key if message.author.avatar else None,
-                    message.author.id,
+                    "UPDATE xp_users SET level = $1, detailed_xp = $2, xp = $3, messages = messages + 1,"
+                    " avatar = $4 WHERE id = $5",
+                    new_level,
+                    detailed,
+                    new_xp,
+                    member.avatar.key if member.avatar else None,
+                    member.id,
                 )
 
     @commands.Cog.listener()
@@ -241,7 +234,7 @@ class Leveling(commands.Cog):
                     ).format_value("rank-error")
                 )
                 return
-        card: Callable[[], BytesIO] = functools.partial(
+        image = await asyncio.to_thread(
             self.generator.generate_profile,
             profile_image=member.avatar.url if member.avatar is not None else self.default_profile,
             level=user_record["level"],
@@ -250,9 +243,9 @@ class Leveling(commands.Cog):
             next_xp=user_record["detailed_xp"][2] - user_record["detailed_xp"][0] + user_record["detailed_xp"][1],
             user_position=user_record["rank"],
             user_name=f"{member.name}#{member.discriminator}",
-            user_status=cached_member.status.value if not isinstance(cached_member.status, str) else "offline",
+            user_status="offline" if isinstance(cached_member.status, str) else cached_member.status.value,
         )
-        image = await asyncio.to_thread(card)
+
         await interaction.followup.send(file=discord.File(image, "profile.png"))
 
 

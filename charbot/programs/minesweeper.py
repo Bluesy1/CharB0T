@@ -76,8 +76,7 @@ class Minesweeper(ui.View):
         bytesio = BytesIO()
         img.save(bytesio, "PNG")
         bytesio.seek(0)
-        file = discord.File(bytesio, filename="minesweeper.png", description=alt)  # skipcq: PYL-E1123
-        return file
+        return discord.File(bytesio, filename="minesweeper.png", description=alt)
 
     async def handle_lose(self, interaction: Interaction[CBot]):
         """Handle a loss.

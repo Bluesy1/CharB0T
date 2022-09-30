@@ -648,8 +648,8 @@ def test_cell_hash():
     assert hash(cell) == hash(f"{cell.value}{cell.editable}")
 
 
-def test_cell_validate_value_unediable():
-    """Test cell validate value unediable"""
+def test_cell_validate_value_not_editable():
+    """Test cell validate value not editable"""
     cell = sudoku.Cell(1, False)
     with pytest.raises(ValueError):
         cell.value = 2
@@ -662,8 +662,8 @@ def test_cell_validate_value_editable():
         cell.value = 10
 
 
-def test_possible_value_uneditable():
-    """Test possible value uneditable"""
+def test_possible_value_not_editable():
+    """Test possible value not editable"""
     cell = sudoku.Cell(1, False)
     with pytest.raises(ValueError):
         cell.possible_values = {2}

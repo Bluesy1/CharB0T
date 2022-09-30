@@ -100,9 +100,7 @@ def generate_card(
         card = Image.open(bg_image).convert("RGBA")
 
         width, height = card.size
-        if width == 900 and height == 238:
-            pass
-        else:
+        if width != 900 or height != 238:
             x1 = 0
             y1 = 0
             x2 = width

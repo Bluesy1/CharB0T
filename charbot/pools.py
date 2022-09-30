@@ -24,7 +24,7 @@
 #  ----------------------------------------------------------------------------
 """Reputation pools."""
 import asyncio
-from typing import Final
+from typing import Final, cast
 
 import asyncpg
 import discord
@@ -106,7 +106,7 @@ class Pools(commands.GroupCog, name="pools", description="Reputation pools for c
 
         Raises
         ------
-        errors.MissingProgramnRole
+        errors.MissingProgramRole
             If the user has no role on the list of roles.
         errors.WrongChannelError
             If the user is not in the correct channel.
@@ -118,7 +118,7 @@ class Pools(commands.GroupCog, name="pools", description="Reputation pools for c
         )
         if roles is None:
             raise errors.NoPoolFound(interaction.namespace["pool"], interaction.locale)
-        if not any(role.id in roles for role in member.roles):
+        if all(role.id not in roles for role in member.roles):
             raise errors.NoPoolFound(interaction.namespace["pool"], interaction.locale)
         if interaction.channel_id != 969972085445238784:
             raise errors.WrongChannelError(969972085445238784, interaction.locale)
@@ -178,19 +178,18 @@ class Pools(commands.GroupCog, name="pools", description="Reputation pools for c
         await interaction.followup.send(
             f"You have added {amount} rep to {pool} you now have {remaining} rep remaining.", file=image
         )
-        clientuser = self.bot.user
-        assert isinstance(clientuser, discord.ClientUser)  # skipcq: BAN-B101
+        client_user = cast(discord.ClientUser, self.bot.user)
         await self.bot.program_logs.send(
             f"{interaction.user.mention} added {amount} rep to {pool} ({after}/{pool_record['cap']}).",
-            username=clientuser.name,
-            avatar_url=clientuser.display_avatar.url,
+            username=client_user.name,
+            avatar_url=client_user.display_avatar.url,
             allowed_mentions=discord.AllowedMentions(users=False, roles=False, everyone=False),
         )
         if after == pool_record["cap"]:
             await self.bot.program_logs.send(
                 f"{pool} has been filled.",
-                username=clientuser.name,
-                avatar_url=clientuser.display_avatar.url,
+                username=client_user.name,
+                avatar_url=client_user.display_avatar.url,
                 allowed_mentions=discord.AllowedMentions(users=False, roles=False, everyone=False),
             )
             image_bytes = await asyncio.to_thread(
@@ -231,7 +230,7 @@ class Pools(commands.GroupCog, name="pools", description="Reputation pools for c
                 await interaction.followup.send("Pool not found. Please choose one from the autocomplete.")
                 return
             assert isinstance(pool_record, asyncpg.Record)  # skipcq: BAN-B101
-            if not any(role.id in pool_record["required_roles"] for role in user.roles):
+            if all(role.id not in pool_record["required_roles"] for role in user.roles):
                 await interaction.followup.send("Pool not found. Please choose one from the autocomplete.")
                 return
         image_bytes = await asyncio.to_thread(
