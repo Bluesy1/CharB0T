@@ -37,7 +37,7 @@ from PIL import Image, ImageDraw, ImageFont
 from ._types import BannerStatus
 
 
-FONT: Final = ImageFont.truetype((Path(__file__).parent.parent / "media" / "pools" / "font.ttf").read_bytes(), 30)
+FONT: Final = ImageFont.truetype("charbot/media/pools/font.ttf", 30)
 BASE_PATH: Final[Path] = Path(__file__).parent / "user_assets"
 STAR_COLOR: Final[tuple[int, int, int]] = (69, 79, 191)
 

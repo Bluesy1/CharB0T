@@ -121,6 +121,9 @@ def url_posting_allowed(
     if channel.category_id in {360814817457733635, 360818916861280256, 942578610336837632}:
         # if the channel is in an admin or info category, we want to allow urls
         return True
+    if channel.id in {723653004301041745, 338894508894715904, 407185164200968203}:
+        # the channel is allowed to have links, bit they may not embed
+        return True
     # If so far the url hasn't been allowed, test if the author has a role that allows it
     return any(
         role.id
@@ -132,7 +135,6 @@ def url_posting_allowed(
             969629632028614699,
             969628342733119518,
             969627321239760967,
-            969626979353632790,
             406690402956083210,
             387037912782471179,
             338173415527677954,
