@@ -1,9 +1,8 @@
-from discord import Locale
+# -*- coding: utf-8 -*-
 import pytest
 
-
+from discord import Locale
 from discord.app_commands import locale_str, TranslationContext, TranslationContextLocation
-
 
 from charbot.translator import Translator
 
