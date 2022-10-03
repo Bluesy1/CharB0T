@@ -149,7 +149,7 @@ class Leveling(commands.Cog):
                 if gained + user["detailed_xp"][0] >= self._xp_function(user["level"]):
                     new_level = user["level"] + 1
                     detailed = [0, self._xp_function(new_level), user["xp"] + gained]
-                    new_xp = detailed[0]
+                    new_xp = detailed[2]
                     await message.channel.send(
                         f"{message.author.mention} has done some time, and is now level **{new_level}**."
                     )
