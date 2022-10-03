@@ -19,7 +19,8 @@ def locale() -> Locale:
 
 @pytest.mark.asyncio
 async def test_translate_with_data(translator: Translator, locale: Locale):
-    context = TranslationContext(TranslationContextLocation.other, data={"awarded": 5})
-    key = locale_str("minesweeper-win-description")
-    result = await translator.translate(key, locale, context)
+    context: TranslationContext = TranslationContext(TranslationContextLocation.other, data={"awarded": 5})
+    key: locale_str = locale_str("minesweeper-win-description")
+    # If translate returns None, set result to empty string for assert comparison.
+    result: str = await translator.translate(key, locale, context) or ""
     assert "You gained 5 points." in result, "Should say awarded 5 points"

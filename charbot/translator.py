@@ -63,25 +63,28 @@ class Translator(app_commands.Translator):
             ["dice.ftl", "minesweeper.ftl", "programs.ftl", "errors.ftl", "giveaway.ftl", "levels.ftl"],
             self.loader,
         )
-        if context.location is TranslationContextLocation.command_name:
-            key = f"{context.data.qualified_name.replace(' ', '-')}-name"
-        elif context.location is TranslationContextLocation.command_description:
-            key = f"{context.data.qualified_name.replace(' ', '-')}-description"
-        elif context.location is TranslationContextLocation.group_name:
-            key = f"{context.data.qualified_name.replace(' ', '-')}-name"
-        elif context.location is TranslationContextLocation.group_description:
-            key = f"{context.data.qualified_name.replace(' ', '-')}-description"
-        elif context.location is TranslationContextLocation.parameter_name:
-            # noinspection PyUnresolvedReferences
-            key = f"{context.data.command.qualified_name.replace(' ', '-')}-parameter-{context.data.name}-name"
-        elif context.location is TranslationContextLocation.parameter_description:
-            # noinspection PyUnresolvedReferences
-            key = f"{context.data.command.qualified_name.replace(' ', '-')}-parameter-{context.data.name}-description"
-        elif context.location is TranslationContextLocation.choice_name:
-            key = f"choice-{context.data.name}-name"
-        elif context.location is TranslationContextLocation.other:
-            key = f"{string.message.replace(' ', '-')}"
-        else:
-            return None
+
+        match context.location:
+            case TranslationContextLocation.command_name | TranslationContextLocation.group_name:
+                key = f"{context.data.qualified_name.replace(' ', '-')}-name"
+            case TranslationContextLocation.command_description | TranslationContextLocation.group_description:
+                key = f"{context.data.qualified_name.replace(' ', '-')}-description"
+            case TranslationContextLocation.group_name:
+                key = f"{context.data.qualified_name.replace(' ', '-')}-name"
+            case TranslationContextLocation.parameter_name:
+                # noinspection PyUnresolvedReferences
+                key = f"{context.data.command.qualified_name.replace(' ', '-')}-parameter-{context.data.name}-name"
+            case TranslationContextLocation.parameter_description:
+                # noinspection PyUnresolvedReferences
+                key = (
+                    f"{context.data.command.qualified_name.replace(' ', '-')}-parameter-{context.data.name}-description"
+                )
+            case TranslationContextLocation.choice_name:
+                key = f"choice-{context.data.name}-name"
+            case TranslationContextLocation.other:
+                key = f"{string.message.replace(' ', '-')}"
+            case _:
+                return None
+
         translated = fluent.format_value(key, context.data)
         return None if translated == key or translated is None else translated
