@@ -156,6 +156,8 @@ class Leveling(commands.Cog):
                     await update_level_roles(member, new_level)
                 else:
                     detailed = user["detailed_xp"]
+                    detailed[0] += gained
+                    detailed[2] += gained
                     new_level = user["level"]
                     new_xp = user["xp"] + gained
                 await conn.execute(
