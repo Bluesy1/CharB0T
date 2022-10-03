@@ -83,5 +83,5 @@ class Translator(app_commands.Translator):
             key = f"{string.message.replace(' ', '-')}"
         else:
             return None
-        translated = fluent.format_value(key, string.extras)
+        translated = fluent.format_value(key, context.data)
         return None if translated == key or translated is None else translated
