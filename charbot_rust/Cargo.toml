@@ -9,7 +9,7 @@ name = "charbot_rust"
 crate-type = ["cdylib"]
 
 [dependencies]
-pyo3 = { version = "0.17.1" }
+pyo3 = { version = "0.17.2" }
 rand = "0.8.5"
 image = "0.24.4"
 imageproc = "0.23.0"
