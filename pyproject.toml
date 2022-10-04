@@ -7,7 +7,7 @@ minversion = "7.1.2"
 asyncio_mode = "strict"
 
 [tool.coverage.run]
-omit = ["*/__main__.py", "*/tests/*.py", "*/types/*.py", "*/pools.py", "*/admin.py", "*/reputation_admin.py", "*/bot.py", "*/translator.py"]
+omit = ["*/__main__.py", "*/tests/*.py", "*/types/*.py", "*/pools.py", "*/admin.py", "*/reputation_admin.py", "*/bot.py"]
 
 [tool.pyright]
 pythonPlatform = "Linux"
