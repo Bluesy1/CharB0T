@@ -25,6 +25,7 @@
 """Betas cog file."""
 import asyncio
 import datetime
+import logging
 from io import BytesIO
 from pathlib import Path
 from typing import Final, cast
@@ -127,10 +128,10 @@ class Betas(commands.Cog):
                 await interaction.followup.send("You can't specify both a base image and a color!")
                 return
             if base is not None:
-                if content_type := base.content_type:
-                    if content_type not in ("image/png", "image/jpeg"):
-                        await interaction.followup.send("The base image must be a PNG or JPEG!")
-                        return
+                content_type = base.content_type
+                if content_type not in ("image/png", "image/jpeg"):
+                    await interaction.followup.send("The base image must be a PNG or JPEG!")
+                    return
                 try:
 
                     def sync_code(img: bytes, path: Path):
@@ -145,6 +146,9 @@ class Betas(commands.Cog):
                     )
                 except (discord.DiscordException, OSError, ValueError, TypeError):
                     await interaction.followup.send("Failed to grab image, try again.")
+                    logging.getLogger("charbot.betas.banner").exception(
+                        "Grabbing image raised an exception, content type: %s", content_type
+                    )
                     return
                 insert_color: int | None = None
             else:
