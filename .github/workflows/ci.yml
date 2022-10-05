@@ -85,7 +85,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        python-version: [ "3.10", "3.3.11.0-rc.2" ]
+        python-version: [ "3.10", "3.11.0-rc.2" ]
     steps:
       - uses: actions/checkout@v3
       - uses: actions/setup-python@v4
@@ -103,7 +103,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        python-version: [ "3.10", "3.3.11.0-rc.2" ]
+        python-version: [ "3.10", "3.11.0-rc.2" ]
         include:
           - python-version: "3.10"
             short-form: "3.10"
@@ -158,7 +158,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        python-version: [ "3.10", "3.3.11.0-rc.2" ]
+        python-version: [ "3.10", "3.11.0-rc.2" ]
         include:
           - python-version: "3.10"
             short-form: "3.10"
