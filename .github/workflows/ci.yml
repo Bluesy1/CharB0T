@@ -85,7 +85,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        python-version: [ "3.10", "3.11" ]
+        python-version: [ "3.10", "3.3.11.0-rc.2" ]
     steps:
       - uses: actions/checkout@v3
       - uses: actions/setup-python@v4
@@ -103,12 +103,17 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        python-version: [ "3.10", "3.11" ]
+        python-version: [ "3.10", "3.3.11.0-rc.2" ]
+        include:
+          - python-version: "3.10"
+            short-form: "3.10"
+          - python-version: "3.11.0-rc.2"
+            short-form: "3.11"
     steps:
       - uses: actions/checkout@v3
       - uses: actions/download-artifact@v3
         with:
-          name: cython${{ matrix.python-version }}-wheel
+          name: cython${{ matrix.short-form }}-wheel
           path: wheels
       - uses: actions/setup-python@v4
         with:
@@ -134,7 +139,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        python-version: [ "3.10", "3.11" ]
+        python-version: [ "3.10", "3.11.0-rc.2" ]
     steps:
       - uses: actions/checkout@v3
       - uses: actions/setup-python@v4
@@ -153,10 +158,14 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        python-version: [ "3.10", "3.11" ]
+        python-version: [ "3.10", "3.3.11.0-rc.2" ]
         include:
           - python-version: "3.10"
+            short-form: "3.10"
             codecov: true
+          - python-version: "3.11.0-rc.2"
+            short-form: "3.11"
+
     steps:
       - uses: actions/checkout@v3
       - uses: harmon758/postgresql-action@v1
@@ -164,7 +173,7 @@ jobs:
           postgresql version: '14'
       - uses: actions/download-artifact@v3
         with:
-          name: cython${{ matrix.python-version }}-wheel
+          name: cython${{ matrix.short-form }}-wheel
           path: wheels
       - uses: actions/setup-python@v4
         with:
