@@ -53,7 +53,7 @@ jobs:
             ~/.cargo/registry/index/
             ~/.cargo/registry/cache/
             ~/.cargo/git/db/
-            target/
+            charbot_rust/target/
           key: test-${{ hashFiles('**/Cargo.lock') }}
       - name: Run tests
         run: |
