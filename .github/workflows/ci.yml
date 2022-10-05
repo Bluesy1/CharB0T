@@ -198,7 +198,7 @@ jobs:
         id: pytest
         run: pytest --cov-report=xml:coverage/reports/coverage.xml --cov=charbot tests/ --cov-report=term --cov-config=pyproject.toml
       - name: Upload coverage report
-        if: ${{ matrix.codecov-version}}
+        if: ${{ matrix.codecov}}
         uses: codecov/codecov-action@v3
         with:
           directory: ./coverage/reports/
