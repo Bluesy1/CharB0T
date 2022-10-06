@@ -6,6 +6,12 @@ codecov:
 ignore:
   - "**/lib.rs"
 
+flags:
+  python-unit:
+    carryforward: true
+  rust-unit:
+    carryforward: true
+
 coverage:
   precision: 2
   round: down
@@ -15,12 +21,12 @@ coverage:
       default:
         informational: false
         threshold: 3%
-        if_ci_failed: error
+        if_ci_failed: success
     patch:
       default:
         informational: false
         threshold: 3%
-        if_ci_failed: error
+        if_ci_failed: success
 
 parsers:
   gcov:
