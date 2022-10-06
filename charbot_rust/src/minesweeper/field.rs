@@ -551,7 +551,7 @@ impl Field {
     */
 
     pub fn toggle_mark(&mut self, i: u32) -> bool {
-        let mut cell = self.get_cell_mut(i);
+        let cell = self.get_cell_mut(i);
         if cell.revealed {
             false // COV_EXCL_LINE
         } else {
