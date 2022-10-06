@@ -203,6 +203,7 @@ pub(crate) fn register_tictactoe(py: Python, m: &PyModule) -> PyResult<()> {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use yare::parameterized;
 
     #[test]
     fn dificulty() {
@@ -229,23 +230,22 @@ mod tests {
             assert_eq!(board_as_vec[i as usize], Piece::Empty);
         }
     }
-
-    #[test]
-    fn creator() {
-        Game::new(5, StdRng::from_entropy()).expect_err("Created game with invalid difficulty");
-        Game::new(0, StdRng::from_entropy()).expect_err("Created game with invalid difficulty");
-        let easy = Game::new(1, StdRng::from_entropy()).expect("Failed to create game");
-        assert!(easy.human_first);
-        let medium = Game::new(2, StdRng::from_seed([0; 32])).expect("Failed to create game");
-        assert!(medium.human_first);
-        let hard = Game::new(3, StdRng::from_seed([0; 32])).expect("Failed to create game");
-        assert!(!hard.human_first);
-        let random = Game::new(4, StdRng::from_seed([0; 32])).expect("Failed to create game");
-        assert!(!random.human_first);
-        let random = Game::new(4, StdRng::from_seed([1; 32])).expect("Failed to create game");
-        assert!(!random.human_first);
+    #[parameterized(
+        easy={1, [0; 32], true},
+        medium={2, [0; 32], true},
+        hard={3, [0; 32], false},
+        random_1={4, [0; 32], false},
+        random_2={4, [1; 32], false},
+    )]
+    fn creator(difficulty: i32, rng: [u8; 32], human_first: bool) {
+        let game = Game::new(difficulty, StdRng::from_seed(rng)).expect("Failed to create game");
+        assert_eq!(game.human_first, human_first);
     }
-
+    #[test]
+    fn creator_err() {
+        Game::new(0, StdRng::from_entropy()).expect_err("Expected error");
+        Game::new(5, StdRng::from_entropy()).expect_err("Expected error");
+    }
     #[test]
     fn play() {
         let mut human_first = Game::new(1, StdRng::from_entropy()).expect("Failed to create game");
