@@ -69,6 +69,12 @@ jobs:
           RUSTFLAGS: '-Zprofile -Ccodegen-units=1 -Copt-level=0 -Clink-dead-code -Coverflow-checks=off -Zpanic_abort_tests -Cpanic=abort'
           RUSTDOCFLAGS: '-Cpanic=abort'
           LLVM_PROFILE_FILE: 'GHA-%p-%m.profraw'
+      - name: Upload lcov
+        uses: actions/upload-artifact@v3
+        with:
+          name: lcov
+          path: ./lcov.info
+          retention-days: 1
       - name: Upload coverage report
         uses: codecov/codecov-action@v3
         with:
