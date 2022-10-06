@@ -7,15 +7,9 @@ ignore:
   - "**/lib.rs"
 
 flags:
-  default:
-    carryforward: true
   python-unit:
-    paths:
-      - "charbot/*"
     carryforward: true
   rust-unit:
-    paths:
-      - "charbot_rust/*"
     carryforward: true
 
 coverage:

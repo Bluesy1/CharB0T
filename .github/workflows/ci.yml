@@ -69,12 +69,6 @@ jobs:
           RUSTFLAGS: '-Zprofile -Ccodegen-units=1 -Copt-level=0 -Clink-dead-code -Coverflow-checks=off -Zpanic_abort_tests -Cpanic=abort'
           RUSTDOCFLAGS: '-Cpanic=abort'
           LLVM_PROFILE_FILE: 'GHA-%p-%m.profraw'
-      - name: Upload lcov
-        uses: actions/upload-artifact@v3
-        with:
-          name: lcov
-          path: ./lcov.info
-          retention-days: 1
       - name: Upload coverage report
         uses: codecov/codecov-action@v3
         with:
@@ -207,7 +201,7 @@ jobs:
         uses: codecov/codecov-action@v3
         with:
           directory: ./coverage/reports/
-          env_vars: OS=LINUX,PYTHON=3.10
+          env_vars: OS=LINUX,PYTHON=${{ matrix.short-form }}
           fail_ci_if_error: false
           flags: python-unit
           name: codecov-umbrella
