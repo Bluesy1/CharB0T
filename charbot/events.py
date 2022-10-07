@@ -444,7 +444,11 @@ class Events(Cog):
                 discord.Object(id=676250179929636886),
                 discord.Object(id=684936661745795088),
             )
-            await message.delete()
+            try:
+                await message.delete()
+            except discord.DiscordException:  # pragma: no cover
+                # if the message can't be deleted, ignore that and move on
+                pass
             embed = Embed(
                 description=message.content,
                 title="Mute: Everyone/Here Ping sent by non mod",
@@ -462,8 +466,12 @@ class Events(Cog):
         if self.extractor.has_urls(message.content) and not url_posting_allowed(
             cast(discord.TextChannel | discord.VoiceChannel | discord.Thread, message.channel), author.roles
         ):
-            # if the url still isn't allowed, delete the message
-            await message.delete()
+            try:
+                # if the url still isn't allowed, delete the message
+                await message.delete()
+            except discord.DiscordException:  # pragma: no cover
+                # if the message can't be deleted, ignore that and move on
+                pass
             try:
                 await message.author.send(f"You need to be at least level 5 to post links in {message.guild.name}!")
             except discord.Forbidden:  # pragma: no cover
