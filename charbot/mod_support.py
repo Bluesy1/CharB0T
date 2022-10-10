@@ -26,13 +26,14 @@
 import logging
 import pathlib
 from datetime import timedelta
-from typing import Final
+from typing import Final, Any
 
 import discord
 import orjson
 from discord import Embed, Interaction, PermissionOverwrite, Permissions, app_commands, ui
 from discord.ext import tasks
 from discord.ext.commands import GroupCog
+from discord.ui import Item
 from discord.utils import utcnow
 
 from . import CBot
@@ -236,7 +237,7 @@ class ModSupportButtons(ui.View):
         self.everyone = everyone
         self.mod_role = mod_role
         self.mods = mods
-        self.filename: Final[pathlib.Path] = pathlib.Path(__file__) / "mod_support_blacklist.json"
+        self.filename: Final[pathlib.Path] = pathlib.Path(__file__).parent / "mod_support_blacklist.json"
 
     async def interaction_check(self, interaction: Interaction) -> bool:
         """Check to run for all interaction instances.
@@ -253,6 +254,12 @@ class ModSupportButtons(ui.View):
         """
         with open(self.filename, "rb") as file:
             return interaction.user.id not in orjson.loads(file.read())["blacklisted"]
+
+    async def on_error(self, interaction: Interaction, error: Exception, item: Item[Any], /) -> None:
+        """On error logger"""
+        logging.getLogger("charbot.mod_support").error(
+            "Ignoring exception in view %r for item %r, with user %s", self, item, interaction.user, exc_info=error
+        )
 
     async def standard_callback(self, button: discord.ui.Button, interaction: Interaction):
         """Just general and important and emergency callback helper.
