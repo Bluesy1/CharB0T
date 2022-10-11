@@ -48,17 +48,23 @@ pub fn choose_player(c: &str) -> Option<Box<dyn Player>> {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use yare::parameterized;
 
+    #[parameterized(
+        human_long = {"human", "human"},
+        human_short = {"h", "human"},
+        minimax_long = {"minimax", "minimax"},
+        minimax_short = {"m", "minimax"},
+        alphabeta_long = {"alphabeta", "alphabeta"},
+        alphabeta_short = {"a", "alphabeta"},
+        random_long = {"random", "random"},
+        random_short = {"r", "random"},
+    )]
+    fn test_choose_player(player: &str, expected: &str) {
+        choose_player(player).expect(format!("Could not create player {}", expected).as_str());
+    }
     #[test]
-    fn test_choose_player() {
-        choose_player("human").expect("Could not create human player");
-        choose_player("minimax").expect("Could not create minimax player");
-        choose_player("alphabeta").expect("Could not create alphabeta player");
-        choose_player("random").expect("Could not create random player");
-        choose_player("h").expect("Could not create human player");
-        choose_player("m").expect("Could not create minimax player");
-        choose_player("a").expect("Could not create alphabeta player");
-        choose_player("r").expect("Could not create random player");
+    fn test_choose_player_invalid() {
         assert!(choose_player("not a player").is_none(), "Could create player");
     }
 }

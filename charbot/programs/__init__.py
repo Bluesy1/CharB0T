@@ -66,7 +66,7 @@ class Reputation(commands.Cog, name="Programs"):
             raise errors.WrongChannelError(self.bot.CHANNEL_ID, interaction.locale)
         user = interaction.user
         assert isinstance(user, discord.Member)  # skipcq: BAN-B101
-        if not any(role.id in self.bot.ALLOWED_ROLES for role in user.roles):
+        if all(role.id not in self.bot.ALLOWED_ROLES for role in user.roles):
             raise errors.MissingProgramRole(self.bot.ALLOWED_ROLES, interaction.locale)
         return True
 
@@ -152,13 +152,13 @@ class Reputation(commands.Cog, name="Programs"):
         view = shrugman.Shrugman(self.bot, word)
         await interaction.followup.send(embed=embed, view=view)
 
-    @beta.command()  # pyright: ignore[reportGeneralTypeIssues]
+    @programs.command()  # pyright: ignore[reportGeneralTypeIssues]
     async def minesweeper(
         self,
         interaction: Interaction["CBot"],
         difficulty: Literal["Beginner", "Intermediate", "Expert", "Super Expert"],
     ):
-        """[BETA] Play a game of Minesweeper.
+        """Play a game of Minesweeper.
 
         Parameters
         ----------

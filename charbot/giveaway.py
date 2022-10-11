@@ -148,7 +148,7 @@ class GiveawayView(ui.View):
             If no program roles are present.
         """
         user = cast(discord.Member, interaction.user)
-        if not any(role.id in self.bot.ALLOWED_ROLES for role in user.roles):
+        if all(role.id not in self.bot.ALLOWED_ROLES for role in user.roles):
             raise errors.MissingProgramRole(self.bot.ALLOWED_ROLES, interaction.locale)
         return True
 
@@ -225,8 +225,7 @@ class GiveawayView(ui.View):
                     value=f"{', '.join(f'{m.name}#{m.discriminator}' for m in drawn)}",
                     inline=True,
                 )
-                _drawn = [winner]
-                _drawn.extend(drawn)
+                _drawn = [winner, *drawn]
                 self.embed.add_field(
                     name="All Drawn People", value=f"{', '.join(m.mention for m in _drawn)}", inline=True
                 )
@@ -245,7 +244,7 @@ class GiveawayView(ui.View):
             raw_bidders = await conn.fetch("SELECT * FROM bids WHERE bid > 0 ORDER BY bid DESC")
             bidders = [bid for bid in raw_bidders if bid["id"] not in blocked]
             return_bids = [(bid["bid"], bid["id"]) for bid in raw_bidders if bid["id"] in blocked]
-            if len(return_bids) > 0:
+            if return_bids:
                 await conn.executemany("UPDATE users SET points = points + $1 WHERE id = $2", return_bids)
         return bidders
 
@@ -262,7 +261,7 @@ class GiveawayView(ui.View):
         tuple[list[discord.Member], float]
             The list of drawn members and the average bid.
         """
-        if len(bidders) > 0:
+        if bidders:
             self.bidders = bidders.copy()
             bids: list[list[int]] = [[], []]
             for bid in bidders:
@@ -394,7 +393,7 @@ class GiveawayView(ui.View):
             translator = FluentLocalization(
                 [interaction.locale.value, "en-US"], ["giveaway.ftl"], self.bot.localizer_loader
             )
-            if not any(role.id == 972886729231044638 for role in user.roles):
+            if all(role.id != 972886729231044638 for role in user.roles):
                 await user.add_roles(discord.Object(id=972886729231044638), reason="Toggled giveaway alerts.")
                 await interaction.followup.send(translator.format_value("giveaway-alerts-enable"))
             else:

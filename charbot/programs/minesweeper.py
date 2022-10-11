@@ -76,8 +76,7 @@ class Minesweeper(ui.View):
         bytesio = BytesIO()
         img.save(bytesio, "PNG")
         bytesio.seek(0)
-        file = discord.File(bytesio, filename="minesweeper.png", description=alt)  # skipcq: PYL-E1123
-        return file
+        return discord.File(bytesio, filename="minesweeper.png", description=alt)
 
     async def handle_lose(self, interaction: Interaction[CBot]):
         """Handle a loss.
@@ -93,8 +92,7 @@ class Minesweeper(ui.View):
         translate = interaction.client.translate
         locale = interaction.locale
         points = self.game.points
-        awarded = sum(points)
-        # awarded = await interaction.client.give_game_points(interaction.user, "minesweeper", *points)
+        awarded = await interaction.client.give_game_points(interaction.user, "minesweeper", *points)
         embed = discord.Embed(
             title=await translate("minesweeper-lose-title", locale),
             description=await translate(
@@ -122,8 +120,7 @@ class Minesweeper(ui.View):
         translate = interaction.client.translate
         locale = interaction.locale
         points = self.game.points
-        awarded = sum(points)
-        # awarded = await interaction.client.give_game_points(interaction.user, "minesweeper", *points)
+        awarded = await interaction.client.give_game_points(interaction.user, "minesweeper", *points)
         embed = discord.Embed(
             title=await translate("minesweeper-win-title", locale),
             description=await translate(

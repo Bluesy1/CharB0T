@@ -40,6 +40,7 @@ from . import CBot
 
 
 if TYPE_CHECKING:  # pragma: no cover
+    # noinspection PyUnresolvedReferences
     from .levels import Leveling
 
 
@@ -59,7 +60,7 @@ def sensitive_embed(message: discord.Message, used: set[str]) -> discord.Embed:
         color=Color.red(),
         timestamp=utcnow(),
     )
-    embed.add_field(name="Words Found:", value=", ".join(used)[0:1024], inline=True)
+    embed.add_field(name="Words Found:", value=", ".join(used)[:1024], inline=True)
     embed.add_field(
         name="Author:",
         value=f"{message.author.display_name}: {message.author}",
@@ -120,6 +121,9 @@ def url_posting_allowed(
     if channel.category_id in {360814817457733635, 360818916861280256, 942578610336837632}:
         # if the channel is in an admin or info category, we want to allow urls
         return True
+    if channel.id in {723653004301041745, 338894508894715904, 407185164200968203}:
+        # the channel is allowed to have links, bit they may not embed
+        return True
     # If so far the url hasn't been allowed, test if the author has a role that allows it
     return any(
         role.id
@@ -131,7 +135,6 @@ def url_posting_allowed(
             969629632028614699,
             969628342733119518,
             969627321239760967,
-            969626979353632790,
             406690402956083210,
             387037912782471179,
             338173415527677954,
@@ -139,6 +142,7 @@ def url_posting_allowed(
             925956396057513985,
             253752685357039617,
             225413350874546176,
+            729368484211064944,
         }
         for role in roles
     )
@@ -246,12 +250,12 @@ class Events(Cog):
             channel = cast(discord.abc.GuildChannel | discord.Thread, message.channel)
             with open(self.sensitive_settings_path, "rb") as json_dict:
                 fulldict = orjson.loads(json_dict.read())
-            used_words = set()
-            for word in fulldict["words"]:
-                if word in message.content.lower():
-                    if word == "war" and all(word not in fulldict["words"] for word in message.content.lower()):
-                        continue
-                    used_words.add(word)
+            used_words = {
+                word
+                for word in fulldict["words"]
+                if word in message.content.lower()
+                and (word != "war" or any(word in fulldict["words"] for word in message.content.lower()))
+            }
             self.last_sensitive_logged.setdefault(message.author.id, datetime.now() - timedelta(days=1))
             if datetime.now() > (self.last_sensitive_logged[message.author.id] + timedelta(minutes=5)) and any(
                 [
@@ -424,9 +428,9 @@ class Events(Cog):
         if not await self.sensitive_scan(message):
             return
         author = cast(discord.Member, message.author)
-        if not any(
+        if all(
             role.id
-            in {
+            not in {
                 338173415527677954,
                 253752685357039617,
                 225413350874546176,
@@ -440,7 +444,11 @@ class Events(Cog):
                 discord.Object(id=676250179929636886),
                 discord.Object(id=684936661745795088),
             )
-            await message.delete()
+            try:
+                await message.delete()
+            except discord.DiscordException:  # pragma: no cover
+                # if the message can't be deleted, ignore that and move on
+                pass
             embed = Embed(
                 description=message.content,
                 title="Mute: Everyone/Here Ping sent by non mod",
@@ -458,8 +466,12 @@ class Events(Cog):
         if self.extractor.has_urls(message.content) and not url_posting_allowed(
             cast(discord.TextChannel | discord.VoiceChannel | discord.Thread, message.channel), author.roles
         ):
-            # if the url still isn't allowed, delete the message
-            await message.delete()
+            try:
+                # if the url still isn't allowed, delete the message
+                await message.delete()
+            except discord.DiscordException:  # pragma: no cover
+                # if the message can't be deleted, ignore that and move on
+                pass
             try:
                 await message.author.send(f"You need to be at least level 5 to post links in {message.guild.name}!")
             except discord.Forbidden:  # pragma: no cover

@@ -63,6 +63,7 @@ class Translator(app_commands.Translator):
             ["dice.ftl", "minesweeper.ftl", "programs.ftl", "errors.ftl", "giveaway.ftl", "levels.ftl"],
             self.loader,
         )
+
         if context.location is TranslationContextLocation.command_name:
             key = f"{context.data.qualified_name.replace(' ', '-')}-name"
         elif context.location is TranslationContextLocation.command_description:
@@ -83,7 +84,6 @@ class Translator(app_commands.Translator):
             key = f"{string.message.replace(' ', '-')}"
         else:
             return None
-        translated = fluent.format_value(key, string.extras)
-        if translated == key or translated is None:
-            return None
-        return translated
+
+        translated = fluent.format_value(key, context.data)
+        return None if translated == key or translated is None else translated

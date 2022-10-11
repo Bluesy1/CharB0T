@@ -2,7 +2,6 @@
 import copy
 import datetime
 
-import asyncpg
 import discord
 import pytest
 from pytest_mock import MockerFixture
@@ -236,15 +235,17 @@ async def test_view_block_choose_embed(_unused_puzzle_unsolved, mocker: MockerFi
 
 
 @pytest.mark.asyncio
-async def test_view_on_win(_unused_puzzle_solved, mocker: MockerFixture):
+async def test_view_on_win(_unused_puzzle_solved, mocker: MockerFixture, database):
     """Test Sudoku view on win."""
     mock_bot = mocker.AsyncMock(spec=CBot)
-    mock_bot.pool = mocker.AsyncMock(spec=asyncpg.Pool)
+    mock_bot.pool = database
     mock_member = mocker.AsyncMock(spec=discord.Member)
+    mock_member.id = 1
     _unused_puzzle_solved.blocks[0][0]._editable = True
     _unused_puzzle_solved.blocks[0][0].value = 0
     view = sudoku.Sudoku(_unused_puzzle_solved, mock_member, mock_bot)
     mock_interaction = mocker.AsyncMock(spec=discord.Interaction)
+    mock_interaction.user = mock_member
     mock_interaction.response = mocker.AsyncMock(spec=discord.InteractionResponse)
     mock_button = mocker.AsyncMock(spec=discord.Button)
     mock_button.label = "7"
@@ -255,9 +256,6 @@ async def test_view_on_win(_unused_puzzle_solved, mocker: MockerFixture):
     await view.keypad_callback(mock_interaction, mock_button, 7)
     mock_interaction.edit_original_response.assert_called_once()
     assert view.is_finished()
-    args = mock_bot.pool.execute.call_args.args
-    assert args[0] == "UPDATE users SET sudoku_time = $1 WHERE id = $2 and sudoku_time > $1"
-    mock_bot.give_game_points.assert_called_once_with(mock_member, "sudoku", 5, 10)
 
 
 @pytest.mark.asyncio
@@ -648,8 +646,8 @@ def test_cell_hash():
     assert hash(cell) == hash(f"{cell.value}{cell.editable}")
 
 
-def test_cell_validate_value_unediable():
-    """Test cell validate value unediable"""
+def test_cell_validate_value_not_editable():
+    """Test cell validate value not editable"""
     cell = sudoku.Cell(1, False)
     with pytest.raises(ValueError):
         cell.value = 2
@@ -662,8 +660,8 @@ def test_cell_validate_value_editable():
         cell.value = 10
 
 
-def test_possible_value_uneditable():
-    """Test possible value uneditable"""
+def test_possible_value_not_editable():
+    """Test possible value not editable"""
     cell = sudoku.Cell(1, False)
     with pytest.raises(ValueError):
         cell.possible_values = {2}

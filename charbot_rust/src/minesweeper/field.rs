@@ -64,7 +64,7 @@ impl Cell {
             marked: self.marked,
         }
     }
-
+    #[allow(dead_code)]
     pub fn content(&self) -> &Content {
         &self.content
     }
@@ -78,8 +78,8 @@ pub struct Field {
     size: u32,
     selected_x: u32,
     selected_y: u32,
-    nubmers_total: u32,
-    nubmers_opened: u32,
+    numbers_total: u32,
+    numbers_opened: u32,
     need_regen: bool,
     rng: StdRng,
 }
@@ -94,8 +94,8 @@ impl Field {
             size: width * height,
             selected_x: width / 2,
             selected_y: height / 2,
-            nubmers_total: 0,
-            nubmers_opened: 0,
+            numbers_total: 0,
+            numbers_opened: 0,
             need_regen: true,
             rng
         };
@@ -192,7 +192,7 @@ impl Field {
                 }
                 if ct > 0 {
                     self.get_cell_mut(i as u32).content = Content::Number(ct);
-                    self.nubmers_total += 1;
+                    self.numbers_total += 1;
                 }
             }
         }
@@ -255,14 +255,14 @@ impl Field {
         for i in 0..self.size { // COV_EXCL_LINE
             self.get_cell_mut(i).clear();
         }
-        self.nubmers_opened = 0;
-        self.nubmers_total = 0;
+        self.numbers_opened = 0;
+        self.numbers_total = 0;
     }
 
     pub fn reveal(&mut self, i: u32) -> &Content {
         if !self.revealed(i) {
             if let &Content::Number(_i) = self.get_cell_mut(i).reveal() {
-                self.nubmers_opened += 1;
+                self.numbers_opened += 1;
             }
         }
         self.get_content(i)
@@ -508,7 +508,7 @@ impl Field {
     }
 
     pub fn is_victory(&self) -> bool {
-        self.nubmers_total == self.nubmers_opened
+        self.numbers_total == self.numbers_opened
     }
 
     pub fn get_x(&self) -> u32 {
@@ -521,37 +521,37 @@ impl Field {
 
     /*
     pub fn reinit_field(&mut self, num: u32, param: ParamType) {
-        let mut restart_neded = false;
+        let mut restart_needed = false;
         match param {
             ParamType::Height => {
                 if self.height != num {
                     self.height = num;
                     self.reinit_vec();
-                    restart_neded = true;
+                    restart_needed = true;
                 }
             }
             ParamType::Width => {
                 if self.width != num {
                     self.width = num;
                     self.reinit_vec();
-                    restart_neded = true;
+                    restart_needed = true;
                 }
             }
             ParamType::Mines => {
                 if self.mines != num {
                     self.mines = num;
-                    restart_neded = true;
+                    restart_needed = true;
                 }
             }
         }
-        if restart_neded {
+        if restart_needed {
             self.restart();
         }
     }
     */
 
     pub fn toggle_mark(&mut self, i: u32) -> bool {
-        let mut cell = self.get_cell_mut(i);
+        let cell = self.get_cell_mut(i);
         if cell.revealed {
             false // COV_EXCL_LINE
         } else {

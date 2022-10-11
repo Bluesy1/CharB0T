@@ -182,7 +182,6 @@ impl Board {
             n_pieces: 0,
         }
     }
-
     pub fn cell_is_empty(&self, index: Index) -> bool {
         self.board[index] == Piece::Empty
     }
@@ -261,6 +260,8 @@ impl Display for Board {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use yare::parameterized;
+
     #[test]
     fn piece() {
         assert_eq!(Piece::X.swap(), Piece::O);
@@ -279,35 +280,24 @@ mod tests {
         assert_eq!(format!("{}", Piece::O), String::from("O"));
         assert_eq!(format!("{}", Piece::Empty), String::from(" "));
     }
+    #[parameterized(
+        pos_zero = { 0, (0, 0), String::from("TopLeft")},
+        pos_one = { 1, (179, 0), String::from("TopMiddle")},
+        pos_two = { 2, (355, 0), String::from("TopRight")},
+        pos_three = { 3, (0, 179), String::from("MiddleLeft")},
+        pos_four = { 4, (179, 179), String::from("MiddleMiddle")},
+        pos_five = { 5, (355, 179), String::from("MiddleRight")},
+        pos_six = { 6, (0, 357), String::from("BottomLeft")},
+        pos_seven = { 7, (179, 357), String::from("BottomMiddle")},
+        pos_eight = { 8, (355, 357), String::from("BottomRight")}
+    )]
+    fn offset(pos: Index, value: (u16, u16), name: String) {
+        let zero = Offset::new(pos).expect(format!("Failed to create Offset::{}", &name).as_str());
+        assert_eq!(zero.value(), value);
+        assert_eq!(zero.name(), name);
+    }
     #[test]
-    fn offset() {
-        let zero = Offset::new(0).expect("Failed to create Offset::TopLeft");
-        assert_eq!(zero.value(), (0, 0));
-        assert_eq!(zero.name(), String::from("TopLeft"));
-        let one = Offset::new(1).expect("Failed to create Offset::TopMiddle");
-        assert_eq!(one.value(), (179, 0));
-        assert_eq!(one.name(), String::from("TopMiddle"));
-        let two = Offset::new(2).expect("Failed to create Offset::TopRight");
-        assert_eq!(two.value(), (355, 0));
-        assert_eq!(two.name(), String::from("TopRight"));
-        let three = Offset::new(3).expect("Failed to create Offset::MiddleLeft");
-        assert_eq!(three.value(), (0, 179));
-        assert_eq!(three.name(), String::from("MiddleLeft"));
-        let four = Offset::new(4).expect("Failed to create Offset::MiddleMiddle");
-        assert_eq!(four.value(), (179, 179));
-        assert_eq!(four.name(), String::from("MiddleMiddle"));
-        let five = Offset::new(5).expect("Failed to create Offset::MiddleRight");
-        assert_eq!(five.value(), (355, 179));
-        assert_eq!(five.name(), String::from("MiddleRight"));
-        let six = Offset::new(6).expect("Failed to create Offset::BottomLeft");
-        assert_eq!(six.value(), (0, 357));
-        assert_eq!(six.name(), String::from("BottomLeft"));
-        let seven = Offset::new(7).expect("Failed to create Offset::BottomMiddle");
-        assert_eq!(seven.value(), (179, 357));
-        assert_eq!(seven.name(), String::from("BottomMiddle"));
-        let eight = Offset::new(8).expect("Failed to create Offset::BottomRight");
-        assert_eq!(eight.value(), (355, 357));
-        assert_eq!(eight.name(), String::from("BottomRight"));
+    fn bad_offset(){
         Offset::new(9).expect_err("Failed to reject index 9");
     }
     #[test]

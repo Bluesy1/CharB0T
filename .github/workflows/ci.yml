@@ -4,13 +4,29 @@ on:
   push:
     branches:
       - main
+    paths:
+    - 'charbot/**'
+    - 'tests/**'
+    - 'charbot_rust/**'
+    - 'requirements.txt'
+    - 'requirements-dev.txt'
   pull_request:
     types: [ opened, reopened, synchronize ]
+    paths:
+    - 'charbot/**'
+    - 'tests/**'
+    - 'charbot_rust/**'
+    - 'requirements.txt'
+    - 'requirements-dev.txt'
 
 jobs:
 
   maturin:
     runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ["3.10", "3.11"]
     steps:
       - uses: actions/checkout@v3
       - name: Configure cache
@@ -21,23 +37,21 @@ jobs:
             ~/.cargo/registry/index/
             ~/.cargo/registry/cache/
             ~/.cargo/git/db/
-            target/
-          key: build-${{ hashFiles('**/Cargo.lock') }}
+            charbot_rust/target/
+          key: build-cython${{ matrix.python-version }}-${{ hashFiles('**/Cargo.lock') }}
       - uses: messense/maturin-action@v1
         with:
           manylinux: auto
           command: build
-          args: --release --sdist -o dist --interpreter /usr/local/bin/python3.10 -m charbot_rust/Cargo.toml
+          args: --release --sdist -o dist --interpreter /usr/local/bin/python${{ matrix.python-version }} -m charbot_rust/Cargo.toml
       - name: Upload wheels
         uses: actions/upload-artifact@v3
         with:
-          name: wheels
+          name: cython${{ matrix.python-version }}-wheel
           path: dist
           retention-days: 5
   rust-codecov:
     continue-on-error: true
-    strategy:
-      fail-fast: false
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
@@ -53,7 +67,6 @@ jobs:
             ~/.cargo/registry/index/
             ~/.cargo/registry/cache/
             ~/.cargo/git/db/
-            target/
           key: test-${{ hashFiles('**/Cargo.lock') }}
       - name: Run tests
         run: |
@@ -80,11 +93,15 @@ jobs:
           gcov: true
   black:
     runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: [ "3.10", "3.11.0-rc.2" ]
     steps:
       - uses: actions/checkout@v3
       - uses: actions/setup-python@v4
         with:
-          python-version: "3.10"
+          python-version: ${{ matrix.python-version }}
       - name: Dependencies
         run: |
           pip install black
@@ -98,7 +115,7 @@ jobs:
       - uses: actions/checkout@v3
       - uses: actions/download-artifact@v3
         with:
-          name: wheels
+          name: cython3.10-wheel
           path: wheels
       - uses: actions/setup-python@v4
         with:
@@ -121,14 +138,15 @@ jobs:
           warnings: false
   flake8:
     runs-on: ubuntu-latest
-    continue-on-error: true
     strategy:
       fail-fast: false
+      matrix:
+        python-version: [ "3.10", "3.11.0-rc.2" ]
     steps:
       - uses: actions/checkout@v3
       - uses: actions/setup-python@v4
         with:
-          python-version: "3.10"
+          python-version: ${{ matrix.python-version }}
       - name: Dependencies
         run: |
           pip install flake8
@@ -141,15 +159,27 @@ jobs:
     continue-on-error: true
     strategy:
       fail-fast: false
+      matrix:
+        python-version: [ "3.10", "3.11.0-rc.2" ]
+        include:
+          - python-version: "3.10"
+            short-form: "3.10"
+            codecov: true
+          - python-version: "3.11.0-rc.2"
+            short-form: "3.11"
+
     steps:
       - uses: actions/checkout@v3
+      - uses: harmon758/postgresql-action@v1
+        with:
+          postgresql version: '14'
       - uses: actions/download-artifact@v3
         with:
-          name: wheels
+          name: cython${{ matrix.short-form }}-wheel
           path: wheels
       - uses: actions/setup-python@v4
         with:
-          python-version: "3.10"
+          python-version: ${{ matrix.python-version }}
           cache: "pip"
           cache-dependency-path: |
             requirements.txt
@@ -167,10 +197,11 @@ jobs:
         id: pytest
         run: pytest --cov-report=xml:coverage/reports/coverage.xml --cov=charbot tests/ --cov-report=term --cov-config=pyproject.toml
       - name: Upload coverage report
+        if: ${{ matrix.codecov}}
         uses: codecov/codecov-action@v3
         with:
           directory: ./coverage/reports/
-          env_vars: OS=LINUX,PYTHON=3.10
+          env_vars: OS=LINUX,PYTHON=${{ matrix.short-form }}
           fail_ci_if_error: false
           flags: python-unit
           name: codecov-umbrella

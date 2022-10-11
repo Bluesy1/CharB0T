@@ -45,13 +45,11 @@ def test_get_params(mock_config):
 
 def test_half_hour_intervals():
     """Test half_hour_intervals."""
-    count = 0
-    for interval in gcal.half_hour_intervals():
+    for count, interval in enumerate(gcal.half_hour_intervals()):
         hours = count // 2
         minutes = 30 * (count % 2)
 
         assert datetime.time(hours, minutes) == interval
-        count += 1
 
 
 def test_ceil_dt():

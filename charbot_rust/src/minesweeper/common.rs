@@ -56,46 +56,49 @@ pub const TILE_MINE_TRIGGER: &'static [u8] = include_bytes!("tiles/mine3.png");
 #[cfg(test)]
 mod tests {
     use super::*;
-    #[test]
-    fn images_exist(){
-        assert!(LABEL_A.len() > 0);
-        assert!(LABEL_B.len() > 0);
-        assert!(LABEL_C.len() > 0);
-        assert!(LABEL_D.len() > 0);
-        assert!(LABEL_E.len() > 0);
-        assert!(LABEL_F.len() > 0);
-        assert!(LABEL_G.len() > 0);
-        assert!(LABEL_H.len() > 0);
-        assert!(LABEL_I.len() > 0);
-        assert!(LABEL_J.len() > 0);
-        assert!(LABEL_K.len() > 0);
-        assert!(LABEL_L.len() > 0);
-        assert!(LABEL_M.len() > 0);
-        assert!(LABEL_N.len() > 0);
-        assert!(LABEL_O.len() > 0);
-        assert!(LABEL_P.len() > 0);
-        assert!(LABEL_Q.len() > 0);
-        assert!(LABEL_R.len() > 0);
-        assert!(LABEL_S.len() > 0);
-        assert!(LABEL_T.len() > 0);
-        assert!(LABEL_U.len() > 0);
-        assert!(LABEL_V.len() > 0);
-        assert!(LABEL_W.len() > 0);
-        assert!(LABEL_X.len() > 0);
-        assert!(LABEL_Y.len() > 0);
-        assert!(TILE_1.len() > 0);
-        assert!(TILE_2.len() > 0);
-        assert!(TILE_3.len() > 0);
-        assert!(TILE_4.len() > 0);
-        assert!(TILE_5.len() > 0);
-        assert!(TILE_6.len() > 0);
-        assert!(TILE_7.len() > 0);
-        assert!(TILE_8.len() > 0);
-        assert!(TILE_DEFAULT.len() > 0);
-        assert!(TILE_EMPTY.len() > 0);
-        assert!(TILE_FLAG.len() > 0);
-        assert!(TILE_MINE_EXPLODED.len() > 0);
-        assert!(TILE_MINE_UNEXPLODED.len() > 0);
-        assert!(TILE_MINE_TRIGGER.len() > 0);
+    use yare::parameterized;
+    #[parameterized(
+        a={LABEL_A, "Tile A"},
+        b={LABEL_B, "Tile B"},
+        c={LABEL_C, "Tile C"},
+        d={LABEL_D, "Tile D"},
+        e={LABEL_E, "Tile E"},
+        f={LABEL_F, "Tile F"},
+        g={LABEL_G, "Tile G"},
+        h={LABEL_H, "Tile H"},
+        i={LABEL_I, "Tile I"},
+        j={LABEL_J, "Tile J"},
+        k={LABEL_K, "Tile K"},
+        l={LABEL_L, "Tile L"},
+        m={LABEL_M, "Tile M"},
+        n={LABEL_N, "Tile N"},
+        o={LABEL_O, "Tile O"},
+        p={LABEL_P, "Tile P"},
+        q={LABEL_Q, "Tile Q"},
+        r={LABEL_R, "Tile R"},
+        s={LABEL_S, "Tile S"},
+        t={LABEL_T, "Tile T"},
+        u={LABEL_U, "Tile U"},
+        v={LABEL_V, "Tile V"},
+        w={LABEL_W, "Tile W"},
+        x={LABEL_X, "Tile X"},
+        y={LABEL_Y, "Tile Y"},
+        one={TILE_1, "Tile 1"},
+        two={TILE_2, "Tile 2"},
+        three={TILE_3, "Tile 3"},
+        four={TILE_4, "Tile 4"},
+        five={TILE_5, "Tile 5"},
+        six={TILE_6, "Tile 6"},
+        seven={TILE_7, "Tile 7"},
+        eight={TILE_8, "Tile 8"},
+        default={TILE_DEFAULT, "Default Tile"},
+        empty={TILE_EMPTY, "Empty Tile"},
+        flag={TILE_FLAG, "Flag Tile"},
+        mine_exploded={TILE_MINE_EXPLODED, "Exploded Mine Tile"},
+        mine_unexploded={TILE_MINE_UNEXPLODED, "Unexploded Mine Tile"},
+        mine_trigger={TILE_MINE_TRIGGER, "Trigger Mine Tile"},
+    )]
+    fn images_exist(img: &'static [u8], name: &str) {
+        assert!(img.len() > 0, "{} is empty/missing.", name);
     }
 }

@@ -23,6 +23,7 @@
 # SOFTWARE.
 #  ----------------------------------------------------------------------------
 """Dynamic stream calendar generator for the next week."""
+
 import datetime as _datetime
 import re
 from calendar import timegm
@@ -31,6 +32,7 @@ from typing import Literal, NamedTuple, Optional, TypedDict
 from zoneinfo import ZoneInfo
 
 import discord
+import itertools
 import orjson
 from discord.ext import commands, tasks
 from discord.utils import MISSING, format_dt, utcnow
@@ -111,9 +113,8 @@ def half_hour_intervals():
     time
         The times for the interval.
     """
-    for hour in range(24):
-        for minute in range(0, 60, 30):
-            yield time(hour, minute)
+    for hour, minute in itertools.product(range(24), range(0, 60, 30)):
+        yield time(hour, minute)
 
 
 def ceil_dt(dt: datetime, delta: timedelta) -> datetime:
@@ -146,14 +147,10 @@ def default_field(dictionary: dict[int, EmbedField], add_time: datetime, item: C
     item : dict
         The item to add to the dictionary.
     """
-    dictionary.update(
-        {
-            timegm(add_time.utctimetuple()): EmbedField(
-                item["summary"],
-                f"{format_dt(add_time, 'F')}\n[({add_time.astimezone(chartime).strftime(time_format)})]({ytLink})",
-                True,
-            )
-        }
+    dictionary[timegm(add_time.utctimetuple())] = EmbedField(
+        item["summary"],
+        f"{format_dt(add_time, 'F')}\n[({add_time.astimezone(chartime).strftime(time_format)})]({ytLink})",
+        True,
     )
 
 
@@ -314,16 +311,13 @@ class Calendar(commands.Cog):
                 default_field(fields, sub_time, item)
             else:  # pragma: no cover
                 if url(desc):
-                    fields.update(
-                        {
-                            timegm(sub_time.utctimetuple()): EmbedField(
-                                f"{item['summary']}",
-                                f"{format_dt(sub_time, 'F')}\n[({sub_time.astimezone(chartime).strftime(time_format)})"
-                                f"]({desc})",
-                                True,
-                            )
-                        }
+                    fields[timegm(sub_time.utctimetuple())] = EmbedField(
+                        f"{item['summary']}",
+                        f"{format_dt(sub_time, 'F')}\n[({sub_time.astimezone(chartime).strftime(time_format)})"
+                        f"]({desc})",
+                        True,
                     )
+
                 else:
                     default_field(fields, sub_time, item)
         for sub_time in cancelled_times:
