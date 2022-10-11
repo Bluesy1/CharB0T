@@ -4,8 +4,20 @@ on:
   push:
     branches:
       - main
+    paths:
+    - 'charbot/**'
+    - 'tests/**'
+    - 'charbot_rust/**'
+    - 'requirements.txt'
+    - 'requirements-dev.txt'
   pull_request:
     types: [ opened, reopened, synchronize ]
+    paths:
+    - 'charbot/**'
+    - 'tests/**'
+    - 'charbot_rust/**'
+    - 'requirements.txt'
+    - 'requirements-dev.txt'
 
 jobs:
 
