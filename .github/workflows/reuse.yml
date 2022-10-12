@@ -1,0 +1,25 @@
+# SPDX-FileCopyrightText: 2022 Bluesy1 <68259537+Bluesy1@users.noreply.github.com>
+#
+# SPDX-License-Identifier: MIT
+
+name: Reuse
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    types: [ opened, reopened, synchronize ]
+
+jobs:
+    reuse:
+        runs-on: ubuntu-latest
+        steps:
+        - uses: actions/checkout@v3
+        - uses: actions/setup-python@v3
+          with:
+            python-version: '3.x'
+        - name: Install Reuse
+          run: pip install --upgrade --user --no-cache-dir reuse
+        - name: Run Reuse
+          run: reuse lint
