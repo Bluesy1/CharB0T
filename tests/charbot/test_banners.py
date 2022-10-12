@@ -4,12 +4,17 @@
 # SPDX-License-Identifier: MIT
 import io
 import pathlib
+from datetime import timedelta
 
 import discord
 import pytest
 from PIL import Image
+from discord.utils import utcnow
+from pytest_mock import MockerFixture
 
+from charbot import CBot
 from charbot.betas import banner
+from charbot.betas.views.banner import ApprovalView
 
 
 def test_interpolate():
@@ -125,6 +130,51 @@ def test_image_background_banner():
             )
             == expected
         ), "Got unexpected banner"
+
+
+@pytest.mark.asyncio
+async def test_banner_approval_view(mocker: MockerFixture, database):
+    """Check the banner approval view gets created properly"""
+    status = {
+        "user_id": 1,
+        "quote": "Lorem ipsum dolor sit amet, consectetur adipisci elit, sed eiusmod tempor incidunt ut labore et dolo",
+        "color": "0x3498DB",
+        "cooldown": utcnow() + timedelta(days=7),
+        "approved": False,
+    }
+    view = ApprovalView(status, 2)
+    mock_bot = mocker.AsyncMock(spec=CBot)
+    mock_bot.pool = database
+    mock_member = mocker.AsyncMock(spec=discord.Member)
+    mock_member.id = 2
+    mock_interaction = mocker.AsyncMock(spec=discord.Interaction)
+    mock_interaction.user = mock_member
+    mock_interaction.response = mocker.AsyncMock(spec=discord.InteractionResponse)
+    mock_interaction.client = mock_bot
+    assert await view.interaction_check(mock_interaction) is True, "Interaction check should return True"
+    await view.cancel.callback(mock_interaction)
+    mock_interaction.response.defer.assert_awaited_once_with(ephemeral=True)
+    mock_interaction.edit_original_response.assert_awaited_once_with(
+        content="Banner approval session cancelled.", attachments=[], view=None
+    )
+    mock_interaction.reset_mock()
+    mock_interaction.response.reset_mock()
+    await view.approve.callback(mock_interaction)
+    mock_interaction.response.defer.assert_awaited_once_with(ephemeral=True)
+    mock_interaction.edit_original_response.assert_awaited_once_with(
+        content="Banner approved.", attachments=[], view=None
+    )
+    assert (
+        await database.fetchval("SELECT approved FROM banners WHERE user_id = 1") is True
+    ), "Banner should be approved"
+    mock_interaction.reset_mock()
+    mock_interaction.response.reset_mock()
+    await view.deny.callback(mock_interaction)
+    mock_interaction.response.defer.assert_awaited_once_with(ephemeral=True)
+    mock_interaction.edit_original_response.assert_awaited_once_with(
+        content="Banner denied.", attachments=[], view=None
+    )
+    assert await database.fetchrow("SELECT * FROM banners WHERE user_id = 1") is None, "Banner should not exist"
 
 
 if __name__ == "__main__":
