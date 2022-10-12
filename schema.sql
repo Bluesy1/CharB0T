@@ -1,10 +1,13 @@
+-- SPDX-FileCopyrightText: 2022 Bluesy1 <68259537+Bluesy1@users.noreply.github.com>
+--
+-- SPDX-License-Identifier: MIT
+
 CREATE TABLE IF NOT EXISTS users
 (
     id          BIGINT             NOT NULL
         CONSTRAINT points_pk
             PRIMARY KEY,
-    points      SMALLINT DEFAULT 0 NOT NULL,
-    sudoku_time interval DEFAULT '1 day'::interval
+    points      SMALLINT DEFAULT 0 NOT NULL
 );
 
 CREATE TABLE IF NOT EXISTS daily_points
