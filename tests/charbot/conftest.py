@@ -26,6 +26,12 @@ async def database(cluster) -> asyncpg.Pool:  # pyright: ignore[reportGeneralTyp
     pool = cast(asyncpg.Pool, await asyncpg.create_pool(**cluster.get_connection_spec(), database="postgres"))
     with open(pathlib.Path(__file__).parent.parent.parent / "schema.sql", "r") as schema:
         await pool.execute(schema.read())
-    await pool.execute("INSERT INTO users (id, points) VALUES (001, 50)")
+    await pool.execute("INSERT INTO users (id, points) VALUES (001, 50) ON CONFLICT DO NOTHING")
+    await pool.execute(
+        "INSERT INTO banners (user_id, quote, color, cooldown, approved) VALUES (001, $1, $2, now(), FALSE)"
+        " ON CONFLICT DO NOTHING",
+        "Lorem ipsum dolor sit amet, consectetur adipisci elit, sed eiusmod tempor incidunt ut labore et dolo",
+        str(0x3498DB),
+    )
     yield pool
     await pool.close()

@@ -20,6 +20,7 @@ from ._types import BannerStatus
 
 
 FONT: Final = ImageFont.truetype("charbot/media/pools/font.ttf", 30)
+FONT_QUOTE: Final = ImageFont.truetype("charbot/media/pools/font.ttf", 20)
 BASE_PATH: Final[Path] = Path(__file__).parent / "user_assets"
 STAR_COLOR: Final[tuple[int, int, int]] = (69, 79, 191)
 
@@ -40,7 +41,18 @@ def interpolate(f_co: tuple[int, int, int], t_co: tuple[int, int, int], interval
     ------
     list[int]
         The next color as a list of 0 to 255 ints as an RGB tuple.
+
+    Raises
+    ------
+    ValueError
+        If the colors are not valid or the interval is not valid.
     """
+    if interval < 2:
+        raise ValueError(f"Interval must be greater than 1, got {interval}")
+    if any(0 > i < 255 for i in f_co):
+        raise ValueError(f"Invalid start color: {f_co}")
+    if any(0 > i < 255 for i in t_co):
+        raise ValueError(f"Invalid end color: {t_co}")
     det_co = [(t - f) / interval for f, t in zip(f_co, t_co)]
     for i in range(interval):
         yield [round(f + det * i) for f, det in zip(f_co, det_co)]
@@ -96,8 +108,8 @@ def banner(
     if isinstance(base, Path):
         try:
             img = Image.open(base)
-        except (OSError, ValueError, TypeError):
-            raise ValueError("Invalid base image")
+        except (OSError, ValueError, TypeError) as e:  # pragma: no cover
+            raise ValueError("Invalid base image") from e
         else:
             if img.size != (1000, 250):
                 img = img.resize((1000, 250))
@@ -114,7 +126,7 @@ def banner(
         draw.regular_polygon(pos, 3, rotation=180, fill=STAR_COLOR, outline=STAR_COLOR)
     draw.multiline_text(
         (img.width - 20, 50),
-        fill(quote, width=22, max_lines=5),
+        fill(quote, width=30, max_lines=4, break_long_words=True),
         fill=(255, 255, 255),
         font=FONT,
         align="right",
@@ -133,7 +145,7 @@ def banner(
     return res
 
 
-async def generate_banner(payload: BannerStatus, member: discord.Member) -> BytesIO:
+async def generate_banner(payload: BannerStatus, member: discord.Member) -> BytesIO:  # pragma: no cover
     """Generate a banner image.
 
     Parameters
@@ -143,24 +155,12 @@ async def generate_banner(payload: BannerStatus, member: discord.Member) -> Byte
     member : discord.Member
         The member who owns the banner.
     """
-    c = payload["color"]
-    prof = BytesIO()
-    await member.display_avatar.replace(size=128, format="png", static_format="png").save(prof)
-    if c is None:
+    with BytesIO(await member.display_avatar.replace(size=128, format="png", static_format="png").read()) as profile:
         return await asyncio.to_thread(
             banner,
-            BASE_PATH / f"{member.id}.png",
+            Color.from_str(payload["color"]) if payload["color"] is not None else BASE_PATH / f"{member.id}.png",
             member.display_name,
-            prof,
+            profile,
             payload["quote"],
             0,
         )
-    color = Color.from_str(c)
-    return await asyncio.to_thread(
-        banner,
-        color,
-        member.display_name,
-        prof,
-        payload["quote"],
-        0,
-    )

@@ -132,12 +132,12 @@ class Betas(commands.Cog):
                         "Grabbing image raised an exception, content type: %s", content_type
                     )
                     return
-                insert_color: int | None = None
+                insert_color: str | None = None
             else:
                 if color is None:
                     await interaction.followup.send("If you don't specify a base image, a banner color is required.")
                     return
-                insert_color: int | None = color.value.value
+                insert_color: str | None = str(color.value.value)
             await conn.execute(
                 "INSERT INTO banners (user_id, quote, color) VALUES ($1, $2, $3) ON CONFLICT (user_id) DO UPDATE SET"
                 " quote = EXCLUDED.quote, color = EXCLUDED.color, approved = FALSE",
