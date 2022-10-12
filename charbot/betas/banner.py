@@ -108,8 +108,8 @@ def banner(
     if isinstance(base, Path):
         try:
             img = Image.open(base)
-        except (OSError, ValueError, TypeError):  # pragma: no cover
-            raise ValueError("Invalid base image")
+        except (OSError, ValueError, TypeError) as e:  # pragma: no cover
+            raise ValueError("Invalid base image") from e
         else:
             if img.size != (1000, 250):
                 img = img.resize((1000, 250))

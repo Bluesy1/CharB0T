@@ -14,6 +14,7 @@ from pytest_mock import MockerFixture
 
 from charbot import CBot
 from charbot.betas import banner
+from charbot.betas._types import BannerStatus
 from charbot.betas.views.banner import ApprovalView
 
 
@@ -135,7 +136,7 @@ def test_image_background_banner():
 @pytest.mark.asyncio
 async def test_banner_approval_view(mocker: MockerFixture, database):
     """Check the banner approval view gets created properly"""
-    status = {
+    status: BannerStatus = {
         "user_id": 1,
         "quote": "Lorem ipsum dolor sit amet, consectetur adipisci elit, sed eiusmod tempor incidunt ut labore et dolo",
         "color": "0x3498DB",
