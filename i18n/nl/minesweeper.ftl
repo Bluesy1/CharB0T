@@ -1,3 +1,7 @@
+# SPDX-FileCopyrightText: 2021 Bluesy1 <68259537+Bluesy1@users.noreply.github.com>
+# SPDX-License-Identifier: MIT
+
+# Selects
 minesweeper-select-row-label = Rij { $letter }
 minesweeper-select-row-description = Verander de rij naar { $letter }
 minesweeper-select-row-placehholder = Selecteer een rij

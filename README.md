@@ -1,3 +1,9 @@
+<!--
+SPDX-FileCopyrightText: 2022 Bluesy1 <68259537+Bluesy1@users.noreply.github.com>
+
+SPDX-License-Identifier: MIT
+-->
+
 ## Continuous Integration Status
 [![DeepSource](https://deepsource.io/gh/Bluesy1/CharB0T.svg/?label=active+issues&show_trend=true&token=wb08Mu693aFli6scALkkEmql)](https://deepsource.io/gh/Bluesy1/CharB0T/?ref=repository-badge)
 [![DeepSource](https://deepsource.io/gh/Bluesy1/CharB0T.svg/?label=resolved+issues&show_trend=true&token=wb08Mu693aFli6scALkkEmql)](https://deepsource.io/gh/Bluesy1/CharB0T/?ref=repository-badge)

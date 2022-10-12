@@ -1,3 +1,7 @@
+# SPDX-FileCopyrightText: 2021 Bluesy1 <68259537+Bluesy1@users.noreply.github.com>
+# SPDX-License-Identifier: MIT
+
+# Errors
 missing-program-role = Je mist ten minste één van de vereiste rollen: { $roles } - je moet minimaal level 1 zijn om deze opdracht/knop te gebruiken.
 wrong-channel = Dit commando kan alleen worden uitgevoerd in het kanaal <#{ $channelid }>.
 no-pool-found = { $pool } pool niet gevonden. Kies een van de weergegeven keuzes.

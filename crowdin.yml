@@ -1,3 +1,7 @@
+# SPDX-FileCopyrightText: 2022 Bluesy1 <68259537+Bluesy1@users.noreply.github.com>
+#
+# SPDX-License-Identifier: MIT
+
 files:
   - source: /i18n/en-US/*.ftl
     translation: /i18n/%locale%/%original_file_name%

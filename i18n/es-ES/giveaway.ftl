@@ -1,3 +1,7 @@
+# SPDX-FileCopyrightText: 2021 Bluesy1 <68259537+Bluesy1@users.noreply.github.com>
+# SPDX-License-Identifier: MIT
+
+# Giveaways
 giveaway-try-later = You have won 3 giveaways recently, please wait until the first of the next month to bid again.
 giveaway-check-success = ¡Tienes entradas de { $bid } ofertas, dándote un { NUMBER($chance, style: "percent", maximumFractionDigits: 2, minimumFractionDigits: 2) } oportunidad de ganar, y has ganado { $wins }/3 regalos puedes este mes!
 giveaway-alerts-enable = Ahora recibirás alertas de regalos.

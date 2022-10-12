@@ -1,3 +1,5 @@
+// SPDX-FileCopyrightText: 2021 Bluesy1 <68259537+Bluesy1@users.noreply.github.com>
+// SPDX-License-Identifier: MIT
 mod human_player;
 mod minimax_player;
 mod random_player;
