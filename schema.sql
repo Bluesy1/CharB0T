@@ -101,6 +101,57 @@ CREATE TABLE IF NOT EXISTS banners
             ON UPDATE CASCADE ON DELETE CASCADE,
     quote    VARCHAR(100)                                                              NOT NULL,
     color    CHAR(8),
+    gradient BOOLEAN                                                                   NOT NULL,
     cooldown TIMESTAMP WITH TIME ZONE DEFAULT (CURRENT_TIMESTAMP + '7 days'::interval) NOT NULL,
     approved boolean                  DEFAULT FALSE                                    NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS gangs
+(
+    id          SERIAL
+        CONSTRAINT gangs_pk
+            PRIMARY KEY,
+    name        VARCHAR(32) NOT NULL,
+    color       INTEGER     NOT NULL,
+    leader      BIGINT      NOT NULL,
+    role        BIGINT      NOT NULL,
+    channel     BIGINT      NOT NULL,
+    control     INTEGER     NOT NULL,
+    join_base   SMALLINT    NOT NULL,
+    join_slope  NUMERIC(5, 2) NOT NULL,
+    upkeep_base SMALLINT    NOT NULL,
+    upkeep_slope NUMERIC(5, 2) NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS gang_members
+(
+    user_id BIGINT                   NOT NULL
+        CONSTRAINT gang_members_pk
+            PRIMARY KEY
+        CONSTRAINT gang_members_users_fk
+            REFERENCES users(id)
+            ON UPDATE CASCADE ON DELETE CASCADE,
+    gang BIGINT                   NOT NULL
+        CONSTRAINT gang_members_gang_fk
+            REFERENCES gangs(id)
+            ON UPDATE CASCADE ON DELETE CASCADE
+);
+
+CREATE TABLE IF NOT EXISTS territories
+(
+    id      SERIAL
+        CONSTRAINT territories_pk
+            PRIMARY KEY,
+    name    VARCHAR(32) NOT NULL,
+    gang    INTEGER     NOT NULL
+        CONSTRAINT territories_gang_fk
+            REFERENCES gangs(id)
+            ON UPDATE CASCADE ON DELETE CASCADE,
+    control SMALLINT     NOT NULL,
+    benefit SMALLINT     NOT NULL, -- TODO: Make this reference something meaningful
+    raid_end TIMESTAMP WITH TIME ZONE DEFAULT NULL,
+    raider INTEGER
+        CONSTRAINT territories_raider_fk
+            REFERENCES gangs(id)
+            ON UPDATE CASCADE ON DELETE CASCADE
 );
