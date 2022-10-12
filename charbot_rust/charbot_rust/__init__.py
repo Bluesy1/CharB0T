@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+# SPDX-License-Identifier: MIT
 # noinspection PyUnresolvedReferences
 from .charbot_rust import *  # pyright: ignore[reportMissingImports] # noqa: F403,F401
 

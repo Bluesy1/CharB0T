@@ -1,27 +1,5 @@
 # -*- coding: utf-8 -*-
-#  ----------------------------------------------------------------------------
-#  MIT License
-#
-# Copyright (c) 2022 Bluesy
-#
-# Permission is hereby granted, free of charge, to any person obtaining a copy
-# of this software and associated documentation files (the "Software"), to deal
-# in the Software without restriction, including without limitation the rights
-# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-# copies of the Software, and to permit persons to whom the Software is
-# furnished to do so, subject to the following conditions:
-#
-# The above copyright notice and this permission notice shall be included in all
-# copies or substantial portions of the Software.
-#
-# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-# SOFTWARE.
-#  ----------------------------------------------------------------------------
+# SPDX-License-Identifier: MIT
 """View class."""
 import datetime
 from typing import Literal, TYPE_CHECKING
@@ -115,24 +93,27 @@ class Sudoku(ui.View):
             self.back.disabled = True
             self.enable_keypad()
         elif self.level == "Block":
-            self.disable_keypad()
-            self.one.disabled = not self.block[0].editable
-            self.two.disabled = not self.block[1].editable
-            self.three.disabled = not self.block[2].editable
-            self.four.disabled = not self.block[3].editable
-            self.five.disabled = not self.block[4].editable
-            self.six.disabled = not self.block[5].editable
-            self.seven.disabled = not self.block[6].editable
-            self.eight.disabled = not self.block[7].editable
-            self.nine.disabled = not self.block[8].editable
-            self.clear.disabled = False
-            self.back.disabled = False
+            self._update_keypad_block()
         elif self.level == "Cell":
             self.back.disabled = False
             if self.cell.editable:
                 self.enable_keypad()
             else:
                 self.disable_keypad()
+
+    def _update_keypad_block(self):
+        self.disable_keypad()
+        self.one.disabled = not self.block[0].editable
+        self.two.disabled = not self.block[1].editable
+        self.three.disabled = not self.block[2].editable
+        self.four.disabled = not self.block[3].editable
+        self.five.disabled = not self.block[4].editable
+        self.six.disabled = not self.block[5].editable
+        self.seven.disabled = not self.block[6].editable
+        self.eight.disabled = not self.block[7].editable
+        self.nine.disabled = not self.block[8].editable
+        self.clear.disabled = False
+        self.back.disabled = False
 
     def change_cell_prompt_embed(self) -> discord.Embed:
         """Embed for when the user is changing a cell.
@@ -217,11 +198,6 @@ class Sudoku(ui.View):
             inline=True,
         )
         await interaction.edit_original_response(embed=embed, view=self)
-        await self.bot.pool.execute(
-            "UPDATE users SET sudoku_time = $1 WHERE id = $2 and sudoku_time > $1",
-            time_taken,
-            self.author.id,
-        )
 
     # noinspection DuplicatedCode
     async def keypad_callback(self, interaction: Interaction, button: ui.Button, key: int):

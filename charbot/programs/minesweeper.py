@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+# SPDX-License-Identifier: MIT
 """Minesweeper game."""
 import string
 from io import BytesIO

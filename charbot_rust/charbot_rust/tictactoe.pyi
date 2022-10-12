@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+# SPDX-License-Identifier: MIT
 from enum import Enum, IntEnum
 
 class Difficulty(IntEnum):

@@ -1,6 +1,7 @@
 /backup/
 /.vscode/
 /.idea
+/.fleet
 /virtual-enviornment
 *.pyc
 *.zip

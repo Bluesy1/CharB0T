@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-
+# SPDX-License-Identifier: MIT
 import discord
 import pytest
 from discord.ext import commands

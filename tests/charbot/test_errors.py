@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+# SPDX-License-Identifier: MIT
 import discord
 from discord.app_commands import AppCommandError
 

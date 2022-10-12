@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+# SPDX-License-Identifier: MIT
 import typing as __typing
 import enum as __enum
 
