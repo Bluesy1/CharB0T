@@ -13,9 +13,10 @@ from discord.utils import utcnow
 from pytest_mock import MockerFixture
 
 from charbot import CBot
-from charbot.betas import banner
-from charbot.betas._types import BannerStatus
-from charbot.betas.views.banner import ApprovalView
+from charbot.gangs import banner
+
+# noinspection PyProtectedMember
+from charbot.gangs._types import BannerStatus
 
 
 def test_interpolate():
@@ -74,12 +75,14 @@ def test_static_color_banner():
         io.BytesIO(file.read()) as profile,
         Image.open(pathlib.Path(__file__).parent / "media/test_banner_solid_color.png") as expected,
     ):
+        # noinspection SpellCheckingInspection
         assert (
             Image.open(
                 banner.banner(
                     discord.Color.blue(),
                     "Name",
                     profile,
+                    "Blue",
                     "Lorem ipsum dolor sit amet, consectetur adipisci elit, sed eiusmod tempor incidunt ut labore et "
                     "dolo",
                     3,
@@ -96,12 +99,14 @@ def test_gradient_color_banner():
         io.BytesIO(file.read()) as profile,
         Image.open(pathlib.Path(__file__).parent / "media/test_banner_gradient_color.png") as expected,
     ):
+        # noinspection SpellCheckingInspection
         assert (
             Image.open(
                 banner.banner(
                     (discord.Color.blue(), discord.Color.red()),
                     "Name",
                     profile,
+                    "Blue",
                     "Lorem ipsum dolor sit amet, consectetur adipisci elit, sed eiusmod tempor incidunt ut labore et "
                     "dolo",
                     3,
@@ -118,12 +123,14 @@ def test_image_background_banner():
         io.BytesIO(file.read()) as profile,
         Image.open(pathlib.Path(__file__).parent / "media/test_banner_image_background.png") as expected,
     ):
+        # noinspection SpellCheckingInspection
         assert (
             Image.open(
                 banner.banner(
                     pathlib.Path(__file__).parent / "media/test_image.jpeg",
                     "Name",
                     profile,
+                    "Blue",
                     "Lorem ipsum dolor sit amet, consectetur adipisci elit, sed eiusmod tempor incidunt ut labore et "
                     "dolo",
                     3,
@@ -136,14 +143,19 @@ def test_image_background_banner():
 @pytest.mark.asyncio
 async def test_banner_approval_view(mocker: MockerFixture, database):
     """Check the banner approval view gets created properly"""
+    # noinspection SpellCheckingInspection
     status: BannerStatus = {
         "user_id": 1,
         "quote": "Lorem ipsum dolor sit amet, consectetur adipisci elit, sed eiusmod tempor incidunt ut labore et dolo",
         "color": "0x3498DB",
         "cooldown": utcnow() + timedelta(days=7),
         "approved": False,
+        "gradient": False,
+        "gang_color": 0x3498DB,
+        "prestige": 3,
+        "name": "Blue",
     }
-    view = ApprovalView(status, 2)
+    view = banner.ApprovalView(status, 2)
     mock_bot = mocker.AsyncMock(spec=CBot)
     mock_bot.pool = database
     mock_member = mocker.AsyncMock(spec=discord.Member)
@@ -180,11 +192,13 @@ async def test_banner_approval_view(mocker: MockerFixture, database):
 
 if __name__ == "__main__":
     with open(pathlib.Path(__file__).parent / "media/test_avatar.png", "rb") as f, io.BytesIO(f.read()) as b:
+        # noinspection SpellCheckingInspection
         Image.open(
             banner.banner(
-                pathlib.Path(__file__).parent / "media/test_image.jpeg",
+                (discord.Color.blue()),
                 "Name",
                 b,
+                "Blue",
                 "Lorem ipsum dolor sit amet, consectetur adipisci elit, sed eiusmod tempor incidunt ut labore et dolo",
                 3,
             )

@@ -1,7 +1,12 @@
 # -*- coding: utf-8 -*-
+# SPDX-FileCopyrightText: 2022 Bluesy1 <68259537+Bluesy1@users.noreply.github.com>
+#
+# SPDX-License-Identifier: MIT
 import datetime
 from decimal import Decimal
-from typing import TypedDict, Any
+from typing import TypedDict
+
+from .enums import Benefits
 
 
 class BannerRequestLeader(TypedDict):
@@ -28,7 +33,6 @@ class BannerStatusPoints(BannerStatus):
 
 
 class Gang(TypedDict):
-    id: int
     name: str
     color: int
     leader: int
@@ -39,6 +43,7 @@ class Gang(TypedDict):
     join_slope: Decimal  # numeric type in postgres
     upkeep_base: int
     upkeep_slope: Decimal  # numeric type in postgres
+    all_paid: bool
 
 
 class GangMember(TypedDict):
@@ -46,11 +51,19 @@ class GangMember(TypedDict):
     gang: Gang
 
 
+class Benefit(TypedDict):
+    id: int
+    name: str
+    benefit: Benefits
+    value: int
+
+
 class Territory(TypedDict):
     id: int
+    name: str
     gang: Gang | None
     members: list[GangMember]
     control: Decimal  # numeric type in postgres
-    benefit: Any  # Placeholder type TODO: add concrete type
+    benefit: Benefit
     raid_end: datetime.datetime | None
     raider: Gang | None

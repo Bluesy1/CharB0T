@@ -1,8 +1,12 @@
 # -*- coding: utf-8 -*-
-# SPDX-FileCopyrightText: 2021 Bluesy1 <68259537+Bluesy1@users.noreply.github.com>
+# SPDX-FileCopyrightText: 2022 Bluesy1 <68259537+Bluesy1@users.noreply.github.com>
+#
 # SPDX-License-Identifier: MIT
 """Charbot Module."""
 import logging
+
+import asyncpg
+import asyncpg as _asyncpg
 import functools as _functools
 import pathlib as _pathlib
 import sys as _sys
@@ -20,11 +24,31 @@ __all__ = (
     "GuildInteraction",
     "ComponentInteraction",
     "GuildComponentInteraction",
+    "setup_custom_datatypes",
 )
 __blacklist__ = [f"{__package__}.{item}" for item in ("__main__", "bot", "card", "errors", "types", "translator")]
 
 EXTENSIONS = [module.name for module in iter_modules(__path__, f"{__package__}.") if module.name not in __blacklist__]
 T = TypeVar("T", bound="CBot")
+
+
+async def setup_custom_datatypes(conn_or_pool: _asyncpg.Connection) -> None:
+    """There are a few custom postgres datatypes, this sets up serializations for them.
+
+    Parameters
+    ----------
+    conn_or_pool : _asyncpg.Connection | _asyncpg.Pool
+        The connection or pool to set up the custom datatypes for.
+    """
+    from .gangs.enums import Benefits
+
+    await conn_or_pool.set_type_codec(
+        "BENEFIT",
+        encoder=lambda b: b.name,
+        decoder=Benefits,
+        schema="public",
+        format="text",
+    )
 
 
 class _Config:

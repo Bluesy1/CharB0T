@@ -123,7 +123,8 @@ CREATE TABLE IF NOT EXISTS gangs
     join_base   SMALLINT    NOT NULL,
     join_slope  NUMERIC(5, 2) NOT NULL,
     upkeep_base SMALLINT    NOT NULL,
-    upkeep_slope NUMERIC(5, 2) NOT NULL
+    upkeep_slope NUMERIC(5, 2) NOT NULL,
+    all_paid    BOOLEAN    NOT NULL
 );
 
 CREATE TABLE IF NOT EXISTS gang_members
@@ -134,10 +135,11 @@ CREATE TABLE IF NOT EXISTS gang_members
         CONSTRAINT gang_members_users_fk
             REFERENCES users(id)
             ON UPDATE CASCADE ON DELETE CASCADE,
-    gang BIGINT                   NOT NULL
+    gang INTEGER                   NOT NULL
         CONSTRAINT gang_members_gang_fk
             REFERENCES gangs(id)
-            ON UPDATE CASCADE ON DELETE CASCADE
+            ON UPDATE CASCADE ON DELETE CASCADE,
+    paid BOOLEAN NOT NULL DEFAULT TRUE
 );
 
 CREATE TABLE IF NOT EXISTS territories
@@ -157,4 +159,24 @@ CREATE TABLE IF NOT EXISTS territories
         CONSTRAINT territories_raider_fk
             REFERENCES gangs(id)
             ON UPDATE CASCADE ON DELETE CASCADE
+);
+
+--create types
+DO $$
+BEGIN
+    IF NOT EXISTS (SELECT 1 FROM pg_type WHERE typname = 'benefit') THEN
+        CREATE TYPE benefit AS ENUM ('control', 'defense', 'offense', 'other');
+    END IF;
+    --more types here...
+END$$;
+
+-- noinspection SqlResolve
+CREATE TABLE IF NOT EXISTS benefits
+(
+    id      SERIAL
+        CONSTRAINT benefits_pk
+            PRIMARY KEY,
+    name    VARCHAR(32) NOT NULL,
+    benefit BENEFIT     NOT NULL,
+    value  SMALLINT    NOT NULL
 );

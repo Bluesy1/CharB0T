@@ -12,7 +12,7 @@ import discord
 import sentry_sdk
 from discord.ext import commands
 
-from . import CBot, Config, Tree
+from . import CBot, Config, Tree, setup_custom_datatypes
 
 
 # noinspection PyBroadException
@@ -58,6 +58,7 @@ async def main():
         user=Config["postgres"]["user"],
         password=Config["postgres"]["password"],
         database=Config["postgres"]["database"],
+        init=setup_custom_datatypes,
     ) as pool, aiohttp.ClientSession() as session:
         bot.pool = pool
         bot.session = session
