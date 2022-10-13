@@ -14,7 +14,6 @@ class BannerStatus(TypedDict):
     user_id: int
     quote: str
     color: str | None
-    gradient: bool
     cooldown: datetime.datetime
     approved: bool
 
