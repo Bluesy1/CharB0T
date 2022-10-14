@@ -67,7 +67,7 @@ class Betas(commands.Cog):
                         utils.utcnow() + datetime.timedelta(days=7),
                         member.id,
                     )
-                    await conn.execute("UPDATE users SET points = points - 50 WHERE id = $1", member.id)
+                    # await conn.execute("UPDATE users SET points = points - 50 WHERE id = $1", member.id)
 
     @banner.command()  # pyright: ignore[reportGeneralTypeIssues]
     @app_commands.checks.cooldown(2, 60 * 60 * 24 * 7 * 4, key=lambda i: i.user.id)
