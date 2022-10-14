@@ -467,8 +467,6 @@ class Tree(app_commands.CommandTree[CBot]):
                     data=data,
                     fallback="You are missing a role to use this command.",
                 )
-            elif isinstance(error, errors.WrongChannelError):
-                message = f"{interaction.user.mention}, {error}"
             elif isinstance(error, app_commands.NoPrivateMessage):
                 message = error.args[0]
             elif isinstance(error, app_commands.CheckFailure):
@@ -482,7 +480,7 @@ class Tree(app_commands.CommandTree[CBot]):
                 self.logger.error("Ignoring exception in command %r", command.name, exc_info=error)
             else:
                 message = "An error occurred while executing the command."
-            await interaction.response.send_message(message, ephemeral=True)
+            await interaction.followup.send(message, ephemeral=True)
         else:
             await self.client.error_logs.send(f"Ignoring exception in command tree: {error}")
             self.logger.error("Ignoring exception in command tree", exc_info=error)
