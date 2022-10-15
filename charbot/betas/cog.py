@@ -30,7 +30,7 @@ BASE_PATH: Final[Path] = Path(__file__).parent / "user_assets"
 class Betas(commands.Cog):
     """Banners."""
 
-    def __init__(self, bot: CBot):
+    def __init__(self, bot: CBot):  # pragma: no cover
         self.bot = bot
 
     beta = app_commands.Group(

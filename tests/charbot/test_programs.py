@@ -6,7 +6,8 @@ import pytest
 from pytest_mock import MockerFixture
 
 from charbot import CBot
-from charbot import errors, programs
+from charbot import errors
+from charbot.programs.cog import Reputation
 
 
 pytestmark = pytest.mark.asyncio
@@ -23,7 +24,7 @@ def mock_bot(mocker: MockerFixture):
 
 async def test_programs_init(mock_bot):
     """Test the initialization of the programs' module."""
-    cog = programs.Reputation(mock_bot)
+    cog = Reputation(mock_bot)
     assert cog.bot is mock_bot
     assert cog.sudoku_regex.pattern == r"(\d{81}).*([01]{81})"
     await cog.cog_unload()
@@ -31,10 +32,9 @@ async def test_programs_init(mock_bot):
 
 async def test_interaction_check_no_guild(mock_bot, mocker: MockerFixture):
     """Test the interaction check when the interaction is not in a guild."""
-    cog = programs.Reputation(mock_bot)
     mock_interaction = mocker.AsyncMock(spec=discord.Interaction)
     mock_interaction.guild = None
-    cog = programs.Reputation(mock_bot)
+    cog = Reputation(mock_bot)
     with pytest.raises(discord.app_commands.NoPrivateMessage) as exc:
         await cog.interaction_check(mock_interaction)
     assert exc.value.args[0] == "Programs can't be used in direct messages."
@@ -42,7 +42,7 @@ async def test_interaction_check_no_guild(mock_bot, mocker: MockerFixture):
 
 async def test_interaction_check_wrong_guild(mock_bot, mocker: MockerFixture):
     """Test the interaction check when the interaction is in the wrong guild."""
-    cog = programs.Reputation(mock_bot)
+    cog = Reputation(mock_bot)
     mock_interaction = mocker.AsyncMock(spec=discord.Interaction)
     mock_interaction.guild = mocker.AsyncMock(spec=discord.Guild)
     mock_interaction.guild.id = 0
@@ -53,7 +53,7 @@ async def test_interaction_check_wrong_guild(mock_bot, mocker: MockerFixture):
 
 async def test_interaction_check_wrong_channel(mock_bot, mocker: MockerFixture):
     """Test the interaction check when the interaction is in the wrong channel."""
-    cog = programs.Reputation(mock_bot)
+    cog = Reputation(mock_bot)
     mock_interaction = mocker.AsyncMock(spec=discord.Interaction)
     mock_interaction.guild = mocker.AsyncMock(spec=discord.Guild)
     mock_interaction.guild.id = 225345178955808768
@@ -67,7 +67,7 @@ async def test_interaction_check_wrong_channel(mock_bot, mocker: MockerFixture):
 
 async def test_interaction_check_no_allowed_roles(mock_bot, mocker: MockerFixture):
     """Test the interaction check when the interaction is in the wrong channel."""
-    cog = programs.Reputation(mock_bot)
+    cog = Reputation(mock_bot)
     mock_interaction = mocker.AsyncMock(spec=discord.Interaction)
     mock_interaction.guild = mocker.AsyncMock(spec=discord.Guild)
     mock_interaction.guild.id = 225345178955808768
@@ -101,7 +101,7 @@ async def test_interaction_check_no_allowed_roles(mock_bot, mocker: MockerFixtur
 
 async def test_interaction_check_allowed(mock_bot, mocker: MockerFixture):
     """Test the interaction check when the interaction is in the right channel and guild."""
-    cog = programs.Reputation(mock_bot)
+    cog = Reputation(mock_bot)
     mock_interaction = mocker.AsyncMock(spec=discord.Interaction)
     mock_interaction.guild = mocker.AsyncMock(spec=discord.Guild)
     mock_interaction.guild.id = 225345178955808768

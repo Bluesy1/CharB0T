@@ -48,7 +48,7 @@ class _Config:
     _file: _pathlib.Path = _pathlib.Path(__file__).parent.parent / "config.toml"
     logger = logging.getLogger("charbot.config")
 
-    def clear_cache(self):
+    def clear_cache(self):  # pragma: no cover
         """Clear the config cache if a config has changed"""
         self.logger.info(
             "Clearing config cache, this can cause previously expected values to disappear. Cache stats: %r",
@@ -68,7 +68,7 @@ class _Config:
     def get(self, *args: str) -> str | int | dict[str, Any]:
         """Get a config key"""
         if _sys.version_info >= (3, 11):
-            import tomllib  # type: ignore
+            import tomllib  # type: ignore  # pragma: no cover
         else:
             import tomli as tomllib
         with open(self._file, "rb") as f:
