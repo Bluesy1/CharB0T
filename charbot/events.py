@@ -407,7 +407,7 @@ class Events(Cog):
         if not await self.sensitive_scan(message):
             return
         author = cast(discord.Member, message.author)
-        if all(
+          if all(
             role.id
             not in {
                 338173415527677954,
@@ -428,39 +428,41 @@ class Events(Cog):
             except discord.DiscordException:  # pragma: no cover
                 # if the message can't be deleted, ignore that and move on
                 pass
-            embed = Embed(
-                description=message.content,
-                title="Mute: Everyone/Here Ping sent by non mod",
-                color=Color.red(),
-            ).set_footer(
-                text=f"Sent by {message.author.display_name}-{message.author.id}",
-                icon_url=author.display_avatar.url,
-            )
-            bot_user = cast(discord.ClientUser, self.bot.user)
-            await self.webhook.send(username=bot_user.name, avatar_url=bot_user.display_avatar.url, embed=embed)
-            return
-        if self.tilde_regex.search(message.content):
-            await message.delete()
-            return
-        if self.extractor.has_urls(message.content) and not url_posting_allowed(
-            cast(discord.TextChannel | discord.VoiceChannel | discord.Thread, message.channel), author.roles
-        ):
+            finally:
+                embed = Embed(
+                    description=message.content,
+                    title="Mute: Everyone/Here Ping sent by non mod",
+                    color=Color.red(),
+                ).set_footer(
+                    text=f"Sent by {message.author.display_name}-{message.author.id}",
+                    icon_url=author.display_avatar.url,
+                )
+                bot_user = cast(discord.ClientUser, self.bot.user)
+                await self.webhook.send(username=bot_user.name, avatar_url=bot_user.display_avatar.url, embed=embed)
+                return
+            if self.tilde_regex.search(message.content):
+                await message.delete()
+                return
+            if self.extractor.has_urls(message.content) and not url_posting_allowed(
+                cast(discord.TextChannel | discord.VoiceChannel | discord.Thread, message.channel), author.roles
+            ):
             try:
                 # if the url still isn't allowed, delete the message
                 await message.delete()
             except discord.DiscordException:  # pragma: no cover
                 # if the message can't be deleted, ignore that and move on
                 pass
-            try:
-                await message.author.send(f"You need to be at least level 5 to post links in {message.guild.name}!")
-            except discord.Forbidden:  # pragma: no cover
-                pass
-            return
-        # at this point, all checks for bad messages have passed, and we can let the levels cog assess XP gain
-        levels_cog = cast("Leveling | None", self.bot.get_cog("Leveling"))  # pragma: no cover
-        if levels_cog is not None:  # pragma: no cover
-            await levels_cog.proc_xp(message)
-
+            finally:
+                try:
+                    await message.author.send(f"You need to be at least level 5 to post links in {message.guild.name}!")
+                except discord.Forbidden:  # pragma: no cover
+                    pass
+                finally:
+                    # at this point, all checks for bad messages have passed, and we can let the levels cog assess XP gain
+                    levels_cog = cast("Leveling | None", self.bot.get_cog("Leveling"))  # pragma: no cover
+                    if levels_cog is not None:  # pragma: no cover
+                        await levels_cog.proc_xp(message)
+                    return
 
 async def setup(bot: CBot):
     """Load the event handler for the bot.
