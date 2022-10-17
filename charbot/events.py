@@ -425,9 +425,6 @@ class Events(Cog):
             )
             try:
                 await message.delete()
-            except discord.DiscordException:  # pragma: no cover
-                # if the message can't be deleted, ignore that and move on
-                pass
             finally:
                 embed = Embed(
                     description=message.content,
@@ -439,26 +436,14 @@ class Events(Cog):
                 )
                 bot_user = cast(discord.ClientUser, self.bot.user)
                 await self.webhook.send(username=bot_user.name, avatar_url=bot_user.display_avatar.url, embed=embed)
-                return
-            if self.tilde_regex.search(message.content):
-                await message.delete()
-                return
-            if self.extractor.has_urls(message.content) and not url_posting_allowed(
-                cast(discord.TextChannel | discord.VoiceChannel | discord.Thread, message.channel), author.roles
-            ):
-            try:
-                # if the url still isn't allowed, delete the message
-                await message.delete()
-            except discord.DiscordException:  # pragma: no cover
-                # if the message can't be deleted, ignore that and move on
-                pass
-            finally:
-                try:
+                if self.tilde_regex.search(message.content):
+                    await message.delete()
+                    return
+                if self.extractor.has_urls(message.content) and not url_posting_allowed(
+                    cast(discord.TextChannel | discord.VoiceChannel | discord.Thread, message.channel), author.roles
+                ):
                     await message.author.send(f"You need to be at least level 5 to post links in {message.guild.name}!")
-                except discord.Forbidden:  # pragma: no cover
-                    pass
-                finally:
-                    # at this point, all checks for bad messages have passed, and we can let the levels cog assess XP gain
+                        # at this point, all checks for bad messages have passed, and we can let the levels cog assess XP gain
                     levels_cog = cast("Leveling | None", self.bot.get_cog("Leveling"))  # pragma: no cover
                     if levels_cog is not None:  # pragma: no cover
                         await levels_cog.proc_xp(message)
