@@ -407,7 +407,7 @@ class Events(Cog):
         if not await self.sensitive_scan(message):
             return
         author = cast(discord.Member, message.author)
-          if all(
+        if all(
             role.id
             not in {
                 338173415527677954,
