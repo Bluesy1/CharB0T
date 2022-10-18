@@ -229,7 +229,7 @@ async def test_reputation_command(mock_bot, mocker: MockerFixture, database: Poo
     await cog.query_points.callback(cog, mock_interaction)
     mock_interaction.response.defer.assert_awaited_once()
     mock_interaction.followup.send.assert_awaited_once()
-    args, kwargs = mock_interaction.followup.send.await_args
+    args, _ = mock_interaction.followup.send.await_args
     assert (
         args[0]
         == "You have 50 reputation, you haven't claimed your daily bonus, and you haven't hit your daily program cap,"
