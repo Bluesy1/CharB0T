@@ -125,7 +125,7 @@ async def test_sudoku_command_no_puzzle(mock_bot, mocker: MockerFixture):
             mock_interaction.followup = mocker.AsyncMock(spec=discord.Webhook)
             mock_interaction.client = mock_bot
             mock_interaction.client.session = session
-            await cog.sudoku.callback(cog, mock_interaction, False)
+            await cog.sudoku.callback(cog, mock_interaction, False)  # pyright: ignore[reportGeneralTypeIssues]
             mock_interaction.response.defer.assert_awaited_once()
             mock_interaction.followup.send.assert_awaited_once_with("Couldn't find a puzzle.")
 
@@ -155,7 +155,7 @@ async def test_sudoku_command_with_puzzle(mock_bot, mocker: MockerFixture):
             mock_interaction.followup = mocker.AsyncMock(spec=discord.Webhook)
             mock_interaction.client = mock_bot
             mock_interaction.client.session = session
-            await cog.sudoku.callback(cog, mock_interaction, False)
+            await cog.sudoku.callback(cog, mock_interaction, False)  # pyright: ignore[reportGeneralTypeIssues]
             mock_interaction.response.defer.assert_awaited_once()
             mock_interaction.followup.send.assert_awaited_once()
             _, kwargs = mock_interaction.followup.send.await_args
@@ -171,7 +171,7 @@ async def test_tictactoe_command(mock_bot, mocker: MockerFixture):
     mock_interaction.response = mocker.AsyncMock(spec=discord.InteractionResponse)
     mock_interaction.followup = mocker.AsyncMock(spec=discord.Webhook)
     mock_interaction.client = mock_bot
-    await cog.tictactoe.callback(cog, mock_interaction, 1)
+    await cog.tictactoe.callback(cog, mock_interaction, 1)  # pyright: ignore[reportGeneralTypeIssues]
     mock_interaction.response.defer.assert_awaited_once()
     mock_interaction.followup.send.assert_awaited_once()
     _, kwargs = mock_interaction.followup.send.await_args
@@ -189,7 +189,7 @@ async def test_shrugman_command(mock_bot, mocker: MockerFixture):
     mock_interaction.response = mocker.AsyncMock(spec=discord.InteractionResponse)
     mock_interaction.followup = mocker.AsyncMock(spec=discord.Webhook)
     mock_interaction.client = mock_bot
-    await cog.shrugman.callback(cog, mock_interaction)
+    await cog.shrugman.callback(cog, mock_interaction)  # pyright: ignore[reportGeneralTypeIssues]
     mock_interaction.response.defer.assert_awaited_once()
     mock_interaction.followup.send.assert_awaited_once()
     _, kwargs = mock_interaction.followup.send.await_args
@@ -206,7 +206,7 @@ async def test_minesweeper_command(mock_bot, mocker: MockerFixture, difficulty: 
     mock_interaction.response = mocker.AsyncMock(spec=discord.InteractionResponse)
     mock_interaction.followup = mocker.AsyncMock(spec=discord.Webhook)
     mock_interaction.client = mock_bot
-    await cog.minesweeper.callback(cog, mock_interaction, difficulty)
+    await cog.minesweeper.callback(cog, mock_interaction, difficulty)  # pyright: ignore[reportGeneralTypeIssues]
     mock_interaction.response.defer.assert_awaited_once()
     mock_interaction.followup.send.assert_awaited_once()
     _, kwargs = mock_interaction.followup.send.await_args
@@ -226,7 +226,7 @@ async def test_reputation_command(mock_bot, mocker: MockerFixture, database: Poo
     mock_interaction.response = mocker.AsyncMock(spec=discord.InteractionResponse)
     mock_interaction.followup = mocker.AsyncMock(spec=discord.Webhook)
     mock_interaction.client = mock_bot
-    await cog.query_points.callback(cog, mock_interaction)
+    await cog.query_points.callback(cog, mock_interaction)  # pyright: ignore[reportGeneralTypeIssues]
     mock_interaction.response.defer.assert_awaited_once()
     mock_interaction.followup.send.assert_awaited_once()
     args, _ = mock_interaction.followup.send.await_args
