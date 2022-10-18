@@ -57,8 +57,7 @@ You can find the documentation for the bot [here](https://bluesy1.github.io/Char
 
 ## Contributing
 
-- If you have a good idea for a new feature, create a [Feature Request](https://github.com/Bluesy1/CharB0T/issues/new?assignees=&labels=feature+request&template=feature_request.yml).
-- If you encounter a bug, create a [Bug Report](https://github.com/Bluesy1/CharB0T/issues/new?assignees=&labels=unconfirmed+bug&template=bug_report.yml).
+Please see the [Code of Conduct](./CODE_OF_CONDUCT.md) and [Contributing Guidelines](./CONTRIBUTING.md) before contributing. 
 
 ----------------------------------------------------------------------------
 MIT License
