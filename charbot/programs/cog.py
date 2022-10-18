@@ -7,6 +7,7 @@ import asyncio
 import datetime
 import random
 import re
+from itertools import count
 from typing import Final, Literal, cast
 
 import discord
@@ -24,9 +25,12 @@ MESSAGE: Final = "You must be at least level 1 to participate in the giveaways s
 class Reputation(commands.Cog, name="Programs"):
     """Programs."""
 
-    def __init__(self, bot: "CBot"):
+    def __init__(self, bot: "CBot"):  # pragma: no cover
         self.bot = bot
-        self.sudoku_regex = re.compile(r"(\d{81}).*([01]{81})")
+        self.sudoku_regex = re.compile(
+            r"VALUE=\"(?P<solution>\d{81})\">.*VALUE=\"(?P<mask>[01]{81})\">",
+            re.RegexFlag.MULTILINE | re.RegexFlag.DOTALL | re.RegexFlag.IGNORECASE,
+        )
 
     async def interaction_check(self, interaction: Interaction):  # skipcq: PYL-W0221
         """Check if the user is allowed to use the cog."""
@@ -63,10 +67,10 @@ class Reputation(commands.Cog, name="Programs"):
             if match is None:
                 await interaction.followup.send("Couldn't find a puzzle.")
                 return
-            vals, hidden = match.group(1, 2)
+            vals, hidden = match.group("solution", "mask")
         board: list[list[int]] = [[] for _ in range(9)]
-        for i, num in enumerate(vals):
-            board[i // 9].append(int(num) if int(hidden[i]) == 0 else 0)
+        for i, num, hidden_bit in zip(count(), vals, hidden):
+            board[i // 9].append(int(num) if int(hidden_bit) == 0 else 0)
         view = sudoku.Sudoku(sudoku.Puzzle(board, mobile), cast(discord.Member, interaction.user), self.bot)
         await interaction.followup.send(embed=view.block_choose_embed(), view=view)
 
