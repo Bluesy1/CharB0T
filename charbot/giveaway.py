@@ -431,7 +431,7 @@ class BidModal(ui.Modal, title="Bid"):
                 translator.format_value("giveaway-bid-invalid-bid."), ephemeral=True
             )
             return self.stop()
-        if 0 > bid_int < 32768:
+        if 0 >= bid_int <= 32768:
             await interaction.response.send_message(
                 translator.format_value("giveaway-bid-invalid-bid."), ephemeral=True
             )
