@@ -243,8 +243,10 @@ async def test_parse_timeout(mocker: MockerFixture):
     webhook.send.assert_awaited_once()
     embed = webhook.send.await_args.kwargs["embed"]
     assert isinstance(embed, discord.Embed)
+    assert embed.author.name is not None
     assert "[TIMEOUT]" in embed.author.name
     dur = embed.fields[1].value
+    assert dur is not None
     assert "1 Week" in dur
     assert "1 Day(s)" in dur
     assert "1 Hour(s)" in dur
