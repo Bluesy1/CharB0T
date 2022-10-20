@@ -16,7 +16,7 @@ omit = ["*/__main__.py", "*/tests/*.py", "*/types/*.py", "*/pools.py", "*/admin.
 [tool.pyright]
 pythonPlatform = "Linux"
 reportUnnecessaryTypeIgnoreComment = true
-exclude = ["**/__pycache__/**", "venv"]
+exclude = ["**/__pycache__/**", "venv", ".git"]
 
 [tool.black]
 line-length = 120

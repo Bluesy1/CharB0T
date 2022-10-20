@@ -1,8 +1,11 @@
 # -*- coding: utf-8 -*-
 # SPDX-FileCopyrightText: 2021 Bluesy1 <68259537+Bluesy1@users.noreply.github.com>
 # SPDX-License-Identifier: MIT
+from datetime import timedelta
+
 import discord
 import pytest
+from discord.utils import utcnow
 from pytest_mock import MockerFixture
 
 from charbot import CBot, events
@@ -71,7 +74,41 @@ def test_url_allowed_category(category: int, mocker: MockerFixture):
     assert events.url_posting_allowed(channel, [])
 
 
-@pytest.mark.parametrize("role_ids,expected", [([], False), ([0], False), ([337743478190637077], True)])
+@pytest.mark.parametrize("channel_id", [723653004301041745, 338894508894715904, 407185164200968203])
+def test_url_allowed_channel_id(mocker: MockerFixture, channel_id: int):
+    """Test if the allowed channels are whitelisted"""
+    channel = mocker.AsyncMock(spec=discord.TextChannel)
+    channel.id = channel_id
+    assert events.url_posting_allowed(channel, [])
+
+
+@pytest.mark.parametrize(
+    "role_ids,expected",
+    [
+        ([], False),
+        ([0], False),
+        *zip(
+            (
+                [337743478190637077],
+                [685331877057658888],
+                [969629622453039104],
+                [969629628249563166],
+                [969629632028614699],
+                [969628342733119518],
+                [969627321239760967],
+                [406690402956083210],
+                [387037912782471179],
+                [338173415527677954],
+                [725377514414932030],
+                [925956396057513985],
+                [253752685357039617],
+                [225413350874546176],
+                [729368484211064944],
+            ),
+            (True for _ in range(20)),
+        ),
+    ],
+)
 def test_url_no_early_exit(role_ids, expected, mocker: MockerFixture):
     """Test if the long exit case tests properly"""
     channel = mocker.AsyncMock(spec=discord.TextChannel)
@@ -189,3 +226,54 @@ async def test_fail_link(mocker: MockerFixture, monkeypatch):
     await cog.on_message(message)
     message.delete.assert_awaited_once()
     message.author.send.assert_awaited_once()
+
+
+@pytest.mark.asyncio
+async def test_parse_timeout(mocker: MockerFixture):
+    """Test that the on message deletes everyone pings from non mods"""
+    member = mocker.AsyncMock(spec=discord.Member)
+    member.id = 1
+    member.timed_out_until = utcnow() + timedelta(seconds=694900)
+    cog = events.Events(mocker.AsyncMock(spec=CBot))
+    webhook = mocker.AsyncMock(spec=discord.Webhook)
+    cog.webhook = webhook
+    await cog.parse_timeout(member)
+    assert 1 in cog.timeouts
+    assert cog.timeouts[1] == member.timed_out_until
+    webhook.send.assert_awaited_once()
+    embed = webhook.send.await_args.kwargs["embed"]
+    assert isinstance(embed, discord.Embed)
+    assert embed.author.name is not None
+    assert "[TIMEOUT]" in embed.author.name
+    dur = embed.fields[1].value
+    assert dur is not None
+    assert "1 Week" in dur
+    assert "1 Day(s)" in dur
+    assert "1 Hour(s)" in dur
+    assert "1 Minute(s)" in dur
+    assert "40 Second(s)" in dur
+
+
+@pytest.mark.asyncio
+async def test_on_member_join(mocker: MockerFixture):
+    """Test members get properly added on join."""
+    member = mocker.AsyncMock(spec=discord.Member)
+    member.id = 1
+    member.guild.id = 225345178955808768
+    cog = events.Events(mocker.AsyncMock(spec=CBot))
+    await cog.on_member_join(member)
+    assert 1 in cog.members
+
+
+@pytest.mark.asyncio
+async def test_thread_create(mocker: MockerFixture):
+    """Test that thread creates get handled properly"""
+    cog = events.Events(mocker.AsyncMock(spec=CBot))
+    thread = mocker.AsyncMock(spec=discord.Thread)
+    thread.id = 1
+    thread.parent = mocker.AsyncMock(spec=discord.ForumChannel)
+    message = mocker.AsyncMock(spec=discord.PartialMessage)
+    thread.get_partial_message.return_value = message
+    await cog.on_thread_create(thread)
+    thread.get_partial_message.assert_called_once_with(thread.id)
+    message.pin.assert_awaited_once()
