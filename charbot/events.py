@@ -101,7 +101,7 @@ def url_posting_allowed(
         # if the channel is in an admin or info category, we want to allow urls
         return True
     if channel.id in {723653004301041745, 338894508894715904, 407185164200968203}:
-        # the channel is allowed to have links, bit they may not embed
+        # the channel is allowed to have links, but they may not embed
         return True
     # If so far the url hasn't been allowed, test if the author has a role that allows it
     return any(
@@ -145,6 +145,17 @@ class Events(Cog):
         A dictionary of the last time sensitive messages were logged.
     """
 
+    __slots__ = (
+        "bot",
+        "last_sensitive_logged",
+        "timeouts",
+        "members",
+        "sensitive_settings_path",
+        "webhook",
+        "tilde_regex",
+        "extractor",
+    )
+
     def __init__(self, bot: CBot):
         self.bot = bot
         self.last_sensitive_logged = {}
@@ -157,22 +168,27 @@ class Events(Cog):
         self.extractor = URLExtract()
         self.sensitive_settings_path: Final[pathlib.Path] = pathlib.Path(__file__).parent / "sensitive_settings.json"
 
-    async def cog_load(self) -> None:
+    async def cog_load(self) -> None:  # pragma: no cover
         """Cog load function.
 
         This is called when the cog is loaded, and initializes the
         log_un-timeout task and the members cache
         """
         self.log_untimeout.start()
-        guild = self.bot.get_guild(225345178955808768)
-        if guild is None:
-            guild = await self.bot.fetch_guild(225345178955808768)
-        generator = guild.fetch_members(limit=None)
-        self.members.update({user.id: user.joined_at async for user in generator if user.joined_at is not None})
+        self.members.update(
+            {
+                user.id: user.joined_at
+                async for user in cast(
+                    discord.Guild,
+                    self.bot.get_guild(225345178955808768) or await self.bot.fetch_guild(225345178955808768),
+                ).fetch_members(limit=None)
+                if user.joined_at is not None
+            }
+        )
         with open(self.sensitive_settings_path, "rb") as json_dict:
             self.webhook = await self.bot.fetch_webhook(orjson.loads(json_dict.read())["webhook_id"])
 
-    async def cog_unload(self) -> None:  # skipcq: PYL-W0236
+    async def cog_unload(self) -> None:  # skipcq: PYL-W0236  # pragma: no cover
         """Call when cog is unloaded.
 
         This stops the log_untimeout task
@@ -187,9 +203,8 @@ class Events(Cog):
         after : discord.Member
             The member after the update
         """
-        until = after.timed_out_until
-        assert isinstance(until, datetime)  # skipcq: BAN-B101
-        time_delta = until + timedelta(seconds=1) - datetime.now(tz=timezone.utc)
+        until = cast(datetime, after.timed_out_until)
+        time_delta = until + timedelta(seconds=1) - utcnow()
         time_string = ""
         if time_delta.days // 7 != 0:
             time_string += f"{time_delta.days // 7} Week{'s' if time_delta.days // 7 > 1 else ''}"
@@ -205,8 +220,7 @@ class Events(Cog):
         embed.set_author(name=f"[TIMEOUT] {after.name}#{after.discriminator}")
         embed.add_field(name="User", value=after.mention, inline=True)
         embed.add_field(name="Duration", value=time_string, inline=True)
-        bot_user = self.bot.user
-        assert isinstance(bot_user, discord.ClientUser)  # skipcq: BAN-B101
+        bot_user = cast(discord.ClientUser, self.bot.user)
         await self.webhook.send(username=bot_user.name, avatar_url=bot_user.display_avatar.url, embed=embed)
         self.timeouts.update({after.id: after.timed_out_until})
 
@@ -276,8 +290,7 @@ class Events(Cog):
                     embed = Embed(color=Color.green())
                     embed.set_author(name=f"[UNTIMEOUT] {member.name}#{member.discriminator}")
                     embed.add_field(name="User", value=member.mention, inline=True)
-                    bot_user = self.bot.user
-                    assert isinstance(bot_user, discord.ClientUser)  # skipcq: BAN-B101
+                    bot_user = cast(discord.ClientUser, self.bot.user)
                     await self.webhook.send(username=bot_user.name, avatar_url=bot_user.display_avatar.url, embed=embed)
                     removable.append(i)
                 elif member.is_timed_out():
@@ -317,8 +330,10 @@ class Events(Cog):
                 )
             else:
                 time_string = "Unknown"
-            channel = await self.bot.fetch_channel(430197357100138497)
-            assert isinstance(channel, discord.TextChannel)  # skipcq: BAN-B101
+            channel = cast(
+                discord.TextChannel,
+                self.bot.get_channel(430197357100138497) or await self.bot.fetch_channel(430197357100138497),
+            )
             await channel.send(
                 f"**{user.name}#{user.discriminator}** has left the server. "
                 f"ID:{user.id}. Time on Server: {time_string}"
@@ -348,8 +363,7 @@ class Events(Cog):
                     embed = Embed(color=Color.green())
                     embed.set_author(name=f"[UNTIMEOUT] {after.name}#{after.discriminator}")
                     embed.add_field(name="User", value=after.mention, inline=True)
-                    bot_user = self.bot.user
-                    assert isinstance(bot_user, discord.ClientUser)  # skipcq: BAN-B101
+                    bot_user = cast(discord.ClientUser, self.bot.user)
                     await self.webhook.send(username=bot_user.name, avatar_url=bot_user.display_avatar.url, embed=embed)
                     self.timeouts.pop(after.id)
         except Exception:  # skipcq: PYL-W0703
@@ -365,13 +379,16 @@ class Events(Cog):
         thread : discord.Thread
             The thread that was created
         """
-        if not isinstance(thread.parent, discord.ForumChannel):
+        if not isinstance(thread.parent, discord.ForumChannel):  # pragma: no cover
             return
 
         message = thread.get_partial_message(thread.id)
         try:
             await message.pin()
-        except discord.HTTPException:
+        except discord.HTTPException:  # pragma: no cover
+            # We don't care about the exception, we just don't want this error to propagate, because it can be caused
+            # by a known race condition between on_thread_create and message_create, depending on which gets sent first
+            # by the gateway.
             pass
 
     @Cog.listener()
@@ -419,26 +436,24 @@ class Events(Cog):
             }
             for role in author.roles
         ) and any(item in message.content for item in [f"<@&{message.guild.id}>", "@everyone", "@here"]):
-            await author.add_roles(
-                discord.Object(id=676250179929636886),
-                discord.Object(id=684936661745795088),
-            )
             try:
                 await message.delete()
-            except discord.DiscordException:  # pragma: no cover
-                # if the message can't be deleted, ignore that and move on
-                pass
-            embed = Embed(
-                description=message.content,
-                title="Mute: Everyone/Here Ping sent by non mod",
-                color=Color.red(),
-            ).set_footer(
-                text=f"Sent by {message.author.display_name}-{message.author.id}",
-                icon_url=author.display_avatar.url,
-            )
-            bot_user = cast(discord.ClientUser, self.bot.user)
-            await self.webhook.send(username=bot_user.name, avatar_url=bot_user.display_avatar.url, embed=embed)
-            return
+            finally:
+                await author.add_roles(
+                    discord.Object(id=676250179929636886),
+                    discord.Object(id=684936661745795088),
+                )
+                embed = Embed(
+                    description=message.content,
+                    title="Mute: Everyone/Here Ping sent by non mod",
+                    color=Color.red(),
+                ).set_footer(
+                    text=f"Sent by {message.author.display_name}-{message.author.id}",
+                    icon_url=author.display_avatar.url,
+                )
+                bot_user = cast(discord.ClientUser, self.bot.user)
+                await self.webhook.send(username=bot_user.name, avatar_url=bot_user.display_avatar.url, embed=embed)
+                return
         if self.tilde_regex.search(message.content):
             await message.delete()
             return
@@ -448,21 +463,18 @@ class Events(Cog):
             try:
                 # if the url still isn't allowed, delete the message
                 await message.delete()
-            except discord.DiscordException:  # pragma: no cover
-                # if the message can't be deleted, ignore that and move on
-                pass
-            try:
-                await message.author.send(f"You need to be at least level 5 to post links in {message.guild.name}!")
-            except discord.Forbidden:  # pragma: no cover
-                pass
-            return
+            finally:
+                try:
+                    await message.author.send(f"You need to be at least level 5 to post links in {message.guild.name}!")
+                finally:
+                    return
         # at this point, all checks for bad messages have passed, and we can let the levels cog assess XP gain
         levels_cog = cast("Leveling | None", self.bot.get_cog("Leveling"))  # pragma: no cover
         if levels_cog is not None:  # pragma: no cover
             await levels_cog.proc_xp(message)
 
 
-async def setup(bot: CBot):
+async def setup(bot: CBot):  # pragma: no cover
     """Load the event handler for the bot.
 
     Parameters
