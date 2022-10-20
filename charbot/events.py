@@ -453,7 +453,7 @@ class Events(Cog):
                 )
                 bot_user = cast(discord.ClientUser, self.bot.user)
                 await self.webhook.send(username=bot_user.name, avatar_url=bot_user.display_avatar.url, embed=embed)
-                return
+                return  # skipcq: PYL-W0150
         if self.tilde_regex.search(message.content):
             await message.delete()
             return
@@ -467,7 +467,7 @@ class Events(Cog):
                 try:
                     await message.author.send(f"You need to be at least level 5 to post links in {message.guild.name}!")
                 finally:
-                    return
+                    return  # skipcq: PYL-W0150
         # at this point, all checks for bad messages have passed, and we can let the levels cog assess XP gain
         levels_cog = cast("Leveling | None", self.bot.get_cog("Leveling"))  # pragma: no cover
         if levels_cog is not None:  # pragma: no cover
