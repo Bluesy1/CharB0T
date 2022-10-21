@@ -68,6 +68,7 @@ async def test_view_bot_win(mocker: MockerFixture):
     view.game.play = lambda position: 1
     view.game.is_draw = lambda: False
     view.game.has_player_lost = lambda: True
+    view.game.has_player_won = lambda: False
     view.game.points = lambda: (1, 1)
     view.display = lambda: None  # pyright: ignore[reportGeneralTypeIssues]
     view.top_left.disabled = True
@@ -92,6 +93,8 @@ async def test_view_tie(mocker: MockerFixture):
     view = tictactoe.TicTacToe(Difficulty.EASY)
     view.game = mocker.Mock(spec=Game)
     view.game.play = lambda position: 1
+    view.game.has_player_lost = lambda: False
+    view.game.has_player_won = lambda: False
     view.game.is_draw = lambda: True
     view.game.points = lambda: (1, 1)
     view.display = lambda: None  # pyright: ignore[reportGeneralTypeIssues]
