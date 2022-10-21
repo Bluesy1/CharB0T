@@ -67,6 +67,19 @@ class Shrugman(ui.View):
         The time the game started. Timezone aware.
     """
 
+    __slots__ = (
+        "bot",
+        "word",
+        "fail_enum",
+        "guess_count",
+        "guesses",
+        "mistakes",
+        "dead",
+        "guess_word_list",
+        "length",
+        "start_time",
+    )
+
     def __init__(self, bot: "CBot", word: str, *, fail_enum=FailStates):
         super().__init__(timeout=600)
         self.bot = bot

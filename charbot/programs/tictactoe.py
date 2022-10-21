@@ -32,6 +32,22 @@ class TicTacToe(ui.View):
         The difficulty of the game.
     """
 
+    __slots__ = (
+        "bot",
+        "game",
+        "difficulty",
+        "cancel",
+        "top_left",
+        "top_mid",
+        "top_right",
+        "mid_left",
+        "mid_mid",
+        "mid_right",
+        "bot_left",
+        "bot_mid",
+        "bot_right",
+    )
+
     def __init__(self, difficulty: Difficulty):
         super(TicTacToe, self).__init__(timeout=300)
         self.game: Game = Game(difficulty)

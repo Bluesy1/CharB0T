@@ -57,6 +57,8 @@ class GuessModal(ui.Modal, title="Shrugman Guess"):
         The game the modal is used for.
     """
 
+    __slots__ = ("game",)
+
     guess = ui.TextInput(
         label="What letter are you guessing?",
         style=discord.TextStyle.short,

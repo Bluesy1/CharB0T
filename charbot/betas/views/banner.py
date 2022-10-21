@@ -20,6 +20,8 @@ class ApprovalView(ui.View):
         The ID of the moderator who requested teh approval session.
     """
 
+    __slots__ = ("banner", "mod")
+
     def __init__(self, banner: BannerStatus, mod: int):
         super().__init__()
         self.requester = banner["user_id"]

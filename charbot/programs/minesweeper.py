@@ -31,6 +31,8 @@ class Minesweeper(ui.View):
         The game to display and run.
     """
 
+    __slots__ = ("game",)
+
     def __init__(
         self,
         game: minesweeper.Game,  # pyright: ignore[reportGeneralTypeIssues]
