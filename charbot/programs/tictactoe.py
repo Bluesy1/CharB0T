@@ -110,7 +110,7 @@ class TicTacToe(ui.View):
         if self.game.has_player_won():
             points: tuple[int, int] = self.game.points()
             member = cast(discord.Member, interaction.user)
-            gained_points = await interaction.client.give_game_points(member, "tictactoe", points[0], points[1])
+            gained_points = await interaction.client.give_game_points(member, points[0], points[1])
             max_points = points[0] + points[1]
             embed = discord.Embed(
                 title="You Won!",
@@ -126,7 +126,7 @@ class TicTacToe(ui.View):
         elif self.game.has_player_lost():
             points = self.game.points()
             member = cast(discord.Member, interaction.user)
-            gained_points = await interaction.client.give_game_points(member, "tictactoe", points[0], points[1])
+            gained_points = await interaction.client.give_game_points(member, points[0], points[1])
             max_points = points[0] + points[1]
             embed = discord.Embed(
                 title="You Lost!",
@@ -142,7 +142,7 @@ class TicTacToe(ui.View):
         elif self.game.is_draw():
             points = self.game.points()
             member = cast(discord.Member, interaction.user)
-            gained_points = await interaction.client.give_game_points(member, "tictactoe", points[0], points[1])
+            gained_points = await interaction.client.give_game_points(member, points[0], points[1])
             max_points = points[0] + points[1]
             embed = discord.Embed(
                 title="Draw!",

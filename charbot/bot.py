@@ -201,7 +201,7 @@ class CBot(commands.Bot):
         )
 
     async def give_game_points(
-        self, member: discord.Member | discord.User, game: str, points: int, bonus: int = 0
+        self, member: discord.Member | discord.User, points: int, bonus: int = 0
     ) -> int:  # sourcery skip: compare-via-equals
         """Give the user points.
 
@@ -209,8 +209,6 @@ class CBot(commands.Bot):
         ----------
         member: discord.Member
             The member to give points to.
-        game: str
-            The game/program that was played.
         points : int
             The amount of points to give.
         bonus : int, optional
