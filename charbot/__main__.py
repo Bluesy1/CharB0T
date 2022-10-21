@@ -40,6 +40,7 @@ async def main():
             "sudoku",
             "tictactoe",
         ],
+        integrations=[sentry_sdk.integrations.asyncio.AsyncioIntegration()],
     )
 
     # Instantiate a Bot instance
