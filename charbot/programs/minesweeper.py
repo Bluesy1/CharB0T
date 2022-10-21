@@ -31,6 +31,8 @@ class Minesweeper(ui.View):
         The game to display and run.
     """
 
+    __slots__ = ("game",)
+
     def __init__(
         self,
         game: minesweeper.Game,  # pyright: ignore[reportGeneralTypeIssues]
@@ -97,7 +99,7 @@ class Minesweeper(ui.View):
         translate = interaction.client.translate
         locale = interaction.locale
         points = self.game.points
-        awarded = await interaction.client.give_game_points(interaction.user, "minesweeper", *points)
+        awarded = await interaction.client.give_game_points(interaction.user, *points)
         embed = discord.Embed(
             title=await translate("minesweeper-lose-title", locale),
             description=await translate(
@@ -125,7 +127,7 @@ class Minesweeper(ui.View):
         translate = interaction.client.translate
         locale = interaction.locale
         points = self.game.points
-        awarded = await interaction.client.give_game_points(interaction.user, "minesweeper", *points)
+        awarded = await interaction.client.give_game_points(interaction.user, *points)
         embed = discord.Embed(
             title=await translate("minesweeper-win-title", locale),
             description=await translate(

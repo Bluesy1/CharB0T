@@ -67,6 +67,19 @@ class Shrugman(ui.View):
         The time the game started. Timezone aware.
     """
 
+    __slots__ = (
+        "bot",
+        "word",
+        "fail_enum",
+        "guess_count",
+        "guesses",
+        "mistakes",
+        "dead",
+        "guess_word_list",
+        "length",
+        "start_time",
+    )
+
     def __init__(self, bot: "CBot", word: str, *, fail_enum=FailStates):
         super().__init__(timeout=600)
         self.bot = bot
@@ -134,7 +147,7 @@ class Shrugman(ui.View):
         embed.add_field(name="Time Taken", value=f"{time_taken}", inline=True)
         if (utcnow() - self.start_time) > datetime.timedelta(seconds=60) and self.guess_count > 5:
             embed.add_field(name="Time Taken", value=f"{time_taken}", inline=True)
-            points = await self.bot.give_game_points(interaction.user, "shrugman", 2, 0)
+            points = await self.bot.give_game_points(interaction.user, 2, 0)
             embed.add_field(
                 name="Reputation gained",
                 value="2 Reputation" if points == 2 else f"{points} Reputation (Daily Cap Hit)",

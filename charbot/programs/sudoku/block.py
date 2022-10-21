@@ -25,6 +25,8 @@ class Block:
         Resets the block.
     """
 
+    __slots__ = ("_row1", "_row2", "_row3")
+
     def __init__(self, cells: list[Cell]):
         if len(cells) != 9:
             raise ValueError("Block must have exactly 9 cells.")
@@ -47,7 +49,7 @@ class Block:
     @property
     def cells(self) -> list[Cell]:
         """Cells in the block."""
-        return self._row1 + self._row2 + self._row3
+        return [*self._row1, *self._row2, *self._row3]
 
     @property
     def solved(self) -> bool:

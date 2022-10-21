@@ -3,7 +3,7 @@
 # SPDX-License-Identifier: MIT
 """Reputation pools."""
 import asyncio
-from typing import Final, cast
+from typing import Final
 
 import asyncpg
 import discord
@@ -157,20 +157,7 @@ class Pools(commands.GroupCog, name="pools", description="Reputation pools for c
         await interaction.followup.send(
             f"You have added {amount} rep to {pool} you now have {remaining} rep remaining.", file=image
         )
-        client_user = cast(discord.ClientUser, self.bot.user)
-        await self.bot.program_logs.send(
-            f"{interaction.user.mention} added {amount} rep to {pool} ({after}/{pool_record['cap']}).",
-            username=client_user.name,
-            avatar_url=client_user.display_avatar.url,
-            allowed_mentions=discord.AllowedMentions(users=False, roles=False, everyone=False),
-        )
         if after == pool_record["cap"]:
-            await self.bot.program_logs.send(
-                f"{pool} has been filled.",
-                username=client_user.name,
-                avatar_url=client_user.display_avatar.url,
-                allowed_mentions=discord.AllowedMentions(users=False, roles=False, everyone=False),
-            )
             image_bytes = await asyncio.to_thread(
                 generate_card,
                 level=pool_record["level"],

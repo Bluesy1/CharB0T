@@ -57,6 +57,8 @@ class GuessModal(ui.Modal, title="Shrugman Guess"):
         The game the modal is used for.
     """
 
+    __slots__ = ("game",)
+
     guess = ui.TextInput(
         label="What letter are you guessing?",
         style=discord.TextStyle.short,
@@ -113,7 +115,7 @@ class GuessModal(ui.Modal, title="Shrugman Guess"):
             embed.add_field(name="Guesses", value=f"{', '.join(self.game.guesses)}", inline=True)
             time_taken = utcnow().replace(microsecond=0) - self.game.start_time.replace(microsecond=0)
             embed.add_field(name="Time Taken", value=f"{time_taken}", inline=True)
-            points = await self.game.bot.give_game_points(interaction.user, "shrugman", 2, 0)
+            points = await self.game.bot.give_game_points(interaction.user, 2, 0)
             embed.add_field(
                 name="Reputation gained",
                 value="2 Reputation" if points == 2 else f"{points} Reputation (Daily Cap Hit)",
@@ -151,7 +153,7 @@ class GuessModal(ui.Modal, title="Shrugman Guess"):
             time_taken = utcnow().replace(microsecond=0) - self.game.start_time.replace(microsecond=0)
             embed.add_field(name="Time Taken", value=f"{time_taken}", inline=True)
             bonus = -(-((len(self.game.fail_enum) - 1) - self.game.mistakes) // 2)
-            points = await self.game.bot.give_game_points(interaction.user, "shrugman", 2, bonus)
+            points = await self.game.bot.give_game_points(interaction.user, 2, bonus)
             embed.add_field(
                 name="Reputation gained",
                 value=f"{points} Reputation" if points == (2 + bonus) else f"{points} Reputation (Daily Cap Hit)",

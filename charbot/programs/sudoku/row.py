@@ -25,6 +25,8 @@ class Row:
         Resets the row.
     """
 
+    __slots__ = ("_cells",)
+
     def __init__(self, cells: list[Cell]):
         if len(cells) != 9:
             raise ValueError("Row must have exactly 9 cells.")

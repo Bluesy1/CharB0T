@@ -2,7 +2,7 @@
 # SPDX-FileCopyrightText: 2021 Bluesy1 <68259537+Bluesy1@users.noreply.github.com>
 # SPDX-License-Identifier: MIT
 """Cell class for Sudoku."""
-from uuid import uuid4
+from uuid import uuid4, UUID
 
 
 class Cell:
@@ -27,6 +27,8 @@ class Cell:
         Clears the cell.
     """
 
+    __slots__ = ("_value", "_editable", "_possible_values", "_id", "_selected")
+
     def __init__(self, value: int, editable: bool):
         if value > 9 or value < 0:
             raise ValueError("Value must be between 0 and 9.")
@@ -34,7 +36,7 @@ class Cell:
         self._editable = editable
         self._possible_values: set[int] = set(range(1, 10)) if editable else {value}
         self._selected = False
-        self.id = uuid4()
+        self._id = uuid4()
 
     def __repr__(self):
         """Return a string representation of the cell."""
@@ -47,6 +49,11 @@ class Cell:
     def __hash__(self):
         """Return the hash of the cell."""
         return hash(f"{self.value}{self.editable}")
+
+    @property
+    def id(self) -> UUID:
+        """The id of the cell."""
+        return self._id
 
     @property
     def value(self) -> int:

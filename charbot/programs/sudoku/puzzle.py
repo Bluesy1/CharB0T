@@ -2,6 +2,7 @@
 # SPDX-FileCopyrightText: 2021 Bluesy1 <68259537+Bluesy1@users.noreply.github.com>
 # SPDX-License-Identifier: MIT
 """Puzzle Class."""
+from string import ascii_lowercase, digits
 from typing import Any, Callable, Generator
 
 from . import Block, Cell, Column, Row
@@ -50,6 +51,8 @@ class Puzzle:
         Resets the puzzle.
     """
 
+    __slots__ = ("_rows", "_columns", "_blocks", "_mobile", "_initial_puzzle")
+
     def __init__(self, puzzle: list[list[int]], mobile: bool = False):
         self._rows = [Row([Cell(cell, editable=(cell == 0)) for cell in cells]) for cells in puzzle]
         self._columns = [Column([row.cells[i] for row in self.rows]) for i in range(9)]
@@ -73,7 +76,7 @@ class Puzzle:
         line3 = expand_line("╠═══╪═══╬═══╣")
         line4 = expand_line("╚═══╧═══╩═══╝")
 
-        symbol = " 1234567890ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+        symbol = f" {ascii_lowercase}{digits}"
         static = "" if self._mobile else "\u001b[1;37m"
         selected = "" if self._mobile else "\u001b[4;40m"
         clear = "" if self._mobile else "\u001b[0m"
@@ -127,10 +130,10 @@ class Puzzle:
     @property
     def solution(self):
         """Solution to the puzzle."""
-        solutions = self.shortSudokuSolve(self.as_list())
+        solutions = self.short_sudoku_solve(self.as_list())
         solution = next(solutions, None)
         if solution is None:
-            _solutions = self.shortSudokuSolve(self._initial_puzzle)
+            _solutions = self.short_sudoku_solve(self._initial_puzzle)
             solution = next(_solutions, None)
         if solution is None:
             raise AttributeError("No solution found.")
@@ -173,7 +176,7 @@ class Puzzle:
         return cls(rows)
 
     @staticmethod
-    def shortSudokuSolve(_board: list[list[int]]) -> Generator[list[list[int]], Any, None]:
+    def short_sudoku_solve(_board: list[list[int]]) -> Generator[list[list[int]], Any, None]:
         """Solutions to a sudoku puzzle.
 
         Parameters
