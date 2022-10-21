@@ -51,7 +51,7 @@ class Puzzle:
         Resets the puzzle.
     """
 
-    __slots__ = ("_rows", "_columns", "_blocks", "is_solved", "solution", "_mobile", "_initial_puzzle")
+    __slots__ = ("_rows", "_columns", "_blocks", "_mobile", "_initial_puzzle")
 
     def __init__(self, puzzle: list[list[int]], mobile: bool = False):
         self._rows = [Row([Cell(cell, editable=(cell == 0)) for cell in cells]) for cells in puzzle]
