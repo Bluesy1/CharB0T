@@ -97,6 +97,7 @@ jobs:
           name: codecov-umbrella
           verbose: false
           gcov: true
+          token: ${{ secrets.CODECOV_TOKEN }}
   black:
     runs-on: ubuntu-latest
     strategy:
