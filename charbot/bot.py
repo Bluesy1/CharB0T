@@ -222,8 +222,6 @@ class CBot(commands.Bot):
             The points gained
         """
         user_id = member.id
-        clientuser = self.user
-        assert isinstance(clientuser, discord.ClientUser)  # skipcq: BAN-B101
         user = await self.giveaway_user(user_id)
         if user is None:
             async with self.pool.acquire() as conn:
@@ -243,13 +241,6 @@ class CBot(commands.Bot):
                     bonus,
                 )
                 await conn.execute("INSERT INTO bids (id, bid) VALUES ($1, 0)", user_id)
-                await self.program_logs.send(
-                    f"[NEW PARTICIPANT] {member.mention} gained {points + bonus} points for"
-                    f" {game}, as {points} participated and {bonus} bonus points.",
-                    username=clientuser.name,
-                    avatar_url=clientuser.display_avatar.url,
-                    allowed_mentions=discord.AllowedMentions(users=False, roles=False, everyone=False),
-                )
                 return points + bonus
         elif user["particip_dt"] < self.TIME():
             async with self.pool.acquire() as conn:
@@ -261,20 +252,9 @@ class CBot(commands.Bot):
                     user_id,
                 )
                 await conn.execute("UPDATE users SET points = points + $1 WHERE id = $2", points + bonus, user_id)
-                await self.program_logs.send(
-                    f"[FIRST OF DAY] {member.mention} gained {points + bonus} points for"
-                    f" {game}, as {points} participated and {bonus} bonus points.",
-                    username=clientuser.name,
-                    avatar_url=clientuser.display_avatar.url,
-                    allowed_mentions=discord.AllowedMentions(users=False, roles=False, everyone=False),
-                )
         elif user["particip_dt"] == self.TIME():
-            _points: int = MISSING
-            _bonus: int = MISSING
             if user["particip"] + points > 10:
                 real_points = 10 - user["particip"]
-                _bonus = bonus
-                _points = points
                 bonus = -(-(real_points * bonus) // points)
                 points = real_points
             async with self.pool.acquire() as conn:
@@ -285,27 +265,7 @@ class CBot(commands.Bot):
                     user_id,
                 )
                 await conn.execute("UPDATE users SET points = points + $1 WHERE id = $2", points + bonus, user_id)
-                extra = (
-                    f" out of a possible {_points + _bonus} points as {_points} participation and {_bonus} bonus points"
-                    if _points is not MISSING
-                    else ""
-                )
-                await self.program_logs.send(
-                    f"{'[HIT CAP] ' if _points is not MISSING else ''}{member.mention} gained {points + bonus} points"
-                    f" for {game}, as {points} participated and {bonus} bonus points"
-                    f"{extra}.",
-                    username=clientuser.name,
-                    avatar_url=clientuser.display_avatar.url,
-                    allowed_mentions=discord.AllowedMentions(users=False, roles=False, everyone=False),
-                )
         else:
-            await self.program_logs.send(
-                f"[ERROR] {member.mention} gained 0 instead of {points + bonus} points for"
-                f" {game}, as {points} participated and {bonus} bonus points because something went wrong.",
-                username=clientuser.name,
-                avatar_url=clientuser.display_avatar.url,
-                allowed_mentions=discord.AllowedMentions(users=False, roles=False, everyone=False),
-            )
             return 0
         return points + bonus
 
