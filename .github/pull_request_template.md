@@ -6,7 +6,7 @@
 - [ ] I have read the [contributing guidelines](./CONTRIBUTING.md).
 - [ ] The changes are for an issue, or have been discussed with Bluesy.
 - [ ] I have checked the code for syntax errors or non conforming style and fixed them to the best of my abilitty.
-
+<!-- The latest released python version (3.10.X) is targeted --> 
 
 <!-- 
 Write down the changes this PR introduces. 
