@@ -32,7 +32,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        python-version: ["3.10", "3.11"]
+        python-version: ["3.11", "3.10"]
     steps:
       - uses: actions/checkout@v3
       - name: Configure cache
@@ -103,7 +103,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        python-version: [ "3.10", "3.11.0-rc.2" ]
+        python-version: ["3.11", "3.10"]
     steps:
       - uses: actions/checkout@v3
       - uses: actions/setup-python@v4
@@ -126,7 +126,7 @@ jobs:
           path: wheels
       - uses: actions/setup-python@v4
         with:
-          python-version: "3.10"
+          python-version: "3.11"
           cache: "pip"
           cache-dependency-path: |
             requirements.txt
@@ -148,7 +148,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        python-version: [ "3.10", "3.11.0-rc.2" ]
+        python-version: ["3.11", "3.10"]
     steps:
       - uses: actions/checkout@v3
       - uses: actions/setup-python@v4
@@ -167,13 +167,11 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        python-version: [ "3.10", "3.11.0-rc.2" ]
+        python-version: ["3.11", "3.10"]
         include:
           - python-version: "3.10"
-            short-form: "3.10"
+          - python-version: "3.11"
             codecov: true
-          - python-version: "3.11.0-rc.2"
-            short-form: "3.11"
 
     steps:
       - uses: actions/checkout@v3
@@ -182,7 +180,7 @@ jobs:
           postgresql version: '14'
       - uses: actions/download-artifact@v3
         with:
-          name: cython${{ matrix.short-form }}-wheel
+          name: cython${{ matrix.python-version }}-wheel
           path: wheels
       - uses: actions/setup-python@v4
         with:
@@ -208,7 +206,7 @@ jobs:
         uses: codecov/codecov-action@v3
         with:
           directory: ./coverage/reports/
-          env_vars: OS=LINUX,PYTHON=${{ matrix.short-form }}
+          env_vars: OS=LINUX,PYTHON=${{ matrix.python-version }}
           fail_ci_if_error: false
           flags: python-unit
           name: codecov-umbrella
