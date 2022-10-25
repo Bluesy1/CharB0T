@@ -68,9 +68,9 @@ class _Config:
     def get(self, *args: str) -> str | int | dict[str, Any]:
         """Get a config key"""
         if _sys.version_info >= (3, 11):
-            import tomllib  # type: ignore  # pragma: no cover
+            import tomllib
         else:
-            import tomli as tomllib
+            import tomli as tomllib  # type: ignore  # pragma: no cover
         with open(self._file, "rb") as f:
             config = tomllib.load(f)
         badkey: Any = ""
