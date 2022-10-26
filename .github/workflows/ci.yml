@@ -130,6 +130,7 @@ jobs:
       - name: Dependencies
         run: |
           pip install -U pip
+          pip install -U wheel
           pip install -U -e ".[dev]"
           find . -name "*.tar.gz" | xargs rm
           pip install wheels/*
@@ -183,6 +184,7 @@ jobs:
       - name: Dependencies
         run: |
           pip install -U pip
+          pip install -U wheel
           pip install -U -e ".[dev]"
           find . -name "*.tar.gz" | xargs rm
           pip install wheels/*
