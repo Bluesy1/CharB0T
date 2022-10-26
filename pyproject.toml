@@ -10,7 +10,7 @@ build-backend = "setuptools.build_meta"
 name = "charbot"
 description = "A simple Discord bot written in Python and Rust"
 readme = "README.md"
-version = "1.1.0a"
+version = "1.0.1.a"
 authors = [
 	{name = "Bluesy1", email = "68259537+Bluesy1@users.noreply.github.com"}
 ]
@@ -42,7 +42,7 @@ dependencies = [
 	"sentry-sdk==1.10.1",
 	"tomli == 2.0.1; python_version < '3.11'",
 	"typing-extensions == 4.4.0",
-	"urlextract==1.7.0",
+	"urlextract==1.7.1",
 	"uvloop == 0.17.0",
 	"validators==0.20.0",
 ]
