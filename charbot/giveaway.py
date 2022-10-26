@@ -71,7 +71,7 @@ class GiveawayView(ui.View):
         if url is not None:
             self.add_item(ui.Button(label=game, style=discord.ButtonStyle.link, url=url))
 
-    def __repr__(self):
+    def __repr__(self):  # pragma: no cover
         """Representation of the view."""
         return (
             f"<{self.__class__.__name__} timeout={self.timeout} children={len(self._children)}"
@@ -96,19 +96,17 @@ class GiveawayView(ui.View):
         """
         try:
             embed = message.embeds[0]
-            game = cast(str, embed.title)
-            url = embed.url
-            view = cls(bot, embed, game, url)
+            view = cls(bot, embed, cast(str, embed.description).split("[")[1].split("]")[0], embed.url)
             view.message = message
             view.top_bid = 0
             view.total_entries = int(cast(str, embed.fields[3].value))
             if view.total_entries:
                 view.check.disabled = False
-        except (IndexError, ValueError, TypeError, AssertionError) as e:
+        except (IndexError, ValueError, TypeError, IndexError) as e:  # pragma: no cover
             raise KeyError("Invalid giveaway embed.") from e
         return view
 
-    async def interaction_check(self, interaction: discord.Interaction) -> bool:
+    async def interaction_check(self, interaction: discord.Interaction) -> bool:  # pragma: no cover
         """Check if the interaction is valid.
 
         Parameters
@@ -126,12 +124,13 @@ class GiveawayView(ui.View):
         errors.MissingProgramRole
             If no program roles are present.
         """
-        user = cast(discord.Member, interaction.user)
-        if all(role.id not in self.bot.ALLOWED_ROLES for role in user.roles):
+        if all(role.id not in self.bot.ALLOWED_ROLES for role in cast(discord.Member, interaction.user).roles):
             raise errors.MissingProgramRole(self.bot.ALLOWED_ROLES, interaction.locale)
         return True
 
-    async def on_error(self, interaction: discord.Interaction, error: Exception, item: ui.Item[Any]) -> None:
+    async def on_error(
+        self, interaction: discord.Interaction, error: Exception, item: ui.Item[Any]
+    ) -> None:  # pragma: no cover
         """Error handler.
 
         Parameters
@@ -258,7 +257,7 @@ class GiveawayView(ui.View):
                 new_winner = random.sample(bids[0], k=1, counts=bids[1])
                 if new_winner[0] not in winners_:
                     winners_.append(new_winner[0])
-            if self.message.guild is None:
+            if self.message.guild is None:  # pragma: no cover
                 _id = 225345178955808768
                 self.message.guild = self.bot.get_guild(_id) or await self.bot.fetch_guild(_id)
             winners = [await self.message.guild.fetch_member(winner) for winner in winners_]
@@ -398,7 +397,7 @@ class BidModal(ui.Modal, title="Bid"):
         The active giveaway view.
     """
 
-    def __init__(self, bot: CBot, view: GiveawayView):
+    def __init__(self, bot: CBot, view: GiveawayView):  # pragma: no cover
         super().__init__(timeout=None, title="Bid")
         self.bot = bot
         self.view = view
@@ -602,7 +601,7 @@ class Giveaway(commands.Cog):
         )
 
 
-async def setup(bot: CBot):
+async def setup(bot: CBot):  # pragma: no cover
     """Giveaway cog setup.
 
     Parameters
