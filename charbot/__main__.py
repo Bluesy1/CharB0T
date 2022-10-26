@@ -10,7 +10,6 @@ import aiohttp
 import asyncpg
 import discord
 import sentry_sdk
-from sentry_sdk.integrations import asyncio as sentry_asyncio
 from discord.ext import commands
 
 from . import CBot, Config, Tree
@@ -41,7 +40,6 @@ async def main():
             "sudoku",
             "tictactoe",
         ],
-        integrations=[sentry_asyncio.AsyncioIntegration()],
     )
 
     # Instantiate a Bot instance
