@@ -404,6 +404,30 @@ class GiveawayView(ui.View):
                 )
 
 
+def rectify_bid(bid_int: int, current_bid: int | None, points: int) -> int:
+    """Rectify the bid to ensure it is within the bounds.
+
+    Parameters
+    ----------
+    bid_int : int
+        The bid as an integer.
+    current_bid : int | None
+        The current bid for the user.
+    points : int
+        The user's points.
+
+    Returns
+    -------
+    bid_int: int
+        The rectified bid.
+    """
+    bid_int = min(bid_int, points)
+    current_bid = current_bid or 0
+    if current_bid + bid_int > 32768:
+        bid_int = 32768 - current_bid
+    return bid_int
+
+
 class BidModal(ui.Modal, title="Bid"):
     """Bid modal class.
 
@@ -447,36 +471,31 @@ class BidModal(ui.Modal, title="Bid"):
         try:
             val = self.bid_str.value
             bid_int = int(val)
-        except ValueError:
+        except ValueError:  # pragma: no cover
             return await self.invalid_bid(interaction)
-        if 0 >= bid_int <= 32768:
+        if 0 >= bid_int <= 32768:  # pragma: no cover
             return await self.invalid_bid(interaction)
         await interaction.response.defer(ephemeral=True, thinking=True)
         async with self.view.bid_lock, self.bot.pool.acquire() as conn, conn.transaction():
             points: int | None = await conn.fetchval("SELECT points FROM users WHERE id = $1", interaction.user.id)
-            if not await self.check_points(bid_int, interaction, points):
+            if not await self.check_points(bid_int, interaction, points):  # pragma: no cover
                 return
-            bid_int = min(bid_int, cast(int, points))
-            current_bid = await conn.fetchval("SELECT bid FROM bids WHERE id = $1", interaction.user.id) or 0
-            if current_bid + bid_int > 32768:
-                bid_int = 32768 - current_bid
-            points = cast(
-                int,
-                await conn.fetchval(
-                    "UPDATE users SET points = points - $1 WHERE id = $2 RETURNING points", bid_int, interaction.user.id
-                ),
+            bid_int = rectify_bid(
+                bid_int,
+                await conn.fetchval("SELECT bid FROM bids WHERE id = $1", interaction.user.id),
+                cast(int, points),
             )
-            new_bid = cast(
-                int,
-                await conn.fetchval(
-                    "UPDATE bids SET bid = bid + $1 WHERE id = $2 RETURNING bid", bid_int, interaction.user.id
-                ),
+            points = await conn.fetchval(
+                "UPDATE users SET points = points - $1 WHERE id = $2 RETURNING points", bid_int, interaction.user.id
+            )
+            new_bid = await conn.fetchval(
+                "UPDATE bids SET bid = bid + $1 WHERE id = $2 RETURNING bid", bid_int, interaction.user.id
             )
             await self.bid_success(
                 interaction,
                 bid_int,
-                new_bid,
-                points,
+                cast(int, new_bid),
+                cast(int, points),
                 await conn.fetchval("SELECT wins FROM winners WHERE id = $1", interaction.user.id),
             )
             self.stop()
@@ -612,7 +631,7 @@ class Giveaway(commands.Cog):
         await current_giveaway.message.edit(view=current_giveaway)
         self.current_giveaway = current_giveaway
 
-    async def cog_unload(self) -> None:  # skipcq: PYL-W0236
+    async def cog_unload(self) -> None:  # skipcq: PYL-W0236  # pragma: no cover
         """Call when the cog is unloaded."""
         self.daily_giveaway.cancel()
         self.bot.holder["yesterdays_giveaway"] = self.yesterdays_giveaway

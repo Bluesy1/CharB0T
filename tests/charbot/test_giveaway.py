@@ -5,6 +5,7 @@
 """Test the giveaway system."""
 from __future__ import annotations
 
+import asyncio
 import random
 
 import asyncpg
@@ -344,3 +345,39 @@ async def test_modal_bid_success(mocker: MockerFixture):
         "wins": 0,
     }
     assert modal.view.top_bid == 2
+
+
+@pytest.mark.asyncio
+async def test_modal_on_submit(mocker: MockerFixture, database: asyncpg.Pool):
+    """Test the on modal submit works as expected"""
+    await database.execute("INSERT INTO users (id, points) VALUES (2, 5)")
+    await database.execute("INSERT INTO bids (id, bid) VALUES (2, 0)")
+    bot = mocker.AsyncMock(spec=CBot, pool=database)
+    modal = giveaway.BidModal(
+        bot, mocker.AsyncMock(spec=giveaway.GiveawayView, total_entries=1, top_bid=1, bid_lock=asyncio.Lock())
+    )
+    interaction = mocker.AsyncMock(
+        spec=discord.Interaction,
+        client=bot,
+        response=mocker.AsyncMock(spec=discord.InteractionResponse),
+        followup=mocker.AsyncMock(spec=discord.Webhook),
+        locale=discord.Locale.american_english,
+        user=mocker.AsyncMock(spec=discord.User, id=2),
+    )
+    modal.bid_str._value = "2"
+    await modal.on_submit(interaction)
+    interaction.response.defer.assert_awaited_once()
+    assert interaction.response.defer.await_args.kwargs == {"ephemeral": True, "thinking": True}
+    interaction.followup.send.assert_awaited_once()
+    assert await database.fetchval("SELECT bid FROM bids WHERE id = 2") == 2
+    assert await database.fetchval("SELECT points FROM users WHERE id = 2") == 3
+    await database.execute("DELETE FROM bids WHERE id = 2")
+    await database.execute("DELETE FROM users WHERE id = 2")
+
+
+def test_rectify_bid():
+    """Test the rectify bid method"""
+    assert giveaway.rectify_bid(2, 32767, 50) == 1
+    assert giveaway.rectify_bid(1, None, 2) == 1
+    assert giveaway.rectify_bid(2, 2, 1) == 1
+    assert giveaway.rectify_bid(2, 5, 2) == 2
