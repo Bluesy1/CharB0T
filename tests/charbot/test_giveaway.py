@@ -253,3 +253,94 @@ async def test_giveaway_check(mocker: MockerFixture, embed, database: asyncpg.Po
     await database.execute("DELETE FROM users WHERE id <> 1")
     await database.execute("DELETE FROM bids WHERE id <> 1")
     await database.execute("DELETE FROM winners WHERE id <> 1")
+
+
+@pytest.mark.asyncio
+async def test_modal_check_points_none(mocker: MockerFixture):
+    """Test the bid modal if the bidder has None for points"""
+    bot = mocker.AsyncMock(spec=CBot)
+    modal = giveaway.BidModal(bot, mocker.AsyncMock(spec=giveaway.GiveawayView))
+    interaction = mocker.AsyncMock(
+        spec=discord.Interaction,
+        client=bot,
+        followup=mocker.AsyncMock(spec=discord.Webhook),
+        locale=discord.Locale.american_english,
+    )
+    assert await modal.check_points(1, interaction, None) is False
+    interaction.followup.send.assert_awaited_once()
+    interaction.client.translate.assert_awaited_once()
+    assert interaction.client.translate.await_args.args == ("giveaway-bid-no-rep", discord.Locale.american_english)
+
+
+@pytest.mark.asyncio
+async def test_modal_check_points_not_enough_points(mocker: MockerFixture):
+    """Test the modal check points method when too few points"""
+    bot = mocker.AsyncMock(spec=CBot)
+    modal = giveaway.BidModal(bot, mocker.AsyncMock(spec=giveaway.GiveawayView))
+    interaction = mocker.AsyncMock(
+        spec=discord.Interaction,
+        client=bot,
+        followup=mocker.AsyncMock(spec=discord.Webhook),
+        locale=discord.Locale.american_english,
+    )
+    assert await modal.check_points(2, interaction, 1) is False
+    interaction.followup.send.assert_awaited_once()
+    interaction.client.translate.assert_awaited_once()
+    assert interaction.client.translate.await_args.args == (
+        "giveaway-bid-not-enough-rep",
+        discord.Locale.american_english,
+    )
+    assert interaction.client.translate.await_args.kwargs["data"] == {"bid": 2, "points": 1}
+
+
+@pytest.mark.asyncio
+async def test_modal_check_points_valid(mocker: MockerFixture):
+    """Test the modal check points method when enough points"""
+    bot = mocker.AsyncMock(spec=CBot)
+    modal = giveaway.BidModal(bot, mocker.AsyncMock(spec=giveaway.GiveawayView))
+    interaction = mocker.AsyncMock(spec=discord.Interaction)
+    assert await modal.check_points(1, interaction, 2) is True
+
+
+@pytest.mark.asyncio
+async def test_modal_invalid_bid_callback(mocker: MockerFixture):
+    """Test the modal invalid bid callback"""
+    bot = mocker.AsyncMock(spec=CBot)
+    modal = giveaway.BidModal(bot, mocker.AsyncMock(spec=giveaway.GiveawayView))
+    interaction = mocker.AsyncMock(
+        spec=discord.Interaction,
+        client=bot,
+        response=mocker.AsyncMock(spec=discord.InteractionResponse),
+        locale=discord.Locale.american_english,
+    )
+    await modal.invalid_bid(interaction)
+    interaction.response.send_message.assert_awaited_once()
+    assert interaction.response.send_message.await_args.kwargs["ephemeral"] is True
+    interaction.client.translate.assert_awaited_once()
+    assert interaction.client.translate.await_args.args == ("giveaway-bid-invalid-bid", discord.Locale.american_english)
+
+
+@pytest.mark.asyncio
+async def test_modal_bid_success(mocker: MockerFixture):
+    """Test the modal bid success callback"""
+    bot = mocker.AsyncMock(spec=CBot)
+    modal = giveaway.BidModal(bot, mocker.AsyncMock(spec=giveaway.GiveawayView, total_entries=1, top_bid=1))
+    interaction = mocker.AsyncMock(
+        spec=discord.Interaction,
+        client=bot,
+        followup=mocker.AsyncMock(spec=discord.Webhook),
+        locale=discord.Locale.american_english,
+    )
+    await modal.bid_success(interaction, 2, 2, 3, None)
+    interaction.followup.send.assert_awaited_once()
+    assert interaction.followup.send.await_args.kwargs["ephemeral"] is True
+    interaction.client.translate.assert_awaited_once()
+    assert interaction.client.translate.await_args.args == ("giveaway-bid-success", discord.Locale.american_english)
+    assert interaction.client.translate.await_args.kwargs["data"] == {
+        "bid": 2,
+        "new_bid": 2,
+        "chance": 2 / 3,
+        "points": 3,
+        "wins": 0,
+    }
+    assert modal.view.top_bid == 2

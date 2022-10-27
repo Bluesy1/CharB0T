@@ -309,7 +309,7 @@ class GiveawayView(ui.View):
         )
 
     # noinspection PyUnusedLocal
-    @ui.button(label="Bid", style=discord.ButtonStyle.green)
+    @ui.button(label="Bid", style=discord.ButtonStyle.green)  # pyright: ignore[reportGeneralTypeIssues]
     async def bid(self, interaction: "Interaction[CBot]", button: ui.Button) -> None:  # skipcq: PYL-W0613
         """Increase or make the initial bid for a user.
 
@@ -340,7 +340,9 @@ class GiveawayView(ui.View):
         asyncio.create_task(_task())
 
     # noinspection PyUnusedLocal
-    @ui.button(label="Check", style=discord.ButtonStyle.blurple, disabled=True)
+    @ui.button(
+        label="Check", style=discord.ButtonStyle.blurple, disabled=True
+    )  # pyright: ignore[reportGeneralTypeIssues]
     async def check(self, interaction: "Interaction[CBot]", button: ui.Button) -> None:  # skipcq: PYL-W0613
         """Check the current bid for a user.
 
@@ -369,7 +371,9 @@ class GiveawayView(ui.View):
         )
 
     # noinspection PyUnusedLocal
-    @ui.button(label="Toggle Giveaway Alerts", style=discord.ButtonStyle.danger)
+    @ui.button(
+        label="Toggle Giveaway Alerts", style=discord.ButtonStyle.danger
+    )  # pyright: ignore[reportGeneralTypeIssues]
     async def toggle_alerts(
         self, interaction: "Interaction[CBot]", _: ui.Button
     ) -> None:  # skipcq: PYL-W0613  # pragma: no cover
@@ -452,7 +456,7 @@ class BidModal(ui.Modal, title="Bid"):
             points: int | None = await conn.fetchval("SELECT points FROM users WHERE id = $1", interaction.user.id)
             if not await self.check_points(bid_int, interaction, points):
                 return
-            bid_int = min(bid_int, points)
+            bid_int = min(bid_int, cast(int, points))
             current_bid = await conn.fetchval("SELECT bid FROM bids WHERE id = $1", interaction.user.id) or 0
             if current_bid + bid_int > 32768:
                 bid_int = 32768 - current_bid
@@ -462,30 +466,55 @@ class BidModal(ui.Modal, title="Bid"):
                     "UPDATE users SET points = points - $1 WHERE id = $2 RETURNING points", bid_int, interaction.user.id
                 ),
             )
-            _new_bid = cast(
+            new_bid = cast(
                 int,
                 await conn.fetchval(
                     "UPDATE bids SET bid = bid + $1 WHERE id = $2 RETURNING bid", bid_int, interaction.user.id
                 ),
             )
-            self.view.total_entries += bid_int
-            new_bid = cast(int, _new_bid)
-            await interaction.followup.send(
-                await interaction.client.translate(
-                    "giveaway-bid-success",
-                    interaction.locale,
-                    data={
-                        "bid": bid_int,
-                        "new_bid": new_bid,
-                        "chance": new_bid / self.view.total_entries,
-                        "points": points,
-                        "wins": await conn.fetchval("SELECT wins FROM winners WHERE id = $1", interaction.user.id) or 0,
-                    },
-                ),
-                ephemeral=True,
+            await self.bid_success(
+                interaction,
+                bid_int,
+                new_bid,
+                points,
+                await conn.fetchval("SELECT wins FROM winners WHERE id = $1", interaction.user.id),
             )
-            self.view.top_bid = max(new_bid, self.view.top_bid)
             self.stop()
+
+    async def bid_success(
+        self, interaction: "Interaction[CBot]", bid_int: int, new_bid: int, points: int, wins: int | None
+    ) -> None:
+        """Call when a bid is successful.
+
+        Parameters
+        ----------
+        interaction : Interaction[CBot]
+            The interaction that was submitted.
+        bid_int : int
+            The amount of points that were bid.
+        new_bid : int
+            The new bid.
+        points : int
+            The user's new points.
+        wins : int | None
+            The user's wins, if any.
+        """
+        self.view.total_entries += bid_int
+        await interaction.followup.send(
+            await interaction.client.translate(
+                "giveaway-bid-success",
+                interaction.locale,
+                data={
+                    "bid": bid_int,
+                    "new_bid": new_bid,
+                    "chance": new_bid / self.view.total_entries,
+                    "points": points,
+                    "wins": wins or 0,
+                },
+            ),
+            ephemeral=True,
+        )
+        self.view.top_bid = max(new_bid, self.view.top_bid)
 
     async def check_points(self, bid_int: int, interaction: "Interaction[CBot]", points: int | None) -> bool:
         """Check if the user has enough points to bid.
@@ -523,7 +552,7 @@ class BidModal(ui.Modal, title="Bid"):
     async def invalid_bid(self, interaction):
         """Call when a bid is invalid."""
         await interaction.response.send_message(
-            await interaction.client.translate("giveaway-bid-invalid-bid.", interaction.locale), ephemeral=True
+            await interaction.client.translate("giveaway-bid-invalid-bid", interaction.locale), ephemeral=True
         )
         return self.stop()
 
