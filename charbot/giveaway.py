@@ -1,11 +1,11 @@
 # -*- coding: utf-8 -*-
 # SPDX-FileCopyrightText: 2021 Bluesy1 <68259537+Bluesy1@users.noreply.github.com>
+#
 # SPDX-License-Identifier: MIT
 """Game giveaway extension."""
 import asyncio
 import datetime
 import random
-import warnings
 from statistics import mean
 from typing import Any, cast
 
@@ -15,9 +15,21 @@ import pandas as pd
 from discord import ui
 from discord.ext import commands, tasks
 from discord.utils import MISSING, utcnow
-from fluent.runtime import FluentLocalization
 
-from . import CBot, errors
+from . import CBot, errors, GuildComponentInteraction as Interaction
+
+
+async def hit_max_wins(interaction):
+    """Standard response for when a user has hit max wins for a month."""
+    await interaction.response.send_message(
+        await interaction.client.translate(
+            "giveaway-try-later",
+            interaction.locale,
+            fallback="You have won 3 giveaways recently, please wait until the first of the next month to"
+            " bid again.",
+        ),
+        ephemeral=True,
+    )
 
 
 class GiveawayView(ui.View):
@@ -71,7 +83,7 @@ class GiveawayView(ui.View):
         if url is not None:
             self.add_item(ui.Button(label=game, style=discord.ButtonStyle.link, url=url))
 
-    def __repr__(self):
+    def __repr__(self):  # pragma: no cover
         """Representation of the view."""
         return (
             f"<{self.__class__.__name__} timeout={self.timeout} children={len(self._children)}"
@@ -96,24 +108,22 @@ class GiveawayView(ui.View):
         """
         try:
             embed = message.embeds[0]
-            game = cast(str, embed.title)
-            url = embed.url
-            view = cls(bot, embed, game, url)
+            view = cls(bot, embed, cast(str, embed.description).split("[")[1].split("]")[0], embed.url)
             view.message = message
             view.top_bid = 0
             view.total_entries = int(cast(str, embed.fields[3].value))
             if view.total_entries:
                 view.check.disabled = False
-        except (IndexError, ValueError, TypeError, AssertionError) as e:
+        except (IndexError, ValueError, TypeError) as e:
             raise KeyError("Invalid giveaway embed.") from e
         return view
 
-    async def interaction_check(self, interaction: discord.Interaction) -> bool:
+    async def interaction_check(self, interaction: "Interaction[CBot]") -> bool:  # pragma: no cover
         """Check if the interaction is valid.
 
         Parameters
         ----------
-        interaction : discord.Interaction
+        interaction : Interaction[CBot]
             The interaction to check.
 
         Returns
@@ -126,17 +136,18 @@ class GiveawayView(ui.View):
         errors.MissingProgramRole
             If no program roles are present.
         """
-        user = cast(discord.Member, interaction.user)
-        if all(role.id not in self.bot.ALLOWED_ROLES for role in user.roles):
+        if all(role.id not in self.bot.ALLOWED_ROLES for role in cast(discord.Member, interaction.user).roles):
             raise errors.MissingProgramRole(self.bot.ALLOWED_ROLES, interaction.locale)
         return True
 
-    async def on_error(self, interaction: discord.Interaction, error: Exception, item: ui.Item[Any]) -> None:
+    async def on_error(
+        self, interaction: "Interaction[CBot]", error: Exception, item: ui.Item[Any]
+    ) -> None:  # pragma: no cover
         """Error handler.
 
         Parameters
         ----------
-        interaction : discord.Interaction
+        interaction : Interaction[CBot]
             The interaction.
         error : Exception
             The error.
@@ -223,7 +234,7 @@ class GiveawayView(ui.View):
             raw_bidders = await conn.fetch("SELECT * FROM bids WHERE bid > 0 ORDER BY bid DESC")
             bidders = [bid for bid in raw_bidders if bid["id"] not in blocked]
             return_bids = [(bid["bid"], bid["id"]) for bid in raw_bidders if bid["id"] in blocked]
-            if return_bids:
+            if return_bids:  # pragma: no cover
                 await conn.executemany("UPDATE users SET points = points + $1 WHERE id = $2", return_bids)
         return bidders
 
@@ -250,7 +261,7 @@ class GiveawayView(ui.View):
             _winners = random.sample(bids[0], k=min(6, len(bidders)), counts=bids[1])
             winners_ = []
             for win in _winners:
-                if len(winners_) >= 3:
+                if len(winners_) >= 3:  # pragma: no cover
                     break
                 if win not in winners_:
                     winners_.append(win)
@@ -258,7 +269,7 @@ class GiveawayView(ui.View):
                 new_winner = random.sample(bids[0], k=1, counts=bids[1])
                 if new_winner[0] not in winners_:
                     winners_.append(new_winner[0])
-            if self.message.guild is None:
+            if self.message.guild is None:  # pragma: no cover
                 _id = 225345178955808768
                 self.message.guild = self.bot.get_guild(_id) or await self.bot.fetch_guild(_id)
             winners = [await self.message.guild.fetch_member(winner) for winner in winners_]
@@ -298,86 +309,123 @@ class GiveawayView(ui.View):
         )
 
     # noinspection PyUnusedLocal
-    @ui.button(label="Bid", style=discord.ButtonStyle.green)
-    async def bid(self, interaction: discord.Interaction, button: ui.Button) -> None:  # skipcq: PYL-W0613
+    @ui.button(label="Bid", style=discord.ButtonStyle.green)  # pyright: ignore[reportGeneralTypeIssues]
+    async def bid(self, interaction: "Interaction[CBot]", button: ui.Button) -> None:  # skipcq: PYL-W0613
         """Increase or make the initial bid for a user.
 
         Parameters
         ----------
-        interaction : discord.Interaction
+        interaction : Interaction[CBot]
             The interaction object.
         button : ui.Button
             The button that was pressed.
         """
-        async with self.bot.pool.acquire() as conn:
+        async with interaction.client.pool.acquire() as conn:
             wins = await conn.fetchval("SELECT wins FROM winners WHERE id = $1", interaction.user.id) or 0
             if wins >= 3:
-                translator = FluentLocalization(
-                    [interaction.locale.value, "en-US"], ["giveaway.ftl"], self.bot.localizer_loader
-                )
-                await interaction.response.send_message(translator.format_value("giveaway-try-later"), ephemeral=True)
+                await hit_max_wins(interaction)
                 return
         modal = BidModal(self.bot, self)
         await interaction.response.send_modal(modal)
-        await modal.wait()
-        if self.total_entries > 0:
-            self.check.disabled = False
-        self.embed.set_field_at(3, name="Total Reputation Bid", value=f"{self.total_entries}")
-        message = cast(discord.WebhookMessage, self.message)
-        await message.edit(embed=self.embed, view=self)
+
+        async def _task():
+            """Wait for the modal to be closed."""
+            await modal.wait()
+            if self.total_entries > 0:  # pragma: no cover
+                self.check.disabled = False
+            self.embed.set_field_at(3, name="Total Reputation Bid", value=f"{self.total_entries}")
+            message = cast(discord.WebhookMessage, self.message)
+            await message.edit(embed=self.embed, view=self)
+
+        asyncio.create_task(_task())
 
     # noinspection PyUnusedLocal
-    @ui.button(label="Check", style=discord.ButtonStyle.blurple, disabled=True)
-    async def check(self, interaction: discord.Interaction, button: ui.Button) -> None:  # skipcq: PYL-W0613
+    @ui.button(
+        label="Check", style=discord.ButtonStyle.blurple, disabled=True
+    )  # pyright: ignore[reportGeneralTypeIssues]
+    async def check(self, interaction: "Interaction[CBot]", button: ui.Button) -> None:  # skipcq: PYL-W0613
         """Check the current bid for a user.
 
         Parameters
         ----------
-        interaction : discord.Interaction
+        interaction : Interaction[CBot]
             The interaction object.
         button : ui.Button
             The button that was pressed.
         """
-        async with self.bot.pool.acquire() as conn:
-            translator = FluentLocalization(
-                [interaction.locale.value, "en-US"], ["giveaway.ftl"], self.bot.localizer_loader
-            )
+        async with interaction.client.pool.acquire() as conn:
             wins = await conn.fetchval("SELECT wins FROM winners WHERE id = $1", interaction.user.id) or 0
             if wins >= 3:
-                await interaction.response.send_message(translator.format_value("giveaway-try-later"), ephemeral=True)
+                await hit_max_wins(interaction)
                 return
             record = await conn.fetchval("SELECT bid FROM bids WHERE id = $1", interaction.user.id)
             bid: int = record if record is not None else 0
         chance = bid / self.total_entries
         await interaction.response.send_message(
-            translator.format_value("giveaway-check-success", {"bid": bid, "chance": chance, "wins": wins}),
+            await interaction.client.translate(
+                "giveaway-check-success",
+                interaction.locale,
+                data={"bid": bid, "chance": chance, "wins": wins},
+            ),
             ephemeral=True,
         )
 
     # noinspection PyUnusedLocal
-    @ui.button(label="Toggle Giveaway Alerts", style=discord.ButtonStyle.danger)
-    async def toggle_alerts(self, interaction: discord.Interaction, button: ui.Button) -> None:  # skipcq: PYL-W0613
+    @ui.button(
+        label="Toggle Giveaway Alerts", style=discord.ButtonStyle.danger
+    )  # pyright: ignore[reportGeneralTypeIssues]
+    async def toggle_alerts(
+        self, interaction: "Interaction[CBot]", _: ui.Button
+    ) -> None:  # skipcq: PYL-W0613  # pragma: no cover
         """Toggle the giveaway alerts.
 
         Parameters
         ----------
-        interaction : discord.Interaction
+        interaction : Interaction[CBot]
             The interaction object.
-        button : ui.Button
+        _ : ui.Button
             The button that was pressed.
         """
         await interaction.response.defer(ephemeral=True, thinking=True)
-        user = cast(discord.Member, interaction.user)
         async with self.role_semaphore:
-            translator = FluentLocalization(
-                [interaction.locale.value, "en-US"], ["giveaway.ftl"], self.bot.localizer_loader
-            )
-            if all(role.id != 972886729231044638 for role in user.roles):
-                await user.add_roles(discord.Object(id=972886729231044638), reason="Toggled giveaway alerts.")
-                await interaction.followup.send(translator.format_value("giveaway-alerts-enable"))
+            if all(role.id != 972886729231044638 for role in interaction.user.roles):
+                await interaction.user.add_roles(
+                    discord.Object(id=972886729231044638), reason="Toggled giveaway alerts."
+                )
+                await interaction.followup.send(
+                    await interaction.client.translate("giveaway-alerts-enable", interaction.locale)
+                )
             else:
-                await user.remove_roles(discord.Object(id=972886729231044638), reason="Toggled giveaway alerts.")
-                await interaction.followup.send(translator.format_value("giveaway-alerts-disable"))
+                await interaction.user.remove_roles(
+                    discord.Object(id=972886729231044638), reason="Toggled giveaway alerts."
+                )
+                await interaction.followup.send(
+                    await interaction.client.translate("giveaway-alerts-disable", interaction.locale)
+                )
+
+
+def rectify_bid(bid_int: int, current_bid: int | None, points: int) -> int:
+    """Rectify the bid to ensure it is within the bounds.
+
+    Parameters
+    ----------
+    bid_int : int
+        The bid as an integer.
+    current_bid : int | None
+        The current bid for the user.
+    points : int
+        The user's points.
+
+    Returns
+    -------
+    bid_int: int
+        The rectified bid.
+    """
+    bid_int = min(bid_int, points)
+    current_bid = current_bid or 0
+    if current_bid + bid_int > 32768:
+        bid_int = 32768 - current_bid
+    return bid_int
 
 
 class BidModal(ui.Modal, title="Bid"):
@@ -412,81 +460,120 @@ class BidModal(ui.Modal, title="Bid"):
         required=True,
     )
 
-    async def on_submit(self, interaction: discord.Interaction) -> None:
+    async def on_submit(self, interaction: "Interaction[CBot]") -> None:
         """Call when a bid modal is submitted.
 
         Parameters
         ----------
-        interaction : discord.Interaction
+        interaction : Interaction[CBot]
             The interaction that was submitted.
         """
-        translator = FluentLocalization(
-            [interaction.locale.value, "en-US"], ["giveaway.ftl"], self.bot.localizer_loader
-        )
         try:
             val = self.bid_str.value
             bid_int = int(val)
-        except ValueError:
-            await interaction.response.send_message(
-                translator.format_value("giveaway-bid-invalid-bid."), ephemeral=True
-            )
-            return self.stop()
-        if 0 >= bid_int <= 32768:
-            await interaction.response.send_message(
-                translator.format_value("giveaway-bid-invalid-bid."), ephemeral=True
-            )
-            return self.stop()
+        except ValueError:  # pragma: no cover
+            return await self.invalid_bid(interaction)
+        if 0 >= bid_int <= 32768:  # pragma: no cover
+            return await self.invalid_bid(interaction)
         await interaction.response.defer(ephemeral=True, thinking=True)
         async with self.view.bid_lock, self.bot.pool.acquire() as conn, conn.transaction():
             points: int | None = await conn.fetchval("SELECT points FROM users WHERE id = $1", interaction.user.id)
-            if points is None or points == 0:
-                await interaction.followup.send(translator.format_value("giveaway-bid-no-rep"))
-                return self.stop()
-            if points < bid_int:
-                await interaction.followup.send(
-                    translator.format_value("giveaway-bid-not-enough-rep", {"bid": bid_int, "points": points})
-                )
-                return self.stop()
-            bid_int = min(bid_int, points)
-            current_bid = await conn.fetchval("SELECT bid FROM bids WHERE id = $1", interaction.user.id) or 0
-            if current_bid + bid_int > 32768:
-                bid_int = 32768 - current_bid
-            points: int | None = await conn.fetchval(
+            if not await self.check_points(bid_int, interaction, points):  # pragma: no cover
+                return
+            bid_int = rectify_bid(
+                bid_int,
+                await conn.fetchval("SELECT bid FROM bids WHERE id = $1", interaction.user.id),
+                cast(int, points),
+            )
+            points = await conn.fetchval(
                 "UPDATE users SET points = points - $1 WHERE id = $2 RETURNING points", bid_int, interaction.user.id
             )
-            if points is None:
-                warnings.warn("Points should not be None at this code.", RuntimeWarning)
-                points = 0
-                await conn.execute("UPDATE users SET points = 0 WHERE id = $1", interaction.user.id)
-            _new_bid: int | None = await conn.fetchval(
+            new_bid = await conn.fetchval(
                 "UPDATE bids SET bid = bid + $1 WHERE id = $2 RETURNING bid", bid_int, interaction.user.id
             )
-            if _new_bid is None:
-                warnings.warn("Bid should not be None at this code.", RuntimeWarning)
-                _new_bid = bid_int
-                await conn.execute(
-                    "INSERT INTO bids (bid,id) values ($1, $2) ON CONFLICT DO UPDATE SET bid = $1",
-                    bid_int,
-                    interaction.user.id,
-                )
-            self.view.total_entries += bid_int
-            new_bid = cast(int, _new_bid)
-            chance = new_bid / self.view.total_entries
-            await interaction.followup.send(
-                translator.format_value(
-                    "giveaway-bid-success",
-                    {
-                        "bid": bid_int,
-                        "new_bid": new_bid,
-                        "chance": chance,
-                        "points": points,
-                        "wins": await conn.fetchval("SELECT wins FROM winners WHERE id = $1", interaction.user.id) or 0,
-                    },
-                ),
-                ephemeral=True,
+            await self.bid_success(
+                interaction,
+                bid_int,
+                cast(int, new_bid),
+                cast(int, points),
+                await conn.fetchval("SELECT wins FROM winners WHERE id = $1", interaction.user.id),
             )
-            self.view.top_bid = max(new_bid, self.view.top_bid)
             self.stop()
+
+    async def bid_success(
+        self, interaction: "Interaction[CBot]", bid_int: int, new_bid: int, points: int, wins: int | None
+    ) -> None:
+        """Call when a bid is successful.
+
+        Parameters
+        ----------
+        interaction : Interaction[CBot]
+            The interaction that was submitted.
+        bid_int : int
+            The amount of points that were bid.
+        new_bid : int
+            The new bid.
+        points : int
+            The user's new points.
+        wins : int | None
+            The user's wins, if any.
+        """
+        self.view.total_entries += bid_int
+        await interaction.followup.send(
+            await interaction.client.translate(
+                "giveaway-bid-success",
+                interaction.locale,
+                data={
+                    "bid": bid_int,
+                    "new_bid": new_bid,
+                    "chance": new_bid / self.view.total_entries,
+                    "points": points,
+                    "wins": wins or 0,
+                },
+            ),
+            ephemeral=True,
+        )
+        self.view.top_bid = max(new_bid, self.view.top_bid)
+
+    async def check_points(self, bid_int: int, interaction: "Interaction[CBot]", points: int | None) -> bool:
+        """Check if the user has enough points to bid.
+
+        Parameters
+        ----------
+        bid_int : int
+            The bid amount.
+        interaction : Interaction[CBot]
+            The interaction that was submitted.
+        points : int | None
+            The user's points.
+
+        Returns
+        -------
+        valid : bool
+            If the user's bid is valid.
+        """
+        if points is None or points == 0:
+            await interaction.followup.send(
+                await interaction.client.translate("giveaway-bid-no-rep", interaction.locale)
+            )
+            self.stop()
+            return False
+        if points < bid_int:
+            await interaction.followup.send(
+                await interaction.client.translate(
+                    "giveaway-bid-not-enough-rep", interaction.locale, data={"bid": bid_int, "points": points}
+                )
+            )
+            self.stop()
+            return False
+        return True
+
+    async def invalid_bid(self, interaction):
+        """Call when a bid is invalid."""
+        await interaction.response.send_message(
+            await interaction.client.translate("giveaway-bid-invalid-bid", interaction.locale), ephemeral=True
+        )
+        return self.stop()
 
 
 class Giveaway(commands.Cog):
@@ -544,7 +631,7 @@ class Giveaway(commands.Cog):
         await current_giveaway.message.edit(view=current_giveaway)
         self.current_giveaway = current_giveaway
 
-    async def cog_unload(self) -> None:  # skipcq: PYL-W0236
+    async def cog_unload(self) -> None:  # skipcq: PYL-W0236  # pragma: no cover
         """Call when the cog is unloaded."""
         self.daily_giveaway.cancel()
         self.bot.holder["yesterdays_giveaway"] = self.yesterdays_giveaway
@@ -602,7 +689,7 @@ class Giveaway(commands.Cog):
         )
 
 
-async def setup(bot: CBot):
+async def setup(bot: CBot):  # pragma: no cover
     """Giveaway cog setup.
 
     Parameters

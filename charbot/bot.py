@@ -286,7 +286,7 @@ class CBot(commands.Bot):
         Returns
         -------
         str
-            The translated string, or None if the string isn't translatable.
+            The translated string, or the fallback if the string isn't translatable.
 
         Raises
         ------
