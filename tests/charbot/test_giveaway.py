@@ -65,8 +65,7 @@ def embed():
 
 def test_cog_init(mock_pandas_read_csv, mocker: MockerFixture):
     """Test Cog.__init__"""
-    mock_bot = mocker.AsyncMock(spec=CBot)
-    mock_bot.holder = Holder({"yesterdays_giveaway": 1, "current_giveaway": 2})
+    mock_bot = mocker.AsyncMock(spec=CBot, holder=Holder({"yesterdays_giveaway": 1, "current_giveaway": 2}))
     cog = giveaway.Giveaway(mock_bot)
     assert cog.games is mock_pandas_read_csv, "games should be set to the dataframe"
     assert cog.yesterdays_giveaway == 1, "yesterdays_giveaway should be set to 1 given the mock data"
@@ -80,8 +79,7 @@ def test_cog_init(mock_pandas_read_csv, mocker: MockerFixture):
 @pytest.mark.asyncio
 async def test_view_from_message(mocker: MockerFixture, embed):
     """Test view recreation"""
-    message = mocker.AsyncMock(spec=discord.WebhookMessage)
-    message.embeds = [embed]
+    message = mocker.AsyncMock(spec=discord.WebhookMessage, embeds=[embed])
     bot = mocker.AsyncMock(spec=CBot)
     view = giveaway.GiveawayView.recreate_from_message(message, bot)
     assert view.message is message, "message should be set to the mock message"
@@ -96,24 +94,26 @@ async def test_view_from_message(mocker: MockerFixture, embed):
 
 
 @pytest.mark.asyncio
-async def test_end_giveaway(mocker: MockerFixture, embed, database: asyncpg.Pool):
+async def test_end_giveaway_with_users(mocker: MockerFixture, embed, database: asyncpg.Pool):
     """Test end_giveaway"""
-    bot = mocker.AsyncMock(spec=CBot)
-    webhook = mocker.AsyncMock(spec=discord.Webhook)
-    bot.giveaway_webhook = webhook
-    bot.program_logs = mocker.AsyncMock()
     await database.executemany(
-        "INSERT INTO users (id, points) VALUES ($1, $2) ON CONFLICT DO NOTHING ", [(1, 1), (2, 2), (3, 3)]
+        "INSERT INTO users (id, points) VALUES ($1, $2) ON CONFLICT DO NOTHING ", [(1, 1), (2, 2), (3, 3), (4, 4)]
     )
-    await database.executemany("INSERT INTO bids VALUES ($1, $2)", [(1, 1), (2, 2), (3, 3)])
-    bot.pool = database
+    await database.executemany("INSERT INTO bids VALUES ($1, $2)", [(1, 1), (2, 2), (3, 3), (4, 4)])
+    webhook = mocker.AsyncMock(spec=discord.Webhook)
+    program_logs = mocker.AsyncMock(spec=discord.Webhook)
+    bot = mocker.AsyncMock(spec=CBot, giveaway_webhook=webhook, program_logs=program_logs, pool=database)
+    message = mocker.AsyncMock(
+        spec=discord.WebhookMessage,
+        embeds=[embed],
+        guild=mocker.AsyncMock(
+            spec=discord.Guild,
+            fetch_member=mocker.AsyncMock(
+                side_effect=lambda i: mocker.AsyncMock(spec=discord.Member, mention=f"<@{i}>")
+            ),
+        ),
+    )
     view = giveaway.GiveawayView(bot, embed, "Game", "some_url")
-    message = mocker.AsyncMock(spec=discord.WebhookMessage)
-    message.embeds = [embed]
-    message.guild = mocker.AsyncMock(spec=discord.Guild)
-    message.guild.fetch_member = mocker.AsyncMock(
-        side_effect=lambda i: mocker.AsyncMock(spec=discord.Member, mention=f"<@{i}>")
-    )
     view.message = message
     random.seed(1)
     await view.end()
@@ -123,12 +123,124 @@ async def test_end_giveaway(mocker: MockerFixture, embed, database: asyncpg.Pool
     webhook.send.assert_awaited_once()
     args = webhook.send.await_args.args
     assert (
-        args[0] == "Congrats to <@3> for winning the Game giveaway! Please send a single DM to Charlie to claim it."
+        args[0] == "Congrats to <@4> for winning the Game giveaway! Please send a single DM to Charlie to claim it."
         " If you're listed under backups, stay tuned for if the first winner does not reach out to redeem their prize."
     )
-    assert all(bid == 0 for bids in await database.fetch("SELECT bid FROM bids") for bid in bids), (
-        "bids should be " "reset "
-    )
+    assert all(
+        bid == 0 for bids in await database.fetch("SELECT bid FROM bids") for bid in bids
+    ), "bids should be reset "
     message.edit.assert_awaited_once()
+    bot.program_logs.send.assert_awaited_once()
     await database.execute("DELETE FROM users WHERE id <> 1")
     await database.execute("DELETE FROM bids WHERE bid = $1", 0)
+
+
+@pytest.mark.asyncio
+async def test_end_giveaway_no_users(mocker: MockerFixture, embed, database: asyncpg.Pool):
+    """Test giveaway end where no bids were done"""
+    webhook = mocker.AsyncMock(spec=discord.Webhook)
+    program_logs = mocker.AsyncMock(spec=discord.Webhook)
+    bot = mocker.AsyncMock(spec=CBot, giveaway_webhook=webhook, program_logs=program_logs, pool=database)
+    message = mocker.AsyncMock(spec=discord.WebhookMessage, embeds=[embed])
+    view = giveaway.GiveawayView(bot, embed, "Game", "some_url")
+    view.message = message
+    await view.end()
+    assert all(
+        button.disabled and button.label == "Giveaway ended" for button in (view.bid, view.check, view.toggle_alerts)
+    ), "buttons should be disabled"
+    webhook.send.assert_not_awaited()
+    bot.program_logs.send.assert_awaited_once()
+
+
+@pytest.mark.asyncio
+async def test_giveaway_bid_max_wins(mocker: MockerFixture, embed, database: asyncpg.Pool):
+    """Test giveaway bid where user already has 3 wins for the month"""
+    bot = mocker.AsyncMock(spec=CBot)
+    bot.pool = database
+    await database.execute("INSERT INTO users (id, points) VALUES ($1, $2) ON CONFLICT DO NOTHING", 2, 1)
+    await database.execute("INSERT INTO winners (id, wins) VALUES ($1, 3)", 2)
+    view = giveaway.GiveawayView(bot, embed, "Game", "some_url")
+    interaction = mocker.AsyncMock(
+        spec=discord.Interaction,
+        client=bot,
+        user=mocker.AsyncMock(spec=discord.Member, id=2),
+        response=mocker.AsyncMock(spec=discord.InteractionResponse),
+        locale=discord.Locale.american_english,
+    )
+    await view.bid.callback(interaction)
+    interaction.response.send_message.assert_awaited_once()
+    assert interaction.response.send_message.await_args.kwargs["ephemeral"] is True
+    interaction.client.translate.assert_awaited_once()
+    assert interaction.client.translate.await_args.args == ("giveaway-try-later", discord.Locale.american_english)
+    await database.execute("DELETE FROM users WHERE id <> 1")
+    await database.execute("DELETE FROM winners WHERE id <> 1")
+
+
+@pytest.mark.asyncio
+async def test_giveaway_bid(mocker: MockerFixture, embed, database: asyncpg.Pool):
+    """Test giveaway bid"""
+    bot = mocker.AsyncMock(spec=CBot)
+    bot.pool = database
+    view = giveaway.GiveawayView(bot, embed, "Game", "some_url")
+    interaction = mocker.AsyncMock(
+        spec=discord.Interaction,
+        client=bot,
+        user=mocker.AsyncMock(spec=discord.Member, id=2),
+        response=mocker.AsyncMock(spec=discord.InteractionResponse),
+    )
+    await view.bid.callback(interaction)
+    interaction.response.send_modal.assert_awaited_once()
+    modal: discord.ui.Modal = interaction.response.send_modal.await_args.args[0]
+    modal.stop()
+
+
+@pytest.mark.asyncio
+async def test_giveaway_check_max_wins(mocker: MockerFixture, embed, database: asyncpg.Pool):
+    """Test giveaway check method where user already has 3 wins"""
+    bot = mocker.AsyncMock(spec=CBot)
+    bot.pool = database
+    await database.execute("INSERT INTO users (id, points) VALUES ($1, $2) ON CONFLICT DO NOTHING", 2, 1)
+    await database.execute("INSERT INTO winners (id, wins) VALUES ($1, 3)", 2)
+    view = giveaway.GiveawayView(bot, embed, "Game", "some_url")
+    interaction = mocker.AsyncMock(
+        spec=discord.Interaction,
+        client=bot,
+        user=mocker.AsyncMock(spec=discord.Member, id=2),
+        response=mocker.AsyncMock(spec=discord.InteractionResponse),
+        locale=discord.Locale.american_english,
+    )
+    await view.check.callback(interaction)
+    interaction.response.send_message.assert_awaited_once()
+    assert interaction.response.send_message.await_args.kwargs["ephemeral"] is True
+    interaction.client.translate.assert_awaited_once()
+    assert interaction.client.translate.await_args.args == ("giveaway-try-later", discord.Locale.american_english)
+    await database.execute("DELETE FROM users WHERE id <> 1")
+    await database.execute("DELETE FROM winners WHERE id <> 1")
+
+
+@pytest.mark.asyncio
+async def test_giveaway_check(mocker: MockerFixture, embed, database: asyncpg.Pool):
+    """Test giveaway check method where user already has 3 wins"""
+    bot = mocker.AsyncMock(spec=CBot)
+    bot.pool = database
+    await database.execute("INSERT INTO users (id, points) VALUES ($1, $2) ON CONFLICT DO NOTHING", 2, 1)
+    await database.execute("INSERT INTO bids (id, bid) VALUES ($1, $2)", 2, 1)
+    await database.execute("INSERT INTO winners (id, wins) VALUES ($1, 1)", 2)
+    view = giveaway.GiveawayView(bot, embed, "Game", "some_url")
+    view.total_entries = 1
+    interaction = mocker.AsyncMock(
+        spec=discord.Interaction,
+        client=bot,
+        user=mocker.AsyncMock(spec=discord.Member, id=2),
+        response=mocker.AsyncMock(spec=discord.InteractionResponse),
+        locale=discord.Locale.american_english,
+    )
+    await view.check.callback(interaction)
+    interaction.response.send_message.assert_awaited_once()
+    assert interaction.response.send_message.await_args.kwargs["ephemeral"] is True
+    interaction.client.translate.assert_awaited_once()
+    assert interaction.client.translate.await_args.args == ("giveaway-check-success", discord.Locale.american_english)
+    assert interaction.client.translate.await_args.kwargs["data"] == {"bid": 1, "chance": 1, "wins": 1}
+    await database.execute("DELETE FROM users WHERE id <> 1")
+    await database.execute("DELETE FROM bids WHERE id <> 1")
+    await database.execute("DELETE FROM winners WHERE id <> 1")
