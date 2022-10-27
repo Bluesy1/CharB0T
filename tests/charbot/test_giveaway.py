@@ -93,6 +93,15 @@ async def test_view_from_message(mocker: MockerFixture, embed):
     assert view.check.disabled is False, "check should be enabled"
 
 
+def test_view_from_message_invalid(mocker: MockerFixture, embed):
+    """Test view recreation with invalid message"""
+    embed.description = "Today's Game: Game"
+    message = mocker.AsyncMock(spec=discord.WebhookMessage, embeds=[embed])
+    bot = mocker.AsyncMock(spec=CBot)
+    with pytest.raises(KeyError, match="Invalid giveaway embed."):
+        giveaway.GiveawayView.recreate_from_message(message, bot)
+
+
 @pytest.mark.asyncio
 async def test_end_giveaway_with_users(mocker: MockerFixture, embed, database: asyncpg.Pool):
     """Test end_giveaway"""
