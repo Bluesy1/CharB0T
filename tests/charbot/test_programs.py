@@ -50,30 +50,35 @@ async def test_interaction_check_wrong_guild(mock_bot, mocker: MockerFixture):
 async def test_interaction_check_wrong_channel(mock_bot, mocker: MockerFixture):
     """Test the interaction check when the interaction is in the wrong channel."""
     cog = Reputation(mock_bot)
-    mock_interaction = mocker.AsyncMock(spec=discord.Interaction)
-    mock_interaction.guild = mocker.AsyncMock(spec=discord.Guild)
-    mock_interaction.guild.id = 225345178955808768
-    mock_interaction.channel = mocker.AsyncMock(spec=discord.TextChannel)
-    mock_interaction.channel.id = 0
+    mock_interaction = mocker.AsyncMock(
+        spec=discord.Interaction,
+        locale=discord.Locale.american_english,
+        channel=mocker.AsyncMock(spec=discord.TextChannel, id=0),
+        guild=mocker.AsyncMock(spec=discord.Guild, id=225345178955808768),
+    )
     with pytest.raises(errors.WrongChannelError) as exc:
         await cog.interaction_check(mock_interaction)
     assert exc.value._channel == 969972085445238784
-    assert str(exc.value) == "This command can only be run in the channel <#969972085445238784> ."
+    assert (
+        str(exc.value).encode("ascii", "ignore").decode()
+        == "This command can only be run in the channel <#969972085445238784> ."
+    )
 
 
 async def test_interaction_check_no_allowed_roles(mock_bot, mocker: MockerFixture):
     """Test the interaction check when the interaction is in the wrong channel."""
     cog = Reputation(mock_bot)
-    mock_interaction = mocker.AsyncMock(spec=discord.Interaction)
-    mock_interaction.guild = mocker.AsyncMock(spec=discord.Guild)
-    mock_interaction.guild.id = 225345178955808768
-    mock_interaction.channel = mocker.AsyncMock(spec=discord.TextChannel)
-    mock_interaction.channel.id = 969972085445238784
+    mock_interaction = mocker.AsyncMock(
+        spec=discord.Interaction,
+        locale=discord.Locale.american_english,
+        channel=mocker.AsyncMock(spec=discord.TextChannel, id=969972085445238784),
+        guild=mocker.AsyncMock(spec=discord.Guild, id=225345178955808768),
+    )
     mock_interaction.user = mocker.AsyncMock(spec=discord.Member)
     with pytest.raises(errors.MissingProgramRole) as exc:
         await cog.interaction_check(mock_interaction)
     assert (
-        exc.value.args[0]
+        exc.value.args[0].encode("ascii", "ignore").decode()
         == "You are missing at least one of the required roles: '337743478190637077', '685331877057658888', "
         "'969629622453039104', '969629628249563166', '969629632028614699', '969628342733119518', "
         "'969627321239760967', or '969626979353632790'"
@@ -88,7 +93,7 @@ async def test_interaction_check_no_allowed_roles(mock_bot, mocker: MockerFixtur
         969627321239760967,
         969626979353632790,
     ]
-    assert str(exc.value) == (
+    assert str(exc.value).encode("ascii", "ignore").decode() == (
         "You are missing at least one of the required roles: '337743478190637077', '685331877057658888', "
         "'969629622453039104', '969629628249563166', '969629632028614699', '969628342733119518', '969627321239760967', "
         "or '969626979353632790' - you must be at least level 1 to use this command/button."

@@ -25,7 +25,7 @@ class WrongChannelError(AppCommandError):
     def __init__(self, channel: int, locale: discord.Locale):
         """Init."""
         super().__init__()
-        self.message = translate(locale.value, "wrong-channel", {"channelid": "channel"})
+        self.message = translate(locale.value, "wrong-channel", {"channelid": f"{channel}"})
         self._channel: int = channel
 
     def __str__(self):

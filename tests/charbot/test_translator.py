@@ -26,4 +26,4 @@ async def test_translate_with_data(translator: Translator, locale: Locale):
     # If translate returns None, set result to empty string for assert comparison.
     result: str | None = await translator.translate(key, locale, context)
     assert result is not None, "Result should not be None"
-    assert "You gained 5 points." in result, "Should say awarded 5 points"
+    assert "You gained 5 points." in result.encode("ascii", "ignore").decode(), "Should say awarded 5 points"

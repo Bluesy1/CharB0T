@@ -56,8 +56,8 @@ class Translator(app_commands.Translator):
             translated = translate(
                 locale.value,
                 key,
-                {k: v for k, v in context.data if isinstance(v, (int, float, str))}
-                | {k: v for k, v in string.extras if isinstance(v, (int, float, str))},
+                {k: v for k, v in context.data.items() if isinstance(v, (int, float, str))}
+                | {k: v for k, v in string.extras.items() if isinstance(v, (int, float, str))},
             )
         else:
             translated = translate(locale.value, key, {})

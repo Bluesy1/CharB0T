@@ -80,6 +80,7 @@ name = "charbot_rust"
 version = "0.3.0"
 dependencies = [
  "fluent",
+ "fluent-syntax 0.11.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "image",
  "imageproc",
  "pyo3",
@@ -228,7 +229,7 @@ version = "0.15.2"
 source = "git+https://github.com/projectfluent/fluent-rs?rev=8fc76783960217b2a852b9c129ef546b6b8d8bfe#8fc76783960217b2a852b9c129ef546b6b8d8bfe"
 dependencies = [
  "fluent-langneg",
- "fluent-syntax",
+ "fluent-syntax 0.11.0 (git+https://github.com/projectfluent/fluent-rs?rev=8fc76783960217b2a852b9c129ef546b6b8d8bfe)",
  "intl-memoizer",
  "intl_pluralrules",
  "rustc-hash",
@@ -244,6 +245,15 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "2c4ad0989667548f06ccd0e306ed56b61bd4d35458d54df5ec7587c0e8ed5e94"
 dependencies = [
  "unic-langid",
+]
+
+[[package]]
+name = "fluent-syntax"
+version = "0.11.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "c0abed97648395c902868fee9026de96483933faa54ea3b40d652f7dfe61ca78"
+dependencies = [
+ "thiserror",
 ]
 
 [[package]]
