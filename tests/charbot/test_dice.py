@@ -17,46 +17,6 @@ def not_random(monkeypatch):
     monkeypatch.setattr(random, "randint", lambda *args: 1)
 
 
-def test_valid_roll(user_localizer):
-    """Test valid roll."""
-    assert dice.roll("1d4+5", *user_localizer) == "User rolled `1d4+5` and got `1, 5`for a total of `6`."
-
-
-def test_valid_implicit_roll(user_localizer):
-    """Test valid implicit roll."""
-    assert dice.roll("d4+5", *user_localizer) == "User rolled `d4+5` and got `1, 5`for a total of `6`."
-
-
-def test_valid_implicit_roll_no_bonus(user_localizer):
-    """Test valid implicit roll without bonus."""
-    assert dice.roll("d4", *user_localizer) == "User rolled `d4` and got `1`for a total of `1`."
-
-
-def test_valid_implicit_roll_only_bonus(user_localizer):
-    """Test valid implicit roll only bonus."""
-    assert dice.roll("5", *user_localizer) == "User rolled `5` and got `5`for a total of `5`."
-
-
-def test_invalid_roll(user_localizer):
-    """Test invalid roll."""
-    assert dice.roll("1e4+5", *user_localizer) == (
-        "User:\n"
-        "Error invalid argument:\n"
-        " Specified dice can only be d<int>, or if a constant modifier must be a "
-        "perfect integer, positive or negative, connected with `+`, and no spaces."
-    )
-
-
-def test_invalid_die(user_localizer):
-    """Test invalid die."""
-    assert dice.roll("1de+5", *user_localizer) == (
-        "User:\n"
-        "Error invalid argument:\n"
-        " Specified dice can only be d<int>, or if a constant modifier must be a "
-        "perfect integer, positive or negative, connected with `+`, and no spaces."
-    )
-
-
 @pytest.mark.asyncio
 async def test_valid_roll_async(mocker: MockerFixture):
     """Test valid roll command."""
