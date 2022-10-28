@@ -11,6 +11,8 @@ from pkgutil import iter_modules
 
 import discord
 
+from charbot_rust import translate
+
 __all__ = (
     "EXTENSIONS",
     "CBot",
@@ -20,6 +22,7 @@ __all__ = (
     "GuildInteraction",
     "ComponentInteraction",
     "GuildComponentInteraction",
+    "translate",
 )
 __blacklist__ = [f"{__package__}.{item}" for item in ("__main__", "bot", "card", "errors", "types", "translator")]
 

@@ -7,22 +7,21 @@ import random
 import discord
 from discord.ext import commands
 from discord.ext.commands import Cog, Context
-from fluent.runtime import FluentLocalization
 
-from charbot import CBot
+from charbot import CBot, translate
 
 
-def roll(arg: str, user: str, i18n: FluentLocalization) -> str:
+def roll(arg: str, user: str, locale: discord.Locale) -> str:
     """Dice roller.
 
     Parameters
     ----------
-    i18n: FluentLocalization
-        Localizer
     arg : str
         Dice roll string
     user: str
         Name to attribute to the user
+    locale: discord.Locale
+        The locale to use for translation
     """
     dice = arg.split("+") if "+" in arg else [arg]
     # noinspection PyBroadException
@@ -46,13 +45,13 @@ def roll(arg: str, user: str, i18n: FluentLocalization) -> str:
                     rolls.append(int(die))
                     sums += int(die)
                 except ValueError:
-                    return i18n.format_value("error", args={"user": user})
+                    return translate(locale.value, "error", {"user": user})
         output = ", ".join(f"{res}" for res in rolls)
-        return i18n.format_value(
-            "success", args={"user": user, "dice": arg, "total": sums, "result": output, "locale": "en-US"}
+        return translate(
+            locale.value, "success", {"user": user, "dice": arg, "total": sums, "result": output, "locale": "en-US"}
         )
     except Exception:  # skipcq: PYL-W0703
-        return i18n.format_value("error", args={"user": user})
+        return translate(locale.value, "error", {"user": user})
 
 
 class Roll(Cog):
@@ -106,7 +105,7 @@ class Roll(Cog):
             The dice to roll.
         """
         await ctx.reply(
-            roll(dice, ctx.author.mention, FluentLocalization(["en-US"], ["dice.ftl"], ctx.bot.localizer_loader)),
+            roll(dice, ctx.author.mention, discord.Locale.american_english),
             mention_author=True,
         )
 

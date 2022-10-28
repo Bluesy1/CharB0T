@@ -8,14 +8,12 @@
 import string
 from io import BytesIO
 
-from fluent.runtime import FluentResourceLoader, FluentLocalization
-from typing_extensions import Self
-
 import discord
 from PIL import Image
 from discord import ButtonStyle, ui, SelectOption
+from typing_extensions import Self
 
-from .. import GuildComponentInteraction as Interaction, CBot
+from .. import GuildComponentInteraction as Interaction, CBot, translate
 from charbot_rust import minesweeper
 
 
@@ -42,31 +40,29 @@ class Minesweeper(ui.View):
         self.game = game
         x = self.game.x
         y = self.game.y
-        loader = FluentResourceLoader("i18n/{locale}")
-        i18n = FluentLocalization([locale.value, "en-US"], ["minesweeper.ftl"], loader).format_value
         # f"{i}" is significantly faster than str(i), as it doesn't make a command to CALL_FUNCTION internally.
         self.row.options = [
             SelectOption(
-                label=i18n("minesweeper-select-row-label", {"letter": letter}),
+                label=translate(locale.value, "minesweeper-select-row-label", {"letter": letter}),
                 value=f"{i}",
                 emoji=chr(0x1F1E6 + i),
                 default=i == y,
-                description=i18n("minesweeper-select-row-description", {"letter": letter}),
+                description=translate(locale.value, "minesweeper-select-row-description", {"letter": letter}),
             )
             for i, letter in enumerate(string.ascii_uppercase[: self.game.height])
         ]
         self.column.options = [
             SelectOption(
-                label=i18n("minesweeper-select-col-label", {"letter": letter}),
+                label=translate(locale.value, "minesweeper-select-col-label", {"letter": letter}),
                 value=f"{i}",
                 emoji=chr(0x1F1E6 + i),
                 default=i == x,
-                description=i18n("minesweeper-select-row-description", {"letter": letter}),
+                description=translate(locale.value, "minesweeper-select-row-description", {"letter": letter}),
             )
             for i, letter in enumerate(string.ascii_uppercase[: self.game.width])
         ]
-        self.row.placeholder = i18n("minesweeper-select-row-placeholder")
-        self.column.placeholder = i18n("minesweeper-select-col-placeholder")
+        self.row.placeholder = translate(locale.value, "minesweeper-select-row-placeholder", {})
+        self.column.placeholder = translate(locale.value, "minesweeper-select-col-placeholder", {})
 
     async def draw(self, alt: str) -> discord.File:
         """Draw the game board.

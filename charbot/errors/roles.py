@@ -7,10 +7,8 @@
 """Wrong roles error."""
 import discord
 from discord.app_commands import MissingAnyRole
-from fluent.runtime import FluentResourceLoader, FluentLocalization
 
-
-LOADER = FluentResourceLoader("i18n/{locale}")
+from charbot_rust import translate
 
 
 class MissingProgramRole(MissingAnyRole):
@@ -32,8 +30,7 @@ class MissingProgramRole(MissingAnyRole):
             fmt = f"{', '.join(missing[:-1])}, or {missing[-1]}"
         else:
             fmt = " or ".join(missing)
-        translator = FluentLocalization([locale.value, "en-US"], ["errors.ftl"], LOADER)
-        self.message = translator.format_value("missing-program-role", {"roles": fmt})
+        self.message = translate(locale.value, "missing-program-role", {"roles": fmt})
 
     def __str__(self):
         """Get the error as a string."""
