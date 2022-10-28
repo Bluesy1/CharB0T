@@ -179,7 +179,7 @@ class Game:
         """
         ...
     def change_row(self, row: int) -> Selected:
-        """CHange the row the internal cursor is on.
+        """Change the row the internal cursor is on.
 
         Parameters
         ----------
