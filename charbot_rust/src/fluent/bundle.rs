@@ -3,8 +3,6 @@
 // SPDX-License-Identifier: MIT
 use fluent::{FluentBundle, FluentResource}; // fluent translation stuff
 use crate::fluent::common; // ftl files
-// Used to provide a locale for the bundle.
-use unic_langid::LanguageIdentifier;
 
 #[allow(unused)]
 pub enum AvailableLocales {
@@ -15,17 +13,7 @@ pub enum AvailableLocales {
 }
 
 impl AvailableLocales {
-    #[allow(unused)]
-    pub fn get_locale(&self) -> LanguageIdentifier {
-        match self {
-            AvailableLocales::AmericanEnglish => "en-US".parse().expect("Parsing failed"),
-            AvailableLocales::EuropeanSpanish => "es-ES".parse().expect("Parsing failed"),
-            AvailableLocales::French => "fr".parse().expect("Parsing failed"),
-            AvailableLocales::Dutch => "nl".parse().expect("Parsing failed"),
-        }
-    }
-    #[allow(unused)]
-    pub fn from_locale_string(locale: &str) -> Option<AvailableLocales> {
+    pub fn from_str(locale: &str) -> Option<AvailableLocales> {
         match locale {
             "en-US" => Some(AvailableLocales::AmericanEnglish),
             "es-ES" => Some(AvailableLocales::EuropeanSpanish),
@@ -34,14 +22,8 @@ impl AvailableLocales {
             _ => None,
         }
     }
-    #[allow(unused)]
-    pub fn locale_string(&self) -> String {
-        match self {
-            AvailableLocales::AmericanEnglish => "en-US".to_string(),
-            AvailableLocales::EuropeanSpanish => "es-ES".to_string(),
-            AvailableLocales::French => "fr".to_string(),
-            AvailableLocales::Dutch => "nl".to_string(),
-        }
+    pub fn variants() -> String {
+        String::from("en-US, es-ES, fr, nl")
     }
 }
 

@@ -84,7 +84,6 @@ dependencies = [
  "imageproc",
  "pyo3",
  "rand 0.8.5",
- "unic-langid",
  "yare",
 ]
 

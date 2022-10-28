@@ -13,6 +13,7 @@ mod fluent;
 fn charbot_rust(py: Python, m: &PyModule) -> PyResult<()> {
     tictactoe::register_tictactoe(py, m)?;
     minesweeper::register_minesweeper(py, m)?;
+    fluent::register_fluent(m)?;
     Ok(())
 }
 // COV_EXCL_STOP

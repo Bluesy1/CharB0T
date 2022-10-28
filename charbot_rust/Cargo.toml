@@ -18,7 +18,6 @@ rand = "0.8.5"
 image = "0.24.4"
 imageproc = "0.23.0"
 fluent = { git = "https://github.com/projectfluent/fluent-rs", rev = "8fc76783960217b2a852b9c129ef546b6b8d8bfe" }
-unic-langid = "0.9.1"
 
 [dev-dependencies]
 yare = "1.0.2"
