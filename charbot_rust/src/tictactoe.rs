@@ -120,7 +120,7 @@ impl Game {
     #[new]
     fn __new__(difficulty: i32) -> PyResult<Self> { // COV_EXCL_LINE
         Self::new(difficulty, StdRng::from_entropy())
-            .map_err(|e| PyErr::new::<PyException, _>(e.to_string()))
+            .map_err(PyErr::new::<PyException, _>)
     }
 
 

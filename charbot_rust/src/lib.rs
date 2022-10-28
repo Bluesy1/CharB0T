@@ -5,6 +5,7 @@ use pyo3::prelude::*;
 mod tictactoe;
 mod points;
 mod minesweeper;
+mod fluent;
 
 /// A rewrite of parts of charbot in rust.
 #[pymodule]

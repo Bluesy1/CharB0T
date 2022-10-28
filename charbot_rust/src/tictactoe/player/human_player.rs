@@ -14,9 +14,9 @@ impl Display for HumanPlayer {
 }
 
 impl Player for HumanPlayer {
+    #[allow(const_item_mutation)]
     fn play(&self, board: &Board, _: Piece) -> Index {
-        Board::VALID_INDECES
-            .filter(|index| board.cell_is_empty(*index)).next().unwrap()
+        Board::VALID_INDECES.find(|index| board.cell_is_empty(*index)).unwrap()
     }
 }
 

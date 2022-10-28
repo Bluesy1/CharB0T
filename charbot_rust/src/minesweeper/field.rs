@@ -285,13 +285,13 @@ impl Field {
     fn get_cell_mut(&mut self, i: u32) -> &mut Cell {
         self.cells
             .get_mut(i as usize)
-            .unwrap_or_else(|| panic!("Range check error at Field::get_cell_mut ({})", i))
+            .unwrap_or_else(|| panic!("Range check error at Field::get_cell_mut ({i})"))
     }
 
     fn get_cell(&self, i: u32) -> &Cell {
         self.cells
             .get(i as usize)
-            .unwrap_or_else(|| panic!("Range check error at Field::get_cell ({})", i))
+            .unwrap_or_else(|| panic!("Range check error at Field::get_cell ({i})"))
     }
 
     fn get_content_safe(&self, i: i32) -> Option<&Content> {

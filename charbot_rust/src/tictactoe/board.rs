@@ -175,7 +175,15 @@ impl Board {
         self.board.to_vec()
     }
 }
+
+impl Default for Board {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 // COV_EXCL_STOP
+
 
 impl Board {
     pub fn new() -> Self {
@@ -190,7 +198,7 @@ impl Board {
 
     pub fn place_piece(&mut self, index: Index, piece: Piece) -> bool {
         if !self.cell_is_empty(index) {
-            panic!("Tried to place a piece on an occupied cell, Index: {}", index); // COV_EXCL_LINE
+            panic!("Tried to place a piece on an occupied cell, Index: {index}"); // COV_EXCL_LINE
         }
         self.board[index] = piece; // COV_EXCL_LINE
         self.n_pieces += 1;
@@ -231,7 +239,7 @@ impl Board {
 
     fn format_cell(&self, index: Index, formatter: &mut Formatter<'_>) -> Result<(), Error> { // COV_EXCL_LINE
         match self.board[index] {
-            Piece::Empty => write!(formatter, "{}", index),
+            Piece::Empty => write!(formatter, "{index}"),
             player => player.fmt(formatter),
         }
     }
