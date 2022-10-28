@@ -5,7 +5,6 @@ use std::collections::HashMap;
 
 use crate::fluent::bundle;
 use fluent::{FluentBundle, FluentResource, FluentArgs, FluentValue};
-use fluent_syntax::unicode::unescape_unicode_to_string;
 use pyo3::{PyAny, PyErr, PyResult};
 use pyo3::exceptions::{PyKeyError, PyTypeError, PyValueError};
 
@@ -50,8 +49,7 @@ impl Translator{
         }
         let value = self.bundle.format_pattern(pattern, Some(&fluent_args), &mut errors);
         if errors.is_empty() {
-                let s = unescape_unicode_to_string(value.parse::<String>().expect("Failed to parse value").as_str()).into_owned();
-                Ok(s)
+            Ok(value.parse()?)
         } else {
             let message = self.fallback_bundle.get_message(key).ok_or_else(|| {
                 PyKeyError::new_err(format!("Message with key {key} not found"))
@@ -62,8 +60,7 @@ impl Translator{
             let mut errors = vec![];
             let value = self.fallback_bundle.format_pattern(pattern, Some(&fluent_args), &mut errors);
             if errors.is_empty() {
-                let s = unescape_unicode_to_string(value.parse::<String>().expect("Failed to parse value").as_str()).into_owned();
-                Ok(s)
+                Ok(value.parse()?)
             } else {
                 Err(PyValueError::new_err("Translation failed"))
             }
