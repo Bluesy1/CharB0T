@@ -78,7 +78,7 @@ async def test_handle_win(game: Game, inter):
 @pytest.mark.asyncio
 async def test_row(game: Game, inter):
     view = minesweeper.Minesweeper(game)
-    view.row._refresh_state({"custom_id": "a", "component_type": 3, "values": ["0"]})
+    view.row._refresh_state(inter, {"custom_id": "a", "component_type": 3, "values": ["0"]})
     await view.row.callback(inter)
     inter.response.edit_message.assert_awaited_once()
     kwargs: dict[str, Any] = inter.response.edit_message.await_args.kwargs
@@ -91,7 +91,7 @@ async def test_row(game: Game, inter):
 @pytest.mark.asyncio
 async def test_column(game: Game, inter):
     view = minesweeper.Minesweeper(game)
-    view.column._refresh_state({"custom_id": "a", "component_type": 3, "values": ["0"]})
+    view.column._refresh_state(inter, {"custom_id": "a", "component_type": 3, "values": ["0"]})
     await view.column.callback(inter)
     inter.response.edit_message.assert_awaited_once()
     kwargs: dict[str, Any] = inter.response.edit_message.await_args.kwargs
