@@ -302,7 +302,7 @@ mod tests {
         pos_eight = { 8, (355, 357), String::from("BottomRight")}
     )]
     fn offset(pos: Index, value: (u16, u16), name: String) {
-        let zero = Offset::new(pos).expect(format!("Failed to create Offset::{}", &name).as_str());
+        let zero = Offset::new(pos).unwrap_or_else(|_| panic!("Failed to create Offset::{}", &name));
         assert_eq!(zero.value(), value);
         assert_eq!(zero.name(), name);
     }

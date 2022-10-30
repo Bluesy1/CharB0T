@@ -65,7 +65,7 @@ impl Translator{
                          .map_err(|e| format!("Failed to parse value: {e}"))?  //COV_EXCL_LINE
                          .as_str(), EncoderTrap::Ignore)?,
                 DecoderTrap::Ignore
-                )?)
+                )?)  // COV_EXCL_LINE
         } else {
             // COV_EXCL_START
             let message = self.fallback_bundle.get_message(key).ok_or_else(|| {
@@ -83,8 +83,7 @@ impl Translator{
                                   .as_str(), EncoderTrap::Ignore)?,
                     DecoderTrap::Ignore
                 )?)
-            // COV_EXCL_STOP
-            } else {
+            } else {// COV_EXCL_STOP
                 Err(format!("Translation failed: {}", errors
                     .iter()
                     .map(|e| e.to_string())

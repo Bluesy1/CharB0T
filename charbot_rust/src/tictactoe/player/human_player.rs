@@ -4,7 +4,7 @@ use super::Player;
 use crate::tictactoe::board::{Board, Index, Piece};
 use std::fmt::{Display, Error, Formatter};
 
-#[derive(Debug, PartialEq)] // COV_EXCL_LINE
+#[derive(Debug, PartialEq, Eq)] // COV_EXCL_LINE
 pub struct HumanPlayer;
 
 impl Display for HumanPlayer {

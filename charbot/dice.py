@@ -32,7 +32,7 @@ def roll(arg: str, user: str, locale: discord.Locale) -> str:
             if "d" in die:
                 try:
                     num_rolls = int(die[: die.find("d")])
-                except ValueError:
+                except ValueError:  # pragma: no cover
                     num_rolls = 1
                 for _ in range(1, num_rolls + 1):
                     # fmt: off
@@ -50,7 +50,7 @@ def roll(arg: str, user: str, locale: discord.Locale) -> str:
         return translate(
             locale.value, "success", {"user": user, "dice": arg, "total": sums, "result": output, "locale": "en-US"}
         )
-    except Exception:  # skipcq: PYL-W0703
+    except Exception:  # skipcq: PYL-W0703  # pragma: no cover
         return translate(locale.value, "error", {"user": user})
 
 

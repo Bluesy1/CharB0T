@@ -9,7 +9,7 @@ use pyo3::prelude::*;
 use crate::tictactoe::board::{Offset, Piece};
 use crate::points::Points;
 
-#[derive(Debug, PartialEq)] // COV_EXCL_LINE
+#[derive(Debug, PartialEq, Eq)] // COV_EXCL_LINE
 pub enum Difficulty {
     Easy,
     Medium,

@@ -1,10 +1,10 @@
-// SPDX-FileCopyrightText: 2022 Bluesy1 <68259537+Bluesy1@users.noreply.github.com>
+// SPDX-FileCopyrightText: 2022 Bluesy1 <68259537+Bluesy1@users.noreply.github.com>  // COV_EXCL_LINE
 //
 // SPDX-License-Identifier: MIT
 use fluent::{FluentBundle, FluentResource}; // fluent translation stuff
 use crate::fluent::common; // ftl files
 
-#[derive(PartialEq, Debug)]
+#[derive(Debug, PartialEq, Eq)]  // COV_EXCL_LINE
 pub enum AvailableLocales {
     AmericanEnglish,
     EuropeanSpanish,
@@ -31,7 +31,9 @@ impl AvailableLocales {
 pub(crate) fn get_bundle(locale: AvailableLocales) -> Result<FluentBundle<FluentResource>, String>{
     match locale {
         AvailableLocales::AmericanEnglish => {
-            let mut bundle = FluentBundle::new(vec!["en-US".parse().expect("Parsing failed")]);
+            let mut bundle = FluentBundle::new(
+                vec!["en-US".parse().expect("Parsing failed")]
+            );
             let resources = vec![
                 common::EN_US_DICE,
                 common::EN_US_ERRORS,
@@ -45,7 +47,9 @@ pub(crate) fn get_bundle(locale: AvailableLocales) -> Result<FluentBundle<Fluent
         },
         //COV_EXCL_START
         AvailableLocales::EuropeanSpanish => {
-            let mut bundle = FluentBundle::new(vec!["es-ES".parse().expect("Parsing failed")]);
+            let mut bundle = FluentBundle::new(
+                vec!["es-ES".parse().expect("Parsing failed")])
+                ;
             let resources = vec![
                 common::ES_ES_DICE,
                 common::ES_ES_ERRORS,
@@ -57,7 +61,9 @@ pub(crate) fn get_bundle(locale: AvailableLocales) -> Result<FluentBundle<Fluent
             Ok(bundle)
         },
         AvailableLocales::French => {
-            let mut bundle = FluentBundle::new(vec!["fr".parse().expect("Parsing failed")]);
+            let mut bundle = FluentBundle::new(
+                vec!["fr".parse().expect("Parsing failed")]
+            );
             let resources = vec![
                 common::FR_DICE,
                 common::FR_ERRORS,
@@ -70,7 +76,9 @@ pub(crate) fn get_bundle(locale: AvailableLocales) -> Result<FluentBundle<Fluent
             Ok(bundle)
         },
         AvailableLocales::Dutch => {
-            let mut bundle = FluentBundle::new(vec!["nl".parse().expect("Parsing failed")]);
+            let mut bundle = FluentBundle::new(
+                vec!["nl".parse().expect("Parsing failed")]
+            );
             let resources = vec![
                 common::NL_DICE,
                 common::NL_ERRORS,

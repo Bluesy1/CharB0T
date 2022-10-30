@@ -101,6 +101,6 @@ mod tests {
         mine_trigger={TILE_MINE_TRIGGER, "Trigger Mine Tile"},
     )]
     fn images_exist(img: &[u8], name: &str) {
-        assert!(img.len() > 0, "{} is empty/missing.", name);
+        assert!(!img.is_empty(), "{} is empty/missing.", name);
     }
 }

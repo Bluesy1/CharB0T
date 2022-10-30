@@ -15,7 +15,7 @@ use crate::minesweeper::game::ReturnCell;
 pub const TILE_WIDTH: u32 = 50;
 pub const TILE_HEIGHT: u32 = 50;
 
-#[derive(PartialEq, Debug)] // COV_EXCL_LINE
+#[derive(Debug, PartialEq, Eq)] // COV_EXCL_LINE
 pub enum Content {
     Number(u8), // COV_EXCL_LINE
     Mine(bool), // bool is true when this is the mine that caused you to loose the game.
