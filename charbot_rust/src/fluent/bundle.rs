@@ -4,7 +4,7 @@
 use fluent::{FluentBundle, FluentResource}; // fluent translation stuff
 use crate::fluent::common; // ftl files
 
-#[allow(unused)]
+#[derive(PartialEq, Debug)]
 pub enum AvailableLocales {
     AmericanEnglish,
     EuropeanSpanish,
@@ -19,7 +19,7 @@ impl AvailableLocales {
             "es-ES" => Some(AvailableLocales::EuropeanSpanish),
             "fr" => Some(AvailableLocales::French),
             "nl" => Some(AvailableLocales::Dutch),
-            _ => None,
+            _ => None,  //COV_EXCL_LINE
         }
     }
     pub fn variants() -> String {
@@ -43,6 +43,7 @@ pub(crate) fn get_bundle(locale: AvailableLocales) -> Result<FluentBundle<Fluent
             for resource in resources {add_resource(&mut bundle, resource)?}
             Ok(bundle)
         },
+        //COV_EXCL_START
         AvailableLocales::EuropeanSpanish => {
             let mut bundle = FluentBundle::new(vec!["es-ES".parse().expect("Parsing failed")]);
             let resources = vec![
@@ -81,6 +82,7 @@ pub(crate) fn get_bundle(locale: AvailableLocales) -> Result<FluentBundle<Fluent
             for resource in resources {add_resource(&mut bundle, resource)?}
             Ok(bundle)
         },
+        //COV_EXCL_STOP
     }
 }
 
@@ -88,10 +90,31 @@ fn add_resource(bundle: &mut FluentBundle<FluentResource>, source: &'static str)
     match FluentResource::try_new(source.to_string()) {
         Ok(res) => {
             if bundle.add_resource(res).is_err() {
-                return Err("Failed to add FTL resources to the bundle.".to_string());
+                return Err("Failed to add FTL resources to the bundle.".to_string());  //COV_EXCL_LINE
             }
         },
-        Err(_) => return Err("String could not be turned into a FluentResource".to_string()),
+        Err(_) => return Err("String could not be turned into a FluentResource".to_string()),  //COV_EXCL_LINE
     }
     Ok(())
+}
+
+
+#[cfg(test)]
+mod tests{
+
+    #[test]
+    fn test_available_locales_from_str() {
+        use super::AvailableLocales;
+        assert_eq!(AvailableLocales::from_str("en-US"), Some(AvailableLocales::AmericanEnglish));
+        assert_eq!(AvailableLocales::from_str("es-ES"), Some(AvailableLocales::EuropeanSpanish));
+        assert_eq!(AvailableLocales::from_str("fr"), Some(AvailableLocales::French));
+        assert_eq!(AvailableLocales::from_str("nl"), Some(AvailableLocales::Dutch));
+        assert_eq!(AvailableLocales::from_str("de"), None);
+    }
+
+    #[test]
+    fn test_available_locales_variants() {
+        use super::AvailableLocales;
+        assert_eq!(AvailableLocales::variants(), "en-US, es-ES, fr, nl");
+    }
 }

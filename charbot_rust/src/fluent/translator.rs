@@ -9,11 +9,7 @@ use pyo3::{FromPyObject};
 use encoding::all::ASCII;
 use encoding::{DecoderTrap, EncoderTrap, Encoding};
 
-pub(crate) struct Translator {
-    bundle: FluentBundle<FluentResource>,
-    fallback_bundle: FluentBundle<FluentResource>,
-}
-
+// COV_EXCL_START
 #[derive(FromPyObject, Clone)]
 pub enum ArgTypes {
     #[pyo3(transparent)]
@@ -22,6 +18,12 @@ pub enum ArgTypes {
     Float(f64),
     #[pyo3(transparent)]
     String(String),
+}
+// COV_EXCL_STOP
+
+pub(crate) struct Translator {
+    bundle: FluentBundle<FluentResource>,
+    fallback_bundle: FluentBundle<FluentResource>,
 }
 
 impl Translator{
@@ -39,8 +41,8 @@ impl Translator{
             format!("Message with key {key} not found")
         })?;
         let pattern = message.value().ok_or_else(|| {
-            format!("Message with key {key} has no value")
-        })?;
+            format!("Message with key {key} has no value")  //COV_EXCL_LINE
+        })?;  //COV_EXCL_LINE
         let mut fluent_args = FluentArgs::new();
         args.iter().for_each(|(key, value)| {
             match value {
@@ -60,11 +62,12 @@ impl Translator{
         if errors.is_empty() {
             Ok(ASCII.decode(
                 &ASCII.encode(value.parse::<String>()
-                             .map_err(|e| format!("Failed to parse value: {e}"))?
-                             .as_str(), EncoderTrap::Ignore)?,
+                         .map_err(|e| format!("Failed to parse value: {e}"))?  //COV_EXCL_LINE
+                         .as_str(), EncoderTrap::Ignore)?,
                 DecoderTrap::Ignore
                 )?)
         } else {
+            // COV_EXCL_START
             let message = self.fallback_bundle.get_message(key).ok_or_else(|| {
                 format!("Message with key {key} not found")
             })?;
@@ -80,6 +83,7 @@ impl Translator{
                                   .as_str(), EncoderTrap::Ignore)?,
                     DecoderTrap::Ignore
                 )?)
+                // COV_EXCL_STOP
             } else {
                 Err(format!("Translation failed: {}", errors.iter().map(|e| e.to_string()).collect::<Vec<String>>().join(", ")))
             }
@@ -87,6 +91,7 @@ impl Translator{
     }
 }
 
+// COV_EXCL_START
 #[cfg(test)]
 mod tests {
     use std::collections::HashMap;
@@ -110,4 +115,22 @@ mod tests {
             }
         }
     }
+
+    #[test]
+    fn test_nonexistent_key() {
+        let translator = Translator::new(AvailableLocales::AmericanEnglish)
+            .expect("Failed to create translator");
+        let mut args = HashMap::new();
+        args.insert("user".to_string(), ArgTypes::String("John".to_string()));
+        args.insert("command".to_string(), ArgTypes::String("help".to_string()));
+        match translator.translate("nonexistent-key", args){
+            Ok(_) => {
+                panic!("Translation should have failed");
+            }
+            Err(e) => {
+                assert_eq!(e, "Message with key nonexistent-key not found");
+            }
+        }
+    }
 }
+// COV_EXCL_STOP
