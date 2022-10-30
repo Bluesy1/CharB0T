@@ -24,6 +24,16 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
+      - name: Configure cache
+        uses: actions/cache@v3
+        with:
+          path: |
+            ~/.cargo/bin/
+            ~/.cargo/registry/index/
+            ~/.cargo/registry/cache/
+            ~/.cargo/git/db/
+            charbot_rust/target/
+          key: clippy${{ matrix.python-version }}-${{ hashFiles('**/Cargo.lock') }}
       - name: Run Clippy
         run: |
           cd charbot_rust
