@@ -30,7 +30,7 @@ class Translator(app_commands.Translator):
         str | None
             The translated string or None if the string is not found
         """
-        if locale not in self.supported_locales:
+        if locale not in self.supported_locales:  # pragma: no cover
             return None
         if context.location is TranslationContextLocation.command_name:
             key = f"{context.data.qualified_name.replace(' ', '-')}-name"

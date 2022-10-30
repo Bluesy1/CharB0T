@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2022 Bluesy1 <68259537+Bluesy1@users.noreply.github.com>
+// SPDX-FileCopyrightText: 2022 Bluesy1 <68259537+Bluesy1@users.noreply.github.com>  // COV_EXCL_START
 //
 // SPDX-License-Identifier: MIT
 mod common;
@@ -53,3 +53,4 @@ pub(crate) fn register_fluent(m: &PyModule) -> PyResult<()>{
     m.add_function(wrap_pyfunction!(translate, m)?)?;
     Ok(())
 }
+// COV_EXCL_STOP

@@ -83,10 +83,15 @@ impl Translator{
                                   .as_str(), EncoderTrap::Ignore)?,
                     DecoderTrap::Ignore
                 )?)
-                // COV_EXCL_STOP
+            // COV_EXCL_STOP
             } else {
-                Err(format!("Translation failed: {}", errors.iter().map(|e| e.to_string()).collect::<Vec<String>>().join(", ")))
+                Err(format!("Translation failed: {}", errors
+                    .iter()
+                    .map(|e| e.to_string())
+                    .collect::<Vec<String>>()
+                    .join(", ")))
             }
+
         }
     }
 }
@@ -129,6 +134,44 @@ mod tests {
             }
             Err(e) => {
                 assert_eq!(e, "Message with key nonexistent-key not found");
+            }
+        }
+    }
+
+    #[test]
+    fn test_all_arg_types() {
+        let translator = Translator::new(AvailableLocales::AmericanEnglish)
+            .expect("Failed to create translator");
+        let mut args = HashMap::new();
+        args.insert("user".to_string(), ArgTypes::String("John".to_string()));
+        args.insert("dice".to_string(), ArgTypes::String("1d6".to_string()));
+        args.insert("result".to_string(), ArgTypes::Int(1));
+        args.insert("total".to_string(), ArgTypes::Float(1.0));
+        match translator.translate("success", args){
+            Ok(translation) => {
+                assert_eq!(translation, "John rolled `1d6` and got `1`for a total of `1`.");
+            }
+            Err(e) => {
+                panic!("Failed to translate: {e}");
+            }
+        }
+    }
+
+    #[test]
+    fn test_missing_test_key() {
+        let translator = Translator::new(AvailableLocales::AmericanEnglish)
+            .expect("Failed to create translator");
+        let mut args = HashMap::new();
+        args.insert("user".to_string(), ArgTypes::String("John".to_string()));
+        args.insert("dice".to_string(), ArgTypes::String("1d6".to_string()));
+        args.insert("rolled".to_string(), ArgTypes::Int(1));
+        args.insert("total".to_string(), ArgTypes::Float(1.0));
+        match translator.translate("success", args){
+            Ok(_) => {
+                panic!("Translation should have failed");
+            }
+            Err(e) => {
+                assert_eq!(e, "Translation failed: Resolver error: Unknown variable: $result");
             }
         }
     }
