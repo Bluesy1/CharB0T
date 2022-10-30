@@ -5,12 +5,23 @@ use std::collections::HashMap;
 
 use crate::fluent::bundle;
 use fluent::{FluentBundle, FluentResource, FluentArgs, FluentValue};
-use pyo3::{PyAny, PyErr, PyResult};
-use pyo3::exceptions::{PyKeyError, PyTypeError, PyValueError};
+use pyo3::{FromPyObject};
+use encoding::all::ASCII;
+use encoding::{DecoderTrap, EncoderTrap, Encoding};
 
 pub(crate) struct Translator {
     bundle: FluentBundle<FluentResource>,
     fallback_bundle: FluentBundle<FluentResource>,
+}
+
+#[derive(FromPyObject, Clone)]
+pub enum ArgTypes {
+    #[pyo3(transparent)]
+    Int(i64),
+    #[pyo3(transparent)]
+    Float(f64),
+    #[pyo3(transparent)]
+    String(String),
 }
 
 impl Translator{
@@ -23,46 +34,79 @@ impl Translator{
         })
     }
 
-    pub(crate) fn translate(&self, key: &str, args: HashMap<String, &PyAny>) -> PyResult<String> {
+    pub(crate) fn translate(&self, key: &str, args: HashMap<String, ArgTypes>) -> Result<String, String> {
         let message = self.bundle.get_message(key).ok_or_else(|| {
-            PyKeyError::new_err(format!("Message with key {key} not found"))
+            format!("Message with key {key} not found")
         })?;
         let pattern = message.value().ok_or_else(|| {
-            PyValueError::new_err(format!("Message with key {key} has no value"))
+            format!("Message with key {key} has no value")
         })?;
-        let mut errors = vec![];
         let mut fluent_args = FluentArgs::new();
-        let mut err: Option<PyErr> = None;
         args.iter().for_each(|(key, value)| {
-            if let Ok(val) = value.extract::<String>() {
-                fluent_args.set(key, FluentValue::from(val));
-            } else if let Ok(val) = value.extract::<i64>() {
-                fluent_args.set(key, FluentValue::from(val));
-            } else if let Ok(val) = value.extract::<f64>() {
-                fluent_args.set(key, FluentValue::from(val));
-            } else {
-                err = Some(PyTypeError::new_err(format!("Value for key {key} is not a string, int or float")));
+            match value {
+                ArgTypes::Int(int) => {
+                    fluent_args.set(key, FluentValue::from(int));
+                }
+                ArgTypes::Float(float) => {
+                    fluent_args.set(key, FluentValue::from(float));
+                }
+                ArgTypes::String(string) => {
+                    fluent_args.set(key, FluentValue::from(string.as_str()));
+                }
             }
         });
-        if let Some(err) = err {
-            return Err(err);
-        }
+        let mut errors = vec![];
         let value = self.bundle.format_pattern(pattern, Some(&fluent_args), &mut errors);
         if errors.is_empty() {
-            Ok(value.parse()?)
+            Ok(ASCII.decode(
+                &*ASCII.encode(value.parse::<String>()
+                             .map_err(|e| format!("Failed to parse value: {e}"))?
+                             .as_str(), EncoderTrap::Ignore)?,
+                DecoderTrap::Ignore
+                )?.to_string())
         } else {
             let message = self.fallback_bundle.get_message(key).ok_or_else(|| {
-                PyKeyError::new_err(format!("Message with key {key} not found"))
+                format!("Message with key {key} not found")
             })?;
             let pattern = message.value().ok_or_else(|| {
-                PyValueError::new_err(format!("Message with key {key} has no value"))
+                format!("Message with key {key} has no value")
             })?;
             let mut errors = vec![];
             let value = self.fallback_bundle.format_pattern(pattern, Some(&fluent_args), &mut errors);
             if errors.is_empty() {
-                Ok(value.parse()?)
+                Ok(ASCII.decode(
+                    &*ASCII.encode(value.parse::<String>()
+                                  .map_err(|e| format!("Failed to parse value: {e}"))?
+                                  .as_str(), EncoderTrap::Ignore)?,
+                    DecoderTrap::Ignore
+                )?.to_string())
             } else {
-                Err(PyValueError::new_err("Translation failed"))
+                Err(format!("Translation failed: {}", errors.iter().map(|e| e.to_string()).collect::<Vec<String>>().join(", ")))
+            }
+        }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use std::collections::HashMap;
+
+    use crate::fluent::bundle::AvailableLocales;
+    use crate::fluent::translator::{ArgTypes, Translator};
+
+    #[test]
+    fn test_translate() {
+        let translator = Translator::new(AvailableLocales::AmericanEnglish)
+            .expect("Failed to create translator");
+        let mut args = HashMap::new();
+        args.insert("user".to_string(), ArgTypes::String("John".to_string()));
+        args.insert("command".to_string(), ArgTypes::String("help".to_string()));
+        match translator.translate("check-failed", args){
+            Ok(translation) => {
+                assert_eq!(translation, "John, you can't use help.");
+            }
+            Err(e) => {
+                panic!("Failed to translate: {e}");
             }
         }
     }

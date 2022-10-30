@@ -57,7 +57,7 @@ def test_urlextract(string: str, expected: bool, mocker: MockerFixture):
 
 
 def test_url_allowed_forum_channel(mocker: MockerFixture):
-    """Test if it properly short circuits on the forum channel with the correct tag."""
+    """Test if it properly it short circuits on the forum channel with the correct tag."""
     thread = mocker.AsyncMock(spec=discord.Thread)
     thread.parent_id = 1019647326601609338
     tag = mocker.AsyncMock(spec=discord.ForumTag)
@@ -68,7 +68,7 @@ def test_url_allowed_forum_channel(mocker: MockerFixture):
 
 @pytest.mark.parametrize("category", [360814817457733635, 360818916861280256, 942578610336837632])
 def test_url_allowed_category(category: int, mocker: MockerFixture):
-    """Test if it properly short circuits on the category with the correct tag."""
+    """Test if it properly it short circuits on the category with the correct tag."""
     channel = mocker.AsyncMock(spec=discord.TextChannel)
     channel.category_id = category
     assert events.url_posting_allowed(channel, [])

@@ -24,11 +24,7 @@ def translate(locale: _Literal["en-US", "es-ES", "fr", "nl"], key: str, args: di
 
     Raises
     ------
-    KeyError
-        If the key does not exist in the given locale.
-    ValueError
-        If the key exists in the given locale, but the string cannot be interpreted, or translation fails.
-    TypeError
-        If a non string, int, or float is passed as an arg value.
+    RuntimeError
+        If anything errors.
     """
     ...

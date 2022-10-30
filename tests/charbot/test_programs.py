@@ -59,10 +59,7 @@ async def test_interaction_check_wrong_channel(mock_bot, mocker: MockerFixture):
     with pytest.raises(errors.WrongChannelError) as exc:
         await cog.interaction_check(mock_interaction)
     assert exc.value._channel == 969972085445238784
-    assert (
-        str(exc.value).encode("ascii", "ignore").decode()
-        == "This command can only be run in the channel <#969972085445238784> ."
-    )
+    assert str(exc.value) == "This command can only be run in the channel <#969972085445238784> ."
 
 
 async def test_interaction_check_no_allowed_roles(mock_bot, mocker: MockerFixture):
@@ -78,7 +75,7 @@ async def test_interaction_check_no_allowed_roles(mock_bot, mocker: MockerFixtur
     with pytest.raises(errors.MissingProgramRole) as exc:
         await cog.interaction_check(mock_interaction)
     assert (
-        exc.value.args[0].encode("ascii", "ignore").decode()
+        exc.value.args[0]
         == "You are missing at least one of the required roles: '337743478190637077', '685331877057658888', "
         "'969629622453039104', '969629628249563166', '969629632028614699', '969628342733119518', "
         "'969627321239760967', or '969626979353632790'"
@@ -93,7 +90,7 @@ async def test_interaction_check_no_allowed_roles(mock_bot, mocker: MockerFixtur
         969627321239760967,
         969626979353632790,
     ]
-    assert str(exc.value).encode("ascii", "ignore").decode() == (
+    assert str(exc.value) == (
         "You are missing at least one of the required roles: '337743478190637077', '685331877057658888', "
         "'969629622453039104', '969629628249563166', '969629632028614699', '969628342733119518', '969627321239760967', "
         "or '969626979353632790' - you must be at least level 1 to use this command/button."

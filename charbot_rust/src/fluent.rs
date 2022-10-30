@@ -8,8 +8,8 @@ mod translator;
 use std::collections::HashMap;
 
 use pyo3::prelude::PyModule;
-use pyo3::{PyAny, PyResult, pyfunction,  wrap_pyfunction};
-use pyo3::exceptions::PyValueError;
+use pyo3::{PyResult, pyfunction, wrap_pyfunction};
+use pyo3::exceptions::{PyRuntimeError};
 
 #[pyfunction]
 #[pyo3(text_signature = "
@@ -35,21 +35,17 @@ str
 
 Raises
 ------
-KeyError
-    If the key does not exist in the given locale.
-ValueError
-    If the key exists in the given locale, but the string cannot be interpreted, or translation fails.
-TypeError
-    If a non string, int, or float is passed as an arg value.
+RuntimeError
+    If anything errors.
 ")]
-pub(crate) fn translate(locale: String, key: String, args: HashMap<String, &PyAny>) -> PyResult<String>{
+pub(crate) fn translate(locale: String, key: String, args: HashMap<String, translator::ArgTypes>) -> PyResult<String>{
     if let Some(enum_locale) = bundle::AvailableLocales::from_str(locale.as_str()) {
         let translator = translator::Translator::new(enum_locale).map_err(|e| {
-            PyValueError::new_err(format!("Failed to create translator: {e}"))
-        })?;
-        translator.translate(&key, args)
+            PyRuntimeError::new_err(format!("Failed to create translator: {e}"))
+        }).map_err(|e| PyRuntimeError::new_err(e))?;
+        translator.translate(&key, args).map_err(|e| PyRuntimeError::new_err(format!("Failed to translate: {e}")))
     } else {
-        Err(PyValueError::new_err(format!("Locale {locale} not found, choose from {}", bundle::AvailableLocales::variants())))
+        Err(PyRuntimeError::new_err(format!("Locale {locale} not found, choose from {}", bundle::AvailableLocales::variants())))
     }
 }
 
