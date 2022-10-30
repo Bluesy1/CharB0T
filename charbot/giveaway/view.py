@@ -16,7 +16,9 @@ import discord
 from discord import ui
 from discord.utils import MISSING, utcnow
 
-from . import BidModal, CBot, GuildComponentInteraction as Interaction, errors
+from . import BidModal, CBot
+from .. import GuildComponentInteraction as Interaction, errors
+
 
 async def hit_max_wins(interaction):
     """Standard response for when a user has hit max wins for a month."""
@@ -33,9 +35,7 @@ async def hit_max_wins(interaction):
 
 class GiveawayView(ui.View):
     """Giveaway view.
-
     Handles the giveaway and prompts modals on button click.
-
     Parameters
     ----------
     bot : CBot
@@ -46,7 +46,6 @@ class GiveawayView(ui.View):
         The game being given away.
     url : str | None
         The url of the game being given away.
-
     Attributes
     ----------
     bot : CBot
@@ -82,7 +81,7 @@ class GiveawayView(ui.View):
         if url is not None:
             self.add_item(ui.Button(label=game, style=discord.ButtonStyle.link, url=url))
 
-    def __repr__(self):
+    def __repr__(self):  # pragma: no cover
         """Representation of the view."""
         return (
             f"<{self.__class__.__name__} timeout={self.timeout} children={len(self._children)}"
@@ -92,14 +91,12 @@ class GiveawayView(ui.View):
     @classmethod
     def recreate_from_message(cls, message: discord.WebhookMessage, bot: CBot):
         """Create a view from a message.
-
         Parameters
         ----------
         message : discord.Message
             The message of the giveaway.
         bot : CBot
             The bot instance.
-
         Returns
         -------
         GiveawayView
@@ -113,39 +110,36 @@ class GiveawayView(ui.View):
             view.total_entries = int(cast(str, embed.fields[3].value))
             if view.total_entries:
                 view.check.disabled = False
-        except (IndexError, ValueError, TypeError, AssertionError) as e:
+        except (IndexError, ValueError, TypeError) as e:
             raise KeyError("Invalid giveaway embed.") from e
         return view
 
-    async def interaction_check(self, interaction: discord.Interaction) -> bool:
+    async def interaction_check(self, interaction: "Interaction[CBot]") -> bool:  # pragma: no cover
         """Check if the interaction is valid.
-
         Parameters
         ----------
-        interaction : discord.Interaction
+        interaction : Interaction[CBot]
             The interaction to check.
-
         Returns
         -------
         bool
             Whether the interaction is valid.
-
         Raises
         ------
         errors.MissingProgramRole
             If no program roles are present.
         """
-        user = cast(discord.Member, interaction.user)
-        if all(role.id not in self.bot.ALLOWED_ROLES for role in user.roles):
+        if all(role.id not in self.bot.ALLOWED_ROLES for role in cast(discord.Member, interaction.user).roles):
             raise errors.MissingProgramRole(self.bot.ALLOWED_ROLES, interaction.locale)
         return True
 
-    async def on_error(self, interaction: discord.Interaction, error: Exception, item: ui.Item[Any]) -> None:
+    async def on_error(
+        self, interaction: "Interaction[CBot]", error: Exception, item: ui.Item[Any]
+    ) -> None:  # pragma: no cover
         """Error handler.
-
         Parameters
         ----------
-        interaction : discord.Interaction
+        interaction : Interaction[CBot]
             The interaction.
         error : Exception
             The error.
@@ -171,15 +165,14 @@ class GiveawayView(ui.View):
         self.stop()
 
     def _create_drawn_embed(
-            self,
-            winner: discord.Member | None,
-            drawn: list[discord.Member],
-            winning_bid: int,
-            avg_bid: float,
-            total_bidders: int,
+        self,
+        winner: discord.Member | None,
+        drawn: list[discord.Member],
+        winning_bid: int,
+        avg_bid: float,
+        total_bidders: int,
     ):
         """Create the post draw embed.
-
         Parameters
         ----------
         winner : discord.Member
@@ -222,7 +215,6 @@ class GiveawayView(ui.View):
 
     async def _get_bidders(self) -> list[asyncpg.Record]:
         """Get the bidders.
-
         Returns
         -------
         list[asyncpg.Record]
@@ -232,18 +224,16 @@ class GiveawayView(ui.View):
             raw_bidders = await conn.fetch("SELECT * FROM bids WHERE bid > 0 ORDER BY bid DESC")
             bidders = [bid for bid in raw_bidders if bid["id"] not in blocked]
             return_bids = [(bid["bid"], bid["id"]) for bid in raw_bidders if bid["id"] in blocked]
-            if return_bids:
+            if return_bids:  # pragma: no cover
                 await conn.executemany("UPDATE users SET points = points + $1 WHERE id = $2", return_bids)
         return bidders
 
     async def _draw_winner(self, bidders: list[asyncpg.Record]) -> tuple[list[discord.Member], float]:
         """Draw the winner.
-
         Parameters
         ----------
         bidders : list[asyncpg.Record]
             The list of bidders.
-
         Returns
         -------
         tuple[list[discord.Member], float]
@@ -259,7 +249,7 @@ class GiveawayView(ui.View):
             _winners = random.sample(bids[0], k=min(6, len(bidders)), counts=bids[1])
             winners_ = []
             for win in _winners:
-                if len(winners_) >= 3:
+                if len(winners_) >= 3:  # pragma: no cover
                     break
                 if win not in winners_:
                     winners_.append(win)
@@ -267,7 +257,7 @@ class GiveawayView(ui.View):
                 new_winner = random.sample(bids[0], k=1, counts=bids[1])
                 if new_winner[0] not in winners_:
                     winners_.append(new_winner[0])
-            if self.message.guild is None:
+            if self.message.guild is None:  # pragma: no cover
                 _id = 225345178955808768
                 self.message.guild = self.bot.get_guild(_id) or await self.bot.fetch_guild(_id)
             winners = [await self.message.guild.fetch_member(winner) for winner in winners_]
@@ -307,83 +297,93 @@ class GiveawayView(ui.View):
         )
 
     # noinspection PyUnusedLocal
-    @ui.button(label="Bid", style=discord.ButtonStyle.green)
-    async def bid(self, interaction: discord.Interaction, button: ui.Button) -> None:  # skipcq: PYL-W0613
+    @ui.button(label="Bid", style=discord.ButtonStyle.green)  # pyright: ignore[reportGeneralTypeIssues]
+    async def bid(self, interaction: "Interaction[CBot]", button: ui.Button) -> None:  # skipcq: PYL-W0613
         """Increase or make the initial bid for a user.
-
         Parameters
         ----------
-        interaction : discord.Interaction
+        interaction : Interaction[CBot]
             The interaction object.
         button : ui.Button
             The button that was pressed.
         """
-        async with self.bot.pool.acquire() as conn:
+        async with interaction.client.pool.acquire() as conn:
             wins = await conn.fetchval("SELECT wins FROM winners WHERE id = $1", interaction.user.id) or 0
             if wins >= 3:
-                translator = FluentLocalization(
-                    [interaction.locale.value, "en-US"], ["giveaway.ftl"], self.bot.localizer_loader
-                )
-                await interaction.response.send_message(translator.format_value("giveaway-try-later"), ephemeral=True)
+                await hit_max_wins(interaction)
                 return
         modal = BidModal(self.bot, self)
         await interaction.response.send_modal(modal)
-        await modal.wait()
-        if self.total_entries > 0:
-            self.check.disabled = False
-        self.embed.set_field_at(3, name="Total Reputation Bid", value=f"{self.total_entries}")
-        message = cast(discord.WebhookMessage, self.message)
-        await message.edit(embed=self.embed, view=self)
+
+        async def _task():
+            """Wait for the modal to be closed."""
+            await modal.wait()
+            if self.total_entries > 0:  # pragma: no cover
+                self.check.disabled = False
+            self.embed.set_field_at(3, name="Total Reputation Bid", value=f"{self.total_entries}")
+            message = cast(discord.WebhookMessage, self.message)
+            await message.edit(embed=self.embed, view=self)
+
+        asyncio.create_task(_task())
 
     # noinspection PyUnusedLocal
-    @ui.button(label="Check", style=discord.ButtonStyle.blurple, disabled=True)
-    async def check(self, interaction: discord.Interaction, button: ui.Button) -> None:  # skipcq: PYL-W0613
+    @ui.button(
+        label="Check", style=discord.ButtonStyle.blurple, disabled=True
+    )  # pyright: ignore[reportGeneralTypeIssues]
+    async def check(self, interaction: "Interaction[CBot]", button: ui.Button) -> None:  # skipcq: PYL-W0613
         """Check the current bid for a user.
-
         Parameters
         ----------
-        interaction : discord.Interaction
+        interaction : Interaction[CBot]
             The interaction object.
         button : ui.Button
             The button that was pressed.
         """
-        async with self.bot.pool.acquire() as conn:
-            translator = FluentLocalization(
-                [interaction.locale.value, "en-US"], ["giveaway.ftl"], self.bot.localizer_loader
-            )
+        async with interaction.client.pool.acquire() as conn:
             wins = await conn.fetchval("SELECT wins FROM winners WHERE id = $1", interaction.user.id) or 0
             if wins >= 3:
-                await interaction.response.send_message(translator.format_value("giveaway-try-later"), ephemeral=True)
+                await hit_max_wins(interaction)
                 return
             record = await conn.fetchval("SELECT bid FROM bids WHERE id = $1", interaction.user.id)
             bid: int = record if record is not None else 0
         chance = bid / self.total_entries
         await interaction.response.send_message(
-            translator.format_value("giveaway-check-success", {"bid": bid, "chance": chance, "wins": wins}),
+            await interaction.client.translate(
+                "giveaway-check-success",
+                interaction.locale,
+                data={"bid": bid, "chance": chance, "wins": wins},
+            ),
             ephemeral=True,
         )
 
     # noinspection PyUnusedLocal
-    @ui.button(label="Toggle Giveaway Alerts", style=discord.ButtonStyle.danger)
-    async def toggle_alerts(self, interaction: discord.Interaction, button: ui.Button) -> None:  # skipcq: PYL-W0613
+    @ui.button(
+        label="Toggle Giveaway Alerts", style=discord.ButtonStyle.danger
+    )  # pyright: ignore[reportGeneralTypeIssues]
+    async def toggle_alerts(
+        self, interaction: "Interaction[CBot]", _: ui.Button
+    ) -> None:  # skipcq: PYL-W0613  # pragma: no cover
         """Toggle the giveaway alerts.
-
         Parameters
         ----------
-        interaction : discord.Interaction
+        interaction : Interaction[CBot]
             The interaction object.
-        button : ui.Button
+        _ : ui.Button
             The button that was pressed.
         """
         await interaction.response.defer(ephemeral=True, thinking=True)
-        user = cast(discord.Member, interaction.user)
         async with self.role_semaphore:
-            translator = FluentLocalization(
-                [interaction.locale.value, "en-US"], ["giveaway.ftl"], self.bot.localizer_loader
-            )
-            if all(role.id != 972886729231044638 for role in user.roles):
-                await user.add_roles(discord.Object(id=972886729231044638), reason="Toggled giveaway alerts.")
-                await interaction.followup.send(translator.format_value("giveaway-alerts-enable"))
+            if all(role.id != 972886729231044638 for role in interaction.user.roles):
+                await interaction.user.add_roles(
+                    discord.Object(id=972886729231044638), reason="Toggled giveaway alerts."
+                )
+                await interaction.followup.send(
+                    await interaction.client.translate("giveaway-alerts-enable", interaction.locale)
+                )
             else:
-                await user.remove_roles(discord.Object(id=972886729231044638), reason="Toggled giveaway alerts.")
-                await interaction.followup.send(translator.format_value("giveaway-alerts-disable"))
+                await interaction.user.remove_roles(
+                    discord.Object(id=972886729231044638), reason="Toggled giveaway alerts."
+                )
+                await interaction.followup.send(
+                    await interaction.client.translate("giveaway-alerts-disable", interaction.locale)
+                )

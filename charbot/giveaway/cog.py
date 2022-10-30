@@ -5,7 +5,6 @@
 # SPDX-License-Identifier: MIT
 
 """Giveaway  commands."""
-
 import datetime
 from typing import cast
 
@@ -20,14 +19,11 @@ from . import GiveawayView
 
 class Giveaway(commands.Cog):
     """Giveaway commands.
-
     This cog is for the giveaway commands, and the giveaway itself.
-
     Parameters
     ----------
     bot : CBot
         The bot instance.
-
     Attributes
     ----------
     bot : CBot
@@ -73,7 +69,7 @@ class Giveaway(commands.Cog):
         await current_giveaway.message.edit(view=current_giveaway)
         self.current_giveaway = current_giveaway
 
-    async def cog_unload(self) -> None:  # skipcq: PYL-W0236
+    async def cog_unload(self) -> None:  # skipcq: PYL-W0236  # pragma: no cover
         """Call when the cog is unloaded."""
         self.daily_giveaway.cancel()
         self.bot.holder["yesterdays_giveaway"] = self.yesterdays_giveaway

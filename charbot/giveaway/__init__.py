@@ -6,9 +6,9 @@
 
 """Game giveaway extension."""
 
-__all__ = ("Giveaway", "BidModal", "GiveawayView")
+__all__ = ("Giveaway", "BidModal", "GiveawayView", "setup")
 
-from charbot import CBot
+from .. import CBot
 from .cog import Giveaway
 from .modal import BidModal
 from .view import GiveawayView

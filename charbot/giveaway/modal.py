@@ -5,15 +5,36 @@
 # SPDX-License-Identifier: MIT
 
 """Bid modal class."""
-
 import discord
-import warnings
 from discord import ui
-from fluent.runtime import FluentLocalization
 from typing import cast
 
-from charbot import CBot
-from . import GiveawayView
+from . import GiveawayView, CBot
+from .. import GuildComponentInteraction as Interaction
+
+
+def rectify_bid(bid_int: int, current_bid: int | None, points: int) -> int:
+    """Rectify the bid to ensure it is within the bounds.
+
+    Parameters
+    ----------
+    bid_int : int
+        The bid as an integer.
+    current_bid : int | None
+        The current bid for the user.
+    points : int
+        The user's points.
+
+    Returns
+    -------
+    bid_int: int
+        The rectified bid.
+    """
+    bid_int = min(bid_int, points)
+    current_bid = current_bid or 0
+    if current_bid + bid_int > 32768:
+        bid_int = 32768 - current_bid
+    return bid_int
 
 
 class BidModal(ui.Modal, title="Bid"):
@@ -48,78 +69,117 @@ class BidModal(ui.Modal, title="Bid"):
         required=True,
     )
 
-    async def on_submit(self, interaction: discord.Interaction) -> None:
+    async def on_submit(self, interaction: "Interaction[CBot]") -> None:
         """Call when a bid modal is submitted.
 
         Parameters
         ----------
-        interaction : discord.Interaction
+        interaction : Interaction[CBot]
             The interaction that was submitted.
         """
-        translator = FluentLocalization(
-            [interaction.locale.value, "en-US"], ["giveaway.ftl"], self.bot.localizer_loader
-        )
         try:
             val = self.bid_str.value
             bid_int = int(val)
-        except ValueError:
-            await interaction.response.send_message(
-                translator.format_value("giveaway-bid-invalid-bid."), ephemeral=True
-            )
-            return self.stop()
-        if 0 >= bid_int <= 32768:
-            await interaction.response.send_message(
-                translator.format_value("giveaway-bid-invalid-bid."), ephemeral=True
-            )
-            return self.stop()
+        except ValueError:  # pragma: no cover
+            return await self.invalid_bid(interaction)
+        if 0 >= bid_int <= 32768:  # pragma: no cover
+            return await self.invalid_bid(interaction)
         await interaction.response.defer(ephemeral=True, thinking=True)
         async with self.view.bid_lock, self.bot.pool.acquire() as conn, conn.transaction():
             points: int | None = await conn.fetchval("SELECT points FROM users WHERE id = $1", interaction.user.id)
-            if points is None or points == 0:
-                await interaction.followup.send(translator.format_value("giveaway-bid-no-rep"))
-                return self.stop()
-            if points < bid_int:
-                await interaction.followup.send(
-                    translator.format_value("giveaway-bid-not-enough-rep", {"bid": bid_int, "points": points})
-                )
-                return self.stop()
-            bid_int = min(bid_int, points)
-            current_bid = await conn.fetchval("SELECT bid FROM bids WHERE id = $1", interaction.user.id) or 0
-            if current_bid + bid_int > 32768:
-                bid_int = 32768 - current_bid
-            points: int | None = await conn.fetchval(
+            if not await self.check_points(bid_int, interaction, points):  # pragma: no cover
+                return
+            bid_int = rectify_bid(
+                bid_int,
+                await conn.fetchval("SELECT bid FROM bids WHERE id = $1", interaction.user.id),
+                cast(int, points),
+            )
+            points = await conn.fetchval(
                 "UPDATE users SET points = points - $1 WHERE id = $2 RETURNING points", bid_int, interaction.user.id
             )
-            if points is None:
-                warnings.warn("Points should not be None at this code.", RuntimeWarning)
-                points = 0
-                await conn.execute("UPDATE users SET points = 0 WHERE id = $1", interaction.user.id)
-            _new_bid: int | None = await conn.fetchval(
+            new_bid = await conn.fetchval(
                 "UPDATE bids SET bid = bid + $1 WHERE id = $2 RETURNING bid", bid_int, interaction.user.id
             )
-            if _new_bid is None:
-                warnings.warn("Bid should not be None at this code.", RuntimeWarning)
-                _new_bid = bid_int
-                await conn.execute(
-                    "INSERT INTO bids (bid,id) values ($1, $2) ON CONFLICT DO UPDATE SET bid = $1",
-                    bid_int,
-                    interaction.user.id,
-                )
-            self.view.total_entries += bid_int
-            new_bid = cast(int, _new_bid)
-            chance = new_bid / self.view.total_entries
-            await interaction.followup.send(
-                translator.format_value(
-                    "giveaway-bid-success",
-                    {
-                        "bid": bid_int,
-                        "new_bid": new_bid,
-                        "chance": chance,
-                        "points": points,
-                        "wins": await conn.fetchval("SELECT wins FROM winners WHERE id = $1", interaction.user.id) or 0,
-                    },
-                ),
-                ephemeral=True,
+            await self.bid_success(
+                interaction,
+                bid_int,
+                cast(int, new_bid),
+                cast(int, points),
+                await conn.fetchval("SELECT wins FROM winners WHERE id = $1", interaction.user.id),
             )
-            self.view.top_bid = max(new_bid, self.view.top_bid)
             self.stop()
+
+    async def bid_success(
+        self, interaction: "Interaction[CBot]", bid_int: int, new_bid: int, points: int, wins: int | None
+    ) -> None:
+        """Call when a bid is successful.
+
+        Parameters
+        ----------
+        interaction : Interaction[CBot]
+            The interaction that was submitted.
+        bid_int : int
+            The amount of points that were bid.
+        new_bid : int
+            The new bid.
+        points : int
+            The user's new points.
+        wins : int | None
+            The user's wins, if any.
+        """
+        self.view.total_entries += bid_int
+        await interaction.followup.send(
+            await interaction.client.translate(
+                "giveaway-bid-success",
+                interaction.locale,
+                data={
+                    "bid": bid_int,
+                    "new_bid": new_bid,
+                    "chance": new_bid / self.view.total_entries,
+                    "points": points,
+                    "wins": wins or 0,
+                },
+            ),
+            ephemeral=True,
+        )
+        self.view.top_bid = max(new_bid, self.view.top_bid)
+
+    async def check_points(self, bid_int: int, interaction: "Interaction[CBot]", points: int | None) -> bool:
+        """Check if the user has enough points to bid.
+
+        Parameters
+        ----------
+        bid_int : int
+            The bid amount.
+        interaction : Interaction[CBot]
+            The interaction that was submitted.
+        points : int | None
+            The user's points.
+
+        Returns
+        -------
+        valid : bool
+            If the user's bid is valid.
+        """
+        if points is None or points == 0:
+            await interaction.followup.send(
+                await interaction.client.translate("giveaway-bid-no-rep", interaction.locale)
+            )
+            self.stop()
+            return False
+        if points < bid_int:
+            await interaction.followup.send(
+                await interaction.client.translate(
+                    "giveaway-bid-not-enough-rep", interaction.locale, data={"bid": bid_int, "points": points}
+                )
+            )
+            self.stop()
+            return False
+        return True
+
+    async def invalid_bid(self, interaction):
+        """Call when a bid is invalid."""
+        await interaction.response.send_message(
+            await interaction.client.translate("giveaway-bid-invalid-bid", interaction.locale), ephemeral=True
+        )
+        return self.stop()
