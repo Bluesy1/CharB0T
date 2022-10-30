@@ -34,7 +34,7 @@ def mock_pandas_read_csv(monkeypatch):
         }
     )
     monkeypatch.setattr(
-        giveaway.pd,
+        giveaway.cog.pd,
         "read_csv",
         lambda *args, **kwargs: df,
     )
@@ -377,7 +377,7 @@ async def test_modal_on_submit(mocker: MockerFixture, database: asyncpg.Pool):
 
 def test_rectify_bid():
     """Test the rectify bid method"""
-    assert giveaway.rectify_bid(2, 32767, 50) == 1
-    assert giveaway.rectify_bid(1, None, 2) == 1
-    assert giveaway.rectify_bid(2, 2, 1) == 1
-    assert giveaway.rectify_bid(2, 5, 2) == 2
+    assert giveaway.modal.rectify_bid(2, 32767, 50) == 1
+    assert giveaway.modal.rectify_bid(1, None, 2) == 1
+    assert giveaway.modal.rectify_bid(2, 2, 1) == 1
+    assert giveaway.modal.rectify_bid(2, 5, 2) == 2
