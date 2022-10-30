@@ -1,0 +1,30 @@
+# SPDX-FileCopyrightText: 2022 Bluesy1 <68259537+Bluesy1@users.noreply.github.com>
+#
+# SPDX-License-Identifier: MIT
+on:
+  push:
+    branches:
+      - main
+    paths:
+    - 'charbot_rust/**'
+    - '.github/workflows/clippy.yml'
+  pull_request:
+    types: [ opened, reopened, synchronize ]
+    paths:
+    - 'charbot_rust/**'
+    - '.github/workflows/clippy.yml'
+name: Clippy check
+
+# Make sure CI fails on all warnings, including Clippy lints
+env:
+  RUSTFLAGS: "-Dwarnings"
+
+jobs:
+  clippy_check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Run Clippy
+        run: |
+          cd charbot_rust
+          cargo clippy --all-targets --all-features
