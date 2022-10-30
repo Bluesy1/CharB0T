@@ -59,11 +59,11 @@ impl Translator{
         let value = self.bundle.format_pattern(pattern, Some(&fluent_args), &mut errors);
         if errors.is_empty() {
             Ok(ASCII.decode(
-                &*ASCII.encode(value.parse::<String>()
+                &ASCII.encode(value.parse::<String>()
                              .map_err(|e| format!("Failed to parse value: {e}"))?
                              .as_str(), EncoderTrap::Ignore)?,
                 DecoderTrap::Ignore
-                )?.to_string())
+                )?)
         } else {
             let message = self.fallback_bundle.get_message(key).ok_or_else(|| {
                 format!("Message with key {key} not found")
@@ -75,11 +75,11 @@ impl Translator{
             let value = self.fallback_bundle.format_pattern(pattern, Some(&fluent_args), &mut errors);
             if errors.is_empty() {
                 Ok(ASCII.decode(
-                    &*ASCII.encode(value.parse::<String>()
+                    &ASCII.encode(value.parse::<String>()
                                   .map_err(|e| format!("Failed to parse value: {e}"))?
                                   .as_str(), EncoderTrap::Ignore)?,
                     DecoderTrap::Ignore
-                )?.to_string())
+                )?)
             } else {
                 Err(format!("Translation failed: {}", errors.iter().map(|e| e.to_string()).collect::<Vec<String>>().join(", ")))
             }
