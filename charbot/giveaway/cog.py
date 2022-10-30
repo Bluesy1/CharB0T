@@ -3,10 +3,10 @@
 # SPDX-FileCopyrightText: 2022 Bluesy1 <68259537+Bluesy1@users.noreply.github.com>
 #
 # SPDX-License-Identifier: MIT
-
 """Giveaway  commands."""
+from __future__ import annotations
 import datetime
-from typing import cast
+from typing import TYPE_CHECKING, cast
 
 import discord
 import pandas as pd
@@ -14,7 +14,8 @@ from discord.ext import commands, tasks
 from discord.utils import MISSING, utcnow
 
 from charbot import CBot
-from . import GiveawayView
+if TYPE_CHECKING:
+    from . import GiveawayView
 
 
 class Giveaway(commands.Cog):
