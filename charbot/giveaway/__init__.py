@@ -8,6 +8,18 @@
 
 __all__ = ("Giveaway", "BidModal", "GiveawayView")
 
+from charbot import CBot
 from .cog import Giveaway
 from .modal import BidModal
 from .view import GiveawayView
+
+
+async def setup(bot: CBot):
+    """Giveaway cog setup.
+
+    Parameters
+    ----------
+    bot : CBot
+        The bot to add the cog to.
+    """
+    await bot.add_cog(Giveaway(bot), override=True)

@@ -6,12 +6,11 @@
 
 """Bid modal class."""
 
-import warnings
-from typing import cast
-
 import discord
+import warnings
 from discord import ui
 from fluent.runtime import FluentLocalization
+from typing import cast
 
 from charbot import CBot
 from . import GiveawayView

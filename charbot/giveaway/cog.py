@@ -60,7 +60,7 @@ class Giveaway(commands.Cog):
             message_found = False
             _message: discord.Message = MISSING
             async for _message in cast(
-                    discord.TextChannel | discord.VoiceChannel, await self.bot.fetch_channel(926307166833487902)
+                discord.TextChannel | discord.VoiceChannel, await self.bot.fetch_channel(926307166833487902)
             ).history(limit=5):
                 if _message.components:
                     message_found = True
@@ -117,7 +117,7 @@ class Giveaway(commands.Cog):
         embed.add_field(
             name="How to get reputation",
             value="You get reputation by attending `rollcall` and by "
-                  "participating in programs (games) in <#969972085445238784>.",
+            "participating in programs (games) in <#969972085445238784>.",
             inline=True,
         )
         embed.add_field(name="Total Reputation Bid", value="0", inline=True)
@@ -129,14 +129,3 @@ class Giveaway(commands.Cog):
             allowed_mentions=discord.AllowedMentions(roles=True),
             wait=True,
         )
-
-
-async def setup(bot: CBot):
-    """Giveaway cog setup.
-
-    Parameters
-    ----------
-    bot : CBot
-        The bot to add the cog to.
-    """
-    await bot.add_cog(Giveaway(bot), override=True)
