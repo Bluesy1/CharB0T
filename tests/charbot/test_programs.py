@@ -50,11 +50,12 @@ async def test_interaction_check_wrong_guild(mock_bot, mocker: MockerFixture):
 async def test_interaction_check_wrong_channel(mock_bot, mocker: MockerFixture):
     """Test the interaction check when the interaction is in the wrong channel."""
     cog = Reputation(mock_bot)
-    mock_interaction = mocker.AsyncMock(spec=discord.Interaction)
-    mock_interaction.guild = mocker.AsyncMock(spec=discord.Guild)
-    mock_interaction.guild.id = 225345178955808768
-    mock_interaction.channel = mocker.AsyncMock(spec=discord.TextChannel)
-    mock_interaction.channel.id = 0
+    mock_interaction = mocker.AsyncMock(
+        spec=discord.Interaction,
+        locale=discord.Locale.american_english,
+        channel=mocker.AsyncMock(spec=discord.TextChannel, id=0),
+        guild=mocker.AsyncMock(spec=discord.Guild, id=225345178955808768),
+    )
     with pytest.raises(errors.WrongChannelError) as exc:
         await cog.interaction_check(mock_interaction)
     assert exc.value._channel == 969972085445238784
@@ -64,11 +65,12 @@ async def test_interaction_check_wrong_channel(mock_bot, mocker: MockerFixture):
 async def test_interaction_check_no_allowed_roles(mock_bot, mocker: MockerFixture):
     """Test the interaction check when the interaction is in the wrong channel."""
     cog = Reputation(mock_bot)
-    mock_interaction = mocker.AsyncMock(spec=discord.Interaction)
-    mock_interaction.guild = mocker.AsyncMock(spec=discord.Guild)
-    mock_interaction.guild.id = 225345178955808768
-    mock_interaction.channel = mocker.AsyncMock(spec=discord.TextChannel)
-    mock_interaction.channel.id = 969972085445238784
+    mock_interaction = mocker.AsyncMock(
+        spec=discord.Interaction,
+        locale=discord.Locale.american_english,
+        channel=mocker.AsyncMock(spec=discord.TextChannel, id=969972085445238784),
+        guild=mocker.AsyncMock(spec=discord.Guild, id=225345178955808768),
+    )
     mock_interaction.user = mocker.AsyncMock(spec=discord.Member)
     with pytest.raises(errors.MissingProgramRole) as exc:
         await cog.interaction_check(mock_interaction)

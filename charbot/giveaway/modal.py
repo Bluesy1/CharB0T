@@ -10,7 +10,7 @@ import discord
 from discord import ui
 from typing import TYPE_CHECKING, cast
 
-if TYPE_CHECKING:
+if TYPE_CHECKING:  # pragma: no cover
     from . import GiveawayView, CBot
     from .. import GuildComponentInteraction as Interaction
 

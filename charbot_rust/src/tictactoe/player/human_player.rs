@@ -4,7 +4,7 @@ use super::Player;
 use crate::tictactoe::board::{Board, Index, Piece};
 use std::fmt::{Display, Error, Formatter};
 
-#[derive(Debug, PartialEq)] // COV_EXCL_LINE
+#[derive(Debug, PartialEq, Eq)] // COV_EXCL_LINE
 pub struct HumanPlayer;
 
 impl Display for HumanPlayer {
@@ -14,9 +14,9 @@ impl Display for HumanPlayer {
 }
 
 impl Player for HumanPlayer {
+    #[allow(const_item_mutation)]
     fn play(&self, board: &Board, _: Piece) -> Index {
-        Board::VALID_INDECES
-            .filter(|index| board.cell_is_empty(*index)).next().unwrap()
+        Board::VALID_INDECES.find(|index| board.cell_is_empty(*index)).unwrap()
     }
 }
 

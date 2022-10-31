@@ -4,7 +4,7 @@
 import sys as __sys
 
 # noinspection PyUnresolvedReferences
-from ..charbot_rust import minesweeper  # pyright: ignore[reportMissingImports]
+from ..charbot_rust import minesweeper  # pyright: ignore
 
 if hasattr(minesweeper, "__doc__"):
     __doc__ = minesweeper.__doc__

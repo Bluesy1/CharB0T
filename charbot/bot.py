@@ -15,7 +15,6 @@ from discord import app_commands, Locale
 from discord.app_commands import locale_str, TranslationContext, TranslationContextLocation
 from discord.ext import commands
 from discord.utils import MISSING
-from fluent.runtime import FluentResourceLoader
 
 from . import Config, EXTENSIONS, errors
 from .translator import Translator
@@ -154,7 +153,6 @@ class CBot(commands.Bot):
         self.error_logs: discord.Webhook = MISSING
         self.giveaway_webhook: discord.Webhook = MISSING
         self.holder: Holder = Holder()
-        self.localizer_loader = FluentResourceLoader("i18n/{locale}")
         self.no_dms: set[int] = set()
 
     async def setup_hook(self):

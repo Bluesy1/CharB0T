@@ -19,10 +19,12 @@ def game() -> Game:
 
 @pytest.fixture()
 def inter(mocker: MockerFixture):
-    interaction = mocker.AsyncMock(spec=Interaction[CBot])
-    interaction.client = mocker.AsyncMock(spec=CBot)
-    interaction.response = mocker.AsyncMock(spec=discord.InteractionResponse)
-    return interaction
+    return mocker.AsyncMock(
+        spec=Interaction[CBot],
+        client=mocker.AsyncMock(spec=CBot),
+        response=mocker.AsyncMock(spec=discord.InteractionResponse),
+        locale=discord.Locale.american_english,
+    )
 
 
 @pytest.mark.asyncio

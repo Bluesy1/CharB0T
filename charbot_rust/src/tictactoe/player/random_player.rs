@@ -5,7 +5,7 @@ use crate::tictactoe::board::{Board, Index, Piece};
 use rand::seq::IteratorRandom;
 use std::fmt::{Display, Error, Formatter};
 
-#[derive(Debug, PartialEq)] // COV_EXCL_LINE
+#[derive(Debug, PartialEq, Eq)] // COV_EXCL_LINE
 pub struct RandomPlayer;
 
 impl Display for RandomPlayer {

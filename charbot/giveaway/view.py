@@ -19,7 +19,7 @@ from discord.utils import MISSING, utcnow
 from . import BidModal
 from .. import errors
 
-if TYPE_CHECKING:
+if TYPE_CHECKING:  # pragma: no cover
     from .. import CBot, GuildComponentInteraction as Interaction
 
 

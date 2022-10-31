@@ -15,7 +15,7 @@ use crate::minesweeper::game::ReturnCell;
 pub const TILE_WIDTH: u32 = 50;
 pub const TILE_HEIGHT: u32 = 50;
 
-#[derive(PartialEq, Debug)] // COV_EXCL_LINE
+#[derive(Debug, PartialEq, Eq)] // COV_EXCL_LINE
 pub enum Content {
     Number(u8), // COV_EXCL_LINE
     Mine(bool), // bool is true when this is the mine that caused you to loose the game.
@@ -285,13 +285,13 @@ impl Field {
     fn get_cell_mut(&mut self, i: u32) -> &mut Cell {
         self.cells
             .get_mut(i as usize)
-            .unwrap_or_else(|| panic!("Range check error at Field::get_cell_mut ({})", i))
+            .unwrap_or_else(|| panic!("Range check error at Field::get_cell_mut ({i})"))
     }
 
     fn get_cell(&self, i: u32) -> &Cell {
         self.cells
             .get(i as usize)
-            .unwrap_or_else(|| panic!("Range check error at Field::get_cell ({})", i))
+            .unwrap_or_else(|| panic!("Range check error at Field::get_cell ({i})"))
     }
 
     fn get_content_safe(&self, i: i32) -> Option<&Content> {

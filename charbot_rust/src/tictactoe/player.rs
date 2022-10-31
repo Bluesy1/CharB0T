@@ -63,7 +63,7 @@ mod tests {
         random_short = {"r", "random"},
     )]
     fn test_choose_player(player: &str, expected: &str) {
-        choose_player(player).expect(format!("Could not create player {}", expected).as_str());
+        choose_player(player).unwrap_or_else(|| panic!("Could not create player {}", expected));
     }
     #[test]
     fn test_choose_player_invalid() {
