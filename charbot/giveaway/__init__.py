@@ -8,8 +8,8 @@
 __all__ = ("Giveaway", "BidModal", "GiveawayView", "setup")
 
 from .. import CBot
-from .view import GiveawayView
 from .modal import BidModal
+from .view import GiveawayView
 from .cog import Giveaway
 
 
