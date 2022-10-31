@@ -51,14 +51,19 @@ class Translator(app_commands.Translator):
         elif context.location is TranslationContextLocation.other:
             key = f"{string.message.replace(' ', '-')}"
         else:
+            raise RuntimeError("Unreachable code: non translation context location passed as location")
+        try:
+            if isinstance(context.data, dict):
+                translated = translate(
+                    locale.value,
+                    key,
+                    {k: v for k, v in context.data.items() if isinstance(v, (int, float, str))}
+                    | {k: v for k, v in string.extras.items() if isinstance(v, (int, float, str))},
+                )
+            else:
+                translated = translate(
+                    locale.value, key, {k: v for k, v in string.extras.items() if isinstance(v, (int, float, str))}
+                )
+            return None if translated == key or translated is None else translated
+        except RuntimeError:
             return None
-        if isinstance(context.data, dict):
-            translated = translate(
-                locale.value,
-                key,
-                {k: v for k, v in context.data.items() if isinstance(v, (int, float, str))}
-                | {k: v for k, v in string.extras.items() if isinstance(v, (int, float, str))},
-            )
-        else:
-            translated = translate(locale.value, key, {})
-        return None if translated == key or translated is None else translated

@@ -13,7 +13,7 @@ from .view import GiveawayView
 from .cog import Giveaway
 
 
-async def setup(bot: CBot):
+async def setup(bot: CBot):  # pragma: no cover
     """Giveaway cog setup.
 
     Parameters
