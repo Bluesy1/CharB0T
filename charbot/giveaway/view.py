@@ -3,21 +3,23 @@
 # SPDX-FileCopyrightText: 2022 Bluesy1 <68259537+Bluesy1@users.noreply.github.com>
 #
 # SPDX-License-Identifier: MIT
-
 """Giveaway view."""
+from __future__ import annotations
 
 import asyncio
 import random
 from statistics import mean
-from typing import Any, cast
+from typing import TYPE_CHECKING, Any, cast
 
 import asyncpg
 import discord
 from discord import ui
 from discord.utils import MISSING, utcnow
 
-from . import BidModal, CBot
-from .. import GuildComponentInteraction as Interaction, errors
+from . import BidModal
+
+if TYPE_CHECKING:
+    from .. import CBot, GuildComponentInteraction as Interaction, errors
 
 
 async def hit_max_wins(interaction):

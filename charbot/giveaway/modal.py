@@ -3,14 +3,16 @@
 # SPDX-FileCopyrightText: 2022 Bluesy1 <68259537+Bluesy1@users.noreply.github.com>
 #
 # SPDX-License-Identifier: MIT
-
 """Bid modal class."""
+from __future__ import annotations
+
 import discord
 from discord import ui
-from typing import cast
+from typing import TYPE_CHECKING, cast
 
-from . import GiveawayView, CBot
-from .. import GuildComponentInteraction as Interaction
+if TYPE_CHECKING:
+    from . import GiveawayView, CBot
+    from .. import GuildComponentInteraction as Interaction
 
 
 def rectify_bid(bid_int: int, current_bid: int | None, points: int) -> int:

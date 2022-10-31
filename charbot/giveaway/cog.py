@@ -13,10 +13,10 @@ import pandas as pd
 from discord.ext import commands, tasks
 from discord.utils import MISSING, utcnow
 
-from charbot import CBot
+from . import GiveawayView
 
 if TYPE_CHECKING:
-    from . import GiveawayView
+    from .. import CBot
 
 
 class Giveaway(commands.Cog):

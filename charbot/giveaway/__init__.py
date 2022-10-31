@@ -3,15 +3,14 @@
 # SPDX-FileCopyrightText: 2022 Bluesy1 <68259537+Bluesy1@users.noreply.github.com>
 #
 # SPDX-License-Identifier: MIT
-
 """Game giveaway extension."""
 
 __all__ = ("Giveaway", "BidModal", "GiveawayView", "setup")
 
 from .. import CBot
-from .cog import Giveaway
-from .modal import BidModal
 from .view import GiveawayView
+from .modal import BidModal
+from .cog import Giveaway
 
 
 async def setup(bot: CBot):
