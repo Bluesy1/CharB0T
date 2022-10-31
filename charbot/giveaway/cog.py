@@ -6,7 +6,7 @@
 """Giveaway  commands."""
 from __future__ import annotations
 import datetime
-from typing import TYPE_CHECKING, cast
+from typing import cast
 
 import discord
 import pandas as pd
@@ -14,9 +14,7 @@ from discord.ext import commands, tasks
 from discord.utils import MISSING, utcnow
 
 from . import GiveawayView
-
-if TYPE_CHECKING:
-    from .. import CBot
+from .. import CBot
 
 
 class Giveaway(commands.Cog):
