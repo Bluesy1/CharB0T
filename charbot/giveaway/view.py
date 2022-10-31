@@ -1,22 +1,26 @@
 # -*- coding: utf-8 -*-
 # SPDX-FileCopyrightText: 2021 Bluesy1 <68259537+Bluesy1@users.noreply.github.com>
+# SPDX-FileCopyrightText: 2022 Bluesy1 <68259537+Bluesy1@users.noreply.github.com>
 #
 # SPDX-License-Identifier: MIT
-"""Game giveaway extension."""
+"""Giveaway view."""
+from __future__ import annotations
+
 import asyncio
-import datetime
 import random
 from statistics import mean
-from typing import Any, cast
+from typing import TYPE_CHECKING, Any, cast
 
 import asyncpg
 import discord
-import pandas as pd
 from discord import ui
-from discord.ext import commands, tasks
 from discord.utils import MISSING, utcnow
 
-from . import CBot, errors, GuildComponentInteraction as Interaction
+from . import BidModal
+from .. import errors
+
+if TYPE_CHECKING:
+    from .. import CBot, GuildComponentInteraction as Interaction
 
 
 async def hit_max_wins(interaction):
@@ -34,9 +38,7 @@ async def hit_max_wins(interaction):
 
 class GiveawayView(ui.View):
     """Giveaway view.
-
     Handles the giveaway and prompts modals on button click.
-
     Parameters
     ----------
     bot : CBot
@@ -47,7 +49,6 @@ class GiveawayView(ui.View):
         The game being given away.
     url : str | None
         The url of the game being given away.
-
     Attributes
     ----------
     bot : CBot
@@ -93,14 +94,12 @@ class GiveawayView(ui.View):
     @classmethod
     def recreate_from_message(cls, message: discord.WebhookMessage, bot: CBot):
         """Create a view from a message.
-
         Parameters
         ----------
         message : discord.Message
             The message of the giveaway.
         bot : CBot
             The bot instance.
-
         Returns
         -------
         GiveawayView
@@ -120,17 +119,14 @@ class GiveawayView(ui.View):
 
     async def interaction_check(self, interaction: "Interaction[CBot]") -> bool:  # pragma: no cover
         """Check if the interaction is valid.
-
         Parameters
         ----------
         interaction : Interaction[CBot]
             The interaction to check.
-
         Returns
         -------
         bool
             Whether the interaction is valid.
-
         Raises
         ------
         errors.MissingProgramRole
@@ -144,7 +140,6 @@ class GiveawayView(ui.View):
         self, interaction: "Interaction[CBot]", error: Exception, item: ui.Item[Any]
     ) -> None:  # pragma: no cover
         """Error handler.
-
         Parameters
         ----------
         interaction : Interaction[CBot]
@@ -181,7 +176,6 @@ class GiveawayView(ui.View):
         total_bidders: int,
     ):
         """Create the post draw embed.
-
         Parameters
         ----------
         winner : discord.Member
@@ -224,7 +218,6 @@ class GiveawayView(ui.View):
 
     async def _get_bidders(self) -> list[asyncpg.Record]:
         """Get the bidders.
-
         Returns
         -------
         list[asyncpg.Record]
@@ -240,12 +233,10 @@ class GiveawayView(ui.View):
 
     async def _draw_winner(self, bidders: list[asyncpg.Record]) -> tuple[list[discord.Member], float]:
         """Draw the winner.
-
         Parameters
         ----------
         bidders : list[asyncpg.Record]
             The list of bidders.
-
         Returns
         -------
         tuple[list[discord.Member], float]
@@ -312,7 +303,6 @@ class GiveawayView(ui.View):
     @ui.button(label="Bid", style=discord.ButtonStyle.green)  # pyright: ignore[reportGeneralTypeIssues]
     async def bid(self, interaction: "Interaction[CBot]", button: ui.Button) -> None:  # skipcq: PYL-W0613
         """Increase or make the initial bid for a user.
-
         Parameters
         ----------
         interaction : Interaction[CBot]
@@ -345,7 +335,6 @@ class GiveawayView(ui.View):
     )  # pyright: ignore[reportGeneralTypeIssues]
     async def check(self, interaction: "Interaction[CBot]", button: ui.Button) -> None:  # skipcq: PYL-W0613
         """Check the current bid for a user.
-
         Parameters
         ----------
         interaction : Interaction[CBot]
@@ -378,7 +367,6 @@ class GiveawayView(ui.View):
         self, interaction: "Interaction[CBot]", _: ui.Button
     ) -> None:  # skipcq: PYL-W0613  # pragma: no cover
         """Toggle the giveaway alerts.
-
         Parameters
         ----------
         interaction : Interaction[CBot]
@@ -402,299 +390,3 @@ class GiveawayView(ui.View):
                 await interaction.followup.send(
                     await interaction.client.translate("giveaway-alerts-disable", interaction.locale)
                 )
-
-
-def rectify_bid(bid_int: int, current_bid: int | None, points: int) -> int:
-    """Rectify the bid to ensure it is within the bounds.
-
-    Parameters
-    ----------
-    bid_int : int
-        The bid as an integer.
-    current_bid : int | None
-        The current bid for the user.
-    points : int
-        The user's points.
-
-    Returns
-    -------
-    bid_int: int
-        The rectified bid.
-    """
-    bid_int = min(bid_int, points)
-    current_bid = current_bid or 0
-    if current_bid + bid_int > 32768:
-        bid_int = 32768 - current_bid
-    return bid_int
-
-
-class BidModal(ui.Modal, title="Bid"):
-    """Bid modal class.
-
-    Parameters
-    ----------
-    bot : CBot
-        The bot instance.
-    view : GiveawayView
-        The active giveaway view.
-
-    Attributes
-    ----------
-    bot : CBot
-        The bot instance.
-    view : GiveawayView
-        The active giveaway view.
-    """
-
-    def __init__(self, bot: CBot, view: GiveawayView):
-        super().__init__(timeout=None, title="Bid")
-        self.bot = bot
-        self.view = view
-
-    bid_str = ui.TextInput(
-        label="How much to increase your bid by?",
-        placeholder="Enter your bid (Must be an integer between 0 and 32768)",
-        style=discord.TextStyle.short,
-        min_length=1,
-        max_length=5,
-        required=True,
-    )
-
-    async def on_submit(self, interaction: "Interaction[CBot]") -> None:
-        """Call when a bid modal is submitted.
-
-        Parameters
-        ----------
-        interaction : Interaction[CBot]
-            The interaction that was submitted.
-        """
-        try:
-            val = self.bid_str.value
-            bid_int = int(val)
-        except ValueError:  # pragma: no cover
-            return await self.invalid_bid(interaction)
-        if 0 >= bid_int <= 32768:  # pragma: no cover
-            return await self.invalid_bid(interaction)
-        await interaction.response.defer(ephemeral=True, thinking=True)
-        async with self.view.bid_lock, self.bot.pool.acquire() as conn, conn.transaction():
-            points: int | None = await conn.fetchval("SELECT points FROM users WHERE id = $1", interaction.user.id)
-            if not await self.check_points(bid_int, interaction, points):  # pragma: no cover
-                return
-            bid_int = rectify_bid(
-                bid_int,
-                await conn.fetchval("SELECT bid FROM bids WHERE id = $1", interaction.user.id),
-                cast(int, points),
-            )
-            points = await conn.fetchval(
-                "UPDATE users SET points = points - $1 WHERE id = $2 RETURNING points", bid_int, interaction.user.id
-            )
-            new_bid = await conn.fetchval(
-                "UPDATE bids SET bid = bid + $1 WHERE id = $2 RETURNING bid", bid_int, interaction.user.id
-            )
-            await self.bid_success(
-                interaction,
-                bid_int,
-                cast(int, new_bid),
-                cast(int, points),
-                await conn.fetchval("SELECT wins FROM winners WHERE id = $1", interaction.user.id),
-            )
-            self.stop()
-
-    async def bid_success(
-        self, interaction: "Interaction[CBot]", bid_int: int, new_bid: int, points: int, wins: int | None
-    ) -> None:
-        """Call when a bid is successful.
-
-        Parameters
-        ----------
-        interaction : Interaction[CBot]
-            The interaction that was submitted.
-        bid_int : int
-            The amount of points that were bid.
-        new_bid : int
-            The new bid.
-        points : int
-            The user's new points.
-        wins : int | None
-            The user's wins, if any.
-        """
-        self.view.total_entries += bid_int
-        await interaction.followup.send(
-            await interaction.client.translate(
-                "giveaway-bid-success",
-                interaction.locale,
-                data={
-                    "bid": bid_int,
-                    "new_bid": new_bid,
-                    "chance": new_bid / self.view.total_entries,
-                    "points": points,
-                    "wins": wins or 0,
-                },
-            ),
-            ephemeral=True,
-        )
-        self.view.top_bid = max(new_bid, self.view.top_bid)
-
-    async def check_points(self, bid_int: int, interaction: "Interaction[CBot]", points: int | None) -> bool:
-        """Check if the user has enough points to bid.
-
-        Parameters
-        ----------
-        bid_int : int
-            The bid amount.
-        interaction : Interaction[CBot]
-            The interaction that was submitted.
-        points : int | None
-            The user's points.
-
-        Returns
-        -------
-        valid : bool
-            If the user's bid is valid.
-        """
-        if points is None or points == 0:
-            await interaction.followup.send(
-                await interaction.client.translate("giveaway-bid-no-rep", interaction.locale)
-            )
-            self.stop()
-            return False
-        if points < bid_int:
-            await interaction.followup.send(
-                await interaction.client.translate(
-                    "giveaway-bid-not-enough-rep", interaction.locale, data={"bid": bid_int, "points": points}
-                )
-            )
-            self.stop()
-            return False
-        return True
-
-    async def invalid_bid(self, interaction):
-        """Call when a bid is invalid."""
-        await interaction.response.send_message(
-            await interaction.client.translate("giveaway-bid-invalid-bid", interaction.locale), ephemeral=True
-        )
-        return self.stop()
-
-
-class Giveaway(commands.Cog):
-    """Giveaway commands.
-
-    This cog is for the giveaway commands, and the giveaway itself.
-
-    Parameters
-    ----------
-    bot : CBot
-        The bot instance.
-
-    Attributes
-    ----------
-    bot : CBot
-        The bot instance.
-    yesterdays_giveaway : GiveawayView
-        The giveaway view for yesterday's giveaway.
-    current_giveaway : GiveawayView
-        The giveaway view for the current giveaway.
-    charlie: discord.Member
-        The member object for charlie.
-    games: pandas.DataFrame
-        The games dataframe, with the index date in the form (m)m/(d)d/yyyy., and columns game, url, and source.
-    """
-
-    def __init__(self, bot: CBot):
-        self.bot = bot
-        self.yesterdays_giveaway: GiveawayView = bot.holder.pop("yesterdays_giveaway")
-        self.current_giveaway: GiveawayView = bot.holder.pop("current_giveaway")
-        self.charlie: discord.Member = MISSING
-        self.games: pd.DataFrame = pd.read_csv(
-            "charbot/giveaway.csv", index_col=0, usecols=[0, 1, 2, 4], names=["date", "game", "url", "source"]
-        )
-
-    async def cog_load(self) -> None:
-        """Call when the cog is loaded."""
-        self.daily_giveaway.start()
-        if self.current_giveaway is not MISSING:
-            message = self.current_giveaway.message
-        else:
-            message_found = False
-            _message: discord.Message = MISSING
-            async for _message in cast(
-                discord.TextChannel | discord.VoiceChannel, await self.bot.fetch_channel(926307166833487902)
-            ).history(limit=5):
-                if _message.components:
-                    message_found = True
-                    break
-            if message_found is True and _message is not MISSING:
-                message = await self.bot.giveaway_webhook.fetch_message(_message.id)
-            else:
-                raise RuntimeError("Could not find giveaway message.")
-        current_giveaway = GiveawayView.recreate_from_message(message, self.bot)
-        await current_giveaway.message.edit(view=current_giveaway)
-        self.current_giveaway = current_giveaway
-
-    async def cog_unload(self) -> None:  # skipcq: PYL-W0236  # pragma: no cover
-        """Call when the cog is unloaded."""
-        self.daily_giveaway.cancel()
-        self.bot.holder["yesterdays_giveaway"] = self.yesterdays_giveaway
-        self.bot.holder["current_giveaway"] = self.current_giveaway
-
-    @tasks.loop(time=datetime.time(hour=9, minute=0, second=0, tzinfo=CBot.ZONEINFO))  # skipcq: PYL-E1123
-    async def daily_giveaway(self):
-        """Run the daily giveaway."""
-        if self.bot.TIME().day == 1:
-            # noinspection SqlWithoutWhere
-            await self.bot.pool.execute("DELETE FROM winners")  # clear the table the start of each month
-        if self.current_giveaway is not MISSING:
-            self.yesterdays_giveaway = self.current_giveaway
-            await self.yesterdays_giveaway.end()
-        if not isinstance(self.charlie, discord.Member):
-            guild = self.bot.get_guild(225345178955808768)
-            if guild is None:
-                guild = await self.bot.fetch_guild(225345178955808768)
-            self.charlie = await guild.fetch_member(225344348903047168)
-        self.games = pd.read_csv(
-            "charbot/giveaway.csv", index_col=0, usecols=[0, 1, 2, 4], names=["date", "game", "url", "source"]
-        )
-        try:
-            gameinfo: dict[str, str] = dict(self.games.loc[self.bot.TIME().strftime("%-m/%-d/%Y")])
-        except KeyError:
-            gameinfo: dict[str, str] = {"game": "Charlie Didn't Give me one", "url": "None", "source": "Charlie"}
-        game = gameinfo["game"]
-        url = gameinfo["url"] if gameinfo["url"] != "None" else None
-        embed = discord.Embed(
-            title="Daily Giveaway",
-            description=f"Today's Game: [{game}]({url})",
-            color=discord.Color.dark_blue(),
-            timestamp=utcnow(),
-            url=url,
-        )
-        embed.set_author(name=self.charlie.display_name, icon_url=self.charlie.display_avatar.url)
-        embed.set_footer(text="Started at")
-        embed.add_field(name="How to Participate", value="Select bid and enter your bid in the popup.", inline=True)
-        embed.add_field(name="How to Win", value="The winner will be chosen at random.", inline=True)
-        # noinspection SpellCheckingInspection
-        embed.add_field(
-            name="How to get reputation",
-            value="You get reputation by attending `rollcall` and by "
-            "participating in programs (games) in <#969972085445238784>.",
-            inline=True,
-        )
-        embed.add_field(name="Total Reputation Bid", value="0", inline=True)
-        self.current_giveaway = GiveawayView(self.bot, embed, game, url)
-        self.current_giveaway.message = await self.bot.giveaway_webhook.send(
-            "<@&972886729231044638>",
-            embed=embed,
-            view=self.current_giveaway,
-            allowed_mentions=discord.AllowedMentions(roles=True),
-            wait=True,
-        )
-
-
-async def setup(bot: CBot):  # pragma: no cover
-    """Giveaway cog setup.
-
-    Parameters
-    ----------
-    bot : CBot
-        The bot to add the cog to.
-    """
-    await bot.add_cog(Giveaway(bot), override=True)
