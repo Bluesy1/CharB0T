@@ -17,9 +17,10 @@ from discord import ui
 from discord.utils import MISSING, utcnow
 
 from . import BidModal
+from .. import errors
 
 if TYPE_CHECKING:
-    from .. import CBot, GuildComponentInteraction as Interaction, errors
+    from .. import CBot, GuildComponentInteraction as Interaction
 
 
 async def hit_max_wins(interaction):
