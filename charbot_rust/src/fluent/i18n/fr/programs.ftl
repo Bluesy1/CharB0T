@@ -2,7 +2,7 @@
 # SPDX-License-Identifier: MIT
 
 # Command Groups
-programs-name = programs
+programs-name = programmes
 programs-description = Programs to gain you rep.
 programs-beta-name = beta
 programs-beta-description = Beta programs..
