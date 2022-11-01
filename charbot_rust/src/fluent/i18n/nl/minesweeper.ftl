@@ -2,43 +2,43 @@
 # SPDX-License-Identifier: MIT
 
 # Selects
-minesweeper-select-row-label = Row { $letter }
-minesweeper-select-row-description = Change the row to { $letter }
-minesweeper-select-row-placeholder = Select a row
-minesweeper-select-col-label = Column { $letter }
-minesweeper-select-col-description = Change the column to { $letter }
-minesweeper-select-col-placeholder = Select a column
-minesweeper-image-alt-text = Minesweeper Board
-minesweeper-reveal-label = Reveal
+minesweeper-select-row-label = Rij { $letter }
+minesweeper-select-row-description = Verander de rij naar { $letter }
+minesweeper-select-row-placeholder = Selecteer een rij
+minesweeper-select-col-label = Kolom { $letter }
+minesweeper-select-col-description = Verander de kolom naar { $letter }
+minesweeper-select-col-placeholder = Selecteer een kolom
+minesweeper-image-alt-text = Minesweeper Bord
+minesweeper-reveal-label = Onthul
 #Chord is not in the musical sense, but as the following move: http://www.minesweeper.info/wiki/Chord
 minesweeper-chord-label = Chord
-minesweeper-flag-label = Flag
-minesweeper-quit-label = Quit
+minesweeper-flag-label = Vlag
+minesweeper-quit-label = Stop
 minesweeper-help-label = Help
-minesweeper-lose-title = You lost!
-minesweeper-lose-description = You revealed a mine and lost the game. You gained { $awarded } points.
-minesweeper-lose-hit-cap-description = You revealed a mine and lost the game. You gained { $awarded } points. (Hit daily cap)
-minesweeper-win-title = You won!
-minesweeper-win-description = You revealed all the safe tiles and won the game. You gained { $awarded } points.
-minesweeper-win-hit-cap-description = You revealed all the safe tiles and won the game. You gained { $awarded } points. (Hit daily cap)
-minesweeper-quit-title = You quit!
-minesweeper-quit-description = You quit the game without completing it
-minesweeper-reveal-flag-fail = WARNING: you tried to reveal a flagged cell. Instead of revealing it, it was unflagged. If you meant to reveal it, press reveal again.
+minesweeper-lose-title = Je hebt verloren!
+minesweeper-lose-description = Je hebt een mijn onthuld en het spel verloren. Je hebt { $awarded } punten gekregen.
+minesweeper-lose-hit-cap-description = Je hebt een mijn onthuld en het spel verloren. Je hebt { $awarded } punten gekregen.
+minesweeper-win-title = Je hebt gewonnen!
+minesweeper-win-description = Je hebt alle veilige tegels onthuld en het spel gewonnen. Je hebt { $awarded } punten behaald.
+minesweeper-win-hit-cap-description = Je hebt alle veilige tegels onthuld en het spel gewonnen. Je hebt { $awarded } punten behaald.
+minesweeper-quit-title = Je bent gestopt!
+minesweeper-quit-description = Je stopte het spel zonder het te af te maken
+minesweeper-reveal-flag-fail = WAARSCHUWING: je probeerde een gemarkeerde cel te onthullen. In plaats van deze te onthullen, werd het markeren ongedaan. Als u wilde onthullen, druk dan opnieuw op onthullen.
 #Chord is not in the musical sense, but as the following move: http://www.minesweeper.info/wiki/Chord
-minesweeper-chord-error = WARNING: you tried to chord a cell that was not revealed, not a number, or didn't have the appropriate number of surrounding tiles marked.
-minesweeper-flag-error = WARNING: you tried to flag a revealed cell. This move was ignored.
+minesweeper-chord-error = WAARSCHUWING: je probeerde een cel te chorden die niet onthuld was, geen nummer, of het juiste aantal omliggende tegels bevatte.
+minesweeper-flag-error = WAARSCHUWING: je probeerde een onthulde cel te markeren. Deze zet werd genegeerd.
 minesweeper-help-title = Minesweeper
-minesweeper-help-description = How to play minesweeper:
-minesweeper-help-reveal-title = Reveal { "\u26cf" }
-minesweeper-help-reveal-description = Reveal a covered tile.
+minesweeper-help-description = Hoe speel je minesweeper:
+minesweeper-help-reveal-title = Onthul { "\u26cf" }
+minesweeper-help-reveal-description = Onthul een bedekte tegel.
 #Chord is not in the musical sense, but as the following move: http://www.minesweeper.info/wiki/Chord
 minesweeper-help-chord-title = Chord { "\u2692" }
 #Chord is not in the musical sense, but as the following move: http://www.minesweeper.info/wiki/Chord
-minesweeper-help-chord-description = Reveal all tiles around an exposed number that has the correct number of flagged tiles around it. This will explode mines.
-minesweeper-help-flag-title = Flag { "\U01f6A9" }
-minesweeper-help-flag-description = Flag a tile, or remove the flag from a flagged tile.
-minesweeper-help-quit-title = Quit { "\u2620" }
-minesweeper-help-quit-description = Quit the game.
+minesweeper-help-chord-description = Onthul alle tegels rond een open getal met het juiste aantal gemarkeerde tegels eromheen. Dit zal mijnen ontploffen.
+minesweeper-help-flag-title = Vlag { "\U01f6A9" }
+minesweeper-help-flag-description = Markeer een tegel of verwijder de vlag van een gemarkeerde tegel.
+minesweeper-help-quit-title = Stop { "\u2620" }
+minesweeper-help-quit-description = Verlaat het spel.
 minesweeper-help-help-title = Help { "\u2049" }
-minesweeper-help-help-description = Show this help message.
-minesweeper-help-image-alt-text = Example play-through of Minesweeper.
+minesweeper-help-help-description = Toon dit helpbericht.
+minesweeper-help-image-alt-text = Een voorbeeldspel van Minesweeper.
