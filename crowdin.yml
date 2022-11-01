@@ -3,5 +3,5 @@
 # SPDX-License-Identifier: MIT
 
 files:
-  - source: /i18n/en-US/*.ftl
-    translation: /i18n/%locale%/%original_file_name%
+  - source: /charbot_rust/src/fluent/i18n/en-US/*.ftl
+    translation: /charbot_rust/src/fluent/i18n/%locale%/%original_file_name%
