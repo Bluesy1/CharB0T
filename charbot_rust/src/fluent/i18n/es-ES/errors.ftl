@@ -2,9 +2,9 @@
 # SPDX-License-Identifier: MIT
 
 # Errors
-missing-program-role = Te falta al menos uno de los roles requeridos: { $roles } - debes ser al menos nivel 1 para usar este comando/botón.
-wrong-channel = Este comando sólo puede ejecutarse en el canal <#{ $channelid }> .
-no-pool-found = { $pool } pool no encontrado. Por favor, elija uno del autocompletado.
-mising-any-role = { $user }, no tienes ninguno de los roles necesarios para usar { $command }.
-check-failed = { $user }, no puedes usar  { $command }.
-bad-code = { $user }, se ha producido un error al ejecutar { $command }, se ha notificado a Bluesy.
+missing-program-role = You are missing at least one of the required roles: { $roles } - you must be at least level 1 to use this command/button.
+wrong-channel = This command can only be run in the channel <#{ $channelid }> .
+no-pool-found = { $pool } pool not found. Please choose one from the autocomplete.
+mising-any-role = { $user }, you don't have any of the required role(s) to use { $command }.
+check-failed = { $user }, you can't use { $command }.
+bad-code = { $user }, an error occurred while executing { $command }, Bluesy has been notified.
