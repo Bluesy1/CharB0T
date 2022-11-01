@@ -2,11 +2,13 @@
 # SPDX-FileCopyrightText: 2021 Bluesy1 <68259537+Bluesy1@users.noreply.github.com>
 # SPDX-License-Identifier: MIT
 import datetime
+import re
 from zoneinfo import ZoneInfo
 
 import aiohttp
 import discord
 import pytest
+from aioresponses import aioresponses
 from pytest_mock import MockerFixture
 
 # noinspection PyProtectedMember
@@ -100,12 +102,9 @@ def test_calendar_embed():
 @pytest.mark.asyncio
 async def test_cog_init_load_unload(mocker: MockerFixture, event_loop, mock_config):
     """Test cog constructor, load, unload."""
-    bot = mocker.AsyncMock(spec=CBot)
-    bot.holder = Holder()
     fake_webhook = mocker.AsyncMock(spec=discord.Webhook)
     fetch_webhook = mocker.AsyncMock(spec=discord.Webhook, return_value=fake_webhook)
-    bot.fetch_webhook = fetch_webhook
-    bot.loop = event_loop
+    bot = mocker.AsyncMock(spec=CBot, holder=Holder(), fetch_webhook=fetch_webhook, loop=event_loop)
     await gcal.setup(bot)
     bot.add_cog.assert_called_once()
     cog: gcal.Calendar = bot.add_cog.call_args.args[0]
@@ -117,12 +116,6 @@ async def test_cog_init_load_unload(mocker: MockerFixture, event_loop, mock_conf
     assert cog.message is discord.utils.MISSING
     assert cog.webhook is fake_webhook
     fetch_webhook.assert_awaited_once()
-    # fetch_webhook.assert_called_once_with(mock_config["discord"]["webhook"]["calendar"])
-    # For some reason, the above line doesn't work. The call has thr right args. but the following error occurs:
-    # >       fetch_webhook.assert_awaited_once_with(mock_config["discord"]["webhook"]["calendar"])
-    # E       AssertionError: expected call not found.
-    # E       Expected: fetch_webhook(1)
-    # E       Actual: fetch_webhook(1)
     assert start_spy.call_count == 1
     await cog.cog_unload()
     assert cancel_spy.call_count == 1
@@ -131,7 +124,7 @@ async def test_cog_init_load_unload(mocker: MockerFixture, event_loop, mock_conf
 
 
 @pytest.mark.asyncio
-async def test_caledar_task(mocker: MockerFixture, event_loop, mock_config, monkeypatch):
+async def test_calendar_task(mocker: MockerFixture, event_loop, mock_config, monkeypatch):
     """Test calendar task."""
     data = {
         "items": [
@@ -199,36 +192,23 @@ async def test_caledar_task(mocker: MockerFixture, event_loop, mock_config, monk
             },
         ],
     }
-    mock_response = mocker.AsyncMock(spec=aiohttp.ClientResponse)
-    mock_response.json.return_value = data
-
-    class mock_get:
-        """Mock aiohttp.ClientSession.get()"""
-
-        async def __aenter__(self):
-            return mock_response
-
-        async def __aexit__(self, exc_type, exc_val, exc_tb):
-            pass
-
-    bot = mocker.AsyncMock(spec=CBot)
-    bot.holder = Holder()
-    bot.holder["webhook"] = mocker.AsyncMock(spec=discord.Webhook)
-    bot.user = mocker.AsyncMock(spec=discord.ClientUser)
-    fake_webhook = mocker.AsyncMock(spec=discord.Webhook)
-    fake_message = mocker.AsyncMock(spec=discord.WebhookMessage)
-    fake_webhook.fetch_message.return_value = fake_message
-    bot.fetch_webhook.retun_value = fake_webhook
-    bot.loop = event_loop
-    async with aiohttp.ClientSession() as session:
-        session.get = lambda *args, **kwargs: mock_get()  # type: ignore
-        bot.session = session
-        cog = gcal.Calendar(bot)
-        await cog.cog_load()
-        await cog.calendar.__call__()  # skipcq: PYL-E1102
-    cog.calendar.cancel()
-    assert mock_response.json.call_count == 1
-    assert mock_response.json.call_args.kwargs["loads"] is __import__("orjson").loads
-    # fake_webhook.fetch_message.edit.assert_awaited_once()
-    # IDK, this isn't working right now
-    # TODO: figure out why, skipcq - this is a later thing to worry about
+    with aioresponses() as mocked:
+        async with aiohttp.ClientSession() as session:
+            mocked.get(
+                re.compile(r"^https://www.googleapis.com/calendar/v3/calendars/.*"),
+                status=200,
+                payload=data,
+            )
+            bot = mocker.AsyncMock(spec=CBot, loop=event_loop, session=session)
+            bot.holder = Holder()
+            bot.holder["webhook"] = mocker.AsyncMock(spec=discord.Webhook)
+            bot.user = mocker.AsyncMock(spec=discord.ClientUser)
+            fake_message = mocker.AsyncMock(spec=discord.WebhookMessage)
+            fake_webhook = mocker.AsyncMock(
+                spec=discord.Webhook, fetch_message=mocker.AsyncMock(return_value=fake_message)
+            )
+            bot.fetch_webhook.return_value = fake_webhook
+            cog = gcal.Calendar(bot)
+            await cog.cog_load()
+            await cog.calendar.__call__()  # skipcq: PYL-E1102
+            cog.calendar.cancel()
