@@ -2,6 +2,6 @@
 # SPDX-License-Identifier: MIT
 
 # Ranks
-rank-name = rank
-rank-description = Check your or someone's level and rank.
-rank-error = { "\U01F6AB" }You aren't ranked yet. Send some messages first, then try again.
+rank-name = level
+rank-description = Bekijk je eigen level of die van iemand anders.
+rank-error = { "\U01F6AB" }Je hebt nog geen level. Stuur eerst een paar berichten en probeer het dan opnieuw.
