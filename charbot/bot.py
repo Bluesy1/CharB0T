@@ -178,26 +178,6 @@ class CBot(commands.Bot):
         assert isinstance(user, discord.ClientUser)  # skipcq: BAN-B101
         print(f"Logged in: {user.name}#{user.discriminator}")
 
-    async def giveaway_user(self, user: int) -> None | asyncpg.Record:
-        """Return an asyncpg entry for the user, joined on all 3 tables for the giveaway.
-
-        Parameters
-        ----------
-        user : int
-            The user id.
-
-        Returns
-        -------
-        asyncpg.Record, optional
-            The user record, or None if the user isn't in the DB.
-        """
-        return await self.pool.fetchrow(
-            "SELECT users.id as id, points, b.bid as bid, dp.last_claim as daily, dp.last_particip_dt as "
-            "particip_dt, dp.particip as particip, dp.won as won "
-            "FROM users join bids b on users.id = b.id join daily_points dp on users.id = dp.id WHERE users.id = $1",
-            user,
-        )
-
     async def give_game_points(
         self, member: discord.Member | discord.User, points: int, bonus: int = 0
     ) -> int:  # sourcery skip: compare-via-equals
@@ -218,7 +198,12 @@ class CBot(commands.Bot):
             The points gained
         """
         user_id = member.id
-        user = await self.giveaway_user(user_id)
+        user = await self.pool.fetchrow(
+            "SELECT users.id as id, points, b.bid as bid, dp.last_claim as daily, dp.last_particip_dt as "
+            "particip_dt, dp.particip as particip, dp.won as won "
+            "FROM users join bids b on users.id = b.id join daily_points dp on users.id = dp.id WHERE users.id = $1",
+            user_id,
+        )
         if user is None:
             async with self.pool.acquire() as conn:
                 await conn.execute(

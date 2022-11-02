@@ -25,14 +25,12 @@ MESSAGE: Final = "You must be at least level 1 to participate in the giveaways s
 class Reputation(commands.Cog, name="Programs"):
     """Programs."""
 
-    def __init__(self, bot: "CBot"):  # pragma: no cover
-        self.bot = bot
-        self.sudoku_regex = re.compile(
-            r"VALUE=\"(?P<solution>\d{81})\">.*VALUE=\"(?P<mask>[01]{81})\">",
-            re.RegexFlag.MULTILINE | re.RegexFlag.DOTALL | re.RegexFlag.IGNORECASE,
-        )
+    SUDOKU_REGEX: Final = re.compile(
+        r"VALUE=\"(?P<solution>\d{81})\">.*VALUE=\"(?P<mask>[01]{81})\">",
+        re.RegexFlag.MULTILINE | re.RegexFlag.DOTALL | re.RegexFlag.IGNORECASE,
+    )
 
-    async def interaction_check(self, interaction: Interaction):  # skipcq: PYL-W0221
+    async def interaction_check(self, interaction: Interaction["CBot"]):  # skipcq: PYL-W0221
         """Check if the user is allowed to use the cog."""
         if interaction.guild is None:
             raise app_commands.NoPrivateMessage("Programs can't be used in direct messages.")
@@ -42,12 +40,14 @@ class Reputation(commands.Cog, name="Programs"):
         if channel.id == 839690221083820032:  # pragma: no cover
             return True
         if (
-            channel.id != self.bot.CHANNEL_ID
+            channel.id != interaction.client.CHANNEL_ID
             and interaction.command.name != self.query_points.name  # pyright: ignore[reportOptionalMemberAccess]
         ):
-            raise errors.WrongChannelError(self.bot.CHANNEL_ID, interaction.locale)
-        if all(role.id not in self.bot.ALLOWED_ROLES for role in cast(discord.Member, interaction.user).roles):
-            raise errors.MissingProgramRole(self.bot.ALLOWED_ROLES, interaction.locale)
+            raise errors.WrongChannelError(interaction.client.CHANNEL_ID, interaction.locale)
+        if all(
+            role.id not in interaction.client.ALLOWED_ROLES for role in cast(discord.Member, interaction.user).roles
+        ):
+            raise errors.MissingProgramRole(interaction.client.ALLOWED_ROLES, interaction.locale)
         return True
 
     programs = app_commands.Group(name="programs", description="Programs to gain you rep.", guild_only=True)
@@ -65,8 +65,8 @@ class Reputation(commands.Cog, name="Programs"):
             Whether to turn off formatting that only works on desktop.
         """
         await interaction.response.defer(ephemeral=True)
-        async with self.bot.session.get("https://nine.websudoku.com/?level=2") as response:
-            match = self.sudoku_regex.search(str(await response.content.read()))
+        async with interaction.client.session.get("https://nine.websudoku.com/?level=2") as response:
+            match = self.SUDOKU_REGEX.search(str(await response.content.read()))
             if match is None:
                 await interaction.followup.send("Couldn't find a puzzle.")
                 return
@@ -74,7 +74,7 @@ class Reputation(commands.Cog, name="Programs"):
         board: list[list[int]] = [[] for _ in range(9)]
         for i, num, hidden_bit in zip(count(), vals, hidden):
             board[i // 9].append(int(num) if int(hidden_bit) == 0 else 0)
-        view = sudoku.Sudoku(sudoku.Puzzle(board, mobile), cast(discord.Member, interaction.user), self.bot)
+        view = sudoku.Sudoku(sudoku.Puzzle(board, mobile), cast(discord.Member, interaction.user), interaction.client)
         await interaction.followup.send(embed=view.block_choose_embed(), view=view)
 
     @programs.command(
@@ -127,7 +127,7 @@ class Reputation(commands.Cog, name="Programs"):
         )
         embed.set_footer(text="Play by typing /programs shrugman")
         embed.set_author(name=interaction.user.display_name, icon_url=interaction.user.display_avatar.url)
-        view = shrugman.Shrugman(self.bot, word)
+        view = shrugman.Shrugman(interaction.client, word)
         await interaction.followup.send(embed=embed, view=view)
 
     @programs.command()  # pyright: ignore[reportGeneralTypeIssues]
@@ -174,27 +174,32 @@ class Reputation(commands.Cog, name="Programs"):
             The interaction of the command invocation.
         """
         await interaction.response.defer(ephemeral=True)
-        giveaway_user = await self.bot.giveaway_user(interaction.user.id)
+        giveaway_user = await interaction.client.pool.fetchrow(
+            "SELECT users.id as id, points, b.bid as bid, dp.last_claim as daily, dp.last_particip_dt as "
+            "particip_dt, dp.particip as particip, dp.won as won "
+            "FROM users join bids b on users.id = b.id join daily_points dp on users.id = dp.id WHERE users.id = $1",
+            interaction.user.id,
+        )
         if giveaway_user is None:
-            async with self.bot.pool.acquire() as conn:
+            async with interaction.client.pool.acquire() as conn:
                 await conn.execute("INSERT INTO users (id, points) VALUES ($1, 20)", interaction.user.id)
                 await conn.execute(
                     "INSERT INTO daily_points (id, last_claim, last_particip_dt, particip, won) VALUES "
                     "($1, $2, $3, 0, 0)",
                     interaction.user.id,
-                    self.bot.TIME(),
-                    self.bot.TIME() - datetime.timedelta(days=1),
+                    interaction.client.TIME(),
+                    interaction.client.TIME() - datetime.timedelta(days=1),
                 )
                 await conn.execute("INSERT INTO bids (id, bid) VALUES ($1, 0)", interaction.user.id)
                 await interaction.followup.send("You got some Rep today, inmate")
             return
-        if giveaway_user["daily"] >= self.bot.TIME():
+        if giveaway_user["daily"] >= interaction.client.TIME():
             await interaction.followup.send("No more Rep for you yet, get back to your cell")
             return
-        async with self.bot.pool.acquire() as conn:
+        async with interaction.client.pool.acquire() as conn:
             await conn.execute("UPDATE users SET points = points + 20 WHERE id = $1", interaction.user.id)
             await conn.execute(
-                "UPDATE daily_points SET last_claim = $1 WHERE id = $2", self.bot.TIME(), interaction.user.id
+                "UPDATE daily_points SET last_claim = $1 WHERE id = $2", interaction.client.TIME(), interaction.user.id
             )
         await interaction.followup.send("You got some Rep today, inmate")
 
@@ -211,7 +216,7 @@ class Reputation(commands.Cog, name="Programs"):
             The interaction of the command invocation.
         """
         await interaction.response.defer(ephemeral=True)
-        async with self.bot.pool.acquire() as conn:
+        async with interaction.client.pool.acquire() as conn:
             points = await conn.fetchval("SELECT points from users where id = $1", interaction.user.id) or 0
             # noinspection SpellCheckingInspection
             limits = await conn.fetchrow("SELECT * from daily_points where id = $1", interaction.user.id) or {
@@ -220,10 +225,12 @@ class Reputation(commands.Cog, name="Programs"):
                 "particip": 0,
             }
             wins = await conn.fetchval("SELECT wins FROM winners WHERE id = $1", interaction.user.id) or 0
-        claim = "have" if limits["last_claim"] == self.bot.TIME() else "haven't"
+        claim = "have" if limits["last_claim"] == interaction.client.TIME() else "haven't"
         # noinspection SpellCheckingInspection
         particip = (
-            "have" if (limits["last_particip_dt"] == self.bot.TIME()) and (limits["particip"] >= 10) else "haven't"
+            "have"
+            if (limits["last_particip_dt"] == interaction.client.TIME()) and (limits["particip"] >= 10)
+            else "haven't"
         )
         await interaction.followup.send(
             f"You have {points} reputation, you {claim} claimed your daily bonus, and you {particip} hit"
