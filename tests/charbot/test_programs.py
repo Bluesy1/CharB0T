@@ -221,6 +221,7 @@ async def test_rollcall_new_user(mock_inter, database: Pool):
         await database.fetchval("SELECT points FROM users WHERE id=10") == 20
     ), "Points should be 20 after the first rollcall"
     daily_points = await database.fetchrow("SELECT * FROM daily_points WHERE id=10")
+    assert daily_points is not None, "Expected a row to be created in the daily_points table."
     assert daily_points["particip"] == daily_points["won"] == 0, "Programs points should be set to 0"
     assert daily_points["last_claim"] == mock_inter.client.TIME(), "Last claim time should be now"
     assert await database.fetchval("SELECT bid FROM bids WHERE id=10") == 0, "Bid should be 0"
