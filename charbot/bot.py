@@ -4,7 +4,7 @@
 """Charbot discord bot."""
 import datetime
 import logging
-from typing import Any, ClassVar, Final, TypeVar
+from typing import Any, ClassVar, Final, TypeVar, cast
 from typing_extensions import Self
 from zoneinfo import ZoneInfo
 
@@ -145,7 +145,9 @@ class CBot(commands.Bot):
             - datetime.timedelta(days=1)
         )
 
-    def __init__(self, *args: Any, strip_after_prefix: bool = True, tree_cls: type["Tree"], **kwargs: Any) -> None:
+    def __init__(
+        self, *args: Any, strip_after_prefix: bool = True, tree_cls: type["Tree"], **kwargs: Any
+    ) -> None:  # pragma: no cover
         super().__init__(*args, strip_after_prefix=strip_after_prefix, tree_cls=tree_cls, **kwargs)
         self.pool: asyncpg.Pool[Any] = MISSING
         self.session: aiohttp.ClientSession = MISSING
@@ -155,7 +157,7 @@ class CBot(commands.Bot):
         self.holder: Holder = Holder()
         self.no_dms: set[int] = set()
 
-    async def setup_hook(self):
+    async def setup_hook(self):  # pragma: no cover
         """Initialize hook for the bot.
 
         This is called when the bot is logged in but before connecting to the websocket.
@@ -174,13 +176,12 @@ class CBot(commands.Bot):
         for extension in EXTENSIONS:
             await self.load_extension(extension)
         print("Extensions loaded")
-        user = self.user
-        assert isinstance(user, discord.ClientUser)  # skipcq: BAN-B101
+        user = cast(discord.ClientUser, self.user)
         print(f"Logged in: {user.name}#{user.discriminator}")
 
     async def give_game_points(
         self, member: discord.Member | discord.User, points: int, bonus: int = 0
-    ) -> int:  # sourcery skip: compare-via-equals
+    ) -> int:  # pragma: no cover
         """Give the user points.
 
         Parameters
@@ -194,64 +195,121 @@ class CBot(commands.Bot):
 
         Returns
         -------
-        int
+        gained: int
             The points gained
         """
-        user_id = member.id
         user = await self.pool.fetchrow(
             "SELECT users.id as id, points, b.bid as bid, dp.last_claim as daily, dp.last_particip_dt as "
             "particip_dt, dp.particip as particip, dp.won as won "
             "FROM users join bids b on users.id = b.id join daily_points dp on users.id = dp.id WHERE users.id = $1",
-            user_id,
+            member.id,
         )
         if user is None:
-            async with self.pool.acquire() as conn:
-                await conn.execute(
-                    "INSERT INTO users (id, points) VALUES ($1, $2)",
-                    user_id,
-                    points + bonus,
-                )
-                await conn.execute("INSERT INTO bids (id, bid) VALUES ($1, 0)", user_id)
-                await conn.execute(
-                    "INSERT INTO daily_points (id, last_claim, last_particip_dt, particip, won)"
-                    " VALUES ($1, $2, $3, $4, $5)",
-                    user_id,
-                    self.TIME() - datetime.timedelta(days=1),
-                    self.TIME(),
-                    points,
-                    bonus,
-                )
-                await conn.execute("INSERT INTO bids (id, bid) VALUES ($1, 0)", user_id)
-                return points + bonus
-        elif user["particip_dt"] < self.TIME():
-            async with self.pool.acquire() as conn:
-                await conn.execute(
-                    "UPDATE daily_points SET last_particip_dt = $1, particip = $2, won = $3 WHERE id = $4",
-                    self.TIME(),
-                    points,
-                    bonus,
-                    user_id,
-                )
-                await conn.execute("UPDATE users SET points = points + $1 WHERE id = $2", points + bonus, user_id)
-        elif user["particip_dt"] == self.TIME():
-            if user["particip"] + points > 10:
-                real_points = 10 - user["particip"]
-                bonus = -(-(real_points * bonus) // points)
-                points = real_points
-            async with self.pool.acquire() as conn:
-                await conn.execute(
-                    "UPDATE daily_points SET particip = particip + $1, won = won + $2 WHERE id = $3",
-                    points,
-                    bonus,
-                    user_id,
-                )
-                await conn.execute("UPDATE users SET points = points + $1 WHERE id = $2", points + bonus, user_id)
-        else:
-            return 0
+            return await self.first_time_game_gain(member.id, points, bonus)
+        if user["particip_dt"] < self.TIME():
+            return await self.first_of_day_game_gain(member.id, points, bonus)
+        if user["particip_dt"] == self.TIME():
+            return await self.fallback_game_gain(member.id, user, points, bonus)
+        return 0
+
+    async def fallback_game_gain(self, user: int, previous: int, points: int, bonus: int, /) -> int:
+        """Fallback game gain.
+
+        Parameters
+        ----------
+        user : int
+            The user ID to give points to.
+        previous: int
+            The user's previous amount of participation points.
+        points : int
+            The amount of points to give.
+        bonus : int
+            The amount of bonus points to give.
+
+        Returns
+        -------
+        gained: int
+            The amount of points gained.
+        """
+        if previous + points > 10:
+            real_points = 10 - previous
+            bonus = -(-(real_points * bonus) // points)
+            points = real_points
+        async with self.pool.acquire() as conn:
+            await conn.execute(
+                "UPDATE daily_points SET particip = particip + $1, won = won + $2 WHERE id = $3",
+                points,
+                bonus,
+                user,
+            )
+            await conn.execute("UPDATE users SET points = points + $1 WHERE id = $2", points + bonus, user)
         return points + bonus
 
+    async def first_of_day_game_gain(self, user: int, points: int, bonus: int, /) -> int:
+        """Give the user points for the first time of the day.
+
+        Parameters
+        ----------
+        user : int
+            The user to give points to.
+        points : int
+            The amount of points to give.
+        bonus : int
+            The amount of bonus points to give.
+
+        Returns
+        -------
+        gained: int
+            The points gained.
+        """
+        async with self.pool.acquire() as conn:
+            await conn.execute(
+                "UPDATE daily_points SET last_particip_dt = $1, particip = $2, won = $3 WHERE id = $4",
+                self.TIME(),
+                points,
+                bonus,
+                user,
+            )
+            await conn.execute("UPDATE users SET points = points + $1 WHERE id = $2", points + bonus, user)
+        return points + bonus
+
+    async def first_time_game_gain(self, user: int, points: int, bonus: int, /) -> int:
+        """Give the user points for the first time.
+
+        Parameters
+        ----------
+        user : int
+            The user id to give points to.
+        points : int
+            The amount of points to give.
+        bonus : int
+            The amount of bonus points to give.
+
+        Returns
+        -------
+        gained: int
+            The points gained
+        """
+        async with self.pool.acquire() as conn:
+            await conn.execute(
+                "INSERT INTO users (id, points) VALUES ($1, $2)",
+                user,
+                points + bonus,
+            )
+            await conn.execute("INSERT INTO bids (id, bid) VALUES ($1, 0)", user)
+            await conn.execute(
+                "INSERT INTO daily_points (id, last_claim, last_particip_dt, particip, won)"
+                " VALUES ($1, $2, $3, $4, $5)",
+                user,
+                self.TIME() - datetime.timedelta(days=1),
+                self.TIME(),
+                points,
+                bonus,
+            )
+            return points + bonus
+
     async def translate(
-        self, string: locale_str | str, locale: Locale, *, data: Any | None = None, fallback: str | None = None
+        self, string: locale_str | str, locale: Locale, /, *, data: Any | None = None, fallback: str | None = None
     ) -> str:
         """Translate a string.
 
@@ -285,17 +343,14 @@ class CBot(commands.Bot):
         res = await translator.translate(key, locale, context)
         if res is not None:
             return res
-        res = await translator.translate(key, Locale.american_english, context)
-        if res is not None:
-            return res
-        if fallback:
+        if fallback is not None:
             return fallback
         raise ValueError(f"Key {string} not a valid key for translation")
 
     # for some reason deepsource doesn't like this, so i'm skipcq'ing the definition header
     async def on_command_error(
         self, ctx: commands.Context[Self], exception: commands.CommandError, /
-    ) -> None:  # skipcq: PYL-W0221
+    ) -> None:  # skipcq: PYL-W0221  # pragma: no cover
         """Event triggered when an error is raised while invoking a command.
 
         Parameters
@@ -356,7 +411,7 @@ class CBot(commands.Bot):
             await self.error_logs.send(f"{command.name} raised an error: {exception}")
             logging.getLogger("charbot.commands").error("Ignoring exception in command %s", command, exc_info=exception)
 
-    async def on_error(self, event_method: str, /, *args: Any, **kwargs: Any) -> None:
+    async def on_error(self, event_method: str, /, *args: Any, **kwargs: Any) -> None:  # pragma: no cover
         """Event triggered when an error is raised.
 
         Parameters
@@ -377,13 +432,15 @@ class Tree(app_commands.CommandTree[CBot]):
 
     translator: Translator
 
-    def __init__(self, bot: CBot):
+    def __init__(self, bot: CBot):  # pragma: no cover
         """Initialize the command tree."""
         super().__init__(client=bot)
         self.client: CBot = bot
         self.logger = logging.getLogger("charbot.tree")
 
-    async def on_error(self, interaction: discord.Interaction, error: app_commands.AppCommandError) -> None:
+    async def on_error(
+        self, interaction: discord.Interaction, error: app_commands.AppCommandError
+    ) -> None:  # pragma: no cover
         """Event triggered when an error is raised while invoking a command.
 
         Parameters

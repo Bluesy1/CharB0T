@@ -74,7 +74,7 @@ filterwarnings = [
 ]
 
 [tool.coverage.run]
-omit = ["*/__main__.py", "*/tests/*.py", "*/types/*.py", "*/pools.py", "*/admin.py", "*/reputation_admin.py", "*/bot.py"]
+omit = ["*/__main__.py", "*/tests/*.py", "*/types/*.py", "*/pools.py", "*/admin.py", "*/reputation_admin.py"]
 
 [tool.pyright]
 pythonPlatform = "Linux"
