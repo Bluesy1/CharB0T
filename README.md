@@ -59,6 +59,8 @@ You can find the documentation for the bot [here](https://bluesy1.github.io/Char
 
 Please see the [Code of Conduct](./CODE_OF_CONDUCT.md) and [Contributing Guidelines](./CONTRIBUTING.md) before contributing. 
 
+Non code translation contributions are also welcome via [crowdin](https://crowdin.com/project/charbot).
+
 ----------------------------------------------------------------------------
 MIT License
 
