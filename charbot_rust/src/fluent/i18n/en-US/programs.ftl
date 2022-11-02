@@ -1,13 +1,16 @@
 # SPDX-FileCopyrightText: 2021 Bluesy1 <68259537+Bluesy1@users.noreply.github.com>
+#
 # SPDX-License-Identifier: MIT
 
-# Command Groups
+## Command Groups
+
 programs-name = programs
 programs-description = Programs to gain you rep.
 programs-beta-name = beta
 programs-beta-description = Beta programs..
 
-# Commands
+## Commands
+
 programs-sudoku-name = sudoku
 programs-sudoku-description = Play a Sudoku puzzle
 programs-sudoku-parameter-mobile-name = mobile
@@ -37,5 +40,5 @@ choice-Super-Expert-name = Super Expert
 rollcall-name = rollcall
 rollcall-description = Claim your daily reputation bonus.
 
-repuation-name = repuation
-repuation-description = Check your reputation.
+reputation-name = reputation
+reputation-description = Check your reputation.

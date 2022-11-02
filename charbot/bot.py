@@ -425,6 +425,19 @@ class Tree(app_commands.CommandTree[CBot]):
                 )
             elif isinstance(error, app_commands.NoPrivateMessage):
                 message = error.args[0]
+            elif isinstance(error, app_commands.CommandOnCooldown):
+                message = await self.client.translate(
+                    "command-on-cooldown",
+                    interaction.locale,
+                    data=data
+                    | {
+                        "retry_after": error.retry_after,
+                        "$unix-timestamp": discord.utils.format_dt(
+                            discord.utils.utcnow() + datetime.timedelta(seconds=error.retry_after)
+                        ),
+                    },
+                    fallback=error.args[0],
+                )
             elif isinstance(error, app_commands.CheckFailure):
                 message = await self.client.translate(
                     "check-failed", interaction.locale, data=data, fallback="You can't use this command."
