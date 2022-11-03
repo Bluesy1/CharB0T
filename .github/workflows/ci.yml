@@ -191,7 +191,7 @@ jobs:
           pip install -e .
       - name: Run pytest
         id: pytest
-        run: pytest --cov-report=xml:coverage/reports/coverage.xml --cov=charbot tests/ --cov-report=term --cov-config=pyproject.toml
+        run: pytest --cov-report=xml:coverage/reports/coverage.xml --cov=charbot tests/ --cov-report=term --cov-config=pyproject.toml --cov-branch
       - name: Upload coverage report
         if: ${{ matrix.codecov}}
         uses: codecov/codecov-action@v3
