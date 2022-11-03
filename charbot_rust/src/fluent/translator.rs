@@ -83,7 +83,7 @@ impl Translator{
                                   .as_str(), EncoderTrap::Ignore)?,
                     DecoderTrap::Ignore
                 )?)
-            } else {// COV_EXCL_STOP
+            } else {// COV_EXCL_STOP  // COV_EXCL_LINE
                 Err(format!("Translation failed: {}", errors
                     .iter()
                     .map(|e| e.to_string())
