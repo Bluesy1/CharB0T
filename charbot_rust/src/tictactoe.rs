@@ -1,4 +1,5 @@
-// SPDX-FileCopyrightText: 2021 Bluesy1 <68259537+Bluesy1@users.noreply.github.com>
+// SPDX-FileCopyrightText: 2021 Bluesy1 <68259537+Bluesy1@users.noreply.github.com>  // COV_EXCL_LINE
+//
 // SPDX-License-Identifier: MIT
 mod board; // COV_EXCL_LINE
 mod player;
