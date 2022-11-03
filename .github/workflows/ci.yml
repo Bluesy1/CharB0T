@@ -86,7 +86,7 @@ jobs:
           RUSTDOCFLAGS: '-Cpanic=abort'
           LLVM_PROFILE_FILE: 'GHA-%p-%m.profraw'
       - name: Upload coverage report
-        uses: codecov/codecov-action@v3
+        uses: codecov/codecov-action@v3.1.1
         with:
           files: ./lcov.info
           env_vars: OS=LINUX,RUST=nightly
@@ -194,7 +194,7 @@ jobs:
         run: pytest --cov-report=xml:coverage/reports/coverage.xml --cov=charbot tests/ --cov-report=term --cov-config=pyproject.toml --cov-branch
       - name: Upload coverage report
         if: ${{ matrix.codecov}}
-        uses: codecov/codecov-action@v3
+        uses: codecov/codecov-action@v3.1.1
         with:
           directory: ./coverage/reports/
           env_vars: OS=LINUX,PYTHON=${{ matrix.python-version }}
