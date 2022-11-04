@@ -159,5 +159,5 @@ async def test_leaderboard_command(mocker: MockerFixture, ephemeral: bool):
         spec=GuildInteraction[CBot], response=mocker.AsyncMock(spec=discord.InteractionResponse)
     )
     cog = query.Query(mocker.AsyncMock(spec=CBot))
-    await cog.leaderboard.callback(cog, mock_itx, ephemeral)
+    await cog.leaderboard.callback(cog, mock_itx, ephemeral)  # pyright: ignore[reportGeneralTypeIssues]
     mock_itx.response.send_message.assert_awaited_once_with("https://cpry.net/leaderboard", ephemeral=ephemeral)
