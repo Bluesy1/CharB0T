@@ -11,7 +11,7 @@ SPDX-License-Identifier: MIT
 
 [![CI](https://github.com/Bluesy1/CharB0T/actions/workflows/ci.yml/badge.svg)](https://github.com/Bluesy1/CharB0T/actions/workflows/ci.yml)
 [![CodeQL](https://github.com/Bluesy1/CharB0T/actions/workflows/codeql-analysis.yml/badge.svg)](https://github.com/Bluesy1/CharB0T/actions/workflows/codeql-analysis.yml)
-[![pages-build-deployment](https://github.com/Bluesy1/CharB0T/actions/workflows/pages/pages-build-deployment/badge.svg?branch=gh-pages)](https://github.com/Bluesy1/CharB0T/actions/workflows/pages/pages-build-deployment)
+[![Update GitHub Pages Site](https://github.com/Bluesy1/CharB0T/actions/workflows/leaderboard.yml/badge.svg?branch=gh-pages&event=workflow_dispatch)](https://github.com/Bluesy1/CharB0T/actions/workflows/leaderboard.yml)
 
 ## Code Info
 
