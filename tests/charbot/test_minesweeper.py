@@ -105,13 +105,27 @@ async def test_column(game: Game, inter):
 
 @pytest.mark.asyncio
 async def test_reveal_success(game, inter, mocker: MockerFixture):
-    inter.followup = mocker.AsyncMock(spec=discord.Webhook)
     mock_game = mocker.Mock(spec=Game)
     mock_game.height = 5
     mock_game.width = 5
     mock_game.draw.return_value = game.draw()
-    mock_game.reveal.return_value = RevealResult.Flagged
+    mock_game.reveal.return_value = RevealResult.Empty
     mock_game.is_win = lambda: False
+    view = minesweeper.Minesweeper(mock_game)
+    await view.reveal.callback(inter)
+    inter.response.edit_message.assert_awaited_once()
+    kwargs: dict[str, Any] = inter.response.edit_message.await_args.kwargs
+    assert "attachments" in kwargs, "Attachments should be in the kwargs"
+    assert len(kwargs["attachments"]) == 1, "Attachments should have one element"
+    assert len(kwargs) == 2, "Kwargs should have two elements"
+
+
+@pytest.mark.asyncio
+async def test_reveal_fail(game, inter, mocker: MockerFixture):
+    inter.followup = mocker.AsyncMock(spec=discord.Webhook)
+    mock_game = mocker.Mock(spec=Game, height=5, width=5, is_win=lambda: False)
+    mock_game.draw.return_value = game.draw()
+    mock_game.reveal.return_value = RevealResult.Flagged
     view = minesweeper.Minesweeper(mock_game)
     await view.reveal.callback(inter)
     inter.response.edit_message.assert_awaited_once()

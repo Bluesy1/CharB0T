@@ -11,6 +11,9 @@ from discord.utils import MISSING
 
 from charbot.bot import CBot, Holder, Tree
 
+# noinspection PyProtectedMember
+from charbot import Config, _Config
+
 
 @pytest.fixture
 def unused_patch_datetime_now(monkeypatch: pytest.MonkeyPatch):
@@ -25,6 +28,11 @@ def unused_patch_datetime_now(monkeypatch: pytest.MonkeyPatch):
             return datetime.datetime(1, 1, 2, 1, 0, 0, 0, tzinfo=tz)
 
     monkeypatch.setattr(datetime, "datetime", MyDateTime)
+
+
+def test_config():
+    """Test the config property"""
+    assert Config is _Config()
 
 
 def test_holder():

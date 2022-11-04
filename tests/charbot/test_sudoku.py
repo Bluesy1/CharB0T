@@ -588,14 +588,15 @@ def test_row_init():
         sudoku.Row([sudoku.Cell(0, True) for _ in range(10)])
 
 
-def test_row_clear():
+@pytest.mark.parametrize("editable,expected", [(True, 0), (False, 1)])
+def test_row_clear(editable: bool, expected: int):
     """Test row clear"""
-    row = sudoku.Row([sudoku.Cell(1, True) for _ in range(9)])
+    row = sudoku.Row([sudoku.Cell(1, editable) for _ in range(9)])
     row_copy = copy.deepcopy(row)
     assert row == row_copy
     row.clear()
     for cell in row.cells:
-        assert cell.value == 0
+        assert cell.value == expected
 
 
 def test_column_init():
@@ -604,15 +605,16 @@ def test_column_init():
         sudoku.Column([sudoku.Cell(0, True) for _ in range(10)])
 
 
-def test_column_clear():
+@pytest.mark.parametrize("editable,expected", [(True, 0), (False, 1)])
+def test_column_clear(editable: bool, expected: int):
     """Test column clear"""
-    col = sudoku.Column([sudoku.Cell(1, True) for _ in range(9)])
+    col = sudoku.Column([sudoku.Cell(1, editable) for _ in range(9)])
     col_copy = copy.deepcopy(col)
     assert col == col_copy
     assert col[0].value == 1
     col.clear()
     for cell in col.cells:
-        assert cell.value == 0
+        assert cell.value == expected
 
 
 def test_block_init():

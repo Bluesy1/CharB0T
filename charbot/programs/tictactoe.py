@@ -79,8 +79,6 @@ class TicTacToe(ui.View):
         cross = Image.open(pathlib.Path(__file__).parent.parent / "media/tictactoe/X.png", "r")
         circle = Image.open(pathlib.Path(__file__).parent.parent / "media/tictactoe/O.png", "r")
         for command, display in self.game.display_commands():
-            if display == Piece.Empty:
-                continue
             if display == Piece.X:
                 grid.paste(cross, command.value, cross)
             elif display == Piece.O:
