@@ -295,8 +295,22 @@ class Query(Cog):
         else:
             await interaction.response.send_message(resp, ephemeral=True)
 
+    @app_commands.command()  # pyright: ignore[reportGeneralTypeIssues]
+    @app_commands.guild_only()
+    async def leaderboard(self, interaction: "Interaction[CBot]", ephemeral: bool = True):
+        """Get the leaderboard of the server.
 
-async def setup(bot: "CBot"):
+        Parameters
+        ----------
+        interaction: Interaction[CBot]
+            The interaction of the command.
+        ephemeral: bool, default True
+            Send the leaderboard as an ephemeral message. Default True.
+        """
+        await interaction.response.send_message("https://cpry.net/leaderboard", ephemeral=ephemeral)
+
+
+async def setup(bot: "CBot"):  # pragma: no cover
     """Load Plugin.
 
     Parameters
