@@ -29,8 +29,6 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
-      matrix:
-        python-version: ["3.11", "3.10"]
     steps:
       - uses: actions/checkout@v3
       - name: Configure cache
@@ -42,16 +40,16 @@ jobs:
             ~/.cargo/registry/cache/
             ~/.cargo/git/db/
             charbot_rust/target/
-          key: build-cython${{ matrix.python-version }}-${{ hashFiles('**/Cargo.lock') }}
+          key: build-cython-${{ hashFiles('**/Cargo.lock') }}
       - uses: messense/maturin-action@v1
         with:
           manylinux: auto
           command: build
-          args: --release --sdist -o dist --interpreter /usr/local/bin/python${{ matrix.python-version }} -m charbot_rust/Cargo.toml
+          args: --release --sdist -o dist --interpreter /usr/local/bin/python3.11 -m charbot_rust/Cargo.toml
       - name: Upload wheels
         uses: actions/upload-artifact@v3
         with:
-          name: cython${{ matrix.python-version }}-wheel
+          name: wheel
           path: dist
           retention-days: 5
   rust-codecov:
@@ -120,7 +118,7 @@ jobs:
       - uses: actions/checkout@v3
       - uses: actions/download-artifact@v3
         with:
-          name: cython3.11-wheel
+          name: wheel
           path: wheels
       - uses: actions/setup-python@v4
         with:
@@ -161,12 +159,6 @@ jobs:
     continue-on-error: true
     strategy:
       fail-fast: false
-      matrix:
-        python-version: ["3.11", "3.10"]
-        include:
-          - python-version: "3.10"
-          - python-version: "3.11"
-            codecov: true
     steps:
       - uses: actions/checkout@v3
       - uses: harmon758/postgresql-action@v1
@@ -174,11 +166,11 @@ jobs:
           postgresql version: '14'
       - uses: actions/download-artifact@v3
         with:
-          name: cython${{ matrix.python-version }}-wheel
+          name: wheel
           path: wheels
       - uses: actions/setup-python@v4
         with:
-          python-version: ${{ matrix.python-version }}
+          python-version: "3.11"
           cache: "pip"
           cache-dependency-path: pyproject.toml
       - name: Dependencies
@@ -188,12 +180,10 @@ jobs:
           pip install -U -e ".[dev]"
           find . -name "*.tar.gz" | xargs rm
           pip install wheels/*
-          pip install -e .
       - name: Run pytest
         id: pytest
         run: pytest --cov-report=xml:coverage/reports/coverage.xml --cov=charbot tests/ --cov-report=term --cov-config=pyproject.toml --cov-branch
       - name: Upload coverage report
-        if: ${{ matrix.codecov}}
         uses: codecov/codecov-action@v3.1.1
         with:
           directory: ./coverage/reports/

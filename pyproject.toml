@@ -10,7 +10,7 @@ build-backend = "setuptools.build_meta"
 name = "charbot"
 description = "A simple Discord bot written in Python and Rust"
 readme = "README.md"
-version = "1.1.1a"
+version = "1.1.1.post0"
 authors = [
 	{name = "Bluesy1", email = "68259537+Bluesy1@users.noreply.github.com"}
 ]
@@ -32,7 +32,7 @@ classifiers = [
 dependencies = [
 	"aiohttp[speedups]==3.8.3",
 	"asyncpg==0.27.0",
-	"discord.py[speed] @ git+https://github.com/Rapptz/discord.py@e92a6266628d0cc99727c8eb88c2432a931138a0#egg=discord.py",
+	"discord.py[speed] @ git+https://github.com/Rapptz/discord.py@cd6fd13a8f144fade2e18d9aa2d40295635a10b6#egg=discord.py",
 	"disrank==0.0.2",
 	"jishaku @ git+https://github.com/Gorialis/jishaku@a2a3752e4f540b10a96b5c285771b1534e3040fa#egg=jishaku",
 	"orjson==3.8.1",
