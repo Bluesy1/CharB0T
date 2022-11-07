@@ -250,7 +250,7 @@ async def test_giveaway_check(mocker: MockerFixture, embed, database: asyncpg.Po
     assert interaction.response.send_message.await_args.kwargs["ephemeral"] is True
     interaction.client.translate.assert_awaited_once()
     assert interaction.client.translate.await_args.args == ("giveaway-check-success", discord.Locale.american_english)
-    assert interaction.client.translate.await_args.kwargs["data"] == {"bid": 1, "chance": 1, "wins": 1}
+    assert interaction.client.translate.await_args.kwargs["data"] == {"bid": 1, "chance": 100.0, "wins": 1}
     await database.execute("DELETE FROM users WHERE id <> 1")
     await database.execute("DELETE FROM bids WHERE id <> 1")
     await database.execute("DELETE FROM winners WHERE id <> 1")
@@ -340,7 +340,7 @@ async def test_modal_bid_success(mocker: MockerFixture):
     assert interaction.client.translate.await_args.kwargs["data"] == {
         "bid": 2,
         "new_bid": 2,
-        "chance": 2 / 3,
+        "chance": round(100 * 2 / 3, 2),
         "points": 3,
         "wins": 0,
     }

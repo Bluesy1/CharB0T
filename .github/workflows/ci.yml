@@ -182,7 +182,7 @@ jobs:
           pip install wheels/*
       - name: Run pytest
         id: pytest
-        run: pytest --cov-report=xml:coverage/reports/coverage.xml --cov=charbot tests/ --cov-report=term --cov-config=pyproject.toml --cov-branch
+        run: pytest --cov-report=xml:coverage/reports/coverage.xml --cov=charbot tests/ --cov-report=term-missing:skip-covered --cov-config=pyproject.toml --cov-branch
       - name: Upload coverage report
         uses: codecov/codecov-action@v3.1.1
         with:

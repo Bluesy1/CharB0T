@@ -179,9 +179,7 @@ class CBot(commands.Bot):
         user = cast(discord.ClientUser, self.user)
         print(f"Logged in: {user.name}#{user.discriminator}")
 
-    async def give_game_points(
-        self, member: discord.Member | discord.User, points: int, bonus: int = 0
-    ) -> int:  # pragma: no cover
+    async def give_game_points(self, member: discord.Member | discord.User, points: int, bonus: int = 0) -> int:
         """Give the user points.
 
         Parameters
@@ -209,7 +207,7 @@ class CBot(commands.Bot):
         if user["particip_dt"] < self.TIME():
             return await self.first_of_day_game_gain(member.id, points, bonus)
         if user["particip_dt"] == self.TIME():
-            return await self.fallback_game_gain(member.id, user, points, bonus)
+            return await self.fallback_game_gain(member.id, user["particip"], points, bonus)
         return 0
 
     async def fallback_game_gain(self, user: int, previous: int, points: int, bonus: int, /) -> int:
@@ -335,7 +333,7 @@ class CBot(commands.Bot):
             If the key is not valid and a fallback was not provided.
         """
         translator = self.tree.translator
-        if translator is None:
+        if translator is None:  # pragma: no cover
             translator = Translator()
             await self.tree.set_translator(translator)
         context = TranslationContext(TranslationContextLocation.other, data=data)
@@ -473,7 +471,7 @@ class Tree(app_commands.CommandTree[CBot]):
                     interaction.locale,
                     data=data
                     | {
-                        "retry_after": round(error.retry_after, 2),
+                        "retry_after": round(error.retry_after, 2),  # type: ignore
                         "$unix-timestamp": discord.utils.format_dt(
                             discord.utils.utcnow() + datetime.timedelta(seconds=error.retry_after)
                         ),

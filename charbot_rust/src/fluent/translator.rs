@@ -176,6 +176,7 @@ mod tests {
     }
 
     #[test]
+    #[allow(clippy::assertions_on_constants)]
     fn test_giveaway_check_success_key() {
         let translator = Translator::new(AvailableLocales::AmericanEnglish)
             .expect("Failed to create translator");
@@ -194,6 +195,7 @@ mod tests {
     }
 
     #[test]
+    #[allow(clippy::assertions_on_constants)]
     fn test_giveaway_bid_success_key() {
         let translator = Translator::new(AvailableLocales::AmericanEnglish)
             .expect("Failed to create translator");

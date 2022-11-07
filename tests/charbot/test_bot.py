@@ -8,6 +8,7 @@ import asyncpg
 import discord
 import pytest
 from discord.utils import MISSING
+from pytest_mock import MockerFixture
 
 from charbot.bot import CBot, Holder, Tree
 
@@ -124,6 +125,96 @@ async def test_fallback_gain(database: asyncpg.Pool):
         "particip": 10,
         "won": 10,
     }
+    await database.execute("DELETE FROM users WHERE id = 10")
+
+
+@pytest.mark.asyncio
+async def test_first_time_gain_called(mocker: MockerFixture, database: asyncpg.Pool):
+    """Test that the first time gain is called properly"""
+    bot = CBot(command_prefix=[], tree_cls=Tree, intents=discord.Intents.default())
+    bot.pool = database
+    await bot.give_game_points(mocker.AsyncMock(discord.Member, id=10), 1, 1)
+    assert await database.fetchval("SELECT points FROM users WHERE id = 10") == 2
+    assert await database.fetchval("SELECT bid FROM bids WHERE id = 10") == 0
+    assert dict(
+        await database.fetchrow(  # pyright: ignore[reportGeneralTypeIssues]
+            "SELECT last_particip_dt, particip, won FROM daily_points WHERE id = 10"
+        )
+    ) == {
+        "last_particip_dt": bot.TIME(),
+        "particip": 1,
+        "won": 1,
+    }
+    await database.execute("DELETE FROM users WHERE id = 10")
+
+
+@pytest.mark.asyncio
+async def test_first_gain_of_day_called(mocker: MockerFixture, database: asyncpg.Pool):
+    """Test that the first gain of the day is called properly"""
+    bot = CBot(command_prefix=[], tree_cls=Tree, intents=discord.Intents.default())
+    bot.pool = database
+    await database.execute("INSERT INTO users (id, points) VALUES (10, 0)")
+    await database.execute(
+        "INSERT INTO daily_points (id, last_claim, last_particip_dt, particip, won) VALUES (10, $1, $1, 10, 10)",
+        bot.TIME() - datetime.timedelta(days=1),
+    )
+    await database.execute("INSERT INTO bids (id, bid) VALUES (10, 0)")
+    await bot.give_game_points(mocker.AsyncMock(discord.Member, id=10), 1, 1)
+    assert await database.fetchval("SELECT points FROM users WHERE id = 10") == 2
+    assert dict(
+        await database.fetchrow(  # pyright: ignore[reportGeneralTypeIssues]
+            "SELECT last_particip_dt, particip, won FROM daily_points WHERE id = 10"
+        )
+    ) == {
+        "last_particip_dt": bot.TIME(),
+        "particip": 1,
+        "won": 1,
+    }
+    await database.execute("DELETE FROM users WHERE id = 10")
+
+
+@pytest.mark.asyncio
+async def test_fallback_gain_called(mocker: MockerFixture, database: asyncpg.Pool):
+    """Test that the fallback gain is called properly"""
+    bot = CBot(command_prefix=[], tree_cls=Tree, intents=discord.Intents.default())
+    bot.pool = database
+    await database.execute("INSERT INTO users (id, points) VALUES (10, 0)")
+    await database.execute(
+        "INSERT INTO daily_points (id, last_claim, last_particip_dt, particip, won) VALUES (10, $1, $1, 9, 9)",
+        bot.TIME(),
+    )
+    await database.execute("INSERT INTO bids (id, bid) VALUES (10, 0)")
+    await bot.give_game_points(mocker.AsyncMock(discord.Member, id=10), 2, 2)
+    assert await database.fetchval("SELECT points FROM users WHERE id = 10") == 2
+    assert dict(
+        await database.fetchrow(  # pyright: ignore[reportGeneralTypeIssues]
+            "SELECT particip, won FROM daily_points WHERE id = 10"
+        )
+    ) == {
+        "particip": 10,
+        "won": 10,
+    }
+    await database.execute("DELETE FROM users WHERE id = 10")
+
+
+@pytest.mark.asyncio
+async def test_give_game_points_final_branch_called(mocker: MockerFixture, database: asyncpg.Pool):
+    """Test that the supposed to be unreachable branch processes properly"""
+    bot = CBot(command_prefix=[], tree_cls=Tree, intents=discord.Intents.default())
+    bot.pool = database
+    await database.execute("INSERT INTO users (id, points) VALUES (10, 0)")
+    await database.execute(
+        "INSERT INTO daily_points (id, last_claim, last_particip_dt, particip, won) VALUES (10, $1, $1, 7, 7)",
+        bot.TIME() + datetime.timedelta(days=1),
+    )
+    await database.execute("INSERT INTO bids (id, bid) VALUES (10, 0)")
+    assert await bot.give_game_points(mocker.AsyncMock(discord.Member, id=10), 2, 2) == 0
+    assert await database.fetchval("SELECT points FROM users WHERE id = 10") == 0
+    assert dict(
+        await database.fetchrow(  # pyright: ignore[reportGeneralTypeIssues]
+            "SELECT particip, won FROM daily_points WHERE id = 10"
+        )
+    ) == {"particip": 7, "won": 7}
     await database.execute("DELETE FROM users WHERE id = 10")
 
 
