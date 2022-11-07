@@ -45,7 +45,10 @@ pub(crate) fn translate(locale: String, key: String, args: HashMap<String, trans
         }).map_err(PyRuntimeError::new_err)?;
         translator.translate(&key, args).map_err(|e| PyRuntimeError::new_err(format!("Failed to translate: {e}")))
     } else {
-        Err(PyRuntimeError::new_err(format!("Locale {locale} not found, choose from {}", bundle::AvailableLocales::variants())))
+        let translator = translator::Translator::new(bundle::AvailableLocales::AmericanEnglish).map_err(|e| {
+            PyRuntimeError::new_err(format!("Failed to create translator: {e}"))
+        }).map_err(PyRuntimeError::new_err)?;
+        translator.translate(&key, args).map_err(|e| PyRuntimeError::new_err(format!("Failed to translate: {e}")))
     }
 }
 
