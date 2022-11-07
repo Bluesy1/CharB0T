@@ -10,6 +10,7 @@ use std::collections::HashMap;
 use pyo3::prelude::PyModule;
 use pyo3::{PyResult, pyfunction, wrap_pyfunction};
 use pyo3::exceptions::{PyRuntimeError};
+use crate::fluent::translator::Translator;
 
 #[pyfunction]
 #[pyo3(text_signature = "
@@ -39,14 +40,17 @@ RuntimeError
     If anything errors.
 ")]
 pub(crate) fn translate(locale: String, key: String, args: HashMap<String, translator::ArgTypes>) -> PyResult<String>{
+    let translator: Translator;
     if let Some(enum_locale) = bundle::AvailableLocales::from_str(locale.as_str()) {
-        let translator = translator::Translator::new(enum_locale).map_err(|e| {
+        translator = Translator::new(enum_locale).map_err(|e| {
             PyRuntimeError::new_err(format!("Failed to create translator: {e}"))
         }).map_err(PyRuntimeError::new_err)?;
-        translator.translate(&key, args).map_err(|e| PyRuntimeError::new_err(format!("Failed to translate: {e}")))
     } else {
-        Err(PyRuntimeError::new_err(format!("Locale {locale} not found, choose from {}", bundle::AvailableLocales::variants())))
+        translator = Translator::new(bundle::AvailableLocales::AmericanEnglish).map_err(|e| {
+            PyRuntimeError::new_err(format!("Failed to create translator: {e}"))
+        }).map_err(PyRuntimeError::new_err)?;
     }
+    translator.translate(&key, args).map_err(|e| PyRuntimeError::new_err(format!("Failed to translate: {e}")))
 }
 
 pub(crate) fn register_fluent(m: &PyModule) -> PyResult<()>{
