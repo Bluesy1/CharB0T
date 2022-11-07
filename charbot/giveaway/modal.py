@@ -137,7 +137,7 @@ class BidModal(ui.Modal, title="Bid"):
                 data={
                     "bid": bid_int,
                     "new_bid": new_bid,
-                    "chance": new_bid / self.view.total_entries,
+                    "chance": round(new_bid * 100 / self.view.total_entries, 2),
                     "points": points,
                     "wins": wins or 0,
                 },

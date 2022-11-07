@@ -174,5 +174,43 @@ mod tests {
             }
         }
     }
+
+    #[test]
+    fn test_giveaway_check_success_key() {
+        let translator = Translator::new(AvailableLocales::AmericanEnglish)
+            .expect("Failed to create translator");
+        let mut args = HashMap::new();
+        args.insert("bid".to_string(), ArgTypes::Int(1));
+        args.insert("chance".to_string(), ArgTypes::Float(25.00));
+        args.insert("wins".to_string(), ArgTypes::Int(1));
+        match translator.translate("giveaway-check-success", args){
+            Ok(_) => {
+                assert!(true);
+            }
+            Err(e) => {
+                panic!("Failed to translate: {e}");
+            }
+        }
+    }
+
+    #[test]
+    fn test_giveaway_bid_success_key() {
+        let translator = Translator::new(AvailableLocales::AmericanEnglish)
+            .expect("Failed to create translator");
+        let mut args = HashMap::new();
+        args.insert("bid".to_string(), ArgTypes::Int(1));
+        args.insert("new_bid".to_string(), ArgTypes::Int(2));
+        args.insert("points".to_string(), ArgTypes::Int(50));
+        args.insert("chance".to_string(), ArgTypes::Float(25.00));
+        args.insert("wins".to_string(), ArgTypes::Int(1));
+        match translator.translate("giveaway-bid-success", args){
+            Ok(_) => {
+                assert!(true);
+            }
+            Err(e) => {
+                panic!("Failed to translate: {e}");
+            }
+        }
+    }
 }
 // COV_EXCL_STOP

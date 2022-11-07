@@ -349,7 +349,7 @@ class GiveawayView(ui.View):
                 return
             record = await conn.fetchval("SELECT bid FROM bids WHERE id = $1", interaction.user.id)
             bid: int = record if record is not None else 0
-        chance = bid / self.total_entries
+        chance = round(100 * bid / self.total_entries, 2)
         await interaction.response.send_message(
             await interaction.client.translate(
                 "giveaway-check-success",
