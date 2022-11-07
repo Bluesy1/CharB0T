@@ -22,9 +22,6 @@ impl AvailableLocales {
             _ => None,  //COV_EXCL_LINE
         }
     }
-    pub fn variants() -> String {
-        String::from("en-US, es-ES, fr, nl")
-    }
 }
 
 #[allow(unused)]
@@ -118,11 +115,5 @@ mod tests{
         assert_eq!(AvailableLocales::from_str("fr"), Some(AvailableLocales::French));
         assert_eq!(AvailableLocales::from_str("nl"), Some(AvailableLocales::Dutch));
         assert_eq!(AvailableLocales::from_str("de"), None);
-    }
-
-    #[test]
-    fn test_available_locales_variants() {
-        use super::AvailableLocales;
-        assert_eq!(AvailableLocales::variants(), "en-US, es-ES, fr, nl");
     }
 }
