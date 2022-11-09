@@ -10,6 +10,8 @@ import discord
 from discord import ui
 from typing import TYPE_CHECKING, cast
 
+import charbot_rust
+
 if TYPE_CHECKING:  # pragma: no cover
     from . import GiveawayView, CBot
     from .. import GuildComponentInteraction as Interaction
@@ -131,10 +133,10 @@ class BidModal(ui.Modal, title="Bid"):
         """
         self.view.total_entries += bid_int
         await interaction.followup.send(
-            await interaction.client.translate(
+            charbot_rust.translate(
+                interaction.locale.value,
                 "giveaway-bid-success",
-                interaction.locale,
-                data={
+                {
                     "bid": bid_int,
                     "new_bid": new_bid,
                     "chance": round(new_bid * 100 / self.view.total_entries, 2),
@@ -164,15 +166,13 @@ class BidModal(ui.Modal, title="Bid"):
             If the user's bid is valid.
         """
         if points is None or points == 0:
-            await interaction.followup.send(
-                await interaction.client.translate("giveaway-bid-no-rep", interaction.locale)
-            )
+            await interaction.followup.send(charbot_rust.translate(interaction.locale.value, "giveaway-bid-no-rep", {}))
             self.stop()
             return False
         if points < bid_int:
             await interaction.followup.send(
-                await interaction.client.translate(
-                    "giveaway-bid-not-enough-rep", interaction.locale, data={"bid": bid_int, "points": points}
+                charbot_rust.translate(
+                    interaction.locale.value, "giveaway-bid-not-enough-rep", {"bid": bid_int, "points": points}
                 )
             )
             self.stop()
@@ -182,6 +182,6 @@ class BidModal(ui.Modal, title="Bid"):
     async def invalid_bid(self, interaction):
         """Call when a bid is invalid."""
         await interaction.response.send_message(
-            await interaction.client.translate("giveaway-bid-invalid-bid", interaction.locale), ephemeral=True
+            charbot_rust.translate(interaction.locale.value, "giveaway-bid-invalid-bid", {}), ephemeral=True
         )
         return self.stop()

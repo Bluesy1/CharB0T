@@ -16,6 +16,7 @@ import discord
 from discord import ui
 from discord.utils import MISSING, utcnow
 
+import charbot_rust
 from . import BidModal
 from .. import errors
 
@@ -25,15 +26,16 @@ if TYPE_CHECKING:  # pragma: no cover
 
 async def hit_max_wins(interaction):
     """Standard response for when a user has hit max wins for a month."""
-    await interaction.response.send_message(
-        await interaction.client.translate(
-            "giveaway-try-later",
-            interaction.locale,
-            fallback="You have won 3 giveaways recently, please wait until the first of the next month to"
-            " bid again.",
-        ),
-        ephemeral=True,
-    )
+    try:
+        await interaction.response.send_message(
+            charbot_rust.translate(interaction.locale.value, "giveaway-try-later", {}),
+            ephemeral=True,
+        )
+    except RuntimeError:  # pragma: no cover
+        await interaction.response.send_message(
+            "You have won 3 giveaways recently, please wait until the first of the next month to bid again.",
+            ephemeral=True,
+        )
 
 
 class GiveawayView(ui.View):
@@ -351,10 +353,8 @@ class GiveawayView(ui.View):
             bid: int = record if record is not None else 0
         chance = round(100 * bid / self.total_entries, 2)
         await interaction.response.send_message(
-            await interaction.client.translate(
-                "giveaway-check-success",
-                interaction.locale,
-                data={"bid": bid, "chance": chance, "wins": wins},
+            charbot_rust.translate(
+                interaction.locale.value, "giveaway-check-success", {"bid": bid, "chance": chance, "wins": wins}
             ),
             ephemeral=True,
         )
@@ -381,12 +381,12 @@ class GiveawayView(ui.View):
                     discord.Object(id=972886729231044638), reason="Toggled giveaway alerts."
                 )
                 await interaction.followup.send(
-                    await interaction.client.translate("giveaway-alerts-enable", interaction.locale)
+                    charbot_rust.translate(interaction.locale.value, "giveaway-alerts-enable", {})
                 )
             else:
                 await interaction.user.remove_roles(
                     discord.Object(id=972886729231044638), reason="Toggled giveaway alerts."
                 )
                 await interaction.followup.send(
-                    await interaction.client.translate("giveaway-alerts-disable", interaction.locale)
+                    charbot_rust.translate(interaction.locale.value, "giveaway-alerts-disable", {})
                 )
