@@ -225,7 +225,7 @@ class Gangs(commands.Cog):
         async with interaction.client.pool.acquire() as conn, conn.transaction():
             # Check if the gang already exists, the user is already in a gang, or the user doesn't have enough points
             remaining = await create.check_gang_conditions(
-                cast(asyncpg.Connection, conn), interaction.user, color, base_join, base_recurring
+                cast(asyncpg.Connection, conn), interaction.user.id, color, base_join, base_recurring
             )
             if isinstance(remaining, str):
                 await interaction.followup.send(remaining)
@@ -300,7 +300,7 @@ class Gangs(commands.Cog):
             await channel.send(f"Welcome {interaction.user.mention} to the {gang} Gang!")
 
     @banner.command()  # pyright: ignore[reportGeneralTypeIssues]
-    @app_commands.checks.cooldown(2, 60 * 60 * 24 * 7 * 4, key=lambda i: i.user.id)
+    @app_commands.checks.cooldown(2, 60 * 60 * 24 * 7 * 4, key=lambda i: i.user.id)  # pragma: no branch
     async def request(
         self,
         interaction: Interaction[CBot],

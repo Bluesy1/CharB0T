@@ -61,11 +61,11 @@ async def download_banner_bg(base: discord.Attachment, base_path: Path, user: in
     user : int
         The ID of the user who requested the banner.
     """
-    if content_type := base.content_type:
+    if content_type := base.content_type:  # pragma: no branch
         if content_type not in ("image/png", "image/jpeg"):
             return "The base image must be a PNG or JPEG!"
     try:
-        await asyncio.to_thread(
+        await asyncio.to_thread(  # pragma: no branch
             lambda img: Image.open(BytesIO(img)).save(base_path / f"{user}.png", format="PNG"), await base.read()
         )
     except (discord.DiscordException, OSError, ValueError, TypeError):

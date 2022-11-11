@@ -14,7 +14,7 @@ __all__ = ("create_gang_discord_objects", "check_gang_conditions")
 
 
 async def check_gang_conditions(
-    conn: asyncpg.Connection, user: discord.Member, color: utils.ColorOpts, base_join: int, base_recurring: int
+    conn: asyncpg.Connection, user: int, color: utils.ColorOpts, base_join: int, base_recurring: int
 ) -> str | int:
     """Check if a user can create a gang, and charge them if they can.
 
@@ -22,8 +22,8 @@ async def check_gang_conditions(
     ----------
     conn : asyncpg.Connection
         The database connection.
-    user : discord.Member
-        The user to check.
+    user : int
+        The user id to check.
     color : ColorOpts
         The color to use for the gang.
     base_join : int
@@ -33,7 +33,7 @@ async def check_gang_conditions(
     """
     if await conn.fetchval("SELECT 1 FROM gangs WHERE name = $1", color.name):
         return "A gang with that name/color already exists!"
-    pts: int | None = await conn.fetchval("SELECT points FROM users WHERE id = $1", user.id)
+    pts: int | None = await conn.fetchval("SELECT points FROM users WHERE id = $1", user)
     if pts is None:
         return "You have never gained any points, try gaining some first!"
     if pts < (base_join + base_recurring + utils.BASE_GANG_COST):
@@ -47,7 +47,7 @@ async def check_gang_conditions(
     return await conn.fetchval(
         "UPDATE users SET points = points - $1 WHERE id = $2 RETURNING points",
         base_join + base_recurring + utils.BASE_GANG_COST,
-        user.id,
+        user,
     )
 
 
@@ -77,6 +77,6 @@ async def create_gang_discord_objects(
         role: discord.PermissionOverwrite(view_channel=True, embed_links=True),
         guild.default_role: discord.PermissionOverwrite(view_channel=False),
     }
-    channel = await guild.create_text_channel(f"{color.name} Gang", category=category, overwrites=overwrites)
+    channel = await guild.create_text_channel(f"{color.name.lower()}-gang", category=category, overwrites=overwrites)
     await user.add_roles(role, reason=f"New gang created by {user}")
     return role, channel
