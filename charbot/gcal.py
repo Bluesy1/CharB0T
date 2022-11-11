@@ -7,7 +7,7 @@ import datetime as _datetime
 import re
 from calendar import timegm
 from datetime import datetime, time, timedelta, timezone
-from typing import Literal, NamedTuple, Optional, TypedDict
+from typing import Literal, NamedTuple, Optional, TypedDict, cast
 from zoneinfo import ZoneInfo
 
 import discord
@@ -302,15 +302,14 @@ class Calendar(commands.Cog):
         for sub_time in cancelled_times:
             fields.pop(timegm(sub_time.utctimetuple()), None)
             times.discard(sub_time)
-        bot_user = self.bot.user
-        assert isinstance(bot_user, discord.ClientUser)  # skipcq: BAN-B101
-        if self.message is MISSING:
-            assert self.webhook is not None  # skipcq: BAN-B101
-            self.message = await self.webhook.fetch_message(Config["discord"]["messages"]["calendar"])
+        if self.message is MISSING:  # pragma: no branch
+            self.message = await cast(discord.Webhook, self.webhook).fetch_message(
+                Config["discord"]["messages"]["calendar"]
+            )
         self.message = await self.message.edit(embed=calendar_embed(fields, min(times, default=None)))
 
 
-async def setup(bot: CBot):
+async def setup(bot: CBot):  # pragma: no cover
     """Load the cog to the bot.
 
     Parameters

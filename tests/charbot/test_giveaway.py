@@ -165,8 +165,7 @@ async def test_end_giveaway_no_users(mocker: MockerFixture, embed, database: asy
 @pytest.mark.asyncio
 async def test_giveaway_bid_max_wins(mocker: MockerFixture, embed, database: asyncpg.Pool):
     """Test giveaway bid where user already has 3 wins for the month"""
-    bot = mocker.AsyncMock(spec=CBot)
-    bot.pool = database
+    bot = mocker.AsyncMock(spec=CBot, pool=database)
     await database.execute("INSERT INTO users (id, points) VALUES ($1, $2) ON CONFLICT DO NOTHING", 2, 1)
     await database.execute("INSERT INTO winners (id, wins) VALUES ($1, 3)", 2)
     view = giveaway.GiveawayView(bot, embed, "Game", "some_url")
@@ -180,8 +179,6 @@ async def test_giveaway_bid_max_wins(mocker: MockerFixture, embed, database: asy
     await view.bid.callback(interaction)
     interaction.response.send_message.assert_awaited_once()
     assert interaction.response.send_message.await_args.kwargs["ephemeral"] is True
-    interaction.client.translate.assert_awaited_once()
-    assert interaction.client.translate.await_args.args == ("giveaway-try-later", discord.Locale.american_english)
     await database.execute("DELETE FROM users WHERE id <> 1")
     await database.execute("DELETE FROM winners WHERE id <> 1")
 
@@ -189,14 +186,14 @@ async def test_giveaway_bid_max_wins(mocker: MockerFixture, embed, database: asy
 @pytest.mark.asyncio
 async def test_giveaway_bid(mocker: MockerFixture, embed, database: asyncpg.Pool):
     """Test giveaway bid"""
-    bot = mocker.AsyncMock(spec=CBot)
-    bot.pool = database
+    bot = mocker.AsyncMock(spec=CBot, pool=database)
     view = giveaway.GiveawayView(bot, embed, "Game", "some_url")
     interaction = mocker.AsyncMock(
         spec=discord.Interaction,
         client=bot,
         user=mocker.AsyncMock(spec=discord.Member, id=2),
         response=mocker.AsyncMock(spec=discord.InteractionResponse),
+        locale=discord.Locale.american_english,
     )
     await view.bid.callback(interaction)
     interaction.response.send_modal.assert_awaited_once()
@@ -222,8 +219,6 @@ async def test_giveaway_check_max_wins(mocker: MockerFixture, embed, database: a
     await view.check.callback(interaction)
     interaction.response.send_message.assert_awaited_once()
     assert interaction.response.send_message.await_args.kwargs["ephemeral"] is True
-    interaction.client.translate.assert_awaited_once()
-    assert interaction.client.translate.await_args.args == ("giveaway-try-later", discord.Locale.american_english)
     await database.execute("DELETE FROM users WHERE id <> 1")
     await database.execute("DELETE FROM winners WHERE id <> 1")
 
@@ -231,8 +226,7 @@ async def test_giveaway_check_max_wins(mocker: MockerFixture, embed, database: a
 @pytest.mark.asyncio
 async def test_giveaway_check(mocker: MockerFixture, embed, database: asyncpg.Pool):
     """Test giveaway check method where user already has 3 wins"""
-    bot = mocker.AsyncMock(spec=CBot)
-    bot.pool = database
+    bot = mocker.AsyncMock(spec=CBot, pool=database)
     await database.execute("INSERT INTO users (id, points) VALUES ($1, $2) ON CONFLICT DO NOTHING", 2, 1)
     await database.execute("INSERT INTO bids (id, bid) VALUES ($1, $2)", 2, 1)
     await database.execute("INSERT INTO winners (id, wins) VALUES ($1, 1)", 2)
@@ -248,9 +242,6 @@ async def test_giveaway_check(mocker: MockerFixture, embed, database: asyncpg.Po
     await view.check.callback(interaction)
     interaction.response.send_message.assert_awaited_once()
     assert interaction.response.send_message.await_args.kwargs["ephemeral"] is True
-    interaction.client.translate.assert_awaited_once()
-    assert interaction.client.translate.await_args.args == ("giveaway-check-success", discord.Locale.american_english)
-    assert interaction.client.translate.await_args.kwargs["data"] == {"bid": 1, "chance": 100.0, "wins": 1}
     await database.execute("DELETE FROM users WHERE id <> 1")
     await database.execute("DELETE FROM bids WHERE id <> 1")
     await database.execute("DELETE FROM winners WHERE id <> 1")
@@ -269,8 +260,6 @@ async def test_modal_check_points_none(mocker: MockerFixture):
     )
     assert await modal.check_points(1, interaction, None) is False
     interaction.followup.send.assert_awaited_once()
-    interaction.client.translate.assert_awaited_once()
-    assert interaction.client.translate.await_args.args == ("giveaway-bid-no-rep", discord.Locale.american_english)
 
 
 @pytest.mark.asyncio
@@ -286,12 +275,6 @@ async def test_modal_check_points_not_enough_points(mocker: MockerFixture):
     )
     assert await modal.check_points(2, interaction, 1) is False
     interaction.followup.send.assert_awaited_once()
-    interaction.client.translate.assert_awaited_once()
-    assert interaction.client.translate.await_args.args == (
-        "giveaway-bid-not-enough-rep",
-        discord.Locale.american_english,
-    )
-    assert interaction.client.translate.await_args.kwargs["data"] == {"bid": 2, "points": 1}
 
 
 @pytest.mark.asyncio
@@ -317,8 +300,6 @@ async def test_modal_invalid_bid_callback(mocker: MockerFixture):
     await modal.invalid_bid(interaction)
     interaction.response.send_message.assert_awaited_once()
     assert interaction.response.send_message.await_args.kwargs["ephemeral"] is True
-    interaction.client.translate.assert_awaited_once()
-    assert interaction.client.translate.await_args.args == ("giveaway-bid-invalid-bid", discord.Locale.american_english)
 
 
 @pytest.mark.asyncio
@@ -335,15 +316,6 @@ async def test_modal_bid_success(mocker: MockerFixture):
     await modal.bid_success(interaction, 2, 2, 3, None)
     interaction.followup.send.assert_awaited_once()
     assert interaction.followup.send.await_args.kwargs["ephemeral"] is True
-    interaction.client.translate.assert_awaited_once()
-    assert interaction.client.translate.await_args.args == ("giveaway-bid-success", discord.Locale.american_english)
-    assert interaction.client.translate.await_args.kwargs["data"] == {
-        "bid": 2,
-        "new_bid": 2,
-        "chance": round(100 * 2 / 3, 2),
-        "points": 3,
-        "wins": 0,
-    }
     assert modal.view.top_bid == 2
 
 
