@@ -177,17 +177,17 @@ CREATE TABLE IF NOT EXISTS benefits
             PRIMARY KEY,
     name    VARCHAR(32) NOT NULL,
     benefit BENEFIT     NOT NULL,
-    value  SMALLINT    NOT NULL
+    value  SMALLINT     NOT NULL
 );
 
 CREATE TABLE IF NOT EXISTS user_items
 (
     id      SERIAL
-        CONSTRAINT items_pk
+        CONSTRAINT user_items_pk
             PRIMARY KEY,
     name    VARCHAR(32) NOT NULL,
-    benefit int     NOT NULL,
-    value  SMALLINT    NOT NULL
+    benefit INTEGER     NOT NULL,
+    value  SMALLINT     NOT NULL
 );
 
 CREATE TABLE IF NOT EXISTS user_inventory
@@ -196,7 +196,7 @@ CREATE TABLE IF NOT EXISTS user_inventory
         CONSTRAINT user_inventory_users_fk
             REFERENCES gang_members(user_id)
             ON UPDATE CASCADE ON DELETE CASCADE,
-    item   int  NOT NULL
+    item   INTEGER                   NOT NULL
         CONSTRAINT user_inventory_items_fk
             REFERENCES user_items(id)
             ON UPDATE CASCADE ON DELETE CASCADE,
@@ -207,11 +207,11 @@ CREATE TABLE IF NOT EXISTS user_inventory
 CREATE TABLE IF NOT EXISTS gang_items
 (
     id      SERIAL
-        CONSTRAINT items_pk
+        CONSTRAINT gang_items_pk
             PRIMARY KEY,
     name    VARCHAR(32) NOT NULL,
-    benefit int     NOT NULL,
-    value  SMALLINT    NOT NULL
+    benefit INTEGER     NOT NULL,
+    value  SMALLINT     NOT NULL
 );
 
 CREATE TABLE IF NOT EXISTS gang_inventory
@@ -220,10 +220,10 @@ CREATE TABLE IF NOT EXISTS gang_inventory
         CONSTRAINT user_inventory_users_fk
             REFERENCES gangs(name)
             ON UPDATE CASCADE ON DELETE CASCADE,
-    item   int  NOT NULL
+    item   INTEGER                  NOT NULL
     CONSTRAINT gang_inventory_items_fk
             REFERENCES gang_items(id)
             ON UPDATE CASCADE ON DELETE CASCADE,
-    quantity smallint NOT NULL,
+    quantity SMALLINT NOT NULL,
     CONSTRAINT pk_gang_inventory PRIMARY KEY (gang, item)
 );

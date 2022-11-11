@@ -26,7 +26,7 @@ async def test_dues_button_paid(mocker: MockerFixture, database):
         "Gang",
         0x3498DB,
     )
-    await database.execute("INSERT INTO gang_members (user_id, gang, paid) VALUES (001, 1, TRUE)")
+    await database.execute("INSERT INTO gang_members (user_id, gang, paid) VALUES (001, 'Gang', TRUE)")
     button = gangs.DuesButton("White")
     await button.callback(interaction)
     interaction.response.defer.assert_awaited_once()
