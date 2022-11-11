@@ -19,7 +19,7 @@ from discord.ext import commands, tasks
 from . import DuesButton
 from . import utils
 from .banner import ApprovalView, generate_banner
-from ._types import BannerRequestLeader, BannerStatus, BannerStatusPoints
+from .types import BannerRequestLeader, BannerStatus, BannerStatusPoints
 from .shakedowns import do_shakedown
 from .. import GuildInteraction as Interaction, CBot
 

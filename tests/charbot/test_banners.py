@@ -16,9 +16,7 @@ from pytest_mock import MockerFixture
 
 from charbot import CBot
 from charbot.gangs import banner
-
-# noinspection PyProtectedMember
-from charbot.gangs._types import BannerStatus
+from charbot.gangs.types import BannerStatus
 
 
 def test_interpolate():

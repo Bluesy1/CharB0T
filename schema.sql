@@ -180,13 +180,14 @@ CREATE TABLE IF NOT EXISTS benefits
     value  SMALLINT     NOT NULL
 );
 
+-- noinspection SqlResolve
 CREATE TABLE IF NOT EXISTS user_items
 (
     id      SERIAL
         CONSTRAINT user_items_pk
             PRIMARY KEY,
     name    VARCHAR(32) NOT NULL,
-    benefit INTEGER     NOT NULL,
+    benefit BENEFIT     NOT NULL,
     value  SMALLINT     NOT NULL
 );
 
@@ -204,13 +205,14 @@ CREATE TABLE IF NOT EXISTS user_inventory
     CONSTRAINT pk_user_inventory PRIMARY KEY (user_id, item)
 );
 
+-- noinspection SqlResolve
 CREATE TABLE IF NOT EXISTS gang_items
 (
     id      SERIAL
         CONSTRAINT gang_items_pk
             PRIMARY KEY,
     name    VARCHAR(32) NOT NULL,
-    benefit INTEGER     NOT NULL,
+    benefit BENEFIT     NOT NULL,
     value  SMALLINT     NOT NULL
 );
 

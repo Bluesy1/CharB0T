@@ -30,20 +30,18 @@ async def try_start_raid(gang: Gang, territory: Territory, pool: asyncpg.Pool) -
     bool
         True if the raid was started, False otherwise
     """
-    if gang.control < RAID_START_COST:
+    if gang["control"] < RAID_START_COST:
         return False
-    if territory.raider is not None:
+    if territory["raider"] is not None:
         return False
     async with pool.acquire() as conn, conn.transaction():
-        current_raid = await conn.fetch("SELECT * FROM territory WHERE raider = $1", gang.name)
+        current_raid = await conn.fetch("SELECT * FROM territories WHERE raider = $1", gang["name"])
         if current_raid:
             return False
-        await conn.execute("UPDATE gangs SET control = control - $1 WHERE name = $2", RAID_START_COST, gang.name)
+        await conn.execute("UPDATE gangs SET control = control - $1 WHERE name = $2", RAID_START_COST, gang["name"])
         await conn.execute(
-            "UPDATE territory SET raider = $1, raid_end = CURRENT_TIMESTAMP + '7 days'::interval WHERE id = $2",
-            gang.name,
-            territory.id,
+            "UPDATE territories SET raider = $1, raid_end = CURRENT_TIMESTAMP + '7 days'::interval WHERE id = $2",
+            gang["name"],
+            territory["id"],
         )
-        await territory.pull(conn)  # type: ignore
-        await gang.pull(conn)  # type: ignore
     return True

@@ -44,7 +44,7 @@ async def setup_custom_datatypes(conn: _asyncpg.Connection) -> None:
     from .gangs.enums import Benefits
 
     await conn.set_type_codec(
-        "BENEFIT",
+        "benefit",
         encoder=lambda b: b.name,
         decoder=Benefits,
         schema="public",

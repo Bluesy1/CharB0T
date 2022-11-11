@@ -16,7 +16,7 @@ import discord
 from discord import Color, ui
 from PIL import Image, ImageDraw, ImageFont
 
-from ._types import BannerStatus
+from .types import BannerStatus
 from .. import GuildComponentInteraction as Interaction, CBot
 
 
@@ -176,7 +176,7 @@ def _init_base(base: Path | Color | tuple[Color, Color]) -> Image.Image:
         except (OSError, ValueError, TypeError) as e:  # pragma: no cover
             raise ValueError("Invalid base image") from e
         else:
-            if img.size != (1000, 250):  # pragma: no branch  # i don't care to test this, incorrectly supplied
+            if img.size != (1000, 250):  # pragma: no branch  # I don't care to test this, incorrectly supplied
                 # images are at the invokers own risk
                 img = img.resize((1000, 250))
     elif isinstance(base, Color):

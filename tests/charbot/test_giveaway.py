@@ -141,8 +141,7 @@ async def test_end_giveaway_with_users(mocker: MockerFixture, embed, database: a
     ), "bids should be reset "
     message.edit.assert_awaited_once()
     bot.program_logs.send.assert_awaited_once()
-    await database.execute("DELETE FROM users WHERE id <> 1")
-    await database.execute("DELETE FROM bids WHERE bid = $1", 0)
+    await database.execute("DELETE FROM users WHERE id <> 1; DELETE FROM bids WHERE id <> 1")
 
 
 @pytest.mark.asyncio
@@ -179,8 +178,7 @@ async def test_giveaway_bid_max_wins(mocker: MockerFixture, embed, database: asy
     await view.bid.callback(interaction)
     interaction.response.send_message.assert_awaited_once()
     assert interaction.response.send_message.await_args.kwargs["ephemeral"] is True
-    await database.execute("DELETE FROM users WHERE id <> 1")
-    await database.execute("DELETE FROM winners WHERE id <> 1")
+    await database.execute("DELETE FROM users WHERE id <> 1; DELETE FROM bids WHERE id <> 1")
 
 
 @pytest.mark.asyncio
@@ -219,8 +217,7 @@ async def test_giveaway_check_max_wins(mocker: MockerFixture, embed, database: a
     await view.check.callback(interaction)
     interaction.response.send_message.assert_awaited_once()
     assert interaction.response.send_message.await_args.kwargs["ephemeral"] is True
-    await database.execute("DELETE FROM users WHERE id <> 1")
-    await database.execute("DELETE FROM winners WHERE id <> 1")
+    await database.execute("DELETE FROM users WHERE id <> 1; DELETE FROM bids WHERE id <> 1")
 
 
 @pytest.mark.asyncio
@@ -242,9 +239,8 @@ async def test_giveaway_check(mocker: MockerFixture, embed, database: asyncpg.Po
     await view.check.callback(interaction)
     interaction.response.send_message.assert_awaited_once()
     assert interaction.response.send_message.await_args.kwargs["ephemeral"] is True
-    await database.execute("DELETE FROM users WHERE id <> 1")
-    await database.execute("DELETE FROM bids WHERE id <> 1")
-    await database.execute("DELETE FROM winners WHERE id <> 1")
+    # noinspection SqlWithoutWhere
+    await database.execute("DELETE FROM users WHERE id <> 1; DELETE FROM bids WHERE id <> 1; DELETE FROM winners")
 
 
 @pytest.mark.asyncio
@@ -343,8 +339,7 @@ async def test_modal_on_submit(mocker: MockerFixture, database: asyncpg.Pool):
     interaction.followup.send.assert_awaited_once()
     assert await database.fetchval("SELECT bid FROM bids WHERE id = 2") == 2
     assert await database.fetchval("SELECT points FROM users WHERE id = 2") == 3
-    await database.execute("DELETE FROM bids WHERE id = 2")
-    await database.execute("DELETE FROM users WHERE id = 2")
+    await database.execute("DELETE FROM bids WHERE id = 2; DELETE FROM users WHERE id = 2")
 
 
 def test_rectify_bid():

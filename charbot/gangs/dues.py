@@ -3,6 +3,8 @@
 #
 # SPDX-License-Identifier: MIT
 """Gang war."""
+from __future__ import annotations
+
 from typing import cast
 
 import asyncpg
@@ -11,7 +13,7 @@ import discord
 from discord import ui
 
 from .. import GuildComponentInteraction as CInteraction, CBot
-from . import GANGS
+from . import GANGS, utils
 
 
 class DuesButton(ui.Button):
@@ -52,7 +54,7 @@ class DuesButton(ui.Button):
                 )
                 await interaction.followup.send(
                     f"You do not have enough rep to pay your dues, you have {details['points']} rep and need "
-                    f"{details['upkeep']} rep to pay your dues."
+                    f"{details['upkeep']:.0f} rep to pay your dues."
                 )
                 return
             remaining: int = await conn.fetchval(
@@ -63,6 +65,18 @@ class DuesButton(ui.Button):
                 interaction.user.id,
             )
             await conn.execute("UPDATE gang_members SET paid = TRUE WHERE user_id = $1", interaction.user.id)
+            await conn.execute(
+                "UPDATE gangs SET control = control + $2 WHERE name = $1",
+                self.gang,
+                utils.rep_to_control(
+                    await conn.fetchval(
+                        "SELECT "
+                        "(SELECT upkeep_base + (upkeep_slope * (SELECT COUNT(*) FROM gang_members WHERE gang = $1)) "
+                        "FROM gangs WHERE name = $1) AS upkeep",
+                        self.gang,
+                    )
+                ),
+            )
             await interaction.followup.send(
                 f"You have paid your dues for {self.gang} Gang! You now have {remaining} rep remaining."
             )

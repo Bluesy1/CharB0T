@@ -11,7 +11,7 @@ from typing import Final
 import asyncpg
 
 
-__all__ = ("do_shakedown",)
+__all__ = ("do_shakedown", "shakedown_chance")
 
 ITEM_FIND_CHANCE: Final[float] = 0.2  # 20% chance to find an item.
 
@@ -30,8 +30,8 @@ async def shakedown_chance(pool: asyncpg.Pool) -> float:
         The chance of a shakedown happening, 0 is 0%, 1 is 100%.
     """
     async with pool.acquire() as conn:
-        user_items: int = await conn.fetchval("SELECT SUM(quantity) FROM user_inventory")
-        gang_items: int = await conn.fetchval("SELECT SUM(quantity) FROM gang_inventory")
+        user_items: int = await conn.fetchval("SELECT SUM(quantity) FROM user_inventory") or 0
+        gang_items: int = await conn.fetchval("SELECT SUM(quantity) FROM gang_inventory") or 0
         total_items: int = user_items + gang_items
     return max(min(total_items / 100, 1), 0)
 

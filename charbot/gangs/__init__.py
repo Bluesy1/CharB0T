@@ -7,9 +7,19 @@ from .. import CBot
 from .utils import ColorOpts, rep_to_control, BASE_GANG_COST, GANGS, SQL_MONTHLY
 from .dues import DuesButton
 from .cog import Gangs
-from . import actions
+from . import actions, types
 
-__all__ = ("Gangs", "DuesButton", "ColorOpts", "BASE_GANG_COST", "GANGS", "SQL_MONTHLY", "actions", "rep_to_control")
+__all__ = (
+    "Gangs",
+    "DuesButton",
+    "ColorOpts",
+    "BASE_GANG_COST",
+    "GANGS",
+    "SQL_MONTHLY",
+    "actions",
+    "rep_to_control",
+    "types",
+)
 
 
 async def setup(bot: CBot):  # pragma: no cover
@@ -17,7 +27,6 @@ async def setup(bot: CBot):  # pragma: no cover
     import sys
     import importlib
 
-    sys.modules["charbot.gangs._types"] = importlib.reload(sys.modules["charbot.gangs._types"])
     sys.modules["charbot.gangs.banner"] = importlib.reload(sys.modules["charbot.gangs.banner"])
     sys.modules["charbot.gangs.cog"] = importlib.reload(sys.modules["charbot.gangs.cog"])
     sys.modules["charbot.gangs.dues"] = importlib.reload(sys.modules["charbot.gangs.dues"])

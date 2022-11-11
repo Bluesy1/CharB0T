@@ -28,13 +28,14 @@ def cluster() -> asyncpg.cluster.TempCluster:  # pyright: ignore[reportGeneralTy
 @pytest_asyncio.fixture
 async def database(cluster) -> asyncpg.Pool:  # pyright: ignore[reportGeneralTypeIssues]
     """Create a database pool for a test."""
+    conn = await asyncpg.connect(**cluster.get_connection_spec(), database="postgres")
+    with open(pathlib.Path(__file__).parent.parent.parent / "schema.sql", "r") as schema:
+        await conn.execute(schema.read())
+    await conn.close()
     pool = cast(
         asyncpg.Pool,
-        await asyncpg.create_pool(**cluster.get_connection_spec(), database="postgres"),
+        await asyncpg.create_pool(**cluster.get_connection_spec(), database="postgres", init=setup_custom_datatypes),
     )
-    with open(pathlib.Path(__file__).parent.parent.parent / "schema.sql", "r") as schema:
-        await pool.execute(schema.read())
-    pool._init = setup_custom_datatypes
     await pool.execute("INSERT INTO users (id, points) VALUES (001, 50) ON CONFLICT DO NOTHING")
     await pool.execute(
         "INSERT INTO banners (user_id, quote, gradient, color, cooldown, approved) VALUES"
