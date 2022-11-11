@@ -35,5 +35,8 @@ async def setup(bot: CBot):  # pragma: no cover
     sys.modules["charbot.gangs.shakedowns"] = importlib.reload(sys.modules["charbot.gangs.shakedowns"])
     sys.modules["charbot.gangs.utils"] = importlib.reload(sys.modules["charbot.gangs.utils"])
     sys.modules["charbot.gangs.actions"] = importlib.reload(sys.modules["charbot.gangs.actions"])
+    sys.modules["charbot.gangs.actions.banner"] = importlib.reload(sys.modules["charbot.gangs.actions.banner"])
+    sys.modules["charbot.gangs.actions.create"] = importlib.reload(sys.modules["charbot.gangs.actions.create"])
+    sys.modules["charbot.gangs.actions.join"] = importlib.reload(sys.modules["charbot.gangs.actions.join"])
     sys.modules["charbot.gangs.actions.raid"] = importlib.reload(sys.modules["charbot.gangs.actions.raid"])
     await bot.add_cog(Gangs(bot))

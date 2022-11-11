@@ -5,21 +5,20 @@
 """Gang war cog file."""
 import asyncio
 import datetime
-from io import BytesIO
 from pathlib import Path
 from typing import Final, cast
 from zoneinfo import ZoneInfo
 
 import asyncpg
 import discord
-from PIL import Image
 from discord import app_commands, ui
 from discord.ext import commands, tasks
 
 from . import DuesButton
 from . import utils
+from .actions import create, join, banner
 from .banner import ApprovalView, generate_banner
-from .types import BannerRequestLeader, BannerStatus, BannerStatusPoints
+from .types import BannerStatus, BannerStatusPoints
 from .shakedowns import do_shakedown
 from .. import GuildInteraction as Interaction, CBot
 
@@ -222,50 +221,24 @@ class Gangs(commands.Cog):
             Scale of recurring cost, to go up per for each member in the gang
         """
         await interaction.response.defer(ephemeral=True)
-        name = utils.ColorOpts(color).name
         conn: asyncpg.pool.PoolConnectionProxy
         async with interaction.client.pool.acquire() as conn, conn.transaction():
-            # Check if teh gang already exists, the user is already in a gang, or the user doesn't have enough points
-            if await conn.fetchval("SELECT 1 FROM gangs WHERE name = $1", name):
-                await interaction.followup.send("A gang with that name/color already exists!")
-                return
-            pts: int | None = await conn.fetchval("SELECT points FROM users WHERE id = $1", interaction.user.id)
-            if pts is None:
-                await interaction.followup.send("You have never gained any points, try gaining some first!")
-                return
-            if pts < (base_join + base_recurring + utils.BASE_GANG_COST):
-                await interaction.followup.send(
-                    f"You don't have enough rep to create a gang! You need at least "
-                    f"{base_join + base_recurring + utils.BASE_GANG_COST} rep to create a gang. ("
-                    f"{utils.BASE_GANG_COST} combined with the baseline join and recurring costs are"
-                    f" required to form a gang)"
-                )
-                return
-            remaining: int = await conn.fetchval(
-                "UPDATE users SET points = points - $1 WHERE id = $2 RETURNING points",
-                base_join + base_recurring + utils.BASE_GANG_COST,
-                interaction.user.id,
+            # Check if the gang already exists, the user is already in a gang, or the user doesn't have enough points
+            remaining = await create.check_gang_conditions(
+                cast(asyncpg.Connection, conn), interaction.user, color, base_join, base_recurring
             )
-
-            role = await interaction.guild.create_role(
-                name=f"{name} Gang",
-                color=color.value,  # pycharm still thinks this isn't a property so is complaining about it incorrectly
-                reason=f"New gang created by {interaction.user} - id: {interaction.user.id}",
-            )
-            overwrites = {
-                interaction.user: discord.PermissionOverwrite(manage_messages=True, mention_everyone=True),
-                role: discord.PermissionOverwrite(view_channel=True, embed_links=True),
-                interaction.guild.default_role: discord.PermissionOverwrite(view_channel=False),
-            }
-            channel = await interaction.guild.create_text_channel(
-                f"{name} Gang", category=self.gang_category, overwrites=overwrites
+            if isinstance(remaining, str):
+                await interaction.followup.send(remaining)
+                return
+            role, channel = await create.create_gang_discord_objects(
+                interaction.guild, interaction.user, self.gang_category, color
             )
             await interaction.user.add_roles(role, reason=f"New gang created by {interaction.user}")
             # All gangs start with 100 control.
             await conn.execute(
                 "INSERT INTO gangs (name, color, leader, role, channel, control, join_base, join_slope,"
                 " upkeep_base, upkeep_slope, all_paid) VALUES ($1, $2, $3, $4, $5, 100, $6, $7, $8, $9, TRUE)",
-                name,
+                color.name,
                 color.value,
                 interaction.user.id,
                 role.id,
@@ -275,7 +248,9 @@ class Gangs(commands.Cog):
                 base_recurring,
                 scale_recurring,
             )
-            await conn.execute("INSERT INTO gang_members (user_id, gang) VALUES ($1, $2)", interaction.user.id, name)
+            await conn.execute(
+                "INSERT INTO gang_members (user_id, gang) VALUES ($1, $2)", interaction.user.id, color.name
+            )
             await interaction.followup.send(
                 f"Gang created! You now have {remaining} rep remaining.\n"
                 f"Your gang's role is {role.mention}, the channel is {channel.mention}.\n"
@@ -285,7 +260,7 @@ class Gangs(commands.Cog):
                 f"Please restrict this to only pinging your gang's role. Do not abuse these permissions, or we may "
                 f"revoke either or both of them and/or replace you with a different member as leader.",
             )
-            await self.gang_announcements.send(f"{interaction.user.mention} created a new gang, the {name} Gang!")
+            await self.gang_announcements.send(f"{interaction.user.mention} created a new gang, the {color.name} Gang!")
 
     @participate.command()  # pyright: ignore[reportGeneralTypeIssues]
     async def join(self, interaction: Interaction[CBot], gang: utils.GANGS):
@@ -302,33 +277,13 @@ class Gangs(commands.Cog):
         conn: asyncpg.pool.PoolConnectionProxy
         async with interaction.client.pool.acquire() as conn, conn.transaction():
             # check if the gang exists, and if the user has enough rep to join
-            if not await conn.fetchval("SELECT 1 FROM gangs WHERE name = $1", gang):
-                await interaction.followup.send("That gang doesn't exist!")
+            res = await join.try_join(cast(asyncpg.Connection, conn), gang, interaction.user.id)
+            if isinstance(res, str):
+                await interaction.followup.send(res)
                 return
-            pts: int | None = await conn.fetchval("SELECT points FROM users WHERE id = $1", interaction.user.id)
-            if pts is None:
-                await interaction.followup.send("You have never gained any points, try gaining some first!")
-                return
-            needed: int = await conn.fetchval(
-                "SELECT join_base + (join_slope * (SELECT COUNT(*) FROM gang_members WHERE gang = $1))"
-                " FROM gangs WHERE name = $1",
-                gang,
-            )
-            if needed > pts:
-                await interaction.followup.send(
-                    f"You don't have enough rep to join that gang! You need at least {needed} rep to join that gang,"
-                    f" and you have {pts}."
-                )
-                return
-            remaining: int = await conn.fetchval(
-                "UPDATE users SET points = points - $1 WHERE id = $2 RETURNING points", needed, interaction.user.id
-            )
+            else:
+                remaining, needed = res
             role = discord.Object(id=await conn.fetchval("SELECT role FROM gangs WHERE name = $1", gang))
-            channel_id: int = await conn.fetchval("SELECT channel FROM gangs WHERE name = $1", gang)
-            channel = cast(
-                discord.TextChannel,
-                interaction.guild.get_channel(channel_id) or await interaction.guild.fetch_channel(channel_id),
-            )
             await interaction.user.add_roles(role, reason=f"Joined gang {gang}")
             await conn.execute("INSERT INTO gang_members (user_id, gang) VALUES ($1, $2)", interaction.user.id, gang)
             await conn.execute(
@@ -336,6 +291,11 @@ class Gangs(commands.Cog):
             )
             await interaction.followup.send(
                 f"You now have {remaining} rep remaining.\nYou have joined the {gang} Gang!"
+            )
+            channel_id: int = await conn.fetchval("SELECT channel FROM gangs WHERE name = $1", gang)
+            channel = cast(
+                discord.TextChannel,
+                interaction.guild.get_channel(channel_id) or await interaction.guild.fetch_channel(channel_id),
             )
             await channel.send(f"Welcome {interaction.user.mention} to the {gang} Gang!")
 
@@ -367,49 +327,21 @@ class Gangs(commands.Cog):
         await interaction.response.defer(ephemeral=True)
         conn: asyncpg.pool.PoolConnectionProxy
         async with interaction.client.pool.acquire() as conn, conn.transaction():
-            leader: BannerRequestLeader | None = await conn.fetchrow(
-                "SELECT leader, leadership, u.points AS points "
-                "FROM gang_members JOIN users u on u.id = gang_members.user_id WHERE user_id = $1",
-                interaction.user.id,
-            )
-            if leader is None:
-                await interaction.followup.send("You are not in a gang!")
+            err = await banner.allowed_banner(cast(asyncpg.Connection, conn), interaction.user.id)
+            if err is not None:
+                await interaction.followup.send(err)
                 return
-            if leader["leader"] is False and leader["leadership"] is False:
-                await interaction.followup.send("You are not the leadership of your gang!")
-                return
-            if leader["points"] < 500:
-                await interaction.followup.send(
-                    f"You don't have enough rep to request a banner! (Have: {leader['points']}, Need: 500)"
-                )
-                return
-            if base is None and color is None:
-                await interaction.followup.send("You need to specify a base image or color!")
-                return
-            if base is not None and color is not None:
-                await interaction.followup.send("You can't specify both a base image and a color!")
+            valid = banner.check_parameters(base, color, gradient)
+            if valid is not None:
+                await interaction.followup.send(valid)
                 return
             if base is not None:
-                if content_type := base.content_type:
-                    if content_type not in ("image/png", "image/jpeg"):
-                        await interaction.followup.send("The base image must be a PNG or JPEG!")
-                        return
-                try:
-
-                    def sync_code(img: bytes, path: Path):
-                        """Blocking code to run in an executor"""
-                        image = Image.open(BytesIO(img))
-                        image.save(path, format="PNG")
-
-                    await asyncio.to_thread(
-                        sync_code,
-                        await base.read(),
-                        BASE_PATH / f"{interaction.user.id}.png",
-                    )
-                except (discord.DiscordException, OSError, ValueError, TypeError):
-                    await interaction.followup.send("Failed to grab image, try again.")
+                res = await banner.download_banner_bg(base, BASE_PATH, interaction.user.id)
+                if res is not None:
+                    await interaction.followup.send(res)
                     return
                 insert_color: int | None = None
+                gradient = False
             else:
                 if color is None:
                     _color: int = await conn.fetchval(
