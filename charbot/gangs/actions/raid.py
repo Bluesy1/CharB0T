@@ -44,6 +44,6 @@ async def try_start_raid(gang: Gang, territory: Territory, pool: asyncpg.Pool) -
             gang.name,
             territory.id,
         )
-        await territory.pull(conn)
-        await gang.pull(conn)
+        await territory.pull(conn)  # type: ignore
+        await gang.pull(conn)  # type: ignore
     return True

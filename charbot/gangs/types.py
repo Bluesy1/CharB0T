@@ -53,7 +53,9 @@ class Gang:
             The database pool.
         """
         async with pool.acquire() as conn:
-            new_state: _types.Gang = await conn.fetchrow("SELECT * FROM gangs WHERE name = $1", self.name)
+            new_state: _types.Gang = await conn.fetchrow(  # type: ignore
+                "SELECT * FROM gangs WHERE name = $1", self.name
+            )
             for key, value in new_state.items():
                 setattr(self, key, value)
 
@@ -79,7 +81,7 @@ class Gang:
             If a gang does not exist with the passed name.
         """
         async with pool.acquire() as conn:
-            payload: _types.Gang = await conn.fetchrow("SELECT * FROM gangs WHERE name = $1", name)
+            payload: _types.Gang = await conn.fetchrow("SELECT * FROM gangs WHERE name = $1", name)  # type: ignore
         if payload is None:
             raise ValueError("No gang found with that name.")
         return cls(payload)
@@ -114,7 +116,9 @@ class Territory:
             The database pool.
         """
         async with pool.acquire() as conn:
-            new_state: _types.Territory = await conn.fetchrow("SELECT * FROM territories WHERE id = $1", self.id)
+            new_state: _types.Territory = await conn.fetchrow(  # type: ignore
+                "SELECT * FROM territories WHERE id = $1", self.id
+            )
             for key, value in new_state.items():
                 setattr(self, key, value)
 
@@ -140,7 +144,9 @@ class Territory:
             If a territory does not exist with the passed id.
         """
         async with pool.acquire() as conn:
-            payload: _types.Territory = await conn.fetchrow("SELECT * FROM territories WHERE id = $1", territory_id)
+            payload: _types.Territory = await conn.fetchrow(  # type: ignore
+                "SELECT * FROM territories WHERE id = $1", territory_id
+            )
         if payload is None:
             raise ValueError("No territory found with that id.")
         return cls(payload)

@@ -13,12 +13,14 @@ from zoneinfo import ZoneInfo
 import asyncpg
 import discord
 from PIL import Image
-from discord import app_commands, ui, utils
-from discord.ext import commands
+from discord import app_commands, ui
+from discord.ext import commands, tasks
 
-from . import ColorOpts, DuesButton, SQL_MONTHLY, GANGS
+from . import DuesButton
+from . import utils
 from .banner import ApprovalView, generate_banner
 from ._types import BannerRequestLeader, BannerStatus, BannerStatusPoints
+from .shakedowns import do_shakedown
 from .. import GuildInteraction as Interaction, CBot
 
 
@@ -32,9 +34,14 @@ class Gangs(commands.Cog):
     gang_category: discord.CategoryChannel
     gang_announcements: discord.TextChannel
 
+    __slots__ = (
+        "bot",
+        "_start_dues_cycle_task",
+        "_end_dues_cycle_task",
+    )
+
     def __init__(self, bot: CBot):
         self.bot = bot
-        self._baseline_gang_cost = 100
         self._start_dues_cycle_task = asyncio.create_task(self.start_dues_cycle())
         self._end_dues_cycle_task = asyncio.create_task(self.end_dues_cycle())
         raise NotImplementedError("Gangs are not implemented yet.")
@@ -60,12 +67,12 @@ class Gangs(commands.Cog):
         next_month = (
             datetime.datetime.now(tz=ZoneInfo("US/Michigan")).replace(day=1) + datetime.timedelta(days=32)
         ).replace(day=1, hour=0, minute=0, second=0, microsecond=0)
-        await utils.sleep_until(next_month)
+        await discord.utils.sleep_until(next_month)
         conn: asyncpg.pool.PoolConnectionProxy
         async with self.bot.pool.acquire() as conn, conn.transaction():
-            await conn.execute(SQL_MONTHLY)
+            await conn.execute(utils.SQL_MONTHLY)
             gangs: list[asyncpg.Record] = await conn.fetch(
-                "SELECT name, channel_id, role_id,"
+                "SELECT name, channel, role,"
                 " (TRUE = ALL(SELECT paid FROM gang_members WHERE gang = gangs.name)) as complete FROM gangs"
             )
             for row in gangs:
@@ -82,8 +89,8 @@ class Gangs(commands.Cog):
                     msg = await channel.send(
                         f"<@&{row['role_id']}> At least one member of this gang did not have enough rep to "
                         f"automatically pay their dues. Please check if this is you, and if it is, pay with the"
-                        f" button below after gaining enough rep to pay, you have until {utils.format_dt(until, 'F')},"
-                        f" {utils.format_dt(until, 'R')}",
+                        f" button below after gaining enough rep to pay, you have until "
+                        f"{discord.utils.format_dt(until, 'F')}, {discord.utils.format_dt(until, 'R')}",
                         view=view,
                     )
                     await msg.pin(reason="So it doesn't get lost too quickly")
@@ -99,11 +106,11 @@ class Gangs(commands.Cog):
         next_month = (
             datetime.datetime.now(tz=ZoneInfo("US/Michigan")).replace(day=1) + datetime.timedelta(days=32)
         ).replace(day=8, hour=0, minute=0, second=0, microsecond=0)
-        await utils.sleep_until(next_month)
+        await discord.utils.sleep_until(next_month)
         conn: asyncpg.pool.PoolConnectionProxy
         async with self.bot.pool.acquire() as conn, conn.transaction():
             gangs: list[asyncpg.Record] = await conn.fetch(
-                "SELECT name, channel_id, role_id,"
+                "SELECT name, channel, role,"
                 " (TRUE = ALL(SELECT paid FROM gang_members WHERE gang = gangs.name)) as complete"
                 " FROM gangs WHERE all_paid IS FALSE"
             )
@@ -167,13 +174,13 @@ class Gangs(commands.Cog):
                 banner_rec: BannerStatusPoints | None = await conn.fetchrow(
                     "SELECT banners.user_id as user_id, quote, banners.color as color, gradient, cooldown, approved,"
                     " g.color as gang_color, g.name as name, u.points as POINTS FROM banners JOIN gang_members gm ON"
-                    " banners.user_id = gm.user_id JOIN gangs g on g.name = gm.gang JOIN users u on g.leader_id = u.id"
+                    " banners.user_id = gm.user_id JOIN gangs g on g.name = gm.gang JOIN users u on g.leader = u.id"
                     " WHERE banners.user_id = $1",
                     member.id,
                 )
                 if (
                     banner_rec is not None
-                    and banner_rec["cooldown"] < utils.utcnow()
+                    and banner_rec["cooldown"] < discord.utils.utcnow()
                     and banner_rec["approved"]
                     and banner_rec["points"] > 50
                 ):
@@ -182,7 +189,7 @@ class Gangs(commands.Cog):
                     await message.reply(file=banner_file)
                     await conn.execute(
                         "UPDATE banners SET cooldown = $1 WHERE user_id = $2",
-                        utils.utcnow() + datetime.timedelta(days=7),
+                        discord.utils.utcnow() + datetime.timedelta(days=7),
                         member.id,
                     )
                     await conn.execute("UPDATE users SET points = points - 50 WHERE id = $1", member.id)
@@ -191,7 +198,7 @@ class Gangs(commands.Cog):
     async def create(
         self,
         interaction: Interaction[CBot],
-        color: ColorOpts,
+        color: utils.ColorOpts,
         base_join: app_commands.Range[int, 0, 32767],
         scale_join: app_commands.Range[int, 0, 32767],
         base_recurring: app_commands.Range[int, 0, 32767],
@@ -215,7 +222,7 @@ class Gangs(commands.Cog):
             Scale of recurring cost, to go up per for each member in the gang
         """
         await interaction.response.defer(ephemeral=True)
-        name = ColorOpts(color).name
+        name = utils.ColorOpts(color).name
         conn: asyncpg.pool.PoolConnectionProxy
         async with interaction.client.pool.acquire() as conn, conn.transaction():
             # Check if teh gang already exists, the user is already in a gang, or the user doesn't have enough points
@@ -226,17 +233,17 @@ class Gangs(commands.Cog):
             if pts is None:
                 await interaction.followup.send("You have never gained any points, try gaining some first!")
                 return
-            if pts < (base_join + base_recurring + self._baseline_gang_cost):
+            if pts < (base_join + base_recurring + utils.BASE_GANG_COST):
                 await interaction.followup.send(
                     f"You don't have enough rep to create a gang! You need at least "
-                    f"{base_join + base_recurring + self._baseline_gang_cost} rep to create a gang. ("
-                    f"{self._baseline_gang_cost} combined with the baseline join and recurring costs are"
+                    f"{base_join + base_recurring + utils.BASE_GANG_COST} rep to create a gang. ("
+                    f"{utils.BASE_GANG_COST} combined with the baseline join and recurring costs are"
                     f" required to form a gang)"
                 )
                 return
             remaining: int = await conn.fetchval(
                 "UPDATE users SET points = points - $1 WHERE id = $2 RETURNING points",
-                base_join + base_recurring + self._baseline_gang_cost,
+                base_join + base_recurring + utils.BASE_GANG_COST,
                 interaction.user.id,
             )
 
@@ -254,17 +261,15 @@ class Gangs(commands.Cog):
                 f"{name} Gang", category=self.gang_category, overwrites=overwrites
             )
             await interaction.user.add_roles(role, reason=f"New gang created by {interaction.user}")
-            control = 100  # TODO: do a proper impl for control
+            # All gangs start with 100 control.
             await conn.execute(
-                "INSERT INTO gangs ("
-                "name, color, leader_id, role_id, channel_id, control, join_base, join_slope, upkeep_base, upkeep_slope"
-                ", all_paid) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, TRUE)",
+                "INSERT INTO gangs (name, color, leader, role, channel, control, join_base, join_slope,"
+                " upkeep_base, upkeep_slope, all_paid) VALUES ($1, $2, $3, $4, $5, 100, $6, $7, $8, $9, TRUE)",
                 name,
                 color.value,
                 interaction.user.id,
                 role.id,
                 channel.id,
-                control,
                 base_join,
                 scale_join,
                 base_recurring,
@@ -283,7 +288,7 @@ class Gangs(commands.Cog):
             await self.gang_announcements.send(f"{interaction.user.mention} created a new gang, the {name} Gang!")
 
     @participate.command()  # pyright: ignore[reportGeneralTypeIssues]
-    async def join(self, interaction: Interaction[CBot], gang: GANGS):
+    async def join(self, interaction: Interaction[CBot], gang: utils.GANGS):
         """Join a gang.
 
         Parameters
@@ -318,8 +323,8 @@ class Gangs(commands.Cog):
             remaining: int = await conn.fetchval(
                 "UPDATE users SET points = points - $1 WHERE id = $2 RETURNING points", needed, interaction.user.id
             )
-            role = discord.Object(id=await conn.fetchval("SELECT role_id FROM gangs WHERE name = $1", gang))
-            channel_id: int = await conn.fetchval("SELECT channel_id FROM gangs WHERE name = $1", gang)
+            role = discord.Object(id=await conn.fetchval("SELECT role FROM gangs WHERE name = $1", gang))
+            channel_id: int = await conn.fetchval("SELECT channel FROM gangs WHERE name = $1", gang)
             channel = cast(
                 discord.TextChannel,
                 interaction.guild.get_channel(channel_id) or await interaction.guild.fetch_channel(channel_id),
@@ -327,8 +332,8 @@ class Gangs(commands.Cog):
             await interaction.user.add_roles(role, reason=f"Joined gang {gang}")
             await conn.execute("INSERT INTO gang_members (user_id, gang) VALUES ($1, $2)", interaction.user.id, gang)
             await conn.execute(
-                "UPDATE gangs SET control = control + $1 WHERE name = $2", needed / 50, gang
-            )  # TODO: do a proper impl for control conversion
+                "UPDATE gangs SET control = control + $1 WHERE name = $2", utils.rep_to_control(needed), gang
+            )
             await interaction.followup.send(
                 f"You now have {remaining} rep remaining.\nYou have joined the {gang} Gang!"
             )
@@ -341,7 +346,7 @@ class Gangs(commands.Cog):
         interaction: Interaction[CBot],
         quote: app_commands.Range[str, 0, 100],
         base: discord.Attachment | None = None,
-        color: ColorOpts | None = None,
+        color: utils.ColorOpts | None = None,
         gradient: bool = False,
     ) -> None:
         """Request a banner or an edit to an existing banner if an update is rejected, you will need to reapply
@@ -457,11 +462,11 @@ class Gangs(commands.Cog):
         banner_file = discord.File(banner_bytes, filename="banner.png")
         await interaction.followup.send(
             f"Your banner has been approved and is as follows! Cooldown until: "
-            f"{utils.format_dt(banner_rec['cooldown'], 'R')}",
+            f"{discord.utils.format_dt(banner_rec['cooldown'], 'R')}",
             file=banner_file,
         )
 
-    @commands.command(name="approve")
+    @commands.command(name="approve", hidden=True)
     @commands.guild_only()
     async def approve_cmd(self, ctx: commands.Context[CBot]):
         """Approve a banner request"""
@@ -488,3 +493,21 @@ class Gangs(commands.Cog):
             view=ApprovalView(banner_rec, member.id),
         )
         banner_bytes.close()
+
+    @commands.command(name="shakedown", hidden=True)
+    @commands.guild_only()
+    async def trigger_shakedown(self, ctx: commands.Context[CBot]):
+        """Trigger a shakedown"""
+        member = cast(discord.Member, ctx.author)
+        if not member.guild_permissions.manage_roles:
+            return
+        res = await do_shakedown(ctx.bot.pool, force=True)
+        await self.gang_announcements.send(f"Today's shakedown found {res} items!")
+        await ctx.reply(f"Today's shakedown found {res} items!")
+
+    @tasks.loop(time=datetime.time(0, tzinfo=ZoneInfo("America/New_York")))
+    async def auto_shakedown(self):  # pragma: no cover
+        """Auto shakedown"""
+        if datetime.datetime.now().day % 3 == 0:
+            res = await do_shakedown(self.bot.pool)
+            await self.gang_announcements.send(f"Today's shakedown found {res} items!")

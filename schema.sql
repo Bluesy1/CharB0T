@@ -2,6 +2,15 @@
 --
 -- SPDX-License-Identifier: MIT
 
+--create types
+DO $$
+BEGIN
+    IF NOT EXISTS (SELECT 1 FROM pg_type WHERE typname = 'benefit') THEN
+        CREATE TYPE benefit AS ENUM ('control', 'defense', 'offense', 'other');
+    END IF;
+    --more types here...
+END$$;
+
 CREATE TABLE IF NOT EXISTS users
 (
     id          BIGINT             NOT NULL
@@ -111,10 +120,9 @@ CREATE TABLE IF NOT EXISTS banners
 
 CREATE TABLE IF NOT EXISTS gangs
 (
-    id          SERIAL
+    name        VARCHAR(32) NOT NULL
         CONSTRAINT gangs_pk
             PRIMARY KEY,
-    name        VARCHAR(32) NOT NULL,
     color       INTEGER     NOT NULL,
     leader      BIGINT      NOT NULL,
     role        BIGINT      NOT NULL,
@@ -135,9 +143,9 @@ CREATE TABLE IF NOT EXISTS gang_members
         CONSTRAINT gang_members_users_fk
             REFERENCES users(id)
             ON UPDATE CASCADE ON DELETE CASCADE,
-    gang INTEGER                   NOT NULL
+    gang varchar(32)                 NOT NULL
         CONSTRAINT gang_members_gang_fk
-            REFERENCES gangs(id)
+            REFERENCES gangs(name)
             ON UPDATE CASCADE ON DELETE CASCADE,
     paid BOOLEAN NOT NULL DEFAULT TRUE
 );
@@ -148,27 +156,18 @@ CREATE TABLE IF NOT EXISTS territories
         CONSTRAINT territories_pk
             PRIMARY KEY,
     name    VARCHAR(32) NOT NULL,
-    gang    INTEGER     NOT NULL
+    gang    varchar(32) NOT NULL
         CONSTRAINT territories_gang_fk
-            REFERENCES gangs(id)
+            REFERENCES gangs(name)
             ON UPDATE CASCADE ON DELETE CASCADE,
     control SMALLINT     NOT NULL,
     benefit SMALLINT     NOT NULL, -- TODO: Make this reference something meaningful
     raid_end TIMESTAMP WITH TIME ZONE DEFAULT NULL,
-    raider INTEGER
+    raider varchar(32)
         CONSTRAINT territories_raider_fk
-            REFERENCES gangs(id)
+            REFERENCES gangs(name)
             ON UPDATE CASCADE ON DELETE CASCADE
 );
-
---create types
-DO $$
-BEGIN
-    IF NOT EXISTS (SELECT 1 FROM pg_type WHERE typname = 'benefit') THEN
-        CREATE TYPE benefit AS ENUM ('control', 'defense', 'offense', 'other');
-    END IF;
-    --more types here...
-END$$;
 
 -- noinspection SqlResolve
 CREATE TABLE IF NOT EXISTS benefits
@@ -179,4 +178,52 @@ CREATE TABLE IF NOT EXISTS benefits
     name    VARCHAR(32) NOT NULL,
     benefit BENEFIT     NOT NULL,
     value  SMALLINT    NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS user_items
+(
+    id      SERIAL
+        CONSTRAINT items_pk
+            PRIMARY KEY,
+    name    VARCHAR(32) NOT NULL,
+    benefit int     NOT NULL,
+    value  SMALLINT    NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS user_inventory
+(
+    user_id BIGINT                   NOT NULL
+        CONSTRAINT user_inventory_users_fk
+            REFERENCES gang_members(user_id)
+            ON UPDATE CASCADE ON DELETE CASCADE,
+    item   int  NOT NULL
+        CONSTRAINT user_inventory_items_fk
+            REFERENCES user_items(id)
+            ON UPDATE CASCADE ON DELETE CASCADE,
+    quantity smallint NOT NULL,
+    CONSTRAINT pk_user_inventory PRIMARY KEY (user_id, item)
+);
+
+CREATE TABLE IF NOT EXISTS gang_items
+(
+    id      SERIAL
+        CONSTRAINT items_pk
+            PRIMARY KEY,
+    name    VARCHAR(32) NOT NULL,
+    benefit int     NOT NULL,
+    value  SMALLINT    NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS gang_inventory
+(
+    gang VARCHAR(32)                NOT NULL
+        CONSTRAINT user_inventory_users_fk
+            REFERENCES gangs(name)
+            ON UPDATE CASCADE ON DELETE CASCADE,
+    item   int  NOT NULL
+    CONSTRAINT gang_inventory_items_fk
+            REFERENCES gang_items(id)
+            ON UPDATE CASCADE ON DELETE CASCADE,
+    quantity smallint NOT NULL,
+    CONSTRAINT pk_gang_inventory PRIMARY KEY (gang, item)
 );

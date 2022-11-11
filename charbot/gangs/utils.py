@@ -2,14 +2,16 @@
 # SPDX-FileCopyrightText: 2022 Bluesy1 <68259537+Bluesy1@users.noreply.github.com>
 #
 # SPDX-License-Identifier: MIT
-"""Gang war models."""
+"""Gang war utils."""
+from __future__ import annotations
+
 from enum import Enum
-from typing import Literal
+from typing import Literal, Final
 
 from discord import Color
 
 
-__all__ = ("ColorOpts", "GANGS", "SQL_MONTHLY")
+__all__ = ("ColorOpts", "rep_to_control", "BASE_GANG_COST", "GANGS", "SQL_MONTHLY")
 
 
 class ColorOpts(Enum):
@@ -24,7 +26,24 @@ class ColorOpts(Enum):
     White = Color(0xC0C0C0)  # actually called silver, but is close enough to white
 
 
-GANGS = Literal["Black", "Red", "Green", "Blue", "Purple", "Violet", "Yellow", "Orange", "White"]
+def rep_to_control(rep: int) -> int:
+    """Convert reputation to control.
+
+    Parameters
+    ----------
+    rep : int
+        The reputation to convert
+
+    Returns
+    -------
+    control: int
+        The control gained from the reputation.
+    """
+    return rep // 50  # TODO: make this a config option/proper formula
+
+
+BASE_GANG_COST: Final[int] = 100
+GANGS: Final = Literal["Black", "Red", "Green", "Blue", "Purple", "Violet", "Yellow", "Orange", "White"]
 SQL_MONTHLY = """
 DO $$
 DECLARE
