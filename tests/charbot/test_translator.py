@@ -1,9 +1,10 @@
 # -*- coding: utf-8 -*-
-# SPDX-FileCopyrightText: 2021 Bluesy1 <68259537+Bluesy1@users.noreply.github.com>
+# SPDX-FileCopyrightText: 2022 Bluesy1 <68259537+Bluesy1@users.noreply.github.com>
 #
 # SPDX-License-Identifier: MIT
-import pytest
+from __future__ import annotations
 
+import pytest
 from discord import Locale
 from discord.app_commands import (
     locale_str,
@@ -14,6 +15,8 @@ from discord.app_commands import (
     Parameter,
     Choice,
 )
+
+# noinspection PyProtectedMember
 from discord.app_commands.transformers import CommandParameter
 from pytest_mock import MockerFixture
 

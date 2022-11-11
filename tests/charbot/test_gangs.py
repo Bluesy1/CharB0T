@@ -2,6 +2,8 @@
 # SPDX-FileCopyrightText: 2022 Bluesy1 <68259537+Bluesy1@users.noreply.github.com>
 #
 # SPDX-License-Identifier: MIT
+from __future__ import annotations
+
 import discord
 import pytest
 from pytest_mock import MockerFixture
