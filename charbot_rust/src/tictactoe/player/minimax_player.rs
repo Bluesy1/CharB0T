@@ -5,7 +5,7 @@ use crate::tictactoe::board::{Board, Index, Piece};
 use rand::seq::SliceRandom;
 use std::fmt::{Display, Error, Formatter};
 
-#[derive(Debug, PartialEq)] // COV_EXCL_LINE
+#[derive(Debug, PartialEq, Eq)] // COV_EXCL_LINE
 pub struct MinimaxPlayer {
     alpha_beta: bool, // COV_EXCL_LINE
 }

@@ -9,7 +9,7 @@ use rand::SeedableRng;
 // COV_EXCL_STOP
 
 #[pyclass(module = "minesweeper")] // COV_EXCL_LINE
-#[derive(PartialEq, Debug)] // COV_EXCL_LINE
+#[derive(Debug, PartialEq, Eq)] // COV_EXCL_LINE
 pub enum RevealResult{ // COV_EXCL_LINE
     Flagged = 0,
     Mine = 1,
@@ -18,7 +18,7 @@ pub enum RevealResult{ // COV_EXCL_LINE
 }
 
 #[pyclass(module = "minesweeper")] // COV_EXCL_LINE
-#[derive(PartialEq, Debug)] // COV_EXCL_LINE
+#[derive(Debug, PartialEq, Eq)] // COV_EXCL_LINE
 pub enum ChordResult{ // COV_EXCL_LINE
     Failed = 0,
     Success = 1,
@@ -26,7 +26,7 @@ pub enum ChordResult{ // COV_EXCL_LINE
 }
 
 #[pyclass(module = "minesweeper")] // COV_EXCL_LINE
-#[derive(PartialEq, Debug)] // COV_EXCL_LINE
+#[derive(Debug, PartialEq, Eq)] // COV_EXCL_LINE
 pub struct ReturnCell {
     #[pyo3(get)]
     pub revealed: bool,
@@ -332,7 +332,7 @@ mod tests {
         let out2 = game.change_row(0).expect("Saw row 0 as out of bounds incorrectly.");
         assert_eq!(game.y(), 0);
         assert_eq!(out2, ReturnCell{ revealed: false, marked: false });
-        if let Ok(_) = game.change_row(5) {
+        if game.change_row(5).is_ok() {
             panic!("Saw row 5 as in bounds incorrectly.");
         }
     }
@@ -345,7 +345,7 @@ mod tests {
         let out2 = game.change_col(0).expect("Saw col 0 as out of bounds incorrectly.");
         assert_eq!(game.x(), 0);
         assert_eq!(out2, ReturnCell{ revealed: false, marked: false });
-        if let Ok(_) = game.change_col(5) {
+        if game.change_col(5).is_ok() {
             panic!("Saw col 5 as in bounds incorrectly.");
         }
     }
@@ -373,17 +373,17 @@ mod tests {
         game2.reveal();
         game2.restart();
         for row in 0..8{
-            if let Err(_) = game1.change_row(row) {
+            if game1.change_row(row).is_err() {
                 panic!("Saw row {} as in bounds incorrectly.", row);
             }
-            if let Err(_) = game2.change_row(row){
+            if game2.change_row(row).is_err(){
                 panic!("Saw row {} as out of bounds incorrectly.", row);
             }
             for col in 0..8{
-                if let Err(_) = game1.change_col(col) {
+                if game1.change_col(col).is_err() {
                     panic!("Saw col {} as in bounds incorrectly.", col);
                 }
-                if let Err(_) = game2.change_col(col){
+                if game2.change_col(col).is_err(){
                     panic!("Saw col {} as out of bounds incorrectly.", col);
                 }
                 assert_eq!(

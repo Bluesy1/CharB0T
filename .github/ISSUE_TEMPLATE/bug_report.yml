@@ -9,7 +9,7 @@ body:
   - type: markdown
     attributes:
       value: >
-        Thanks for taking the time to fill out a bug.
+        Thanks for taking the time to fill out a bug report!
         If you want real-time support, consider joining our Discord at https://cpry.net/discord instead.
 
         Please note that this form is for bugs only!

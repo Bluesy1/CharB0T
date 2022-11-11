@@ -14,9 +14,8 @@ from discord import Interaction, app_commands
 from discord.ext import commands, tasks
 from discord.utils import utcnow
 from disrank.generator import Generator
-from fluent.runtime import FluentLocalization
 
-from . import CBot, Config
+from . import CBot, Config, translate
 
 
 async def update_level_roles(member: discord.Member, new_level: int) -> None:
@@ -209,11 +208,7 @@ class Leveling(commands.Cog):
             try:
                 user_record: asyncpg.Record = list(filter(lambda x: x["id"] == member.id, users))[0]
             except IndexError:
-                await interaction.followup.send(
-                    FluentLocalization(
-                        [interaction.locale.value, "en-US"], ["dice.ftl"], self.bot.localizer_loader
-                    ).format_value("rank-error")
-                )
+                await interaction.followup.send(translate(interaction.locale.value, "rank-error", {}))
                 return
         image = await asyncio.to_thread(
             self.generator.generate_profile,

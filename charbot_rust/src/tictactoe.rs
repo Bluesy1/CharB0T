@@ -1,4 +1,5 @@
-// SPDX-FileCopyrightText: 2021 Bluesy1 <68259537+Bluesy1@users.noreply.github.com>
+// SPDX-FileCopyrightText: 2021 Bluesy1 <68259537+Bluesy1@users.noreply.github.com>  // COV_EXCL_LINE
+//
 // SPDX-License-Identifier: MIT
 mod board; // COV_EXCL_LINE
 mod player;
@@ -9,7 +10,7 @@ use pyo3::prelude::*;
 use crate::tictactoe::board::{Offset, Piece};
 use crate::points::Points;
 
-#[derive(Debug, PartialEq)] // COV_EXCL_LINE
+#[derive(Debug, PartialEq, Eq)] // COV_EXCL_LINE
 pub enum Difficulty {
     Easy,
     Medium,
@@ -120,7 +121,7 @@ impl Game {
     #[new]
     fn __new__(difficulty: i32) -> PyResult<Self> { // COV_EXCL_LINE
         Self::new(difficulty, StdRng::from_entropy())
-            .map_err(|e| PyErr::new::<PyException, _>(e.to_string()))
+            .map_err(PyErr::new::<PyException, _>)
     }
 
 

@@ -25,6 +25,8 @@ class Column:
         Resets the column.
     """
 
+    __slots__ = ("_cells",)
+
     def __init__(self, cells: list[Cell]):
         if len(cells) != 9:
             raise ValueError("Column must have exactly 9 cells.")

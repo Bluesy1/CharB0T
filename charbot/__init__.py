@@ -4,16 +4,16 @@
 # SPDX-License-Identifier: MIT
 """Charbot Module."""
 import logging
-
-import asyncpg
-import asyncpg as _asyncpg
 import functools as _functools
 import pathlib as _pathlib
 import sys as _sys
 from typing import Any, Generic, TypeVar
 from pkgutil import iter_modules
 
+import asyncpg as _asyncpg
 import discord
+
+from charbot_rust import translate
 
 __all__ = (
     "EXTENSIONS",
@@ -24,6 +24,7 @@ __all__ = (
     "GuildInteraction",
     "ComponentInteraction",
     "GuildComponentInteraction",
+    "translate",
     "setup_custom_datatypes",
 )
 __blacklist__ = [f"{__package__}.{item}" for item in ("__main__", "bot", "card", "errors", "types", "translator")]
@@ -32,17 +33,17 @@ EXTENSIONS = [module.name for module in iter_modules(__path__, f"{__package__}."
 T = TypeVar("T", bound="CBot")
 
 
-async def setup_custom_datatypes(conn_or_pool: _asyncpg.Connection) -> None:
+async def setup_custom_datatypes(conn: _asyncpg.Connection) -> None:
     """There are a few custom postgres datatypes, this sets up serializations for them.
 
     Parameters
     ----------
-    conn_or_pool : _asyncpg.Connection | _asyncpg.Pool
-        The connection or pool to set up the custom datatypes for.
+    conn : _asyncpg.Connection
+        The connection to set up the custom datatypes for.
     """
     from .gangs.enums import Benefits
 
-    await conn_or_pool.set_type_codec(
+    await conn.set_type_codec(
         "BENEFIT",
         encoder=lambda b: b.name,
         decoder=Benefits,
@@ -72,7 +73,7 @@ class _Config:
     _file: _pathlib.Path = _pathlib.Path(__file__).parent.parent / "config.toml"
     logger = logging.getLogger("charbot.config")
 
-    def clear_cache(self):
+    def clear_cache(self):  # pragma: no cover
         """Clear the config cache if a config has changed"""
         self.logger.info(
             "Clearing config cache, this can cause previously expected values to disappear. Cache stats: %r",
@@ -92,9 +93,9 @@ class _Config:
     def get(self, *args: str) -> str | int | dict[str, Any]:
         """Get a config key"""
         if _sys.version_info >= (3, 11):
-            import tomllib  # type: ignore
+            import tomllib
         else:
-            import tomli as tomllib
+            import tomli as tomllib  # type: ignore  # pragma: no cover
         with open(self._file, "rb") as f:
             config = tomllib.load(f)
         badkey: Any = ""

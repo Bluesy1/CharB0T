@@ -13,7 +13,6 @@ import aiohttp
 import asyncpg
 from discord import app_commands, Member, User, Webhook
 from discord.ext import commands
-from fluent.runtime import FluentResourceLoader
 
 
 class CBot(commands.Bot):
@@ -29,7 +28,6 @@ class CBot(commands.Bot):
     program_logs: Webhook
     setup_hook: Callable[[], Coroutine[None, None, None]]
     giveaway_user: Callable[[int], Coroutine[None, None, None | asyncpg.Record]]
-    localize_loader: FluentResourceLoader
 
     async def give_game_points(self, member: Member | User, game: str, points: int, bonus: int = 0) -> int:
         """Give points to a member for a game."""

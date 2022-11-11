@@ -19,3 +19,4 @@ giveaway.csv
 /config.toml
 /charbot/giveaway.json
 /charbot.service
+/coverage/reports/coverage.xml

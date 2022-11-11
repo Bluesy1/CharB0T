@@ -161,7 +161,7 @@ class Query(Cog):
         await ctx.reply(f"https://bluesy1.github.io/CharB0T/\n{__source__}\nMIT License")
 
     @staticmethod
-    def get_text(image: BytesIO) -> str:
+    def get_text(image: BytesIO) -> str:  # pragma: no cover
         """Get the text from an image using pytesseract"""
         img = Image.open(image)
         if img.is_animated:
@@ -174,7 +174,7 @@ class Query(Cog):
 
     @commands.command(aliases=["ocr"])
     @commands.max_concurrency(2, commands.BucketType.channel, wait=True)
-    async def pull_text(self, ctx: Context, image: discord.Attachment | None = None):
+    async def pull_text(self, ctx: Context, image: discord.Attachment | None = None):  # pragma: no cover
         """Pull the test out of an image using Optical Character Recognition.
 
         Parameters
@@ -222,7 +222,7 @@ class Query(Cog):
                 await ctx.reply(f"```\n{res.strip()[:300]}\n```")
 
     @commands.Cog.listener()
-    async def on_raw_reaction_add(self, payload: discord.RawReactionActionEvent):
+    async def on_raw_reaction_add(self, payload: discord.RawReactionActionEvent):  # pragma: no cover
         """Called when a reaction is added to a message.
 
         Parameters
@@ -295,8 +295,22 @@ class Query(Cog):
         else:
             await interaction.response.send_message(resp, ephemeral=True)
 
+    @app_commands.command()  # pyright: ignore[reportGeneralTypeIssues]
+    @app_commands.guild_only()
+    async def leaderboard(self, interaction: "Interaction[CBot]", ephemeral: bool = True):
+        """Get the leaderboard of the server.
 
-async def setup(bot: "CBot"):
+        Parameters
+        ----------
+        interaction: Interaction[CBot]
+            The interaction of the command.
+        ephemeral: bool, default True
+            Send the leaderboard as an ephemeral message. Default True.
+        """
+        await interaction.response.send_message("https://cpry.net/leaderboard", ephemeral=ephemeral)
+
+
+async def setup(bot: "CBot"):  # pragma: no cover
     """Load Plugin.
 
     Parameters

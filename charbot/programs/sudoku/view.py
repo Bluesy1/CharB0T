@@ -3,7 +3,7 @@
 # SPDX-License-Identifier: MIT
 """View class."""
 import datetime
-from typing import Literal, TYPE_CHECKING
+from typing import Literal, TYPE_CHECKING, cast
 
 import discord
 from discord import ButtonStyle, Interaction, SelectOption, ui
@@ -47,6 +47,8 @@ class Sudoku(ui.View):
     start_time: datetime.datetime
         Time the game started, used for calculating time taken. Timezone aware.
     """
+
+    __slots__ = ("puzzle", "author", "bot", "level", "block", "cell", "noting_mode", "start_time", "moves")
 
     def __init__(self, puzzle: Puzzle, author: discord.Member, bot: "CBot"):
         super().__init__(timeout=None)
@@ -95,7 +97,7 @@ class Sudoku(ui.View):
             self.enable_keypad()
         elif self.level == "Block":
             self._update_keypad_block()
-        elif self.level == "Cell":
+        elif self.level == "Cell":  # pragma: no branch
             self.back.disabled = False
             if self.cell.editable:
                 self.enable_keypad()
@@ -181,7 +183,7 @@ class Sudoku(ui.View):
         self.cancel.disabled = True
         self.mode.disabled = True
         self.stop()
-        if self.cell is not MISSING:
+        if self.cell is not MISSING:  # pragma: no branch
             self.cell.selected = False
         embed = discord.Embed(
             title="**Solved!!** Sudoku",
@@ -192,7 +194,7 @@ class Sudoku(ui.View):
         embed.set_footer(text="Start playing by typing /programs sudoku")
         time_taken = utcnow().replace(microsecond=0) - self.start_time.replace(microsecond=0)
         embed.add_field(name="Time Taken", value=f"{time_taken}", inline=True)
-        points = await self.bot.give_game_points(self.author, "sudoku", 5, 10)
+        points = await self.bot.give_game_points(self.author, 5, 10)
         embed.add_field(
             name="Reputation gained",
             value="15 Reputation" if points == 15 else f"{points} Reputation (Daily Cap Hit)",
@@ -228,44 +230,40 @@ class Sudoku(ui.View):
             self.update_keypad()
             await interaction.edit_original_response(embed=self.cell_choose_embed(), view=self)
         elif self.level == "Block":
-            if self.block is not None:
+            if self.block is not None:  # pragma: no branch
                 self.cell = self.block[key]
                 self.level = "Cell"
                 self.block.selected = False
                 self.cell.selected = True
                 self.update_keypad()
                 await interaction.edit_original_response(embed=self.change_cell_prompt_embed(), view=self)
-        elif self.level == "Cell":  # skipcq: PTC-W0048
-            if self.cell is not None:  # skipcq: PTC-W0048
+        elif self.level == "Cell":  # skipcq: PTC-W0048  # pragma: no branch
+            if self.cell is not None:  # skipcq: PTC-W0048  # pragma: no branch
                 if self.cell.editable and not self.noting_mode:
                     self.moves += 1
-                    val = button.label
-                    assert isinstance(val, str)  # skipcq: BAN-B101
-                    self.cell.value = int(val)
+                    self.cell.value = int(cast(str, button.label))
                     self.level = "Block"
                     self.cell.possible_values.clear()
                     self.cell.selected = False
                     if self.puzzle.is_solved:
                         await self._on_win(interaction)
                     else:
-                        if self.block is not MISSING:
+                        if self.block is not MISSING:  # pragma: no branch
                             self.block.selected = True
                         self.cell = MISSING
                         self.update_keypad()
                         await interaction.edit_original_response(embed=self.cell_choose_embed(), view=self)
                 elif self.cell.editable:
-                    val = button.label
-                    assert isinstance(val, str)  # skipcq: BAN-B101
-                    real_val = int(val)
+                    real_val = int(cast(str, button.label))
                     if real_val not in self.cell.possible_values:
                         self.cell.possible_values.add(real_val)
                     else:
                         self.cell.possible_values.remove(real_val)
                     raise NotImplementedError("Noting mode not implemented")
                 else:
-                    if self.cell is not MISSING:
+                    if self.cell is not MISSING:  # pragma: no branch
                         self.cell.selected = False
-                    if self.block is not MISSING:
+                    if self.block is not MISSING:  # pragma: no branch
                         self.block.selected = True
                     self.cell = MISSING
                     self.level = "Block"
@@ -292,16 +290,16 @@ class Sudoku(ui.View):
         elif self.level == "Block":
             self.level = "Puzzle"
             button.disabled = True
-            if self.block is not MISSING:
+            if self.block is not MISSING:  # pragma: no branch
                 self.block.selected = False
             self.block = MISSING
             self.enable_keypad()
             await interaction.response.edit_message(embed=self.block_choose_embed(), view=self)
-        elif self.level == "Cell":
+        elif self.level == "Cell":  # pragma: no branch
             self.level = "Block"
-            if self.cell is not MISSING:
+            if self.cell is not MISSING:  # pragma: no branch
                 self.cell.selected = False
-            if self.block is not MISSING:
+            if self.block is not MISSING:  # pragma: no branch
                 self.block.selected = True
             self.cell = MISSING
             self.update_keypad()
@@ -372,7 +370,7 @@ class Sudoku(ui.View):
         embed.add_field(name="Time Taken", value=f"{time_taken}", inline=True)
         if (utcnow() - self.start_time) > datetime.timedelta(minutes=3) and self.moves > 10:
             embed.add_field(name="Time Taken", value=f"{time_taken}", inline=True)
-            points = await self.bot.give_game_points(self.author, "sudoku", 5, 0)
+            points = await self.bot.give_game_points(self.author, 5, 0)
             embed.add_field(
                 name="Reputation gained",
                 value="5 Reputation" if points == 5 else f"{points} Reputation (Daily Cap Hit)",
@@ -445,11 +443,11 @@ class Sudoku(ui.View):
             self.puzzle.reset()
             await interaction.response.edit_message(embed=self.block_choose_embed(), view=self)
         elif self.level == "Block":
-            if self.block is not MISSING:
+            if self.block is not MISSING:  # pragma: no branch
                 self.block.clear()
             await interaction.response.edit_message(embed=self.cell_choose_embed(), view=self)
-        elif self.level == "Cell":
-            if self.cell is not MISSING and self.cell.editable:
+        elif self.level == "Cell":  # pragma: no branch
+            if self.cell is not MISSING and self.cell.editable:  # pragma: no branch
                 self.cell.clear()
             await interaction.response.edit_message(embed=self.change_cell_prompt_embed(), view=self)
 

@@ -11,7 +11,7 @@ SPDX-License-Identifier: MIT
 
 [![CI](https://github.com/Bluesy1/CharB0T/actions/workflows/ci.yml/badge.svg)](https://github.com/Bluesy1/CharB0T/actions/workflows/ci.yml)
 [![CodeQL](https://github.com/Bluesy1/CharB0T/actions/workflows/codeql-analysis.yml/badge.svg)](https://github.com/Bluesy1/CharB0T/actions/workflows/codeql-analysis.yml)
-[![pages-build-deployment](https://github.com/Bluesy1/CharB0T/actions/workflows/pages/pages-build-deployment/badge.svg?branch=gh-pages)](https://github.com/Bluesy1/CharB0T/actions/workflows/pages/pages-build-deployment)
+[![Update GitHub Pages Site](https://github.com/Bluesy1/CharB0T/actions/workflows/leaderboard.yml/badge.svg?branch=gh-pages&event=workflow_dispatch)](https://github.com/Bluesy1/CharB0T/actions/workflows/leaderboard.yml)
 
 ## Code Info
 
@@ -57,8 +57,9 @@ You can find the documentation for the bot [here](https://bluesy1.github.io/Char
 
 ## Contributing
 
-- If you have a good idea for a new feature, create a [Feature Request](https://github.com/Bluesy1/CharB0T/issues/new?assignees=&labels=feature+request&template=feature_request.yml).
-- If you encounter a bug, create a [Bug Report](https://github.com/Bluesy1/CharB0T/issues/new?assignees=&labels=unconfirmed+bug&template=bug_report.yml).
+Please see the [Code of Conduct](./CODE_OF_CONDUCT.md) and [Contributing Guidelines](./CONTRIBUTING.md) before contributing. 
+
+Non code translation contributions are also welcome via [crowdin](https://crowdin.com/project/charbot).
 
 ----------------------------------------------------------------------------
 MIT License

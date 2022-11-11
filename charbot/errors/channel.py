@@ -7,10 +7,8 @@
 """Wrong channel error."""
 import discord
 from discord.app_commands import AppCommandError
-from fluent.runtime import FluentResourceLoader, FluentLocalization
-from fluent.runtime.types import fluent_number
 
-LOADER = FluentResourceLoader("i18n/{locale}")
+from charbot_rust import translate
 
 
 class WrongChannelError(AppCommandError):
@@ -27,10 +25,7 @@ class WrongChannelError(AppCommandError):
     def __init__(self, channel: int, locale: discord.Locale):
         """Init."""
         super().__init__()
-        translator = FluentLocalization([locale.value, "en-US"], ["errors.ftl"], LOADER)
-        self.message = translator.format_value(
-            "wrong-channel", {"channelid": fluent_number(channel, useGrouping=False)}
-        )
+        self.message = translate(locale.value, "wrong-channel", {"channel-id": f"{channel}"})
         self._channel: int = channel
 
     def __str__(self):

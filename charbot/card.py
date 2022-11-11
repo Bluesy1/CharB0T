@@ -85,7 +85,7 @@ def generate_card(
             nh = math.ceil(width * 0.264444)
             y2 = 0
 
-            if nh < height:
+            if nh < height:  # pragma: no branch
                 y1 = (height // 2) - 119
                 y2 = nh + y1
 

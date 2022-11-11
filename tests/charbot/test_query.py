@@ -152,8 +152,12 @@ async def test_rule_command(mocker: MockerFixture, rule: int | None, member_id: 
 
 
 @pytest.mark.asyncio
-async def test_setup_function(mocker: MockerFixture):
-    """Test setup function."""
-    mock_bot = mocker.AsyncMock(spec=commands.Bot)
-    await query.setup(mock_bot)
-    mock_bot.add_cog.assert_called_once()
+@pytest.mark.parametrize("ephemeral", [True, False])
+async def test_leaderboard_command(mocker: MockerFixture, ephemeral: bool):
+    """Test leaderboard command."""
+    mock_itx = mocker.AsyncMock(
+        spec=GuildInteraction[CBot], response=mocker.AsyncMock(spec=discord.InteractionResponse)
+    )
+    cog = query.Query(mocker.AsyncMock(spec=CBot))
+    await cog.leaderboard.callback(cog, mock_itx, ephemeral)  # pyright: ignore[reportGeneralTypeIssues]
+    mock_itx.response.send_message.assert_awaited_once_with("https://cpry.net/leaderboard", ephemeral=ephemeral)
