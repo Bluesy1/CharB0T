@@ -229,7 +229,7 @@ class CBot(commands.Bot):
         gained: int
             The amount of points gained.
         """
-        if previous + points > 10:
+        if previous + points > 10:  # pragma: no branch
             real_points = 10 - previous
             bonus = -(-(real_points * bonus) // points)
             points = real_points

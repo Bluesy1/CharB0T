@@ -83,7 +83,7 @@ class GiveawayView(ui.View):
         self.role_semaphore = asyncio.BoundedSemaphore(10)
         self.bid_lock = asyncio.Lock()
         self.bidders: list[asyncpg.Record] = []
-        if url is not None:
+        if url is not None:  # pragma: no branch
             self.add_item(ui.Button(label=game, style=discord.ButtonStyle.link, url=url))
 
     def __repr__(self):  # pragma: no cover
@@ -113,7 +113,7 @@ class GiveawayView(ui.View):
             view.message = message
             view.top_bid = 0
             view.total_entries = int(cast(str, embed.fields[3].value))
-            if view.total_entries:
+            if view.total_entries:  # pragma: no branch
                 view.check.disabled = False
         except (IndexError, ValueError, TypeError) as e:
             raise KeyError("Invalid giveaway embed.") from e
@@ -205,7 +205,7 @@ class GiveawayView(ui.View):
             self.embed.add_field(name="Top Bid", value=f"{self.top_bid:.2f}", inline=True)
             self.embed.add_field(name="Total Entries", value=f"{self.total_entries}", inline=True)
             self.embed.add_field(name="Winner", value=f"{winner.name}#{winner.discriminator}", inline=True)
-            if drawn:
+            if drawn:  # pragma: no branch
                 self.embed.add_field(
                     name="Backup Winners",
                     value=f"{', '.join(f'{m.name}#{m.discriminator}' for m in drawn)}",
@@ -260,7 +260,7 @@ class GiveawayView(ui.View):
                     winners_.append(win)
             while len(winners_) < min(3, len(bids[0])):
                 new_winner = random.sample(bids[0], k=1, counts=bids[1])
-                if new_winner[0] not in winners_:
+                if new_winner[0] not in winners_:  # pragma: no branch
                     winners_.append(new_winner[0])
             if self.message.guild is None:  # pragma: no cover
                 _id = 225345178955808768
