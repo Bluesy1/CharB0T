@@ -47,10 +47,10 @@ checks:
       threshold: #language-specific defaults. overrides affect all languages.
 
 plugins:
-  black:
-    enabled: true
+  black: # if they ever enable configuration of black specs, I'll enable this
+    enabled: false
     config:
-      line-length: 120
+      line: 120
   git-legal:
     enabled: true
     config:
