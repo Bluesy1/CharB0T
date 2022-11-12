@@ -4,6 +4,7 @@
 # SPDX-License-Identifier: MIT
 from __future__ import annotations
 
+import asyncio
 import pathlib
 from typing import cast
 
@@ -11,6 +12,7 @@ import asyncpg
 import asyncpg.cluster
 import pytest
 import pytest_asyncio
+import uvloop
 
 from charbot import setup_custom_datatypes
 
@@ -25,7 +27,17 @@ def cluster() -> asyncpg.cluster.TempCluster:  # pyright: ignore[reportGeneralTy
     test_cluster.stop()
 
 
-@pytest_asyncio.fixture
+@pytest.fixture(scope="session")
+def event_loop():
+    """Create the event loop"""
+    uvloop.install()
+    policy = asyncio.get_event_loop_policy()
+    loop = policy.new_event_loop()
+    yield loop
+    loop.close()
+
+
+@pytest_asyncio.fixture(scope="session")
 async def database(cluster) -> asyncpg.Pool:  # pyright: ignore[reportGeneralTypeIssues]
     """Create a database pool for a test."""
     conn = await asyncpg.connect(**cluster.get_connection_spec(), database="postgres")

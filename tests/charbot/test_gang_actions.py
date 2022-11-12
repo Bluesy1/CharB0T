@@ -108,7 +108,7 @@ async def test_join_gang_no_points(mocker: MockerFixture):
             "Any",
             1,
         )
-        == "You have never gained any points, try gaining some first!"
+        == "You have never gained any rep, try gaining some first!"
     )
 
 

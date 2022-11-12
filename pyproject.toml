@@ -76,6 +76,13 @@ filterwarnings = [
 [tool.coverage.run]
 omit = ["*/__main__.py", "*/tests/*.py", "*/types/*.py", "*/pools.py", "*/admin.py", "*/reputation_admin.py"]
 
+[tool.coverage.report]
+exclude_lines = [
+	"pragma: no cover", # reenable default
+	"raise NotImplementedError", # unimplemented methods
+	"if TYPE_CHECKING:"  # type checking blocks never run at runtime
+]
+
 [tool.pyright]
 pythonPlatform = "Linux"
 reportUnnecessaryTypeIgnoreComment = true

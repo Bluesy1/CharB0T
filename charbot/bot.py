@@ -149,7 +149,7 @@ class CBot(commands.Bot):
         self, *args: Any, strip_after_prefix: bool = True, tree_cls: type["Tree"], **kwargs: Any
     ) -> None:  # pragma: no cover
         super().__init__(*args, strip_after_prefix=strip_after_prefix, tree_cls=tree_cls, **kwargs)
-        self.pool: asyncpg.Pool[Any] = MISSING
+        self.pool: asyncpg.Pool = MISSING
         self.session: aiohttp.ClientSession = MISSING
         self.program_logs: discord.Webhook = MISSING
         self.error_logs: discord.Webhook = MISSING

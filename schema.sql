@@ -135,21 +135,6 @@ CREATE TABLE IF NOT EXISTS gangs
     all_paid    BOOLEAN    NOT NULL
 );
 
-CREATE TABLE IF NOT EXISTS gang_members
-(
-    user_id BIGINT                   NOT NULL
-        CONSTRAINT gang_members_pk
-            PRIMARY KEY
-        CONSTRAINT gang_members_users_fk
-            REFERENCES users(id)
-            ON UPDATE CASCADE ON DELETE CASCADE,
-    gang varchar(32)                 NOT NULL
-        CONSTRAINT gang_members_gang_fk
-            REFERENCES gangs(name)
-            ON UPDATE CASCADE ON DELETE CASCADE,
-    paid BOOLEAN NOT NULL DEFAULT TRUE
-);
-
 CREATE TABLE IF NOT EXISTS territories
 (
     id      SERIAL
@@ -169,15 +154,50 @@ CREATE TABLE IF NOT EXISTS territories
             ON UPDATE CASCADE ON DELETE CASCADE
 );
 
+CREATE TABLE IF NOT EXISTS _gang_members
+(
+    user_id    BIGINT                NOT NULL
+        CONSTRAINT gang_members_pk
+            PRIMARY KEY
+        CONSTRAINT users_fk
+            REFERENCES users
+            ON UPDATE CASCADE ON DELETE CASCADE,
+    gang       VARCHAR(10)           NOT NULL
+        CONSTRAINT gangs_fk
+            REFERENCES gangs
+            ON UPDATE CASCADE ON DELETE CASCADE,
+    leadership BOOLEAN DEFAULT FALSE NOT NULL ,
+    paid       BOOLEAN DEFAULT TRUE  NOT NULL,
+    raiding    BIGINT
+        CONSTRAINT _gang_members_territories_null_fk
+            REFERENCES territories
+            ON UPDATE CASCADE ON DELETE SET NULL
+);
+
+CREATE OR REPLACE VIEW gang_members(user_id, gang, leadership, paid, raiding, leader) as
+SELECT _gang_members.user_id,
+       _gang_members.gang,
+       _gang_members.leadership,
+       _gang_members.paid,
+       _gang_members.raiding,
+       CASE
+           WHEN (SELECT TRUE AS bool
+                 FROM gangs
+                 WHERE _gang_members.user_id = gangs.leader) THEN TRUE
+           ELSE FALSE
+           END AS leader
+FROM _gang_members
+WITH CASCADED CHECK OPTION;
+
 -- noinspection SqlResolve
 CREATE TABLE IF NOT EXISTS benefits
 (
     id      SERIAL
         CONSTRAINT benefits_pk
             PRIMARY KEY,
-    name    VARCHAR(32) NOT NULL,
-    benefit BENEFIT     NOT NULL,
-    value  SMALLINT     NOT NULL
+    name    VARCHAR(32) UNIQUE NOT NULL,
+    benefit BENEFIT            NOT NULL,
+    value  SMALLINT            NOT NULL
 );
 
 -- noinspection SqlResolve
@@ -195,7 +215,7 @@ CREATE TABLE IF NOT EXISTS user_inventory
 (
     user_id BIGINT                   NOT NULL
         CONSTRAINT user_inventory_users_fk
-            REFERENCES gang_members(user_id)
+            REFERENCES _gang_members(user_id)
             ON UPDATE CASCADE ON DELETE CASCADE,
     item   INTEGER                   NOT NULL
         CONSTRAINT user_inventory_items_fk
@@ -211,9 +231,9 @@ CREATE TABLE IF NOT EXISTS gang_items
     id      SERIAL
         CONSTRAINT gang_items_pk
             PRIMARY KEY,
-    name    VARCHAR(32) NOT NULL,
-    benefit BENEFIT     NOT NULL,
-    value  SMALLINT     NOT NULL
+    name    VARCHAR(32) UNIQUE NOT NULL,
+    benefit BENEFIT            NOT NULL,
+    value  SMALLINT            NOT NULL
 );
 
 CREATE TABLE IF NOT EXISTS gang_inventory

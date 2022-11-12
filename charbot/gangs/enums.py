@@ -7,7 +7,7 @@ import enum
 
 
 class Benefits(enum.Enum):
-    control = 0
-    defense = 1
-    offense = 2
-    other = 3
+    control = "control"
+    defense = "defense"
+    offense = "offense"
+    other = "other"

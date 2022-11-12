@@ -5,13 +5,20 @@
 """Gang war utils."""
 from __future__ import annotations
 
+from collections.abc import Iterable, Iterator
 from enum import Enum
-from typing import Literal, Final
+from itertools import islice
+from typing import TYPE_CHECKING, Literal, Final
 
+import discord
 from discord import Color
 
 
-__all__ = ("ColorOpts", "rep_to_control", "BASE_GANG_COST", "GANGS", "SQL_MONTHLY")
+if TYPE_CHECKING:
+    from .types import Item
+
+
+__all__ = ("ColorOpts", "rep_to_control", "BASE_GANG_COST", "GANGS", "SQL_MONTHLY", "item_embed_pages")
 
 
 class ColorOpts(Enum):
@@ -66,3 +73,44 @@ FOR user_id, gang IN SELECT gang_members.user_id, gang_members.gang FROM gang_me
 END LOOP;
 END $$;
 """
+
+
+def item_embed_pages(
+    items: Iterable[Item], items_type: Literal["personal", "gang"], owned: bool
+) -> Iterator[discord.Embed]:  # pragma: no cover
+    """Create an embed for each page of items.
+
+    Parameters
+    ----------
+    items : Iterable[Item]
+        The items.
+    items_type : {"personal", "gang"}
+        The type of items, can be personal or gang.
+    owned : bool
+        Whether the items are owned or not.
+
+    Yields
+    ------
+    embed : discord.Embed
+        The embed of the items.
+    """
+    it = iter(items)
+    newline = ord("\n")
+    while True:
+        batch = list(islice(it, 25))
+        if not batch:
+            break
+        embed = discord.Embed(
+            title="Items",
+            color=discord.Color.blurple(),
+            description=f"A list of some or all of the {items_type} items you {'own' if owned else 'can buy'}.",
+            timestamp=discord.utils.utcnow(),
+        )
+        for item in batch:
+            embed.add_field(
+                name=item.name,
+                value=f"{item.description}\nCost: {item.value}"
+                f"{f'{newline}Quantity: {item.quantity}' if item.quantity is not None else ''}",
+                inline=False,
+            )
+        yield embed

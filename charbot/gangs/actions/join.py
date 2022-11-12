@@ -29,7 +29,7 @@ async def try_join(conn: asyncpg.Connection, gang: str, user: int) -> str | tupl
         return "That gang doesn't exist!"
     pts: int | None = await conn.fetchval("SELECT points FROM users WHERE id = $1", user)
     if pts is None:
-        return "You have never gained any points, try gaining some first!"
+        return "You have never gained any rep, try gaining some first!"
     needed: int = await conn.fetchval(
         "SELECT join_base + (join_slope * (SELECT COUNT(*) FROM gang_members WHERE gang = $1))"
         " FROM gangs WHERE name = $1",

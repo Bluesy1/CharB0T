@@ -6,7 +6,7 @@ from __future__ import annotations
 
 import datetime
 from decimal import Decimal
-from typing import TypedDict
+from typing import TypedDict, NamedTuple
 
 from .enums import Benefits
 
@@ -69,3 +69,10 @@ class Territory(TypedDict):
     benefit: Benefit
     raid_end: datetime.datetime | None
     raider: Gang | None
+
+
+class Item(NamedTuple):
+    name: str
+    description: str
+    value: int
+    quantity: int | None

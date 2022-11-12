@@ -197,6 +197,7 @@ async def test_minesweeper_command(mock_inter, difficulty: str):
 
 async def test_reputation_command(mock_inter, database: Pool):
     """Test that the code for the reputation command functions as expected."""
+    await database.execute("INSERT INTO users (id, points) VALUES (1, 50) ON CONFLICT (id) DO UPDATE SET points = 50;")
     cog = Reputation()
     mock_inter.client.pool = database
     await cog.query_points.callback(cog, mock_inter)  # pyright: ignore[reportGeneralTypeIssues]
