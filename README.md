@@ -5,9 +5,12 @@ SPDX-License-Identifier: MIT
 -->
 
 ## Continuous Integration Status
+
+[![Maintainability](https://api.codeclimate.com/v1/badges/8234bccb87107f9068b9/maintainability)](https://codeclimate.com/github/Bluesy1/CharB0T/maintainability)
+[![Test Coverage](https://api.codeclimate.com/v1/badges/8234bccb87107f9068b9/test_coverage)](https://codeclimate.com/github/Bluesy1/CharB0T/test_coverage)
+
 [![DeepSource](https://deepsource.io/gh/Bluesy1/CharB0T.svg/?label=active+issues&show_trend=true&token=wb08Mu693aFli6scALkkEmql)](https://deepsource.io/gh/Bluesy1/CharB0T/?ref=repository-badge)
 [![DeepSource](https://deepsource.io/gh/Bluesy1/CharB0T.svg/?label=resolved+issues&show_trend=true&token=wb08Mu693aFli6scALkkEmql)](https://deepsource.io/gh/Bluesy1/CharB0T/?ref=repository-badge)
-[![codecov](https://codecov.io/gh/Bluesy1/CharB0T/branch/main/graph/badge.svg?token=QDBTWB57NC)](https://codecov.io/gh/Bluesy1/CharB0T)
 
 [![CI](https://github.com/Bluesy1/CharB0T/actions/workflows/ci.yml/badge.svg)](https://github.com/Bluesy1/CharB0T/actions/workflows/ci.yml)
 [![CodeQL](https://github.com/Bluesy1/CharB0T/actions/workflows/codeql-analysis.yml/badge.svg)](https://github.com/Bluesy1/CharB0T/actions/workflows/codeql-analysis.yml)
@@ -57,7 +60,7 @@ You can find the documentation for the bot [here](https://bluesy1.github.io/Char
 
 ## Contributing
 
-Please see the [Code of Conduct](./CODE_OF_CONDUCT.md) and [Contributing Guidelines](./CONTRIBUTING.md) before contributing. 
+Please see the [Code of Conduct](./CODE_OF_CONDUCT.md) and [Contributing Guidelines](./CONTRIBUTING.md) before contributing.
 
 Non code translation contributions are also welcome via [crowdin](https://crowdin.com/project/charbot).
 
