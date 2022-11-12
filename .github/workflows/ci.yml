@@ -52,7 +52,7 @@ jobs:
           name: wheel
           path: dist
           retention-days: 5
-  rust-codecov:
+  rust-tests:
     continue-on-error: true
     runs-on: ubuntu-latest
     steps:
@@ -112,7 +112,7 @@ jobs:
         id: black
         run: black --check --verbose --line-length=120 .
   pyright:
-    needs: [maturin, black, flake8]
+    needs: [maturin]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
@@ -153,8 +153,8 @@ jobs:
       - name: Flake8
         id: flake8
         run: flake8 . --max-line-length=120 --indent-size=4
-  codecov:
-    needs: [maturin, black, flake8]
+  python-tests:
+    needs: [maturin]
     runs-on: ubuntu-latest
     continue-on-error: true
     strategy:
