@@ -8,7 +8,7 @@ checks:
   argument-count:
     enabled: true
     config:
-      threshold: 4
+      threshold: 10
   complex-logic:
     enabled: true
     config:
@@ -16,7 +16,7 @@ checks:
   file-lines:
     enabled: true
     config:
-      threshold: 250
+      threshold: 500
   method-complexity:
     enabled: true
     config:
@@ -75,5 +75,23 @@ exclude_patterns:
 - "**/*.rs"
 - "**/*.png"
 - "**/*.jpg"
+- "**/*.jpeg"
+- "**/*.gif"
+- "**/*.ttf"
+- "**/*.toml"
+- "**/*.lock"
+- "**/*.md"
+- "**/*.txt"
+- "**/*.csv"
+- "**/*.ftl"
+- "**/*.json"
+- "**/*.yml"
+- "**/*.yaml"
+- "**/*.sql"
+- "**/*.cfg"
 - "**/*.license"
 - "**/.github/"
+- "**/.gitignore"
+- "**/*.pyi"
+- "**/py.typed"
+- "**/charbot_rust/"
