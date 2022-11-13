@@ -5,7 +5,7 @@
 """Gang war utils."""
 from __future__ import annotations
 
-from collections.abc import Iterable, Iterator
+from collections.abc import Iterator
 from enum import Enum
 from itertools import islice
 from typing import TYPE_CHECKING, Literal, Final
@@ -16,9 +16,10 @@ from discord import Color
 
 if TYPE_CHECKING:
     from .types import Item
+    from .. import GuildComponentInteraction as Interaction, CBot
 
 
-__all__ = ("ColorOpts", "rep_to_control", "BASE_GANG_COST", "GANGS", "SQL_MONTHLY", "item_embed_pages")
+__all__ = ("ColorOpts", "rep_to_control", "BASE_GANG_COST", "GANGS", "SQL_MONTHLY", "item_embed_pages", "ItemsView")
 
 
 class ColorOpts(Enum):
@@ -75,19 +76,13 @@ END $$;
 """
 
 
-def item_embed_pages(
-    items: Iterable[Item], items_type: Literal["personal", "gang"], owned: bool
-) -> Iterator[discord.Embed]:  # pragma: no cover
+def item_embed_pages(items: list[Item]) -> Iterator[discord.Embed]:
     """Create an embed for each page of items.
 
     Parameters
     ----------
-    items : Iterable[Item]
+    items : list[Item]
         The items.
-    items_type : {"personal", "gang"}
-        The type of items, can be personal or gang.
-    owned : bool
-        Whether the items are owned or not.
 
     Yields
     ------
@@ -103,7 +98,6 @@ def item_embed_pages(
         embed = discord.Embed(
             title="Items",
             color=discord.Color.blurple(),
-            description=f"A list of some or all of the {items_type} items you {'own' if owned else 'can buy'}.",
             timestamp=discord.utils.utcnow(),
         )
         for item in batch:
@@ -114,3 +108,59 @@ def item_embed_pages(
                 inline=False,
             )
         yield embed
+
+
+class ItemsView(discord.ui.View):
+    """View to display items"""
+
+    def __init__(self, items: list[Item], invoker: int):
+        super().__init__(timeout=300)
+        self.invoker = invoker
+        self.embeds = list(item_embed_pages(items))
+        self.current = 0
+        self.max = len(self.embeds) - 1
+
+    async def interaction_check(self, interaction: Interaction, /) -> bool:
+        """Check if the interaction is valid."""
+        ret = interaction.user.id == self.invoker
+        if not ret:
+            await interaction.response.send_message("You can't do that!", ephemeral=True)
+        return ret
+
+    @discord.ui.button(emoji="\u23EA", style=discord.ButtonStyle.blurple, disabled=True)  # pyright: ignore
+    async def first(self, interaction: Interaction[CBot], button: discord.Button) -> None:
+        """Go to the first page."""
+        self.current = 0
+        button.disabled = self.back.disabled = True
+        self.next.disabled = self.last.disabled = False
+        await interaction.response.edit_message(embed=self.embeds[self.current], view=self)
+
+    @discord.ui.button(emoji="\u25C0", style=discord.ButtonStyle.blurple, disabled=True)  # pyright: ignore
+    async def back(self, interaction: Interaction[CBot], button: discord.Button) -> None:
+        """Go to the previous page."""
+        self.current -= 1
+        button.disabled = self.first.disabled = self.current == 0
+        self.next.disabled = self.last.disabled = False
+        await interaction.response.edit_message(embed=self.embeds[self.current], view=self)
+
+    @discord.ui.button(emoji="\u23F9", style=discord.ButtonStyle.blurple)  # pyright: ignore[reportGeneralTypeIssues]
+    async def stop(self, interaction: Interaction[CBot], _: discord.Button) -> None:
+        """Stop the view."""
+        await interaction.response.edit_message(embed=self.embeds[self.current], view=None)
+        await interaction.delete_original_response()
+
+    @discord.ui.button(emoji="\u25B6", style=discord.ButtonStyle.blurple)  # pyright: ignore[reportGeneralTypeIssues]
+    async def next(self, interaction: Interaction[CBot], button: discord.Button) -> None:
+        """Go to the next page."""
+        self.current += 1
+        button.disabled = self.last.disabled = self.current == self.max
+        self.back.disabled = self.first.disabled = False
+        await interaction.response.edit_message(embed=self.embeds[self.current], view=self)
+
+    @discord.ui.button(emoji="\u23E9", style=discord.ButtonStyle.blurple)  # pyright: ignore[reportGeneralTypeIssues]
+    async def last(self, interaction: Interaction[CBot], button: discord.Button) -> None:
+        """Go to the last page."""
+        self.current = self.max
+        button.disabled = self.next.disabled = True
+        self.back.disabled = self.first.disabled = False
+        await interaction.response.edit_message(embed=self.embeds[self.current], view=self)

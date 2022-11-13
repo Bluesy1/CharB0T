@@ -14,6 +14,7 @@ from charbot import CBot, GuildInteraction
 from charbot.gangs.actions import user_items
 from charbot.gangs import enums
 
+# noinspection DuplicatedCode
 pytestmark = pytest.mark.asyncio
 
 
@@ -111,3 +112,40 @@ async def test_try_buy_item_success(database: asyncpg.Pool):
     await database.execute("DELETE FROM user_items WHERE name = 'test'")
     await database.execute("DELETE FROM users WHERE id = 1")
     assert res == 9
+
+
+async def test_try_display_inventory_not_in_gang(database: asyncpg.Pool):
+    """Test displaying an inventory when not in a gang."""
+    await database.execute("DELETE FROM gang_members WHERE user_id = 1")
+    assert await user_items.try_display_inventory(database, 1) == "You don't have any items."
+
+
+async def test_try_display_inventory_has_one_item(database: asyncpg.Pool):
+    """Test displaying an inventory with one item."""
+    item_id: int = await database.fetchval(
+        "INSERT INTO user_items (name, benefit, value) VALUES ('test', $1, 1) RETURNING id", enums.Benefits.other
+    )
+    await database.execute("INSERT INTO user_inventory (user_id, item, quantity) VALUES (1, $1, 1)", item_id)
+    res = await user_items.try_display_inventory(database, 1)
+    await database.execute("DELETE FROM user_items WHERE name = 'test'")
+    await database.execute("DELETE FROM user_inventory WHERE user_id = 1")
+    assert isinstance(res, user_items.ItemsView)
+
+
+async def test_try_display_available_items_not_in_gang(database: asyncpg.Pool):
+    """Test displaying available items when not in a gang."""
+    await database.execute("DELETE FROM gang_members WHERE user_id = 1")
+    assert await user_items.try_display_available_items(database, 1) == "You must be in a gang to have items."
+
+
+async def test_try_display_available_items_none_available(database: asyncpg.Pool):
+    """Test displaying available items when none are available."""
+    assert await user_items.try_display_available_items(database, 1) == "There are no items available."
+
+
+async def test_try_display_available_items_one_available(database: asyncpg.Pool):
+    """Test displaying available items when one is available."""
+    await database.execute("INSERT INTO user_items (name, benefit, value) VALUES ('test', $1, 1)", enums.Benefits.other)
+    res = await user_items.try_display_available_items(database, 1)
+    await database.execute("DELETE FROM user_items WHERE name = 'test'")
+    assert isinstance(res, user_items.ItemsView)

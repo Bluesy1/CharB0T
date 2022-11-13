@@ -43,7 +43,6 @@ class Gangs(commands.Cog):
         self.bot = bot
         self._start_dues_cycle_task = asyncio.create_task(self.start_dues_cycle())
         self._end_dues_cycle_task = asyncio.create_task(self.end_dues_cycle())
-        raise NotImplementedError("Gangs are not implemented yet.")
 
     async def cog_unload(self) -> None:
         """Unload."""

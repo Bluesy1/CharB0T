@@ -10,6 +10,9 @@ from typing import TYPE_CHECKING
 import asyncpg
 from discord.app_commands import Choice
 
+from ..types import Item
+from ..utils import ItemsView
+
 if TYPE_CHECKING:  # pragma: no cover
     from ... import CBot, GuildInteraction
 
@@ -100,3 +103,53 @@ async def try_buy_item(pool: asyncpg.Pool, user_id: int, item_name: str) -> str 
         return await conn.fetchval(
             "UPDATE users SET points = points - $1 WHERE id = $2 RETURNING points", item["value"], user_id
         )
+
+
+async def try_display_inventory(pool: asyncpg.Pool, user_id: int) -> str | ItemsView:
+    """Try to display the user's inventory.
+
+    Parameters
+    ----------
+    pool : asyncpg.Pool
+        The database pool.
+    user_id : int
+        The user's ID.
+
+    Returns
+    -------
+    items : str | ItemsView
+        The view for the items, or a string error.
+    """
+    async with pool.acquire() as conn:
+        items = await conn.fetch(
+            "SELECT name, description, value, quantity "
+            "FROM user_items INNER JOIN user_inventory ui on user_items.id = ui.item WHERE ui.user_id = $1",
+            user_id,
+        )
+        if not items:
+            return "You don't have any items."
+        return ItemsView([Item(**item) for item in items], user_id)
+
+
+async def try_display_available_items(pool: asyncpg.Pool, user_id: int) -> str | ItemsView:
+    """Try to display the available items.
+
+    Parameters
+    ----------
+    pool : asyncpg.Pool
+        The database pool.
+    user_id : int
+        The user's ID.
+
+    Returns
+    -------
+    items : str | ItemsView
+        The view for the items, or a string error.
+    """
+    async with pool.acquire() as conn:
+        if not await conn.fetchval("SELECT TRUE FROM gang_members WHERE user_id = $1", user_id):
+            return "You must be in a gang to have items."
+        items = await conn.fetch("SELECT name, description, value, NULL as quantity FROM user_items")
+        if not items:
+            return "There are no items available."
+        return ItemsView([Item(**item) for item in items], user_id)

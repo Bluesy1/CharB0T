@@ -206,9 +206,10 @@ CREATE TABLE IF NOT EXISTS user_items
     id      SERIAL
         CONSTRAINT user_items_pk
             PRIMARY KEY,
-    name    VARCHAR(32) NOT NULL,
-    benefit BENEFIT     NOT NULL,
-    value  SMALLINT     NOT NULL
+    name    VARCHAR(32)                   NOT NULL,
+    benefit BENEFIT                       NOT NULL,
+    description VARCHAR(100)   DEFAULT '' NOT NULL,
+    value  SMALLINT                       NOT NULL
 );
 
 CREATE TABLE IF NOT EXISTS user_inventory
@@ -231,9 +232,10 @@ CREATE TABLE IF NOT EXISTS gang_items
     id      SERIAL
         CONSTRAINT gang_items_pk
             PRIMARY KEY,
-    name    VARCHAR(32) UNIQUE NOT NULL,
-    benefit BENEFIT            NOT NULL,
-    value  SMALLINT            NOT NULL
+    name    VARCHAR(32)                   NOT NULL,
+    benefit BENEFIT                       NOT NULL,
+    description VARCHAR(100)   DEFAULT '' NOT NULL,
+    value  SMALLINT                       NOT NULL
 );
 
 CREATE TABLE IF NOT EXISTS gang_inventory

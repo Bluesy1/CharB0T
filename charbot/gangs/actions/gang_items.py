@@ -10,6 +10,9 @@ from typing import TYPE_CHECKING
 import asyncpg
 from discord.app_commands import Choice
 
+from ..types import Item
+from ..utils import ItemsView
+
 if TYPE_CHECKING:  # pragma: no cover
     from ... import CBot, GuildInteraction
 
@@ -114,3 +117,59 @@ async def try_buy_item(pool: asyncpg.Pool, user_id: int, item_name: str) -> str 
             item["value"],
             user_id,
         )
+
+
+async def try_display_inventory(pool: asyncpg.Pool, user_id: int) -> str | ItemsView:
+    """Try to display the user's gang inventory.
+
+    Parameters
+    ----------
+    pool : asyncpg.Pool
+        The pool.
+    user_id : int
+        The user's ID.
+
+    Returns
+    -------
+    items : str | ItemsView
+        The items, or a string error.
+    """
+    async with pool.acquire() as conn:
+        if not await conn.fetchval(
+            "SELECT (leader OR leadership) AS is_leader FROM gang_members WHERE user_id = $1", user_id
+        ):
+            return "You are not in the leadership of a gang, you cannot view your gang's inventory."
+        items = await conn.fetch(
+            "SELECT name, description, value, quantity FROM gang_items INNER JOIN gang_inventory gi ON id = gi.item "
+            "WHERE gang = (SELECT gang FROM gang_members WHERE user_id = $1)",
+            user_id,
+        )
+        if not items:
+            return "Your gang doesn't have any items."
+        return ItemsView([Item(**item) for item in items], user_id)
+
+
+async def try_display_available_items(pool: asyncpg.Pool, user_id: int) -> str | ItemsView:
+    """Try to display the available items.
+
+    Parameters
+    ----------
+    pool : asyncpg.Pool
+        The pool.
+    user_id : int
+        The user's ID.
+
+    Returns
+    -------
+    items : str | ItemsView
+        The items, or a string error.
+    """
+    async with pool.acquire() as conn:
+        if not await conn.fetchval(
+            "SELECT (leader OR leadership) AS is_leader FROM gang_members WHERE user_id = $1", user_id
+        ):
+            return "You are not in the leadership of a gang, you cannot view the available items."
+        items = await conn.fetch("SELECT name, description, value, NULL as quantity FROM gang_items")
+        if not items:
+            return "There are no items available."
+        return ItemsView([Item(**item) for item in items], user_id)

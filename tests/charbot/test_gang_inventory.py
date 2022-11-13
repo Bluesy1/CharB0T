@@ -14,6 +14,7 @@ from charbot import CBot, GuildInteraction
 from charbot.gangs.actions import gang_items
 from charbot.gangs import enums
 
+# noinspection DuplicatedCode
 pytestmark = pytest.mark.asyncio
 
 
@@ -114,3 +115,51 @@ async def test_try_buy_item_success(database: asyncpg.Pool):
     await database.execute("DELETE FROM gang_items WHERE name = 'test'")
     await database.execute("DELETE FROM users WHERE id = 1")
     assert res == 0
+
+
+async def test_try_display_inventory_not_leadership(database: asyncpg.Pool):
+    """Test displaying the inventory when not in a gang."""
+    await database.execute("DELETE FROM gang_members WHERE user_id = 1")
+    assert (
+        await gang_items.try_display_inventory(database, 1)
+        == "You are not in the leadership of a gang, you cannot view your gang's inventory."
+    )
+
+
+async def test_try_display_inventory_empty(database: asyncpg.Pool):
+    """Test displaying the inventory when it is empty."""
+    assert await gang_items.try_display_inventory(database, 1) == "Your gang doesn't have any items."
+
+
+async def test_try_display_inventory_success(database: asyncpg.Pool):
+    """Test displaying the inventory when it is not empty."""
+    item_id: int = await database.fetchval(
+        "INSERT INTO gang_items (name, benefit, value) VALUES ('test', $1, 1) RETURNING id", enums.Benefits.other
+    )
+    await database.execute("INSERT INTO gang_inventory (gang, item, quantity) VALUES ('White', $1, 1)", item_id)
+    res = await gang_items.try_display_inventory(database, 1)
+    await database.execute("DELETE FROM gang_items WHERE name = 'test'")
+    await database.execute("DELETE FROM gang_inventory WHERE gang = 'White'")
+    assert isinstance(res, gang_items.ItemsView)
+
+
+async def test_try_display_available_items_not_leadership(database: asyncpg.Pool):
+    """Test displaying the available items when not in a gang."""
+    await database.execute("DELETE FROM gang_members WHERE user_id = 1")
+    assert (
+        await gang_items.try_display_available_items(database, 1)
+        == "You are not in the leadership of a gang, you cannot view the available items."
+    )
+
+
+async def test_try_display_available_items_empty(database: asyncpg.Pool):
+    """Test displaying the available items when it is empty."""
+    assert await gang_items.try_display_available_items(database, 1) == "There are no items available."
+
+
+async def test_try_display_available_items_success(database: asyncpg.Pool):
+    """Test displaying the available items when it is not empty."""
+    await database.execute("INSERT INTO gang_items (name, benefit, value) VALUES ('test', $1, 1)", enums.Benefits.other)
+    res = await gang_items.try_display_available_items(database, 1)
+    await database.execute("DELETE FROM gang_items WHERE name = 'test'")
+    assert isinstance(res, gang_items.ItemsView)
