@@ -8,6 +8,10 @@ import enum
 
 class Benefits(enum.Enum):
     control = "control"
+    control_consumable = "control_consumable"
     defense = "defense"
+    defense_consumable = "defense_consumable"
     offense = "offense"
+    offense_consumable = "offense_consumable"
     other = "other"
+    other_consumable = "other"

@@ -6,7 +6,17 @@
 DO $$
 BEGIN
     IF NOT EXISTS (SELECT 1 FROM pg_type WHERE typname = 'benefit') THEN
-        CREATE TYPE benefit AS ENUM ('control', 'defense', 'offense', 'other');
+        CREATE TYPE benefit AS ENUM
+            (
+                'control',
+                'control_consumable',
+                'defense',
+                'defense_consumable',
+                'offense',
+                'offense_consumable',
+                'other',
+                'other_consumable'
+            );
     END IF;
     --more types here...
 END$$;
