@@ -216,7 +216,7 @@ CREATE TABLE IF NOT EXISTS user_inventory
 (
     user_id BIGINT                   NOT NULL
         CONSTRAINT user_inventory_users_fk
-            REFERENCES _gang_members(user_id)
+            REFERENCES users(id)
             ON UPDATE CASCADE ON DELETE CASCADE,
     item   INTEGER                   NOT NULL
         CONSTRAINT user_inventory_items_fk

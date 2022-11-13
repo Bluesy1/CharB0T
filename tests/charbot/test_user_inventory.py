@@ -32,7 +32,7 @@ def interaction(mocker: MockerFixture, database: asyncpg.Pool) -> GuildInteracti
 @pytest_asyncio.fixture(autouse=True)
 async def setup_gang(database: asyncpg.Pool):
     """Set up a gang and member for the tests."""
-    await database.execute("INSERT INTO users (id, points) VALUES (1, 10) ON CONFLICT DO NOTHING")
+    await database.execute("INSERT INTO users (id, points) VALUES (1, 10) ON CONFLICT(id) DO UPDATE SET points = 10")
     await database.execute(
         "INSERT INTO gangs (name, color, leader, role, channel, control, join_base, join_slope, upkeep_base, "
         "upkeep_slope, all_paid) VALUES ('White', 0, 1, 1, 1, 1, 1, 1, 1, 1, FALSE) ON CONFLICT DO NOTHING",
@@ -149,3 +149,111 @@ async def test_try_display_available_items_one_available(database: asyncpg.Pool)
     res = await user_items.try_display_available_items(database, 1)
     await database.execute("DELETE FROM user_items WHERE name = 'test'")
     assert isinstance(res, user_items.ItemsView)
+
+
+async def test_try_display_item_not_in_gang(database: asyncpg.Pool):
+    """Test displaying an item when not in a gang."""
+    await database.execute("DELETE FROM gang_members WHERE user_id = 1")
+    assert await user_items.try_display_item(database, 1, "test") == "You must be in a gang to have items."
+
+
+async def test_try_display_item_nonexistent(database: asyncpg.Pool):
+    """Test displaying a nonexistent item."""
+    assert await user_items.try_display_item(database, 1, "test") == "The item `test` does not exist."
+
+
+async def test_try_display_item_has_one(database: asyncpg.Pool):
+    """Test displaying an item when you have one."""
+    item_id: int = await database.fetchval(
+        "INSERT INTO user_items (name, benefit, value) VALUES ('test', $1, 1) RETURNING id", enums.Benefits.other
+    )
+    await database.execute("INSERT INTO user_inventory (user_id, item, quantity) VALUES (1, $1, 1)", item_id)
+    res = await user_items.try_display_item(database, 1, "test")
+    await database.execute("DELETE FROM user_items WHERE name = 'test'")
+    await database.execute("DELETE FROM user_inventory WHERE user_id = 1")
+    assert res == "**test**\n\nValue: 1\nOwned: 1"
+
+
+async def test_try_display_item_has_none(database: asyncpg.Pool):
+    """Test displaying an item when you have none."""
+    await database.execute("INSERT INTO user_items (name, benefit, value) VALUES ('test', $1, 1)", enums.Benefits.other)
+    res = await user_items.try_display_item(database, 1, "test")
+    await database.execute("DELETE FROM user_items WHERE name = 'test'")
+    assert res == "**test**\n\nValue: 1\nOwned: 0"
+
+
+async def test_try_sell_item_has_none(database: asyncpg.Pool):
+    """Test selling an item when you have none."""
+    await database.execute("INSERT INTO user_items (name, benefit, value) VALUES ('test', $1, 1)", enums.Benefits.other)
+    res = await user_items.try_sell_item(database, 1, "test")
+    await database.execute("DELETE FROM user_items WHERE name = 'test'")
+    assert res == "You don't have any `test` to sell, or it doesn't exist."
+
+
+async def test_try_sell_item_has_one(database: asyncpg.Pool):
+    """Test selling an item when you have one."""
+    item_id: int = await database.fetchval(
+        "INSERT INTO user_items (name, benefit, value) VALUES ('test', $1, 10) RETURNING id", enums.Benefits.other
+    )
+    await database.execute("INSERT INTO user_inventory (user_id, item, quantity) VALUES (1, $1, 1)", item_id)
+    res = await user_items.try_sell_item(database, 1, "test")
+    await database.execute("DELETE FROM user_items WHERE name = 'test'")
+    await database.execute("DELETE FROM user_inventory WHERE user_id = 1")
+    assert res == 11
+
+
+async def test_try_sell_item_has_multiple(database: asyncpg.Pool):
+    """Test selling an item when you have multiple."""
+    item_id: int = await database.fetchval(
+        "INSERT INTO user_items (name, benefit, value) VALUES ('test', $1, 10) RETURNING id", enums.Benefits.other
+    )
+    await database.execute("INSERT INTO user_inventory (user_id, item, quantity) VALUES (1, $1, 2)", item_id)
+    res = await user_items.try_sell_item(database, 1, "test")
+    await database.execute("DELETE FROM user_items WHERE name = 'test'")
+    await database.execute("DELETE FROM user_inventory WHERE user_id = 1")
+    assert res == 11
+
+
+async def test_try_gift_item_not_leadership(database: asyncpg.Pool):
+    """Test gifting an item when you're not leadership."""
+    await database.execute("DELETE FROM gang_members WHERE user_id = 1")
+    assert (
+        await user_items.try_gift_item(database, 1, "test", 2)
+        == "You are not in the leadership of a gang, you cannot gift items."
+    )
+
+
+async def test_try_gift_item_nonexistent(database: asyncpg.Pool):
+    """Test gifting a nonexistent item."""
+    assert (
+        await user_items.try_gift_item(database, 1, "test", 2)
+        == "You don't have any `test` to gift, or it doesn't exist."
+    )
+
+
+async def test_try_gift_item_has_one(database: asyncpg.Pool):
+    """Test gifting an item when you have one."""
+    await database.execute("INSERT INTO users (id, points) VALUES (2, 1)")
+    item_id: int = await database.fetchval(
+        "INSERT INTO user_items (name, benefit, value) VALUES ('test', $1, 10) RETURNING id", enums.Benefits.other
+    )
+    await database.execute("INSERT INTO user_inventory (user_id, item, quantity) VALUES (1, $1, 1)", item_id)
+    res = await user_items.try_gift_item(database, 1, "test", 2)
+    await database.execute("DELETE FROM user_items WHERE name = 'test'")
+    await database.execute("DELETE FROM user_inventory WHERE user_id = 1;DELETE FROM user_inventory WHERE user_id = 1")
+    await database.execute("DELETE FROM users WHERE id = 2")
+    assert res == "You gifted `test` to <@2>."
+
+
+async def test_try_gift_item_has_multiple(database: asyncpg.Pool):
+    """Test gifting an item when you have multiple."""
+    await database.execute("INSERT INTO users (id, points) VALUES (2, 1)")
+    item_id: int = await database.fetchval(
+        "INSERT INTO user_items (name, benefit, value) VALUES ('test', $1, 10) RETURNING id", enums.Benefits.other
+    )
+    await database.execute("INSERT INTO user_inventory (user_id, item, quantity) VALUES (1, $1, 2)", item_id)
+    res = await user_items.try_gift_item(database, 1, "test", 2)
+    await database.execute("DELETE FROM user_items WHERE name = 'test'")
+    await database.execute("DELETE FROM user_inventory WHERE user_id = 1;DELETE FROM user_inventory WHERE user_id = 1")
+    await database.execute("DELETE FROM users WHERE id = 2")
+    assert res == "You gifted `test` to <@2>."
