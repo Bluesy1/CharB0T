@@ -103,7 +103,7 @@ def item_embed_pages(items: list[Item]) -> Iterator[discord.Embed]:
         for item in batch:
             embed.add_field(
                 name=item.name,
-                value=f"{item.description}\nCost: {item.value}"
+                value=f"{item.description}\nCost: {item.cost}"
                 f"{f'{newline}Quantity: {item.quantity}' if item.quantity is not None else ''}",
                 inline=False,
             )

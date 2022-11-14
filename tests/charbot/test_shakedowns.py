@@ -27,7 +27,8 @@ async def test_shakedown_chance_one_item(database: asyncpg.Pool):
         0x3498DB,
     )
     res: int = await database.fetchval(
-        "INSERT INTO gang_items (name, benefit, value) VALUES ('test', $1, 1) RETURNING id", enums.Benefits.other
+        "INSERT INTO gang_items (name, benefit, value, cost) VALUES ('test', $1, 1, 1) RETURNING id",
+        enums.Benefits.other,
     )
     await database.execute(
         "INSERT INTO gang_inventory (gang, item, quantity) VALUES ('White', $1, 1) ON CONFLICT DO NOTHING", res
@@ -45,7 +46,8 @@ async def test_shakedown_chance_multiple_quantity(database: asyncpg.Pool):
         0x3498DB,
     )
     res: int = await database.fetchval(
-        "INSERT INTO gang_items (name, benefit, value) VALUES ('test', $1, 1) RETURNING id", enums.Benefits.other
+        "INSERT INTO gang_items (name, benefit, value, cost) VALUES ('test', $1, 1, 1) RETURNING id",
+        enums.Benefits.other,
     )
     await database.execute(
         "INSERT INTO gang_inventory (gang, item, quantity) VALUES ('White', $1, 5) ON CONFLICT DO NOTHING", res
@@ -71,7 +73,7 @@ async def test_do_shakedown_process(database: asyncpg.Pool):
     await database.execute("INSERT INTO gang_members (user_id, gang, paid) VALUES (001, 'White', TRUE)")
     for i in range(2):
         res: int = await database.fetchval(
-            "INSERT INTO gang_items (name, benefit, value) VALUES ($1, $2, 1) RETURNING id",
+            "INSERT INTO gang_items (name, benefit, value, cost) VALUES ($1, $2, 1, 1) RETURNING id",
             f"test{i}",
             enums.Benefits.other,
         )
@@ -79,7 +81,7 @@ async def test_do_shakedown_process(database: asyncpg.Pool):
             "INSERT INTO gang_inventory (gang, item, quantity) VALUES ('White', $1, 1) ON CONFLICT DO NOTHING", res
         )
         user_res: int = await database.fetchval(
-            "INSERT INTO user_items (name, benefit, value) VALUES ($1, $2, 1) RETURNING id",
+            "INSERT INTO user_items (name, benefit, value, cost) VALUES ($1, $2, 1, 1) RETURNING id",
             f"test{i}",
             enums.Benefits.other,
         )
@@ -104,7 +106,7 @@ async def test_do_shakedown_process_multiple_quantity(database: asyncpg.Pool):
     await database.execute("INSERT INTO gang_members (user_id, gang, paid) VALUES (001, 'White', TRUE)")
     for i in range(2):
         res: int = await database.fetchval(
-            "INSERT INTO gang_items (name, benefit, value) VALUES ($1, $2, 1) RETURNING id",
+            "INSERT INTO gang_items (name, benefit, value, cost) VALUES ($1, $2, 1, 1) RETURNING id",
             f"test{i}",
             enums.Benefits.other,
         )
@@ -112,7 +114,7 @@ async def test_do_shakedown_process_multiple_quantity(database: asyncpg.Pool):
             "INSERT INTO gang_inventory (gang, item, quantity) VALUES ('White', $1, 2) ON CONFLICT DO NOTHING", res
         )
         user_res: int = await database.fetchval(
-            "INSERT INTO user_items (name, benefit, value) VALUES ($1, $2, 1) RETURNING id",
+            "INSERT INTO user_items (name, benefit, value, cost) VALUES ($1, $2, 1, 1) RETURNING id",
             f"test{i}",
             enums.Benefits.other,
         )

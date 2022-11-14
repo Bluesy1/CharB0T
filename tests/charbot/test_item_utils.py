@@ -60,7 +60,7 @@ async def test_check_offensive_item(connection, val, expected):
 async def test_consume_item_over_specified(connection, val, err):
     """Test check_gang_item."""
     with pytest.raises(TypeError, match=err) as exec_info:
-        await item_utils.consume_item(connection, 1, 1, user_id=val, gang=val)  # pyright: ignore
+        await item_utils.consume_item(connection, 1, 1, user=val, gang=val)  # pyright: ignore
     assert exec_info.value.args[0] == err
 
 
@@ -68,7 +68,7 @@ async def test_consume_user_item_has_one(connection, mocker: MockerFixture):
     """Test check_gang_item."""
     execute = mocker.AsyncMock(spec=asyncpg.Connection.execute)
     connection.execute = execute
-    await item_utils.consume_item(connection, 1, 1, user_id=1)
+    await item_utils.consume_item(connection, 1, 1, user=1)
     execute.assert_awaited_once_with("DELETE FROM user_inventory WHERE user_id = $1 AND item = $2", 1, 1)
 
 
@@ -76,7 +76,7 @@ async def test_consume_user_item_has_multiple(connection, mocker: MockerFixture)
     """Test check_gang_item."""
     execute = mocker.AsyncMock(spec=asyncpg.Connection.execute)
     connection.execute = execute
-    await item_utils.consume_item(connection, 1, 2, user_id=1)
+    await item_utils.consume_item(connection, 1, 2, user=1)
     execute.assert_awaited_once_with(
         "UPDATE user_inventory SET quantity = quantity - 1 WHERE user_id = $1 AND item = $2", 1, 1
     )

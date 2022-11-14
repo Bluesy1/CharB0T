@@ -55,7 +55,9 @@ async def test_buy_item_autocomplete_no_items(interaction, in_gang) -> None:
 
 async def test_buy_item_autocomplete_with_items(interaction, database: asyncpg.Pool):
     """Test the buy item autocomplete."""
-    await database.execute("INSERT INTO gang_items (name, benefit, value) VALUES ('test', $1, 1)", enums.Benefits.other)
+    await database.execute(
+        "INSERT INTO gang_items (name, benefit, value, cost) VALUES ('test', $1, 1, 1)", enums.Benefits.other
+    )
     res = await gang_items.view_available_items_autocomplete(interaction, "")
     await database.execute("DELETE FROM gang_items WHERE name = 'test'")
     await database.execute("DELETE FROM gangs WHERE name = 'White'")
@@ -74,7 +76,8 @@ async def test_view_item_autocomplete_no_items(interaction, in_gang) -> None:
 async def test_view_item_autocomplete_with_items(interaction, database: asyncpg.Pool):
     """Test the view item autocomplete."""
     item_id: int = await database.fetchval(
-        "INSERT INTO gang_items (name, benefit, value) VALUES ('test', $1, 1) RETURNING id", enums.Benefits.other
+        "INSERT INTO gang_items (name, benefit, value, cost) VALUES ('test', $1, 1, 1) RETURNING id",
+        enums.Benefits.other,
     )
     await database.execute("INSERT INTO gang_inventory (gang, item, quantity) VALUES ('White', $1, 1)", item_id)
     res = await gang_items.view_item_autocomplete(interaction, "")
@@ -102,7 +105,9 @@ async def test_try_buy_item_nonexistent(database: asyncpg.Pool):
 async def test_try_buy_item_not_enough_points(database: asyncpg.Pool):
     """Test buying an item with not enough points."""
     await database.execute("INSERT INTO users (id, points) VALUES (1, 0) ON CONFLICT (id) DO UPDATE SET points = 0")
-    await database.execute("INSERT INTO gang_items (name, benefit, value) VALUES ('test', $1, 2)", enums.Benefits.other)
+    await database.execute(
+        "INSERT INTO gang_items (name, benefit, value, cost) VALUES ('test', $1, 2, 2)", enums.Benefits.other
+    )
     res = await gang_items.try_buy_item(database, 1, "test")
     await database.execute("DELETE FROM gang_items WHERE name = 'test'")
     await database.execute("DELETE FROM users WHERE id = 1")
@@ -112,7 +117,9 @@ async def test_try_buy_item_not_enough_points(database: asyncpg.Pool):
 async def test_try_buy_item_success(database: asyncpg.Pool):
     """Test buying an item with enough points."""
     await database.execute("INSERT INTO users (id, points) VALUES (1, 10) ON CONFLICT (id) DO UPDATE SET points = 10")
-    await database.execute("INSERT INTO gang_items (name, benefit, value) VALUES ('test', $1, 1)", enums.Benefits.other)
+    await database.execute(
+        "INSERT INTO gang_items (name, benefit, value, cost) VALUES ('test', $1, 1, 1)", enums.Benefits.other
+    )
     res = await gang_items.try_buy_item(database, 1, "test")
     await database.execute("DELETE FROM gang_items WHERE name = 'test'")
     await database.execute("DELETE FROM users WHERE id = 1")
@@ -136,7 +143,8 @@ async def test_try_display_inventory_empty(database: asyncpg.Pool):
 async def test_try_display_inventory_success(database: asyncpg.Pool):
     """Test displaying the inventory when it is not empty."""
     item_id: int = await database.fetchval(
-        "INSERT INTO gang_items (name, benefit, value) VALUES ('test', $1, 1) RETURNING id", enums.Benefits.other
+        "INSERT INTO gang_items (name, benefit, value, cost) VALUES ('test', $1, 1, 1) RETURNING id",
+        enums.Benefits.other,
     )
     await database.execute("INSERT INTO gang_inventory (gang, item, quantity) VALUES ('White', $1, 1)", item_id)
     res = await gang_items.try_display_inventory(database, 1)
@@ -161,7 +169,9 @@ async def test_try_display_available_items_empty(database: asyncpg.Pool):
 
 async def test_try_display_available_items_success(database: asyncpg.Pool):
     """Test displaying the available items when it is not empty."""
-    await database.execute("INSERT INTO gang_items (name, benefit, value) VALUES ('test', $1, 1)", enums.Benefits.other)
+    await database.execute(
+        "INSERT INTO gang_items (name, benefit, value, cost) VALUES ('test', $1, 1, 1)", enums.Benefits.other
+    )
     res = await gang_items.try_display_available_items(database, 1)
     await database.execute("DELETE FROM gang_items WHERE name = 'test'")
     assert isinstance(res, gang_items.ItemsView)
@@ -183,22 +193,25 @@ async def test_try_display_item_nonexistent(database: asyncpg.Pool):
 
 async def test_try_display_item_success(database: asyncpg.Pool):
     """Test displaying an item."""
-    await database.execute("INSERT INTO gang_items (name, benefit, value) VALUES ('test', $1, 1)", enums.Benefits.other)
+    await database.execute(
+        "INSERT INTO gang_items (name, benefit, value, cost) VALUES ('test', $1, 1, 1)", enums.Benefits.other
+    )
     res = await gang_items.try_display_item(database, 1, "test")
     await database.execute("DELETE FROM gang_items WHERE name = 'test'")
-    assert res == "**test**\n\nValue: 1\nOwned: 0"
+    assert res == "**test**\n\nCost: 1\nOwned: 0"
 
 
 async def test_try_display_item_has_one(database: asyncpg.Pool):
     """Test displaying an item when it has none."""
     item_id: int = await database.fetchval(
-        "INSERT INTO gang_items (name, benefit, value) VALUES ('test', $1, 1) RETURNING id", enums.Benefits.other
+        "INSERT INTO gang_items (name, benefit, value, cost) VALUES ('test', $1, 1, 1) RETURNING id",
+        enums.Benefits.other,
     )
     await database.execute("INSERT INTO gang_inventory (gang, item, quantity) VALUES ('White', $1, 1)", item_id)
     res = await gang_items.try_display_item(database, 1, "test")
     await database.execute("DELETE FROM gang_items WHERE name = 'test'")
     await database.execute("DELETE FROM gang_inventory WHERE gang = 'White'")
-    assert res == "**test**\n\nValue: 1\nOwned: 1"
+    assert res == "**test**\n\nCost: 1\nOwned: 1"
 
 
 async def test_try_sell_item_not_leadership(database: asyncpg.Pool):
@@ -221,7 +234,8 @@ async def test_try_sell_item_nonexistent(database: asyncpg.Pool):
 async def test_try_sell_item_has_one(database: asyncpg.Pool):
     """Test selling an item when it has one."""
     item_id: int = await database.fetchval(
-        "INSERT INTO gang_items (name, benefit, value) VALUES ('test', $1, 10) RETURNING id", enums.Benefits.other
+        "INSERT INTO gang_items (name, benefit, value, cost) VALUES ('test', $1, 10, 10) RETURNING id",
+        enums.Benefits.other,
     )
     await database.execute("INSERT INTO gang_inventory (gang, item, quantity) VALUES ('White', $1, 1)", item_id)
     res = await gang_items.try_sell_item(database, 1, "test")
@@ -233,7 +247,8 @@ async def test_try_sell_item_has_one(database: asyncpg.Pool):
 async def test_try_sell_item_has_multiple(database: asyncpg.Pool):
     """Test selling an item when it has multiple."""
     item_id: int = await database.fetchval(
-        "INSERT INTO gang_items (name, benefit, value) VALUES ('test', $1, 10) RETURNING id", enums.Benefits.other
+        "INSERT INTO gang_items (name, benefit, value, cost) VALUES ('test', $1, 10, 10)RETURNING id",
+        enums.Benefits.other,
     )
     await database.execute("INSERT INTO gang_inventory (gang, item, quantity) VALUES ('White', $1, 5)", item_id)
     res = await gang_items.try_sell_item(database, 1, "test")

@@ -83,8 +83,17 @@ class TerritoryOffense(TypedDict):
     attack: int
 
 
+class ItemUseInfo(TypedDict):
+    id: int
+    name: str
+    quantity: int
+    value: int
+    benefit: Benefits
+    cost: int
+
+
 class Item(NamedTuple):
     name: str
     description: str
-    value: int
+    cost: int
     quantity: int | None

@@ -37,9 +37,9 @@ async def view_available_items_autocomplete(interaction: GuildInteraction[CBot],
             "SELECT (leader OR leadership) AS is_leader FROM gang_members WHERE user_id = $1", interaction.user.id
         ):
             return []
-        items = await conn.fetch("SELECT name, value FROM gang_items ORDER BY value")
+        items = await conn.fetch("SELECT name, cost FROM gang_items ORDER BY value")
         return [
-            Choice(name=f"{i['name']} - Cost: {i['value']}", value=i["name"])
+            Choice(name=f"{i['name']} - Cost: {i['cost']}", value=i["name"])
             for i in items
             if i["name"].startswith(current)
         ][:25]
@@ -101,8 +101,8 @@ async def try_buy_item(pool: asyncpg.Pool, user_id: int, item_name: str) -> str 
         control: int = await conn.fetchval(
             "SELECT control FROM gangs WHERE name = (SELECT gang FROM gang_members WHERE user_id = $1)", user_id
         )
-        if control < item["value"]:
-            return f"Your gang doesn't have enough control to buy that. (Have: {control}, Need: {item['value']})"
+        if control < item["cost"]:
+            return f"Your gang doesn't have enough control to buy that. (Have: {control}, Need: {item['cost']})"
         await conn.execute(
             "INSERT INTO gang_inventory (gang, item, quantity) VALUES "
             "((SELECT gang FROM gang_members WHERE user_id = $1), $2, 1) ON CONFLICT(gang, item) "
@@ -114,7 +114,7 @@ async def try_buy_item(pool: asyncpg.Pool, user_id: int, item_name: str) -> str 
         return await conn.fetchval(
             "UPDATE gangs SET control = control - $1 WHERE name = (SELECT gang FROM gang_members WHERE user_id = $2)"
             " RETURNING control",
-            item["value"],
+            item["cost"],
             user_id,
         )
 
@@ -140,7 +140,7 @@ async def try_display_inventory(pool: asyncpg.Pool, user_id: int) -> str | Items
         ):
             return "You are not in the leadership of a gang, you cannot view your gang's inventory."
         items = await conn.fetch(
-            "SELECT name, description, value, quantity FROM gang_items INNER JOIN gang_inventory gi ON id = gi.item "
+            "SELECT name, description, cost, quantity FROM gang_items INNER JOIN gang_inventory gi ON id = gi.item "
             "WHERE gang = (SELECT gang FROM gang_members WHERE user_id = $1)",
             user_id,
         )
@@ -169,7 +169,7 @@ async def try_display_available_items(pool: asyncpg.Pool, user_id: int) -> str |
             "SELECT (leader OR leadership) AS is_leader FROM gang_members WHERE user_id = $1", user_id
         ):
             return "You are not in the leadership of a gang, you cannot view the available items."
-        items = await conn.fetch("SELECT name, description, value, NULL as quantity FROM gang_items")
+        items = await conn.fetch("SELECT name, description, cost, NULL as quantity FROM gang_items")
         if not items:
             return "There are no items available."
         return ItemsView([Item(**item) for item in items], user_id)
@@ -198,17 +198,17 @@ async def try_display_item(pool: asyncpg.Pool, user_id: int, item_name: str) -> 
         ):
             return "You are not in the leadership of a gang, you cannot view gang items."
         item = await conn.fetchrow(
-            "SELECT name, description, value, quantity FROM gang_items"
+            "SELECT name, description, cost, quantity FROM gang_items"
             " LEFT OUTER JOIN gang_inventory gi ON id = gi.item "
             "WHERE gang = (SELECT gang FROM gang_members WHERE user_id = $1) AND name = $2",
             user_id,
             item_name,
         ) or await conn.fetchrow(
-            "SELECT name, description, value, 0 as quantity FROM gang_items WHERE name = $1", item_name
+            "SELECT name, description, cost, 0 as quantity FROM gang_items WHERE name = $1", item_name
         )
         if item is None:
             return f"The item `{item_name}` does not exist."
-        return f"**{item['name']}**\n{item['description']}\nValue: {item['value']}\nOwned: {item['quantity']}"
+        return f"**{item['name']}**\n{item['description']}\nCost: {item['cost']}\nOwned: {item['quantity']}"
 
 
 async def try_sell_item(pool: asyncpg.Pool, user_id: int, item_name: str) -> str | int:
@@ -235,7 +235,7 @@ async def try_sell_item(pool: asyncpg.Pool, user_id: int, item_name: str) -> str
             return "You are not in the leadership of a gang, you cannot sell gang items."
         gang: str = await conn.fetchval("SELECT gang FROM gang_members WHERE user_id = $1", user_id)
         item = await conn.fetchrow(
-            "SELECT id, quantity, value FROM gang_items INNER JOIN gang_inventory gi ON id = gi.item "
+            "SELECT id, quantity, cost FROM gang_items INNER JOIN gang_inventory gi ON id = gi.item "
             "WHERE name = $1 AND gang = $2",
             item_name,
             gang,
@@ -249,5 +249,5 @@ async def try_sell_item(pool: asyncpg.Pool, user_id: int, item_name: str) -> str
                 "UPDATE gang_inventory SET quantity = quantity - 1 WHERE gang = $1 AND item = $2", gang, item["id"]
             )
         return await conn.fetchval(
-            "UPDATE gangs SET control = control + $1 WHERE name = $2 RETURNING control", item["value"] // 10, gang
+            "UPDATE gangs SET control = control + $1 WHERE name = $2 RETURNING control", item["cost"] // 10, gang
         )

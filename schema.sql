@@ -217,7 +217,7 @@ CREATE TABLE IF NOT EXISTS user_items
     benefit BENEFIT                        NOT NULL,
     description VARCHAR(100)   DEFAULT ''  NOT NULL,
     value  SMALLINT                        NOT NULL,
-    cost   SMALLINT            DEFAULT 100 NOT NULL
+    cost   SMALLINT                        NOT NULL
 );
 
 CREATE TABLE IF NOT EXISTS user_inventory
@@ -243,7 +243,7 @@ CREATE TABLE IF NOT EXISTS gang_items
     benefit BENEFIT                        NOT NULL,
     description VARCHAR(100)   DEFAULT ''  NOT NULL,
     value  SMALLINT                        NOT NULL,
-    cost   SMALLINT            DEFAULT 100 NOT NULL
+    cost   SMALLINT                        NOT NULL
 );
 
 CREATE TABLE IF NOT EXISTS gang_inventory

@@ -71,20 +71,20 @@ async def check_offensive_item(conn: asyncpg.Connection, user_id: int) -> str | 
 
 @overload
 async def consume_item(
-    conn: asyncpg.Connection, item_id: int, quantity: int, /, *, user_id: int, gang: None = None
+    conn: asyncpg.Connection, item_id: int, quantity: int, /, *, user: int, gang: None = None
 ) -> None:  # pragma: no cover
     ...
 
 
 @overload
 async def consume_item(
-    conn: asyncpg.Connection, item_id: int, quantity: int, /, *, user_id: None = None, gang: str
+    conn: asyncpg.Connection, item_id: int, quantity: int, /, *, user: None = None, gang: str
 ) -> None:  # pragma: no cover
     ...
 
 
 async def consume_item(
-    conn: asyncpg.Connection, item_id: int, quantity: int, /, *, user_id: int | None = None, gang: str | None = None
+    conn: asyncpg.Connection, item_id: int, quantity: int, /, *, user: int | None = None, gang: str | None = None
 ) -> None:
     """Consume an item.
 
@@ -96,20 +96,20 @@ async def consume_item(
         The item's ID.
     quantity : int
         The number of this item the user has.
-    user_id : int | None, optional
+    user : int | None, optional
         The user's ID, or leave blank if the item is a gang item.
     gang : str | None, optional
         The gang's name, or leave blank if the item is a user item.
     """
-    if user_id is not None and gang is not None:
+    if user is not None and gang is not None:
         raise TypeError("Cannot specify both user_id and gang.")
-    if user_id is None and gang is None:
+    if user is None and gang is None:
         raise TypeError("Must specify either user_id or gang.")
     if quantity == 1:
         if gang is not None:
             await conn.execute("DELETE FROM gang_inventory WHERE gang = $1 AND item = $2", gang, item_id)
         else:
-            await conn.execute("DELETE FROM user_inventory WHERE user_id = $1 AND item = $2", user_id, item_id)
+            await conn.execute("DELETE FROM user_inventory WHERE user_id = $1 AND item = $2", user, item_id)
     else:
         if gang is not None:
             await conn.execute(
@@ -117,5 +117,5 @@ async def consume_item(
             )
         else:
             await conn.execute(
-                "UPDATE user_inventory SET quantity = quantity - 1 WHERE user_id = $1 AND item = $2", user_id, item_id
+                "UPDATE user_inventory SET quantity = quantity - 1 WHERE user_id = $1 AND item = $2", user, item_id
             )
