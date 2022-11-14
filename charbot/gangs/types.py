@@ -71,6 +71,18 @@ class Territory(TypedDict):
     raider: Gang | None
 
 
+class TerritoryDefender(TypedDict):
+    id: int
+    defenders: list[int]
+    defense: int
+
+
+class TerritoryOffense(TypedDict):
+    id: int
+    attackers: list[int]
+    attack: int
+
+
 class Item(NamedTuple):
     name: str
     description: str

@@ -3,23 +3,16 @@
 -- SPDX-License-Identifier: MIT
 
 --create types
-DO $$
-BEGIN
-    IF NOT EXISTS (SELECT 1 FROM pg_type WHERE typname = 'benefit') THEN
-        CREATE TYPE benefit AS ENUM
-            (
-                'control',
-                'control_consumable',
-                'defense',
-                'defense_consumable',
-                'offense',
-                'offense_consumable',
-                'other',
-                'other_consumable'
-            );
-    END IF;
-    --more types here...
-END$$;
+CREATE TYPE benefit AS ENUM
+    (
+        'currency',
+        'currency_consumable',
+        'defense',
+        'defense_consumable',
+        'offense',
+        'offense_consumable',
+        'other'
+    );
 
 CREATE TABLE IF NOT EXISTS users
 (
@@ -162,6 +155,11 @@ CREATE TABLE IF NOT EXISTS territories
         CONSTRAINT territories_raider_fk
             REFERENCES gangs(name)
             ON UPDATE CASCADE ON DELETE CASCADE
+        DEFAULT NULL,
+    attackers BIGINT[] DEFAULT '{}'::BIGINT[] NOT NULL,
+    attack  SMALLINT    NOT NULL DEFAULT 0,
+    defenders BIGINT[] DEFAULT '{}'::BIGINT[] NOT NULL,
+    defense SMALLINT    NOT NULL DEFAULT 0
 );
 
 CREATE TABLE IF NOT EXISTS _gang_members
@@ -210,16 +208,16 @@ CREATE TABLE IF NOT EXISTS benefits
     value  SMALLINT            NOT NULL
 );
 
--- noinspection SqlResolve
 CREATE TABLE IF NOT EXISTS user_items
 (
     id      SERIAL
         CONSTRAINT user_items_pk
             PRIMARY KEY,
-    name    VARCHAR(32)                   NOT NULL,
-    benefit BENEFIT                       NOT NULL,
-    description VARCHAR(100)   DEFAULT '' NOT NULL,
-    value  SMALLINT                       NOT NULL
+    name    VARCHAR(32)                    NOT NULL,
+    benefit BENEFIT                        NOT NULL,
+    description VARCHAR(100)   DEFAULT ''  NOT NULL,
+    value  SMALLINT                        NOT NULL,
+    cost   SMALLINT            DEFAULT 100 NOT NULL
 );
 
 CREATE TABLE IF NOT EXISTS user_inventory
@@ -236,16 +234,16 @@ CREATE TABLE IF NOT EXISTS user_inventory
     CONSTRAINT pk_user_inventory PRIMARY KEY (user_id, item)
 );
 
--- noinspection SqlResolve
 CREATE TABLE IF NOT EXISTS gang_items
 (
     id      SERIAL
         CONSTRAINT gang_items_pk
             PRIMARY KEY,
-    name    VARCHAR(32)                   NOT NULL,
-    benefit BENEFIT                       NOT NULL,
-    description VARCHAR(100)   DEFAULT '' NOT NULL,
-    value  SMALLINT                       NOT NULL
+    name    VARCHAR(32)                    NOT NULL,
+    benefit BENEFIT                        NOT NULL,
+    description VARCHAR(100)   DEFAULT ''  NOT NULL,
+    value  SMALLINT                        NOT NULL,
+    cost   SMALLINT            DEFAULT 100 NOT NULL
 );
 
 CREATE TABLE IF NOT EXISTS gang_inventory

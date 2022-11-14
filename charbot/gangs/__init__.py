@@ -38,6 +38,7 @@ async def setup(bot: CBot):  # pragma: no cover
     sys.modules["charbot.gangs.actions.banner"] = importlib.reload(sys.modules["charbot.gangs.actions.banner"])
     sys.modules["charbot.gangs.actions.create"] = importlib.reload(sys.modules["charbot.gangs.actions.create"])
     sys.modules["charbot.gangs.actions.gang_items"] = importlib.reload(sys.modules["charbot.gangs.actions.gang_items"])
+    sys.modules["charbot.gangs.actions.item_utils"] = importlib.reload(sys.modules["charbot.gangs.actions.item_utils"])
     sys.modules["charbot.gangs.actions.join"] = importlib.reload(sys.modules["charbot.gangs.actions.join"])
     sys.modules["charbot.gangs.actions.raid"] = importlib.reload(sys.modules["charbot.gangs.actions.raid"])
     sys.modules["charbot.gangs.actions.user_items"] = importlib.reload(sys.modules["charbot.gangs.actions.user_items"])
