@@ -60,7 +60,7 @@ async def test_check_offensive_item(connection, val, expected):
 async def test_consume_item_over_specified(connection, val, err):
     """Test check_gang_item."""
     with pytest.raises(TypeError, match=err) as exec_info:
-        await item_utils.consume_item(connection, 1, 1, user=val, gang=val)  # pyright: ignore
+        await item_utils.consume_item(connection, 1, 1, user=val, gang=val)
     assert exec_info.value.args[0] == err
 
 

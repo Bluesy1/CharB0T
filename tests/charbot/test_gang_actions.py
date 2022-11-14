@@ -213,5 +213,5 @@ async def test_check_gang_conditions_success(database: asyncpg.Pool):
     """Check that the creation of a gang succeeds if the user has enough points"""
     await database.execute("INSERT INTO users (id, points) VALUES (1, 200) ON CONFLICT(id) DO UPDATE SET points = 200")
     async with database.acquire() as conn:
-        assert await create.check_gang_conditions(conn, 1, utils.ColorOpts.White, 1, 1) == 98
+        assert await create.check_gang_conditions(conn, 1, utils.ColorOpts.White, 1, 1) == 98  # pyright: ignore
     await database.execute("DELETE FROM users WHERE id = 1")

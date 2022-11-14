@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# SPDX-FileCopyrightText: 2022 Bluesy1 <68259537+Bluesy1@users.noreply.github.com>
+# SPDX-FileCopyrightText: 2022 Bluesy1 <68259537+Bluesy1@users.nocontrolly.github.com>
 #
 # SPDX-License-Identifier: MIT
 from __future__ import annotations
@@ -40,9 +40,13 @@ async def setup_gang(database: asyncpg.Pool):
         "upkeep_base = 1, upkeep_slope = 1, all_paid = FALSE"
     )
     await database.execute("INSERT INTO gang_members (user_id, gang) VALUES (1, 'White')")
+    await database.execute(
+        "INSERT INTO territories (id, name, gang, control, benefit, raider) VALUES (1, 'test', 'White', 1, 1, 'White')"
+    )
     yield
     await database.execute("DELETE FROM gangs WHERE name = 'White'")
     await database.execute("DELETE FROM gang_members WHERE user_id = 1")
+    await database.execute("DELETE FROM territories WHERE gang = 'White'")
 
 
 @pytest.mark.parametrize("in_gang", [True, False])
@@ -255,3 +259,183 @@ async def test_try_sell_item_has_multiple(database: asyncpg.Pool):
     await database.execute("DELETE FROM gang_items WHERE name = 'test'")
     await database.execute("DELETE FROM gang_inventory WHERE gang = 'White'")
     assert res == 2
+
+
+async def test_use_defensive_item_unable(database, mocker: MockerFixture, monkeypatch):
+    """Test trying to use a defensive item without enough control"""
+    monkeypatch.setattr(
+        gang_items.utils,
+        "check_defensive_item",
+        mocker.AsyncMock(return_value="Fail"),
+    )
+    async with database.acquire() as conn:
+        assert (
+            await gang_items.use_defensive_item(
+                conn,
+                {"id": 1, "name": "name", "quantity": 1, "value": 1, "cost": 1, "benefit": enums.Benefits.defense},
+                1,
+                True,
+            )
+            == "Fail"
+        )
+
+
+async def test_use_defensive_item_reusable_too_little_control(database, mocker: MockerFixture, monkeypatch):
+    """Test trying to use a defensive item without enough control"""
+    monkeypatch.setattr(
+        gang_items.utils,
+        "check_defensive_item",
+        mocker.AsyncMock(return_value={"id": 1, "defenders": [1], "defense": 3}),
+    )
+    async with database.acquire() as conn:
+        assert (
+            await gang_items.use_defensive_item(
+                conn,
+                {"id": 1, "name": "name", "quantity": 1, "value": 1, "cost": 11, "benefit": enums.Benefits.defense},
+                1,
+                True,
+            )
+            == "You do not have enough control to use `name`. You need 11 control, and have 1."
+        )
+
+
+async def test_use_defensive_item_reusable_success(database, mocker: MockerFixture, monkeypatch):
+    """Test trying to use a defensive item successfully"""
+    monkeypatch.setattr(
+        gang_items.utils,
+        "check_defensive_item",
+        mocker.AsyncMock(return_value={"id": 1, "defenders": [1], "defense": 3}),
+    )
+    async with database.acquire() as conn:
+        res = await gang_items.use_defensive_item(
+            conn,
+            {"id": 1, "name": "name", "quantity": 1, "value": 1, "cost": 1, "benefit": enums.Benefits.defense},
+            1,
+            True,
+        )
+        defense = await conn.fetchval("SELECT defense FROM territories WHERE gang = 'White' AND raider = 'White'")
+    assert defense == 1
+    assert res == "You used `name` and gained 1 defense. Your gang now has 4 defense. You now have 0 control."
+
+
+async def test_use_defensive_item_consumable_success(database, mocker: MockerFixture, monkeypatch):
+    """Test trying to use a defensive item successfully"""
+    monkeypatch.setattr(
+        gang_items.utils,
+        "check_defensive_item",
+        mocker.AsyncMock(return_value={"id": 1, "defenders": [1], "defense": 3}),
+    )
+    monkeypatch.setattr(gang_items.utils, "consume_item", mocker.AsyncMock())
+    async with database.acquire() as conn:
+        res = await gang_items.use_defensive_item(
+            conn,
+            {"id": 1, "name": "name", "quantity": 1, "value": 1, "cost": 1, "benefit": enums.Benefits.defense},
+            1,
+            False,
+        )
+        defense = await conn.fetchval("SELECT defense FROM territories WHERE gang = 'White' AND raider = 'White'")
+    assert defense == 1
+    assert res == "You used `name` and gained 1 defense. Your gang now has 4 defense."
+
+
+async def test_use_offensive_item_unable(database, mocker: MockerFixture, monkeypatch):
+    """Test trying to use an offensive item without enough control"""
+    monkeypatch.setattr(
+        gang_items.utils,
+        "check_offensive_item",
+        mocker.AsyncMock(return_value="Fail"),
+    )
+    async with database.acquire() as conn:
+        assert (
+            await gang_items.use_offensive_item(
+                conn,
+                {"id": 1, "name": "name", "quantity": 1, "value": 1, "cost": 1, "benefit": enums.Benefits.offense},
+                1,
+                True,
+            )
+            == "Fail"
+        )
+
+
+async def test_use_offensive_item_reusable_too_little_control(database, mocker: MockerFixture, monkeypatch):
+    """Test trying to use an offensive item without enough control"""
+    monkeypatch.setattr(
+        gang_items.utils,
+        "check_offensive_item",
+        mocker.AsyncMock(return_value={"id": 1, "attackers": [1], "attack": 3}),
+    )
+    async with database.acquire() as conn:
+        assert (
+            await gang_items.use_offensive_item(
+                conn,
+                {"id": 1, "name": "name", "quantity": 1, "value": 1, "cost": 11, "benefit": enums.Benefits.offense},
+                1,
+                True,
+            )
+            == "You do not have enough control to use `name`. You need 11 control, and have 1."
+        )
+
+
+async def test_use_offensive_item_reusable_success(database, mocker: MockerFixture, monkeypatch):
+    """Test trying to use an offensive item successfully"""
+    monkeypatch.setattr(
+        gang_items.utils,
+        "check_offensive_item",
+        mocker.AsyncMock(return_value={"id": 1, "attackers": [1], "attack": 3}),
+    )
+    async with database.acquire() as conn:
+        res = await gang_items.use_offensive_item(
+            conn,
+            {"id": 1, "name": "name", "quantity": 1, "value": 1, "cost": 1, "benefit": enums.Benefits.offense},
+            1,
+            True,
+        )
+        attack = await conn.fetchval("SELECT attack FROM territories WHERE gang = 'White' AND raider = 'White'")
+    assert attack == 1
+    assert res == "You used `name` and gained 1 attack. Your gang now has 4 attack. You now have 0 control."
+
+
+async def test_use_offensive_item_consumable_success(database, mocker: MockerFixture, monkeypatch):
+    """Test trying to use an offensive item successfully"""
+    monkeypatch.setattr(
+        gang_items.utils,
+        "check_offensive_item",
+        mocker.AsyncMock(return_value={"id": 1, "attackers": [1], "attack": 3}),
+    )
+    monkeypatch.setattr(gang_items.utils, "consume_item", mocker.AsyncMock())
+    async with database.acquire() as conn:
+        res = await gang_items.use_offensive_item(
+            conn,
+            {"id": 1, "name": "name", "quantity": 1, "value": 1, "cost": 1, "benefit": enums.Benefits.offense},
+            1,
+            False,
+        )
+        attack = await conn.fetchval("SELECT attack FROM territories WHERE gang = 'White' AND raider = 'White'")
+    assert attack == 1
+    assert res == "You used `name` and gained 1 attack. Your gang now has 4 attack."
+
+
+@pytest.mark.parametrize(
+    "benefit,expected",
+    [
+        (enums.Benefits.currency, "Currency items are not implemented for gangs yet"),
+        (enums.Benefits.currency_consumable, "Currency items are not implemented for gangs yet"),
+        (enums.Benefits.defense, "Defense"),
+        (enums.Benefits.defense_consumable, "Defense"),
+        (enums.Benefits.offense, "Offense"),
+        (enums.Benefits.offense_consumable, "Offense"),
+        (enums.Benefits.other, "You cannot use `name`. It is not a usable item."),
+    ],
+)
+async def test_try_use_item(mocker: MockerFixture, monkeypatch, database: asyncpg.Pool, benefit, expected):
+    """Test trying to use an item"""
+    item_id = await database.fetchval(
+        "INSERT INTO gang_items (name, value, cost, benefit) VALUES ('name', 1, 1, $1) RETURNING id", benefit
+    )
+    await database.execute("INSERT INTO gang_inventory (gang, item, quantity) VALUES ('White', $1, 1)", item_id)
+    monkeypatch.setattr(gang_items, "use_defensive_item", mocker.AsyncMock(return_value="Defense"))
+    monkeypatch.setattr(gang_items, "use_offensive_item", mocker.AsyncMock(return_value="Offense"))
+    ret = await gang_items.try_use_item(database, 1, "name")
+    await database.execute("DELETE FROM gang_items WHERE id = $1", item_id)
+    await database.execute("DELETE FROM gang_inventory WHERE gang = 'White'")
+    assert ret == expected

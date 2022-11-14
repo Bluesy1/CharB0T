@@ -5,12 +5,15 @@
 """Collection of functions for buying, retrieving, and using gang items."""
 from __future__ import annotations
 
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, cast
 
 import asyncpg
 from discord.app_commands import Choice
+from typing_extensions import assert_never
 
-from ..types import Item
+from . import item_utils as utils
+from ..enums import Benefits
+from ..types import Item, ItemUseInfo
 from ..utils import ItemsView
 
 if TYPE_CHECKING:  # pragma: no cover
@@ -251,3 +254,158 @@ async def try_sell_item(pool: asyncpg.Pool, user_id: int, item_name: str) -> str
         return await conn.fetchval(
             "UPDATE gangs SET control = control + $1 WHERE name = $2 RETURNING control", item["cost"] // 10, gang
         )
+
+
+async def use_defensive_item(conn: asyncpg.Connection, item: ItemUseInfo, user, reusable) -> str:
+    """Use a defensive item
+
+    Parameters
+    ----------
+    conn : asyncpg.Connection
+        The connection.
+    item : ItemUseInfo
+        The item to use.
+    user : int
+        The user's ID.
+    reusable : bool
+        Whether the item is reusable or not.
+
+    Returns
+    -------
+    message : str
+        A string message denoting success or an error.
+    """
+    ret = await utils.check_defensive_item(conn, user)
+    if isinstance(ret, str):
+        return ret
+    if reusable:
+        pts = await conn.fetchval(
+            "SELECT control FROM gangs WHERE name = (SELECT gang FROM gang_members WHERE user_id = $1)", user
+        )
+        if pts < item["cost"]:
+            return (
+                f"You do not have enough control to use `{item['name']}`. You need {item['cost']} control,"
+                f" and have {pts}."
+            )
+        remaining = await conn.fetchval(
+            "UPDATE gangs SET control = gangs.control - $1 "
+            "WHERE name = (SELECT gang FROM gang_members WHERE user_id = $2) RETURNING control",
+            item["value"],
+            user,
+        )
+        res = (
+            f"You used `{item['name']}` and gained {item['value']} defense. Your gang now has "
+            f"{ret['defense'] + item['value']} defense. You now have {remaining} control."
+        )
+    else:
+        gang: str = await conn.fetchval("SELECT gang FROM gang_members WHERE user_id = $1", user)
+        await utils.consume_item(conn, item["id"], item["quantity"], gang=gang)
+        res = (
+            f"You used `{item['name']}` and gained {item['value']} defense. Your gang now has "
+            f"{ret['defense'] + item['value']} defense."
+        )
+    await conn.execute("UPDATE territories SET defense = defense + $1 WHERE id = $2", item["value"], ret["id"])
+    return res
+
+
+async def use_offensive_item(conn: asyncpg.Connection, item: ItemUseInfo, user, reusable) -> str:
+    """Use an offensive item
+
+    Parameters
+    ----------
+    conn : asyncpg.Connection
+        The connection.
+    item : ItemUseInfo
+        The item to use.
+    user : int
+        The user's ID.
+    reusable : bool
+        Whether the item is reusable or not.
+
+    Returns
+    -------
+    message : str
+        A string message denoting success or an error.
+    """
+    ret = await utils.check_offensive_item(cast(asyncpg.Connection, conn), user)
+    if isinstance(ret, str):
+        return ret
+    if reusable:
+        pts = await conn.fetchval(
+            "SELECT control FROM gangs WHERE name = (SELECT gang FROM gang_members WHERE user_id = $1)", user
+        )
+        if pts < item["cost"]:
+            return (
+                f"You do not have enough control to use `{item['name']}`. You need {item['cost']} control,"
+                f" and have {pts}."
+            )
+        remaining = await conn.fetchval(
+            "UPDATE gangs SET control = gangs.control - $1 "
+            "WHERE name = (SELECT gang FROM gang_members WHERE user_id = $2) RETURNING control",
+            item["value"],
+            user,
+        )
+        res = (
+            f"You used `{item['name']}` and gained {item['value']} attack. Your gang now has "
+            f"{ret['attack'] + item['value']} attack. You now have {remaining} control."
+        )
+    else:
+        gang: str = await conn.fetchval("SELECT gang FROM gang_members WHERE user_id = $1", user)
+        await utils.consume_item(conn, item["id"], item["quantity"], gang=gang)
+        res = (
+            f"You used `{item['name']}` and gained {item['value']} attack. Your gang now has "
+            f"{ret['attack'] + item['value']} attack."
+        )
+    await conn.execute("UPDATE territories SET attack = attack + $1 WHERE id = $2", item["value"], ret["id"])
+    return res
+
+
+async def try_use_item(pool: asyncpg.Pool, user_id: int, item_name: str) -> str:
+    """Try to use a user item
+
+    Parameters
+    ----------
+    pool : asyncpg.Pool
+        The pool.
+    user_id : int
+        The user's ID.
+    item_name : str
+        The item's name.
+
+    Returns
+    -------
+    remaining : str
+        A string message denoting success or an error.
+    """
+    async with pool.acquire() as conn, conn.transaction():
+        if not await conn.fetchval(
+            "SELECT (leader OR leadership) AS is_leader FROM gang_members WHERE user_id = $1", user_id
+        ):  # pragma: no cover
+            return "You are not in the leadership of a gang, you cannot use gang items."
+        item = cast(
+            ItemUseInfo,
+            await conn.fetchrow(
+                "SELECT id, name, quantity, value, benefit, cost FROM gang_items "
+                "INNER JOIN gang_inventory gi on gang_items.id = gi.item "
+                "WHERE gang = (SELECT gang FROM gang_members WHERE user_id = $1) AND name = $2",
+                user_id,
+                item_name,
+            ),
+        )
+        if item is None:  # pragma: no cover
+            return f"You don't have any `{item_name}` to use, or it doesn't exist."
+        match item["benefit"]:
+            case Benefits.currency | Benefits.currency_consumable:
+                return "Currency items are not implemented for gangs yet"
+            case Benefits.defense:
+                return await use_defensive_item(cast(asyncpg.Connection, conn), item, user_id, True)
+            case Benefits.defense_consumable:
+                return await use_defensive_item(cast(asyncpg.Connection, conn), item, user_id, False)
+            case Benefits.offense:
+                return await use_offensive_item(cast(asyncpg.Connection, conn), item, user_id, True)
+            case Benefits.offense_consumable:
+                return await use_offensive_item(cast(asyncpg.Connection, conn), item, user_id, False)
+            case Benefits.other:
+                return f"You cannot use `{item['name']}`. It is not a usable item."
+            case _:  # pragma: no cover
+                assert_never(item["benefit"])
