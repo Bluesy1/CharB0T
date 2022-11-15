@@ -13,6 +13,7 @@ import asyncpg
 import discord
 from discord import app_commands, ui
 from discord.ext import commands, tasks
+from discord.utils import MISSING
 
 from . import DuesButton
 from . import utils
@@ -20,8 +21,7 @@ from .actions import create, join, banner
 from .banner import ApprovalView, generate_banner
 from .types import BannerStatus, BannerStatusPoints
 from .shakedowns import do_shakedown
-from .. import GuildInteraction as Interaction, CBot
-
+from .. import GuildInteraction as Interaction, CBot, Config
 
 BASE_PATH: Final[Path] = Path(__file__).parent / "user_assets"
 
@@ -29,25 +29,40 @@ BASE_PATH: Final[Path] = Path(__file__).parent / "user_assets"
 class Gangs(commands.Cog):
     """Gang war."""
 
-    gang_guild: discord.Guild
-    gang_category: discord.CategoryChannel
-    gang_announcements: discord.TextChannel
-
     __slots__ = (
         "bot",
         "_start_dues_cycle_task",
         "_end_dues_cycle_task",
+        "gang_guild",
+        "gang_category",
+        "gang_announcements",
     )
 
     def __init__(self, bot: CBot):
         self.bot = bot
         self._start_dues_cycle_task = asyncio.create_task(self.start_dues_cycle())
         self._end_dues_cycle_task = asyncio.create_task(self.end_dues_cycle())
+        self.gang_guild: discord.Guild = bot.holder.get("gang_guild")
+        self.gang_category: discord.CategoryChannel = bot.holder.get("gang_category")
+        self.gang_announcements: discord.Webhook = bot.holder.get("gang_announcements")
+
+    async def cog_load(self) -> None:
+        """Load."""
+        config = Config["discord"]["gangs"]
+        if self.gang_guild is MISSING:
+            self.gang_guild = await self.bot.fetch_guild(Config["discord"]["guild"])
+        if self.gang_category is MISSING:
+            self.gang_category = await self.gang_guild.fetch_channel(config["category"])
+        if self.gang_announcements is MISSING:
+            self.gang_announcements = await self.bot.fetch_webhook(config["announcements"])
 
     async def cog_unload(self) -> None:
         """Unload."""
         self._start_dues_cycle_task.cancel()
         self._end_dues_cycle_task.cancel()
+        self.bot.holder["gang_guild"] = self.gang_guild
+        self.bot.holder["gang_category"] = self.gang_category
+        self.bot.holder["gang_announcements"] = self.gang_announcements
 
     gang = app_commands.Group(
         name="gang",
