@@ -33,7 +33,7 @@ EXTENSIONS = [module.name for module in iter_modules(__path__, f"{__package__}."
 T = TypeVar("T", bound="CBot")
 
 
-async def setup_custom_datatypes(conn: _asyncpg.Connection) -> None:
+async def setup_custom_datatypes(conn: _asyncpg.Connection) -> None:  # pragma: no cover
     """There are a few custom postgres datatypes, this sets up serializations for them.
 
     Parameters
@@ -41,12 +41,19 @@ async def setup_custom_datatypes(conn: _asyncpg.Connection) -> None:
     conn : _asyncpg.Connection
         The connection to set up the custom datatypes for.
     """
-    from .gangs.enums import Benefits
+    from .gangs.enums import Benefits, TerritoryBenefits
 
     await conn.set_type_codec(
         "benefit",
         encoder=lambda b: b.name,
         decoder=Benefits,
+        schema="public",
+        format="text",
+    )
+    await conn.set_type_codec(
+        "territory_benefit",
+        encoder=lambda b: b.name,
+        decoder=TerritoryBenefits,
         schema="public",
         format="text",
     )

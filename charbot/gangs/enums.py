@@ -14,3 +14,10 @@ class Benefits(enum.Enum):
     offense = "offense"
     offense_consumable = "offense_consumable"
     other = "other"
+
+
+class TerritoryBenefits(enum.Enum):
+    none = "none"
+    defense = "defense"
+    attack = "attack"
+    currency = "currency"

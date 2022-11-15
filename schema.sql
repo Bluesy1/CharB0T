@@ -13,6 +13,7 @@ CREATE TYPE benefit AS ENUM
         'offense_consumable',
         'other'
     );
+CREATE TYPE territory_benefit AS ENUM ('none', 'defense', 'attack', 'currency');
 
 CREATE TABLE IF NOT EXISTS users
 (
@@ -140,26 +141,27 @@ CREATE TABLE IF NOT EXISTS gangs
 
 CREATE TABLE IF NOT EXISTS territories
 (
-    id      SERIAL
-        CONSTRAINT territories_pk
-            PRIMARY KEY,
-    name    VARCHAR(32) NOT NULL,
-    gang    varchar(32) NOT NULL
-        CONSTRAINT territories_gang_fk
-            REFERENCES gangs(name)
-            ON UPDATE CASCADE ON DELETE CASCADE,
-    control SMALLINT     NOT NULL,
-    benefit SMALLINT     NOT NULL, -- TODO: Make this reference something meaningful
-    raid_end TIMESTAMP WITH TIME ZONE DEFAULT NULL,
-    raider varchar(32)
-        CONSTRAINT territories_raider_fk
-            REFERENCES gangs(name)
-            ON UPDATE CASCADE ON DELETE CASCADE
-        DEFAULT NULL,
-    attackers BIGINT[] DEFAULT '{}'::BIGINT[] NOT NULL,
-    attack  SMALLINT    NOT NULL DEFAULT 0,
-    defenders BIGINT[] DEFAULT '{}'::BIGINT[] NOT NULL,
-    defense SMALLINT    NOT NULL DEFAULT 0
+    id          SERIAL
+                    CONSTRAINT territories_pk
+                        PRIMARY KEY,
+    name        VARCHAR(32)                            NOT NULL,
+    gang        VARCHAR(32)
+                    CONSTRAINT territories_gang_fk
+                        REFERENCES gangs(name)
+                        ON UPDATE CASCADE ON DELETE CASCADE
+                    DEFAULT NULL,
+    benefit     TERRITORY_BENEFIT DEFAULT 'none'       NOT NULL,
+    raid_end    TIMESTAMP WITH TIME ZONE DEFAULT NULL,
+    raider      VARCHAR(32)
+                    CONSTRAINT territories_raider_fk
+                        REFERENCES gangs(name)
+                        ON UPDATE CASCADE ON DELETE CASCADE
+                    DEFAULT NULL,
+
+    attackers   BIGINT[]    DEFAULT '{}'::BIGINT[]     NOT NULL,
+    attack      SMALLINT    DEFAULT 0                  NOT NULL ,
+    defenders   BIGINT[]    DEFAULT '{}'::BIGINT[]     NOT NULL,
+    defense     SMALLINT    DEFAULT 0                  NOT NULL
 );
 
 CREATE TABLE IF NOT EXISTS _gang_members

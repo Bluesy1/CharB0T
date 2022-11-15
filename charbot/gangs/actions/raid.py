@@ -45,3 +45,33 @@ async def try_start_raid(gang: Gang, territory: Territory, pool: asyncpg.Pool) -
             territory["id"],
         )
     return True
+
+
+async def end_raid(pool: asyncpg.Pool, territory: Territory) -> str:
+    """End a raid
+
+    Parameters
+    ----------
+    pool: asyncpg.Pool
+        The database pool.
+    territory : Territory
+        The territory to end the raid on
+
+    Returns
+    -------
+    result: str
+        The result message
+    """
+    async with pool.acquire() as conn, conn.transaction():
+        await conn.execute(
+            "UPDATE territories SET raider = NULL, raid_end = NULL, attack = 0, defense = 0,"
+            " attackers = '{}'::BIGINT[], defenders = '{}'::BIGINT[] WHERE id = $1",
+            territory["id"],
+        )
+        if territory["defense"] < territory["attack"]:
+            await conn.execute("UPDATE territories SET gang = $1 WHERE id = $2", territory["raider"], territory["id"])
+            return (
+                f"{territory['raider']} has successfully raided {territory['name']} and taken it over from "
+                f"{territory['gang']}!"
+            )
+        return f"{territory['gang']} has successfully defended {territory['name']} from {territory['raider']}!"

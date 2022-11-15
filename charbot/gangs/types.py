@@ -63,12 +63,13 @@ class Benefit(TypedDict):
 class Territory(TypedDict):
     id: int
     name: str
-    gang: Gang | None
+    gang: str
     members: list[GangMember]
-    control: Decimal  # numeric type in postgres
     benefit: Benefit
     raid_end: datetime.datetime | None
-    raider: Gang | None
+    raider: str | None
+    attack: int
+    defense: int
 
 
 class TerritoryDefender(TypedDict):

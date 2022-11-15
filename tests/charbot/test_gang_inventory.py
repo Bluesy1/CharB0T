@@ -41,7 +41,7 @@ async def setup_gang(database: asyncpg.Pool):
     )
     await database.execute("INSERT INTO gang_members (user_id, gang) VALUES (1, 'White')")
     await database.execute(
-        "INSERT INTO territories (id, name, gang, control, benefit, raider) VALUES (1, 'test', 'White', 1, 1, 'White')"
+        "INSERT INTO territories (id, name, gang, benefit, raider) VALUES (1, 'test', 'White', 'none', 'White')"
     )
     yield
     await database.execute("DELETE FROM gangs WHERE name = 'White'")
