@@ -47,7 +47,7 @@ def rep_to_control(rep: int) -> int:
     control: int
         The control gained from the reputation.
     """
-    return rep // 50  # TODO: make this a config option/proper formula
+    return 1 + (rep // 50)
 
 
 BASE_GANG_COST: Final[int] = 100

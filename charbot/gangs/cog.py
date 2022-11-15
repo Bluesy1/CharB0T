@@ -399,7 +399,6 @@ class Gangs(commands.Cog):
             The interaction object for the current context
         """
         await interaction.response.defer(ephemeral=True)
-        conn: asyncpg.Connection
         banner_rec: BannerStatus | None = await interaction.client.pool.fetchrow(
             "SELECT banners.user_id as user_id, quote, banners.color as color, gradient, cooldown, approved,"
             " g.color as gang_color, g.name as name , xu.prestige as prestige "
