@@ -580,7 +580,9 @@ class Gangs(commands.Cog):
             The item to use
         """
         await interaction.response.defer(ephemeral=True)
-        interaction.followup.send(await gang_items.try_use_item(interaction.client.pool, interaction.user.id, item))
+        await interaction.followup.send(
+            await gang_items.try_use_item(interaction.client.pool, interaction.user.id, item)
+        )
 
     @commands.command(name="approve", hidden=True)
     @commands.guild_only()

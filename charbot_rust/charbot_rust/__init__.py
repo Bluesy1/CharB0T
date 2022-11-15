@@ -5,7 +5,7 @@
 from .charbot_rust import *  # pyright: ignore # noqa: F403,F401
 
 # noinspection PyUnresolvedReferences
-from . import charbot_rust
+from . import charbot_rust  # pyright: ignore
 
 # noinspection PyUnresolvedReferences
 __doc__ = charbot_rust.__doc__
