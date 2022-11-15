@@ -17,11 +17,13 @@ from discord.utils import MISSING
 
 from . import DuesButton
 from . import utils
-from .actions import create, join, banner
+from .actions import create, join, banner, user_items, gang_items
 from .banner import ApprovalView, generate_banner
 from .types import BannerStatus, BannerStatusPoints
 from .shakedowns import do_shakedown
 from .. import GuildInteraction as Interaction, CBot, Config
+from .actions.user_items import view_items_autocomplete as user_items_autocomplete
+from .actions.gang_items import view_items_autocomplete as gang_items_autocomplete
 
 BASE_PATH: Final[Path] = Path(__file__).parent / "user_assets"
 
@@ -46,13 +48,13 @@ class Gangs(commands.Cog):
         self.gang_category: discord.CategoryChannel = bot.holder.get("gang_category")
         self.gang_announcements: discord.Webhook = bot.holder.get("gang_announcements")
 
-    async def cog_load(self) -> None:
+    async def cog_load(self) -> None:  # pragma: no cover
         """Load."""
         config = Config["discord"]["gangs"]
         if self.gang_guild is MISSING:
             self.gang_guild = await self.bot.fetch_guild(Config["discord"]["guild"])
         if self.gang_category is MISSING:
-            self.gang_category = await self.gang_guild.fetch_channel(config["category"])
+            self.gang_category = await self.gang_guild.fetch_channel(config["category"])  # type: ignore
         if self.gang_announcements is MISSING:
             self.gang_announcements = await self.bot.fetch_webhook(config["announcements"])
 
@@ -74,6 +76,15 @@ class Gangs(commands.Cog):
         name="participate", description="Base group for starting participation in a gang war", parent=gang
     )
     banner = app_commands.Group(name="banner", description="Base group for managing the user banner", parent=gang)
+
+    items = app_commands.Group(
+        name="items",
+        description="Base group for managing the user's items",
+        guild_only=True,
+        default_permissions=discord.Permissions(manage_messages=True),
+    )
+    user_items = app_commands.Group(name="user", description="Base group for managing the user's items", parent=items)
+    gang_items = app_commands.Group(name="gang", description="Base group for managing the gang's items", parent=items)
 
     async def start_dues_cycle(self):
         """Start the dues cycle."""
@@ -411,6 +422,167 @@ class Gangs(commands.Cog):
             f"{discord.utils.format_dt(banner_rec['cooldown'], 'R')}",
             file=banner_file,
         )
+
+    # noinspection PyShadowingBuiltins
+    @user_items.command()  # pyright: ignore[reportGeneralTypeIssues]
+    @app_commands.autocomplete(item=user_items_autocomplete)  # type: ignore
+    async def view(
+        self, interaction: Interaction[CBot], all: bool, owned: bool, item: str | None = None
+    ) -> None:  # pragma: no cover
+        """View items
+
+        Parameters
+        ----------
+        interaction : Interaction
+            The interaction object for the current context
+        all: bool
+            Whether to view all items or just one
+        owned: bool
+            Whether to view it only if you own it or not
+        item: str | None, default None
+            The item to view, leave empty if you want to view all items
+        """
+        await interaction.response.defer(ephemeral=True)
+        if owned and all:
+            ret = await user_items.try_display_inventory(interaction.client.pool, interaction.user.id)
+        elif all:
+            ret = await user_items.try_display_available_items(interaction.client.pool, interaction.user.id)
+        else:
+            if item is None:
+                await interaction.followup.send("You need to specify an item to view!")
+                return
+            ret = await user_items.try_display_item(interaction.client.pool, interaction.user.id, item)
+        if isinstance(ret, str):
+            await interaction.followup.send(ret)
+            return
+        embed = ret.embeds[0]
+        await interaction.followup.send(embed=embed, view=ret)
+
+    @user_items.command()  # pyright: ignore[reportGeneralTypeIssues]
+    @app_commands.autocomplete(item=user_items_autocomplete)  # type: ignore
+    async def sell(self, interaction: Interaction[CBot], item: str) -> None:  # pragma: no cover
+        """Sell an item
+
+        Parameters
+        ----------
+        interaction : Interaction
+            The interaction object for the current context
+        item: str
+            The item to sell
+        """
+        await interaction.response.defer(ephemeral=True)
+        ret = await user_items.try_sell_item(interaction.client.pool, interaction.user.id, item)
+        if isinstance(ret, str):
+            await interaction.followup.send(ret)
+            return
+        await interaction.followup.send(f"You have sold {item} and now have {ret} rep!")
+
+    @user_items.command()  # pyright: ignore[reportGeneralTypeIssues]
+    @app_commands.autocomplete(item=user_items_autocomplete)  # type: ignore
+    async def use(self, interaction: Interaction[CBot], item: str) -> None:  # pragma: no cover
+        """Use an item
+
+        Parameters
+        ----------
+        interaction : Interaction
+            The interaction object for the current context
+        item: str
+            The item to use
+        """
+        await interaction.response.defer(ephemeral=True)
+        ret = await user_items.try_use_item(interaction.client.pool, interaction.user.id, item)
+        if isinstance(ret, str):
+            await interaction.followup.send(ret)
+            return
+        await interaction.followup.send(f"You have used {item} and now have {ret} rep!")
+
+    @user_items.command()  # pyright: ignore[reportGeneralTypeIssues]
+    @app_commands.autocomplete(item=user_items_autocomplete)  # type: ignore
+    async def gift(self, interaction: Interaction[CBot], item: str, user: discord.Member) -> None:  # pragma: no cover
+        """Gift an item
+
+        Parameters
+        ----------
+        interaction : Interaction
+            The interaction object for the current context
+        item: str
+            The item to gift
+        user: discord.Member
+            The user to gift it to
+        """
+        await interaction.response.defer(ephemeral=True)
+        await interaction.followup.send(
+            await user_items.try_gift_item(interaction.client.pool, interaction.user.id, item, user.id)
+        )
+
+    # noinspection PyShadowingBuiltins
+    @gang_items.command(name="view")  # pyright: ignore[reportGeneralTypeIssues]
+    @app_commands.autocomplete(item=gang_items_autocomplete)  # type: ignore
+    async def gang_item_view(
+        self, interaction: Interaction[CBot], all: bool, owned: bool, item: str | None = None
+    ) -> None:  # pragma: no cover
+        """View items
+
+        Parameters
+        ----------
+        interaction : Interaction
+            The interaction object for the current context
+        all: bool
+            Whether to view all items or just one
+        owned: bool
+            Whether to view it only if you own it or not
+        item: str | None, default None
+            The item to view, leave empty if you want to view all items
+        """
+        await interaction.response.defer(ephemeral=True)
+        if owned and all:
+            ret = await gang_items.try_display_inventory(interaction.client.pool, interaction.user.id)
+        elif all:
+            ret = await gang_items.try_display_available_items(interaction.client.pool, interaction.user.id)
+        else:
+            if item is None:
+                await interaction.followup.send("You need to specify an item to view!")
+                return
+            ret = await gang_items.try_display_item(interaction.client.pool, interaction.user.id, item)
+        if isinstance(ret, str):
+            await interaction.followup.send(ret)
+            return
+        embed = ret.embeds[0]
+        await interaction.followup.send(embed=embed, view=ret)
+
+    @gang_items.command(name="sell")  # pyright: ignore[reportGeneralTypeIssues]
+    @app_commands.autocomplete(item=gang_items_autocomplete)  # type: ignore
+    async def gang_item_sell(self, interaction: Interaction[CBot], item: str) -> None:  # pragma: no cover
+        """Sell an item
+
+        Parameters
+        ----------
+        interaction : Interaction
+            The interaction object for the current context
+        item: str
+            The item to sell
+        """
+        await interaction.response.defer(ephemeral=True)
+        ret = await gang_items.try_sell_item(interaction.client.pool, interaction.user.id, item)
+        if isinstance(ret, str):
+            await interaction.followup.send(ret)
+            return
+        await interaction.followup.send(f"You have sold {item} and your gang now has {ret} control!")
+
+    @gang_items.command(name="use")  # pyright: ignore[reportGeneralTypeIssues]
+    @app_commands.autocomplete(item=gang_items_autocomplete)  # type: ignore
+    async def gang_item_use(self, interaction: Interaction[CBot], item: str) -> None:  # pragma: no cover
+        """Use an item
+
+        Parameters
+        ----------
+        interaction : Interaction
+            The interaction object for the current context
+        item: str
+            The item to use
+        """
+        await interaction.response.defer(ephemeral=True)
+        interaction.followup.send(await gang_items.try_use_item(interaction.client.pool, interaction.user.id, item))
 
     @commands.command(name="approve", hidden=True)
     @commands.guild_only()

@@ -20,7 +20,7 @@ if TYPE_CHECKING:  # pragma: no cover
     from ... import CBot, GuildInteraction
 
 
-async def view_available_items_autocomplete(interaction: GuildInteraction[CBot], current: str) -> list[Choice[str]]:
+async def view_items_autocomplete(interaction: GuildInteraction[CBot], current: str) -> list[Choice[str]]:
     """Autocomplete for buying an item.
 
     Parameters
@@ -44,31 +44,6 @@ async def view_available_items_autocomplete(interaction: GuildInteraction[CBot],
             for i in items
             if i["name"].startswith(current)
         ][:25]
-
-
-async def view_item_autocomplete(interaction: GuildInteraction[CBot], current: str) -> list[Choice[str]]:
-    """Autocomplete for viewing an item.
-
-    Parameters
-    ----------
-    interaction : GuildInteraction[CBot]
-        The interaction.
-    current : str
-        The current string.
-
-    Returns
-    -------
-    choices : list[Choice[str]]
-        The choices.
-    """
-    async with interaction.client.pool.acquire() as conn:
-        if not await conn.fetchrow("SELECT TRUE FROM gang_members WHERE user_id = $1", interaction.user.id):
-            return []
-        items = await conn.fetch(
-            "SELECT name FROM user_inventory JOIN user_items ui on ui.id = user_inventory.item WHERE user_id = $1",
-            interaction.user.id,
-        )
-        return [Choice(name=i["name"], value=i["name"]) for i in items if i["name"].startswith(current)][:25]
 
 
 async def try_buy_item(pool: asyncpg.Pool, user_id: int, item_name: str) -> str | int:

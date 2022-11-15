@@ -54,7 +54,7 @@ async def test_buy_item_autocomplete_no_items(interaction, in_gang) -> None:
     """Test the buy item autocomplete."""
     if not in_gang:
         await interaction.client.pool.execute("DELETE FROM gang_members WHERE user_id = 1")
-    assert await gang_items.view_available_items_autocomplete(interaction, "") == []
+    assert await gang_items.view_items_autocomplete(interaction, "") == []
 
 
 async def test_buy_item_autocomplete_with_items(interaction, database: asyncpg.Pool):
@@ -62,34 +62,11 @@ async def test_buy_item_autocomplete_with_items(interaction, database: asyncpg.P
     await database.execute(
         "INSERT INTO gang_items (name, benefit, value, cost) VALUES ('test', $1, 1, 1)", enums.Benefits.other
     )
-    res = await gang_items.view_available_items_autocomplete(interaction, "")
+    res = await gang_items.view_items_autocomplete(interaction, "")
     await database.execute("DELETE FROM gang_items WHERE name = 'test'")
     await database.execute("DELETE FROM gangs WHERE name = 'White'")
     await database.execute("DELETE FROM gang_members WHERE user_id = 1")
     assert res == [discord.app_commands.Choice(name="test - Cost: 1", value="test")]
-
-
-@pytest.mark.parametrize("in_gang", [True, False])
-async def test_view_item_autocomplete_no_items(interaction, in_gang) -> None:
-    """Test the view item autocomplete."""
-    if not in_gang:
-        await interaction.client.pool.execute("DELETE FROM gang_members WHERE user_id = 1")
-    assert await gang_items.view_item_autocomplete(interaction, "") == []
-
-
-async def test_view_item_autocomplete_with_items(interaction, database: asyncpg.Pool):
-    """Test the view item autocomplete."""
-    item_id: int = await database.fetchval(
-        "INSERT INTO gang_items (name, benefit, value, cost) VALUES ('test', $1, 1, 1) RETURNING id",
-        enums.Benefits.other,
-    )
-    await database.execute("INSERT INTO gang_inventory (gang, item, quantity) VALUES ('White', $1, 1)", item_id)
-    res = await gang_items.view_item_autocomplete(interaction, "")
-    await database.execute("DELETE FROM gang_items WHERE name = 'test'")
-    await database.execute("DELETE FROM gangs WHERE name = 'White'")
-    await database.execute("DELETE FROM gang_members WHERE user_id = 1")
-    await database.execute("DELETE FROM gang_inventory WHERE gang = 'White'")
-    assert res == [discord.app_commands.Choice(name="test", value="test")]
 
 
 async def test_try_buy_item_not_gang_leadership(database: asyncpg.Pool):
