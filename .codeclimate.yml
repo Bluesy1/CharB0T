@@ -12,7 +12,7 @@ checks:
   complex-logic:
     enabled: true
     config:
-      threshold: 4
+      threshold: 5
   file-lines:
     enabled: true
     config:
@@ -20,7 +20,7 @@ checks:
   method-complexity:
     enabled: true
     config:
-      threshold: 5
+      threshold: 15
   method-count:
     enabled: true
     config:
@@ -32,7 +32,7 @@ checks:
   nested-control-flow:
     enabled: true
     config:
-      threshold: 4
+      threshold: 6
   return-statements:
     enabled: true
     config:
