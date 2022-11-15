@@ -306,8 +306,7 @@ class Gangs(commands.Cog):
             if isinstance(res, str):
                 await interaction.followup.send(res)
                 return
-            else:
-                remaining, needed = res
+            remaining, needed = res
             role = discord.Object(id=await conn.fetchval("SELECT role FROM gangs WHERE name = $1", gang))
             await interaction.user.add_roles(role, reason=f"Joined gang {gang}")
             await conn.execute("INSERT INTO gang_members (user_id, gang) VALUES ($1, $2)", interaction.user.id, gang)
