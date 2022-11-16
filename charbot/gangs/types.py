@@ -53,6 +53,13 @@ class GangMember(TypedDict):
     gang: Gang
 
 
+class GangDues(TypedDict):
+    name: str
+    channel: int
+    role: int
+    complete: bool
+
+
 class Benefit(TypedDict):
     id: int
     name: str

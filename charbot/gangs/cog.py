@@ -11,15 +11,15 @@ from zoneinfo import ZoneInfo
 
 import asyncpg
 import discord
-from discord import app_commands, ui
+from discord import app_commands
 from discord.ext import commands, tasks
 from discord.utils import MISSING
 
-from . import DuesButton
+from . import dues
 from . import utils
 from .actions import create, join, banner, user_items, gang_items
 from .banner import ApprovalView, generate_banner
-from .types import BannerStatus, BannerStatusPoints
+from .types import BannerStatus, BannerStatusPoints, GangDues
 from .shakedowns import do_shakedown
 from .. import GuildInteraction as Interaction, CBot, Config
 from .actions.user_items import view_items_autocomplete as user_items_autocomplete
@@ -95,34 +95,13 @@ class Gangs(commands.Cog):
         conn: asyncpg.pool.PoolConnectionProxy
         async with self.bot.pool.acquire() as conn, conn.transaction():
             await conn.execute(utils.SQL_MONTHLY)
-            gangs: list[asyncpg.Record] = await conn.fetch(
+            gangs: list[GangDues] = await conn.fetch(  # type: ignore
                 "SELECT name, channel, role,"
                 " (TRUE = ALL(SELECT paid FROM gang_members WHERE gang = gangs.name)) as complete FROM gangs"
             )
-            for row in gangs:
-                channel = cast(
-                    discord.TextChannel,
-                    self.gang_guild.get_channel(row["channel_id"])
-                    or await self.gang_guild.fetch_channel(row["channel_id"]),
-                )
-                if not row["complete"]:
-                    view = ui.View(timeout=60 * 60 * 24 * 7)
-                    view.dues_button = DuesButton(row["name"])  # type: ignore
-                    view.add_item(view.dues_button)  # type: ignore
-                    until = next_month + datetime.timedelta(days=7)
-                    msg = await channel.send(
-                        f"<@&{row['role_id']}> At least one member of this gang did not have enough rep to "
-                        f"automatically pay their dues. Please check if this is you, and if it is, pay with the"
-                        f" button below after gaining enough rep to pay, you have until "
-                        f"{discord.utils.format_dt(until, 'F')}, {discord.utils.format_dt(until, 'R')}",
-                        view=view,
-                    )
-                    await msg.pin(reason="So it doesn't get lost too quickly")
-                else:
-                    await channel.send(
-                        f"<@&{row['role_id']}> All members of this gang have paid their dues automatically."
-                        f" Thank you for participating in the gang war!"
-                    )
+            await asyncio.gather(
+                *(dues.send_dues_start(self.gang_guild, next_month, row) for row in gangs), return_exceptions=True
+            )
         self._start_dues_cycle_task = asyncio.create_task(self.start_dues_cycle())
 
     async def end_dues_cycle(self):
@@ -133,48 +112,14 @@ class Gangs(commands.Cog):
         await discord.utils.sleep_until(next_month)
         conn: asyncpg.pool.PoolConnectionProxy
         async with self.bot.pool.acquire() as conn, conn.transaction():
-            gangs: list[asyncpg.Record] = await conn.fetch(
-                "SELECT name, channel, role,"
-                " (TRUE = ALL(SELECT paid FROM gang_members WHERE gang = gangs.name)) as complete"
-                " FROM gangs WHERE all_paid IS FALSE"
+            gangs: list[GangDues] = await conn.fetch(  # type: ignore
+                "SELECT name, channel, role, (TRUE = ALL(SELECT paid FROM gang_members WHERE gang = gangs.name))"
+                " as complete FROM gangs WHERE all_paid IS FALSE"
             )
             lost_members = 0
+            guild = self.gang_guild
             for row in gangs:
-                channel = cast(
-                    discord.TextChannel,
-                    self.gang_guild.get_channel(row["channel_id"])
-                    or await self.gang_guild.fetch_channel(row["channel_id"]),
-                )
-                if row["complete"]:
-                    await channel.send(
-                        f"<@&{row['role_id']}> All members of this gang have paid their dues. Thank you for "
-                        f"participating in the gang war!"
-                    )
-                    continue
-                _members: list[asyncpg.Record] = await conn.fetch(
-                    "SELECT user_id, leader as id FROM gang_members WHERE gang = $1 AND paid IS FALSE", row["name"]
-                )
-                members: list[discord.Member] = []
-                lost_members += len(_members)
-                leader_removed = ""
-                for _member in _members:
-                    member = cast(
-                        discord.Member,
-                        self.gang_guild.get_member(_member["id"]) or await self.gang_guild.fetch_member(_member["id"]),
-                    )
-                    await member.remove_roles(discord.Object(id=row["role_id"]), reason="Gang dues not paid.")
-                    members.append(member)
-                    if _member["leader"]:
-                        leader_removed = (
-                            "NOTE: Your leader did not pay their dues and has been demoted/removed and an election will"
-                            " be held shortly to replace them. <@363095569515806722>"
-                        )
-                await channel.send(
-                    f"<@&{row['role_id']}> All but {len(members)} members of this gang have paid their dues. Those who"
-                    f" haven't have been temporarily removed from the gang, but may rejoin. {leader_removed} Thank "
-                    f"you for participating in the gang war!"
-                )
-                await conn.execute("DELETE FROM gang_members WHERE gang = $1 AND paid IS FALSE", row["name"])
+                lost_members += await dues.send_dues_end(conn, guild, row)
             empty_gangs = await conn.fetch(
                 "SELECT name FROM gangs WHERE 0 == (SELECT COUNT(*) FROM gang_members WHERE gang = gangs.name)"
             )
