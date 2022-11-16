@@ -149,7 +149,7 @@ class Gangs(commands.Cog):
         scale_join: app_commands.Range[int, 0, 32767],
         base_recurring: app_commands.Range[int, 0, 32767],
         scale_recurring: app_commands.Range[int, 0, 32767],
-    ):
+    ):  # pragma: no cover
         """Create a new gang.
 
         Parameters
@@ -170,43 +170,30 @@ class Gangs(commands.Cog):
         await interaction.response.defer(ephemeral=True)
         async with interaction.client.pool.acquire() as conn, conn.transaction():
             # Check if the gang already exists, the user is already in a gang, or the user doesn't have enough points
-            remaining = await create.check_gang_conditions(
-                cast(asyncpg.Connection, conn), interaction.user.id, color, base_join, base_recurring
-            )
-            if isinstance(remaining, str):
-                await interaction.followup.send(remaining)
-                return
-            role, channel = await create.create_gang_discord_objects(
-                interaction.guild, interaction.user, self.gang_category, color
-            )
-            await interaction.user.add_roles(role, reason=f"New gang created by {interaction.user}")
-            # All gangs start with 100 control.
-            await conn.execute(
-                "INSERT INTO gangs (name, color, leader, role, channel, control, join_base, join_slope,"
-                " upkeep_base, upkeep_slope, all_paid) VALUES ($1, $2, $3, $4, $5, 100, $6, $7, $8, $9, TRUE)",
-                color.name,
-                color.value,
-                interaction.user.id,
-                role.id,
-                channel.id,
+            ret = await create.create_gang(
+                conn,
+                interaction.user,
+                self.gang_category,
+                color,
                 base_join,
-                scale_join,
                 base_recurring,
+                scale_join,
                 scale_recurring,
             )
-            await conn.execute(
-                "INSERT INTO gang_members (user_id, gang) VALUES ($1, $2)", interaction.user.id, color.name
-            )
-            await interaction.followup.send(
-                f"Gang created! You now have {remaining} rep remaining.\n"
-                f"Your gang's role is {role.mention}, the channel is {channel.mention}.\n"
-                f"NOTE: You have been given the manage messages permission for the channel, so you can pin messages and"
-                f" delete other's messages if needed. You have to have 2 Factor Authentication enabled to be able to"
-                f" use the manage messages permission. You also have the ability to mention everyone in the channel. "
-                f"Please restrict this to only pinging your gang's role. Do not abuse these permissions, or we may "
-                f"revoke either or both of them and/or replace you with a different member as leader.",
-            )
-            await self.gang_announcements.send(f"{interaction.user.mention} created a new gang, the {color.name} Gang!")
+            if isinstance(ret, str):
+                await interaction.followup.send(ret)
+                return
+            remaining, channel, role = ret
+        await interaction.followup.send(
+            f"Gang created! You now have {remaining} rep remaining.\n"
+            f"Your gang's role is {role.mention}, the channel is {channel.mention}.\nNOTE: You have been given the "
+            f"manage messages permission for the channel, so you can pin messages and delete other's messages if needed"
+            f". You have to have 2 Factor Authentication enabled to be able to use the manage messages permission. You "
+            f"also have the ability to mention everyone in the channel. Please restrict this to only pinging your "
+            f"gang's role. Do not abuse these permissions, or we may revoke either or both of them and/or replace you "
+            f"with a different member as leader.",
+        )
+        await self.gang_announcements.send(f"{interaction.user.mention} created a new gang, the {color.name} Gang!")
 
     @participate.command()  # pyright: ignore[reportGeneralTypeIssues]
     async def join(self, interaction: Interaction[CBot], gang: utils.GANGS):

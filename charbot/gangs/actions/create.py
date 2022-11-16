@@ -80,3 +80,62 @@ async def create_gang_discord_objects(
     channel = await guild.create_text_channel(f"{color.name.lower()}-gang", category=category, overwrites=overwrites)
     await user.add_roles(role, reason=f"New gang created by {user}")
     return role, channel
+
+
+async def create_gang(
+    conn: asyncpg.Connection,
+    user: discord.Member,
+    category: discord.CategoryChannel,
+    color: utils.ColorOpts,
+    join_base: int,
+    recurring_base: int,
+    join_scale: int,
+    recurring_scale: int,
+) -> str | tuple[int, discord.TextChannel, discord.Role]:
+    """Create a new gang.
+
+    Parameters
+    ----------
+    conn : asyncpg.Connection
+        Connection to the database
+    user : discord.Member
+        Member who is creating the gang
+    category: discord.CategoryChannel
+        Category to create the gang channel in
+    color : utils.ColorOpts
+        Color of the gang, which forms the color and name of the gang
+    join_base : int
+        Base join cost
+    recurring_base : int
+        Base recurring cost
+    join_scale : int
+        Scale of join cost, to go up per for each member in the gang
+    recurring_scale : int
+        Scale of recurring cost, to go up per for each member in the gang
+
+    Returns
+    -------
+    str | tuple[int, discord.TextChannel, discord.Role]
+        If the gang already exists, the user is already in a gang, or the user doesn't have enough points, a string
+    """
+    remaining = await check_gang_conditions(conn, user.id, color, join_base, recurring_base)
+    if isinstance(remaining, str):
+        return remaining
+    role, channel = await create_gang_discord_objects(user.guild, user.user, category, color)
+    await user.user.add_roles(role, reason=f"New gang created by {user}")
+    # All gangs start with 100 control.
+    await conn.execute(
+        "INSERT INTO gangs (name, color, leader, role, channel, control, join_base, join_slope,"
+        " upkeep_base, upkeep_slope, all_paid) VALUES ($1, $2, $3, $4, $5, 100, $6, $7, $8, $9, TRUE)",
+        color.name,
+        color.value,
+        user.id,
+        role.id,
+        channel.id,
+        join_base,
+        join_scale,
+        recurring_base,
+        recurring_scale,
+    )
+    await conn.execute("INSERT INTO gang_members (user_id, gang) VALUES ($1, $2)", user.user.id, color.name)
+    return remaining, channel, role
