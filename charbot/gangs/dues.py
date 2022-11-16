@@ -29,7 +29,6 @@ class DuesButton(ui.Button):
     async def callback(self, interaction: CInteraction[CBot]):
         """Buttons callback."""
         await interaction.response.defer(ephemeral=True)
-        conn: asyncpg.pool.PoolConnectionProxy
         async with interaction.client.pool.acquire() as conn, conn.transaction():
             paid: bool = await conn.fetchval("SELECT paid FROM gang_members WHERE user_id = $1", interaction.user.id)
             if paid:

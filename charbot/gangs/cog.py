@@ -92,7 +92,6 @@ class Gangs(commands.Cog):
             datetime.datetime.now(tz=ZoneInfo("US/Michigan")).replace(day=1) + datetime.timedelta(days=32)
         ).replace(day=1, hour=0, minute=0, second=0, microsecond=0)
         await discord.utils.sleep_until(next_month)
-        conn: asyncpg.pool.PoolConnectionProxy
         async with self.bot.pool.acquire() as conn, conn.transaction():
             await conn.execute(utils.SQL_MONTHLY)
             gangs: list[GangDues] = await conn.fetch(
@@ -110,7 +109,6 @@ class Gangs(commands.Cog):
             datetime.datetime.now(tz=ZoneInfo("US/Michigan")).replace(day=1) + datetime.timedelta(days=32)
         ).replace(day=8, hour=0, minute=0, second=0, microsecond=0)
         await discord.utils.sleep_until(next_month)
-        conn: asyncpg.pool.PoolConnectionProxy
         async with self.bot.pool.acquire() as conn, conn.transaction():
             gangs: list[GangDues] = await conn.fetch(
                 "SELECT name, channel, role, (TRUE = ALL(SELECT paid FROM gang_members WHERE gang = gangs.name))"
@@ -170,7 +168,6 @@ class Gangs(commands.Cog):
             Scale of recurring cost, to go up per for each member in the gang
         """
         await interaction.response.defer(ephemeral=True)
-        conn: asyncpg.pool.PoolConnectionProxy
         async with interaction.client.pool.acquire() as conn, conn.transaction():
             # Check if the gang already exists, the user is already in a gang, or the user doesn't have enough points
             remaining = await create.check_gang_conditions(
@@ -223,7 +220,6 @@ class Gangs(commands.Cog):
             Name of the gang to join
         """
         await interaction.response.defer(ephemeral=True)
-        conn: asyncpg.pool.PoolConnectionProxy
         async with interaction.client.pool.acquire() as conn, conn.transaction():
             # check if the gang exists, and if the user has enough rep to join
             res = await join.try_join(cast(asyncpg.Connection, conn), gang, interaction.user.id)
@@ -273,7 +269,6 @@ class Gangs(commands.Cog):
             Whether to use a gradient banner or solid color, set to true to gradient with your gangs color
         """
         await interaction.response.defer(ephemeral=True)
-        conn: asyncpg.pool.PoolConnectionProxy
         async with interaction.client.pool.acquire() as conn, conn.transaction():
             err = await banner.allowed_banner(cast(asyncpg.Connection, conn), interaction.user.id)
             if err is not None:
