@@ -6,17 +6,19 @@
 from __future__ import annotations
 
 import asyncio
+import datetime
 from collections.abc import Iterable
 from io import BytesIO
 from pathlib import Path
 from textwrap import fill
 from typing import Final
 
+import asyncpg
 import discord
 from discord import Color, ui
 from PIL import Image, ImageDraw, ImageFont
 
-from .types import BannerStatus
+from .types import BannerStatus, BannerStatusPoints
 from .. import GuildComponentInteraction as Interaction, CBot
 
 
@@ -209,6 +211,47 @@ async def generate_banner(payload: BannerStatus, member: discord.Member) -> Byte
             payload["quote"],
             payload["prestige"],
         )
+
+
+async def gen_banner(pool: asyncpg.Pool, member: discord.Member) -> discord.File | None:
+    """Generate a banner for a member.
+
+    Parameters
+    ----------
+    pool: asyncpg.Pool
+        The database pool.
+    member: discord.Member
+        The member to generate the banner for.
+
+    Returns
+    -------
+    image: discord.File, optional
+        The generated banner.
+    """
+    async with pool.acquire() as conn:
+        banner_rec: BannerStatusPoints | None = await conn.fetchrow(
+            "SELECT banners.user_id as user_id, quote, banners.color as color, gradient, cooldown, approved,"
+            " g.color as gang_color, g.name as name, u.points as POINTS FROM banners JOIN gang_members gm ON"
+            " banners.user_id = gm.user_id JOIN gangs g on g.name = gm.gang JOIN users u on g.leader = u.id"
+            " WHERE banners.user_id = $1",
+            member.id,
+        )
+        if (
+            banner_rec is not None
+            and banner_rec["cooldown"] < discord.utils.utcnow()
+            and banner_rec["approved"]
+            and banner_rec["points"] > 50
+        ):
+            banner_bytes = await generate_banner(banner_rec, member)
+            banner_file = discord.File(banner_bytes, filename="banner.png")
+            await conn.execute(
+                "UPDATE banners SET cooldown = $1 WHERE user_id = $2",
+                discord.utils.utcnow() + datetime.timedelta(days=7),
+                member.id,
+            )
+            await conn.execute("UPDATE users SET points = points - 50 WHERE id = $1", member.id)
+            return banner_file
+    return None
 
 
 class ApprovalView(ui.View):

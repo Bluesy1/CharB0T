@@ -18,8 +18,8 @@ from discord.utils import MISSING
 from . import dues
 from . import utils
 from .actions import create, join, banner, user_items, gang_items
-from .banner import ApprovalView, generate_banner
-from .types import BannerStatus, BannerStatusPoints, GangDues
+from .banner import ApprovalView, generate_banner, gen_banner
+from .types import BannerStatus, GangDues
 from .shakedowns import do_shakedown
 from .. import GuildInteraction as Interaction, CBot, Config
 from .actions.user_items import view_items_autocomplete as user_items_autocomplete
@@ -95,7 +95,7 @@ class Gangs(commands.Cog):
         conn: asyncpg.pool.PoolConnectionProxy
         async with self.bot.pool.acquire() as conn, conn.transaction():
             await conn.execute(utils.SQL_MONTHLY)
-            gangs: list[GangDues] = await conn.fetch(  # type: ignore
+            gangs: list[GangDues] = await conn.fetch(
                 "SELECT name, channel, role,"
                 " (TRUE = ALL(SELECT paid FROM gang_members WHERE gang = gangs.name)) as complete FROM gangs"
             )
@@ -112,14 +112,14 @@ class Gangs(commands.Cog):
         await discord.utils.sleep_until(next_month)
         conn: asyncpg.pool.PoolConnectionProxy
         async with self.bot.pool.acquire() as conn, conn.transaction():
-            gangs: list[GangDues] = await conn.fetch(  # type: ignore
+            gangs: list[GangDues] = await conn.fetch(
                 "SELECT name, channel, role, (TRUE = ALL(SELECT paid FROM gang_members WHERE gang = gangs.name))"
                 " as complete FROM gangs WHERE all_paid IS FALSE"
             )
             lost_members = 0
             guild = self.gang_guild
             for row in gangs:
-                lost_members += await dues.send_dues_end(conn, guild, row)
+                lost_members += await dues.send_dues_end(cast(asyncpg.Connection, conn), guild, row)
             empty_gangs = await conn.fetch(
                 "SELECT name FROM gangs WHERE 0 == (SELECT COUNT(*) FROM gang_members WHERE gang = gangs.name)"
             )
@@ -139,29 +139,8 @@ class Gangs(commands.Cog):
             return
         member = cast(discord.Member, message.author)
         if "my gang" in message.content.lower() and message.channel.id == 225345178955808768:
-            async with self.bot.pool.acquire() as conn:
-                banner_rec: BannerStatusPoints | None = await conn.fetchrow(
-                    "SELECT banners.user_id as user_id, quote, banners.color as color, gradient, cooldown, approved,"
-                    " g.color as gang_color, g.name as name, u.points as POINTS FROM banners JOIN gang_members gm ON"
-                    " banners.user_id = gm.user_id JOIN gangs g on g.name = gm.gang JOIN users u on g.leader = u.id"
-                    " WHERE banners.user_id = $1",
-                    member.id,
-                )
-                if (
-                    banner_rec is not None
-                    and banner_rec["cooldown"] < discord.utils.utcnow()
-                    and banner_rec["approved"]
-                    and banner_rec["points"] > 50
-                ):
-                    banner_bytes = await generate_banner(banner_rec, member)
-                    banner_file = discord.File(banner_bytes, filename="banner.png")
-                    await message.reply(file=banner_file)
-                    await conn.execute(
-                        "UPDATE banners SET cooldown = $1 WHERE user_id = $2",
-                        discord.utils.utcnow() + datetime.timedelta(days=7),
-                        member.id,
-                    )
-                    await conn.execute("UPDATE users SET points = points - 50 WHERE id = $1", member.id)
+            if file := await gen_banner(self.bot.pool, member):
+                await message.reply(file=file)
 
     @participate.command()  # pyright: ignore[reportGeneralTypeIssues]
     async def create(
