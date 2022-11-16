@@ -171,7 +171,7 @@ class Gangs(commands.Cog):
         async with interaction.client.pool.acquire() as conn, conn.transaction():
             # Check if the gang already exists, the user is already in a gang, or the user doesn't have enough points
             ret = await create.create_gang(
-                conn,
+                cast(asyncpg.Connection, conn),
                 interaction.user,
                 self.gang_category,
                 color,

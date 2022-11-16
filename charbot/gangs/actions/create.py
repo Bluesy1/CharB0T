@@ -121,8 +121,8 @@ async def create_gang(
     remaining = await check_gang_conditions(conn, user.id, color, join_base, recurring_base)
     if isinstance(remaining, str):
         return remaining
-    role, channel = await create_gang_discord_objects(user.guild, user.user, category, color)
-    await user.user.add_roles(role, reason=f"New gang created by {user}")
+    role, channel = await create_gang_discord_objects(user.guild, user, category, color)
+    await user.add_roles(role, reason=f"New gang created by {user}")
     # All gangs start with 100 control.
     await conn.execute(
         "INSERT INTO gangs (name, color, leader, role, channel, control, join_base, join_slope,"
@@ -137,5 +137,5 @@ async def create_gang(
         recurring_base,
         recurring_scale,
     )
-    await conn.execute("INSERT INTO gang_members (user_id, gang) VALUES ($1, $2)", user.user.id, color.name)
+    await conn.execute("INSERT INTO gang_members (user_id, gang) VALUES ($1, $2)", user.id, color.name)
     return remaining, channel, role
