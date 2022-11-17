@@ -103,6 +103,10 @@ def url_posting_allowed(
     if channel.id in {723653004301041745, 338894508894715904, 407185164200968203}:
         # the channel is allowed to have links, but they may not embed
         return True
+    if channel.id == 1042838375473877002 and any(role.id == 1042837754104533075 for role in roles):
+        # if the channel is the xcom channel, and the user has the xcom role, then
+        # allow the message
+        return True
     # If so far the url hasn't been allowed, test if the author has a role that allows it
     return any(
         role.id
