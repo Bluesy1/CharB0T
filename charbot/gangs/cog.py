@@ -170,7 +170,9 @@ class Gangs(commands.Cog):
         await interaction.response.defer(ephemeral=True)
         async with interaction.client.pool.acquire() as conn, conn.transaction():
             # Check if the gang already exists, the user is already in a gang, or the user doesn't have enough points
-            ret = await create.create_gang(
+            # For some reason, pycharm doesn't understand this return type with the docstring
+            # noinspection PyTypeChecker
+            ret: str | tuple[int, discord.TextChannel, discord.Role] = await create.create_gang(
                 cast(asyncpg.Connection, conn),
                 interaction.user,
                 self.gang_category,

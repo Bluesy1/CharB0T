@@ -30,6 +30,11 @@ async def check_gang_conditions(
         The base cost to join a gang, as set by the user.
     base_recurring : int
         The base cost to stay in a gang, as set by the user.
+
+    Returns
+    -------
+    error | remaining: str | int
+        If the user can't create a gang, a string describing the error, else the remaining rep.
     """
     if await conn.fetchval("SELECT 1 FROM gangs WHERE name = $1", color.name):
         return "A gang with that name/color already exists!"
@@ -115,7 +120,7 @@ async def create_gang(
 
     Returns
     -------
-    str | tuple[int, discord.TextChannel, discord.Role]
+    result: str | tuple[int, discord.TextChannel, discord.Role]
         If the gang already exists, the user is already in a gang, or the user doesn't have enough points, a string
     """
     remaining = await check_gang_conditions(conn, user.id, color, join_base, recurring_base)

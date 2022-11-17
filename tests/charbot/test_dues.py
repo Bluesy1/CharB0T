@@ -4,11 +4,14 @@
 # SPDX-License-Identifier: MIT
 from __future__ import annotations
 
+import datetime
+
 import discord
 import pytest
 from pytest_mock import MockerFixture
 
 from charbot import CBot, gangs
+from charbot.gangs.types import GangDues
 
 
 @pytest.mark.asyncio
@@ -98,3 +101,53 @@ async def test_dues_button_enough_points(mocker: MockerFixture, database):
     assert await database.fetchval("SELECT control FROM gangs WHERE name = 'White'") == 2
     # noinspection SqlWithoutWhere
     await database.execute("DELETE FROM gang_members; DELETE FROM gangs; DELETE FROM users")
+
+
+@pytest.mark.asyncio
+async def test_send_dues_start_already_complete(mocker: MockerFixture):
+    """Test the dues start for a gang with all members already having enough."""
+    gang_dues: GangDues = {"name": "White", "channel": 1, "role": 2, "complete": True}
+    channel = mocker.AsyncMock(spec=discord.TextChannel)
+    guild = mocker.AsyncMock(
+        spec=discord.Guild, get_channel=lambda arg: None, fetch_channel=mocker.AsyncMock(return_value=channel)
+    )
+    await gangs.dues.send_dues_start(guild, datetime.datetime.now(), gang_dues)
+    channel.send.assert_awaited_once_with(
+        "<@&2> All members of this gang have paid their dues automatically. Thank you for participating in the gang"
+        " war!"
+    )
+    guild.fetch_channel.assert_awaited_once()
+
+
+@pytest.mark.asyncio
+async def test_send_dues_start_not_complete(mocker: MockerFixture, monkeypatch):
+    """Test the dues start for a gang with members that need to pay."""
+    gang_dues: GangDues = {"name": "White", "channel": 1, "role": 2, "complete": False}
+    channel = mocker.AsyncMock(spec=discord.TextChannel)
+    guild = mocker.AsyncMock(
+        spec=discord.Guild, get_channel=lambda arg: None, fetch_channel=mocker.AsyncMock(return_value=channel)
+    )
+    await gangs.dues.send_dues_start(guild, datetime.datetime.now(), gang_dues)
+    channel.send.assert_awaited_once()
+    arg, *_ = channel.send.await_args.args
+    assert isinstance(arg, str)
+    assert arg.startswith(
+        "<@&2> At least one member of this gang did not have enough rep to automatically pay their dues. Please check "
+        "if this is you, and if it is, pay with the button below after gaining enough rep to pay, you have until"
+    )
+    guild.fetch_channel.assert_awaited_once()
+
+
+@pytest.mark.asyncio
+async def test_send_dues_end_complete(mocker: MockerFixture):
+    """Test the dues end for a gang with all members having paid."""
+    gang_dues: GangDues = {"name": "White", "channel": 1, "role": 2, "complete": True}
+    channel = mocker.AsyncMock(spec=discord.TextChannel)
+    guild = mocker.AsyncMock(
+        spec=discord.Guild, get_channel=lambda arg: None, fetch_channel=mocker.AsyncMock(return_value=channel)
+    )
+    assert await gangs.dues.send_dues_end(mocker.AsyncMock(spec=[]), guild, gang_dues) == 0
+    channel.send.assert_awaited_once_with(
+        "<@&2> All members of this gang have paid their dues. Thank you for participating in the gang war!"
+    )
+    guild.fetch_channel.assert_awaited_once()

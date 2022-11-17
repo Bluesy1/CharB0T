@@ -6,9 +6,11 @@ from __future__ import annotations
 
 import datetime
 from decimal import Decimal
-from typing import TypedDict, NamedTuple
+from typing import TypedDict, NamedTuple, TYPE_CHECKING
 
-from .enums import Benefits
+if TYPE_CHECKING:
+    from .enums import Benefits
+    from . import GANGS
 
 
 class BannerRequestLeader(TypedDict):
@@ -54,7 +56,7 @@ class GangMember(TypedDict):
 
 
 class GangDues(TypedDict):
-    name: str
+    name: GANGS
     channel: int
     role: int
     complete: bool

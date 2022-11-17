@@ -5,6 +5,7 @@
 from __future__ import annotations
 
 import asyncio
+from typing import cast
 
 import asyncpg
 import discord
@@ -215,3 +216,49 @@ async def test_check_gang_conditions_success(database: asyncpg.Pool):
     async with database.acquire() as conn:
         assert await create.check_gang_conditions(conn, 1, utils.ColorOpts.White, 1, 1) == 98  # pyright: ignore
     await database.execute("DELETE FROM users WHERE id = 1")
+
+
+@pytest.mark.asyncio
+async def test_create_gang_fail(monkeypatch, mocker: MockerFixture):
+    """Check that the creation of a gang fails if the user doesn't have enough points"""
+    monkeypatch.setattr(create, "check_gang_conditions", mocker.AsyncMock(return_value="Fail"))
+    monkeypatch.setattr(create, "create_gang_discord_objects", mocker.AsyncMock(side_effect=Exception))
+    assert (
+        await create.create_gang(
+            mocker.AsyncMock(spec=asyncpg.Connection),
+            mocker.AsyncMock(spec=discord.Member),
+            mocker.AsyncMock(spec=discord.CategoryChannel),
+            utils.ColorOpts.White,
+            1,
+            1,
+            1,
+            1,
+        )
+        == "Fail"
+    )
+
+
+@pytest.mark.asyncio
+async def test_create_gang_success(monkeypatch, mocker: MockerFixture, database: asyncpg.Pool):
+    """Check that the creation of a gang succeeds if the user has enough points"""
+    monkeypatch.setattr(create, "check_gang_conditions", mocker.AsyncMock(return_value=100))
+    role = mocker.AsyncMock(spec=discord.Role)
+    channel = mocker.AsyncMock(spec=discord.TextChannel)
+    monkeypatch.setattr(create, "create_gang_discord_objects", mocker.AsyncMock(return_value=(role, channel)))
+    await database.execute("INSERT INTO users (id, points) VALUES (1, 200) ON CONFLICT(id) DO UPDATE SET points = 200")
+    user = mocker.AsyncMock(spec=discord.Member)
+    user.id = 1
+    category = mocker.AsyncMock(spec=discord.CategoryChannel)
+    async with database.acquire() as conn:
+        # noinspection PyTypeChecker
+        ret: str | tuple[int, discord.TextChannel, discord.Role] = await create.create_gang(
+            cast(asyncpg.Connection, conn), user, category, utils.ColorOpts.White, 1, 1, 1, 1
+        )
+        control = await conn.fetchval("DELETE FROM gangs WHERE name = 'White' RETURNING control")
+        await conn.execute("DELETE FROM gang_members WHERE gang_members.user_id = 1")
+        await conn.execute("DELETE FROM users WHERE id = 1")
+    assert control == 100
+    assert isinstance(ret, tuple)
+    assert ret[0] == 100
+    assert ret[1] is channel
+    assert ret[2] is role

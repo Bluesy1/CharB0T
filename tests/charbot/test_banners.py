@@ -8,6 +8,7 @@ import io
 import pathlib
 from datetime import timedelta
 
+import asyncpg
 import discord
 import pytest
 from PIL import Image
@@ -188,6 +189,38 @@ async def test_banner_approval_view(mocker: MockerFixture, database):
         content="Banner denied.", attachments=[], view=None
     )
     assert await database.fetchrow("SELECT * FROM banners WHERE user_id = 1") is None, "Banner should not exist"
+
+
+@pytest.mark.asyncio
+async def test_gen_banner_fail(mocker: MockerFixture, monkeypatch, database: asyncpg.Pool):
+    """Test the gen banner command works as expected"""
+    monkeypatch.setattr(banner, "generate_banner", mocker.AsyncMock(side_effect=Exception("Test")))
+    assert await banner.gen_banner(database, mocker.AsyncMock(spec=discord.Member)) is None
+
+
+@pytest.mark.asyncio
+async def test_gen_banner_success(mocker: MockerFixture, monkeypatch, database: asyncpg.Pool):
+    """Test the gen banner command works as expected"""
+    gen_banner_mock = mocker.AsyncMock(return_value=io.BytesIO(b"test"))
+    monkeypatch.setattr(banner, "generate_banner", gen_banner_mock)
+    member: discord.Member = discord.Object(1)  # type: ignore
+    await database.execute("INSERT INTO users (id, points) VALUES (1, 100) ON CONFLICT (id) DO UPDATE SET points = 100")
+    await database.execute(
+        "INSERT INTO gangs (name, color, leader, role, channel, control, join_base, join_slope, upkeep_base, "
+        "upkeep_slope, all_paid) VALUES ('White', 0, 1, 1, 1, 1, 1, 1, 1, 1, FALSE) ON CONFLICT DO NOTHING",
+    )
+    await database.execute("INSERT INTO gang_members (user_id, gang, leadership) VALUES (1, 'White', TRUE)")
+    await database.execute(
+        "INSERT INTO banners (user_id, quote, color, cooldown, approved, gradient) VALUES "
+        "(1, 'test', 0, $1, TRUE, FALSE) ON CONFLICT DO NOTHING",
+        utcnow() - timedelta(days=1),
+    )
+    val = await banner.gen_banner(database, member)
+    await database.execute("DELETE FROM banners WHERE user_id = 1")
+    await database.execute("DELETE FROM gang_members WHERE user_id = 1")
+    await database.execute("DELETE FROM gangs WHERE name = 'White'")
+    await database.execute("DELETE FROM users WHERE id = 1")
+    assert val is not None, "Should return a file"
 
 
 if __name__ == "__main__":
