@@ -160,7 +160,7 @@ async def test_on_message_bot_user(bot: bool, mocker: MockerFixture):
 
 
 @pytest.mark.asyncio
-async def test_fail_everyone_ping(mocker: MockerFixture, monkeypatch):
+async def test_fail_everyone_ping(mocker: MockerFixture):
     """Test that the on message deletes everyone pings from non mods"""
     message = mocker.AsyncMock(spec=discord.Message)
     message.author = mocker.AsyncMock(spec=discord.Member)
@@ -179,7 +179,7 @@ async def test_fail_everyone_ping(mocker: MockerFixture, monkeypatch):
 
 
 @pytest.mark.asyncio
-async def test_fail_link(mocker: MockerFixture, monkeypatch):
+async def test_fail_link(mocker: MockerFixture):
     """Test that the on message deletes everyone pings from non mods"""
     message = mocker.AsyncMock(spec=discord.Message)
     message.author = mocker.AsyncMock(spec=discord.Member)
