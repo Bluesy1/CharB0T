@@ -10,7 +10,7 @@ build-backend = "setuptools.build_meta"
 name = "charbot"
 description = "A simple Discord bot written in Python and Rust"
 readme = "README.md"
-version = "1.2.0.post0"
+version = "1.3.0a"
 authors = [
 	{name = "Bluesy1", email = "68259537+Bluesy1@users.noreply.github.com"}
 ]
