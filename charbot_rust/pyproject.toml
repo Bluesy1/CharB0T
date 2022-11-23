@@ -3,12 +3,13 @@
 # SPDX-License-Identifier: MIT
 
 [build-system]
-requires = ["maturin>=0.13,<0.14"]
+requires = ["maturin>=0.14,<0.15"]
 build-backend = "maturin"
 
 [project]
 name = "charbot_rust"
 requires-python = ">=3.10"
+authors = [{name = "Bluesy1", email = "68259537+Bluesy1@users.noreply.github.com"}]
 classifiers = [
     "Programming Language :: Rust",
     "Programming Language :: Python :: Implementation :: CPython",
@@ -17,3 +18,6 @@ classifiers = [
 
 [tool.black]
 line-length = 120
+
+[tool.maturin]
+python-source = "python"
