@@ -3,8 +3,8 @@
 # SPDX-License-Identifier: MIT
 import sys as __sys
 
-# noinspection PyUnresolvedReferences
-from .. import _minesweeper  # pyright: ignore
+# noinspection PyProtectedMember
+from charbot_rust._charbot_rust import _minesweeper
 
 if hasattr(_minesweeper, "__doc__"):
     __doc__ = _minesweeper.__doc__

@@ -5,7 +5,8 @@ import sys as __sys
 
 from .enums import *  # noqa: F403,F401
 
-from .. import _tictactoe  # type: ignore
+# noinspection PyProtectedMember
+from charbot_rust._charbot_rust import _tictactoe
 
 if hasattr(_tictactoe, "__doc__"):
     __doc__ = _tictactoe.__doc__
