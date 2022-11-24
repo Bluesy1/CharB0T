@@ -129,28 +129,6 @@ def test_url_no_early_exit(role_ids, expected, mocker: MockerFixture):
     assert events.url_posting_allowed(channel, roles) is expected
 
 
-def test_sensitive_embed(mocker: MockerFixture, monkeypatch):
-    """Test that the sensitive embed is constructed properly"""
-    message = mocker.AsyncMock(spec=discord.Message)
-    message.content = "a"
-    message.author = mocker.AsyncMock(spec=discord.Member)
-    message.author.display_name = "A"
-    message.author.__str__ = lambda self: "a#1000"  # pyright: ignore[reportGeneralTypeIssues]
-    message.jump_url = "https://discord.com/channels/0/1/2"
-    monkeypatch.setattr(events, "utcnow", lambda: None)
-    expected = discord.Embed(
-        title="Probable Sensitive Topic Detected",
-        description="Content:\n a",
-        color=discord.Color.red(),
-        timestamp=None,
-    )
-    expected.add_field(name="Words Found:", value="a", inline=True)
-    expected.add_field(name="Author:", value="A: a#1000", inline=True)
-    expected.add_field(name="Message Link:", value="[Link](https://discord.com/channels/0/1/2)", inline=True)
-    actual = events.sensitive_embed(message, {"a"})
-    assert expected == actual
-
-
 @pytest.mark.parametrize(
     "value,expected",
     [
@@ -182,22 +160,7 @@ async def test_on_message_bot_user(bot: bool, mocker: MockerFixture):
 
 
 @pytest.mark.asyncio
-async def test_return_on_sensitive_fail(mocker: MockerFixture, monkeypatch):
-    """Test that the on message short circuits when sensitive scan fails"""
-    message = mocker.AsyncMock(spec=discord.Message)
-    message.author.bot = False
-    message.guild = mocker.AsyncMock(spec=discord.Guild)
-    bot = mocker.AsyncMock(spec=CBot)
-    cog = events.Events(bot)
-    fake_scan = mocker.AsyncMock()
-    fake_scan.return_value = False
-    monkeypatch.setattr(cog, "sensitive_scan", fake_scan)
-    await cog.on_message(message)
-    fake_scan.assert_awaited_once()
-
-
-@pytest.mark.asyncio
-async def test_fail_everyone_ping(mocker: MockerFixture, monkeypatch):
+async def test_fail_everyone_ping(mocker: MockerFixture):
     """Test that the on message deletes everyone pings from non mods"""
     message = mocker.AsyncMock(spec=discord.Message)
     message.author = mocker.AsyncMock(spec=discord.Member)
@@ -208,9 +171,6 @@ async def test_fail_everyone_ping(mocker: MockerFixture, monkeypatch):
     bot = mocker.AsyncMock(spec=CBot)
     cog = events.Events(bot)
     cog.webhook = mocker.AsyncMock(spec=discord.Webhook)
-    fake_scan = mocker.AsyncMock()
-    fake_scan.return_value = True
-    monkeypatch.setattr(cog, "sensitive_scan", fake_scan)
     await cog.on_message(message)
     message.delete.assert_awaited_once()
     message.author.add_roles.assert_awaited_once_with(
@@ -219,7 +179,7 @@ async def test_fail_everyone_ping(mocker: MockerFixture, monkeypatch):
 
 
 @pytest.mark.asyncio
-async def test_fail_link(mocker: MockerFixture, monkeypatch):
+async def test_fail_link(mocker: MockerFixture):
     """Test that the on message deletes everyone pings from non mods"""
     message = mocker.AsyncMock(spec=discord.Message)
     message.author = mocker.AsyncMock(spec=discord.Member)
@@ -229,9 +189,6 @@ async def test_fail_link(mocker: MockerFixture, monkeypatch):
     message.guild = mocker.AsyncMock(spec=discord.Guild)
     bot = mocker.AsyncMock(spec=CBot)
     cog = events.Events(bot)
-    fake_scan = mocker.AsyncMock()
-    fake_scan.return_value = True
-    monkeypatch.setattr(cog, "sensitive_scan", fake_scan)
     await cog.on_message(message)
     message.delete.assert_awaited_once()
     message.author.send.assert_awaited_once()

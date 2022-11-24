@@ -8,11 +8,10 @@ from datetime import datetime, timedelta, timezone
 from typing import cast, TYPE_CHECKING, Final
 
 import discord
-import orjson
 from discord import Color, Embed
 from discord.ext import tasks
 from discord.ext.commands import Cog
-from discord.utils import MISSING, utcnow
+from discord.utils import utcnow
 from urlextract import URLExtract
 
 from . import CBot
@@ -21,35 +20,6 @@ from . import CBot
 if TYPE_CHECKING:  # pragma: no cover
     # noinspection PyUnresolvedReferences
     from .levels import Leveling
-
-
-def sensitive_embed(message: discord.Message, used: set[str]) -> discord.Embed:
-    """Create an embed with the message content.
-
-    Parameters
-    ----------
-    message : discord.Message
-        The message to create the embed from.
-    used : set[str]
-        The set of sensitive words used in the message.
-    """
-    embed = Embed(
-        title="Probable Sensitive Topic Detected",
-        description=f"Content:\n {message.content}",
-        color=Color.red(),
-        timestamp=utcnow(),
-    )
-    embed.add_field(name="Words Found:", value=", ".join(used)[:1024], inline=True)
-    embed.add_field(
-        name="Author:",
-        value=f"{message.author.display_name}: {message.author}",
-        inline=True,
-    )
-    return embed.add_field(
-        name="Message Link:",
-        value=f"[Link]({message.jump_url})",
-        inline=True,
-    )
 
 
 def time_string_from_seconds(delta: float) -> str:
@@ -165,7 +135,6 @@ class Events(Cog):
         self.last_sensitive_logged = {}
         self.timeouts = {}
         self.members: dict[int, datetime] = {}
-        self.webhook: discord.Webhook = MISSING
         self.tilde_regex = re.compile(
             r"~~:\.\|:;~~|tilde tilde colon dot vertical bar colon semicolon tilde tilde", re.MULTILINE | re.IGNORECASE
         )
@@ -189,8 +158,6 @@ class Events(Cog):
                 if user.joined_at is not None
             }
         )
-        with open(self.sensitive_settings_path, "rb") as json_dict:
-            self.webhook = await self.bot.fetch_webhook(orjson.loads(json_dict.read())["webhook_id"])
 
     async def cog_unload(self) -> None:  # skipcq: PYL-W0236  # pragma: no cover
         """Call when cog is unloaded.
@@ -227,53 +194,6 @@ class Events(Cog):
         bot_user = cast(discord.ClientUser, self.bot.user)
         await self.webhook.send(username=bot_user.name, avatar_url=bot_user.display_avatar.url, embed=embed)
         self.timeouts.update({after.id: after.timed_out_until})
-
-    async def sensitive_scan(self, message: discord.Message) -> bool:
-        """Check and take action if a message contains sensitive content.
-
-        It uses the list of words defined in the sensitive_settings.json file.
-
-        Parameters
-        ----------
-        message : discord.Message
-            The message to check.
-
-        Returns
-        -------
-        allowed: bool
-            Whether the message is allowed or not.
-        """
-        if message.guild is not None and message.guild.id == 225345178955808768:
-            channel = cast(discord.abc.GuildChannel | discord.Thread, message.channel)
-            with open(self.sensitive_settings_path, "rb") as json_dict:
-                fulldict = orjson.loads(json_dict.read())
-            used_words = {
-                word
-                for word in fulldict["words"]
-                if word in message.content.lower()
-                and (word != "war" or any(word in fulldict["words"] for word in message.content.lower()))
-            }
-            self.last_sensitive_logged.setdefault(message.author.id, datetime.now() - timedelta(days=1))
-            if datetime.now() > (self.last_sensitive_logged[message.author.id] + timedelta(minutes=5)) and any(
-                [
-                    (len(used_words) >= 2 and 25 <= (len(message.content) - len("".join(used_words))) < 50),
-                    (len(used_words) > 2 and (len(message.content) - len("".join(used_words))) >= 50),
-                    (len(used_words) >= 1 and (len(message.content) - len("".join(used_words))) < 25),
-                ]
-            ):
-                if channel.id in (837816311722803260, 926532222398369812) or (
-                    channel.category_id in (360818916861280256, 942578610336837632)
-                ):
-                    return True
-                bot_user = cast(discord.ClientUser, self.bot.user)
-                await self.webhook.send(
-                    username=bot_user.name,
-                    avatar_url=bot_user.display_avatar.url,
-                    embed=sensitive_embed(message, used_words),
-                )
-                self.last_sensitive_logged[message.author.id] = datetime.now()
-                return False
-        return True
 
     # noinspection DuplicatedCode
     @tasks.loop(seconds=30)
@@ -424,8 +344,6 @@ class Events(Cog):
                 " that has been removed, in favor of "
                 "mod support, which you can find in <#398949472840712192>"
             )
-            return
-        if not await self.sensitive_scan(message):
             return
         author = cast(discord.Member, message.author)
         if all(
