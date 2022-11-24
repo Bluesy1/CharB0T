@@ -24,7 +24,35 @@ on:
     - '.github/workflows/ci.yml'
 
 jobs:
-
+  changes:
+    runs-on: ubuntu-latest
+    # Required permissions
+    permissions:
+      pull-requests: read
+    # Set job outputs to values from filter step
+    outputs:
+      rust: ${{ steps.filter.outputs.rust }}
+      python: ${{ steps.filter.outputs.python }}
+    steps:
+      - uses: actions/checkout@v3
+        if: ${{ github.event_name == 'push' }}
+        with:
+          # This may save additional git fetch roundtrip if
+          # merge-base is found within latest 20 commits
+          fetch-depth: 20
+      # For pull requests it's not necessary to checkout the code
+      - uses: dorny/paths-filter@v2
+        id: filter
+        with:
+          filters: |
+            rust:
+              - 'charbot_rust/**'
+              - '.github/workflows/ci.yml'
+            python:
+              - 'charbot/**'
+              - 'tests/**'
+              - 'pyproject.toml'
+              - '.github/workflows/ci.yml'
   maturin:
     runs-on: ubuntu-latest
     strategy:
@@ -95,6 +123,8 @@ jobs:
           gcov: true
           token: ${{ secrets.CODECOV_TOKEN }}
   black:
+    needs: changes
+    if: ${{ needs.changes.outputs.python == 'true' }}
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
@@ -111,8 +141,28 @@ jobs:
       - name: Black
         id: black
         run: black --check --verbose --line-length=120 .
+  flake8:
+    needs: changes
+    if: ${{ needs.changes.outputs.python == 'true' }}
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: [ "3.11", "3.10" ]
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-python@v4
+        with:
+          python-version: ${{ matrix.python-version }}
+      - name: Dependencies
+        run: |
+          pip install flake8
+      - name: Flake8
+        id: flake8
+        run: flake8 . --max-line-length=120 --indent-size=4
   pyright:
-    needs: [maturin]
+    needs: [changes, maturin]
+    if: ${{ needs.changes.outputs.python == 'true' || needs.changes.outputs.rust == 'true' }}
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
@@ -136,25 +186,9 @@ jobs:
         uses: jakebailey/pyright-action@v1
         with:
           warnings: false
-  flake8:
-    runs-on: ubuntu-latest
-    strategy:
-      fail-fast: false
-      matrix:
-        python-version: ["3.11", "3.10"]
-    steps:
-      - uses: actions/checkout@v3
-      - uses: actions/setup-python@v4
-        with:
-          python-version: ${{ matrix.python-version }}
-      - name: Dependencies
-        run: |
-          pip install flake8
-      - name: Flake8
-        id: flake8
-        run: flake8 . --max-line-length=120 --indent-size=4
   python-tests:
-    needs: [maturin]
+    needs: maturin
+    if: ${{ success() || failure() }}
     runs-on: ubuntu-latest
     continue-on-error: true
     strategy:
