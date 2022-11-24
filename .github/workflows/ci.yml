@@ -45,7 +45,7 @@ jobs:
         id: filter
         with:
           filters: |
-            frontend:
+            rust:
               - 'charbot_rust/**'
               - '.github/workflows/ci.yml'
             python:
