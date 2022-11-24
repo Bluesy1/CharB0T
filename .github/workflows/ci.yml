@@ -54,8 +54,6 @@ jobs:
               - 'pyproject.toml'
               - '.github/workflows/ci.yml'
   maturin:
-    needs: changes
-    if: ${{ needs.changes.outputs.rust == 'true' }}
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
