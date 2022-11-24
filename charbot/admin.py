@@ -3,13 +3,11 @@
 # SPDX-License-Identifier: MIT
 """Admin commands for charbot."""
 import pathlib
-from datetime import datetime, timezone
 from time import perf_counter
 from typing import cast, Final
 
 import discord
-import orjson
-from discord import Color, Embed, app_commands, PermissionOverwrite, Permissions
+from discord import Color, app_commands, PermissionOverwrite, Permissions
 from discord.ext import commands
 
 from . import CBot, GuildInteraction
@@ -107,122 +105,6 @@ class Admin(commands.Cog):
         await message.edit(
             content=f"Pong!\n\nPing: {(end - start) * 100:.2f}ms\nTyping: {typing * 1000:.2f}ms\nDatabase: "
             f"{database * 1000:.2f}ms\nWebsocket: {self.bot.latency * 1000:.2f}ms"
-        )
-
-    @commands.hybrid_group(name="sensitive")
-    @app_commands.guild_only()
-    async def sensitive(self, ctx: commands.Context):
-        """Command group for configuring the sensitive words filter.
-
-        Parameters
-        ----------
-        self : Admin
-            The Admin cog object.
-        ctx : Context
-            The context of the command.
-        """
-        if ctx.invoked_subcommand is None:
-            await ctx.send(
-                "Invoked Sensitive words group - use `add` to add a word, `remove`"
-                " to remove a word, or `query` to get all words on the list."
-            )
-
-    @sensitive.command(name="add")
-    async def add(self, ctx: commands.Context, *, word: str):
-        """Add a word to the sensitive words filter.
-
-        Parameters
-        ----------
-        self : Admin
-            The Admin cog object.
-        ctx : Context
-            The context of the command.
-        word : str
-            The word to add to the filter.
-        """
-        with open(self.settings, "rb") as json_dict:
-            fulldict = orjson.loads(json_dict.read())
-        if word.lower() not in fulldict["words"]:
-            fulldict["words"].append(word.lower())
-            fulldict["words"].sort()
-            with open(self.settings, "wb") as json_dict:
-                json_dict.write(orjson.dumps(fulldict))
-            await ctx.send(
-                embed=Embed(
-                    title="New list of words defined as sensitive",
-                    description=", ".join(fulldict["words"]),
-                    color=Color.green(),
-                    timestamp=datetime.now(tz=timezone.utc),
-                )
-            )
-        else:
-            await ctx.send(
-                embed=Embed(
-                    title="Word already in list of words defined as sensitive",
-                    description=", ".join(fulldict["words"]),
-                    color=Color.blue(),
-                    timestamp=datetime.now(tz=timezone.utc),
-                )
-            )
-
-    @sensitive.command(name="remove")
-    async def remove(self, ctx: commands.Context, *, word: str):
-        """Remove a word from the sensitive words filter.
-
-        Parameters
-        ----------
-        self : Admin
-            The Admin cog object.
-        ctx : Context
-            The context of the command.
-        word : str
-            The word to remove from the filter.
-        """
-        with open(self.settings, "rb") as file:
-            fulldict = orjson.loads(file.read())
-        if word.lower() in fulldict["words"]:
-            fulldict["words"].remove(word.lower())
-            fulldict["words"].sort()
-            await ctx.send(
-                embed=Embed(
-                    title="New list of words defined as sensitive",
-                    description=", ".join(fulldict["words"]),
-                    color=Color.green(),
-                    timestamp=datetime.now(tz=timezone.utc),
-                )
-            )
-            with open(self.settings, "wb") as file:
-                file.write(orjson.dumps(fulldict))
-        else:
-            await ctx.send(
-                embed=Embed(
-                    title="Word not in list of words defined as sensitive",
-                    description=", ".join(fulldict["words"]),
-                    color=Color.blue(),
-                    timestamp=datetime.now(tz=timezone.utc),
-                )
-            )
-
-    @sensitive.command(name="query")
-    async def query(self, ctx: commands.Context):
-        """Retrieve the list of words defined as sensitive.
-
-        Parameters
-        ----------
-        self : Admin
-            The Admin cog object.
-        ctx : Context
-            The context of the command.
-        """
-        with open(self.settings, "rb") as json_dict:
-            fulldict = orjson.loads(json_dict.read())
-        await ctx.send(
-            embed=Embed(
-                title="List of words defined as sensitive",
-                description=", ".join(sorted(fulldict["words"])),
-                color=Color.blue(),
-                timestamp=datetime.now(tz=timezone.utc),
-            )
         )
 
     @commands.command(hidden=True)

@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 # SPDX-FileCopyrightText: 2021 Bluesy1 <68259537+Bluesy1@users.noreply.github.com>
+#
 # SPDX-License-Identifier: MIT
 """Charbot Module."""
 import logging
@@ -11,7 +12,18 @@ from pkgutil import iter_modules
 
 import discord
 
-from charbot_rust import translate
+from charbot_rust import translate, __version__ as rust_version
+
+__title__ = "charbot"
+__author__ = "Bluesy1"
+__license__ = "MIT"
+__copyright__ = "Copyright 2021-present Bluesy1"
+__version__ = __import__("importlib.metadata").metadata.version(__title__)
+if __version__ != rust_version:  # pragma: no cover
+    raise RuntimeError(
+        f"The version of charbot does not match the version of the rust library for charbot,"
+        f" Python: {__version__} != Rust: {rust_version}"
+    )
 
 __all__ = (
     "EXTENSIONS",
