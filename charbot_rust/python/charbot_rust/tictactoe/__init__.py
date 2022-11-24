@@ -5,22 +5,25 @@ import sys as __sys
 
 from .enums import *  # noqa: F403,F401
 
-from ..charbot_rust import tictactoe  # type: ignore
+# noinspection PyProtectedMember
+from charbot_rust._charbot_rust import _tictactoe
 
-if hasattr(tictactoe, "__doc__"):
-    __doc__ = tictactoe.__doc__
+if hasattr(_tictactoe, "__doc__"):
+    __doc__ = _tictactoe.__doc__
 
-if hasattr(tictactoe, "__all__"):
+if hasattr(_tictactoe, "__all__"):
     __all__ = (
         "Difficulty",
-        *tictactoe.__all__,
+        *_tictactoe.__all__,
     )  # pyright: ignore[reportUnsupportedDunderAll]
     __name: str
-    for __name in tictactoe.__all__:
-        setattr(__sys.modules[__name__], __name, getattr(tictactoe, __name))
+    for __name in _tictactoe.__all__:
+        setattr(__sys.modules[__name__], __name, getattr(_tictactoe, __name))
     try:
         del __name  # pyright: ignore[reportUnboundVariable]
     except NameError:
         pass
 else:
     __all__ = ("Difficulty",)  # noqa: F405
+
+del _tictactoe
