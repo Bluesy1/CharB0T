@@ -81,8 +81,6 @@ jobs:
           path: dist
           retention-days: 5
   rust-tests:
-    needs: changes
-    if: ${{ needs.changes.outputs.rust == 'true' }}
     continue-on-error: true
     runs-on: ubuntu-latest
     steps:
