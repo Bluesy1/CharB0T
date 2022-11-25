@@ -30,3 +30,6 @@ classifiers = [
 
 [tool.black]
 line-length = 120
+
+[tool.maturin]
+python-source = "python"
