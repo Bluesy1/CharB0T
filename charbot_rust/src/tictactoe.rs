@@ -194,7 +194,7 @@ impl Game {
 const DOCSTRING: &str = "Rust based reimplementation of tictactoe";
 
 pub(crate) fn register_tictactoe(py: Python, m: &PyModule) -> PyResult<()> {
-    let tictactoe = PyModule::new(py, "tictactoe")?;
+    let tictactoe = PyModule::new(py, "_tictactoe")?;
     tictactoe.add_class::<Game>()?;
     tictactoe.add_class::<Piece>()?;
     tictactoe.add_class::<Offset>()?;

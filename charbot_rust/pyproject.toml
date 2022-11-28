@@ -3,17 +3,33 @@
 # SPDX-License-Identifier: MIT
 
 [build-system]
-requires = ["maturin>=0.13,<0.14"]
+requires = ["maturin>=0.14,<0.15"]
 build-backend = "maturin"
 
 [project]
 name = "charbot_rust"
+version = "1.3.0a"
+description = "A Rust library for the Charbot Discord bot"
 requires-python = ">=3.10"
+authors = [{name = "Bluesy1", email = "68259537+Bluesy1@users.noreply.github.com"}]
+license = {name= "MIT" , file = "LICENSE"}
 classifiers = [
+    "Development Status :: 5 - Production/Stable",
+	"Intended Audience :: End Users/Desktop",
+	"License :: OSI Approved :: MIT License",
+	"Operating System :: OS Independent",
     "Programming Language :: Rust",
     "Programming Language :: Python :: Implementation :: CPython",
     "Programming Language :: Python :: Implementation :: PyPy",
+	"Programming Language :: Python :: 3",
+	"Programming Language :: Python :: 3.10",
+	"Programming Language :: Python :: 3.11",
+	"Programming Language :: Python :: 3 :: Only",
+	"Typing :: Typed",
 ]
 
 [tool.black]
 line-length = 120
+
+[tool.maturin]
+python-source = "python"

@@ -30,7 +30,9 @@ class Translator(app_commands.Translator):
         str | None
             The translated string or None if the string is not found
         """
-        if locale not in self.supported_locales:  # pragma: no cover
+        if (
+            locale not in self.supported_locales and context.location is not TranslationContextLocation.other
+        ):  # pragma: no cover
             return None
         if context.location is TranslationContextLocation.command_name:
             key = f"{context.data.qualified_name.replace(' ', '-')}-name"
@@ -41,11 +43,15 @@ class Translator(app_commands.Translator):
         elif context.location is TranslationContextLocation.group_description:
             key = f"{context.data.qualified_name.replace(' ', '-')}-description"
         elif context.location is TranslationContextLocation.parameter_name:
-            # noinspection PyUnresolvedReferences
-            key = f"{context.data.command.qualified_name.replace(' ', '-')}-parameter-{context.data.name}-name"
+            key = (
+                f"{context.data.command.qualified_name.replace(' ', '-')}"  # type: ignore
+                f"-parameter-{context.data.name}-name"
+            )
         elif context.location is TranslationContextLocation.parameter_description:
-            # noinspection PyUnresolvedReferences
-            key = f"{context.data.command.qualified_name.replace(' ', '-')}-parameter-{context.data.name}-description"
+            key = (
+                f"{context.data.command.qualified_name.replace(' ', '-')}"  # type: ignore
+                f"-parameter-{context.data.name}-description"
+            )
         elif context.location is TranslationContextLocation.choice_name:
             key = f"choice-{context.data.name}-name"
         elif context.location is TranslationContextLocation.other:

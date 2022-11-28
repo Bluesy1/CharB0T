@@ -3,12 +3,11 @@
 # SPDX-License-Identifier: MIT
 """Admin commands for charbot."""
 import pathlib
-from datetime import datetime, timezone
 from time import perf_counter
+from typing import cast, Final
 
 import discord
-import orjson
-from discord import Color, Embed, app_commands
+from discord import Color, app_commands, PermissionOverwrite, Permissions
 from discord.ext import commands
 
 from . import CBot, GuildInteraction
@@ -17,9 +16,41 @@ from . import CBot, GuildInteraction
 class Admin(commands.Cog):
     """Admin Cog."""
 
+    XCOM_MESSAGE: Final[str] = (
+        "**You have been recruited into XCOM**. Welcome! You'll find you have access to new channels reserved for those"
+        " in the barracks. For the most up-to-date information on the state of the campaign, **CHECK THE PINS!** "
+        "<:CheckPins:907814529319202836> There's a chance also that you are tagged in these updates. It means that you "
+        "may have information I require of you (like for promotions). Please try to respond to those requests within 24"
+        " hours. I will proceed and make a decision without you if you don't, but if you don't plan to, please tell me "
+        "that instead so I can play on faster.\n\nInfo is secret...\nWe ask that information that's in the barracks "
+        "stay in the barracks, including all conversations related to the events of the videos that are not yet public."
+        " You also have access to these videos now. **__DO NOT SHARE THESE VIDEOS WITH ANYONE PLEASE__**. "
+        "If I see any of these leak ahead of schedule, advanced access to them will immediately cease. - Comments on "
+        "the video are disabled while they are in this channel. When they publish, THAT would be a great time to try "
+        "and boost the series a little bit with YouTube by leaving a comment on the video then. Comments on the"
+        " videos themselves ALWAYS help substantially more than remarks made here on Discord."
+    )
+    EMBED = discord.Embed(title="Welcome to XCOM!", description=XCOM_MESSAGE, color=Color.dark_blue()).set_footer(
+        text="I am a bot, and this action was taken automatically. If you think this was done by accident,"
+        " please reply to this message."
+    )
+
     def __init__(self, bot: CBot):
         self.bot = bot
         self.settings: pathlib.Path = pathlib.Path(__file__).parent / "sensitive_settings.json"
+        self.base_overrides = {}
+
+    async def cog_load(self) -> None:  # pragma: no cover
+        """Make sure the guild stuff is loaded."""
+        guild = cast(
+            discord.Guild, self.bot.get_guild(225345178955808768) or await self.bot.fetch_guild(225345178955808768)
+        )
+        self.base_overrides = {
+            cast(discord.Role, guild.get_role(338173415527677954)): PermissionOverwrite.from_pair(
+                Permissions(139586817088), Permissions.none()
+            ),
+            guild.default_role: PermissionOverwrite(view_channel=False, send_messages=False, read_messages=False),
+        }
 
     def cog_check(self, ctx: commands.Context) -> bool:
         """Check to make sure runner is a moderator.
@@ -76,121 +107,50 @@ class Admin(commands.Cog):
             f"{database * 1000:.2f}ms\nWebsocket: {self.bot.latency * 1000:.2f}ms"
         )
 
-    @commands.hybrid_group(name="sensitive")
-    @app_commands.guild_only()
-    async def sensitive(self, ctx: commands.Context):
-        """Command group for configuring the sensitive words filter.
+    @commands.command(hidden=True)
+    async def recruit(self, ctx: commands.Context[CBot], *members: discord.Member):  # pragma: no cover
+        """Recruit a member to XCOM.
 
         Parameters
         ----------
-        self : Admin
-            The Admin cog object.
         ctx : Context
             The context of the command.
+        *members : Member
+            The members to recruit.
         """
-        if ctx.invoked_subcommand is None:
-            await ctx.send(
-                "Invoked Sensitive words group - use `add` to add a word, `remove`"
-                " to remove a word, or `query` to get all words on the list."
-            )
-
-    @sensitive.command(name="add")
-    async def add(self, ctx: commands.Context, *, word: str):
-        """Add a word to the sensitive words filter.
-
-        Parameters
-        ----------
-        self : Admin
-            The Admin cog object.
-        ctx : Context
-            The context of the command.
-        word : str
-            The word to add to the filter.
-        """
-        with open(self.settings, "rb") as json_dict:
-            fulldict = orjson.loads(json_dict.read())
-        if word.lower() not in fulldict["words"]:
-            fulldict["words"].append(word.lower())
-            fulldict["words"].sort()
-            with open(self.settings, "wb") as json_dict:
-                json_dict.write(orjson.dumps(fulldict))
-            await ctx.send(
-                embed=Embed(
-                    title="New list of words defined as sensitive",
-                    description=", ".join(fulldict["words"]),
-                    color=Color.green(),
-                    timestamp=datetime.now(tz=timezone.utc),
+        if not await ctx.bot.is_owner(ctx.author):  # pragma: no cover
+            return  # ignore if not from bot owner
+        ret = 0
+        for member in members:
+            try:
+                await member.add_roles(discord.Object(1042837754104533075), reason="New recruit")
+            except discord.HTTPException:
+                await ctx.send("I cannot add the XCOM role.")
+                return
+            try:
+                await member.send(embed=self.EMBED)
+            except discord.HTTPException:
+                guild = cast(discord.Guild, ctx.guild)
+                category = cast(
+                    discord.CategoryChannel,
+                    guild.get_channel(942578610336837632) or await guild.fetch_channel(942578610336837632),
                 )
-            )
-        else:
-            await ctx.send(
-                embed=Embed(
-                    title="Word already in list of words defined as sensitive",
-                    description=", ".join(fulldict["words"]),
-                    color=Color.blue(),
-                    timestamp=datetime.now(tz=timezone.utc),
+                channel = await ctx.guild.create_text_channel(  # pyright: ignore
+                    name=f"xcom-{member.name}-mod-support",
+                    category=category,
+                    overwrites=self.base_overrides
+                    | {
+                        member: PermissionOverwrite.from_pair(Permissions(139586817088), Permissions.none()),
+                    },
                 )
-            )
-
-    @sensitive.command(name="remove")
-    async def remove(self, ctx: commands.Context, *, word: str):
-        """Remove a word from the sensitive words filter.
-
-        Parameters
-        ----------
-        self : Admin
-            The Admin cog object.
-        ctx : Context
-            The context of the command.
-        word : str
-            The word to remove from the filter.
-        """
-        with open(self.settings, "rb") as file:
-            fulldict = orjson.loads(file.read())
-        if word.lower() in fulldict["words"]:
-            fulldict["words"].remove(word.lower())
-            fulldict["words"].sort()
-            await ctx.send(
-                embed=Embed(
-                    title="New list of words defined as sensitive",
-                    description=", ".join(fulldict["words"]),
-                    color=Color.green(),
-                    timestamp=datetime.now(tz=timezone.utc),
+                await channel.send(
+                    f"{member.mention} welcome to XCOM! because you have DMs disabled, please acknowledge the "
+                    f"onboarding information here:",
+                    embed=self.EMBED,
                 )
-            )
-            with open(self.settings, "wb") as file:
-                file.write(orjson.dumps(fulldict))
-        else:
-            await ctx.send(
-                embed=Embed(
-                    title="Word not in list of words defined as sensitive",
-                    description=", ".join(fulldict["words"]),
-                    color=Color.blue(),
-                    timestamp=datetime.now(tz=timezone.utc),
-                )
-            )
-
-    @sensitive.command(name="query")
-    async def query(self, ctx: commands.Context):
-        """Retrieve the list of words defined as sensitive.
-
-        Parameters
-        ----------
-        self : Admin
-            The Admin cog object.
-        ctx : Context
-            The context of the command.
-        """
-        with open(self.settings, "rb") as json_dict:
-            fulldict = orjson.loads(json_dict.read())
-        await ctx.send(
-            embed=Embed(
-                title="List of words defined as sensitive",
-                description=", ".join(sorted(fulldict["words"])),
-                color=Color.blue(),
-                timestamp=datetime.now(tz=timezone.utc),
-            )
-        )
+            else:
+                ret += 1
+        await ctx.reply(f"{ret}/{len(members)} members were added to XCOM and recruited.")
 
     @app_commands.command(
         name="confirm", description="[Charlie only] confirm a winner"
