@@ -57,17 +57,15 @@ class AdventOfCode(commands.Cog):
             title=f"{cast(discord.Guild, ctx.guild).name} Private Leaderboard", timestamp=discord.utils.utcnow()
         )
         for member in members:
-            base = f"• Global Score:{member['global_score']}\n• Local Score:{member['local_score']}"
+            base = f"• Local Score:{member['local_score']}"
             for i in range(1, 26):
                 day = member["completion_day_level"].get(str(i))
                 if day is not None:
-                    base += f"\n•Day {f'0{i}' if i < 10 else i}:\n◦ Completed Part 1 at <t:{day['1']['get_star_ts']}>"
+                    base += f"\n•Day {f'0{i}' if i < 10 else i}:\n◦ Part 1: <t:{day['1']['get_star_ts']}:f>"
                     part2 = day.get("2")
                     if part2 is not None:
-                        base += f"\n◦ Completed Part 2 at <t:{part2['get_star_ts']}>"
-                    else:
-                        base += "\n◦ Have not completed Part 2"
-            embed.add_field(name=member["name"], value=base, inline=False)
+                        base += f"\n◦ Part 2: <t:{part2['get_star_ts']}:f>"
+            embed.add_field(name=member["name"], value=base)
         await ctx.send(embed=embed)
 
 
