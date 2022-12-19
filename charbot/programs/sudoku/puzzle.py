@@ -67,15 +67,16 @@ class Puzzle:
         """Return the puzzle as a string."""
         base = 3
         side = base**2
-        expand_line: Callable[[str], str] = lambda x: x[0] + x[5:9].join([x[1:5] * (base - 1)] * base) + x[9:13]
 
         if self._mobile:
-            line0 = "╔═╤═╦═╗"
-            line1 = "║.│.║.║"
-            line2 = "╟─┼─╫─╢"
-            line3 = "╠═╪═╬═╣"
-            line4 = "╚═╧═╩═╝"
+            expand_line: Callable[[str], str] = lambda x: x[0] + x[3:5].join([x[1:3] * (base - 1)] * base) + x[5:]
+            line0 = expand_line("╔═╤═╦═╗")
+            line1 = expand_line("║.│.║.║")
+            line2 = expand_line("╟─┼─╫─╢")
+            line3 = expand_line("╠═╪═╬═╣")
+            line4 = expand_line("╚═╧═╩═╝")
         else:
+            expand_line: Callable[[str], str] = lambda x: x[0] + x[5:9].join([x[1:5] * (base - 1)] * base) + x[9:]
             line0 = expand_line("╔═══╤═══╦═══╗")
             line1 = expand_line("║ . │ . ║ . ║")
             line2 = expand_line("╟───┼───╫───╢")
