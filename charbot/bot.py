@@ -471,7 +471,7 @@ class Tree(app_commands.CommandTree[CBot]):
                     interaction.locale,
                     data=data
                     | {
-                        "retry_after": round(error.retry_after, 2),  # type: ignore
+                        "retry_after": round(error.retry_after, 2),
                         "$unix-timestamp": discord.utils.format_dt(
                             discord.utils.utcnow() + datetime.timedelta(seconds=error.retry_after)
                         ),
