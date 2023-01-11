@@ -20,3 +20,4 @@ giveaway.csv
 /charbot/giveaway.json
 /charbot.service
 /coverage/reports/coverage.xml
+/.venv/
