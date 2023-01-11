@@ -9,7 +9,7 @@ use std::collections::HashMap;
 
 use pyo3::prelude::PyModule;
 use pyo3::{PyResult, pyfunction, wrap_pyfunction};
-use pyo3::exceptions::{PyRuntimeError};
+use pyo3::exceptions::PyRuntimeError;
 use crate::fluent::translator::Translator;
 
 #[pyfunction]
@@ -23,7 +23,7 @@ Parameters
 ----------
 locale : {'en-US', 'es-ES', 'fr', 'nl'}
     The locale to translate to, e.g. 'en-US'. If the locale exists, but the key does not,
-     en-US will be used if the key exists there.
+    en-US will be used if the key exists there.
 key : str
     The key to translate.
 args : dict[str, int | float | str]

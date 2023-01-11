@@ -3,6 +3,8 @@
 #
 # SPDX-License-Identifier: MIT
 # noinspection PyProtectedMember
+from importlib import metadata as _metadata
+
 from charbot_rust import _charbot_rust
 
 from . import tictactoe, minesweeper
@@ -12,7 +14,7 @@ __title__ = "charbot_rust"
 __author__ = "Bluesy1"
 __license__ = "MIT"
 __copyright__ = "Copyright 2022-present Bluesy1"
-__version__ = __import__("importlib.metadata").metadata.version(__title__)
+__version__ = _metadata.version(__title__)
 __all__ = ("tictactoe", "minesweeper", "translate")
 translate = _charbot_rust.translate
 

@@ -7,7 +7,7 @@ mod common;
 // COV_EXCL_START
 use pyo3::prelude::*;
 
-const DOCSTRING: &str = "Rust based reimplementation of minesweeper";
+const DOCSTRING: &str = "Rust based re-implementation of minesweeper";
 
 pub(crate) fn register_minesweeper(py: Python, m: &PyModule) -> PyResult<()> {
     let minesweeper = PyModule::new(py, "_minesweeper")?;

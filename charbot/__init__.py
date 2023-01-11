@@ -7,8 +7,9 @@ import logging
 import functools as _functools
 import pathlib as _pathlib
 import sys as _sys
-from typing import Any, Generic, TypeVar
+from importlib import metadata as _metadata
 from pkgutil import iter_modules
+from typing import Any, Generic, TypeVar
 
 import discord
 
@@ -18,7 +19,7 @@ __title__ = "charbot"
 __author__ = "Bluesy1"
 __license__ = "MIT"
 __copyright__ = "Copyright 2021-present Bluesy1"
-__version__ = __import__("importlib.metadata").metadata.version(__title__)
+__version__ = _metadata.version(__title__)
 if __version__ != rust_version:  # pragma: no cover
     raise RuntimeError(
         f"The version of charbot does not match the version of the rust library for charbot,"

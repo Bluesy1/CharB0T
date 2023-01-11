@@ -16,7 +16,7 @@ impl Display for HumanPlayer {
 impl Player for HumanPlayer {
     #[allow(const_item_mutation)]
     fn play(&self, board: &Board, _: Piece) -> Index {
-        Board::VALID_INDECES.find(|index| board.cell_is_empty(*index)).unwrap()
+        Board::VALID_INDICES.find(|index| board.cell_is_empty(*index)).unwrap()
     }
 }
 
@@ -29,7 +29,7 @@ mod tests {
         let player = HumanPlayer;
         let board = Board::new();
         let index = player.play(&board, Piece::X);
-        assert!(Board::VALID_INDECES.contains(&index));
+        assert!(Board::VALID_INDICES.contains(&index));
         assert_eq!(0, index);
         assert_eq!("Human player", format!("{}", player));
     }
