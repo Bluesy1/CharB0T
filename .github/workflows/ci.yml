@@ -69,7 +69,7 @@ jobs:
             ~/.cargo/git/db/
             charbot_rust/target/
           key: build-cython-${{ hashFiles('**/Cargo.lock') }}
-      - uses: messense/maturin-action@v1
+      - uses: PyO3/maturin-action@v1
         with:
           manylinux: auto
           command: build
