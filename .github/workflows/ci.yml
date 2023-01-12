@@ -216,7 +216,7 @@ jobs:
           pip install wheels/*
       - name: Run pytest
         id: pytest
-        run: pytest --cov-report=xml:coverage/reports/coverage.xml --cov=charbot tests/ --cov-report=term-missing:skip-covered --cov-config=pyproject.toml --cov-branch
+        run: pytest
       - name: Code Climate Coverage Action
         uses: paambaati/codeclimate-action@v3.2.0
         env:

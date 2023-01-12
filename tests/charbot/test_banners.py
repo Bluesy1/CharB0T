@@ -74,19 +74,17 @@ def test_static_color_banner():
         io.BytesIO(file.read()) as profile,
         Image.open(pathlib.Path(__file__).parent / "media/test_banner_solid_color.png") as expected,
     ):
-        assert (
-            Image.open(
-                banner.banner(
-                    discord.Color.blue(),
-                    "Name",
-                    profile,
-                    "Lorem ipsum dolor sit amet, consectetur adipisci elit, sed eiusmod tempor incidunt ut labore et "
-                    "dolo",
-                    3,
-                )
+        got = Image.open(
+            banner.banner(
+                discord.Color.blue(),
+                "Name",
+                profile,
+                "Lorem ipsum dolor sit amet, consectetur adipisci elit, sed eiusmod tempor incidunt ut labore et "
+                "dolo",
+                3,
             )
-            == expected
-        ), "Got unexpected banner"
+        )
+        assert got == expected, "Got unexpected banner"
 
 
 def test_gradient_color_banner():
@@ -96,19 +94,17 @@ def test_gradient_color_banner():
         io.BytesIO(file.read()) as profile,
         Image.open(pathlib.Path(__file__).parent / "media/test_banner_gradient_color.png") as expected,
     ):
-        assert (
-            Image.open(
-                banner.banner(
-                    (discord.Color.blue(), discord.Color.red()),
-                    "Name",
-                    profile,
-                    "Lorem ipsum dolor sit amet, consectetur adipisci elit, sed eiusmod tempor incidunt ut labore et "
-                    "dolo",
-                    3,
-                )
+        got = Image.open(
+            banner.banner(
+                (discord.Color.blue(), discord.Color.red()),
+                "Name",
+                profile,
+                "Lorem ipsum dolor sit amet, consectetur adipisci elit, sed eiusmod tempor incidunt ut labore et "
+                "dolo",
+                3,
             )
-            == expected
-        ), "Got unexpected banner"
+        )
+        assert got == expected, "Got unexpected banner"
 
 
 def test_image_background_banner():
@@ -118,19 +114,17 @@ def test_image_background_banner():
         io.BytesIO(file.read()) as profile,
         Image.open(pathlib.Path(__file__).parent / "media/test_banner_image_background.png") as expected,
     ):
-        assert (
-            Image.open(
-                banner.banner(
-                    pathlib.Path(__file__).parent / "media/test_image.jpeg",
-                    "Name",
-                    profile,
-                    "Lorem ipsum dolor sit amet, consectetur adipisci elit, sed eiusmod tempor incidunt ut labore et "
-                    "dolo",
-                    3,
-                )
+        got = Image.open(
+            banner.banner(
+                pathlib.Path(__file__).parent / "media/test_image.jpeg",
+                "Name",
+                profile,
+                "Lorem ipsum dolor sit amet, consectetur adipisci elit, sed eiusmod tempor incidunt ut labore et "
+                "dolo",
+                3,
             )
-            == expected
-        ), "Got unexpected banner"
+        )
+        assert got == expected, "Got unexpected banner"
 
 
 @pytest.mark.asyncio
