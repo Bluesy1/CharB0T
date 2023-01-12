@@ -4,7 +4,9 @@
 # SPDX-License-Identifier: MIT
 import io
 import pathlib
+import sys
 from datetime import timedelta
+from os import environ
 
 import discord
 import pytest
@@ -67,6 +69,9 @@ def test_prestige_positions(prestige: int):
         assert actual == expected, f"Got {actual} but expected {expected}"
 
 
+@pytest.mark.xfail(
+    sys.platform == "win32", reason="PIL not consistent between platforms due to various reasons", strict=True
+)
 def test_static_color_banner():
     """Check the banner gets created properly with a solid color background"""
     with (
@@ -87,6 +92,9 @@ def test_static_color_banner():
         assert got == expected, "Got unexpected banner"
 
 
+@pytest.mark.xfail(
+    sys.platform == "win32", reason="PIL not consistent between platforms due to various reasons", strict=True
+)
 def test_gradient_color_banner():
     """Check the banner gets created properly with a gradient color background"""
     with (
@@ -107,6 +115,11 @@ def test_gradient_color_banner():
         assert got == expected, "Got unexpected banner"
 
 
+@pytest.mark.xfail(
+    sys.platform == "win32" or environ.get("pythonLocation", "").startswith("/opt/hostedtoolcache"),
+    reason="PIL not consistent between platforms due to various reasons",
+    strict=True,
+)
 def test_image_background_banner():
     """Check the banner gets created properly with a gradient color background"""
     with (

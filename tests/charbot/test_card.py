@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 # SPDX-FileCopyrightText: 2021 Bluesy1 <68259537+Bluesy1@users.noreply.github.com>
 # SPDX-License-Identifier: MIT
+import sys
 from io import BytesIO
 
 import pytest
@@ -11,6 +12,9 @@ from charbot import card
 
 
 @pytest.mark.parametrize("current", [0, 1, 35, 68, 100])
+@pytest.mark.xfail(
+    sys.platform == "win32", reason="PIL not consistent between platforms due to various reasons", strict=True
+)
 def test_generate_card(current):
     """Test the generate_card function."""
     with Image.open(f"tests/charbot/media/card_test_{current}_rep.PNG") as expected, open(
