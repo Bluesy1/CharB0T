@@ -10,10 +10,10 @@ from io import BytesIO
 
 import discord
 from PIL import Image
-from discord import ButtonStyle, ui, SelectOption
+from discord import ButtonStyle, Interaction, SelectOption, ui
 from typing_extensions import Self
 
-from .. import GuildComponentInteraction as Interaction, CBot, translate
+from .. import CBot, translate
 from charbot_rust import minesweeper
 
 

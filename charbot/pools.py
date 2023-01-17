@@ -44,33 +44,31 @@ class Pools(commands.GroupCog, name="pools", description="Reputation pools for c
     def __init__(self, bot: CBot):
         self.bot = bot
 
-        @self.add.autocomplete("pool")
-        @self.query.autocomplete("pool")
-        async def pool_autocomplete(interaction: Interaction, current: str) -> list[app_commands.Choice[str]]:
-            """Autocomplete a pool name.
+    async def pool_autocomplete(self, interaction: Interaction[CBot], current: str) -> list[app_commands.Choice[str]]:
+        """Autocomplete a pool name.
 
-            Parameters
-            ----------
-            interaction : Interaction
-                The interaction object.
-            current : str
-                The current string.
+        Parameters
+        ----------
+        interaction : Interaction
+            The interaction object.
+        current : str
+            The current string.
 
-            Returns
-            -------
-            list[app_commands.Choice[str]]
-                The list of choices.
-            """
-            member = interaction.user
-            assert isinstance(member, discord.Member)  # skipcq: BAN-B101
-            return [
-                app_commands.Choice(name=pool["pool"], value=pool["pool"])
-                for pool in await self.bot.pool.fetch("SELECT pool, required_roles FROM pools")
-                if current.lower() in pool["pool"].lower()
-                and any(role.id in pool["required_roles"] for role in member.roles)
-            ]
+        Returns
+        -------
+        list[app_commands.Choice[str]]
+            The list of choices.
+        """
+        member = interaction.user
+        assert isinstance(member, discord.Member)  # skipcq: BAN-B101
+        return [
+            app_commands.Choice(name=pool["pool"], value=pool["pool"])
+            for pool in await self.bot.pool.fetch("SELECT pool, required_roles FROM pools")
+            if current.lower() in pool["pool"].lower()
+            and any(role.id in pool["required_roles"] for role in member.roles)
+        ]
 
-    async def interaction_check(self, interaction: Interaction) -> bool:
+    async def interaction_check(self, interaction: Interaction[CBot]) -> bool:
         """Check if the interaction is valid.
 
         Parameters
@@ -103,9 +101,10 @@ class Pools(commands.GroupCog, name="pools", description="Reputation pools for c
             raise errors.WrongChannelError(969972085445238784, interaction.locale)
         return True
 
-    @app_commands.command(name="add", description="Add reputation to an active pool.")
+    @app_commands.command(name="add", description="Add reputation to an active pool.")  # pyright: ignore
+    @app_commands.autocomplete(pool=pool_autocomplete)  # pyright: ignore
     @app_commands.describe(pool="The pool to add to.", amount="The amount to add.")
-    async def add(self, interaction: Interaction, pool: str, amount: app_commands.Range[int, 1]):
+    async def add(self, interaction: Interaction[CBot], pool: str, amount: app_commands.Range[int, 1]):
         """Add reputation to an active pool.
 
         If the pool overflowed by the addition, it only fills it to the maximum.
@@ -172,9 +171,10 @@ class Pools(commands.GroupCog, name="pools", description="Reputation pools for c
             assert isinstance(channel, discord.abc.Messageable)  # skipcq: BAN-B101
             await channel.send(f"{interaction.user.mention} has filled {pool}!", file=image)
 
-    @app_commands.command(name="query", description="Check the status of an active pool.")
+    @app_commands.command(name="query", description="Check the status of an active pool.")  # pyright: ignore
+    @app_commands.autocomplete(pool=pool_autocomplete)  # pyright: ignore
     @app_commands.describe(pool="The pool to check.")
-    async def query(self, interaction: Interaction, pool: str):
+    async def query(self, interaction: Interaction[CBot], pool: str):
         """Check the status of an active pool.
 
         Parameters

@@ -181,10 +181,10 @@ class Leveling(commands.Cog):
             elif level >= 30:
                 await member.add_roles(discord.Object(969629622453039104), reason=f"Rejoined at level {level}")
 
-    @app_commands.command()
+    @app_commands.command()  # pyright: ignore
     @app_commands.guild_only()
     @app_commands.checks.cooldown(1, 900, key=lambda interaction: interaction.user.id)
-    async def rank(self, interaction: Interaction, user: Optional[discord.Member] = None):
+    async def rank(self, interaction: Interaction[CBot], user: Optional[discord.Member] = None):
         """Check your or someone's level and rank.
 
         Parameters

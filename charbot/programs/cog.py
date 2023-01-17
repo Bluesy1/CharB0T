@@ -11,10 +11,10 @@ from itertools import count
 from typing import Final, Literal, cast
 
 import discord
-from discord import app_commands
+from discord import Interaction, app_commands
 from discord.ext import commands
 
-from .. import CBot, GuildInteraction as Interaction, errors
+from .. import CBot, errors
 from . import sudoku, tictactoe, shrugman
 from .minesweeper import Minesweeper
 from charbot_rust.minesweeper import Game as MinesweeperGame  # pyright: ignore[reportGeneralTypeIssues]
@@ -30,7 +30,7 @@ class Reputation(commands.Cog, name="Programs"):
         re.RegexFlag.MULTILINE | re.RegexFlag.DOTALL | re.RegexFlag.IGNORECASE,
     )
 
-    async def interaction_check(self, interaction: Interaction["CBot"]):  # skipcq: PYL-W0221
+    async def interaction_check(self, interaction: Interaction[CBot]):  # skipcq: PYL-W0221
         """Check if the user is allowed to use the cog."""
         if interaction.guild is None:
             raise app_commands.NoPrivateMessage("Programs can't be used in direct messages.")
@@ -54,7 +54,7 @@ class Reputation(commands.Cog, name="Programs"):
     beta = app_commands.Group(name="beta", description="Beta programs..", parent=programs)
 
     @programs.command(name="sudoku", description="Play a Sudoku puzzle")  # pyright: ignore[reportGeneralTypeIssues]
-    async def sudoku(self, interaction: Interaction["CBot"], mobile: bool):
+    async def sudoku(self, interaction: Interaction[CBot], mobile: bool):
         """Generate a sudoku puzzle.
 
         Parameters
@@ -80,7 +80,7 @@ class Reputation(commands.Cog, name="Programs"):
     @programs.command(
         name="tictactoe", description="Play a game of Tic Tac Toe!"
     )  # pyright: ignore[reportGeneralTypeIssues]
-    async def tictactoe(self, interaction: Interaction["CBot"], difficulty: tictactoe.Difficulty):
+    async def tictactoe(self, interaction: Interaction[CBot], difficulty: tictactoe.Difficulty):
         """Play a game of Tic Tac Toe! Now built with rust.
 
         Parameters
@@ -100,7 +100,7 @@ class Reputation(commands.Cog, name="Programs"):
     @programs.command(
         name="shrugman", description="Play the shrugman minigame. (Hangman clone)"
     )  # pyright: ignore[reportGeneralTypeIssues]
-    async def shrugman(self, interaction: Interaction["CBot"]) -> None:
+    async def shrugman(self, interaction: Interaction[CBot]) -> None:
         """Play a game of Shrugman.
 
         This game is a hangman-like game.
@@ -133,7 +133,7 @@ class Reputation(commands.Cog, name="Programs"):
     @programs.command()  # pyright: ignore[reportGeneralTypeIssues]
     async def minesweeper(
         self,
-        interaction: Interaction["CBot"],
+        interaction: Interaction[CBot],
         difficulty: Literal["Beginner", "Intermediate", "Expert", "Super Expert"],
     ):
         """Play a game of Minesweeper.
@@ -165,7 +165,7 @@ class Reputation(commands.Cog, name="Programs"):
     # noinspection SpellCheckingInspection
     @app_commands.command()  # pyright: ignore[reportGeneralTypeIssues]
     @app_commands.guild_only()
-    async def rollcall(self, interaction: Interaction["CBot"]):
+    async def rollcall(self, interaction: Interaction[CBot]):
         """Claim your daily reputation bonus.
 
         Parameters
@@ -207,7 +207,7 @@ class Reputation(commands.Cog, name="Programs"):
         name="reputation", description="Check your reputation"
     )  # pyright: ignore[reportGeneralTypeIssues]
     @app_commands.guild_only()
-    async def query_points(self, interaction: Interaction["CBot"]):
+    async def query_points(self, interaction: Interaction[CBot]):
         """Query your reputation.
 
         Parameters

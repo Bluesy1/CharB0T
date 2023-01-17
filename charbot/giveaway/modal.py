@@ -7,14 +7,13 @@
 from __future__ import annotations
 
 import discord
-from discord import ui
+from discord import Interaction, ui
 from typing import TYPE_CHECKING, cast
 
 import charbot_rust
 
 if TYPE_CHECKING:  # pragma: no cover
     from . import GiveawayView, CBot
-    from .. import GuildComponentInteraction as Interaction
 
 
 def rectify_bid(bid_int: int, current_bid: int | None, points: int) -> int:
@@ -73,7 +72,7 @@ class BidModal(ui.Modal, title="Bid"):
         required=True,
     )
 
-    async def on_submit(self, interaction: "Interaction[CBot]") -> None:
+    async def on_submit(self, interaction: Interaction["CBot"]) -> None:
         """Call when a bid modal is submitted.
 
         Parameters
@@ -179,7 +178,7 @@ class BidModal(ui.Modal, title="Bid"):
             return False
         return True
 
-    async def invalid_bid(self, interaction):
+    async def invalid_bid(self, interaction: Interaction["CBot"]):
         """Call when a bid is invalid."""
         await interaction.response.send_message(
             charbot_rust.translate(interaction.locale.value, "giveaway-bid-invalid-bid", {}), ephemeral=True

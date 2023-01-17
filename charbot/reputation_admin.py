@@ -8,11 +8,11 @@ from typing import Optional, cast
 
 import asyncpg
 import discord
-from discord import app_commands
+from discord import Interaction, app_commands
 from discord.ext import commands, tasks
 from discord.utils import utcnow, sleep_until
 
-from . import CBot, GuildInteraction as Interaction
+from . import CBot
 from .card import generate_card
 
 
@@ -725,7 +725,7 @@ class ReputationAdmin(
         except ValueError:
             await interaction.followup.send("Invalid color, it is being ignored.")
             _color = discord.utils.MISSING
-        role = await interaction.guild.create_role(
+        role = await cast(discord.Guild, interaction.guild).create_role(
             name=f"{user.name}'s deal",
             color=_color,
             hoist=hoist,
@@ -733,7 +733,9 @@ class ReputationAdmin(
             reason=f"{interaction.user} (id: {interaction.user.id}) requested a deal or no deal role role for"
             f" {user.name} (id: {user.id})",
         )
-        await interaction.guild.edit_role_positions({role: above.position + 1}, reason="Correct placement of deal role")
+        await cast(discord.Guild, interaction.guild).edit_role_positions(
+            {role: above.position + 1}, reason="Correct placement of deal role"
+        )
         await self.bot.pool.execute(
             "INSERT INTO deal_no_deal (user_id, role_id, until) VALUES ($1, $2, $3)",
             user.id,

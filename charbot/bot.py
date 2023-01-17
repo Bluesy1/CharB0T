@@ -437,7 +437,7 @@ class Tree(app_commands.CommandTree[CBot]):
         self.logger = logging.getLogger("charbot.tree")
 
     async def on_error(
-        self, interaction: discord.Interaction, error: app_commands.AppCommandError
+        self, interaction: discord.Interaction[CBot], error: app_commands.AppCommandError
     ) -> None:  # pragma: no cover
         """Event triggered when an error is raised while invoking a command.
 

@@ -3,10 +3,10 @@
 # SPDX-License-Identifier: MIT
 """Banner approval flow."""
 import discord
-from discord import ui
+from discord import Interaction, ui
 
 from .._types import BannerStatus
-from ... import GuildComponentInteraction as Interaction, CBot
+from ... import CBot
 
 
 class ApprovalView(ui.View):

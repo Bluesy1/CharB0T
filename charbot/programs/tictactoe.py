@@ -14,10 +14,10 @@ from typing_extensions import Self
 
 import discord
 from PIL import Image
-from discord import ButtonStyle, ui
+from discord import ButtonStyle, Interaction, ui
 from discord.utils import utcnow
 
-from .. import GuildComponentInteraction as Interaction, CBot
+from .. import CBot
 from charbot_rust.tictactoe import Game, Difficulty, Piece  # pyright: ignore[reportGeneralTypeIssues]
 
 

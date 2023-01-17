@@ -15,13 +15,13 @@ from typing import Final, cast
 import asyncpg
 import discord
 from PIL import Image
-from discord import app_commands, utils
+from discord import Interaction, app_commands, utils
 from discord.ext import commands
 
 from . import ColorOpts, views
 from .banner import generate_banner
 from ._types import BannerStatus, BannerStatusPoints
-from .. import GuildInteraction as Interaction, CBot
+from .. import CBot
 
 
 BASE_PATH: Final[Path] = Path(__file__).parent / "user_assets"
@@ -171,7 +171,7 @@ class Betas(commands.Cog):
         if banner_rec["approved"] is False:
             await interaction.followup.send("Your banner_rec is still pending approval!")
             return
-        banner_bytes = await generate_banner(banner_rec, interaction.user)
+        banner_bytes = await generate_banner(banner_rec, cast(discord.Member, interaction.user))
         banner_file = discord.File(banner_bytes, filename="banner.png")
         await interaction.followup.send(
             f"Your banner has been approved and is as follows! Cooldown until: "
