@@ -3,10 +3,11 @@
 # SPDX-License-Identifier: MIT
 import discord
 import pytest
+from discord import Interaction
 from discord.ext import commands
 from pytest_mock import MockerFixture
 
-from charbot import query, GuildInteraction, CBot
+from charbot import query, CBot
 
 
 def test_cog_check_no_guild(mocker: MockerFixture):
@@ -88,7 +89,7 @@ async def test_source_command(mocker: MockerFixture):
 @pytest.mark.parametrize("rule,member_id,expected_key", [(None, None, 1), (None, 1, 2), (1, None, 3), (1, 1, 4)])
 async def test_rule_command(mocker: MockerFixture, rule: int | None, member_id: int | None, expected_key: int):
     """Test rule command."""
-    mock_itx = mocker.AsyncMock(spec=GuildInteraction[CBot])
+    mock_itx = mocker.AsyncMock(spec=Interaction[CBot])
     mock_itx.user = mocker.AsyncMock(spec=discord.Member)
     mock_itx.user.id = member_id
     mock_itx.user.mention = f"<@{member_id}>"
@@ -155,9 +156,7 @@ async def test_rule_command(mocker: MockerFixture, rule: int | None, member_id: 
 @pytest.mark.parametrize("ephemeral", [True, False])
 async def test_leaderboard_command(mocker: MockerFixture, ephemeral: bool):
     """Test leaderboard command."""
-    mock_itx = mocker.AsyncMock(
-        spec=GuildInteraction[CBot], response=mocker.AsyncMock(spec=discord.InteractionResponse)
-    )
+    mock_itx = mocker.AsyncMock(spec=Interaction[CBot], response=mocker.AsyncMock(spec=discord.InteractionResponse))
     cog = query.Query(mocker.AsyncMock(spec=CBot))
     await cog.leaderboard.callback(cog, mock_itx, ephemeral)  # pyright: ignore[reportGeneralTypeIssues]
     mock_itx.response.send_message.assert_awaited_once_with("https://cpry.net/leaderboard", ephemeral=ephemeral)
