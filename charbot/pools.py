@@ -101,8 +101,8 @@ class Pools(commands.GroupCog, name="pools", description="Reputation pools for c
             raise errors.WrongChannelError(969972085445238784, interaction.locale)
         return True
 
-    @app_commands.command(name="add", description="Add reputation to an active pool.")  # pyright: ignore
-    @app_commands.autocomplete(pool=pool_autocomplete)  # pyright: ignore
+    @app_commands.command(name="add", description="Add reputation to an active pool.")
+    @app_commands.autocomplete(pool=pool_autocomplete)
     @app_commands.describe(pool="The pool to add to.", amount="The amount to add.")
     async def add(self, interaction: Interaction[CBot], pool: str, amount: app_commands.Range[int, 1]):
         """Add reputation to an active pool.
@@ -171,8 +171,8 @@ class Pools(commands.GroupCog, name="pools", description="Reputation pools for c
             assert isinstance(channel, discord.abc.Messageable)  # skipcq: BAN-B101
             await channel.send(f"{interaction.user.mention} has filled {pool}!", file=image)
 
-    @app_commands.command(name="query", description="Check the status of an active pool.")  # pyright: ignore
-    @app_commands.autocomplete(pool=pool_autocomplete)  # pyright: ignore
+    @app_commands.command(name="query", description="Check the status of an active pool.")
+    @app_commands.autocomplete(pool=pool_autocomplete)
     @app_commands.describe(pool="The pool to check.")
     async def query(self, interaction: Interaction[CBot], pool: str):
         """Check the status of an active pool.

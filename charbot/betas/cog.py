@@ -69,7 +69,7 @@ class Betas(commands.Cog):
                     )
                     # await conn.execute("UPDATE users SET points = points - 50 WHERE id = $1", member.id)
 
-    @banner.command()  # pyright: ignore[reportGeneralTypeIssues]
+    @banner.command()
     @app_commands.checks.cooldown(2, 60 * 60 * 24 * 7 * 4, key=lambda i: i.user.id)  # pragma: no branch
     async def request(
         self,
@@ -150,7 +150,7 @@ class Betas(commands.Cog):
             )
             await interaction.followup.send(f"You now have {remaining} rep remaining.\nYou have requested a banner!")
 
-    @banner.command()  # pyright: ignore[reportGeneralTypeIssues]
+    @banner.command()
     async def status(self, interaction: Interaction[CBot]) -> None:
         """Check the status of your banner request.
 

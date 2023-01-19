@@ -260,7 +260,7 @@ class Query(Cog):
         """Clear the OCR done set."""
         self.ocr_done.clear()
 
-    @app_commands.command()  # pyright: ignore[reportGeneralTypeIssues]
+    @app_commands.command()
     @app_commands.guild_only()
     async def rules(
         self,
@@ -295,7 +295,7 @@ class Query(Cog):
         else:
             await interaction.response.send_message(resp, ephemeral=True)
 
-    @app_commands.command()  # pyright: ignore[reportGeneralTypeIssues]
+    @app_commands.command()
     @app_commands.guild_only()
     async def leaderboard(self, interaction: Interaction["CBot"], ephemeral: bool = True):
         """Get the leaderboard of the server.

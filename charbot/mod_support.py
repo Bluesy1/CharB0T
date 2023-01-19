@@ -106,7 +106,7 @@ class ModSupport(GroupCog, name="modsupport", description="mod support command g
             if temp:
                 await channel.delete()
 
-    @app_commands.command(name="query", description="queries list of users banned from mod support")  # pyright: ignore
+    @app_commands.command(name="query", description="queries list of users banned from mod support")
     @app_commands.guild_only()
     async def query(self, interaction: Interaction[CBot]):
         """Modmail blacklist query command.
@@ -131,7 +131,7 @@ class ModSupport(GroupCog, name="modsupport", description="mod support command g
     @app_commands.command(
         name="edit",
         description="adds or removes a user from the list of users banned from mod" " support",
-    )  # pyright: ignore
+    )
     @app_commands.guild_only()
     async def edit(self, interaction: Interaction[CBot], add: bool, user: discord.Member):
         """Modmail edit blacklist command.

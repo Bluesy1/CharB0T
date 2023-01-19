@@ -152,9 +152,7 @@ class Admin(commands.Cog):
                 ret += 1
         await ctx.reply(f"{ret}/{len(members)} members were added to XCOM and recruited.")
 
-    @app_commands.command(
-        name="confirm", description="[Charlie only] confirm a winner"
-    )  # pyright: ignore[reportGeneralTypeIssues]
+    @app_commands.command(name="confirm", description="[Charlie only] confirm a winner")
     @app_commands.guild_only()
     @app_commands.default_permissions(administrator=True)
     @app_commands.checks.cooldown(1, 3600, key=lambda i: i.namespace.member)
@@ -165,7 +163,7 @@ class Admin(commands.Cog):
         ----------
         interaction: charbot.Interaction[CBot]
             The interaction of the command invocation. At runtime, this is a discord.Interaction object, buy for
-             typechecking, it's a charbot.Interaction object to help infer the properties of the object.
+            typechecking, it's a charbot.Interaction object to help infer the properties of the object.
         member : discord.Member
             The user to confirm as a winner.
         """
