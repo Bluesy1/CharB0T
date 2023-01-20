@@ -32,7 +32,7 @@ classifiers = [
 dependencies = [
 	"aiohttp[speedups]==3.8.3",
 	"asyncpg==0.27.0",
-	"discord.py[speed] @ git+https://github.com/Rapptz/discord.py@2e737e70defc3ea33fe113b9d26f43cb28df03c5#egg=discord.py",
+	"discord.py[speed] @ git+https://github.com/Rapptz/discord.py@bbba8c650fcb54e9cd69b6a0f6b162fcf277f9f5#egg=discord.py",
 	"disrank==0.0.2",
 	"jishaku @ git+https://github.com/Gorialis/jishaku@d5ee79d01b2f95d52713cd189e72964050089d63#egg=jishaku",
 	"orjson==3.8.5",

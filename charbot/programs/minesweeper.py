@@ -135,7 +135,7 @@ class Minesweeper(ui.View):
         await interaction.edit_original_response(attachments=[file], embed=embed, view=None)
         self.stop()
 
-    @ui.select(placeholder="Select a row")  # pyright: ignore[reportGeneralTypeIssues]
+    @ui.select(placeholder="Select a row")
     async def row(self, interaction: Interaction[CBot], select: ui.Select[Self]):
         """Change the row.
 
@@ -155,7 +155,7 @@ class Minesweeper(ui.View):
             opt.default = opt.value == val
         await interaction.response.edit_message(attachments=[file], view=self)
 
-    @ui.select(placeholder="Select a column")  # pyright: ignore[reportGeneralTypeIssues]
+    @ui.select(placeholder="Select a column")
     async def column(self, interaction: Interaction[CBot], select: ui.Select[Self]):
         """Change the column.
 
@@ -175,7 +175,7 @@ class Minesweeper(ui.View):
             opt.default = opt.value == val
         await interaction.response.edit_message(attachments=[file], view=self)
 
-    @ui.button(label="Reveal", style=ButtonStyle.primary, emoji="\u26cf")  # pyright: ignore[reportGeneralTypeIssues]
+    @ui.button(label="Reveal", style=ButtonStyle.primary, emoji="\u26cf")
     async def reveal(self, interaction: Interaction[CBot], _button: ui.Button[Self]):
         """Reveal a tile.
 
@@ -203,7 +203,7 @@ class Minesweeper(ui.View):
                 )
 
     # noinspection GrazieInspection
-    @ui.button(label="Chord", style=ButtonStyle.primary, emoji="\u2692")  # pyright: ignore[reportGeneralTypeIssues]
+    @ui.button(label="Chord", style=ButtonStyle.primary, emoji="\u2692")
     async def chord(self, interaction: Interaction[CBot], _button: ui.Button[Self]):
         """Chord a tile.
 
@@ -231,7 +231,7 @@ class Minesweeper(ui.View):
         else:
             await self.handle_lose(interaction)
 
-    @ui.button(label="Flag", style=ButtonStyle.success, emoji="\U0001f6a9")  # pyright: ignore[reportGeneralTypeIssues]
+    @ui.button(label="Flag", style=ButtonStyle.success, emoji="\U0001f6a9")
     async def flag(self, interaction: Interaction[CBot], _button: ui.Button[Self]):
         """Flag a tile.
 
@@ -253,7 +253,7 @@ class Minesweeper(ui.View):
                 translate(interaction.locale.value, "minesweeper-flag-error", {}), ephemeral=True
             )
 
-    @ui.button(label="Quit", style=ButtonStyle.danger, emoji="\u2620")  # pyright: ignore[reportGeneralTypeIssues]
+    @ui.button(label="Quit", style=ButtonStyle.danger, emoji="\u2620")
     async def quit(self, interaction: Interaction[CBot], _button: ui.Button[Self]):
         """Quit the game.
 
@@ -277,7 +277,7 @@ class Minesweeper(ui.View):
         await interaction.response.edit_message(attachments=[file], embed=embed, view=None)
         self.stop()
 
-    @ui.button(label="Help", style=ButtonStyle.secondary, emoji="\u2049")  # pyright: ignore[reportGeneralTypeIssues]
+    @ui.button(label="Help", style=ButtonStyle.secondary, emoji="\u2049")
     async def help(self, interaction: Interaction[CBot], _button: ui.Button[Self]):
         """Display the help message.
 

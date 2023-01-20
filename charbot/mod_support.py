@@ -265,13 +265,7 @@ class ModSupportButtons(ui.View):
             )
         )
 
-    @ui.button(
-        label="General",
-        style=discord.ButtonStyle.success,
-        custom_id="Modmail_General",
-        emoji="❔",
-        row=0,
-    )  # pyright: ignore
+    @ui.button(label="General", style=discord.ButtonStyle.success, custom_id="Modmail_General", emoji="❔", row=0)
     async def general(self, interaction: Interaction[CBot], button: discord.ui.Button):
         """General mod support callback.
 
@@ -284,13 +278,7 @@ class ModSupportButtons(ui.View):
         """
         await self.standard_callback(button, interaction)
 
-    @ui.button(
-        label="Important",
-        style=discord.ButtonStyle.primary,
-        custom_id="Modmail_Important",
-        emoji="❗",
-        row=0,
-    )  # pyright: ignore
+    @ui.button(label="Important", style=discord.ButtonStyle.primary, custom_id="Modmail_Important", emoji="❗", row=0)
     async def important(self, interaction: Interaction[CBot], button: discord.ui.Button):
         """Mod support callback for important issues.
 
@@ -303,13 +291,7 @@ class ModSupportButtons(ui.View):
         """
         await self.standard_callback(button, interaction)
 
-    @ui.button(
-        label="Emergency",
-        style=discord.ButtonStyle.danger,
-        custom_id="Modmail_Emergency",
-        emoji="‼",
-        row=0,
-    )  # pyright: ignore
+    @ui.button(label="Emergency", style=discord.ButtonStyle.danger, custom_id="Modmail_Emergency", emoji="‼", row=0)
     async def emergency(self, interaction: Interaction[CBot], button: discord.ui.Button):
         """Emergency mod support callback.
 
@@ -322,13 +304,7 @@ class ModSupportButtons(ui.View):
         """
         await self.standard_callback(button, interaction)
 
-    @ui.select(
-        placeholder="Private",
-        custom_id="Modmail_Private",
-        max_values=5,
-        options=_PRIVATE_OPTIONS,
-        row=1,
-    )  # pyright: ignore
+    @ui.select(placeholder="Private", custom_id="Modmail_Private", max_values=5, options=_PRIVATE_OPTIONS, row=1)
     async def private(self, interaction: Interaction[CBot], select: discord.ui.Select):
         """Private mod support callback.
 
