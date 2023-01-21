@@ -9,9 +9,7 @@ import pathlib as _pathlib
 import sys as _sys
 from importlib import metadata as _metadata
 from pkgutil import iter_modules
-from typing import Any, Generic, TypeVar
-
-import discord
+from typing import Any
 
 from charbot_rust import translate, __version__ as rust_version
 
@@ -31,16 +29,11 @@ __all__ = (
     "CBot",
     "Tree",
     "Config",
-    "Interaction",
-    "GuildInteraction",
-    "ComponentInteraction",
-    "GuildComponentInteraction",
     "translate",
 )
 __blacklist__ = [f"{__package__}.{item}" for item in ("__main__", "bot", "card", "errors", "types", "translator")]
 
 EXTENSIONS = [module.name for module in iter_modules(__path__, f"{__package__}.") if module.name not in __blacklist__]
-T = TypeVar("T", bound="CBot")
 
 
 class _Config:
@@ -110,28 +103,6 @@ class _Config:
             raise
         finally:
             self.logger.info("Got key %s from config file.", ":".join(args))
-
-
-class Interaction(discord.Interaction, Generic[T]):  # skipcq: PY-D0002
-    client: T
-
-
-class GuildInteraction(Interaction[T]):  # skipcq: PY-D0002
-    client: T
-    guild: discord.Guild
-    user: discord.Member
-
-
-class ComponentInteraction(Interaction[T]):  # skipcq: PY-D0002
-    client: T
-    message: discord.Message
-
-
-class GuildComponentInteraction(Interaction[T]):  # skipcq: PY-D0002
-    client: T
-    guild: discord.Guild
-    message: discord.Message
-    user: discord.Member
 
 
 Config = _Config()

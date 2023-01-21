@@ -18,7 +18,7 @@ from discord.utils import utcnow
 from . import CBot
 
 
-async def edit_check(interaction: Interaction) -> bool:
+async def edit_check(interaction: Interaction[CBot]) -> bool:
     """Check for if a user is allowed to edit the blacklist.
 
     Parameters
@@ -108,7 +108,7 @@ class ModSupport(GroupCog, name="modsupport", description="mod support command g
 
     @app_commands.command(name="query", description="queries list of users banned from mod support")
     @app_commands.guild_only()
-    async def query(self, interaction: Interaction):
+    async def query(self, interaction: Interaction[CBot]):
         """Modmail blacklist query command.
 
         This command is used to query the mod support blacklist.
@@ -133,7 +133,7 @@ class ModSupport(GroupCog, name="modsupport", description="mod support command g
         description="adds or removes a user from the list of users banned from mod" " support",
     )
     @app_commands.guild_only()
-    async def edit(self, interaction: Interaction, add: bool, user: discord.Member):
+    async def edit(self, interaction: Interaction[CBot], add: bool, user: discord.Member):
         """Modmail edit blacklist command.
 
         Parameters
@@ -218,7 +218,7 @@ class ModSupportButtons(ui.View):
         self.mods = mods
         self.filename: Final[pathlib.Path] = pathlib.Path(__file__).parent / "mod_support_blacklist.json"
 
-    async def interaction_check(self, interaction: Interaction) -> bool:
+    async def interaction_check(self, interaction: Interaction[CBot]) -> bool:
         """Check to run for all interaction instances.
 
         Parameters
@@ -234,13 +234,13 @@ class ModSupportButtons(ui.View):
         with open(self.filename, "rb") as file:
             return interaction.user.id not in orjson.loads(file.read())["blacklisted"]
 
-    async def on_error(self, interaction: Interaction, error: Exception, item: Item[Any], /) -> None:
+    async def on_error(self, interaction: Interaction[CBot], error: Exception, item: Item[Any], /) -> None:
         """On error logger"""
         logging.getLogger("charbot.mod_support").error(
             "Ignoring exception in view %r for item %r, with user %s", self, item, interaction.user, exc_info=error
         )
 
-    async def standard_callback(self, button: discord.ui.Button, interaction: Interaction):
+    async def standard_callback(self, button: discord.ui.Button, interaction: Interaction[CBot]):
         """Just general and important and emergency callback helper.
 
         This is the callback for all buttons.
@@ -265,14 +265,8 @@ class ModSupportButtons(ui.View):
             )
         )
 
-    @ui.button(
-        label="General",
-        style=discord.ButtonStyle.success,
-        custom_id="Modmail_General",
-        emoji="❔",
-        row=0,
-    )
-    async def general(self, interaction: Interaction, button: discord.ui.Button):
+    @ui.button(label="General", style=discord.ButtonStyle.success, custom_id="Modmail_General", emoji="❔", row=0)
+    async def general(self, interaction: Interaction[CBot], button: discord.ui.Button):
         """General mod support callback.
 
         Parameters
@@ -284,14 +278,8 @@ class ModSupportButtons(ui.View):
         """
         await self.standard_callback(button, interaction)
 
-    @ui.button(
-        label="Important",
-        style=discord.ButtonStyle.primary,
-        custom_id="Modmail_Important",
-        emoji="❗",
-        row=0,
-    )
-    async def important(self, interaction: Interaction, button: discord.ui.Button):
+    @ui.button(label="Important", style=discord.ButtonStyle.primary, custom_id="Modmail_Important", emoji="❗", row=0)
+    async def important(self, interaction: Interaction[CBot], button: discord.ui.Button):
         """Mod support callback for important issues.
 
         Parameters
@@ -303,14 +291,8 @@ class ModSupportButtons(ui.View):
         """
         await self.standard_callback(button, interaction)
 
-    @ui.button(
-        label="Emergency",
-        style=discord.ButtonStyle.danger,
-        custom_id="Modmail_Emergency",
-        emoji="‼",
-        row=0,
-    )
-    async def emergency(self, interaction: Interaction, button: discord.ui.Button):
+    @ui.button(label="Emergency", style=discord.ButtonStyle.danger, custom_id="Modmail_Emergency", emoji="‼", row=0)
+    async def emergency(self, interaction: Interaction[CBot], button: discord.ui.Button):
         """Emergency mod support callback.
 
         Parameters
@@ -322,14 +304,8 @@ class ModSupportButtons(ui.View):
         """
         await self.standard_callback(button, interaction)
 
-    @ui.select(
-        placeholder="Private",
-        custom_id="Modmail_Private",
-        max_values=5,
-        options=_PRIVATE_OPTIONS,
-        row=1,
-    )
-    async def private(self, interaction: Interaction, select: discord.ui.Select):
+    @ui.select(placeholder="Private", custom_id="Modmail_Private", max_values=5, options=_PRIVATE_OPTIONS, row=1)
+    async def private(self, interaction: Interaction[CBot], select: discord.ui.Select):
         """Private mod support callback.
 
         This is the only callback does not use the standard_callback helper
@@ -387,7 +363,7 @@ class ModSupportModal(ui.Modal, title="Mod Support Form"):
         self.channel_name = channel_name
         self.filename = "charbot/mod_support_blacklist.json"
 
-    async def interaction_check(self, interaction: Interaction) -> bool:
+    async def interaction_check(self, interaction: Interaction[CBot]) -> bool:
         """Check to run for all interaction instances.
 
         This is used to check if the interaction user is allowed to use this modal.
@@ -422,7 +398,7 @@ class ModSupportModal(ui.Modal, title="Mod Support Form"):
         custom_id="Long_Description",
     )
 
-    async def on_submit(self, interaction: Interaction):
+    async def on_submit(self, interaction: Interaction[CBot]):
         """Submit callback.
 
         This is where the mod support form is actually submitted.
@@ -452,7 +428,7 @@ class ModSupportModal(ui.Modal, title="Mod Support Form"):
             await channel.send(self.full_description.value)
         await interaction.response.send_message(f"Channel Created: {channel.mention}", ephemeral=True)
 
-    async def on_error(self, interaction: Interaction, error: Exception) -> None:
+    async def on_error(self, interaction: Interaction[CBot], error: Exception) -> None:
         """Error handler for modal.
 
         Parameters
@@ -463,7 +439,7 @@ class ModSupportModal(ui.Modal, title="Mod Support Form"):
             The error that was raised.
         """
         await interaction.response.send_message(
-            "Oh no! Something went wrong. Please ask for a mod's help in this " "channel and let Bluesy know.",
+            "Oh no! Something went wrong. Please ask for a mod's help in this channel and let Bluesy know.",
             ephemeral=True,
         )
         self.logger.error("Ignoring exception in modal %r.", self, exc_info=error)

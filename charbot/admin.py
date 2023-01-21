@@ -7,10 +7,10 @@ from time import perf_counter
 from typing import cast, Final
 
 import discord
-from discord import Color, app_commands, PermissionOverwrite, Permissions
+from discord import Color, Interaction, app_commands, PermissionOverwrite, Permissions
 from discord.ext import commands
 
-from . import CBot, GuildInteraction
+from . import CBot
 
 
 class Admin(commands.Cog):
@@ -152,20 +152,18 @@ class Admin(commands.Cog):
                 ret += 1
         await ctx.reply(f"{ret}/{len(members)} members were added to XCOM and recruited.")
 
-    @app_commands.command(
-        name="confirm", description="[Charlie only] confirm a winner"
-    )  # pyright: ignore[reportGeneralTypeIssues]
+    @app_commands.command(name="confirm", description="[Charlie only] confirm a winner")
     @app_commands.guild_only()
     @app_commands.default_permissions(administrator=True)
     @app_commands.checks.cooldown(1, 3600, key=lambda i: i.namespace.member)
-    async def confirm(self, interaction: GuildInteraction[CBot], member: discord.Member) -> None:
+    async def confirm(self, interaction: Interaction[CBot], member: discord.Member) -> None:
         """Confirm a winner.
 
         Parameters
         ----------
-        interaction: charbot.GuildInteraction[CBot]
+        interaction: charbot.Interaction[CBot]
             The interaction of the command invocation. At runtime, this is a discord.Interaction object, buy for
-             typechecking, it's a charbot.GuildInteraction object to help infer the properties of the object.
+            typechecking, it's a charbot.Interaction object to help infer the properties of the object.
         member : discord.Member
             The user to confirm as a winner.
         """

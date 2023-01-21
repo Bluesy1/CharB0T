@@ -13,7 +13,7 @@ from typing import TYPE_CHECKING, Any, cast
 
 import asyncpg
 import discord
-from discord import ui
+from discord import Interaction, ui
 from discord.utils import MISSING, utcnow
 
 import charbot_rust
@@ -21,10 +21,10 @@ from . import BidModal
 from .. import errors
 
 if TYPE_CHECKING:  # pragma: no cover
-    from .. import CBot, GuildComponentInteraction as Interaction
+    from .. import CBot
 
 
-async def hit_max_wins(interaction):
+async def hit_max_wins(interaction: Interaction["CBot"]):
     """Standard response for when a user has hit max wins for a month."""
     try:
         await interaction.response.send_message(
@@ -119,7 +119,7 @@ class GiveawayView(ui.View):
             raise KeyError("Invalid giveaway embed.") from e
         return view
 
-    async def interaction_check(self, interaction: "Interaction[CBot]") -> bool:  # pragma: no cover
+    async def interaction_check(self, interaction: Interaction["CBot"]) -> bool:  # pragma: no cover
         """Check if the interaction is valid.
         Parameters
         ----------
@@ -139,7 +139,7 @@ class GiveawayView(ui.View):
         return True
 
     async def on_error(
-        self, interaction: "Interaction[CBot]", error: Exception, item: ui.Item[Any]
+        self, interaction: Interaction["CBot"], error: Exception, item: ui.Item[Any]
     ) -> None:  # pragma: no cover
         """Error handler.
         Parameters
@@ -302,8 +302,8 @@ class GiveawayView(ui.View):
         )
 
     # noinspection PyUnusedLocal
-    @ui.button(label="Bid", style=discord.ButtonStyle.green)  # pyright: ignore[reportGeneralTypeIssues]
-    async def bid(self, interaction: "Interaction[CBot]", button: ui.Button) -> None:  # skipcq: PYL-W0613
+    @ui.button(label="Bid", style=discord.ButtonStyle.green)
+    async def bid(self, interaction: Interaction["CBot"], button: ui.Button) -> None:  # skipcq: PYL-W0613
         """Increase or make the initial bid for a user.
         Parameters
         ----------
@@ -332,10 +332,8 @@ class GiveawayView(ui.View):
         asyncio.create_task(_task())
 
     # noinspection PyUnusedLocal
-    @ui.button(
-        label="Check", style=discord.ButtonStyle.blurple, disabled=True
-    )  # pyright: ignore[reportGeneralTypeIssues]
-    async def check(self, interaction: "Interaction[CBot]", button: ui.Button) -> None:  # skipcq: PYL-W0613
+    @ui.button(label="Check", style=discord.ButtonStyle.blurple, disabled=True)
+    async def check(self, interaction: Interaction["CBot"], button: ui.Button) -> None:  # skipcq: PYL-W0613
         """Check the current bid for a user.
         Parameters
         ----------
@@ -360,11 +358,9 @@ class GiveawayView(ui.View):
         )
 
     # noinspection PyUnusedLocal
-    @ui.button(
-        label="Toggle Giveaway Alerts", style=discord.ButtonStyle.danger
-    )  # pyright: ignore[reportGeneralTypeIssues]
+    @ui.button(label="Toggle Giveaway Alerts", style=discord.ButtonStyle.danger)
     async def toggle_alerts(
-        self, interaction: "Interaction[CBot]", _: ui.Button
+        self, interaction: Interaction["CBot"], _: ui.Button
     ) -> None:  # skipcq: PYL-W0613  # pragma: no cover
         """Toggle the giveaway alerts.
         Parameters
@@ -376,15 +372,15 @@ class GiveawayView(ui.View):
         """
         await interaction.response.defer(ephemeral=True, thinking=True)
         async with self.role_semaphore:
-            if all(role.id != 972886729231044638 for role in interaction.user.roles):
-                await interaction.user.add_roles(
+            if all(role.id != 972886729231044638 for role in cast(discord.Member, interaction.user).roles):
+                await cast(discord.Member, interaction.user).add_roles(
                     discord.Object(id=972886729231044638), reason="Toggled giveaway alerts."
                 )
                 await interaction.followup.send(
                     charbot_rust.translate(interaction.locale.value, "giveaway-alerts-enable", {})
                 )
             else:
-                await interaction.user.remove_roles(
+                await cast(discord.Member, interaction.user).remove_roles(
                     discord.Object(id=972886729231044638), reason="Toggled giveaway alerts."
                 )
                 await interaction.followup.send(

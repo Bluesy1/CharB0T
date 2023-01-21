@@ -11,19 +11,19 @@ from zoneinfo import ZoneInfo
 
 import discord
 import pytesseract
-from discord import app_commands
+from discord import Interaction, app_commands
 from discord.ext import commands, tasks
 from discord.ext.commands import Cog, Context
 from PIL import Image, ImageOps
 
 
 if TYPE_CHECKING:  # pragma: no cover
-    from . import CBot, GuildInteraction as Interaction
+    from . import CBot
 
 
 __rules__: Final[dict[int, str]] = {
     1: "Be respectful to others. Being drunk is not an excuse for being stupid. Common-sense matters."
-    " Just because it isn’t explicitly written here, doesn't mean it doesn't break the rules.",
+    " Just because it isn't explicitly written here, doesn't mean it doesn't break the rules.",
     2: "Please utilize the text and voice channels as they are described and keep things on topic."
     " Please be open to explaining and including others for any conversation you have here.",
     3: "Don't spam. Intentionally spamming gets you kicked or muted. Whether or not you are spamming is subject to"
@@ -39,7 +39,7 @@ __rules__: Final[dict[int, str]] = {
     8: "Discord invites and promotions of your own content anywhere but <#298485559813210115> are restricted, "
     "if you wish to post one somewhere please check with Mods",
     9: "Please respect the Mods here. They are good people who sincerely want this environment to be awesome too. "
-    "If they’re advising you to change your behavior, it’s the same as me doing it. Please listen.",
+    "If they're advising you to change your behavior, it's the same as me doing it. Please listen.",
     10: "Some language will be deleted. I like the idea of maintaining a PG-13 community environment. "
     "Find a way to say it another way, if the bot kills your message.",
 }
@@ -150,7 +150,7 @@ class Query(Cog):
         Repository:
         https://github.com/Bluesy1/CharB0T/tree/main/charbot
 
-        Licence:
+        License:
         MIT - https://github.com/Bluesy1/CharB0T/blob/master/LICENSE
 
         Parameters
@@ -260,11 +260,11 @@ class Query(Cog):
         """Clear the OCR done set."""
         self.ocr_done.clear()
 
-    @app_commands.command()  # pyright: ignore[reportGeneralTypeIssues]
+    @app_commands.command()
     @app_commands.guild_only()
     async def rules(
         self,
-        interaction: "Interaction[CBot]",
+        interaction: Interaction["CBot"],
         rule: app_commands.Range[int, 1, 10] | None = None,
         member: discord.Member | None = None,
     ):
@@ -272,7 +272,7 @@ class Query(Cog):
 
         Parameters
         ----------
-        interaction: Interaction[CBot]
+        interaction: Interaction
             The interaction of the command.
         rule: app_commands.Range[int, 1, 10] | None
             The rule to get, if None, all rules are returned.
@@ -295,14 +295,14 @@ class Query(Cog):
         else:
             await interaction.response.send_message(resp, ephemeral=True)
 
-    @app_commands.command()  # pyright: ignore[reportGeneralTypeIssues]
+    @app_commands.command()
     @app_commands.guild_only()
-    async def leaderboard(self, interaction: "Interaction[CBot]", ephemeral: bool = True):
+    async def leaderboard(self, interaction: Interaction["CBot"], ephemeral: bool = True):
         """Get the leaderboard of the server.
 
         Parameters
         ----------
-        interaction: Interaction[CBot]
+        interaction: Interaction
             The interaction of the command.
         ephemeral: bool, default True
             Send the leaderboard as an ephemeral message. Default True.

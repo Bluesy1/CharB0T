@@ -3,10 +3,10 @@
 # SPDX-License-Identifier: MIT
 """Banner approval flow."""
 import discord
-from discord import ui
+from discord import Interaction, ui
 
 from .._types import BannerStatus
-from ... import GuildComponentInteraction as Interaction, CBot
+from ... import CBot
 
 
 class ApprovalView(ui.View):
@@ -31,7 +31,7 @@ class ApprovalView(ui.View):
         """Check if the interaction is valid."""
         return interaction.user.id == self.mod
 
-    @ui.button(label="Approve", style=discord.ButtonStyle.green)  # pyright: ignore[reportGeneralTypeIssues]
+    @ui.button(label="Approve", style=discord.ButtonStyle.green)
     async def approve(self, interaction: Interaction[CBot], _: ui.Button):
         """Approve the banner."""
         await interaction.response.defer(ephemeral=True)
@@ -41,7 +41,7 @@ class ApprovalView(ui.View):
         await interaction.edit_original_response(content="Banner approved.", attachments=[], view=None)
         self.stop()
 
-    @ui.button(label="Deny", style=discord.ButtonStyle.red)  # pyright: ignore[reportGeneralTypeIssues]
+    @ui.button(label="Deny", style=discord.ButtonStyle.red)
     async def deny(self, interaction: Interaction[CBot], _: ui.Button):
         """Deny the banner."""
         await interaction.response.defer(ephemeral=True)
@@ -49,7 +49,7 @@ class ApprovalView(ui.View):
         await interaction.edit_original_response(content="Banner denied.", attachments=[], view=None)
         self.stop()
 
-    @ui.button(label="Cancel", style=discord.ButtonStyle.blurple)  # pyright: ignore[reportGeneralTypeIssues]
+    @ui.button(label="Cancel", style=discord.ButtonStyle.blurple)
     async def cancel(self, interaction: Interaction[CBot], _: ui.Button):
         """Cancel the banner."""
         await interaction.response.defer(ephemeral=True)

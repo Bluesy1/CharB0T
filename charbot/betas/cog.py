@@ -15,13 +15,13 @@ from typing import Final, cast
 import asyncpg
 import discord
 from PIL import Image
-from discord import app_commands, utils
+from discord import Interaction, app_commands, utils
 from discord.ext import commands
 
 from . import ColorOpts, views
 from .banner import generate_banner
 from ._types import BannerStatus, BannerStatusPoints
-from .. import GuildInteraction as Interaction, CBot
+from .. import CBot
 
 
 BASE_PATH: Final[Path] = Path(__file__).parent / "user_assets"
@@ -69,7 +69,7 @@ class Betas(commands.Cog):
                     )
                     # await conn.execute("UPDATE users SET points = points - 50 WHERE id = $1", member.id)
 
-    @banner.command()  # pyright: ignore[reportGeneralTypeIssues]
+    @banner.command()
     @app_commands.checks.cooldown(2, 60 * 60 * 24 * 7 * 4, key=lambda i: i.user.id)  # pragma: no branch
     async def request(
         self,
@@ -150,7 +150,7 @@ class Betas(commands.Cog):
             )
             await interaction.followup.send(f"You now have {remaining} rep remaining.\nYou have requested a banner!")
 
-    @banner.command()  # pyright: ignore[reportGeneralTypeIssues]
+    @banner.command()
     async def status(self, interaction: Interaction[CBot]) -> None:
         """Check the status of your banner request.
 
@@ -171,7 +171,7 @@ class Betas(commands.Cog):
         if banner_rec["approved"] is False:
             await interaction.followup.send("Your banner_rec is still pending approval!")
             return
-        banner_bytes = await generate_banner(banner_rec, interaction.user)
+        banner_bytes = await generate_banner(banner_rec, cast(discord.Member, interaction.user))
         banner_file = discord.File(banner_bytes, filename="banner.png")
         await interaction.followup.send(
             f"Your banner has been approved and is as follows! Cooldown until: "
