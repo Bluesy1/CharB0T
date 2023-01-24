@@ -164,7 +164,7 @@ class Query(Cog):
     def get_text(image: BytesIO) -> str:  # pragma: no cover
         """Get the text from an image using pytesseract"""
         img = Image.open(image)
-        if img.is_animated:
+        if getattr(img, "is_animated", False):
             img.seek(0)
             buf = BytesIO()
             img.save(buf, format="PNG", save_all=False)
