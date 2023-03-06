@@ -62,10 +62,16 @@ def url_posting_allowed(
     if (
         isinstance(channel, discord.Thread)
         and channel.parent_id == 1019647326601609338
-        and any(tag.id == 1019691620741959730 for tag in channel.applied_tags)
+        and (
+            any(tag.id == 1019691620741959730 for tag in channel.applied_tags)
+            or channel.message_count < 2
+            or channel.id == channel.last_message_id
+            or channel.id == getattr(channel.starter_message, "id", None)
+        )
     ):
-        # if the parent is this, then the channel is the games-forums channel and if the channel has the
-        # games-forums tag, then it's a game thread, and we want to allow urls in it
+        # if the parent is this, then the channel is the games channel and if the channel has the
+        # suggestions tag, then it's a game thread, and we want to allow urls in it
+        # OR the message is the starter message for a thread in the channel, and we want to allow it
         return True
     if channel.category_id in {360814817457733635, 360818916861280256, 942578610336837632}:
         # if the channel is in an admin or info category, we want to allow urls
