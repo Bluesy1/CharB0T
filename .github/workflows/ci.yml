@@ -186,6 +186,7 @@ jobs:
         uses: jakebailey/pyright-action@v1
         with:
           warnings: false
+          version: 1.1.302 # Optional
   python-tests:
     needs: maturin
     if: ${{ success() || failure() }}
