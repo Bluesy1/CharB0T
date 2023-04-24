@@ -35,7 +35,7 @@ dependencies = [
 	"discord.py[speed] @ git+https://github.com/Rapptz/discord.py@20c7e261be125f4ad28a72550e0727c5b0380d11#egg=discord.py",
 	"disrank==0.0.2",
 	"jishaku @ git+https://github.com/Gorialis/jishaku@d5ee79d01b2f95d52713cd189e72964050089d63#egg=jishaku",
-	"orjson==3.8.7",
+	"orjson==3.8.10",
 	"pandas==1.5.3",
 	"Pillow==9.4.0",
 	"pytesseract==0.3.10",
