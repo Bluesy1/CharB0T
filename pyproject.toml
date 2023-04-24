@@ -51,7 +51,7 @@ dependencies = [
 dev = [
 	"aioresponses==0.7.4",
 	"asyncpg-stubs==0.27.0",
-	"black==23.1.0",
+	"black==23.3.0",
 	"flake8==6.0.0",
 	"maturin[zig]==0.14.15",
 	"pre-commit==3.2.0",
