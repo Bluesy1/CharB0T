@@ -54,7 +54,7 @@ dev = [
 	"black==23.3.0",
 	"flake8==6.0.0",
 	"maturin[zig]==0.14.15",
-	"pre-commit==3.2.0",
+	"pre-commit==3.2.2",
 	"pyright==1.1.302",
 	"pytest==7.3.1",
 	"pytest-asyncio==0.21.0",
