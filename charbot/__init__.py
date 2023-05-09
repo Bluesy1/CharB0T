@@ -91,6 +91,7 @@ class _Config:
                     badkey = item
                     raise TypeError(f"Config keys must be strings, {item!r} is a {type(item)}.")
                 config = config[item]
+            self.logger.info("Got key %s from config file.", ":".join(args))
             return config
         except KeyError:
             self.logger.exception("Tried to get key %s from config file, but it was not found.", ":".join(args))
@@ -103,8 +104,6 @@ class _Config:
                 type(badkey),
             )
             raise
-        finally:
-            self.logger.info("Got key %s from config file.", ":".join(args))
 
 
 Config = _Config()
