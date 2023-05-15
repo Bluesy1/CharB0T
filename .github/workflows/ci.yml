@@ -112,7 +112,7 @@ jobs:
           RUSTDOCFLAGS: '-Cpanic=abort'
           LLVM_PROFILE_FILE: 'GHA-%p-%m.profraw'
       - name: Upload coverage report
-        uses: codecov/codecov-action@v3.1.3
+        uses: codecov/codecov-action@v3.1.4
         with:
           files: ./lcov.info
           env_vars: OS=LINUX,RUST=nightly
