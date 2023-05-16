@@ -18,7 +18,7 @@ impl Player for RandomPlayer {
     fn play(&self, board: &Board, _: Piece) -> Index {
         //println!("Random pick...");
 
-        Board::VALID_INDECES
+        Board::VALID_INDICES
             .filter(|index| board.cell_is_empty(*index))
             .choose(&mut rand::thread_rng())
             .unwrap()
@@ -34,7 +34,7 @@ mod tests {
         let player = RandomPlayer;
         let board = Board::new();
         let index = player.play(&board, Piece::X);
-        assert!(Board::VALID_INDECES.contains(&index));
+        assert!(Board::VALID_INDICES.contains(&index));
         assert_eq!("Random player", format!("{}", player));
     }
 }

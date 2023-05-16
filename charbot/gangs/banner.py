@@ -15,11 +15,11 @@ from typing import Final
 
 import asyncpg
 import discord
-from discord import Color, ui
+from discord import Color, Interaction, ui
 from PIL import Image, ImageDraw, ImageFont
 
 from .types import BannerStatus, BannerStatusPoints
-from .. import GuildComponentInteraction as Interaction, CBot
+from .. import CBot
 
 
 FONT: Final = ImageFont.truetype(str(Path(__file__).parent.parent / "media/pools/font.ttf"), 30)
@@ -197,7 +197,7 @@ async def generate_banner(payload: BannerStatus, member: discord.Member) -> Byte
     Parameters
     ----------
     payload : BannerStatus
-        The infor about the banner being generated
+        The info about the banner being generated
     member : discord.Member
         The member who owns the banner.
     """
@@ -276,7 +276,7 @@ class ApprovalView(ui.View):
         """Check if the interaction is valid."""
         return interaction.user.id == self.mod
 
-    @ui.button(label="Approve", style=discord.ButtonStyle.green)  # pyright: ignore[reportGeneralTypeIssues]
+    @ui.button(label="Approve", style=discord.ButtonStyle.green)
     async def approve(self, interaction: Interaction[CBot], _: ui.Button):
         """Approve the banner."""
         await interaction.response.defer(ephemeral=True)
@@ -286,7 +286,7 @@ class ApprovalView(ui.View):
         await interaction.edit_original_response(content="Banner approved.", attachments=[], view=None)
         self.stop()
 
-    @ui.button(label="Deny", style=discord.ButtonStyle.red)  # pyright: ignore[reportGeneralTypeIssues]
+    @ui.button(label="Deny", style=discord.ButtonStyle.red)
     async def deny(self, interaction: Interaction[CBot], _: ui.Button):
         """Deny the banner."""
         await interaction.response.defer(ephemeral=True)
@@ -294,7 +294,7 @@ class ApprovalView(ui.View):
         await interaction.edit_original_response(content="Banner denied.", attachments=[], view=None)
         self.stop()
 
-    @ui.button(label="Cancel", style=discord.ButtonStyle.blurple)  # pyright: ignore[reportGeneralTypeIssues]
+    @ui.button(label="Cancel", style=discord.ButtonStyle.blurple)
     async def cancel(self, interaction: Interaction[CBot], _: ui.Button):
         """Cancel the banner."""
         await interaction.response.defer(ephemeral=True)

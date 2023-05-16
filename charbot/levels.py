@@ -183,8 +183,8 @@ class Leveling(commands.Cog):
 
     @app_commands.command()
     @app_commands.guild_only()
-    @app_commands.checks.cooldown(1, 3600, key=lambda interaction: interaction.user.id)
-    async def rank(self, interaction: Interaction, user: Optional[discord.Member] = None):
+    @app_commands.checks.cooldown(1, 900, key=lambda interaction: interaction.user.id)
+    async def rank(self, interaction: Interaction[CBot], user: Optional[discord.Member] = None):
         """Check your or someone's level and rank.
 
         Parameters

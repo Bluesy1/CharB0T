@@ -69,7 +69,7 @@ jobs:
             ~/.cargo/git/db/
             charbot_rust/target/
           key: build-cython-${{ hashFiles('**/Cargo.lock') }}
-      - uses: messense/maturin-action@v1
+      - uses: PyO3/maturin-action@v1
         with:
           manylinux: auto
           command: build
@@ -112,7 +112,7 @@ jobs:
           RUSTDOCFLAGS: '-Cpanic=abort'
           LLVM_PROFILE_FILE: 'GHA-%p-%m.profraw'
       - name: Upload coverage report
-        uses: codecov/codecov-action@v3.1.1
+        uses: codecov/codecov-action@v3.1.3
         with:
           files: ./lcov.info
           env_vars: OS=LINUX,RUST=nightly
@@ -186,6 +186,7 @@ jobs:
         uses: jakebailey/pyright-action@v1
         with:
           warnings: false
+          version: 1.1.302 # Optional
   python-tests:
     needs: maturin
     if: ${{ success() || failure() }}
@@ -216,9 +217,9 @@ jobs:
           pip install wheels/*
       - name: Run pytest
         id: pytest
-        run: pytest --cov-report=xml:coverage/reports/coverage.xml --cov=charbot tests/ --cov-report=term-missing:skip-covered --cov-config=pyproject.toml --cov-branch
+        run: pytest
       - name: Code Climate Coverage Action
-        uses: paambaati/codeclimate-action@v3.2.0
+        uses: paambaati/codeclimate-action@v4.0.0
         env:
           CC_TEST_REPORTER_ID: cd4356d60fb8cccd11ac24ddba6df70da91c8d603d64ed31f04e60cd1109ffab
         with:

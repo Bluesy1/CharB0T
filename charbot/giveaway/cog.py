@@ -82,6 +82,16 @@ class Giveaway(commands.Cog):
         if self.bot.TIME().day == 1:
             # noinspection SqlWithoutWhere
             await self.bot.pool.execute("DELETE FROM winners")  # clear the table the start of each month
+        if self.bot.TIME().year == 2023 and self.bot.TIME().month == 1 and self.bot.TIME().day == 1:
+            self.daily_giveaway.cancel()
+            self.yesterdays_giveaway = self.current_giveaway
+            await self.yesterdays_giveaway.end()
+            await self.bot.giveaway_webhook.send(
+                "<@&972886729231044638> That's all folks! The final giveaway has been completed. Thanks for"
+                " participating! If you joined for the giveaways, please stick around, we have more things planned"
+                " for the future! Congrats to all the winners this year, and thanks to everyone who participated!",
+            )
+            return
         if self.current_giveaway is not MISSING:
             self.yesterdays_giveaway = self.current_giveaway
             await self.yesterdays_giveaway.end()

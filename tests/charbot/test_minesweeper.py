@@ -8,9 +8,10 @@ from typing import Any
 
 import discord
 import pytest
+from discord import Interaction
 from pytest_mock import MockerFixture
 
-from charbot import CBot, GuildComponentInteraction as Interaction
+from charbot import CBot
 from charbot.programs import minesweeper
 from charbot_rust.minesweeper import Game, RevealResult, ChordResult  # pyright: ignore[reportGeneralTypeIssues]
 

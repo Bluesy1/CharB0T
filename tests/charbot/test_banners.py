@@ -6,7 +6,9 @@ from __future__ import annotations
 
 import io
 import pathlib
+import sys
 from datetime import timedelta
+from os import environ
 
 import asyncpg
 import discord
@@ -69,6 +71,9 @@ def test_prestige_positions(prestige: int):
         assert actual == expected, f"Got {actual} but expected {expected}"
 
 
+@pytest.mark.xfail(
+    sys.platform == "win32", reason="PIL not consistent between platforms due to various reasons", strict=True
+)
 def test_static_color_banner():
     """Check the banner gets created properly with a solid color background"""
     with (
@@ -76,23 +81,22 @@ def test_static_color_banner():
         io.BytesIO(file.read()) as profile,
         Image.open(pathlib.Path(__file__).parent / "media/test_banner_solid_color.png") as expected,
     ):
-        # noinspection SpellCheckingInspection
-        assert (
-            Image.open(
-                banner.banner(
-                    discord.Color.blue(),
-                    "Name",
-                    profile,
-                    "Blue",
-                    "Lorem ipsum dolor sit amet, consectetur adipisci elit, sed eiusmod tempor incidunt ut labore et "
-                    "dolo",
-                    3,
-                )
+        got = Image.open(
+            banner.banner(
+                discord.Color.blue(),
+                "Name",
+                profile,
+                "Lorem ipsum dolor sit amet, consectetur adipisci elit, sed eiusmod tempor incidunt ut labore et "
+                "dolo",
+                3,
             )
-            == expected
-        ), "Got unexpected banner"
+        )
+        assert got == expected, "Got unexpected banner"
 
 
+@pytest.mark.xfail(
+    sys.platform == "win32", reason="PIL not consistent between platforms due to various reasons", strict=True
+)
 def test_gradient_color_banner():
     """Check the banner gets created properly with a gradient color background"""
     with (
@@ -100,23 +104,24 @@ def test_gradient_color_banner():
         io.BytesIO(file.read()) as profile,
         Image.open(pathlib.Path(__file__).parent / "media/test_banner_gradient_color.png") as expected,
     ):
-        # noinspection SpellCheckingInspection
-        assert (
-            Image.open(
-                banner.banner(
-                    (discord.Color.blue(), discord.Color.red()),
-                    "Name",
-                    profile,
-                    "Blue",
-                    "Lorem ipsum dolor sit amet, consectetur adipisci elit, sed eiusmod tempor incidunt ut labore et "
-                    "dolo",
-                    3,
-                )
+        got = Image.open(
+            banner.banner(
+                (discord.Color.blue(), discord.Color.red()),
+                "Name",
+                profile,
+                "Lorem ipsum dolor sit amet, consectetur adipisci elit, sed eiusmod tempor incidunt ut labore et "
+                "dolo",
+                3,
             )
-            == expected
-        ), "Got unexpected banner"
+        )
+        assert got == expected, "Got unexpected banner"
 
 
+@pytest.mark.xfail(
+    sys.platform == "win32" or environ.get("pythonLocation", "").startswith("/opt/hostedtoolcache"),
+    reason="PIL not consistent between platforms due to various reasons",
+    strict=True,
+)
 def test_image_background_banner():
     """Check the banner gets created properly with a gradient color background"""
     with (
@@ -124,21 +129,17 @@ def test_image_background_banner():
         io.BytesIO(file.read()) as profile,
         Image.open(pathlib.Path(__file__).parent / "media/test_banner_image_background.png") as expected,
     ):
-        # noinspection SpellCheckingInspection
-        assert (
-            Image.open(
-                banner.banner(
-                    pathlib.Path(__file__).parent / "media/test_image.jpeg",
-                    "Name",
-                    profile,
-                    "Blue",
-                    "Lorem ipsum dolor sit amet, consectetur adipisci elit, sed eiusmod tempor incidunt ut labore et "
-                    "dolo",
-                    3,
-                )
+        got = Image.open(
+            banner.banner(
+                pathlib.Path(__file__).parent / "media/test_image.jpeg",
+                "Name",
+                profile,
+                "Lorem ipsum dolor sit amet, consectetur adipisci elit, sed eiusmod tempor incidunt ut labore et "
+                "dolo",
+                3,
             )
-            == expected
-        ), "Got unexpected banner"
+        )
+        assert got == expected, "Got unexpected banner"
 
 
 @pytest.mark.asyncio

@@ -150,7 +150,7 @@ impl Offset {
 
 pub type Index = usize;
 
-static WINNING_INDECES: &[(Index, Index, Index)] = &[
+static WINNING_INDICES: &[(Index, Index, Index)] = &[
     (0, 1, 2),
     (3, 4, 5),
     (6, 7, 8),
@@ -206,10 +206,10 @@ impl Board {
         true
     }
 
-    pub const VALID_INDECES: std::ops::Range<usize> = 0..9;
+    pub const VALID_INDICES: std::ops::Range<usize> = 0..9;
 
     pub fn is_valid_index(index: Index) -> bool {
-        Self::VALID_INDECES.contains(&index)
+        Self::VALID_INDICES.contains(&index)
     }
 
     pub fn is_draw(&self) -> bool {
@@ -217,7 +217,7 @@ impl Board {
     }
 
     pub fn is_victory_for_player(&self, player: Piece) -> bool {
-        for &(a, b, c) in WINNING_INDECES { // COV_EXCL_LINE
+        for &(a, b, c) in WINNING_INDICES { // COV_EXCL_LINE
             if self.board[a] == player // COV_EXCL_LINE
                 && self.board[b] == player // COV_EXCL_LINE
                 && self.board[c] == player // COV_EXCL_LINE

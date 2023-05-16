@@ -2,7 +2,6 @@
 # SPDX-FileCopyrightText: 2021 Bluesy1 <68259537+Bluesy1@users.noreply.github.com>
 # SPDX-License-Identifier: MIT
 """Puzzle Class."""
-from string import ascii_lowercase, digits
 from typing import Any, Callable, Generator
 
 from . import Block, Cell, Column, Row
@@ -68,15 +67,23 @@ class Puzzle:
         """Return the puzzle as a string."""
         base = 3
         side = base**2
-        expand_line: Callable[[str], str] = lambda x: x[0] + x[5:9].join([x[1:5] * (base - 1)] * base) + x[9:13]
 
-        line0 = expand_line("╔═══╤═══╦═══╗")
-        line1 = expand_line("║ . │ . ║ . ║")
-        line2 = expand_line("╟───┼───╫───╢")
-        line3 = expand_line("╠═══╪═══╬═══╣")
-        line4 = expand_line("╚═══╧═══╩═══╝")
+        if self._mobile:
+            expand_line: Callable[[str], str] = lambda x: x[0] + x[3:5].join([x[1:3] * (base - 1)] * base) + x[5:]
+            line0 = expand_line("╔═╤═╦═╗")
+            line1 = expand_line("║.│.║.║")
+            line2 = expand_line("╟─┼─╫─╢")
+            line3 = expand_line("╠═╪═╬═╣")
+            line4 = expand_line("╚═╧═╩═╝")
+        else:
+            expand_line: Callable[[str], str] = lambda x: x[0] + x[5:9].join([x[1:5] * (base - 1)] * base) + x[9:]
+            line0 = expand_line("╔═══╤═══╦═══╗")
+            line1 = expand_line("║ . │ . ║ . ║")
+            line2 = expand_line("╟───┼───╫───╢")
+            line3 = expand_line("╠═══╪═══╬═══╣")
+            line4 = expand_line("╚═══╧═══╩═══╝")
 
-        symbol = f" {ascii_lowercase}{digits}"
+        symbol = " 123456789"
         static = "" if self._mobile else "\u001b[1;37m"
         selected = "" if self._mobile else "\u001b[4;40m"
         clear = "" if self._mobile else "\u001b[0m"

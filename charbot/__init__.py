@@ -7,8 +7,9 @@ import logging
 import functools as _functools
 import pathlib as _pathlib
 import sys as _sys
-from typing import Any, Generic, TypeVar
+from importlib import metadata as _metadata
 from pkgutil import iter_modules
+from typing import Any
 
 import asyncpg as _asyncpg
 import discord
@@ -19,7 +20,7 @@ __title__ = "charbot"
 __author__ = "Bluesy1"
 __license__ = "MIT"
 __copyright__ = "Copyright 2021-present Bluesy1"
-__version__ = __import__("importlib.metadata").metadata.version(__title__)
+__version__ = _metadata.version(__title__)
 if __version__ != rust_version:  # pragma: no cover
     raise RuntimeError(
         f"The version of charbot does not match the version of the rust library for charbot,"
@@ -31,17 +32,14 @@ __all__ = (
     "CBot",
     "Tree",
     "Config",
-    "Interaction",
-    "GuildInteraction",
-    "ComponentInteraction",
-    "GuildComponentInteraction",
     "translate",
     "setup_custom_datatypes",
 )
-__blacklist__ = [f"{__package__}.{item}" for item in ("__main__", "bot", "card", "errors", "types", "translator")]
+__blacklist__ = [
+    f"{__package__}.{item}" for item in ("__main__", "bot", "card", "errors", "giveaway", "types", "translator")
+]
 
 EXTENSIONS = [module.name for module in iter_modules(__path__, f"{__package__}.") if module.name not in __blacklist__]
-T = TypeVar("T", bound="CBot")
 
 
 async def setup_custom_datatypes(conn: _asyncpg.Connection) -> None:  # pragma: no cover
@@ -123,6 +121,7 @@ class _Config:
                     badkey = item
                     raise TypeError(f"Config keys must be strings, {item!r} is a {type(item)}.")
                 config = config[item]
+            self.logger.info("Got key %s from config file.", ":".join(args))
             return config
         except KeyError:
             self.logger.exception("Tried to get key %s from config file, but it was not found.", ":".join(args))
@@ -135,30 +134,6 @@ class _Config:
                 type(badkey),
             )
             raise
-        finally:
-            self.logger.info("Got key %s from config file.", ":".join(args))
-
-
-class Interaction(discord.Interaction, Generic[T]):  # skipcq: PY-D0002
-    client: T
-
-
-class GuildInteraction(Interaction[T]):  # skipcq: PY-D0002
-    client: T
-    guild: discord.Guild
-    user: discord.Member
-
-
-class ComponentInteraction(Interaction[T]):  # skipcq: PY-D0002
-    client: T
-    message: discord.Message
-
-
-class GuildComponentInteraction(Interaction[T]):  # skipcq: PY-D0002
-    client: T
-    guild: discord.Guild
-    message: discord.Message
-    user: discord.Member
 
 
 Config = _Config()

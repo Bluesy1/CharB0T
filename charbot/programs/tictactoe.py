@@ -14,10 +14,10 @@ from typing_extensions import Self
 
 import discord
 from PIL import Image
-from discord import ButtonStyle, ui
+from discord import ButtonStyle, Interaction, ui
 from discord.utils import utcnow
 
-from .. import GuildComponentInteraction as Interaction, CBot
+from .. import CBot
 from charbot_rust.tictactoe import Game, Difficulty, Piece  # pyright: ignore[reportGeneralTypeIssues]
 
 
@@ -157,7 +157,7 @@ class TicTacToe(ui.View):
             image = await asyncio.to_thread(self.display)
             await interaction.edit_original_response(attachments=[image], view=self)
 
-    @ui.button(style=ButtonStyle.green, emoji="✅")  # pyright: ignore[reportGeneralTypeIssues]
+    @ui.button(style=ButtonStyle.green, emoji="✅")
     async def top_left(self, interaction: Interaction[CBot], button: ui.Button):
         """Call when top left button is pressed.
 
@@ -170,7 +170,7 @@ class TicTacToe(ui.View):
         """
         await self.move(interaction, button, 0)
 
-    @ui.button(style=ButtonStyle.green, emoji="✅")  # pyright: ignore[reportGeneralTypeIssues]
+    @ui.button(style=ButtonStyle.green, emoji="✅")
     async def top_mid(self, interaction: Interaction[CBot], button: ui.Button):
         """Call when top middle button is pressed.
 
@@ -183,7 +183,7 @@ class TicTacToe(ui.View):
         """
         await self.move(interaction, button, 1)
 
-    @ui.button(style=ButtonStyle.green, emoji="✅")  # pyright: ignore[reportGeneralTypeIssues]
+    @ui.button(style=ButtonStyle.green, emoji="✅")
     async def top_right(self, interaction: Interaction[CBot], button: ui.Button):
         """Call when top right button is pressed.
 
@@ -197,7 +197,7 @@ class TicTacToe(ui.View):
         await self.move(interaction, button, 2)
 
     # noinspection PyUnusedLocal
-    @ui.button(label="Cancel", style=ButtonStyle.danger)  # pyright: ignore[reportGeneralTypeIssues]
+    @ui.button(label="Cancel", style=ButtonStyle.danger)
     async def cancel(self, interaction: Interaction[CBot], button: ui.Button):  # skipcq: PYL-W0613
         """Call when cancel button is pressed.
 
@@ -217,7 +217,7 @@ class TicTacToe(ui.View):
         embed.set_footer(text="Start playing by typing /programs tictactoe")
         await interaction.response.edit_message(embed=embed)
 
-    @ui.button(style=ButtonStyle.green, emoji="✅", row=1)  # pyright: ignore[reportGeneralTypeIssues]
+    @ui.button(style=ButtonStyle.green, emoji="✅", row=1)
     async def mid_left(self, interaction: Interaction[CBot], button: ui.Button):
         """Call when middle left button is pressed.
 
@@ -230,7 +230,7 @@ class TicTacToe(ui.View):
         """
         await self.move(interaction, button, 3)
 
-    @ui.button(style=ButtonStyle.green, emoji="✅", row=1)  # pyright: ignore[reportGeneralTypeIssues]
+    @ui.button(style=ButtonStyle.green, emoji="✅", row=1)
     async def mid_mid(self, interaction: Interaction[CBot], button: ui.Button):
         """Call when middle_middle button is pressed.
 
@@ -243,7 +243,7 @@ class TicTacToe(ui.View):
         """
         await self.move(interaction, button, 4)
 
-    @ui.button(style=ButtonStyle.green, emoji="✅", row=1)  # pyright: ignore[reportGeneralTypeIssues]
+    @ui.button(style=ButtonStyle.green, emoji="✅", row=1)
     async def mid_right(self, interaction: Interaction[CBot], button: ui.Button):
         """Call when middle right button is pressed.
 
@@ -256,7 +256,7 @@ class TicTacToe(ui.View):
         """
         await self.move(interaction, button, 5)
 
-    @ui.button(style=ButtonStyle.green, emoji="✅", row=2)  # pyright: ignore[reportGeneralTypeIssues]
+    @ui.button(style=ButtonStyle.green, emoji="✅", row=2)
     async def bot_left(self, interaction: Interaction[CBot], button: ui.Button):
         """Call when bottom left button is pressed.
 
@@ -269,7 +269,7 @@ class TicTacToe(ui.View):
         """
         await self.move(interaction, button, 6)
 
-    @ui.button(style=ButtonStyle.green, emoji="✅", row=2)  # pyright: ignore[reportGeneralTypeIssues]
+    @ui.button(style=ButtonStyle.green, emoji="✅", row=2)
     async def bot_mid(self, interaction: Interaction[CBot], button: ui.Button):
         """Call when bottom middle button is pressed.
 
@@ -282,7 +282,7 @@ class TicTacToe(ui.View):
         """
         await self.move(interaction, button, 7)
 
-    @ui.button(style=ButtonStyle.green, emoji="✅", row=2)  # pyright: ignore[reportGeneralTypeIssues]
+    @ui.button(style=ButtonStyle.green, emoji="✅", row=2)
     async def bot_right(self, interaction: Interaction[CBot], button: ui.Button):
         """Call when bottom right button is pressed.
 

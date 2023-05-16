@@ -33,9 +33,9 @@ impl MinimaxPlayer {
     fn minimax_search(&self, board: &Board, piece: Piece) -> (Index, u32) {
         let mut counter = 0;
         let mut best_move = 0;
-        let mut indeces: Vec<_> = Board::VALID_INDECES.collect();
+        let mut indices: Vec<_> = Board::VALID_INDICES.collect();
 
-        indeces.shuffle(&mut rand::thread_rng());
+        indices.shuffle(&mut rand::thread_rng());
 
         self.minimax_step(
             board.clone(),
@@ -44,7 +44,7 @@ impl MinimaxPlayer {
             0,
             GameResult::Defeat,
             GameResult::Victory,
-            &indeces[..],
+            &indices[..],
             &mut best_move,
             &mut counter,
         );
@@ -60,7 +60,7 @@ impl MinimaxPlayer {
         level: u8,
         mut alpha: GameResult,
         mut beta: GameResult,
-        indeces: &[Index],
+        indices: &[Index],
         best_move: &mut Index,
         counter: &mut u32,
     ) -> GameResult {
@@ -79,7 +79,7 @@ impl MinimaxPlayer {
         }
 
         let mut best_result = if maximizing { Defeat } else { Victory };
-        for &index in indeces { // COV_EXCL_LINE
+        for &index in indices { // COV_EXCL_LINE
             if !board.cell_is_empty(index) {
                 continue;
             }
@@ -93,7 +93,7 @@ impl MinimaxPlayer {
                 level + 1,
                 alpha,
                 beta,
-                indeces,
+                indices,
                 best_move,
                 counter,
             );
@@ -143,7 +143,7 @@ mod tests {
         let board = Board::new();
         let piece = Piece::X;
         let index = player.play(&board, piece);
-        assert!(Board::VALID_INDECES.contains(&index));
+        assert!(Board::VALID_INDICES.contains(&index));
         assert_eq!("Minimax player", format!("{}", player));
     }
     #[test]
@@ -152,7 +152,7 @@ mod tests {
         let board = Board::new();
         let piece = Piece::X;
         let index = player.play(&board, piece);
-        assert!(Board::VALID_INDECES.contains(&index));
+        assert!(Board::VALID_INDICES.contains(&index));
         assert_eq!("Minimax player", format!("{}", player));
     }
 }
