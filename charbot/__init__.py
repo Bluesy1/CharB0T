@@ -12,7 +12,6 @@ from pkgutil import iter_modules
 from typing import Any
 
 import asyncpg as _asyncpg
-import discord
 
 from charbot_rust import translate, __version__ as rust_version
 

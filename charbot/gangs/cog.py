@@ -11,7 +11,7 @@ from zoneinfo import ZoneInfo
 
 import asyncpg
 import discord
-from discord import app_commands
+from discord import Interaction, app_commands
 from discord.ext import commands, tasks
 from discord.utils import MISSING
 
@@ -21,7 +21,7 @@ from .actions import create, join, banner, user_items, gang_items
 from .banner import ApprovalView, generate_banner, gen_banner
 from .types import BannerStatus, GangDues
 from .shakedowns import do_shakedown
-from .. import GuildInteraction as Interaction, CBot, Config
+from .. import CBot, Config
 from .actions.user_items import view_items_autocomplete as user_items_autocomplete
 from .actions.gang_items import view_items_autocomplete as gang_items_autocomplete
 
@@ -96,7 +96,7 @@ class Gangs(commands.Cog):
             await conn.execute(utils.SQL_MONTHLY)
             gangs: list[GangDues] = await conn.fetch(
                 "SELECT name, channel, role,"
-                " (TRUE = ALL(SELECT paid FROM gang_members WHERE gang = gangs.name)) as complete FROM gangs"
+                " (TRUE = ALL(SELECT paid FROM gang_members WHERE gang = gangs.name)) as complete FROM gangs",
             )
             await asyncio.gather(
                 *(dues.send_dues_start(self.gang_guild, next_month, row) for row in gangs), return_exceptions=True
@@ -140,7 +140,7 @@ class Gangs(commands.Cog):
             if file := await gen_banner(self.bot.pool, member):
                 await message.reply(file=file)
 
-    @participate.command()  # pyright: ignore[reportGeneralTypeIssues]
+    @participate.command()
     async def create(
         self,
         interaction: Interaction[CBot],
@@ -174,7 +174,7 @@ class Gangs(commands.Cog):
             # noinspection PyTypeChecker
             ret: str | tuple[int, discord.TextChannel, discord.Role] = await create.create_gang(
                 cast(asyncpg.Connection, conn),
-                interaction.user,
+                cast(discord.Member, interaction.user),
                 self.gang_category,
                 color,
                 base_join,
@@ -197,7 +197,7 @@ class Gangs(commands.Cog):
         )
         await self.gang_announcements.send(f"{interaction.user.mention} created a new gang, the {color.name} Gang!")
 
-    @participate.command()  # pyright: ignore[reportGeneralTypeIssues]
+    @participate.command()
     async def join(self, interaction: Interaction[CBot], gang: utils.GANGS):
         """Join a gang.
 
@@ -217,7 +217,7 @@ class Gangs(commands.Cog):
                 return
             remaining, needed = res
             role = discord.Object(id=await conn.fetchval("SELECT role FROM gangs WHERE name = $1", gang))
-            await interaction.user.add_roles(role, reason=f"Joined gang {gang}")
+            await cast(discord.Member, interaction.user).add_roles(role, reason=f"Joined gang {gang}")
             await conn.execute("INSERT INTO gang_members (user_id, gang) VALUES ($1, $2)", interaction.user.id, gang)
             await conn.execute(
                 "UPDATE gangs SET control = control + $1 WHERE name = $2", utils.rep_to_control(needed), gang
@@ -228,11 +228,12 @@ class Gangs(commands.Cog):
             channel_id: int = await conn.fetchval("SELECT channel FROM gangs WHERE name = $1", gang)
             channel = cast(
                 discord.TextChannel,
-                interaction.guild.get_channel(channel_id) or await interaction.guild.fetch_channel(channel_id),
+                cast(discord.Guild, interaction.guild).get_channel(channel_id)
+                or await cast(discord.Guild, interaction.guild).fetch_channel(channel_id),
             )
             await channel.send(f"Welcome {interaction.user.mention} to the {gang} Gang!")
 
-    @banner.command()  # pyright: ignore[reportGeneralTypeIssues]
+    @banner.command()
     @app_commands.checks.cooldown(2, 60 * 60 * 24 * 7 * 4, key=lambda i: i.user.id)  # pragma: no branch
     async def request(
         self,
@@ -297,7 +298,7 @@ class Gangs(commands.Cog):
             )
             await interaction.followup.send(f"You now have {remaining} rep remaining.\nYou have requested a banner!")
 
-    @banner.command()  # pyright: ignore[reportGeneralTypeIssues]
+    @banner.command()
     async def status(self, interaction: Interaction[CBot]) -> None:
         """Check the status of your banner request.
 
@@ -321,7 +322,7 @@ class Gangs(commands.Cog):
         if banner_rec["approved"] is False:
             await interaction.followup.send("Your banner_rec is still pending approval!")
             return
-        banner_bytes = await generate_banner(banner_rec, interaction.user)
+        banner_bytes = await generate_banner(banner_rec, cast(discord.Member, interaction.user))
         banner_file = discord.File(banner_bytes, filename="banner.png")
         await interaction.followup.send(
             f"Your banner has been approved and is as follows! Cooldown until: "
@@ -330,8 +331,8 @@ class Gangs(commands.Cog):
         )
 
     # noinspection PyShadowingBuiltins
-    @user_items.command()  # pyright: ignore[reportGeneralTypeIssues]
-    @app_commands.autocomplete(item=user_items_autocomplete)  # type: ignore
+    @user_items.command()
+    @app_commands.autocomplete(item=user_items_autocomplete)
     async def view(
         self, interaction: Interaction[CBot], all: bool, owned: bool, item: str | None = None
     ) -> None:  # pragma: no cover
@@ -364,8 +365,8 @@ class Gangs(commands.Cog):
         embed = ret.embeds[0]
         await interaction.followup.send(embed=embed, view=ret)
 
-    @user_items.command()  # pyright: ignore[reportGeneralTypeIssues]
-    @app_commands.autocomplete(item=user_items_autocomplete)  # type: ignore
+    @user_items.command()
+    @app_commands.autocomplete(item=user_items_autocomplete)
     async def sell(self, interaction: Interaction[CBot], item: str) -> None:  # pragma: no cover
         """Sell an item
 
@@ -383,8 +384,8 @@ class Gangs(commands.Cog):
             return
         await interaction.followup.send(f"You have sold {item} and now have {ret} rep!")
 
-    @user_items.command()  # pyright: ignore[reportGeneralTypeIssues]
-    @app_commands.autocomplete(item=user_items_autocomplete)  # type: ignore
+    @user_items.command()
+    @app_commands.autocomplete(item=user_items_autocomplete)
     async def use(self, interaction: Interaction[CBot], item: str) -> None:  # pragma: no cover
         """Use an item
 
@@ -402,8 +403,8 @@ class Gangs(commands.Cog):
             return
         await interaction.followup.send(f"You have used {item} and now have {ret} rep!")
 
-    @user_items.command()  # pyright: ignore[reportGeneralTypeIssues]
-    @app_commands.autocomplete(item=user_items_autocomplete)  # type: ignore
+    @user_items.command()
+    @app_commands.autocomplete(item=user_items_autocomplete)
     async def gift(self, interaction: Interaction[CBot], item: str, user: discord.Member) -> None:  # pragma: no cover
         """Gift an item
 
@@ -422,8 +423,8 @@ class Gangs(commands.Cog):
         )
 
     # noinspection PyShadowingBuiltins
-    @gang_items.command(name="view")  # pyright: ignore[reportGeneralTypeIssues]
-    @app_commands.autocomplete(item=gang_items_autocomplete)  # type: ignore
+    @gang_items.command(name="view")
+    @app_commands.autocomplete(item=gang_items_autocomplete)
     async def gang_item_view(
         self, interaction: Interaction[CBot], all: bool, owned: bool, item: str | None = None
     ) -> None:  # pragma: no cover
@@ -456,8 +457,8 @@ class Gangs(commands.Cog):
         embed = ret.embeds[0]
         await interaction.followup.send(embed=embed, view=ret)
 
-    @gang_items.command(name="sell")  # pyright: ignore[reportGeneralTypeIssues]
-    @app_commands.autocomplete(item=gang_items_autocomplete)  # type: ignore
+    @gang_items.command(name="sell")
+    @app_commands.autocomplete(item=gang_items_autocomplete)
     async def gang_item_sell(self, interaction: Interaction[CBot], item: str) -> None:  # pragma: no cover
         """Sell an item
 
@@ -475,8 +476,8 @@ class Gangs(commands.Cog):
             return
         await interaction.followup.send(f"You have sold {item} and your gang now has {ret} control!")
 
-    @gang_items.command(name="use")  # pyright: ignore[reportGeneralTypeIssues]
-    @app_commands.autocomplete(item=gang_items_autocomplete)  # type: ignore
+    @gang_items.command(name="use")
+    @app_commands.autocomplete(item=gang_items_autocomplete)
     async def gang_item_use(self, interaction: Interaction[CBot], item: str) -> None:  # pragma: no cover
         """Use an item
 

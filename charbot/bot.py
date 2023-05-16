@@ -161,7 +161,7 @@ class CBot(commands.Bot):
         """Initialize hook for the bot.
 
         This is called when the bot is logged in but before connecting to the websocket.
-        It provides an opportunity to perform some initialisation before the websocket is connected.
+        It provides an opportunity to perform some initialization before the websocket is connected.
         Also loads the cogs, and prints who the bot is logged in as
         """
         print("Setup started")

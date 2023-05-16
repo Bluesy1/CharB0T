@@ -10,7 +10,7 @@ import pytest
 import pytest_asyncio
 from pytest_mock import MockerFixture
 
-from charbot import CBot, GuildInteraction
+from charbot import CBot
 from charbot.gangs.actions import gang_items
 from charbot.gangs import enums
 
@@ -19,7 +19,7 @@ pytestmark = pytest.mark.asyncio
 
 
 @pytest.fixture
-def interaction(mocker: MockerFixture, database: asyncpg.Pool) -> GuildInteraction[CBot]:
+def interaction(mocker: MockerFixture, database: asyncpg.Pool) -> discord.Interaction[CBot]:
     """Mock interaction."""
     inter = mocker.AsyncMock(
         spec=discord.Interaction,

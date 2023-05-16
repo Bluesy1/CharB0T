@@ -86,6 +86,7 @@ def test_static_color_banner():
                 discord.Color.blue(),
                 "Name",
                 profile,
+                "Blue",
                 "Lorem ipsum dolor sit amet, consectetur adipisci elit, sed eiusmod tempor incidunt ut labore et "
                 "dolo",
                 3,
@@ -109,6 +110,7 @@ def test_gradient_color_banner():
                 (discord.Color.blue(), discord.Color.red()),
                 "Name",
                 profile,
+                "Blue",
                 "Lorem ipsum dolor sit amet, consectetur adipisci elit, sed eiusmod tempor incidunt ut labore et "
                 "dolo",
                 3,
@@ -134,6 +136,7 @@ def test_image_background_banner():
                 pathlib.Path(__file__).parent / "media/test_image.jpeg",
                 "Name",
                 profile,
+                "Blue",
                 "Lorem ipsum dolor sit amet, consectetur adipisci elit, sed eiusmod tempor incidunt ut labore et "
                 "dolo",
                 3,

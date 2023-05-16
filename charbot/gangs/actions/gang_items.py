@@ -8,6 +8,7 @@ from __future__ import annotations
 from typing import TYPE_CHECKING, cast
 
 import asyncpg
+from discord import Interaction
 from discord.app_commands import Choice
 from typing_extensions import assert_never
 
@@ -17,15 +18,15 @@ from ..types import Item, ItemUseInfo
 from ..utils import ItemsView
 
 if TYPE_CHECKING:  # pragma: no cover
-    from ... import CBot, GuildInteraction
+    from ... import CBot
 
 
-async def view_items_autocomplete(interaction: GuildInteraction[CBot], current: str) -> list[Choice[str]]:
+async def view_items_autocomplete(interaction: Interaction[CBot], current: str) -> list[Choice[str]]:
     """Autocomplete for viewing available items.
 
     Parameters
     ----------
-    interaction : GuildInteraction[CBot]
+    interaction : Interaction[CBot]
         The interaction.
     current : str
         The current string.

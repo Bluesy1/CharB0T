@@ -79,7 +79,7 @@ def prestige_positions(prestige: int) -> Iterable[tuple[int, int, int]]:
 
 
 def banner(
-    base: Path | Color | tuple[Color, Color], username: str, profile: BytesIO, name: str, quote: str, prestige: int
+    base: Path | Color | tuple[Color, Color], username: str, profile: BytesIO, gang: str, quote: str, prestige: int
 ) -> BytesIO:
     """Create a banner image.
 
@@ -91,7 +91,7 @@ def banner(
         The username of the member who owns the banner.
     profile : BytesIO
         The profile of the member who owns the banner.
-    name : str
+    gang : str
         The name of the gang.
     quote : str
         The quote to display.
@@ -113,7 +113,7 @@ def banner(
     for pos in prestige_positions(prestige):
         draw.regular_polygon(pos, 3, rotation=0, fill=STAR_COLOR, outline=STAR_COLOR)
         draw.regular_polygon(pos, 3, rotation=180, fill=STAR_COLOR, outline=STAR_COLOR)
-    _write_text(draw, img, name, quote, username)
+    _write_text(draw, img, gang, quote, username)
     profile_pic_holder = Image.new("RGBA", img.size, (255, 255, 255, 0))  # Is used for a blank image so that I can mask
     mask = Image.new("RGBA", img.size, 0)
     mask_draw = ImageDraw.Draw(mask)
@@ -126,7 +126,7 @@ def banner(
     return res
 
 
-def _write_text(draw: ImageDraw.ImageDraw, img: Image.Image, name: str, quote: str, username: str) -> None:
+def _write_text(draw: ImageDraw.ImageDraw, img: Image.Image, gang: str, quote: str, username: str) -> None:
     """Write the text to the image.
 
     Parameters
@@ -135,14 +135,14 @@ def _write_text(draw: ImageDraw.ImageDraw, img: Image.Image, name: str, quote: s
         The draw object to use.
     img: Image.Image
         The image to draw on.
-    name: str
-        The name of the gang.
+    gang: str
+        The gang of the gang.
     quote: str
         The quote to display.
     username: str
         The username of the member who owns the banner.
     """
-    draw.text((img.width - 20, 15), name.upper(), fill=(255, 255, 255), font=FONT, anchor="ra", align="right")
+    draw.text((img.width - 20, 15), gang.upper(), fill=(255, 255, 255), font=FONT, anchor="ra", align="right")
     draw.multiline_text(
         (img.width - 20, 50),
         fill(quote, width=30, max_lines=4, break_long_words=True),
@@ -262,7 +262,7 @@ class ApprovalView(ui.View):
     payload: BannerStatus
         The banner to approve or deny.
     mod: int
-        The ID of the moderator who requested teh approval session.
+        The ID of the moderator who requested the approval session.
     """
 
     __slots__ = ("requester", "mod")

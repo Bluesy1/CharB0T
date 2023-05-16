@@ -32,7 +32,7 @@ repos:
             - --max-line-length=120
             - --indent-size=4
             - --exclude=backup
-- repo: https://github.com/fsfe/reuse-tool
-  rev: v1.0.0
-  hooks:
-  - id: reuse
+-   repo: https://github.com/fsfe/reuse-tool
+    rev: v1.0.0
+    hooks:
+    -   id: reuse

@@ -11,12 +11,12 @@ from itertools import islice
 from typing import TYPE_CHECKING, Literal, Final
 
 import discord
-from discord import Color
+from discord import Color, Interaction
 
 
 if TYPE_CHECKING:
     from .types import Item
-    from .. import GuildComponentInteraction as Interaction, CBot
+    from .. import CBot
 
 
 __all__ = ("ColorOpts", "rep_to_control", "BASE_GANG_COST", "GANGS", "SQL_MONTHLY", "item_embed_pages", "ItemsView")
@@ -51,7 +51,7 @@ def rep_to_control(rep: int) -> int:
 
 
 BASE_GANG_COST: Final[int] = 100
-GANGS: Final = Literal["Black", "Red", "Green", "Blue", "Purple", "Violet", "Yellow", "Orange", "White"]
+GANGS = Literal["Black", "Red", "Green", "Blue", "Purple", "Violet", "Yellow", "Orange", "White"]
 SQL_MONTHLY = """
 DO $$
 DECLARE

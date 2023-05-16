@@ -11,10 +11,10 @@ from typing import cast
 import asyncpg
 
 import discord
-from discord import ui
+from discord import Interaction, ui
 
 from .types import GangDues
-from .. import GuildComponentInteraction as CInteraction, CBot
+from .. import CBot
 from . import GANGS, utils
 
 
@@ -26,7 +26,7 @@ class DuesButton(ui.Button):
         super().__init__(style=discord.ButtonStyle.success, custom_id=f"dues_{gang}", label="Pay", emoji="\U0001F4B0")
         self.gang = gang
 
-    async def callback(self, interaction: CInteraction[CBot]):
+    async def callback(self, interaction: Interaction[CBot]):
         """Buttons callback."""
         await interaction.response.defer(ephemeral=True)
         async with interaction.client.pool.acquire() as conn, conn.transaction():
