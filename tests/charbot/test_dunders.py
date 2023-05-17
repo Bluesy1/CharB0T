@@ -47,7 +47,7 @@ def test_config(monkeypatch, caplog):
     assert log[1] == logging.ERROR
     assert log[2] == "Tried to get key calendar:badkey from config file, but it was not found."
 
-    class Test:
+    class Test:  # skipcq: PY-D0002
         def __str__(self):
             return "Test"
 

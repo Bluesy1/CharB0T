@@ -18,11 +18,13 @@ from charbot_rust.minesweeper import Game, RevealResult, ChordResult  # pyright:
 
 @pytest.fixture()
 def game() -> Game:
+    """Create standard game for testing"""
     return Game(5, 5, 1)
 
 
 @pytest.fixture()
 def inter(mocker: MockerFixture):
+    """Create a mock interaction"""
     return mocker.AsyncMock(
         spec=Interaction[CBot],
         client=mocker.AsyncMock(spec=CBot),
@@ -33,6 +35,7 @@ def inter(mocker: MockerFixture):
 
 @pytest.mark.asyncio
 async def test_minesweeper_init(game: Game):
+    """Test that the minesweeper view is initializes correctly"""
     view = minesweeper.Minesweeper(game)
     assert view.game == game, "Game should be set to the passed game"
     assert len(view.row.options) == 5, "Row should have the number of rows as the game does, which is 5"
@@ -41,6 +44,7 @@ async def test_minesweeper_init(game: Game):
 
 @pytest.mark.asyncio
 async def test_minesweeper_draw(game: Game):
+    """Test that the minesweeper view is drawn correctly"""
     view = minesweeper.Minesweeper(game)
     file = await view.draw("Minesweeper Board")
     assert isinstance(file, discord.File), "File should be a discord.File"
@@ -51,6 +55,7 @@ async def test_minesweeper_draw(game: Game):
 
 @pytest.mark.asyncio
 async def test_handle_lose(game: Game, inter):
+    """Test that the minesweeper view handles a loss correctly"""
     view = minesweeper.Minesweeper(game)
     await view.handle_lose(inter)
     inter.response.defer.assert_awaited_once_with(ephemeral=True)
@@ -67,6 +72,7 @@ async def test_handle_lose(game: Game, inter):
 
 @pytest.mark.asyncio
 async def test_handle_win(game: Game, inter):
+    """Test that the minesweeper view handles a win correctly"""
     view = minesweeper.Minesweeper(game)
     await view.handle_win(inter)
     inter.response.defer.assert_awaited_once_with(ephemeral=True)
@@ -83,6 +89,7 @@ async def test_handle_win(game: Game, inter):
 
 @pytest.mark.asyncio
 async def test_row(game: Game, inter):
+    """Test that the minesweeper view handles a row correctly"""
     view = minesweeper.Minesweeper(game)
     view.row._refresh_state(inter, {"custom_id": "a", "component_type": 3, "values": ["0"]})
     await view.row.callback(inter)
@@ -96,6 +103,7 @@ async def test_row(game: Game, inter):
 
 @pytest.mark.asyncio
 async def test_column(game: Game, inter):
+    """Test that the minesweeper view handles a column correctly"""
     view = minesweeper.Minesweeper(game)
     view.column._refresh_state(inter, {"custom_id": "a", "component_type": 3, "values": ["0"]})
     await view.column.callback(inter)
@@ -109,6 +117,7 @@ async def test_column(game: Game, inter):
 
 @pytest.mark.asyncio
 async def test_reveal_success(game, inter, mocker: MockerFixture):
+    """Test that the minesweeper view handles a successful cell reveal correctly"""
     mock_game = mocker.Mock(spec=Game)
     mock_game.height = 5
     mock_game.width = 5
@@ -126,6 +135,7 @@ async def test_reveal_success(game, inter, mocker: MockerFixture):
 
 @pytest.mark.asyncio
 async def test_reveal_fail(game, inter, mocker: MockerFixture):
+    """Test that the minesweeper view handles a losing cell reveal correctly"""
     inter.followup = mocker.AsyncMock(spec=discord.Webhook)
     mock_game = mocker.Mock(spec=Game, height=5, width=5, is_win=lambda: False)
     mock_game.draw.return_value = game.draw()
@@ -143,6 +153,7 @@ async def test_reveal_fail(game, inter, mocker: MockerFixture):
 
 @pytest.mark.asyncio
 async def test_reveal_win(game, inter, mocker: MockerFixture):
+    """Test that the minesweeper view handles a win correctly"""
     mock_game = mocker.Mock(spec=Game)
     mock_game.height = 5
     mock_game.width = 5
@@ -157,6 +168,7 @@ async def test_reveal_win(game, inter, mocker: MockerFixture):
 
 @pytest.mark.asyncio
 async def test_reveal_lose(game, inter, mocker: MockerFixture):
+    """Test that the minesweeper view handles a loss correctly"""
     mock_game = mocker.Mock(spec=Game)
     mock_game.height = 5
     mock_game.width = 5
@@ -170,6 +182,7 @@ async def test_reveal_lose(game, inter, mocker: MockerFixture):
 
 @pytest.mark.asyncio
 async def test_chord_failure(game, inter, mocker: MockerFixture):
+    """Test that the minesweeper view handles a chord failure correctly"""
     mock_game = mocker.Mock(spec=Game)
     mock_game.height = 5
     mock_game.width = 5
@@ -182,6 +195,7 @@ async def test_chord_failure(game, inter, mocker: MockerFixture):
 
 @pytest.mark.asyncio
 async def test_chord_success_no_win(game, inter, mocker: MockerFixture):
+    """Test that the minesweeper view handles a successful chord correctly"""
     mock_game = mocker.Mock(spec=Game)
     mock_game.height = 5
     mock_game.width = 5
@@ -199,6 +213,7 @@ async def test_chord_success_no_win(game, inter, mocker: MockerFixture):
 
 @pytest.mark.asyncio
 async def test_chord_success_win(game, inter, mocker: MockerFixture):
+    """Test that the minesweeper view handles a successful, winning chord correctly"""
     mock_game = mocker.Mock(spec=Game)
     mock_game.height = 5
     mock_game.width = 5
@@ -214,6 +229,7 @@ async def test_chord_success_win(game, inter, mocker: MockerFixture):
 
 @pytest.mark.asyncio
 async def test_chord_death(game, inter, mocker: MockerFixture):
+    """Test that the minesweeper view handles a chord death correctly"""
     mock_game = mocker.Mock(spec=Game)
     mock_game.height = 5
     mock_game.width = 5
@@ -228,6 +244,7 @@ async def test_chord_death(game, inter, mocker: MockerFixture):
 
 @pytest.mark.asyncio
 async def test_flag(game, inter):
+    """Test that the minesweeper view handles a flag request correctly"""
     view = minesweeper.Minesweeper(game)
     await view.flag.callback(inter)
     inter.response.edit_message.assert_awaited_once()
@@ -238,6 +255,7 @@ async def test_flag(game, inter):
 
 @pytest.mark.asyncio
 async def test_quit(game, inter):
+    """Test that the minesweeper view handles a quit request correctly"""
     view = minesweeper.Minesweeper(game)
     await view.quit.callback(inter)
     inter.response.edit_message.assert_awaited_once()
@@ -253,6 +271,7 @@ async def test_quit(game, inter):
 
 @pytest.mark.asyncio
 async def test_help(game, inter, mocker: MockerFixture):
+    """Test that the minesweeper view handles a help request correctly"""
     inter.followup = mocker.AsyncMock(spec=discord.Webhook)
     view = minesweeper.Minesweeper(game)
     await view.help.callback(inter)

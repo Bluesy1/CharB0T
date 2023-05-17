@@ -32,6 +32,7 @@ from charbot.gangs import utils
     ],
 )
 def test_check_parameters(base: str | None, color: str | None, gradient: bool, expected: str | None):
+    """Test that the banner parameters are checked correctly"""
     assert banner.check_parameters(base, color, gradient) == expected  # type: ignore
 
 
