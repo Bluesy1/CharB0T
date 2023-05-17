@@ -20,3 +20,4 @@ translate = _charbot_rust.translate
 
 # noinspection PyUnresolvedReferences
 del _charbot_rust
+del _metadata

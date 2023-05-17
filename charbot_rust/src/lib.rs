@@ -3,10 +3,10 @@
 // SPDX-License-Identifier: MIT
 // COV_EXCL_START COV_EXCL_LINE
 use pyo3::prelude::*;
-mod tictactoe;
-mod points;
-mod minesweeper;
 mod fluent;
+mod minesweeper;
+mod points;
+mod tictactoe;
 
 /// A rewrite of parts of charbot in rust.
 #[pymodule]
