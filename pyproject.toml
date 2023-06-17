@@ -36,7 +36,7 @@ dependencies = [
 	"disrank==0.0.2",
 	"jishaku @ git+https://github.com/Gorialis/jishaku@d5ee79d01b2f95d52713cd189e72964050089d63",
 	"orjson==3.8.7",
-	"pandas==1.5.3",
+	"pandas==2.0.2",
 	"Pillow==9.4.0",
 	"pytesseract==0.3.10",
 	"sentry-sdk==1.20.0",
