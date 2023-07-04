@@ -176,8 +176,7 @@ class CBot(commands.Bot):
         for extension in EXTENSIONS:
             await self.load_extension(extension)
         print("Extensions loaded")
-        user = cast(discord.ClientUser, self.user)
-        print(f"Logged in: {user.name}#{user.discriminator}")
+        print(f"Logged in: {self.user}")
 
     async def give_game_points(self, member: discord.Member | discord.User, points: int, bonus: int = 0) -> int:
         """Give the user points.
