@@ -4,7 +4,7 @@
 """Charbot discord bot."""
 import datetime
 import logging
-from typing import Any, ClassVar, Final, TypeVar, cast
+from typing import Any, ClassVar, Final, TypeVar
 from typing_extensions import Self
 from zoneinfo import ZoneInfo
 
