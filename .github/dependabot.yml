@@ -13,29 +13,35 @@ updates:
       interval: "daily"
     groups:
       pytest:
-        - "pytest*"
-        - "aioresponses"
+        patterns:
+          - "pytest*"
+          - "aioresponses"
       core:
-        - "aiohttp"
-        - "discord.py"
-        - "jishaku"
-        - "orjson"
-        - "uvloop"
+        patterns:
+          - "aiohttp"
+          - "discord.py"
+          - "jishaku"
+          - "orjson"
+          - "uvloop"
       asyncpg:
-        - "asyncpg*"
+        patterns:
+          - "asyncpg*"
       formatting:
-        - "black"
-        - "flake8"
-        - "pre-commit"
+        patterns:
+          - "black"
+          - "flake8"
+          - "pre-commit"
       typing:
-        - "pyright"
-        - "typing-extensions"
+        patterns:
+          - "pyright"
+          - "typing-extensions"
       utils:
-        - "tomli"
-        - "toml"
-        - "urlextract"
-        - "validators"
-        - "Pillow"
+        patterns:
+          - "tomli"
+          - "toml"
+          - "urlextract"
+          - "validators"
+          - "Pillow"
   - package-ecosystem: "github-actions"
     directory: "/"
     schedule:
@@ -43,17 +49,21 @@ updates:
       interval: "daily"
     groups:
       rust:
-        - "PyO3/maturin-action"
-        - "actions-rs/toolchain"
+        patterns:
+          - "PyO3/maturin-action"
+          - "actions-rs/toolchain"
       code-coverage:
-        - "paambaati/codeclimate-action"
-        - "codecov/codecov-action"
+        patterns:
+          - "paambaati/codeclimate-action"
+          - "codecov/codecov-action"
       python:
-        - "jakebailey/pyright-action"
-        - "harmon758/postgresql-action"
+        patterns:
+          - "jakebailey/pyright-action"
+          - "harmon758/postgresql-action"
       artifacts:
-        - "actions/upload-artifact"
-        - "actions/download-artifact"
+        patterns:
+          - "actions/upload-artifact"
+          - "actions/download-artifact"
   - package-ecosystem: "cargo"
     directory: "charbot_rust"
     schedule:
@@ -61,5 +71,6 @@ updates:
       interval: "daily"
     groups:
       images:
-        - "image"
-        - "imageproc"
+        patterns:
+          - "image"
+          - "imageproc"
