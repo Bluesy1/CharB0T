@@ -11,13 +11,55 @@ updates:
     directory: "/" # Location of package manifests
     schedule:
       interval: "daily"
+    groups:
+      pytest:
+        - "pytest*"
+        - "aioresponses"
+      core:
+        - "aiohttp"
+        - "discord.py"
+        - "jishaku"
+        - "orjson"
+        - "uvloop"
+      asyncpg:
+        - "asyncpg*"
+      formatting:
+        - "black"
+        - "flake8"
+        - "pre-commit"
+      typing:
+        - "pyright"
+        - "typing-extensions"
+      utils:
+        - "tomli"
+        - "toml"
+        - "urlextract"
+        - "validators"
+        - "Pillow"
   - package-ecosystem: "github-actions"
     directory: "/"
     schedule:
       # Check for updates to GitHub Actions every weekday
       interval: "daily"
+    groups:
+      rust:
+        - "PyO3/maturin-action"
+        - "actions-rs/toolchain"
+      code-coverage:
+        - "paambaati/codeclimate-action"
+        - "codecov/codecov-action"
+      python:
+        - "jakebailey/pyright-action"
+        - "harmon758/postgresql-action"
+      artifacts:
+        - "actions/upload-artifact"
+        - "actions/download-artifact"
   - package-ecosystem: "cargo"
     directory: "charbot_rust"
     schedule:
       # Check for updates to Rust dependencies every weekday
       interval: "daily"
+    groups:
+      images:
+        - "image"
+        - "imageproc"
