@@ -41,7 +41,7 @@ dependencies = [
 	"pytesseract==0.3.10",
 	"sentry-sdk==1.20.0",
 	"tomli==2.0.1; python_version < '3.11'",
-	"typing-extensions==4.5.0",
+	"typing-extensions==4.7.1",
 	"urlextract==1.8.0",
 	"uvloop==0.17.0 ; sys_platform != 'win32'",
 	"validators==0.20.0",
