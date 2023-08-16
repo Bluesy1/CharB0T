@@ -53,7 +53,7 @@ dev = [
 	"asyncpg-stubs==0.28.0",
 	"black==23.7.0",
 	"flake8==6.1.0",
-	"maturin[zig]==1.0.0",
+	"maturin[zig]==1.2.2",
 	"pre-commit==3.3.3",
 	"pyright==1.1.302",
 	"pytest==7.4.0",
