@@ -7,6 +7,7 @@ import re
 from datetime import datetime, timedelta, timezone
 from typing import cast, TYPE_CHECKING, Final
 
+import orjson
 import discord
 from discord import Color, Embed
 from discord.ext import tasks
@@ -153,6 +154,8 @@ class Events(Cog):
         This is called when the cog is loaded, and initializes the
         log_un-timeout task and the members cache
         """
+        with open(self.sensitive_settings_path) as settings:
+            self.webhook = await self.bot.fetch_webhook(orjson.loads(settings.read())["webhook_id"])
         self.log_untimeout.start()
         self.members.update(
             {
