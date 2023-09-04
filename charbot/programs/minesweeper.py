@@ -136,7 +136,7 @@ class Minesweeper(ui.View):
         self.stop()
 
     @ui.select(placeholder="Select a row")
-    async def row(self, interaction: Interaction[CBot], select: ui.Select[Self]):
+    async def row(self, interaction: Interaction[CBot], select: ui.Select):
         """Change the row.
 
         This method is called when the user changes the row. It changes the row of the game and redraws the board.
@@ -156,7 +156,7 @@ class Minesweeper(ui.View):
         await interaction.response.edit_message(attachments=[file], view=self)
 
     @ui.select(placeholder="Select a column")
-    async def column(self, interaction: Interaction[CBot], select: ui.Select[Self]):
+    async def column(self, interaction: Interaction[CBot], select: ui.Select):
         """Change the column.
 
         This method is called when the user changes the column. It changes the column of the game and redraws the

@@ -152,7 +152,7 @@ async def generate_banner(payload: BannerStatus, member: discord.Member) -> Byte
     Parameters
     ----------
     payload : BannerStatus
-        The infor about the banner being generated
+        The info about the banner being generated
     member : discord.Member
         The member who owns the banner.
     """

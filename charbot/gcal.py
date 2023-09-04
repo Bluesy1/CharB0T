@@ -253,7 +253,7 @@ class Calendar(commands.Cog):
 
         This loop is responsible for posting the calendar every half hour.
         It queries the Google calendar API and posts the results to the
-        webhook, after parding and formatting the results.
+        webhook, after parsing and formatting the results.
         """
         mindatetime = datetime.now(tz=ZoneInfo("America/New_York"))
         maxdatetime = datetime.now(tz=ZoneInfo("America/New_York")) + timedelta(weeks=1)
@@ -289,7 +289,7 @@ class Calendar(commands.Cog):
             except KeyError:  # pragma: no cover
                 default_field(fields, sub_time, item)
             else:  # pragma: no cover
-                if url(desc):
+                if url(desc):  # pyright: ignore[reportGeneralTypeIssues]
                     fields[timegm(sub_time.utctimetuple())] = EmbedField(
                         f"{item['summary']}",
                         f"{format_dt(sub_time, 'F')}\n[({sub_time.astimezone(chartime).strftime(time_format)})"

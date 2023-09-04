@@ -14,7 +14,7 @@ version = "1.4.1a0"
 authors = [
 	{name = "Bluesy1", email = "68259537+Bluesy1@users.noreply.github.com"}
 ]
-license = {name= "MIT", file = "LICENSE"}
+license = {file = "LICENSE"}
 requires-python = ">=3.10"
 classifiers = [
 	"Development Status :: 5 - Production/Stable",
