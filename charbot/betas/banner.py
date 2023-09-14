@@ -25,7 +25,9 @@ BASE_PATH: Final[Path] = Path(__file__).parent / "user_assets"
 STAR_COLOR: Final[tuple[int, int, int]] = (69, 79, 191)
 
 
-def interpolate(f_co: tuple[int, int, int], t_co: tuple[int, int, int], interval: int) -> Iterable[list[int]]:
+def interpolate(
+    f_co: tuple[int, int, int], t_co: tuple[int, int, int], interval: int
+) -> Iterable[tuple[int, int, int]]:
     """Interpolate between two colors to create a gradient.
 
     Parameters
@@ -55,7 +57,7 @@ def interpolate(f_co: tuple[int, int, int], t_co: tuple[int, int, int], interval
         raise ValueError(f"Invalid end color: {t_co}")
     det_co = [(t - f) / interval for f, t in zip(f_co, t_co)]
     for i in range(interval):
-        yield [round(f + det * i) for f, det in zip(f_co, det_co)]
+        yield tuple(round(f + det * i) for f, det in zip(f_co, det_co))  # pyright: ignore[reportGeneralTypeIssues]
 
 
 def prestige_positions(prestige: int) -> Iterable[tuple[int, int, int]]:
@@ -120,7 +122,7 @@ def banner(
         img = Image.new("RGBA", (1000, 250), 0)
         draw = ImageDraw.Draw(img)
         for i, color in enumerate(interpolate(base[0].to_rgb(), base[1].to_rgb(), 2000)):
-            draw.line([(i, 0), (0, i)], tuple(color), width=1)
+            draw.line([(i, 0), (0, i)], color, width=1)
     draw = ImageDraw.Draw(img)
     for pos in prestige_positions(prestige):
         draw.regular_polygon(pos, 3, rotation=0, fill=STAR_COLOR, outline=STAR_COLOR)

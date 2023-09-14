@@ -5,7 +5,7 @@
 # noinspection PyProtectedMember
 from importlib import metadata as _metadata
 
-from charbot_rust import _charbot_rust
+from charbot_rust import _charbot_rust  # pyright: ignore[reportGeneralTypeIssues]
 
 from . import tictactoe, minesweeper
 

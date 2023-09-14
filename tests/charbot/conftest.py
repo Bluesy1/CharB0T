@@ -11,17 +11,17 @@ import pytest_asyncio
 
 
 @pytest.fixture(scope="session")
-def cluster() -> asyncpg.cluster.TempCluster:  # pyright: ignore[reportGeneralTypeIssues]
+def cluster() -> asyncpg.cluster.TempCluster:
     """Create the temp database cluster"""
     test_cluster = asyncpg.cluster.TempCluster()
     test_cluster.init()
     test_cluster.start(port="dynamic")
-    yield test_cluster
+    yield test_cluster  # pyright: ignore[reportGeneralTypeIssues]
     test_cluster.stop()
 
 
 @pytest_asyncio.fixture
-async def database(cluster) -> asyncpg.Pool:  # pyright: ignore[reportGeneralTypeIssues]
+async def database(cluster) -> asyncpg.Pool:
     """Create a database pool for a test."""
     pool = cast(asyncpg.Pool, await asyncpg.create_pool(**cluster.get_connection_spec(), database="postgres"))
     with open(pathlib.Path(__file__).parent.parent.parent / "schema.sql", "r") as schema:
@@ -33,5 +33,5 @@ async def database(cluster) -> asyncpg.Pool:  # pyright: ignore[reportGeneralTyp
         "Lorem ipsum dolor sit amet, consectetur adipisci elit, sed eiusmod tempor incidunt ut labore et dolo",
         str(0x3498DB),
     )
-    yield pool
+    yield pool  # pyright: ignore[reportGeneralTypeIssues]
     await pool.close()
