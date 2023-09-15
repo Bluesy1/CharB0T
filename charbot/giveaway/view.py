@@ -9,7 +9,7 @@ from __future__ import annotations
 import asyncio
 import random
 from statistics import mean
-from typing import TYPE_CHECKING, Any, cast
+from typing import TYPE_CHECKING, Any, Literal, cast
 
 import asyncpg
 import discord
@@ -23,12 +23,14 @@ from .. import errors
 if TYPE_CHECKING:  # pragma: no cover
     from .. import CBot
 
+_LanguageTag = Literal["en-US", "es-ES", "fr", "nl"]
+
 
 async def hit_max_wins(interaction: Interaction["CBot"]):
     """Standard response for when a user has hit max wins for a month."""
     try:
         await interaction.response.send_message(
-            charbot_rust.translate(interaction.locale.value, "giveaway-try-later", {}),
+            charbot_rust.translate(cast(_LanguageTag, interaction.locale.value), "giveaway-try-later", {}),
             ephemeral=True,
         )
     except RuntimeError:  # pragma: no cover
@@ -352,7 +354,9 @@ class GiveawayView(ui.View):
         chance = round(100 * bid / self.total_entries, 2)
         await interaction.response.send_message(
             charbot_rust.translate(
-                interaction.locale.value, "giveaway-check-success", {"bid": bid, "chance": chance, "wins": wins}
+                cast(_LanguageTag, interaction.locale.value),
+                "giveaway-check-success",
+                {"bid": bid, "chance": chance, "wins": wins},
             ),
             ephemeral=True,
         )
@@ -377,12 +381,12 @@ class GiveawayView(ui.View):
                     discord.Object(id=972886729231044638), reason="Toggled giveaway alerts."
                 )
                 await interaction.followup.send(
-                    charbot_rust.translate(interaction.locale.value, "giveaway-alerts-enable", {})
+                    charbot_rust.translate(cast(_LanguageTag, interaction.locale.value), "giveaway-alerts-enable", {})
                 )
             else:
                 await cast(discord.Member, interaction.user).remove_roles(
                     discord.Object(id=972886729231044638), reason="Toggled giveaway alerts."
                 )
                 await interaction.followup.send(
-                    charbot_rust.translate(interaction.locale.value, "giveaway-alerts-disable", {})
+                    charbot_rust.translate(cast(_LanguageTag, interaction.locale.value), "giveaway-alerts-disable", {})
                 )

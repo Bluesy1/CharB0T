@@ -5,9 +5,12 @@
 # SPDX-License-Identifier: MIT
 
 """Wrong channel error."""
+from typing import cast
+
 import discord
 from discord.app_commands import AppCommandError
 
+from . import _LanguageTag
 from charbot_rust import translate
 
 
@@ -25,7 +28,7 @@ class WrongChannelError(AppCommandError):
     def __init__(self, channel: int, locale: discord.Locale):
         """Init."""
         super().__init__()
-        self.message = translate(locale.value, "wrong-channel", {"channel-id": f"{channel}"})
+        self.message = translate(cast(_LanguageTag, locale.value), "wrong-channel", {"channel-id": f"{channel}"})
         self._channel: int = channel
 
     def __str__(self):

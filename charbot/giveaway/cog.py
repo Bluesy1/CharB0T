@@ -10,7 +10,7 @@ import datetime
 from typing import cast
 
 import discord
-import pandas as pd
+import pandas as pd  # type: ignore
 from discord.ext import commands, tasks
 from discord.utils import MISSING, utcnow
 

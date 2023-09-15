@@ -73,7 +73,7 @@ impl Game {
                 human_first = false;
             },
             Difficulty::Random => {
-                let comp_mode: &str = vec!["m", "a", "r"].choose(&mut rng).unwrap();
+                let comp_mode: &str = ["m", "a", "r"].choose(&mut rng).unwrap();
                 let chance: f64 = match comp_mode {
                     "m" => {0.5}, // COV_EXCL_LINE
                     "a" => {0.25},

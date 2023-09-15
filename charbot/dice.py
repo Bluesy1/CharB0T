@@ -3,12 +3,15 @@
 # SPDX-License-Identifier: MIT
 """Rolls dice."""
 import random
+from typing import Literal, cast
 
 import discord
 from discord.ext import commands
 from discord.ext.commands import Cog, Context
 
 from charbot import CBot, translate
+
+_LanguageTag = Literal["en-US", "es-ES", "fr", "nl"]
 
 
 def roll(arg: str, user: str, locale: discord.Locale) -> str:
@@ -45,13 +48,15 @@ def roll(arg: str, user: str, locale: discord.Locale) -> str:
                     rolls.append(int(die))
                     sums += int(die)
                 except ValueError:
-                    return translate(locale.value, "error", {"user": user})
+                    return translate(cast(_LanguageTag, locale.value), "error", {"user": user})
         output = ", ".join(f"{res}" for res in rolls)
         return translate(
-            locale.value, "success", {"user": user, "dice": arg, "total": sums, "result": output, "locale": "en-US"}
+            cast(_LanguageTag, locale.value),
+            "success",
+            {"user": user, "dice": arg, "total": sums, "result": output, "locale": "en-US"},
         )
     except Exception:  # skipcq: PYL-W0703  # pragma: no cover
-        return translate(locale.value, "error", {"user": user})
+        return translate(cast(_LanguageTag, locale.value), "error", {"user": user})
 
 
 class Roll(Cog):

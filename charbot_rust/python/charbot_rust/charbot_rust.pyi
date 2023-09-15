@@ -2,7 +2,11 @@
 # SPDX-FileCopyrightText: 2022 Bluesy1 <68259537+Bluesy1@users.noreply.github.com>
 #
 # SPDX-License-Identifier: MIT
+from types import ModuleType as _ModuleType
 from typing import Literal as _Literal
+
+_tictactoe: _ModuleType
+_minesweeper: _ModuleType
 
 def translate(locale: _Literal["en-US", "es-ES", "fr", "nl"], key: str, args: dict[str, int | float | str]) -> str:
     """Translate a string into the given locale.

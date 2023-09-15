@@ -7,6 +7,7 @@
 """Minesweeper game."""
 import string
 from io import BytesIO
+from typing import Literal, cast
 
 import discord
 from PIL import Image
@@ -15,6 +16,9 @@ from typing_extensions import Self
 
 from .. import CBot, translate
 from charbot_rust import minesweeper
+
+
+_LanguageTag = Literal["en-US", "es-ES", "fr", "nl"]
 
 
 class Minesweeper(ui.View):
@@ -41,28 +45,29 @@ class Minesweeper(ui.View):
         x = self.game.x
         y = self.game.y
         # f"{i}" is significantly faster than str(i), as it doesn't make a command to CALL_FUNCTION internally.
+        _locale = cast(_LanguageTag, locale.value)
         self.row.options = [
             SelectOption(
-                label=translate(locale.value, "minesweeper-select-row-label", {"letter": letter}),
+                label=translate(_locale, "minesweeper-select-row-label", {"letter": letter}),
                 value=f"{i}",
                 emoji=chr(0x1F1E6 + i),
                 default=i == y,
-                description=translate(locale.value, "minesweeper-select-row-description", {"letter": letter}),
+                description=translate(_locale, "minesweeper-select-row-description", {"letter": letter}),
             )
             for i, letter in enumerate(string.ascii_uppercase[: self.game.height])
         ]
         self.column.options = [
             SelectOption(
-                label=translate(locale.value, "minesweeper-select-col-label", {"letter": letter}),
+                label=translate(_locale, "minesweeper-select-col-label", {"letter": letter}),
                 value=f"{i}",
                 emoji=chr(0x1F1E6 + i),
                 default=i == x,
-                description=translate(locale.value, "minesweeper-select-row-description", {"letter": letter}),
+                description=translate(_locale, "minesweeper-select-row-description", {"letter": letter}),
             )
             for i, letter in enumerate(string.ascii_uppercase[: self.game.width])
         ]
-        self.row.placeholder = translate(locale.value, "minesweeper-select-row-placeholder", {})
-        self.column.placeholder = translate(locale.value, "minesweeper-select-col-placeholder", {})
+        self.row.placeholder = translate(_locale, "minesweeper-select-row-placeholder", {})
+        self.column.placeholder = translate(_locale, "minesweeper-select-col-placeholder", {})
 
     async def draw(self, alt: str) -> discord.File:
         """Draw the game board.
@@ -92,7 +97,7 @@ class Minesweeper(ui.View):
             The interaction with the user.
         """
         await interaction.response.defer(ephemeral=True)
-        locale = interaction.locale.value
+        locale = cast(_LanguageTag, interaction.locale.value)
         points = self.game.points
         awarded = await interaction.client.give_game_points(interaction.user, *points)
         embed = discord.Embed(
@@ -119,7 +124,7 @@ class Minesweeper(ui.View):
             The interaction with the user.
         """
         await interaction.response.defer(ephemeral=True)
-        locale = interaction.locale.value
+        locale = cast(_LanguageTag, interaction.locale.value)
         points = self.game.points
         awarded = await interaction.client.give_game_points(interaction.user, *points)
         embed = discord.Embed(
@@ -150,7 +155,9 @@ class Minesweeper(ui.View):
         """
         val = select.values[0]
         self.game.change_row(int(val))
-        file = await self.draw(translate(interaction.locale.value, "minesweeper-image-alt-text", {}))
+        file = await self.draw(
+            translate(cast(_LanguageTag, interaction.locale.value), "minesweeper-image-alt-text", {})
+        )
         for opt in select.options:
             opt.default = opt.value == val
         await interaction.response.edit_message(attachments=[file], view=self)
@@ -170,7 +177,9 @@ class Minesweeper(ui.View):
         """
         val = select.values[0]
         self.game.change_col(int(val))
-        file = await self.draw(translate(interaction.locale.value, "minesweeper-image-alt-text", {}))
+        file = await self.draw(
+            translate(cast(_LanguageTag, interaction.locale.value), "minesweeper-image-alt-text", {})
+        )
         for opt in select.options:
             opt.default = opt.value == val
         await interaction.response.edit_message(attachments=[file], view=self)
@@ -194,13 +203,11 @@ class Minesweeper(ui.View):
         elif self.game.is_win():
             await self.handle_win(interaction)
         else:
-            file = await self.draw(translate(interaction.locale.value, "minesweeper-image-alt-text", {}))
+            locale = cast(_LanguageTag, interaction.locale.value)
+            file = await self.draw(translate(locale, "minesweeper-image-alt-text", {}))
             await interaction.response.edit_message(attachments=[file], view=self)
             if res == minesweeper.RevealResult.Flagged:  # pyright: ignore[reportGeneralTypeIssues]
-                await interaction.followup.send(
-                    translate(interaction.locale.value, "minesweeper-reveal-flag-fail", {}),
-                    ephemeral=True,
-                )
+                await interaction.followup.send(translate(locale, "minesweeper-reveal-flag-fail", {}), ephemeral=True)
 
     # noinspection GrazieInspection
     @ui.button(label="Chord", style=ButtonStyle.primary, emoji="\u2692")
@@ -219,14 +226,16 @@ class Minesweeper(ui.View):
         res = self.game.chord()
         if res == minesweeper.ChordResult.Failed:  # pyright: ignore[reportGeneralTypeIssues]
             await interaction.response.send_message(
-                translate(interaction.locale.value, "minesweeper-chord-error", {}),
+                translate(cast(_LanguageTag, interaction.locale.value), "minesweeper-chord-error", {}),
                 ephemeral=True,
             )
         elif res == minesweeper.ChordResult.Success:  # pyright: ignore[reportGeneralTypeIssues]
             if self.game.is_win():
                 await self.handle_win(interaction)
             else:
-                file = await self.draw(translate(interaction.locale.value, "minesweeper-image-alt-text", {}))
+                file = await self.draw(
+                    translate(cast(_LanguageTag, interaction.locale.value), "minesweeper-image-alt-text", {})
+                )
                 await interaction.response.edit_message(attachments=[file], view=self)
         else:
             await self.handle_lose(interaction)
@@ -245,12 +254,13 @@ class Minesweeper(ui.View):
             The button.
         """
         res = self.game.toggle_flag()
+        locale = cast(_LanguageTag, interaction.locale.value)
         if res:
-            file = await self.draw(translate(interaction.locale.value, "minesweeper-image-alt-text", {}))
+            file = await self.draw(translate(locale, "minesweeper-image-alt-text", {}))
             await interaction.response.edit_message(attachments=[file], view=self)
         else:
             await interaction.response.send_message(  # pragma: no cover
-                translate(interaction.locale.value, "minesweeper-flag-error", {}), ephemeral=True
+                translate(locale, "minesweeper-flag-error", {}), ephemeral=True
             )
 
     @ui.button(label="Quit", style=ButtonStyle.danger, emoji="\u2620")
@@ -268,12 +278,13 @@ class Minesweeper(ui.View):
             The button.
         """
         self.game.quit()
+        locale = cast(_LanguageTag, interaction.locale.value)
         embed = discord.Embed(
-            title=translate(interaction.locale.value, "minesweeper-quit-title", {}),
-            description=translate(interaction.locale.value, "minesweeper-quit-description", {}),
+            title=translate(locale, "minesweeper-quit-title", {}),
+            description=translate(locale, "minesweeper-quit-description", {}),
             color=discord.Color.red(),
         ).set_image(url="attachment://minesweeper.png")
-        file = await self.draw(translate(interaction.locale.value, "minesweeper-image-alt-text", {}))
+        file = await self.draw(translate(locale, "minesweeper-image-alt-text", {}))
         await interaction.response.edit_message(attachments=[file], embed=embed, view=None)
         self.stop()
 
@@ -290,7 +301,7 @@ class Minesweeper(ui.View):
         _button : ui.Button[Self]
             The button.
         """
-        value = interaction.locale.value
+        value = cast(_LanguageTag, interaction.locale.value)
         await interaction.response.defer(ephemeral=True, thinking=True)
         embed = discord.Embed(
             title=translate(value, "minesweeper-help-title", {}),

@@ -266,7 +266,7 @@ dependencies = [
 [[package]]
 name = "fluent"
 version = "0.16.0"
-source = "git+https://github.com/projectfluent/fluent-rs?rev=8fc76783960217b2a852b9c129ef546b6b8d8bfe#8fc76783960217b2a852b9c129ef546b6b8d8bfe"
+source = "git+https://github.com/projectfluent/fluent-rs?rev=a2cef6bff4885623f638a6968e034ce1a296ba01#a2cef6bff4885623f638a6968e034ce1a296ba01"
 dependencies = [
  "fluent-bundle",
  "unic-langid",
@@ -275,7 +275,7 @@ dependencies = [
 [[package]]
 name = "fluent-bundle"
 version = "0.15.2"
-source = "git+https://github.com/projectfluent/fluent-rs?rev=8fc76783960217b2a852b9c129ef546b6b8d8bfe#8fc76783960217b2a852b9c129ef546b6b8d8bfe"
+source = "git+https://github.com/projectfluent/fluent-rs?rev=a2cef6bff4885623f638a6968e034ce1a296ba01#a2cef6bff4885623f638a6968e034ce1a296ba01"
 dependencies = [
  "fluent-langneg",
  "fluent-syntax",
@@ -299,7 +299,7 @@ dependencies = [
 [[package]]
 name = "fluent-syntax"
 version = "0.11.0"
-source = "git+https://github.com/projectfluent/fluent-rs?rev=8fc76783960217b2a852b9c129ef546b6b8d8bfe#8fc76783960217b2a852b9c129ef546b6b8d8bfe"
+source = "git+https://github.com/projectfluent/fluent-rs?rev=a2cef6bff4885623f638a6968e034ce1a296ba01#a2cef6bff4885623f638a6968e034ce1a296ba01"
 dependencies = [
  "thiserror",
 ]
@@ -424,7 +424,7 @@ checksum = "05a0bd019339e5d968b37855180087b7b9d512c5046fbd244cf8c95687927d6e"
 [[package]]
 name = "intl-memoizer"
 version = "0.5.1"
-source = "git+https://github.com/projectfluent/fluent-rs?rev=8fc76783960217b2a852b9c129ef546b6b8d8bfe#8fc76783960217b2a852b9c129ef546b6b8d8bfe"
+source = "git+https://github.com/projectfluent/fluent-rs?rev=a2cef6bff4885623f638a6968e034ce1a296ba01#a2cef6bff4885623f638a6968e034ce1a296ba01"
 dependencies = [
  "type-map",
  "unic-langid",

@@ -1,10 +1,14 @@
 # -*- coding: utf-8 -*-
 # SPDX-FileCopyrightText: 2021 Bluesy1 <68259537+Bluesy1@users.noreply.github.com>
 # SPDX-License-Identifier: MIT
+from typing import Literal, cast
+
 from discord import app_commands, Locale
 from discord.app_commands import TranslationContextLocation, TranslationContextTypes, locale_str
 
 from charbot_rust import translate
+
+_LanguageTag = Literal["en-US", "es-ES", "fr", "nl"]
 
 
 class Translator(app_commands.Translator):
@@ -61,14 +65,16 @@ class Translator(app_commands.Translator):
         try:
             if isinstance(context.data, dict):
                 translated = translate(
-                    locale.value,
+                    cast(_LanguageTag, locale.value),
                     key,
                     {k: v for k, v in context.data.items() if isinstance(v, (int, float, str))}
                     | {k: v for k, v in string.extras.items() if isinstance(v, (int, float, str))},
                 )
             else:
                 translated = translate(
-                    locale.value, key, {k: v for k, v in string.extras.items() if isinstance(v, (int, float, str))}
+                    cast(_LanguageTag, locale.value),
+                    key,
+                    {k: v for k, v in string.extras.items() if isinstance(v, (int, float, str))},
                 )
             return None if translated == key or translated is None else translated
         except RuntimeError:

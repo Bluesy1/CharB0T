@@ -5,7 +5,7 @@ use std::collections::HashMap;
 
 use crate::fluent::bundle;
 use fluent::{FluentBundle, FluentResource, FluentArgs, FluentValue};
-use pyo3::{FromPyObject};
+use pyo3::FromPyObject;
 use encoding::all::ASCII;
 use encoding::{DecoderTrap, EncoderTrap, Encoding};
 

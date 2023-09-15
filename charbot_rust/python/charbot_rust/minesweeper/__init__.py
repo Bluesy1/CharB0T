@@ -4,7 +4,7 @@
 import sys as __sys
 
 # noinspection PyProtectedMember
-from charbot_rust._charbot_rust import _minesweeper
+from charbot_rust.charbot_rust import _minesweeper
 
 if hasattr(_minesweeper, "__doc__"):
     __doc__ = _minesweeper.__doc__

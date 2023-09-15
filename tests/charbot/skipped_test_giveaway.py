@@ -10,7 +10,7 @@ import random
 
 import asyncpg
 import discord
-import pandas
+import pandas  # type: ignore
 import pytest
 from pytest_mock import MockerFixture
 

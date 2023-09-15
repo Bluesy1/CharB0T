@@ -5,9 +5,12 @@
 # SPDX-License-Identifier: MIT
 
 """Wrong roles error."""
+from typing import cast
+
 import discord
 from discord.app_commands import MissingAnyRole
 
+from . import _LanguageTag
 from charbot_rust import translate
 
 
@@ -30,7 +33,7 @@ class MissingProgramRole(MissingAnyRole):
             fmt = f"{', '.join(missing[:-1])}, or {missing[-1]}"
         else:
             fmt = " or ".join(missing)
-        self.message = translate(locale.value, "missing-program-role", {"roles": fmt})
+        self.message = translate(cast(_LanguageTag, locale.value), "missing-program-role", {"roles": fmt})
 
     def __str__(self):
         """Get the error as a string."""

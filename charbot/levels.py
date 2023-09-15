@@ -5,7 +5,7 @@
 import asyncio
 import datetime
 import random
-from typing import Callable, Optional, cast
+from typing import Callable, Literal, Optional, cast
 
 import aiohttp
 import asyncpg
@@ -16,6 +16,8 @@ from discord.utils import utcnow
 from disrank.generator import Generator
 
 from . import CBot, Config, translate
+
+_LanguageTag = Literal["en-US", "es-ES", "fr", "nl"]
 
 
 async def update_level_roles(member: discord.Member, new_level: int) -> None:
@@ -208,7 +210,9 @@ class Leveling(commands.Cog):
             try:
                 user_record: asyncpg.Record = list(filter(lambda x: x["id"] == member.id, users))[0]
             except IndexError:
-                await interaction.followup.send(translate(interaction.locale.value, "rank-error", {}))
+                await interaction.followup.send(
+                    translate(cast(_LanguageTag, interaction.locale.value), "rank-error", {})
+                )
                 return
         image = await asyncio.to_thread(
             self.generator.generate_profile,
