@@ -247,6 +247,19 @@ class Calendar(commands.Cog):
         self.message = self.bot.holder.pop("message", MISSING)
         self.calendar.start()
 
+    @commands.command(hidden=True, name="calendar")
+    @commands.is_owner()
+    async def refresh(self, ctx: commands.Context) -> None:  # pragma: no cover
+        """Refresh the calendar message.
+
+        Parameters
+        ----------
+        ctx : commands.Context
+            The context of the command.
+        """
+        await self.calendar()
+        await ctx.message.add_reaction("✅")
+
     @tasks.loop()
     async def calendar(self):
         """Calendar loop.

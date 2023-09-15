@@ -4,7 +4,7 @@
 """Charbot discord bot."""
 import datetime
 import logging
-from typing import Any, ClassVar, Final, TypeVar
+from typing import Any, ClassVar, Final, TypeVar, cast
 from typing_extensions import Self
 from zoneinfo import ZoneInfo
 
@@ -383,6 +383,8 @@ class CBot(commands.Bot):
         elif isinstance(
             exception, (commands.NotOwner, commands.MissingAnyRole, commands.MissingRole, commands.MissingPermissions)
         ):
+            if cast(commands.Command, ctx.command).name == "calendar":
+                return
             await ctx.send(f"You are missing permissions to use {command.name}")
 
         # if the command is disabled, we want to tell the user that
