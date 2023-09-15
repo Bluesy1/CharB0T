@@ -69,9 +69,7 @@ def test_prestige_positions(prestige: int):
         assert actual == expected, f"Got {actual} but expected {expected}"
 
 
-@pytest.mark.xfail(
-    sys.platform == "win32", reason="PIL not consistent between platforms due to various reasons", strict=True
-)
+@pytest.mark.xfail(sys.platform == "win32", reason="PIL not consistent between platforms due to various reasons")
 def test_static_color_banner():
     """Check the banner gets created properly with a solid color background"""
     with (
@@ -92,9 +90,7 @@ def test_static_color_banner():
         assert got == expected, "Got unexpected banner"
 
 
-@pytest.mark.xfail(
-    sys.platform == "win32", reason="PIL not consistent between platforms due to various reasons", strict=True
-)
+@pytest.mark.xfail(sys.platform == "win32", reason="PIL not consistent between platforms due to various reasons")
 def test_gradient_color_banner():
     """Check the banner gets created properly with a gradient color background"""
     with (
@@ -118,7 +114,6 @@ def test_gradient_color_banner():
 @pytest.mark.xfail(
     sys.platform == "win32" or environ.get("pythonLocation", "").startswith("/opt/hostedtoolcache"),
     reason="PIL not consistent between platforms due to various reasons",
-    strict=True,
 )
 def test_image_background_banner():
     """Check the banner gets created properly with a gradient color background"""
@@ -137,6 +132,7 @@ def test_image_background_banner():
                 3,
             )
         )
+        # got.save(pathlib.Path(__file__).parent / "media/test_banner_image_background.png")
         assert got == expected, "Got unexpected banner"
 
 
