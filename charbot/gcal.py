@@ -302,7 +302,7 @@ class Calendar(commands.Cog):
             except KeyError:  # pragma: no cover
                 default_field(fields, sub_time, item)
             else:  # pragma: no cover
-                if url(desc):  # pyright: ignore[reportGeneralTypeIssues]
+                if url(desc):
                     fields[timegm(sub_time.utctimetuple())] = EmbedField(
                         f"{item['summary']}",
                         f"{format_dt(sub_time, 'F')}\n[({sub_time.astimezone(chartime).strftime(time_format)})"
