@@ -1,6 +1,3 @@
-# SPDX-FileCopyrightText: 2021 Bluesy1 <68259537+Bluesy1@users.noreply.github.com>
-# SPDX-License-Identifier: MIT
-
 # Errors
 missing-program-role = You are missing at least one of the required roles: { $roles } - you must be at least level 1 to use this command/button.
 wrong-channel = This command can only be run in the channel <#{ $channelid }> .

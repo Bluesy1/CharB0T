@@ -1,7 +1,3 @@
-# SPDX-FileCopyrightText: 2021 Bluesy1 <68259537+Bluesy1@users.noreply.github.com>
-#
-# SPDX-License-Identifier: MIT
-
 ### Messages about the giveaway system for the bot to respond with
 
 giveaway-try-later = You have won 3 giveaways recently, please wait until the first of the next month to bid again.

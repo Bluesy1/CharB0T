@@ -1,6 +1,3 @@
-// SPDX-FileCopyrightText: 2021 Bluesy1 <68259537+Bluesy1@users.noreply.github.com>  // COV_EXCL_LINE
-//
-// SPDX-License-Identifier: MIT
 // COV_EXCL_START
 use std::fmt::{Display, Error, Formatter, Write};
 use std::ops::Deref;

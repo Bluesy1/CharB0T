@@ -1,6 +1,3 @@
-# SPDX-FileCopyrightText: 2021 Bluesy1 <68259537+Bluesy1@users.noreply.github.com>
-# SPDX-License-Identifier: MIT
-
 # Selects
 minesweeper-select-row-label = Row { $letter }
 minesweeper-select-row-description = Change the row to { $letter }

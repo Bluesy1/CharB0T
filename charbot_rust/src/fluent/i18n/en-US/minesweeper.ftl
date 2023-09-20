@@ -1,7 +1,3 @@
-# SPDX-FileCopyrightText: 2021 Bluesy1 <68259537+Bluesy1@users.noreply.github.com>
-#
-# SPDX-License-Identifier: MIT
-
 ### Messages for the minesweeper program to reply with
 
 ## Selects labels, descriptions, and placeholders

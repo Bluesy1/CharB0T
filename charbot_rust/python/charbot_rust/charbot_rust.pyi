@@ -1,7 +1,4 @@
 # -*- coding: utf-8 -*-
-# SPDX-FileCopyrightText: 2022 Bluesy1 <68259537+Bluesy1@users.noreply.github.com>
-#
-# SPDX-License-Identifier: MIT
 from types import ModuleType as _ModuleType
 from typing import Literal as _Literal
 

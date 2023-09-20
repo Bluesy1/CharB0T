@@ -1,5 +1,3 @@
-// SPDX-FileCopyrightText: 2021 Bluesy1 <68259537+Bluesy1@users.noreply.github.com>
-// SPDX-License-Identifier: MIT
 // COV_EXCL_START
 use pyo3::exceptions::PyValueError;
 use crate::minesweeper::{field::{Field, Content, TILE_HEIGHT, TILE_WIDTH}, common::MoveDestination};

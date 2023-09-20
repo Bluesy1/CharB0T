@@ -1,6 +1,3 @@
-// SPDX-FileCopyrightText: 2022 Bluesy1 <68259537+Bluesy1@users.noreply.github.com>  // COV_EXCL_LINE
-//
-// SPDX-License-Identifier: MIT
 use fluent::{FluentBundle, FluentResource}; // fluent translation stuff
 use crate::fluent::common; // ftl files
 

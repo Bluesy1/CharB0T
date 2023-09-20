@@ -1,6 +1,3 @@
-// SPDX-FileCopyrightText: 2021 Bluesy1 <68259537+Bluesy1@users.noreply.github.com>
-//
-// SPDX-License-Identifier: MIT
 // COV_EXCL_START COV_EXCL_LINE
 use pyo3::prelude::*;
 mod tictactoe;
