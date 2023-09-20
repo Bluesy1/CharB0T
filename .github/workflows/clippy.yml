@@ -30,7 +30,7 @@ jobs:
             ~/.cargo/registry/cache/
             ~/.cargo/git/db/
             charbot_rust/target/
-          key: clippy${{ matrix.python-version }}-${{ hashFiles('**/Cargo.lock') }}
+          key: clippy-${{ hashFiles('**/Cargo.lock') }}
       - name: Run Clippy
         run: |
           cd charbot_rust
