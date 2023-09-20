@@ -1,9 +1,3 @@
-<!--
-SPDX-FileCopyrightText: 2022 Bluesy1 <68259537+Bluesy1@users.noreply.github.com>
-
-SPDX-License-Identifier: MIT
--->
-
 ## Continuous Integration Status
 
 [![Maintainability](https://api.codeclimate.com/v1/badges/8234bccb87107f9068b9/maintainability)](https://codeclimate.com/github/Bluesy1/CharB0T/maintainability)
@@ -13,7 +7,7 @@ SPDX-License-Identifier: MIT
 [![DeepSource](https://deepsource.io/gh/Bluesy1/CharB0T.svg/?label=resolved+issues&show_trend=true&token=wb08Mu693aFli6scALkkEmql)](https://deepsource.io/gh/Bluesy1/CharB0T/?ref=repository-badge)
 
 [![CI](https://github.com/Bluesy1/CharB0T/actions/workflows/ci.yml/badge.svg)](https://github.com/Bluesy1/CharB0T/actions/workflows/ci.yml)
-[![CodeQL](https://github.com/Bluesy1/CharB0T/actions/workflows/codeql-analysis.yml/badge.svg)](https://github.com/Bluesy1/CharB0T/actions/workflows/codeql-analysis.yml)
+[![CodeQL](https://github.com/Bluesy1/CharB0T/actions/workflows/codeql.yml/badge.svg)](https://github.com/Bluesy1/CharB0T/actions/workflows/codeql.yml)
 [![Update GitHub Pages Site](https://github.com/Bluesy1/CharB0T/actions/workflows/leaderboard.yml/badge.svg?branch=gh-pages&event=workflow_dispatch)](https://github.com/Bluesy1/CharB0T/actions/workflows/leaderboard.yml)
 
 ## Code Info
@@ -38,14 +32,16 @@ SPDX-License-Identifier: MIT
 ![GitHub contributors](https://img.shields.io/github/contributors/Bluesy1/CharB0T.svg)
 [![Discord](https://img.shields.io/discord/225345178955808768)](https://cpry.net/discord)
 
+<!---
 ![Contributors](https://contrib.rocks/image?repo=BLuesy1/CharB0T)
-
+--->
+<!---
 ## Funding
 [![Sponsors](https://img.shields.io/github/sponsors/Bluesy1)](https://github.com/sponsors/Bluesy1)
 
 I work on this project, for free for the most part at this point. If you've gained from my work on this project at any point and can afford it, I would appreciate any small sponsorship or contribution you're willing to make, through [GitHub Sponsors](https://github.com/sponsors/Bluesy1).
 
-<!---
+
 ### Sponsors
 
 | [@charliepryor](https://github.com/charliepryor)                               |
@@ -65,13 +61,14 @@ You can find the documentation for the bot [here](https://bluesy1.github.io/Char
 ## Contributing
 
 Please see the [Code of Conduct](./CODE_OF_CONDUCT.md) and [Contributing Guidelines](./CONTRIBUTING.md) before contributing.
-
+<!---
 Non code translation contributions are also welcome via [crowdin](https://crowdin.com/project/charbot).
+--->
 
 ----------------------------------------------------------------------------
 MIT License
 
-Copyright (c) 2022 Bluesy
+Copyright (c) 2021-Present Bluesy
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal

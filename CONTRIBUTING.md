@@ -1,11 +1,6 @@
-<!--
-SPDX-FileCopyrightText: 2022 Bluesy1 <68259537+Bluesy1@users.noreply.github.com>
-
-SPDX-License-Identifier: MIT
--->
 # Welcome to Charbot's contributing guide <!-- omit in toc -->
 
-Thank you for investing your time in contributing to our project! Any contribution you make will be reflected in the bot in due time :sparkles:. 
+Thank you for investing your time in contributing to our project! Any contribution you make will be reflected in the bot in due time :sparkles:.
 
 Read our [Code of Conduct](./CODE_OF_CONDUCT.md) to keep our community approachable and respectable.
 
@@ -27,12 +22,12 @@ To get an overview of the project, read the [README](README.md). Here are some r
 
 ### Issues
 
-We welcome issues that report bugs, request new features, or mention issues and concerns. 
+We welcome issues that report bugs, request new features, or mention issues and concerns.
 **If you find security issues, contact me privately via discord, not publicly.**
 
 ### Submitting Code
 
-We welcome people submitting their own code, as long as the code is a welcome change, either via an 
+We welcome people submitting their own code, as long as the code is a welcome change, either via an
 [issue](https://github.com/Bluesy1/CharB0T/issues) on Github, or by communicating on discord with us!
 
 Once you know the code is a welcome change, clone the repository and make the changes.
@@ -44,5 +39,4 @@ We target 80% project and diff coverage in this project. If you add new code, pl
 
 Finally, if you are adding new files, make sure they contain copyright and lisence information, as well as explicit encoding for utf-8 files
 
-[^1]: #type: ignore, #pyright: ignore, and other ignore comments for various parts of the CI are allowed with valid explanation. 
-
+[^1]: #type: ignore, #pyright: ignore, and other ignore comments for various parts of the CI are allowed with valid explanation.

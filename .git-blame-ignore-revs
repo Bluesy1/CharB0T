@@ -1,6 +1,3 @@
-# SPDX-FileCopyrightText: 2022 Bluesy1 <68259537+Bluesy1@users.noreply.github.com>
-#
-# SPDX-License-Identifier: MIT
 # Since git version 2.23, git-blame has a feature to ignore
 # certain commits.
 #
@@ -13,5 +10,3 @@
 
 # Audit license complaince using reuse
 af3a57d2a4949f0cb0c615e4707e5593e7db10a2
-
-
