@@ -8,5 +8,6 @@
 #
 # $ git config blame.ignoreRevsFile .git-blame-ignore-revs
 
-# Audit license complaince using reuse
 af3a57d2a4949f0cb0c615e4707e5593e7db10a2
+bfe2457bb8ebbe9101f708750306214045cd9161
+ab755b5103f6c060f4b42bc851dc1061fbeb2f84
