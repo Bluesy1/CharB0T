@@ -41,7 +41,7 @@ class Cell:
         return f"<Cell value={self.value} possible_values={self.possible_values} id={self.id}>"
 
     def __eq__(self, other):
-        """Two cells are equal if they have the same value, and editibility."""
+        """Two cells are equal if they have the same value, and edit-ability."""
         return self.value == other.value and self.editable == other.editable
 
     def __hash__(self):
@@ -55,7 +55,7 @@ class Cell:
 
     @property
     def value(self) -> int:
-        """Calue of the cell."""
+        """Value of the cell."""
         return self._value
 
     @value.setter
