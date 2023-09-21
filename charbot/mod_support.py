@@ -93,16 +93,21 @@ class ModSupport(GroupCog, name="modsupport", description="mod support command g
             if channel.name.endswith("mod-support") and isinstance(channel, discord.TextChannel)
         ]
         for channel in cared:
-            temp = True
-            async for message in channel.history(after=utcnow() - timedelta(days=3)):
-                user = self.bot.user
-                assert isinstance(user, discord.ClientUser)  # skipcq: BAN-B101
-                if message.author.id == user.id:
+            last = channel.last_message_id
+            if last:
+                last_time = discord.utils.snowflake_time(last)
+                delta = utcnow() - last_time
+                if delta.total_seconds() > 3 * 24 * 60 * 60:
+                    await channel.delete(reason="Mod Support Channel Inactivity")
+                else:
                     continue
-                temp = False
-                break
-            if temp:
-                await channel.delete()
+            else:
+                count = 0
+                async for _ in channel.history(after=utcnow() - timedelta(days=3)):
+                    count += 1
+                    break
+                if count == 0:
+                    await channel.delete()
 
     @app_commands.command(name="query", description="queries list of users banned from mod support")
     @app_commands.guild_only()
