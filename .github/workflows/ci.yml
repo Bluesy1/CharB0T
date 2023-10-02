@@ -81,19 +81,18 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: actions-rs/toolchain@v1
+      - name: Install stable toolchain
+        uses: actions-rs/toolchain@v1
         with:
           toolchain: nightly
           override: true
-      - name: Configure cache
-        uses: actions/cache@v3
+          components: llvm-tools-preview
+
+      - name: Cache deps
+        uses: Swatinem/rust-cache@v1
         with:
-          path: |
-            ~/.cargo/bin/
-            ~/.cargo/registry/index/
-            ~/.cargo/registry/cache/
-            ~/.cargo/git/db/
           key: test-${{ hashFiles('**/Cargo.lock') }}
+          
       - name: Run tests
         run: |
           cd charbot_rust
