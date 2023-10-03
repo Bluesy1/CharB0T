@@ -89,7 +89,7 @@ jobs:
           components: llvm-tools-preview
 
       - name: Cache deps
-        uses: Swatinem/rust-cache@v1
+        uses: Swatinem/rust-cache@v2
         with:
           key: test-${{ hashFiles('**/Cargo.lock') }}
           
