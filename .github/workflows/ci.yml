@@ -92,6 +92,8 @@ jobs:
         uses: Swatinem/rust-cache@v2
         with:
           key: test-${{ hashFiles('**/Cargo.lock') }}
+          workspaces: |
+            charbot_rust
           
       - name: Run tests
         run: |
