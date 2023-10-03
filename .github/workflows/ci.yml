@@ -84,7 +84,6 @@ jobs:
       - name: Install stable toolchain
         uses: actions-rs/toolchain@v1
         with:
-          toolchain: nightly
           override: true
           components: llvm-tools-preview
 
