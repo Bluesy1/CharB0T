@@ -69,7 +69,7 @@ jobs:
         with:
           manylinux: auto
           command: build
-          args: --release --sdist -o dist --interpreter /usr/local/bin/python3.11 -m charbot_rust/Cargo.toml
+          args: --release --sdist -o dist -i python3.11 -i python3.12 -m charbot_rust/Cargo.toml
       - name: Upload wheels
         uses: actions/upload-artifact@v3
         with:
@@ -125,7 +125,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        python-version: ["3.11", "3.10"]
+        python-version: ["3.11", "3.12"]
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v4
@@ -144,7 +144,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        python-version: [ "3.11", "3.10" ]
+        python-version: [ "3.11", "3.12" ]
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v4
@@ -160,6 +160,10 @@ jobs:
     needs: [changes, maturin]
     if: ${{ needs.changes.outputs.python == 'true' || needs.changes.outputs.rust == 'true' }}
     runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: [ "3.11", "3.12" ]
     steps:
       - uses: actions/checkout@v4
       - uses: actions/download-artifact@v3
@@ -168,7 +172,7 @@ jobs:
           path: wheels
       - uses: actions/setup-python@v4
         with:
-          python-version: "3.11"
+          python-version: ${{ matrix.python-version }}
           cache: "pip"
           cache-dependency-path: pyproject.toml
       - name: Dependencies
@@ -176,8 +180,8 @@ jobs:
           pip install -U pip
           pip install -U wheel
           pip install -U -e ".[dev]"
-          find . -name "*.tar.gz" | xargs rm
-          pip install wheels/*
+          VER=$(echo ${{ matrix.python-version }} | tr -d .)
+          find . -name "*cp{VER}*.whl" | xargs pip install
       - name: Run Pyright
         uses: jakebailey/pyright-action@v1
         with:
@@ -190,6 +194,8 @@ jobs:
     continue-on-error: true
     strategy:
       fail-fast: false
+      matrix:
+        python-version: [ "3.11", "3.12" ]
     steps:
       - uses: actions/checkout@v4
       - uses: harmon758/postgresql-action@v1
@@ -201,7 +207,7 @@ jobs:
           path: wheels
       - uses: actions/setup-python@v4
         with:
-          python-version: "3.11"
+          python-version: ${{ matrix.python-version }}
           cache: "pip"
           cache-dependency-path: pyproject.toml
       - name: Dependencies
@@ -209,8 +215,8 @@ jobs:
           pip install -U pip
           pip install -U wheel
           pip install -U -e ".[dev]"
-          find . -name "*.tar.gz" | xargs rm
-          pip install wheels/*
+          VER=$(echo ${{ matrix.python-version }} | tr -d .)
+          find . -name "*cp{VER}*.whl" | xargs pip install
       - name: Run pytest
         id: pytest
         run: pytest
