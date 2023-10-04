@@ -175,7 +175,7 @@ class Admin(commands.Cog):
             )
             wins = await conn.fetchrow("SELECT wins FROM winners WHERE id = $1", member.id)
         await interaction.response.send_message(
-            f"Confirmed {member.name}#{member.discriminator} (ID: {member.id}) as having won a giveaway,"
+            f"Confirmed {member} (ID: {member.id}) as having won a giveaway,"
             f" ({wins}/3 this month for them)",
             ephemeral=True,
         )
