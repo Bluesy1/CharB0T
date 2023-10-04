@@ -195,7 +195,7 @@ class Events(Cog):
         if (time_delta.seconds % 3600) % 60 != 0:  # pragma: no branch
             time_string += f"{', ' if bool(time_string) else ''}" f"{(time_delta.seconds % 3600) % 60} Second(s) "
         embed = Embed(color=Color.red())
-        embed.set_author(name=f"[TIMEOUT] {after.name}#{after.discriminator}")
+        embed.set_author(name=f"[TIMEOUT] {after}")
         embed.add_field(name="User", value=after.mention, inline=True)
         embed.add_field(name="Duration", value=time_string, inline=True)
         bot_user = cast(discord.ClientUser, self.bot.user)
@@ -219,7 +219,7 @@ class Events(Cog):
                 member = await guild.fetch_member(i)
                 if not member.is_timed_out():
                     embed = Embed(color=Color.green())
-                    embed.set_author(name=f"[UNTIMEOUT] {member.name}#{member.discriminator}")
+                    embed.set_author(name=f"[UNTIMEOUT] {member}")
                     embed.add_field(name="User", value=member.mention, inline=True)
                     bot_user = cast(discord.ClientUser, self.bot.user)
                     await self.webhook.send(username=bot_user.name, avatar_url=bot_user.display_avatar.url, embed=embed)
@@ -266,7 +266,7 @@ class Events(Cog):
                 self.bot.get_channel(430197357100138497) or await self.bot.fetch_channel(430197357100138497),
             )
             await channel.send(
-                f"**{user.name}#{user.discriminator}** has left the server. "
+                f"**{user}** has left the server. "
                 f"ID:{user.id}. Time on Server: {time_string}"
             )
 
@@ -292,7 +292,7 @@ class Events(Cog):
                     await self.parse_timeout(after)
                 else:
                     embed = Embed(color=Color.green())
-                    embed.set_author(name=f"[UNTIMEOUT] {after.name}#{after.discriminator}")
+                    embed.set_author(name=f"[UNTIMEOUT] {after}")
                     embed.add_field(name="User", value=after.mention, inline=True)
                     bot_user = cast(discord.ClientUser, self.bot.user)
                     await self.webhook.send(username=bot_user.name, avatar_url=bot_user.display_avatar.url, embed=embed)
