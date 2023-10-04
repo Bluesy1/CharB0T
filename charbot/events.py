@@ -265,10 +265,7 @@ class Events(Cog):
                 discord.TextChannel,
                 self.bot.get_channel(430197357100138497) or await self.bot.fetch_channel(430197357100138497),
             )
-            await channel.send(
-                f"**{user}** has left the server. "
-                f"ID:{user.id}. Time on Server: {time_string}"
-            )
+            await channel.send(f"**{user}** has left the server. " f"ID:{user.id}. Time on Server: {time_string}")
 
     # noinspection PyBroadException,DuplicatedCode
     @Cog.listener()
