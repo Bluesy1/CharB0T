@@ -189,11 +189,11 @@ class Events(Cog):
         if time_delta.days % 7 != 0:  # pragma: no branch
             time_string += f"{', ' if bool(time_string) else ''}{time_delta.days % 7} Day(s) "
         if time_delta.seconds // 3600 > 0:  # pragma: no branch
-            time_string += f"{', ' if bool(time_string) else ''}" f"{time_delta.seconds // 3600} Hour(s) "
+            time_string += f"{', ' if bool(time_string) else ''}{time_delta.seconds // 3600} Hour(s) "
         if (time_delta.seconds % 3600) // 60 != 0:  # pragma: no branch
-            time_string += f"{', ' if bool(time_string) else ''}" f"{(time_delta.seconds % 3600) // 60} Minute(s) "
+            time_string += f"{', ' if bool(time_string) else ''}{(time_delta.seconds % 3600) // 60} Minute(s) "
         if (time_delta.seconds % 3600) % 60 != 0:  # pragma: no branch
-            time_string += f"{', ' if bool(time_string) else ''}" f"{(time_delta.seconds % 3600) % 60} Second(s) "
+            time_string += f"{', ' if bool(time_string) else ''}{(time_delta.seconds % 3600) % 60} Second(s) "
         embed = Embed(color=Color.red())
         embed.set_author(name=f"[TIMEOUT] {after}")
         embed.add_field(name="User", value=after.mention, inline=True)
@@ -265,7 +265,7 @@ class Events(Cog):
                 discord.TextChannel,
                 self.bot.get_channel(430197357100138497) or await self.bot.fetch_channel(430197357100138497),
             )
-            await channel.send(f"**{user}** has left the server. " f"ID:{user.id}. Time on Server: {time_string}")
+            await channel.send(f"**{user}** has left the server. ID:{user.id}. Time on Server: {time_string}")
 
     # noinspection PyBroadException,DuplicatedCode
     @Cog.listener()
