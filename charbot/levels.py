@@ -220,7 +220,7 @@ class Leveling(commands.Cog):
             user_xp=user_record["xp"],
             next_xp=user_record["detailed_xp"][2] - user_record["detailed_xp"][0] + user_record["detailed_xp"][1],
             user_position=user_record["rank"],
-            user_name=f"{member.name}#{member.discriminator}",
+            user_name=str(member),
             user_status="offline" if isinstance(cached_member.status, str) else cached_member.status.value,
         )
 

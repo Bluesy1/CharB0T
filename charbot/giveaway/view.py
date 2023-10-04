@@ -202,11 +202,11 @@ class GiveawayView(ui.View):
             )
             self.embed.add_field(name="Top Bid", value=f"{self.top_bid:.2f}", inline=True)
             self.embed.add_field(name="Total Entries", value=f"{self.total_entries}", inline=True)
-            self.embed.add_field(name="Winner", value=f"{winner.name}#{winner.discriminator}", inline=True)
+            self.embed.add_field(name="Winner", value=f"{winner}", inline=True)
             if drawn:  # pragma: no branch
                 self.embed.add_field(
                     name="Backup Winners",
-                    value=f"{', '.join(f'{m.name}#{m.discriminator}' for m in drawn)}",
+                    value=f"{', '.join(f'{member}' for member in drawn)}",
                     inline=True,
                 )
                 _drawn = [winner, *drawn]
