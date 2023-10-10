@@ -66,9 +66,13 @@ if __name__ == "__main__":
     print("Starting charbot...")
     if os.name != "nt":
         import uvloop
+        
+        print("Using uvloop")
 
-        uvloop.install()
-
-        print("Installed uvloop")
-
-    asyncio.run(main())
+        try:
+            uvloop.run(main())
+        except AttributeError:
+            uvloop.install()
+            asyncio.run(main)
+    else:
+        asyncio.run(main())
