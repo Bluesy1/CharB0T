@@ -66,7 +66,7 @@ if __name__ == "__main__":
     print("Starting charbot...")
     if os.name != "nt":
         import uvloop
-        
+
         print("Using uvloop")
 
         try:
