@@ -70,7 +70,7 @@ filterwarnings = [
 	"ignore:'audioop' is deprecated and slated for removal in Python 3.13:DeprecationWarning",
 	"ignore: module 'sre_constants' is deprecated:DeprecationWarning",
  	"ignore:pkg_resources is deprecated as an API:DeprecationWarning",
- 	"ignore:'pkgutil.find_loader' is deprecated and slated for removal in Python 3.14DeprecationWarning"
+ 	"ignore:'pkgutil.find_loader' is deprecated and slated for removal in Python 3.14:DeprecationWarning"
 ]
 addopts = "--cov-report=xml:coverage/reports/coverage.xml --cov=charbot tests/ --cov-report=term-missing:skip-covered --cov-config=pyproject.toml --cov-branch"
 
