@@ -67,8 +67,8 @@ if __name__ == "__main__":
     if os.name != "nt":
         import uvloop
 
-        uvloop.install()
+        print("Using uvloop")
 
-        print("Installed uvloop")
-
-    asyncio.run(main())
+        uvloop.run(main())
+    else:
+        asyncio.run(main())
