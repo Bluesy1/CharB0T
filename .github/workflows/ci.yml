@@ -180,7 +180,7 @@ jobs:
           VER=$(echo ${{ matrix.python-version }} | tr -d .)
           find . -name "*cp${VER}*.whl" | xargs pip install
       - name: Run Pyright
-        uses: jakebailey/pyright-action@v1
+        uses: jakebailey/pyright-action@v2
         with:
           warnings: false
           version: 1.1.327 # Optional
