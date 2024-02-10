@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+import asyncio
 import datetime
 import re
 from zoneinfo import ZoneInfo
@@ -98,11 +99,11 @@ def test_calendar_embed():
 
 
 @pytest.mark.asyncio
-async def test_cog_init_load_unload(mocker: MockerFixture, event_loop, mock_config):
+async def test_cog_init_load_unload(mocker: MockerFixture, mock_config):
     """Test cog constructor, load, unload."""
     fake_webhook = mocker.AsyncMock(spec=discord.Webhook)
     fetch_webhook = mocker.AsyncMock(spec=discord.Webhook, return_value=fake_webhook)
-    bot = mocker.AsyncMock(spec=CBot, holder=Holder(), fetch_webhook=fetch_webhook, loop=event_loop)
+    bot = mocker.AsyncMock(spec=CBot, holder=Holder(), fetch_webhook=fetch_webhook, loop=asyncio.get_running_loop())
     await gcal.setup(bot)
     bot.add_cog.assert_called_once()
     cog: gcal.Calendar = bot.add_cog.call_args.args[0]
@@ -122,7 +123,7 @@ async def test_cog_init_load_unload(mocker: MockerFixture, event_loop, mock_conf
 
 
 @pytest.mark.asyncio
-async def test_calendar_task(mocker: MockerFixture, event_loop, mock_config, monkeypatch):
+async def test_calendar_task(mocker: MockerFixture, mock_config, monkeypatch):
     """Test calendar task."""
     data = {
         "items": [
@@ -197,7 +198,7 @@ async def test_calendar_task(mocker: MockerFixture, event_loop, mock_config, mon
                 status=200,
                 payload=data,
             )
-            bot = mocker.AsyncMock(spec=CBot, loop=event_loop, session=session)
+            bot = mocker.AsyncMock(spec=CBot, loop=asyncio.get_running_loop(), session=session)
             bot.holder = Holder()
             bot.holder["webhook"] = mocker.AsyncMock(spec=discord.Webhook)
             bot.user = mocker.AsyncMock(spec=discord.ClientUser)
