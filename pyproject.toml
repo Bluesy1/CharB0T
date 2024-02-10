@@ -27,7 +27,7 @@ classifiers = [
 	"Typing :: Typed",
 ]
 dependencies = [
-	"aiohttp[speedups]==3.9.0",
+	"aiohttp[speedups]==3.9.3",
 	"asyncpg==0.29.0",
 	"discord.py[speed] @ git+https://github.com/Rapptz/discord.py@5126323640871f54d0f8508b8f9ed159686cfca1",
 	"disrank==0.0.2",
