@@ -1,4 +1,6 @@
 # -*- coding: utf-8 -*-
+import asyncio
+import os
 import pathlib
 from typing import cast
 
@@ -7,6 +9,18 @@ import asyncpg.cluster
 import pytest
 import pytest_asyncio
 
+if os.name != 'nt':
+    import uvloop
+    # Also test uvloop on non windows OSes
+    @pytest.fixture(
+        scope="session",
+        params=(
+            asyncio.DefaultEventLoopPolicy(),
+            uvloop.EventLoopPolicy(),
+        ),
+    )
+    def event_loop_policy():
+        return 
 
 @pytest.fixture(scope="session")
 def cluster() -> asyncpg.cluster.TempCluster:
