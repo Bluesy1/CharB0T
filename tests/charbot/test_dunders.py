@@ -24,6 +24,7 @@ def test_config(monkeypatch, caplog):
         def __exit__(self, exc_type, exc_val, exc_tb):  # skipcq
             pass
 
+    Config.clear_cache()  # Ensure the cache is cleared before running the tests
     caplog.set_level(logging.DEBUG)
     monkeypatch.setattr(builtins, "open", mock_open)
     assert Config["calendar"] == {"key": "key"}
@@ -57,3 +58,4 @@ def test_config(monkeypatch, caplog):
         log[2] == f"Tried to get key calendar:Test from config file, but a non string key {obj!r} of type "
         f"{type(obj)} was passed."
     )
+    Config.clear_cache()  # Ensure the cache is cleared after running the tests
