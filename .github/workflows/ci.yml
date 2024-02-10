@@ -37,7 +37,7 @@ jobs:
           # merge-base is found within latest 20 commits
           fetch-depth: 20
       # For pull requests it's not necessary to checkout the code
-      - uses: dorny/paths-filter@v2
+      - uses: dorny/paths-filter@v3
         id: filter
         with:
           filters: |
