@@ -67,7 +67,7 @@ jobs:
           command: build
           args: --release --sdist -o dist -i python3.11 -i python3.12 -m charbot_rust/Cargo.toml
       - name: Upload wheels
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: wheel
           path: dist
@@ -163,7 +163,7 @@ jobs:
         python-version: [ "3.11", "3.12" ]
     steps:
       - uses: actions/checkout@v4
-      - uses: actions/download-artifact@v3
+      - uses: actions/download-artifact@v4
         with:
           name: wheel
           path: wheels
@@ -198,7 +198,7 @@ jobs:
       - uses: harmon758/postgresql-action@v1
         with:
           postgresql version: '14'
-      - uses: actions/download-artifact@v3
+      - uses: actions/download-artifact@v4
         with:
           name: wheel
           path: wheels
