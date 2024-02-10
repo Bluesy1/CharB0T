@@ -20,7 +20,7 @@ fluent = { git = "https://github.com/projectfluent/fluent-rs", rev = "a2cef6bff4
 encoding = "0.2.33"
 
 [dev-dependencies]
-yare = "1.0.2"
+yare = "2.0.0"
 
 [features]
 extension-module = ["pyo3/extension-module"]
