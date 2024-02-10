@@ -26,8 +26,8 @@ __WHITE__: Final[tuple[int, int, int]] = (255, 255, 255)
 __DARK__: Final[tuple[int, int, int]] = (252, 179, 63)
 # noinspection PyUnusedLocal
 __YELLOW__: Final[tuple[int, int, int]] = (255, 234, 167)  # noqa: F841
-__XP_AS_STR__: Final[Callable[[int], str]] = (
-    lambda xp: str(xp) if xp < 1000 else f"{xp / 1000:.1f}k" if xp < 1000000 else f"{xp / 1000000:.1f}M"
+__XP_AS_STR__: Final[Callable[[int], str]] = lambda xp: (
+    str(xp) if xp < 1000 else f"{xp / 1000:.1f}k" if xp < 1000000 else f"{xp / 1000000:.1f}M"
 )  # noqa: F731
 
 

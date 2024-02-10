@@ -59,6 +59,7 @@ class Game:
             -----------
         """
         ...
+
     def play(self, index: int) -> int | None:
         """Have the player make a move, and have the computer maybe make a move too if the game is not complete.
 
@@ -73,6 +74,7 @@ class Game:
             Return the coputer's move, or None if the computer didn't move
         """
         ...
+
     def display_commands(self) -> list[tuple[Offset, Piece]]:
         """Needed actions to create an image of teh game from a base empty grid.
 
@@ -82,6 +84,7 @@ class Game:
             A list of tuples representing the commands to create the image of the game.
         """
         ...
+
     def is_draw(self) -> bool:
         """Check if the game is a draw.
 
@@ -91,6 +94,7 @@ class Game:
             True if the game is a draw, False otherwise.
         """
         ...
+
     def is_victory_for(self) -> Piece | None:
         """Check what piece, if any the game is a victory for.
 
@@ -100,6 +104,7 @@ class Game:
             The piece that won the game, or None if the game has no winner..
         """
         ...
+
     def has_player_won(self) -> bool:
         """Check if the player has won the game.
 
@@ -109,6 +114,7 @@ class Game:
             True if the player has won, False otherwise.
         """
         ...
+
     def has_player_lost(self) -> bool:
         """Check if the player has lost the game.
 
@@ -118,6 +124,7 @@ class Game:
             True if the player has lost, False otherwise.
         """
         ...
+
     def points(self) -> tuple[int, int]:
         """The Participation and Bonus points for the player, or None if the game isn't finished.
 

@@ -41,22 +41,26 @@ async def main():
     )
 
     # Instantiate a Bot instance
-    async with CBot(  # skipcq: PYL-E1701
-        tree_cls=Tree,
-        command_prefix=commands.when_mentioned_or("!"),
-        owner_ids=[225344348903047168, 363095569515806722],
-        case_insensitive=True,
-        intents=discord.Intents.all(),
-        help_command=None,
-        activity=discord.Activity(type=discord.ActivityType.watching, name="over the server"),
-    ) as bot, asyncpg.create_pool(
-        min_size=50,
-        max_size=100,
-        host=Config["postgres"]["host"],
-        user=Config["postgres"]["user"],
-        password=Config["postgres"]["password"],
-        database=Config["postgres"]["database"],
-    ) as pool, aiohttp.ClientSession() as session:
+    async with (
+        CBot(  # skipcq: PYL-E1701
+            tree_cls=Tree,
+            command_prefix=commands.when_mentioned_or("!"),
+            owner_ids=[225344348903047168, 363095569515806722],
+            case_insensitive=True,
+            intents=discord.Intents.all(),
+            help_command=None,
+            activity=discord.Activity(type=discord.ActivityType.watching, name="over the server"),
+        ) as bot,
+        asyncpg.create_pool(
+            min_size=50,
+            max_size=100,
+            host=Config["postgres"]["host"],
+            user=Config["postgres"]["user"],
+            password=Config["postgres"]["password"],
+            database=Config["postgres"]["database"],
+        ) as pool,
+        aiohttp.ClientSession() as session,
+    ):
         bot.pool = pool
         bot.session = session
         await bot.start(Config["discord"]["token"])

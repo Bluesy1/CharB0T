@@ -679,9 +679,9 @@ class ReputationAdmin(
                 embed.set_author(name=guild.name, icon_url=guild.icon.url if guild.icon else None)
                 embed.set_footer(
                     text=f"Requested by {interaction.user.name}",
-                    icon_url=interaction.user.avatar.url
-                    if interaction.user.avatar
-                    else interaction.user.default_avatar.url,
+                    icon_url=(
+                        interaction.user.avatar.url if interaction.user.avatar else interaction.user.default_avatar.url
+                    ),
                 )
                 embed.add_field(name="Channels", value=", ".join(f"<#{c}>" for c in noxp["channels"]), inline=False)
                 embed.add_field(name="Roles", value=", ".join(f"<@&{r}>" for r in noxp["roles"]), inline=False)

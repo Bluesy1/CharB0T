@@ -15,9 +15,11 @@ from charbot import card
 )
 def test_generate_card(current):
     """Test the generate_card function."""
-    with Image.open(f"tests/charbot/media/card_test_{current}_rep.PNG") as expected, open(
-        "charbot/media/pools/profile.png", "rb"
-    ) as f2, open("charbot/media/pools/card.png", "rb") as f3:
+    with (
+        Image.open(f"tests/charbot/media/card_test_{current}_rep.PNG") as expected,
+        open("charbot/media/pools/profile.png", "rb") as f2,
+        open("charbot/media/pools/card.png", "rb") as f3,
+    ):
         got = Image.open(
             card.generate_card(
                 level=1,
