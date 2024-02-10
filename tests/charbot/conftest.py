@@ -20,8 +20,8 @@ if os.name != "nt":
             uvloop.EventLoopPolicy(),
         ),
     )
-    def event_loop_policy():
-        return
+    def event_loop_policy(request):
+        return request.param
 
 
 @pytest.fixture(scope="session")
