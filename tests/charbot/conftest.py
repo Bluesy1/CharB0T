@@ -9,8 +9,9 @@ import asyncpg.cluster
 import pytest
 import pytest_asyncio
 
-if os.name != 'nt':
+if os.name != "nt":
     import uvloop
+
     # Also test uvloop on non windows OSes
     @pytest.fixture(
         scope="session",
@@ -20,7 +21,8 @@ if os.name != 'nt':
         ),
     )
     def event_loop_policy():
-        return 
+        return
+
 
 @pytest.fixture(scope="session")
 def cluster() -> asyncpg.cluster.TempCluster:
