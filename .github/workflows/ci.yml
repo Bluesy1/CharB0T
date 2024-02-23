@@ -104,7 +104,7 @@ jobs:
           RUSTFLAGS: '-Cinstrument-coverage'
           LLVM_PROFILE_FILE: 'GHA-%p-%m.profraw'
       - name: Upload coverage report
-        uses: codecov/codecov-action@v4.0.1
+        uses: codecov/codecov-action@v4.0.2
         with:
           files: ./lcov.info
           env_vars: OS=LINUX,RUST=nightly
