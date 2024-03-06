@@ -370,7 +370,7 @@ class Events(Cog):
                     discord.Object(id=684936661745795088),
                 )
                 embed = Embed(
-                    description=message.content,
+                    description=f"```\n{message.content[:4050]}\n```",
                     title="Mute: Everyone/Here Ping sent by non mod",
                     color=Color.red(),
                 ).set_footer(
