@@ -38,9 +38,9 @@ dependencies = [
 	"sentry-sdk==1.20.0",
 	"tomli==2.0.1; python_version < '3.11'",
 	"typing-extensions==4.10.0",
-	"urlextract==1.8.0",
+	"urlextract==1.9.0",
 	"uvloop==0.19.0 ; sys_platform != 'win32'",
-	"validators==0.22.0",
+	"validators==0.23.2",
 ]
 
 [project.optional-dependencies]
