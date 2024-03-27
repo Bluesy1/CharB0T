@@ -4,8 +4,7 @@ mod translator;
 
 use std::collections::HashMap;
 
-use pyo3::prelude::PyModule;
-use pyo3::{PyResult, pyfunction, wrap_pyfunction};
+use pyo3::prelude::*;
 use pyo3::exceptions::PyRuntimeError;
 use crate::fluent::translator::Translator;
 
@@ -50,7 +49,7 @@ pub(crate) fn translate(locale: String, key: String, args: HashMap<String, trans
     translator.translate(&key, args).map_err(|e| PyRuntimeError::new_err(format!("Failed to translate: {e}")))
 }
 
-pub(crate) fn register_fluent(m: &PyModule) -> PyResult<()>{
+pub(crate) fn register_fluent(m: &Bound<PyModule>) -> PyResult<()>{
     m.add_function(wrap_pyfunction!(translate, m)?)?;
     Ok(())
 }

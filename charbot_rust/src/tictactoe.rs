@@ -190,13 +190,13 @@ impl Game {
 // COV_EXCL_START
 const DOCSTRING: &str = "Rust based reimplementation of tictactoe";
 
-pub(crate) fn register_tictactoe(py: Python, m: &PyModule) -> PyResult<()> {
-    let tictactoe = PyModule::new(py, "_tictactoe")?;
+pub(crate) fn register_tictactoe(parent_module: &Bound<PyModule>) -> PyResult<()> {
+    let tictactoe = PyModule::new_bound(parent_module.py(), "_tictactoe")?;
     tictactoe.add_class::<Game>()?;
     tictactoe.add_class::<Piece>()?;
     tictactoe.add_class::<Offset>()?;
     tictactoe.add("__doc__", DOCSTRING)?;
-    m.add_submodule(tictactoe)?;
+    parent_module.add_submodule(&tictactoe)?;
     Ok(())
 }
 

@@ -1,8 +1,6 @@
 // COV_EXCL_START
 use std::fmt::{Display, Error, Formatter, Write};
-use std::ops::Deref;
-use pyo3::{IntoPy, pyclass, pymethods, PyObject, PyResult, Python};
-use pyo3::types::PyString;
+use pyo3::prelude::*;
 // COV_EXCL_STOP
 
 
@@ -69,9 +67,9 @@ impl IntoPy<PyResult<String>> for Piece {
 impl IntoPy<PyResult<PyObject>> for Piece {
     fn into_py(self, py: Python) -> PyResult<PyObject> {
         match self {
-            Piece::X => Ok(PyString::new(py, "X").deref().into_py(py)),
-            Piece::O => Ok(PyString::new(py, "O").deref().into_py(py)),
-            Piece::Empty => Ok(PyString::new(py, " ").deref().into_py(py))
+            Piece::X => Ok("X".into_py(py)),
+            Piece::O => Ok("O".into_py(py)),
+            Piece::Empty => Ok(" ".into_py(py))
         }
     }
 }
