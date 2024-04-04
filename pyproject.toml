@@ -40,7 +40,7 @@ dependencies = [
 	"typing-extensions==4.10.0",
 	"urlextract==1.9.0",
 	"uvloop==0.19.0 ; sys_platform != 'win32'",
-	"validators==0.27.0",
+	"validators==0.28.0",
 ]
 
 [project.optional-dependencies]
