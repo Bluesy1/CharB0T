@@ -25,7 +25,7 @@ class MissingProgramRole(MissingAnyRole):
         missing = [f"'{role}'" for role in roles]
 
         if len(missing) > 2:
-            fmt = f"{', '.join(missing[:-1])}, or {missing[-1]}"
+            fmt = f"{', '.join(missing[:-1])} or {missing[-1]}"
         else:
             fmt = " or ".join(missing)
         self.message = translate(cast(_LanguageTag, locale.value), "missing-program-role", {"roles": fmt})
