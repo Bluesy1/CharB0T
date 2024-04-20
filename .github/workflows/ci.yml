@@ -83,7 +83,7 @@ jobs:
           toolchain: stable
           # override: true
           components: llvm-tools-preview
-          workspaces: |
+          cache-workspaces: |
             charbot_rust
 
       # - name: Cache deps
