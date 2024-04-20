@@ -78,18 +78,20 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: Install stable toolchain
-        uses: actions-rs/toolchain@v1
+        uses: actions-rust-lang/setup-rust-toolchain@v1
         with:
           toolchain: stable
-          override: true
+          # override: true
           components: llvm-tools-preview
-
-      - name: Cache deps
-        uses: Swatinem/rust-cache@v2
-        with:
-          key: test-${{ hashFiles('**/Cargo.lock') }}
           workspaces: |
             charbot_rust
+
+      # - name: Cache deps
+      #   uses: Swatinem/rust-cache@v2
+      #   with:
+      #     key: test-${{ hashFiles('**/Cargo.lock') }}
+      #     workspaces: |
+      #       charbot_rust
           
       - name: Run tests
         run: |
