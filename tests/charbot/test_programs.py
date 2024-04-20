@@ -70,7 +70,7 @@ async def test_interaction_check_no_allowed_roles(mock_inter, mocker: MockerFixt
         exc.value.args[0]
         == "You are missing at least one of the required roles: '337743478190637077', '685331877057658888', "
         "'969629622453039104', '969629628249563166', '969629632028614699', '969628342733119518', "
-        "'969627321239760967', or '969626979353632790'"
+        "'969627321239760967' or '969626979353632790'"
     )
     assert exc.value.missing_roles == [
         337743478190637077,
@@ -84,7 +84,7 @@ async def test_interaction_check_no_allowed_roles(mock_inter, mocker: MockerFixt
     ]
     assert str(exc.value) == (
         "You are missing at least one of the required roles: '337743478190637077', '685331877057658888', "
-        "'969629622453039104', '969629628249563166', '969629632028614699', '969628342733119518', '969627321239760967', "
+        "'969629622453039104', '969629628249563166', '969629632028614699', '969628342733119518', '969627321239760967' "
         "or '969626979353632790' - you must be at least level 1 to use this command/button."
     )
 

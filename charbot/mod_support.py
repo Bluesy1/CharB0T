@@ -133,7 +133,7 @@ class ModSupport(GroupCog, name="modsupport", description="mod support command g
 
     @app_commands.command(
         name="edit",
-        description="adds or removes a user from the list of users banned from mod" " support",
+        description="adds or removes a user from the list of users banned from mod support",
     )
     @app_commands.guild_only()
     async def edit(self, interaction: Interaction[CBot], add: bool, user: discord.Member):
@@ -169,7 +169,7 @@ class ModSupport(GroupCog, name="modsupport", description="mod support command g
                 )
             elif add:
                 await interaction.response.send_message(
-                    f"Error: <@{user.id}> was already on the blacklist" f" or was not able to be added to.",
+                    f"Error: <@{user.id}> was already on the blacklist or was not able to be added to.",
                     ephemeral=True,
                 )
             elif successful:
@@ -179,7 +179,7 @@ class ModSupport(GroupCog, name="modsupport", description="mod support command g
                 )
             else:
                 await interaction.response.send_message(
-                    f"<@{user.id}> was not on the blacklist or was" f" not able to be removed from it.",
+                    f"<@{user.id}> was not on the blacklist or was not able to be removed from it.",
                     ephemeral=True,
                 )
         else:
