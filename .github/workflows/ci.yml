@@ -211,7 +211,7 @@ jobs:
         id: pytest
         run: pytest
       - name: Code Climate Coverage Action
-        uses: paambaati/codeclimate-action@v5.0.0
+        uses: paambaati/codeclimate-action@v6.0.0
         if: ${{ matrix.python-version == '3.12' }}
         env:
           CC_TEST_REPORTER_ID: cd4356d60fb8cccd11ac24ddba6df70da91c8d603d64ed31f04e60cd1109ffab
