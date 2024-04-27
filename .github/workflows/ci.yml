@@ -105,7 +105,7 @@ jobs:
           flags: rust-unit
           name: codecov-umbrella
           verbose: false
-          gcov: true
+          #gcov: true
           token: ${{ secrets.CODECOV_TOKEN }}
   black:
     needs: changes
