@@ -313,6 +313,16 @@ class Events(Cog):
         message = thread.get_partial_message(thread.id)
         try:
             await message.pin()
+                if thread.parent_id == 1019647326601609338
+                    and any(tag.id == 1019691620741959730 for tag in thread.applied_tags)
+                    and not self.extractor.has_urls(message.content)
+                    # if the parent is this, then the channel is the games channel and if the thread has the
+                    # suggestions tag, then it's a game thread, and if it doesn't have a url in the first message we want to remind them to add one
+                    await thread.send(
+                        f"Hi <@{message.author.id}>, thanks for your suggestion, unfortunately, it appears you didn't add a link to a game suggestion!"
+                        "Please edit your initial post to include a link, or send a new message with a link, thanks!"
+                        "\n*This is an automated message, please ignore if it was sent in error.*"
+                    )
         except discord.HTTPException:  # pragma: no cover
             # We don't care about the exception, we just don't want this error to propagate, because it can be caused
             # by a known race condition between on_thread_create and message_create, depending on which gets sent first
