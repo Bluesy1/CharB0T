@@ -20,6 +20,10 @@ if TYPE_CHECKING:  # pragma: no cover
     # noinspection PyUnresolvedReferences
     from .levels import Leveling
 
+MAIN_SERVER = 225345178955808768
+GAMES_FORUM = 1019647326601609338
+GAME_SUGGESTIONS_TAG = 1019691620741959730
+
 
 def time_string_from_seconds(delta: float) -> str:
     """Convert seconds to a string.
@@ -60,9 +64,9 @@ def url_posting_allowed(
     """
     if (
         isinstance(channel, discord.Thread)
-        and channel.parent_id == 1019647326601609338
+        and channel.parent_id == GAMES_FORUM
         and (
-            any(tag.id == 1019691620741959730 for tag in channel.applied_tags)
+            any(tag.id == GAME_SUGGESTIONS_TAG for tag in channel.applied_tags)
             or channel.message_count < 2
             or channel.id == channel.last_message_id
             or channel.id == getattr(channel.starter_message, "id", None)
@@ -160,7 +164,7 @@ class Events(Cog):
                 user.id: user.joined_at
                 async for user in cast(
                     discord.Guild,
-                    self.bot.get_guild(225345178955808768) or await self.bot.fetch_guild(225345178955808768),
+                    self.bot.get_guild(MAIN_SERVER) or await self.bot.fetch_guild(MAIN_SERVER),
                 ).fetch_members(limit=None)
                 if user.joined_at is not None
             }
@@ -213,9 +217,9 @@ class Events(Cog):
         removable = []
         for i, j in self.timeouts.copy().items():
             if j < datetime.now(tz=timezone.utc):
-                guild = self.bot.get_guild(225345178955808768)
+                guild = self.bot.get_guild(MAIN_SERVER)
                 if guild is None:
-                    guild = await self.bot.fetch_guild(225345178955808768)
+                    guild = await self.bot.fetch_guild(MAIN_SERVER)
                 member = await guild.fetch_member(i)
                 if not member.is_timed_out():
                     embed = Embed(color=Color.green())
@@ -238,7 +242,7 @@ class Events(Cog):
         member : discord.Member
             The member that joined the server
         """
-        if member.guild.id == 225345178955808768:  # pragma: no branch
+        if member.guild.id == MAIN_SERVER:  # pragma: no branch
             self.members.update({member.id: utcnow()})
 
     @Cog.listener()
@@ -250,7 +254,7 @@ class Events(Cog):
         payload : discord.RawMemberRemoveEvent
             The payload of the member leaving the server
         """
-        if payload.guild_id == 225345178955808768:
+        if payload.guild_id == MAIN_SERVER:
             user = payload.user
             if isinstance(user, discord.Member):
                 _time = self.members.pop(user.id, user.joined_at) or utcnow() - timedelta(hours=1)
@@ -313,6 +317,21 @@ class Events(Cog):
         message = thread.get_partial_message(thread.id)
         try:
             await message.pin()
+            msg = await message.fetch()
+            if (
+                thread.parent_id == GAMES_FORUM
+                and any(tag.id == GAME_SUGGESTIONS_TAG for tag in thread.applied_tags)
+                and not self.extractor.has_urls(msg.content)
+            ):
+                # If the parent is this, then the channel is the games channel and if the thread has the
+                #  suggestions tag, then it's a game thread, and if it doesn't have a url in the first message
+                #  we want to remind them to add one
+                await thread.send(
+                    f"Hi <@{msg.author.id}>, thanks for your suggestion, unfortunately, "
+                    "it appears you didn't add a link to a game suggestion!"
+                    "Please edit your initial post to include a link, or send a new message with a link, thanks!"
+                    "\n*This is an automated message, please ignore if it was sent in error.*"
+                )
         except discord.HTTPException:  # pragma: no cover
             # We don't care about the exception, we just don't want this error to propagate, because it can be caused
             # by a known race condition between on_thread_create and message_create, depending on which gets sent first
