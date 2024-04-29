@@ -328,7 +328,7 @@ class Events(Cog):
                 #  we want to remind them to add one
                 await thread.send(
                     f"Hi <@{msg.author.id}>, thanks for your suggestion, unfortunately, "
-                    "it appears you didn't add a link to a game suggestion!"
+                    "it appears you didn't add a link to a game suggestion! "
                     "Please edit your initial post to include a link, or send a new message with a link, thanks!"
                     "\n*This is an automated message, please ignore if it was sent in error.*"
                 )
