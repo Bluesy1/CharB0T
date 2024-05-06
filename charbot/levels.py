@@ -150,7 +150,7 @@ class Leveling(commands.Cog):
 
     @commands.Cog.listener()
     async def on_user_update(self, before: discord.User, after: discord.User) -> None:
-        """Update a user's info for xp data when they have updated their discord info. 
+        """Update a user's info for xp data when they have updated their discord info.
 
         Parameters
         ----------
@@ -170,8 +170,7 @@ class Leveling(commands.Cog):
                 after.avatar.key if member.avatar else None,
                 after.id,
             )
-        
-    
+
     @commands.Cog.listener()
     async def on_member_join(self, member: discord.Member) -> None:
         """Check if they are rejoining and should get a rank role back.
