@@ -25,17 +25,17 @@ if os.name != "nt":
 
 
 @pytest.fixture(scope="session")
-def cluster() -> asyncpg.cluster.TempCluster:
+def cluster() -> asyncpg.cluster.TempCluster:  # pyright: ignore[reportInvalidTypeForm]
     """Create the temp database cluster"""
     test_cluster = asyncpg.cluster.TempCluster()
     test_cluster.init()
     test_cluster.start(port="dynamic")
-    yield test_cluster  # pyright: ignore[reportGeneralTypeIssues]
+    yield test_cluster  # pyright: ignore[reportReturnType]
     test_cluster.stop()
 
 
 @pytest_asyncio.fixture
-async def database(cluster) -> asyncpg.Pool:
+async def database(cluster) -> asyncpg.Pool:  # pyright: ignore[reportInvalidTypeForm]
     """Create a database pool for a test."""
     pool = cast(asyncpg.Pool, await asyncpg.create_pool(**cluster.get_connection_spec(), database="postgres"))
     with open(pathlib.Path(__file__).parent.parent.parent / "schema.sql", "r") as schema:
@@ -47,5 +47,5 @@ async def database(cluster) -> asyncpg.Pool:
         "Lorem ipsum dolor sit amet, consectetur adipisci elit, sed eiusmod tempor incidunt ut labore et dolo",
         str(0x3498DB),
     )
-    yield pool  # pyright: ignore[reportGeneralTypeIssues]
+    yield pool  # pyright: ignore[reportReturnType]
     await pool.close()

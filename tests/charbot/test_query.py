@@ -95,7 +95,7 @@ async def test_rule_command(mocker: MockerFixture, rule: int | None, member_id: 
     mock_bot = mocker.AsyncMock(spec=commands.Bot)
     cog = query.Query(mock_bot)
     await cog.rules.callback(
-        cog, mock_itx, rule, mock_itx.user if member_id else None  # pyright: ignore[reportGeneralTypeIssues]
+        cog, mock_itx, rule, mock_itx.user if member_id else None  # pyright: ignore[reportCallIssue]
     )
     mock_itx.response.send_message.assert_awaited_once()
     res = mock_itx.response.send_message.await_args.args[0]
@@ -156,5 +156,5 @@ async def test_leaderboard_command(mocker: MockerFixture, ephemeral: bool):
     """Test leaderboard command."""
     mock_itx = mocker.AsyncMock(spec=Interaction[CBot], response=mocker.AsyncMock(spec=discord.InteractionResponse))
     cog = query.Query(mocker.AsyncMock(spec=CBot))
-    await cog.leaderboard.callback(cog, mock_itx, ephemeral)  # pyright: ignore[reportGeneralTypeIssues]
+    await cog.leaderboard.callback(cog, mock_itx, ephemeral)  # pyright: ignore[reportCallIssue]
     mock_itx.response.send_message.assert_awaited_once_with("https://cpry.net/leaderboard", ephemeral=ephemeral)
