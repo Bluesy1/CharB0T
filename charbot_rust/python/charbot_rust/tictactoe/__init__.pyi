@@ -1,11 +1,7 @@
 # -*- coding: utf-8 -*-
-from enum import Enum, IntEnum
+from enum import Enum
 
-class Difficulty(IntEnum):
-    EASY = ...
-    MEDIUM = ...
-    HARD = ...
-    RANDOM = ...
+from .enums import Difficulty as Difficulty
 
 class Piece(Enum):
     """Represents a piece in the game."""
@@ -71,7 +67,7 @@ class Game:
         Returns
         -------
         int | None
-            Return the coputer's move, or None if the computer didn't move
+            Return the computer's move, or None if the computer didn't move
         """
         ...
 
