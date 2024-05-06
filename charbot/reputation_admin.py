@@ -44,7 +44,6 @@ class ReputationAdmin(
             338173415527677954,
         ]
 
-        # noinspection PyUnusedLocal
         @self.edit_pool.autocomplete("pool")
         @self.pool_role.autocomplete("pool")
         @self.check_pool.autocomplete("pool")
@@ -556,7 +555,6 @@ class ReputationAdmin(
                     avatar_url=client_user.display_avatar.url,
                 )
 
-    # noinspection DuplicatedCode
     @reputation.command()
     async def check_reputation(self, interaction: Interaction[CBot], user: discord.User):
         """Check a user's reputation.
@@ -576,7 +574,6 @@ class ReputationAdmin(
             else:
                 await interaction.followup.send(f"User `{user.name}` has {_user['points']} reputation.")
 
-    # noinspection DuplicatedCode
     @app_commands.default_permissions(manage_messages=True)
     @app_commands.checks.has_any_role(225413350874546176, 253752685357039617, 725377514414932030, 338173415527677954)
     async def check_reputation_context(self, interaction: Interaction[CBot], user: discord.User):

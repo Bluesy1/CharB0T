@@ -47,7 +47,6 @@ class TicTacToe(ui.View):
         for i, item in enumerate(self.game.board):
             self._buttons[i].disabled = item.value != " "
 
-    # noinspection DuplicatedCode
     def disable(self) -> None:
         """Disable all view buttons."""
         self.cancel.disabled = True
@@ -191,7 +190,6 @@ class TicTacToe(ui.View):
         """
         await self.move(interaction, button, 2)
 
-    # noinspection PyUnusedLocal
     @ui.button(label="Cancel", style=ButtonStyle.danger)
     async def cancel(self, interaction: Interaction[CBot], button: ui.Button):  # skipcq: PYL-W0613
         """Call when cancel button is pressed.

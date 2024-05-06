@@ -13,7 +13,6 @@ if TYPE_CHECKING:
     from ... import CBot  # pragma: no cover
 
 
-# noinspection GrazieInspection
 class Sudoku(ui.View):
     """View for playing Sudoku.
 
@@ -73,7 +72,6 @@ class Sudoku(ui.View):
         self.nine.disabled = False
         self.clear.disabled = False
 
-    # noinspection DuplicatedCode
     def disable_keypad(self):
         """Disable all keypad buttons."""
         self.one.disabled = True
@@ -200,7 +198,6 @@ class Sudoku(ui.View):
         )
         await interaction.edit_original_response(embed=embed, view=self)
 
-    # noinspection DuplicatedCode
     async def keypad_callback(self, interaction: Interaction, button: ui.Button, key: int):
         """Keypad buttons callback.
 
@@ -342,7 +339,6 @@ class Sudoku(ui.View):
         """
         await self.keypad_callback(interaction, button, 2)
 
-    # noinspection PyUnusedLocal,DuplicatedCode
     @ui.button(label="Stop", style=ButtonStyle.red, row=1)
     async def cancel(self, interaction: Interaction, button: ui.Button):  # skipcq: PYL-W0613
         """Cancel/Stop button callback.
@@ -422,7 +418,6 @@ class Sudoku(ui.View):
         """
         await self.keypad_callback(interaction, button, 5)
 
-    # noinspection PyUnusedLocal
     @ui.button(label="Clear", style=ButtonStyle.red, row=2)
     async def clear(self, interaction: Interaction, button: ui.Button):  # skipcq: PYL-W0613
         """Clear button callback.

@@ -5,7 +5,6 @@ from typing import Any, Callable, Generator
 from . import Block, Cell, Column, Row
 
 
-# noinspection PyUnresolvedReferences
 class Puzzle:
     """Represents a sudoku board.
 

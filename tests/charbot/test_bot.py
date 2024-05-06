@@ -10,7 +10,6 @@ from pytest_mock import MockerFixture
 
 from charbot.bot import CBot, Holder, Tree
 
-# noinspection PyProtectedMember
 from charbot import Config, _Config
 
 

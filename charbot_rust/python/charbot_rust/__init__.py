@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-# noinspection PyProtectedMember
 from importlib import metadata as _metadata
 
 from charbot_rust import charbot_rust
@@ -17,5 +16,4 @@ __version__ = _metadata.version(__title__)
 __all__ = ("tictactoe", "minesweeper", "translate")
 translate = charbot_rust.translate
 
-# noinspection PyUnresolvedReferences
 del charbot_rust

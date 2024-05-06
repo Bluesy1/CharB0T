@@ -76,7 +76,6 @@ class Giveaway(commands.Cog):
     async def daily_giveaway(self):
         """Run the daily giveaway."""
         if self.bot.TIME().day == 1:
-            # noinspection SqlWithoutWhere
             await self.bot.pool.execute("DELETE FROM winners")  # clear the table the start of each month
         if self.bot.TIME().year == 2023 and self.bot.TIME().month == 1 and self.bot.TIME().day == 1:
             self.daily_giveaway.cancel()  # pyright: ignore[reportFunctionMemberAccess]
@@ -116,7 +115,6 @@ class Giveaway(commands.Cog):
         embed.set_footer(text="Started at")
         embed.add_field(name="How to Participate", value="Select bid and enter your bid in the popup.", inline=True)
         embed.add_field(name="How to Win", value="The winner will be chosen at random.", inline=True)
-        # noinspection SpellCheckingInspection
         embed.add_field(
             name="How to get reputation",
             value="You get reputation by attending `rollcall` and by "

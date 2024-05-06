@@ -58,7 +58,6 @@ class Query(Cog):
         The bot object the cog is attached to.
     """
 
-    # noinspection PyUnresolvedReferences
     def __init__(self, bot: "CBot"):
         self.ocr_done: set[int] = set()
         self.bot = bot

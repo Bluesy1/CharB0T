@@ -69,7 +69,6 @@ class GuessModal(ui.Modal, title="Shrugman Guess"):
         super().__init__(title="Shrugman Guess")
         self.game = game
 
-    # noinspection DuplicatedCode
     async def on_submit(self, interaction: discord.Interaction) -> None:
         """Invoke when the user submits the modal.
 

@@ -297,7 +297,6 @@ async def test_view_back_button_callback(_unused_puzzle_unsolved, mocker: Mocker
     assert view.block.selected
 
 
-# noinspection DuplicatedCode
 @pytest.mark.asyncio
 async def test_one_button_callback(_unused_puzzle_unsolved, mocker: MockerFixture):
     """Test Sudoku one button callback."""
@@ -350,7 +349,6 @@ async def test_four_button_callback(_unused_puzzle_unsolved, mocker: MockerFixtu
     mock_interaction.edit_original_response.assert_called_once()
 
 
-# noinspection DuplicatedCode
 @pytest.mark.asyncio
 async def test_five_button_callback(_unused_puzzle_unsolved, mocker: MockerFixture):
     """Test Sudoku five button callback."""
@@ -510,7 +508,6 @@ def test_cell_location(_unused_puzzle_unsolved):
     else:
         assert False
     with pytest.raises(TypeError):
-        # noinspection PyTypeChecker
         _unused_puzzle_unsolved.location_of_cell("This is not a cell")  # skipcq
 
 
@@ -525,7 +522,6 @@ def test_row_of_cell(_unused_puzzle_unsolved):
     else:
         assert False
     with pytest.raises(TypeError):
-        # noinspection PyTypeChecker
         _unused_puzzle_unsolved.row_of_cell("This is not a cell")  # skipcq
 
 
@@ -543,7 +539,6 @@ def test_column_of_cell(_unused_puzzle_unsolved):
     else:
         assert False
     with pytest.raises(TypeError):
-        # noinspection PyTypeChecker
         _unused_puzzle_unsolved.column_of_cell("This is not a cell")  # skipcq
 
 
@@ -561,7 +556,6 @@ def test_block_of_cell(_unused_puzzle_unsolved):
     else:
         assert False
     with pytest.raises(TypeError):
-        # noinspection PyTypeChecker
         _unused_puzzle_unsolved.block_of_cell("This is not a cell")  # skipcq
 
 
@@ -576,7 +570,6 @@ def test_block_index(_unused_puzzle_unsolved):
     else:
         assert False
     with pytest.raises(TypeError):
-        # noinspection PyTypeChecker
         _unused_puzzle_unsolved.block_index("This is not a block")  # skipcq
 
 

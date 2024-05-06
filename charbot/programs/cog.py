@@ -155,7 +155,6 @@ class Reputation(commands.Cog, name="Programs"):
         embed.set_image(url="attachment://minesweeper.png")
         await interaction.followup.send(embed=embed, view=view, file=file)
 
-    # noinspection SpellCheckingInspection
     @app_commands.command()
     @app_commands.guild_only()
     async def rollcall(self, interaction: Interaction[CBot]):
@@ -209,7 +208,6 @@ class Reputation(commands.Cog, name="Programs"):
         await interaction.response.defer(ephemeral=True)
         async with interaction.client.pool.acquire() as conn:
             points = await conn.fetchval("SELECT points from users where id = $1", interaction.user.id) or 0
-            # noinspection SpellCheckingInspection
             limits = await conn.fetchrow("SELECT * from daily_points where id = $1", interaction.user.id) or {
                 "last_claim": 0,
                 "last_particip_dt": 0,
@@ -217,7 +215,6 @@ class Reputation(commands.Cog, name="Programs"):
             }
             wins = await conn.fetchval("SELECT wins FROM winners WHERE id = $1", interaction.user.id) or 0
         claim = "have" if limits["last_claim"] == interaction.client.TIME() else "haven't"
-        # noinspection SpellCheckingInspection
         particip = (
             "have"
             if (limits["last_particip_dt"] == interaction.client.TIME()) and (limits["particip"] >= 10)

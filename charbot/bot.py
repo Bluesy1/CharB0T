@@ -125,7 +125,6 @@ class CBot(commands.Bot):
     ]
     CHANNEL_ID: ClassVar[int] = 969972085445238784
 
-    # noinspection PyPep8Naming
     @classmethod
     def TIME(cls) -> datetime.datetime:
         """Return the current giveaway time in the bot's timezone.
@@ -363,7 +362,6 @@ class CBot(commands.Bot):
             return  # Don't mess with local overrides
 
         cog = ctx.cog
-        # noinspection PyProtectedMember
         if cog is not None and cog._get_overridden_method(cog.cog_command_error) is not None:  # skipcq: PYL-W0212
             return  # Local cog overrides take precedence
 

@@ -13,7 +13,6 @@ from discord.ext import commands
 from . import CBot, Config, Tree
 
 
-# noinspection PyBroadException
 async def main():
     """Run charbot."""
     # set up logging because i'm using `client.start()`, not `client.run()`

@@ -10,7 +10,6 @@ import pytest
 from aioresponses import aioresponses
 from pytest_mock import MockerFixture
 
-# noinspection PyProtectedMember
 from charbot import CBot, _Config, gcal  # skipcq
 from charbot.bot import Holder
 

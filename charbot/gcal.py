@@ -146,7 +146,6 @@ def calendar_embed(fields: dict[int, EmbedField], next_event: datetime | None) -
     discord.Embed
         The embed to send to the channel.
     """
-    # noinspection PyTypeChecker
     fields = dict(sorted(fields.items()))
     embed = discord.Embed(
         title="List of streams in the next 7 days",
@@ -193,7 +192,6 @@ def update_time(convert: datetime) -> datetime:  # pragma: no cover
     return convert
 
 
-# noinspection GrazieInspection
 class Calendar(commands.Cog):
     """
     Calendar cog for the bot.

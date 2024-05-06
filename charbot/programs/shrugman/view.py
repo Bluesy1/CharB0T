@@ -15,10 +15,8 @@ from . import modal
 if TYPE_CHECKING:
     from ... import CBot  # pragma: no cover
 
-# noinspection SpellCheckingInspection
 __all__ = ("Shrugman", "words")
 
-# noinspection SpellCheckingInspection
 FailStates = Enum(
     "FailStates",
     r"<:KHattip:896043110717608009> `¯` `¯\` `¯\_` `¯\_(` `¯\_(ツ` `¯\_(ツ)` `¯\_(ツ)_` `¯\_(ツ)_/` `¯\_(ツ)_/¯`",
@@ -91,7 +89,6 @@ class Shrugman(ui.View):
         self.length = len(word)
         self.start_time = utcnow()
 
-    # noinspection PyUnusedLocal
     @ui.button(label="Guess", style=discord.ButtonStyle.success)
     async def guess_button(self, interaction: discord.Interaction, button: ui.Button):  # skipcq: PYL-W0613
         """Guess a letter.
@@ -114,7 +111,6 @@ class Shrugman(ui.View):
             return
         await interaction.response.send_modal(modal.GuessModal(self))
 
-    # noinspection PyUnusedLocal,DuplicatedCode
     @ui.button(label="Stop", style=discord.ButtonStyle.danger)
     async def stop_button(self, interaction: discord.Interaction, button: ui.Button):  # skipcq: PYL-W0613
         """Stop the game.

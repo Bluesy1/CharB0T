@@ -204,7 +204,6 @@ class Minesweeper(ui.View):
             if res == minesweeper.RevealResult.Flagged:
                 await interaction.followup.send(translate(locale, "minesweeper-reveal-flag-fail", {}), ephemeral=True)
 
-    # noinspection GrazieInspection
     @ui.button(label="Chord", style=ButtonStyle.primary, emoji="\u2692")
     async def chord(self, interaction: Interaction[CBot], _button: ui.Button[Self]):
         """Chord a tile.

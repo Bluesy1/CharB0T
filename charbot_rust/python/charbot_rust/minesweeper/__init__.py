@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 import sys as __sys
 
-# noinspection PyProtectedMember
 from charbot_rust.charbot_rust import _minesweeper
 
 if hasattr(_minesweeper, "__doc__"):

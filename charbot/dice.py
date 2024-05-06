@@ -25,7 +25,6 @@ def roll(arg: str, user: str, locale: discord.Locale) -> str:
         The locale to use for translation
     """
     dice = arg.split("+") if "+" in arg else [arg]
-    # noinspection PyBroadException
     try:
         sums = 0
         rolls = []
@@ -78,7 +77,6 @@ class Roll(Cog):
         Rolls dice.
     """
 
-    # noinspection PyUnresolvedReferences
     def __init__(self, bot: commands.Bot):
         self.bot = bot
 

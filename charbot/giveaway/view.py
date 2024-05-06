@@ -299,7 +299,6 @@ class GiveawayView(ui.View):
             f" {', '.join(w.mention for w in winners)}"
         )
 
-    # noinspection PyUnusedLocal
     @ui.button(label="Bid", style=discord.ButtonStyle.green)
     async def bid(self, interaction: Interaction["CBot"], button: ui.Button) -> None:  # skipcq: PYL-W0613
         """Increase or make the initial bid for a user.
@@ -329,7 +328,6 @@ class GiveawayView(ui.View):
 
         asyncio.create_task(_task())
 
-    # noinspection PyUnusedLocal
     @ui.button(label="Check", style=discord.ButtonStyle.blurple, disabled=True)
     async def check(self, interaction: Interaction["CBot"], button: ui.Button) -> None:  # skipcq: PYL-W0613
         """Check the current bid for a user.
@@ -357,7 +355,6 @@ class GiveawayView(ui.View):
             ephemeral=True,
         )
 
-    # noinspection PyUnusedLocal
     @ui.button(label="Toggle Giveaway Alerts", style=discord.ButtonStyle.danger)
     async def toggle_alerts(
         self, interaction: Interaction["CBot"], _: ui.Button

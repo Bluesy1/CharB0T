@@ -17,7 +17,6 @@ from . import CBot
 
 
 if TYPE_CHECKING:  # pragma: no cover
-    # noinspection PyUnresolvedReferences
     from .levels import Leveling
 
 MAIN_SERVER = 225345178955808768
@@ -206,7 +205,6 @@ class Events(Cog):
         await self.webhook.send(username=bot_user.name, avatar_url=bot_user.display_avatar.url, embed=embed)
         self.timeouts.update({after.id: after.timed_out_until})
 
-    # noinspection DuplicatedCode
     @tasks.loop(seconds=30)
     async def log_untimeout(self) -> None:
         """Un-timeout Report Task.
@@ -271,7 +269,6 @@ class Events(Cog):
             )
             await channel.send(f"**{user}** has left the server. ID:{user.id}. Time on Server: {time_string}")
 
-    # noinspection PyBroadException,DuplicatedCode
     @Cog.listener()
     async def on_member_update(self, before: discord.Member, after: discord.Member):
         """Process when a member is timed out or untimed out.
