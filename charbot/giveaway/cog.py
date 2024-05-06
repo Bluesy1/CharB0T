@@ -79,7 +79,7 @@ class Giveaway(commands.Cog):
             # noinspection SqlWithoutWhere
             await self.bot.pool.execute("DELETE FROM winners")  # clear the table the start of each month
         if self.bot.TIME().year == 2023 and self.bot.TIME().month == 1 and self.bot.TIME().day == 1:
-            self.daily_giveaway.cancel()
+            self.daily_giveaway.cancel()  # pyright: ignore[reportFunctionMemberAccess]
             self.yesterdays_giveaway = self.current_giveaway
             await self.yesterdays_giveaway.end()
             await self.bot.giveaway_webhook.send(

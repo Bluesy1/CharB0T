@@ -427,8 +427,6 @@ class CBot(commands.Bot):
 class Tree(app_commands.CommandTree[CBot]):
     """Command tree for charbot."""
 
-    translator: Translator
-
     def __init__(self, bot: CBot):  # pragma: no cover
         """Initialize the command tree."""
         super().__init__(client=bot)

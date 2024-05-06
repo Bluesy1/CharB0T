@@ -13,7 +13,7 @@ from discord import ButtonStyle, Interaction, ui
 from discord.utils import utcnow
 
 from .. import CBot
-from charbot_rust.tictactoe import Game, Difficulty, Piece  # pyright: ignore[reportGeneralTypeIssues]
+from charbot_rust.tictactoe import Game, Difficulty, Piece
 
 
 class TicTacToe(ui.View):

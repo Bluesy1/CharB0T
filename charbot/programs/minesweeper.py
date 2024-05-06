@@ -32,7 +32,7 @@ class Minesweeper(ui.View):
 
     def __init__(
         self,
-        game: minesweeper.Game,  # pyright: ignore[reportGeneralTypeIssues]
+        game: minesweeper.Game,
         locale: discord.Locale = discord.Locale.american_english,
     ):
         super().__init__()
@@ -193,7 +193,7 @@ class Minesweeper(ui.View):
             The button.
         """
         res = self.game.reveal()
-        if res == minesweeper.RevealResult.Mine:  # pyright: ignore[reportGeneralTypeIssues]
+        if res == minesweeper.RevealResult.Mine:
             await self.handle_lose(interaction)
         elif self.game.is_win():
             await self.handle_win(interaction)
@@ -201,7 +201,7 @@ class Minesweeper(ui.View):
             locale = cast(_LanguageTag, interaction.locale.value)
             file = await self.draw(translate(locale, "minesweeper-image-alt-text", {}))
             await interaction.response.edit_message(attachments=[file], view=self)
-            if res == minesweeper.RevealResult.Flagged:  # pyright: ignore[reportGeneralTypeIssues]
+            if res == minesweeper.RevealResult.Flagged:
                 await interaction.followup.send(translate(locale, "minesweeper-reveal-flag-fail", {}), ephemeral=True)
 
     # noinspection GrazieInspection
@@ -219,12 +219,12 @@ class Minesweeper(ui.View):
             The button.
         """
         res = self.game.chord()
-        if res == minesweeper.ChordResult.Failed:  # pyright: ignore[reportGeneralTypeIssues]
+        if res == minesweeper.ChordResult.Failed:
             await interaction.response.send_message(
                 translate(cast(_LanguageTag, interaction.locale.value), "minesweeper-chord-error", {}),
                 ephemeral=True,
             )
-        elif res == minesweeper.ChordResult.Success:  # pyright: ignore[reportGeneralTypeIssues]
+        elif res == minesweeper.ChordResult.Success:
             if self.game.is_win():
                 await self.handle_win(interaction)
             else:

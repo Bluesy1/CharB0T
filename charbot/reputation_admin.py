@@ -751,7 +751,7 @@ class ReputationAdmin(
         async with self.bot.pool.acquire() as conn, conn.transaction():
             rle = await conn.fetchrow("SELECT * FROM deal_no_deal ORDER BY until LIMIT 1")
             if rle is None:
-                self._del_role.stop()
+                self._del_role.stop()  # pyright: ignore[reportFunctionMemberAccess]
                 return
             if rle["until"] < utcnow():
                 await sleep_until(rle["until"])
@@ -761,7 +761,7 @@ class ReputationAdmin(
                 await role.delete(reason="Deal role expired")
             await conn.execute("DELETE FROM deal_no_deal WHERE role_id = $1", rle["role_id"])
             if len(await conn.fetch("SELECT * FROM deal_no_deal")) == 0:
-                self._del_role.stop()
+                self._del_role.stop()  # pyright: ignore[reportFunctionMemberAccess]
 
 
 async def setup(bot: CBot):
