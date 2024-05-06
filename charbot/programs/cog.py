@@ -14,7 +14,7 @@ from discord.ext import commands
 from .. import CBot, errors
 from . import sudoku, tictactoe, shrugman
 from .minesweeper import Minesweeper
-from charbot_rust.minesweeper import Game as MinesweeperGame  # pyright: ignore[reportGeneralTypeIssues]
+from charbot_rust.minesweeper import Game as MinesweeperGame
 
 MESSAGE: Final = "You must be at least level 1 to participate in the giveaways system and be in <#969972085445238784>."
 

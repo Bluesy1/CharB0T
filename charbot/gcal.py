@@ -295,9 +295,8 @@ class Calendar(commands.Cog):
                 times.add(sub_time)  # pragma: no cover
             if mindatetime < sub_time > maxdatetime:
                 continue
-            try:  # pragma: no cover
-                desc = item["description"]
-            except KeyError:  # pragma: no cover
+            desc = item.get("description", None)
+            if desc is None:  # pragma: no cover
                 default_field(fields, sub_time, item)
             else:  # pragma: no cover
                 if url(desc):

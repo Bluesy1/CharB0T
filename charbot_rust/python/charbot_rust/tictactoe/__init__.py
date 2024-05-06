@@ -18,7 +18,7 @@ if hasattr(_tictactoe, "__all__"):
     for __name in _tictactoe.__all__:
         setattr(__sys.modules[__name__], __name, getattr(_tictactoe, __name))
     try:
-        del __name  # pyright: ignore[reportUnboundVariable]
+        del __name  # pyright: ignore[reportPossiblyUnboundVariable]
     except NameError:
         pass
 else:

@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 import datetime
+from typing import Literal
 
 import aiohttp
 import discord
@@ -112,7 +113,7 @@ async def test_sudoku_command_no_puzzle(mock_inter, mocker: MockerFixture):
             )
             mock_inter.client.session = session
             cog = Reputation()
-            await cog.sudoku.callback(cog, mock_inter, False)  # pyright: ignore[reportGeneralTypeIssues]
+            await cog.sudoku.callback(cog, mock_inter, False)  # pyright: ignore[reportCallIssue]
             mock_inter.response.defer.assert_awaited_once()
             mock_inter.followup.send.assert_awaited_once_with("Couldn't find a puzzle.")
 
@@ -121,7 +122,7 @@ async def test_sudoku_command_with_puzzle(mock_inter, mocker: MockerFixture):
     """Test that the code for the sudoku command functions as expected when a puzzle is returned."""
     with aioresponses() as mocked:
         async with aiohttp.ClientSession() as session:
-            # noinspection SpellCheckingInspection
+            # cspell: disable
             mocked.get(
                 "https://nine.websudoku.com/?level=2",
                 status=200,
@@ -134,10 +135,10 @@ async def test_sudoku_command_with_puzzle(mock_inter, mocker: MockerFixture):
                 VALUE="101111110011111000111001111110110010101010101010011011111100111000111110011111101"> <INPUT
                 NAME=options TYPE=hidden VALUE="2"> <INPUT NAME=errors TYPE=hidden VALUE="0" ID="errors"> <INPUT
                 NAME=layout TYPE=hidden VALUE=""> """,
-            )
+            )  # cspell: enable
             mock_inter.client.session = session
             cog = Reputation()
-            await cog.sudoku.callback(cog, mock_inter, False)  # pyright: ignore[reportGeneralTypeIssues]
+            await cog.sudoku.callback(cog, mock_inter, False)  # pyright: ignore[reportCallIssue]
             mock_inter.response.defer.assert_awaited_once()
             mock_inter.followup.send.assert_awaited_once()
             _, kwargs = mock_inter.followup.send.await_args
@@ -148,7 +149,7 @@ async def test_sudoku_command_with_puzzle(mock_inter, mocker: MockerFixture):
 async def test_tictactoe_command(mock_inter, mocker: MockerFixture):
     """Test that the code for the tictactoe command functions as expected."""
     cog = Reputation()
-    await cog.tictactoe.callback(cog, mock_inter, 1)  # pyright: ignore[reportGeneralTypeIssues]
+    await cog.tictactoe.callback(cog, mock_inter, 1)  # pyright: ignore[reportCallIssue,reportArgumentType]
     mock_inter.response.defer.assert_awaited_once()
     mock_inter.followup.send.assert_awaited_once()
     _, kwargs = mock_inter.followup.send.await_args
@@ -168,7 +169,7 @@ async def test_shrugman_command(mock_bot, mocker: MockerFixture):
         followup=mocker.AsyncMock(spec=discord.Webhook),
         client=mock_bot,
     )
-    await cog.shrugman.callback(cog, mock_interaction)  # pyright: ignore[reportGeneralTypeIssues]
+    await cog.shrugman.callback(cog, mock_interaction)  # pyright: ignore[reportCallIssue]
     mock_interaction.response.defer.assert_awaited_once()
     mock_interaction.followup.send.assert_awaited_once()
     _, kwargs = mock_interaction.followup.send.await_args
@@ -177,10 +178,12 @@ async def test_shrugman_command(mock_bot, mocker: MockerFixture):
 
 
 @pytest.mark.parametrize("difficulty", ["Beginner", "Intermediate", "Expert", "Super Expert"])
-async def test_minesweeper_command(mock_inter, difficulty: str):
+async def test_minesweeper_command(
+    mock_inter, difficulty: Literal["Beginner", "Intermediate", "Expert", "Super Expert"]
+):
     """Test that the code for the minesweeper command functions as expected."""
     cog = Reputation()
-    await cog.minesweeper.callback(cog, mock_inter, difficulty)  # pyright: ignore[reportGeneralTypeIssues]
+    await cog.minesweeper.callback(cog, mock_inter, difficulty)  # pyright: ignore[reportCallIssue]
     mock_inter.response.defer.assert_awaited_once()
     mock_inter.followup.send.assert_awaited_once()
     _, kwargs = mock_inter.followup.send.await_args
@@ -194,7 +197,7 @@ async def test_reputation_command(mock_inter, database: Pool):
     """Test that the code for the reputation command functions as expected."""
     cog = Reputation()
     mock_inter.client.pool = database
-    await cog.query_points.callback(cog, mock_inter)  # pyright: ignore[reportGeneralTypeIssues]
+    await cog.query_points.callback(cog, mock_inter)  # pyright: ignore[reportCallIssue]
     mock_inter.response.defer.assert_awaited_once()
     mock_inter.followup.send.assert_awaited_once()
     args, _ = mock_inter.followup.send.await_args
@@ -210,7 +213,7 @@ async def test_rollcall_new_user(mock_inter, database: Pool):
     mock_inter.user.id = 10
     mock_inter.client.pool = database
     cog = Reputation()
-    await cog.rollcall.callback(cog, mock_inter)  # pyright: ignore[reportGeneralTypeIssues]
+    await cog.rollcall.callback(cog, mock_inter)  # pyright: ignore[reportCallIssue]
     mock_inter.response.defer.assert_awaited_once_with(ephemeral=True)
     mock_inter.followup.send.assert_awaited_once_with("You got some Rep today, inmate")
     assert (
@@ -235,7 +238,7 @@ async def test_rollcall_existing_user_no_gain(mock_inter, database: Pool):
         mock_inter.client.TIME(),
     )
     await database.execute("INSERT INTO bids (id, bid) VALUES (10, 0)")
-    await cog.rollcall.callback(cog, mock_inter)  # pyright: ignore[reportGeneralTypeIssues]
+    await cog.rollcall.callback(cog, mock_inter)  # pyright: ignore[reportCallIssue]
     mock_inter.response.defer.assert_awaited_once_with(ephemeral=True)
     mock_inter.followup.send.assert_awaited_once_with("No more Rep for you yet, get back to your cell")
     assert (
@@ -255,7 +258,7 @@ async def test_rollcall_existing_user_gain(mock_inter, database: Pool):
         mock_inter.client.TIME() - datetime.timedelta(days=1),
     )
     await database.execute("INSERT INTO bids (id, bid) VALUES (10, 0)")
-    await cog.rollcall.callback(cog, mock_inter)  # pyright: ignore[reportGeneralTypeIssues]
+    await cog.rollcall.callback(cog, mock_inter)  # pyright: ignore[reportCallIssue]
     mock_inter.response.defer.assert_awaited_once_with(ephemeral=True)
     mock_inter.followup.send.assert_awaited_once_with("You got some Rep today, inmate")
     assert (

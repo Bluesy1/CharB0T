@@ -71,7 +71,7 @@ class _Config:
         return cls.__instance__
 
     def __getitem__(self, item: str) -> dict[str, Any]:
-        return self.get(item)  # pyright: ignore[reportGeneralTypeIssues]
+        return self.get(item)  # pyright: ignore[reportReturnType]
 
     @_functools.cache
     def get(self, *args: str) -> str | int | dict[str, Any]:

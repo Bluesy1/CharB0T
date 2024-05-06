@@ -8,7 +8,7 @@ from pytest_mock import MockerFixture
 
 from charbot import CBot
 from charbot.programs import minesweeper
-from charbot_rust.minesweeper import Game, RevealResult, ChordResult  # pyright: ignore[reportGeneralTypeIssues]
+from charbot_rust.minesweeper import Game, RevealResult, ChordResult
 
 
 @pytest.fixture()

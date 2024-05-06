@@ -52,7 +52,7 @@ def interpolate(
         raise ValueError(f"Invalid end color: {t_co}")
     det_co = [(t - f) / interval for f, t in zip(f_co, t_co)]
     for i in range(interval):
-        yield tuple(round(f + det * i) for f, det in zip(f_co, det_co))  # pyright: ignore[reportGeneralTypeIssues]
+        yield tuple(round(f + det * i) for f, det in zip(f_co, det_co))  # pyright: ignore[reportReturnType]
 
 
 def prestige_positions(prestige: int) -> Iterable[tuple[int, int, int]]:

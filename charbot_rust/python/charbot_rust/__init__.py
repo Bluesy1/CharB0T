@@ -4,7 +4,9 @@ from importlib import metadata as _metadata
 
 from charbot_rust import charbot_rust
 
-from . import tictactoe, minesweeper
+from . import tictactoe
+
+from . import minesweeper
 
 __doc__ = charbot_rust.__doc__
 __title__ = "charbot_rust"
