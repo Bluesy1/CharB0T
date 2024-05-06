@@ -10,9 +10,12 @@ def _(env: str) -> str | None:
 conn = psycopg2.connect(database=_("db"), user=_("db_user"), password=_("pass"), host=_("host"), port=_("port"))
 
 
-def avatar(avatar_hash: str | None, user_id: int, discriminator: int) -> str:
+def avatar(avatar_hash: str | None, user_id: int, discriminator: str) -> str:
     if avatar_hash is None:
-        return f"https://cdn.discordapp.com/embed/avatars/{discriminator % 5}.png"
+        if discriminator == "0":
+            return f"https://cdn.discordapp.com/embed/avatars/{(user_id >> 22) % 6}.png"
+        else:
+            return f"https://cdn.discordapp.com/embed/avatars/{int(discriminator) % 5}.png"
     return f"https://cdn.discordapp.com/avatars/{user_id}/{avatar_hash}.png"
 
 
@@ -29,7 +32,7 @@ with conn, conn.cursor() as cur:
                     "detailed_xp": user[4],
                     "level": user[5],
                     "messages": user[6],
-                    "avatar": avatar(user[7], user[0], int(user[2])),
+                    "avatar": avatar(user[7], user[0], user[2]),
                     "prestige": user[8],
                     "rank": user[9],
                 }
