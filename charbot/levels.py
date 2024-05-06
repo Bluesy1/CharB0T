@@ -149,6 +149,29 @@ class Leveling(commands.Cog):
                 )
 
     @commands.Cog.listener()
+    async def on_user_update(self, before: discord.User, after: discord.User) -> None:
+        """Update a user's info for xp data when they have updated their discord info.
+
+        Parameters
+        ----------
+        before : discord.User
+            The updated user’s old info.
+        after: discord.User
+            The updated user’s updated info.
+        """
+        async with self.bot.pool.acquire() as conn:
+            exists: int | None = await conn.fetchval("SELECT 1 FROM xp_users WHERE id = $1", after.id)
+            if exists is None:
+                return
+            await conn.execute(
+                "UPDATE xp_users SET username = $1, discriminator = $2, avatar = $3 WHERE id = $4",
+                after.name,
+                getattr(after, "discriminator", "0"),
+                after.avatar.key if after.avatar else None,
+                after.id,
+            )
+
+    @commands.Cog.listener()
     async def on_member_join(self, member: discord.Member) -> None:
         """Check if they are rejoining and should get a rank role back.
 
@@ -164,7 +187,7 @@ class Leveling(commands.Cog):
             await conn.execute(
                 "UPDATE xp_users SET username = $1, discriminator = $2, avatar = $3 WHERE id = $4",
                 member.name,
-                member.discriminator,
+                getattr(member, "discriminator", "0"),
                 member.avatar.key if member.avatar else None,
                 member.id,
             )
