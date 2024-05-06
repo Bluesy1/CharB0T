@@ -161,13 +161,13 @@ class Leveling(commands.Cog):
         """
         async with self.bot.pool.acquire() as conn:
             exists: int | None = await conn.fetchval("SELECT 1 FROM xp_users WHERE id = $1", after.id)
-            if exists in None:
+            if exists is None:
                 return
             await conn.execute(
                 "UPDATE xp_users SET username = $1, discriminator = $2, avatar = $3 WHERE id = $4",
                 after.name,
                 getattr(after, "discriminator", "0"),
-                after.avatar.key if member.avatar else None,
+                after.avatar.key if after.avatar else None,
                 after.id,
             )
 
