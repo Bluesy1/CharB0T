@@ -49,8 +49,8 @@ class ReputationAdmin(
         @self.check_pool.autocomplete("pool")
         @self.delete_pool.autocomplete("pool")
         async def pool_autocomplete(
-            interaction: Interaction[CBot],
-            current: str,  # skipcq: PYL-W0613
+            interaction: Interaction[CBot],  # skipcq: PYL-W0613
+            current: str,
         ) -> list[app_commands.Choice[str]]:
             """Autocomplete a pool name.
 

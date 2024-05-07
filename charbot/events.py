@@ -155,7 +155,7 @@ class Events(Cog):
         This is called when the cog is loaded, and initializes the
         log_un-timeout task and the members cache
         """
-        self.webhook = await self.bot.fetch_webhook(
+        self.webhook = await self.bot.fetch_webhook(  # skipcq: PYL-W0201
             orjson.loads(self.sensitive_settings_path.read_bytes())["webhook_id"]
         )
         self.log_untimeout.start()

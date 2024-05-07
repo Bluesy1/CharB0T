@@ -69,4 +69,11 @@ class AdventOfCode(commands.Cog):
 
 
 async def setup(bot: "CBot"):
+    """Add the AdventOfCode cog to the bot.
+
+    Parameters
+    ----------
+    bot : commands.Bot
+        The bot object.
+    """
     await bot.add_cog(AdventOfCode(bot))

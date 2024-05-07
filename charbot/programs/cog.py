@@ -38,10 +38,13 @@ class Reputation(commands.Cog, name="Programs"):
         channel = cast(discord.abc.GuildChannel, interaction.channel)
         if channel.id == 839690221083820032:  # pragma: no cover
             return True
+        # fmt: off
         if (
-            channel.id != interaction.client.CHANNEL_ID and interaction.command.name != self.query_points.name  # pyright: ignore[reportOptionalMemberAccess]
+            channel.id != interaction.client.CHANNEL_ID
+            and interaction.command.name != self.query_points.name  # pyright: ignore[reportOptionalMemberAccess]
         ):
             raise errors.WrongChannelError(interaction.client.CHANNEL_ID, interaction.locale)
+        # fmt: on
         if all(
             role.id not in interaction.client.ALLOWED_ROLES for role in cast(discord.Member, interaction.user).roles
         ):
