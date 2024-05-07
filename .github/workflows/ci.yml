@@ -107,45 +107,25 @@ jobs:
           verbose: false
           #gcov: true
           token: ${{ secrets.CODECOV_TOKEN }}
-  black:
+  lint:
     needs: changes
     if: ${{ needs.changes.outputs.python == 'true' }}
     runs-on: ubuntu-latest
-    strategy:
-      fail-fast: false
-      matrix:
-        python-version: ["3.11", "3.12"]
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
         with:
-          python-version: ${{ matrix.python-version }}
+          python-version: "3.12"
       - name: Dependencies
         run: |
-          pip install black
-      - name: Black
-        id: black
-        run: black --check --verbose --line-length=120 .
-  flake8:
-    needs: changes
-    if: ${{ needs.changes.outputs.python == 'true' }}
-    runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        python-version: [ "3.11", "3.12" ]
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
-        with:
-          python-version: ${{ matrix.python-version }}
-          cache: "pip"
-          cache-dependency-path: pyproject.toml
-      - name: Dependencies
-        run: |
-          pip install flake8
-      - name: Flake8
-        id: flake8
-        run: flake8 . --max-line-length=120 --indent-size=4
+          pip install ruff
+      - name: Run Ruff Check
+        env:
+          RUFF_OUTPUT_FORMAT: github
+        run: ruff check .
+      - name: Run Ruff Format
+        if: ${{ success() || failure()}}
+        run: ruff format --check .
   pyright:
     needs: [changes, maturin]
     if: ${{ needs.changes.outputs.python == 'true' || needs.changes.outputs.rust == 'true' }}
