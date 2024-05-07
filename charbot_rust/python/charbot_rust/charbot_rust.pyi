@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 from types import ModuleType as _ModuleType
 from typing import Literal as _Literal
 

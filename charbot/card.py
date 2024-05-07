@@ -1,12 +1,14 @@
-# -*- coding: utf-8 -*-
 """Card generator for Charbot."""
+
 import math
 import pathlib
+from collections.abc import Callable
 from io import BytesIO
-from typing import Callable, Final
+from typing import Final
 
 from discord.utils import MISSING
 from PIL import Image, ImageDraw, ImageFont
+
 
 __all__ = ("generate_card",)
 __BASE_PATH__: Final[pathlib.Path] = pathlib.Path(__file__).parent / "media/pools"
@@ -20,13 +22,13 @@ __STREAMING__: Final[pathlib.Path] = __BASE_PATH__ / "streaming.png"
 __FONT__: Final[str] = str(__BASE_PATH__ / "font2.ttf")
 __SMALL_FONT__: Final[ImageFont.FreeTypeFont] = ImageFont.truetype(str(__BASE_PATH__ / "font.ttf"), 20)
 __NORMAL_FONT__: Final[ImageFont.FreeTypeFont] = ImageFont.truetype(__FONT__, 36)
-__SIGNA_FONT__: Final[ImageFont.FreeTypeFont] = ImageFont.truetype(__FONT__, 25)  # noqa: F841
+__SIGNA_FONT__: Final[ImageFont.FreeTypeFont] = ImageFont.truetype(__FONT__, 25)
 __WHITE__: Final[tuple[int, int, int]] = (255, 255, 255)
 __DARK__: Final[tuple[int, int, int]] = (252, 179, 63)
-__YELLOW__: Final[tuple[int, int, int]] = (255, 234, 167)  # noqa: F841
+__YELLOW__: Final[tuple[int, int, int]] = (255, 234, 167)
 __XP_AS_STR__: Final[Callable[[int], str]] = lambda xp: (
     str(xp) if xp < 1000 else f"{xp / 1000:.1f}k" if xp < 1000000 else f"{xp / 1000000:.1f}M"
-)  # noqa: F731
+)
 
 
 def generate_card(

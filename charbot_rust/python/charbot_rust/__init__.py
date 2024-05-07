@@ -1,11 +1,9 @@
-# -*- coding: utf-8 -*-
 from importlib import metadata as _metadata
 
 from charbot_rust import charbot_rust
 
-from . import tictactoe
+from . import minesweeper, tictactoe
 
-from . import minesweeper
 
 __doc__ = charbot_rust.__doc__
 __title__ = "charbot_rust"

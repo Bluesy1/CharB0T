@@ -1,7 +1,8 @@
-# -*- coding: utf-8 -*-
 import sys as __sys
+from contextlib import suppress as __suppress
 
 from charbot_rust.charbot_rust import _minesweeper
+
 
 if hasattr(_minesweeper, "__doc__"):
     __doc__ = _minesweeper.__doc__
@@ -11,9 +12,7 @@ if hasattr(_minesweeper, "__all__"):
     __name: str
     for __name in _minesweeper.__all__:
         setattr(__sys.modules[__name__], __name, getattr(_minesweeper, __name))
-    try:
+    with __suppress(NameError):
         del __name  # pyright: ignore[reportPossiblyUnboundVariable]
-    except NameError:
-        pass
 
 del _minesweeper

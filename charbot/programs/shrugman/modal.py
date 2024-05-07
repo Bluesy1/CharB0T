@@ -1,5 +1,5 @@
-# -*- coding: utf-8 -*-
 """Shrugman modal."""
+
 import discord
 from discord import ui
 from discord.utils import utcnow

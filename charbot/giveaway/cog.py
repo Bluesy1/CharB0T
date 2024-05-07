@@ -1,5 +1,5 @@
-# -*- coding: utf-8 -*-
 """Giveaway  commands."""
+
 from __future__ import annotations
 
 import datetime
@@ -10,8 +10,8 @@ import pandas as pd  # type: ignore
 from discord.ext import commands, tasks
 from discord.utils import MISSING, utcnow
 
-from . import GiveawayView
 from .. import CBot
+from . import GiveawayView
 
 
 class Giveaway(commands.Cog):

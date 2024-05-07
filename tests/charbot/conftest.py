@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 import asyncio
 import os
 import pathlib
@@ -8,6 +7,7 @@ import asyncpg
 import asyncpg.cluster
 import pytest
 import pytest_asyncio
+
 
 if os.name != "nt":
     import uvloop
@@ -38,8 +38,7 @@ def cluster() -> asyncpg.cluster.TempCluster:  # pyright: ignore[reportInvalidTy
 async def database(cluster) -> asyncpg.Pool:  # pyright: ignore[reportInvalidTypeForm]
     """Create a database pool for a test."""
     pool = cast(asyncpg.Pool, await asyncpg.create_pool(**cluster.get_connection_spec(), database="postgres"))
-    with open(pathlib.Path(__file__).parent.parent.parent / "schema.sql", "r") as schema:
-        await pool.execute(schema.read())
+    await pool.execute((pathlib.Path(__file__).parent.parent.parent / "schema.sql").read_text())
     await pool.execute("INSERT INTO users (id, points) VALUES (001, 50) ON CONFLICT DO NOTHING")
     await pool.execute(
         "INSERT INTO banners (user_id, quote, color, cooldown, approved) VALUES (001, $1, $2, now(), FALSE)"

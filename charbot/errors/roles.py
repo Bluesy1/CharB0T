@@ -1,12 +1,13 @@
-# -*- coding: utf-8 -*-
 """Wrong roles error."""
+
 from typing import cast
 
 import discord
 from discord.app_commands import MissingAnyRole
 
-from . import _LanguageTag
 from charbot_rust import translate
+
+from . import _LanguageTag
 
 
 class MissingProgramRole(MissingAnyRole):
@@ -24,10 +25,13 @@ class MissingProgramRole(MissingAnyRole):
         super().__init__(roles)
         missing = [f"'{role}'" for role in roles]
 
-        if len(missing) > 2:
-            fmt = f"{', '.join(missing[:-1])} or {missing[-1]}"
-        else:
-            fmt = " or ".join(missing)
+        fmt = (
+            f"{', '.join(missing[:-1])} or {missing[-1]}"
+            if len(missing) > 2
+            else " or ".join(missing)
+            if len(missing) == 2
+            else missing[0]
+        )
         self.message = translate(cast(_LanguageTag, locale.value), "missing-program-role", {"roles": fmt})
 
     def __str__(self):

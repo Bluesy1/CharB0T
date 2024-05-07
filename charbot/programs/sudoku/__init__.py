@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """Sudoku puzzle game."""
 
 __all__ = ("Cell", "Row", "Column", "Block", "Puzzle", "Sudoku")

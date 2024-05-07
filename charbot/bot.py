@@ -1,20 +1,19 @@
-# -*- coding: utf-8 -*-
 """Charbot discord bot."""
+
 import datetime
 import logging
-from typing import Any, ClassVar, Final, TypeVar, cast
-from typing_extensions import Self
+from typing import Any, ClassVar, Final, Self, TypeVar, cast
 from zoneinfo import ZoneInfo
 
 import aiohttp
 import asyncpg
 import discord
-from discord import app_commands, Locale
-from discord.app_commands import locale_str, TranslationContext, TranslationContextLocation
+from discord import Locale, app_commands
+from discord.app_commands import TranslationContext, TranslationContextLocation, locale_str
 from discord.ext import commands
 from discord.utils import MISSING
 
-from . import Config, EXTENSIONS, errors
+from . import EXTENSIONS, Config, errors
 from .translator import Translator
 
 

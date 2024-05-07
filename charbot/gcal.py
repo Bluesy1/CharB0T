@@ -1,19 +1,17 @@
-# -*- coding: utf-8 -*-
 """Dynamic stream calendar generator for the next week."""
 
 import datetime as _datetime
+import itertools
 import re
 from calendar import timegm
-from datetime import datetime, time, timedelta, timezone
-from typing import Literal, NamedTuple, Optional, TypedDict, cast
+from datetime import datetime, time, timedelta
+from typing import Literal, NamedTuple, NotRequired, Optional, TypedDict, cast
 from zoneinfo import ZoneInfo
 
 import discord
-import itertools
 import orjson
 from discord.ext import commands, tasks
 from discord.utils import MISSING, format_dt, utcnow
-from typing_extensions import NotRequired
 from validators import url
 
 from . import CBot, Config
@@ -109,7 +107,7 @@ def ceil_dt(dt: datetime, delta: timedelta) -> datetime:
     datetime
         The rounded datetime.
     """
-    return dt + (datetime(_datetime.MINYEAR, 1, 1, tzinfo=timezone.utc) - dt) % delta
+    return dt + (datetime(_datetime.MINYEAR, 1, 1, tzinfo=_datetime.UTC) - dt) % delta
 
 
 def default_field(dictionary: dict[int, EmbedField], add_time: datetime, item: CalEvent) -> None:
@@ -282,7 +280,7 @@ class Calendar(commands.Cog):
                     sub_time = sub_time + timedelta(days=7)
                 cancelled_times.append(sub_time)
                 continue
-            sub_time = datetime.fromisoformat((item["start"]["dateTime"]))
+            sub_time = datetime.fromisoformat(item["start"]["dateTime"])
             flag = True
             if mindatetime < sub_time + timedelta(hours=2):
                 times.add(sub_time)

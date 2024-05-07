@@ -1,19 +1,17 @@
-# -*- coding: utf-8 -*-
 import asyncio
 import datetime
 import pathlib
 from io import BytesIO
-from typing import cast
-
-from typing_extensions import Self
+from typing import Self, cast
 
 import discord
-from PIL import Image
 from discord import ButtonStyle, Interaction, ui
 from discord.utils import utcnow
+from PIL import Image
+
+from charbot_rust.tictactoe import Difficulty, Game, Piece
 
 from .. import CBot
-from charbot_rust.tictactoe import Game, Difficulty, Piece
 
 
 class TicTacToe(ui.View):
@@ -30,7 +28,7 @@ class TicTacToe(ui.View):
     __slots__ = ("bot", "game", "difficulty")
 
     def __init__(self, difficulty: Difficulty):
-        super(TicTacToe, self).__init__(timeout=300)
+        super().__init__(timeout=300)
         self.game: Game = Game(difficulty)
         self.time: datetime.datetime = utcnow()
         self._buttons = [

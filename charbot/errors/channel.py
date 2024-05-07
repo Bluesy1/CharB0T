@@ -1,12 +1,13 @@
-# -*- coding: utf-8 -*-
 """Wrong channel error."""
+
 from typing import cast
 
 import discord
 from discord.app_commands import AppCommandError
 
-from . import _LanguageTag
 from charbot_rust import translate
+
+from . import _LanguageTag
 
 
 class WrongChannelError(AppCommandError):

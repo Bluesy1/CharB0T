@@ -1,6 +1,6 @@
-# -*- coding: utf-8 -*-
 """Cell class for Sudoku."""
-from uuid import uuid4, UUID
+
+from uuid import UUID, uuid4
 
 
 class Cell:

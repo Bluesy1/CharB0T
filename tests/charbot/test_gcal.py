@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 import asyncio
 import datetime
 import re
@@ -14,7 +13,7 @@ from charbot import CBot, _Config, gcal  # skipcq
 from charbot.bot import Holder
 
 
-@pytest.fixture
+@pytest.fixture()
 def mock_config(monkeypatch):
     """config.toml mocking"""
     data = {
@@ -56,17 +55,15 @@ def test_half_hour_intervals():
 
 def test_ceil_dt():
     """Test ceil_dt."""
-    dt = datetime.datetime(1, 1, 1, 0, 0, 0, 0, tzinfo=datetime.timezone.utc)
+    dt = datetime.datetime(1, 1, 1, 0, 0, 0, 0, tzinfo=datetime.UTC)
     delta = datetime.timedelta(15)
-    assert dt + (datetime.datetime(datetime.MINYEAR, 1, 1, tzinfo=datetime.timezone.utc) - dt) % delta == gcal.ceil_dt(
-        dt, delta
-    )
+    assert dt + (datetime.datetime(datetime.MINYEAR, 1, 1, tzinfo=datetime.UTC) - dt) % delta == gcal.ceil_dt(dt, delta)
 
 
 def test_calendar_embed():
     """Test create_embed."""
     test: dict[int, gcal.EmbedField] = {}
-    fake_time = datetime.datetime(1970, 1, 1, 0, 0, 0, 0, tzinfo=datetime.timezone.utc)
+    fake_time = datetime.datetime(1970, 1, 1, 0, 0, 0, 0, tzinfo=datetime.UTC)
     sample: gcal.CalEvent = {
         "summary": "test",
         "start": {"dateTime": "2022-03-24T12:00:00-04:00", "timeZone": "America/Detroit"},
@@ -97,7 +94,7 @@ def test_calendar_embed():
     assert embed.author.name == "Charlie"
 
 
-@pytest.mark.asyncio
+@pytest.mark.asyncio()
 async def test_cog_init_load_unload(mocker: MockerFixture, mock_config):
     """Test cog constructor, load, unload."""
     fake_webhook = mocker.AsyncMock(spec=discord.Webhook)
@@ -121,7 +118,7 @@ async def test_cog_init_load_unload(mocker: MockerFixture, mock_config):
     assert bot.holder.get("webhook") is fake_webhook
 
 
-@pytest.mark.asyncio
+@pytest.mark.asyncio()
 async def test_calendar_task(mocker: MockerFixture, mock_config, monkeypatch):
     """Test calendar task."""
     data = {

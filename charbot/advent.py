@@ -1,5 +1,5 @@
-# -*- coding: utf-8 -*-
 """Query extension."""
+
 import datetime
 from typing import TYPE_CHECKING, cast
 
@@ -7,6 +7,7 @@ import discord
 from discord.ext import commands
 
 from . import Config
+
 
 if TYPE_CHECKING:
     from charbot import CBot

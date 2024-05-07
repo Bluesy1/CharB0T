@@ -1,8 +1,9 @@
-# -*- coding: utf-8 -*-
 """Betas package."""
-from .. import CBot
-from .models import ColorOpts, COLORS
+
+from .. import CBot  # isort: skip
+from .models import COLORS, ColorOpts  # isort: skip
 from .cog import Betas
+
 
 __all__ = ("Betas", "ColorOpts", "COLORS")
 

@@ -1,15 +1,13 @@
-# -*- coding: utf-8 -*-
 import pytest
-
 from discord import Locale
 from discord.app_commands import (
-    locale_str,
-    TranslationContext,
-    TranslationContextLocation,
+    Choice,
     Command,
     Group,
     Parameter,
-    Choice,
+    TranslationContext,
+    TranslationContextLocation,
+    locale_str,
 )
 from discord.app_commands.transformers import CommandParameter
 from pytest_mock import MockerFixture
@@ -29,7 +27,7 @@ def locale() -> Locale:
     return Locale.american_english
 
 
-@pytest.mark.asyncio
+@pytest.mark.asyncio()
 async def test_translate_with_data(translator: Translator, locale: Locale):
     """Test the translate method with data"""
     context: TranslationContext = TranslationContext(TranslationContextLocation.other, data={"awarded": 5})
@@ -39,7 +37,7 @@ async def test_translate_with_data(translator: Translator, locale: Locale):
     assert "You gained 5 points." in result, "Should say awarded 5 points"
 
 
-@pytest.mark.asyncio
+@pytest.mark.asyncio()
 async def test_translate_command_name(translator: Translator, locale: Locale, mocker: MockerFixture):
     """Test that the command name is translated"""
     context: TranslationContext = TranslationContext(
@@ -48,10 +46,10 @@ async def test_translate_command_name(translator: Translator, locale: Locale, mo
     key: locale_str = locale_str("sudoku")
     result: str | None = await translator.translate(key, locale, context)
     assert result is not None, "Result should not be None"
-    assert "sudoku" == result, "Should say Sudoku"
+    assert result == "sudoku", "Should say Sudoku"
 
 
-@pytest.mark.asyncio
+@pytest.mark.asyncio()
 async def test_translate_command_description(translator: Translator, locale: Locale, mocker: MockerFixture):
     """Test that the command description is translated"""
     context: TranslationContext = TranslationContext(
@@ -61,10 +59,10 @@ async def test_translate_command_description(translator: Translator, locale: Loc
     key: locale_str = locale_str("Play minesweeper")
     result: str | None = await translator.translate(key, locale, context)
     assert result is not None, "Result should not be None"
-    assert "Play a Sudoku puzzle" == result, "Should say Play a Sudoku puzzle"
+    assert result == "Play a Sudoku puzzle", "Should say Play a Sudoku puzzle"
 
 
-@pytest.mark.asyncio
+@pytest.mark.asyncio()
 async def test_translate_group_name(translator: Translator, locale: Locale, mocker: MockerFixture):
     """Test that the group name is translated"""
     context: TranslationContext = TranslationContext(
@@ -73,10 +71,10 @@ async def test_translate_group_name(translator: Translator, locale: Locale, mock
     key: locale_str = locale_str("programs")
     result: str | None = await translator.translate(key, locale, context)
     assert result is not None, "Result should not be None"
-    assert "programs" == result, "Should say programs"
+    assert result == "programs", "Should say programs"
 
 
-@pytest.mark.asyncio
+@pytest.mark.asyncio()
 async def test_translate_group_description(translator: Translator, locale: Locale, mocker: MockerFixture):
     """Test that the group description is translated."""
     context: TranslationContext = TranslationContext(
@@ -85,10 +83,10 @@ async def test_translate_group_description(translator: Translator, locale: Local
     key: locale_str = locale_str("programs")
     result: str | None = await translator.translate(key, locale, context)
     assert result is not None, "Result should not be None"
-    assert "Programs to gain you rep." == result, "Should say Programs to gain you rep."
+    assert result == "Programs to gain you rep.", "Should say Programs to gain you rep."
 
 
-@pytest.mark.asyncio
+@pytest.mark.asyncio()
 async def test_translate_parameter_name(translator: Translator, locale: Locale, mocker: MockerFixture):
     """Test translating parameter name."""
     context: TranslationContext = TranslationContext(
@@ -98,10 +96,10 @@ async def test_translate_parameter_name(translator: Translator, locale: Locale, 
     key: locale_str = locale_str("mobile")
     result: str | None = await translator.translate(key, locale, context)
     assert result is not None, "Result should not be None"
-    assert "mobile" == result, "Should say mobile"
+    assert result == "mobile", "Should say mobile"
 
 
-@pytest.mark.asyncio
+@pytest.mark.asyncio()
 async def test_translate_parameter_description(translator: Translator, locale: Locale, mocker: MockerFixture):
     """Test that the parameter description is translated."""
     context: TranslationContext = TranslationContext(
@@ -112,11 +110,11 @@ async def test_translate_parameter_description(translator: Translator, locale: L
     result: str | None = await translator.translate(key, locale, context)
     assert result is not None, "Result should not be None"
     assert (
-        "Whether to turn off formatting that only works on desktop." == result
+        result == "Whether to turn off formatting that only works on desktop."
     ), "Should say Whether to turn off formatting that only works on desktop"
 
 
-@pytest.mark.asyncio
+@pytest.mark.asyncio()
 async def test_translate_choice_name(translator: Translator, locale: Locale):
     """Test that the choice name is translated."""
     context: TranslationContext = TranslationContext(
@@ -125,10 +123,10 @@ async def test_translate_choice_name(translator: Translator, locale: Locale):
     key: locale_str = locale_str("EASY")
     result: str | None = await translator.translate(key, locale, context)
     assert result is not None, "Result should not be None"
-    assert "EASY" == result, "Should say EASY"
+    assert result == "EASY", "Should say EASY"
 
 
-@pytest.mark.asyncio
+@pytest.mark.asyncio()
 async def test_translate_bad_key(translator: Translator, locale: Locale):
     """Test that a bad key returns None."""
     context: TranslationContext = TranslationContext(TranslationContextLocation.other, {})
@@ -137,7 +135,7 @@ async def test_translate_bad_key(translator: Translator, locale: Locale):
     assert result is None, "Result should be None"
 
 
-@pytest.mark.asyncio
+@pytest.mark.asyncio()
 async def test_translate_unreachable_code(translator: Translator, locale: Locale):
     """Test that unreachable code raises."""
     context: TranslationContext = TranslationContext("a", {})  # type: ignore

@@ -1,5 +1,5 @@
-# -*- coding: utf-8 -*-
 """Bid modal class."""
+
 from __future__ import annotations
 
 from typing import TYPE_CHECKING, Literal, cast
@@ -9,8 +9,9 @@ from discord import Interaction, ui
 
 import charbot_rust
 
+
 if TYPE_CHECKING:  # pragma: no cover
-    from . import GiveawayView, CBot
+    from . import CBot, GiveawayView
 
 _LanguageTag = Literal["en-US", "es-ES", "fr", "nl"]
 
@@ -71,7 +72,7 @@ class BidModal(ui.Modal, title="Bid"):
         required=True,
     )
 
-    async def on_submit(self, interaction: Interaction["CBot"]) -> None:
+    async def on_submit(self, interaction: Interaction[CBot]) -> None:
         """Call when a bid modal is submitted.
 
         Parameters
@@ -112,7 +113,7 @@ class BidModal(ui.Modal, title="Bid"):
             self.stop()
 
     async def bid_success(
-        self, interaction: "Interaction[CBot]", bid_int: int, new_bid: int, points: int, wins: int | None
+        self, interaction: Interaction[CBot], bid_int: int, new_bid: int, points: int, wins: int | None
     ) -> None:
         """Call when a bid is successful.
 
@@ -146,7 +147,7 @@ class BidModal(ui.Modal, title="Bid"):
         )
         self.view.top_bid = max(new_bid, self.view.top_bid)
 
-    async def check_points(self, bid_int: int, interaction: "Interaction[CBot]", points: int | None) -> bool:
+    async def check_points(self, bid_int: int, interaction: Interaction[CBot], points: int | None) -> bool:
         """Check if the user has enough points to bid.
 
         Parameters
@@ -181,7 +182,7 @@ class BidModal(ui.Modal, title="Bid"):
             return False
         return True
 
-    async def invalid_bid(self, interaction: Interaction["CBot"]):
+    async def invalid_bid(self, interaction: Interaction[CBot]):
         """Call when a bid is invalid."""
         await interaction.response.send_message(
             charbot_rust.translate(cast(_LanguageTag, interaction.locale.value), "giveaway-bid-invalid-bid", {}),

@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 import discord
 from discord.app_commands import AppCommandError
 

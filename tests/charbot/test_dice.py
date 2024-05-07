@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 import random
 
 import discord
@@ -10,12 +9,12 @@ from charbot import dice
 
 
 @pytest.fixture(autouse=True)
-def not_random(monkeypatch):
+def _not_random(monkeypatch) -> None:
     """Mock random.randint() to return a fixed value."""
     monkeypatch.setattr(random, "randint", lambda *args: 1)
 
 
-@pytest.mark.asyncio
+@pytest.mark.asyncio()
 async def test_valid_roll_async(mocker: MockerFixture):
     """Test valid roll command."""
     mock_bot = mocker.Mock(spec=commands.Bot)
@@ -26,7 +25,7 @@ async def test_valid_roll_async(mocker: MockerFixture):
     mock_ctx.reply.assert_awaited_once()
 
 
-@pytest.mark.asyncio
+@pytest.mark.asyncio()
 async def test_invalid_roll_async(mocker: MockerFixture):
     """Test invalid roll command."""
     mock_bot = mocker.Mock(spec=commands.Bot)
@@ -73,7 +72,7 @@ def test_cog_check_allowed(mocker: MockerFixture):
     assert cog.cog_check(mock_ctx) is True
 
 
-@pytest.mark.asyncio
+@pytest.mark.asyncio()
 async def test_cog_load(mocker: MockerFixture):
     """Test cog_load."""
     mock_bot = mocker.Mock(spec=commands.Bot)

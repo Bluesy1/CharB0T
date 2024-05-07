@@ -1,13 +1,14 @@
-# -*- coding: utf-8 -*-
 """View class."""
+
 import datetime
-from typing import Literal, TYPE_CHECKING, cast
+from typing import TYPE_CHECKING, Literal, cast
 
 import discord
 from discord import ButtonStyle, Interaction, SelectOption, ui
 from discord.utils import MISSING, utcnow
 
 from . import Block, Cell, Puzzle
+
 
 if TYPE_CHECKING:
     from ... import CBot  # pragma: no cover

@@ -1,9 +1,9 @@
-# -*- coding: utf-8 -*-
 """Mod Support cog."""
+
 import logging
 import pathlib
 from datetime import timedelta
-from typing import Final, Any
+from typing import Any, ClassVar, Final
 
 import discord
 import orjson
@@ -54,7 +54,7 @@ class ModSupport(GroupCog, name="modsupport", description="mod support command g
     """
 
     def __init__(self, bot: CBot):
-        super(ModSupport, self).__init__()
+        super().__init__()
         self.bot = bot
         self.blacklist_path: Final[pathlib.Path] = pathlib.Path(__file__).parent / "mod_support_blacklist.json"
 
@@ -122,8 +122,7 @@ class ModSupport(GroupCog, name="modsupport", description="mod support command g
             The interaction object for the command.
         """
         if await edit_check(interaction):
-            with open(self.blacklist_path, "rb") as file:
-                blacklisted = [f"<@{item}>" for item in orjson.loads(file.read())["blacklisted"]]
+            blacklisted = [f"<@{item}>" for item in orjson.loads(self.blacklist_path.read_bytes())["blacklisted"]]
             await interaction.response.send_message(
                 embed=Embed(title="Blacklisted users", description="\n".join(blacklisted)),
                 ephemeral=True,
@@ -150,18 +149,15 @@ class ModSupport(GroupCog, name="modsupport", description="mod support command g
         """
         if await edit_check(interaction):
             successful = False
-            with open(self.blacklist_path, "rb") as file:
-                modmail_blacklist = orjson.loads(file.read())
+            modmail_blacklist = orjson.loads(self.blacklist_path.read_bytes())
             if add:
                 if user.id not in modmail_blacklist["blacklisted"]:
                     modmail_blacklist["blacklisted"].append(user.id)
-                    with open(self.blacklist_path, "wb") as file:
-                        file.write(orjson.dumps(modmail_blacklist))
+                    self.blacklist_path.write_bytes(orjson.dumps(modmail_blacklist))
                     successful = True
             elif user.id in modmail_blacklist["blacklisted"]:
                 modmail_blacklist["blacklisted"].remove(user.id)
-                with open(self.blacklist_path, "wb") as file:
-                    file.write(orjson.dumps(modmail_blacklist))
+                self.blacklist_path.write_bytes(orjson.dumps(modmail_blacklist))
                 successful = True
             if add and successful:
                 await interaction.response.send_message(
@@ -201,7 +197,7 @@ class ModSupportButtons(ui.View):
         A dict of the mods in the guild.
     """
 
-    _PRIVATE_OPTIONS = [
+    _PRIVATE_OPTIONS: ClassVar[list[discord.SelectOption]] = [
         discord.SelectOption(label="Admins Only", value="146285543146127361"),
         discord.SelectOption(label="Bluesy", value="363095569515806722"),
         discord.SelectOption(label="Krios", value="138380316095021056"),
@@ -234,8 +230,7 @@ class ModSupportButtons(ui.View):
         bool
             True if the interaction should be run, False otherwise.
         """
-        with open(self.filename, "rb") as file:
-            return interaction.user.id not in orjson.loads(file.read())["blacklisted"]
+        return interaction.user.id not in orjson.loads(self.filename.read_bytes())["blacklisted"]
 
     async def on_error(self, interaction: Interaction[CBot], error: Exception, item: Item[Any], /) -> None:
         """On error logger"""

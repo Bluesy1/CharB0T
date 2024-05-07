@@ -1,7 +1,7 @@
-# -*- coding: utf-8 -*-
 """Custom errors for the bot."""
 
 from typing import Literal
+
 
 __all__ = ("WrongChannelError", "NoPoolFound", "MissingProgramRole")
 

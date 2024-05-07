@@ -1,5 +1,5 @@
-# -*- coding: utf-8 -*-
 """Reputation pools."""
+
 import asyncio
 from typing import Final
 

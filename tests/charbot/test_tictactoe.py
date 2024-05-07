@@ -1,22 +1,20 @@
-# -*- coding: utf-8 -*-
 import discord
 import pytest
 from pytest_mock import MockerFixture
 
 from charbot.programs import tictactoe
 from charbot.types.bot import CBot
-
 from charbot_rust.tictactoe import Difficulty, Game
 
 
-@pytest.mark.asyncio
+@pytest.mark.asyncio()
 async def test_view_init():
     """Test TicTacToe view init."""
     view = tictactoe.TicTacToe(Difficulty.EASY)
     assert len(view._buttons) == 9
 
 
-@pytest.mark.asyncio
+@pytest.mark.asyncio()
 async def test_view_stop_method():
     """Test TicTacToe view stop method."""
     view = tictactoe.TicTacToe(Difficulty.EASY)
@@ -27,7 +25,7 @@ async def test_view_stop_method():
     assert view.cancel.disabled
 
 
-@pytest.mark.asyncio
+@pytest.mark.asyncio()
 async def test_view_move_method(mocker: MockerFixture):
     """Test TicTacToe view move method."""
     view = tictactoe.TicTacToe(Difficulty.EASY)
@@ -40,7 +38,7 @@ async def test_view_move_method(mocker: MockerFixture):
     assert view.top_left.disabled
 
 
-@pytest.mark.asyncio
+@pytest.mark.asyncio()
 async def test_view_player_win(mocker: MockerFixture):
     """Test TicTacToe view player win method."""
     view = tictactoe.TicTacToe(Difficulty.EASY)
@@ -58,7 +56,7 @@ async def test_view_player_win(mocker: MockerFixture):
     assert view.top_left.disabled
 
 
-@pytest.mark.asyncio
+@pytest.mark.asyncio()
 async def test_view_bot_win(mocker: MockerFixture):
     """Test TicTacToe view bot win method."""
     view = tictactoe.TicTacToe(Difficulty.EASY)
@@ -85,7 +83,7 @@ async def test_view_bot_win(mocker: MockerFixture):
     assert view.cancel.disabled
 
 
-@pytest.mark.asyncio
+@pytest.mark.asyncio()
 async def test_view_tie(mocker: MockerFixture):
     """Test TicTacToe view tie method."""
     view = tictactoe.TicTacToe(Difficulty.EASY)
@@ -112,7 +110,7 @@ async def test_view_tie(mocker: MockerFixture):
     assert view.cancel.disabled
 
 
-@pytest.mark.asyncio
+@pytest.mark.asyncio()
 @pytest.mark.parametrize("button", [0, 1, 2, 3, 4, 5, 6, 7, 8])
 async def test_move_buttons(button, mocker: MockerFixture):
     """Test TicTacToe move button methods."""
@@ -126,7 +124,7 @@ async def test_move_buttons(button, mocker: MockerFixture):
     assert view._buttons[button].disabled
 
 
-@pytest.mark.asyncio
+@pytest.mark.asyncio()
 async def test_cancel_button(mocker: MockerFixture):
     """Test TicTacToe cancel button method."""
     view = tictactoe.TicTacToe(Difficulty.EASY)

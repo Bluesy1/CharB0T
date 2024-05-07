@@ -1,10 +1,10 @@
-# -*- coding: utf-8 -*-
 """Query extension."""
+
 import asyncio
 import re
-from io import BytesIO
 from datetime import datetime
-from typing import cast, TYPE_CHECKING, Final
+from io import BytesIO
+from typing import TYPE_CHECKING, Final, cast
 from zoneinfo import ZoneInfo
 
 import discord
@@ -227,13 +227,11 @@ class Query(Cog):
         payload : discord.RawReactionActionEvent
             The payload of the reaction.
         """
-        if payload.guild_id != 225345178955808768:
-            return
-        if not payload.emoji.is_unicode_emoji():
-            return
-        elif payload.emoji.name != "\U0001F984":
-            return
-        if payload.message_id in self.ocr_done:
+        if (
+            payload.guild_id != 225345178955808768
+            or (not payload.emoji.is_unicode_emoji() or payload.emoji.name != "\U0001f984")
+            or payload.message_id in self.ocr_done
+        ):
             return
         self.ocr_done.add(payload.message_id)
         guild = cast(discord.Guild, self.bot.get_guild(payload.guild_id))

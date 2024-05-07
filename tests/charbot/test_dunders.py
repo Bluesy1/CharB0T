@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 import builtins
 import logging
 from io import BytesIO
@@ -35,8 +34,8 @@ def test_config(monkeypatch, caplog):
     assert log[1] == logging.INFO
     assert log[2] == "Got key calendar:key from config file."
 
+    caplog.clear()
     with pytest.raises(KeyError):
-        caplog.clear()
         Config.get("calendar", "badkey")
     log = caplog.record_tuples[0]
     assert log[0] == "charbot.config"
@@ -48,8 +47,8 @@ def test_config(monkeypatch, caplog):
             return "Test"
 
     obj = Test()
+    caplog.clear()
     with pytest.raises(TypeError):
-        caplog.clear()
         Config.get("calendar", obj)
     log = caplog.record_tuples[0]
     assert log[0] == "charbot.config"

@@ -1,5 +1,5 @@
-# -*- coding: utf-8 -*-
 """Betas cog file."""
+
 import asyncio
 import datetime
 import logging
@@ -9,14 +9,14 @@ from typing import Final, cast
 
 import asyncpg
 import discord
-from PIL import Image
 from discord import Interaction, app_commands, utils
 from discord.ext import commands
+from PIL import Image
 
-from . import ColorOpts, views
-from .banner import generate_banner
-from ._types import BannerStatus, BannerStatusPoints
 from .. import CBot
+from . import ColorOpts, views
+from ._types import BannerStatus, BannerStatusPoints
+from .banner import generate_banner
 
 
 BASE_PATH: Final[Path] = Path(__file__).parent / "user_assets"

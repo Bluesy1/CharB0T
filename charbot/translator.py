@@ -1,10 +1,10 @@
-# -*- coding: utf-8 -*-
 from typing import Literal, cast
 
-from discord import app_commands, Locale
+from discord import Locale, app_commands
 from discord.app_commands import TranslationContextLocation, TranslationContextTypes, locale_str
 
 from charbot_rust import translate
+
 
 _LanguageTag = Literal["en-US", "es-ES", "fr", "nl"]
 
@@ -45,11 +45,9 @@ class Translator(app_commands.Translator):
         elif context.location is TranslationContextLocation.group_description:
             key = f"{context.data.qualified_name.replace(' ', '-')}-description"
         elif context.location is TranslationContextLocation.parameter_name:
-            key = f"{context.data.command.qualified_name.replace(' ', '-')}" f"-parameter-{context.data.name}-name"
+            key = f"{context.data.command.qualified_name.replace(' ', '-')}-parameter-{context.data.name}-name"
         elif context.location is TranslationContextLocation.parameter_description:
-            key = (
-                f"{context.data.command.qualified_name.replace(' ', '-')}" f"-parameter-{context.data.name}-description"
-            )
+            key = f"{context.data.command.qualified_name.replace(' ', '-')}-parameter-{context.data.name}-description"
         elif context.location is TranslationContextLocation.choice_name:
             key = f"choice-{context.data.name}-name"
         elif context.location is TranslationContextLocation.other:
