@@ -48,7 +48,6 @@ def puzzle_solved() -> sudoku.Puzzle:
 
 
 @pytest.mark.asyncio()
-# @pytest.mark.usefixtures("puzzle_unsolved")
 async def test_view_init(puzzle_unsolved, mocker: MockerFixture):
     """Test Sudoku view init."""
     mock_bot = mocker.Mock(spec=CBot)

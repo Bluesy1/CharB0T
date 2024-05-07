@@ -123,7 +123,6 @@ def test_image_background_banner():
                 3,
             )
         )
-        # got.save(pathlib.Path(__file__).parent / "media/test_banner_image_background.png")
         assert got == expected, "Got unexpected banner"
 
 
