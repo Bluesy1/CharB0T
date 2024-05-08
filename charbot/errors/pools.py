@@ -1,20 +1,13 @@
 """Wrong roles error."""
 
-from typing import cast
-
-import discord
 from discord.app_commands import CheckFailure
-
-from charbot_rust import translate
-
-from . import _LanguageTag
 
 
 class NoPoolFound(CheckFailure):
     """No pool found."""
 
-    def __init__(self, pool: str, locale: discord.Locale):
+    def __init__(self, pool: str):
         """Init."""
-        message = translate(cast(_LanguageTag, locale.value), "no-pool-found", {"pool": pool})
+        message = f"{pool} pool not found. Please choose one from the autocomplete."
         super().__init__(pool, message)
         self.message = message

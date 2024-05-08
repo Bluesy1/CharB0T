@@ -7,8 +7,6 @@ from typing import TYPE_CHECKING, Literal, cast
 import discord
 from discord import Interaction, ui
 
-import charbot_rust
-
 
 if TYPE_CHECKING:  # pragma: no cover
     from . import CBot, GiveawayView
@@ -131,20 +129,13 @@ class BidModal(ui.Modal, title="Bid"):
             The user's wins, if any.
         """
         self.view.total_entries += bid_int
-        await interaction.followup.send(
-            charbot_rust.translate(
-                cast(_LanguageTag, interaction.locale.value),
-                "giveaway-bid-success",
-                {
-                    "bid": bid_int,
-                    "new_bid": new_bid,
-                    "chance": round(new_bid * 100 / self.view.total_entries, 2),
-                    "points": points,
-                    "wins": wins or 0,
-                },
-            ),
-            ephemeral=True,
+        chance = new_bid * 100 / self.view.total_entries
+        message = (
+            f"You have bid {bid_int} more entries, for a total of {new_bid} entries, giving you a "
+            + f"{chance:.2f}% chance of winning! You now have {points} reputation left, and you "
+            + f"have won {wins or 0}/3 giveaways you can this month!"
         )
+        await interaction.followup.send(message, ephemeral=True)
         self.view.top_bid = max(new_bid, self.view.top_bid)
 
     async def check_points(self, bid_int: int, interaction: Interaction[CBot], points: int | None) -> bool:
@@ -165,18 +156,12 @@ class BidModal(ui.Modal, title="Bid"):
             If the user's bid is valid.
         """
         if points is None or points == 0:
-            await interaction.followup.send(
-                charbot_rust.translate(cast(_LanguageTag, interaction.locale.value), "giveaway-bid-no-rep", {})
-            )
+            await interaction.followup.send("You either have never gained reputation or have 0.")
             self.stop()
             return False
         if points < bid_int:
             await interaction.followup.send(
-                charbot_rust.translate(
-                    cast(_LanguageTag, interaction.locale.value),
-                    "giveaway-bid-not-enough-rep",
-                    {"bid": bid_int, "points": points},
-                )
+                f"You do not have enough reputation to bid {bid_int} entries, you need {points} more."
             )
             self.stop()
             return False
@@ -185,7 +170,7 @@ class BidModal(ui.Modal, title="Bid"):
     async def invalid_bid(self, interaction: Interaction[CBot]):
         """Call when a bid is invalid."""
         await interaction.response.send_message(
-            charbot_rust.translate(cast(_LanguageTag, interaction.locale.value), "giveaway-bid-invalid-bid", {}),
+            "Please enter a valid integer above 0 and less than 32768.",
             ephemeral=True,
         )
         return self.stop()

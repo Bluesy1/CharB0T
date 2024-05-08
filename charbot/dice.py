@@ -1,16 +1,18 @@
 """Rolls dice."""
 
 import random
-from typing import Literal, cast
 
 import discord
 from discord.ext import commands
 from discord.ext.commands import Cog, Context
 
-from charbot import CBot, translate
+from charbot import CBot
 
 
-_LanguageTag = Literal["en-US", "es-ES", "fr", "nl"]
+ERROR_TEMPLATE = """\
+{user} - invalid argument specified:
+\t Specified dice can only be d<int>, or if a constant modifier must be a perfect integer, positive or negative, connected with `+`, and no spaces.
+"""
 
 
 def roll(arg: str, user: str, locale: discord.Locale) -> str:
@@ -46,15 +48,11 @@ def roll(arg: str, user: str, locale: discord.Locale) -> str:
                     rolls.append(int(die))
                     sums += int(die)
                 except ValueError:
-                    return translate(cast(_LanguageTag, locale.value), "error", {"user": user})
+                    return ERROR_TEMPLATE.format(user=user)
         output = ", ".join(f"{res}" for res in rolls)
-        return translate(
-            cast(_LanguageTag, locale.value),
-            "success",
-            {"user": user, "dice": arg, "total": sums, "result": output, "locale": "en-US"},
-        )
+        return f"{user} rolled `{arg}` and got `{output}`for a total of `{sums}`."
     except Exception:  # skipcq: PYL-W0703  # pragma: no cover
-        return translate(cast(_LanguageTag, locale.value), "error", {"user": user})
+        return ERROR_TEMPLATE.format(user=user)
 
 
 class Roll(Cog):

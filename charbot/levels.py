@@ -4,7 +4,7 @@ import asyncio
 import datetime
 import random
 from collections.abc import Callable
-from typing import Literal, Optional, cast
+from typing import Optional, cast
 
 import aiohttp
 import asyncpg
@@ -14,10 +14,7 @@ from discord.ext import commands, tasks
 from discord.utils import utcnow
 from disrank.generator import Generator
 
-from . import CBot, Config, translate
-
-
-_LanguageTag = Literal["en-US", "es-ES", "fr", "nl"]
+from . import CBot, Config
 
 
 async def update_level_roles(member: discord.Member, new_level: int) -> None:
@@ -234,7 +231,7 @@ class Leveling(commands.Cog):
                 user_record: asyncpg.Record = next(filter(lambda x: x["id"] == member.id, users))
             except IndexError:
                 await interaction.followup.send(
-                    translate(cast(_LanguageTag, interaction.locale.value), "rank-error", {})
+                    "Error: You aren't ranked yet. Send some messages first, then try again."
                 )
                 return
         image = await asyncio.to_thread(

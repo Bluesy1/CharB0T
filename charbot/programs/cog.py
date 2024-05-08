@@ -43,12 +43,12 @@ class Reputation(commands.Cog, name="Programs"):
             channel.id != interaction.client.CHANNEL_ID
             and interaction.command.name != self.query_points.name  # pyright: ignore[reportOptionalMemberAccess]
         ):
-            raise errors.WrongChannelError(interaction.client.CHANNEL_ID, interaction.locale)
+            raise errors.WrongChannelError(interaction.client.CHANNEL_ID)
         # fmt: on
         if all(
             role.id not in interaction.client.ALLOWED_ROLES for role in cast(discord.Member, interaction.user).roles
         ):
-            raise errors.MissingProgramRole(interaction.client.ALLOWED_ROLES, interaction.locale)
+            raise errors.MissingProgramRole(interaction.client.ALLOWED_ROLES)
         return True
 
     programs = app_commands.Group(name="programs", description="Programs to gain you rep.", guild_only=True)
@@ -152,7 +152,7 @@ class Reputation(commands.Cog, name="Programs"):
         else:
             game = MinesweeperGame.super_expert()
         view = Minesweeper(game)
-        file = await view.draw(await interaction.client.translate("minesweeper-lose-title", interaction.locale))
+        file = await view.draw("You lost!")
         embed = discord.Embed(title="Minesweeper", color=discord.Color.dark_purple())
         embed.set_footer(text="Play by typing /programs minesweeper")
         embed.set_author(name=interaction.user.display_name, icon_url=interaction.user.display_avatar.url)

@@ -8,13 +8,11 @@ from zoneinfo import ZoneInfo
 import aiohttp
 import asyncpg
 import discord
-from discord import Locale, app_commands
-from discord.app_commands import TranslationContext, TranslationContextLocation, locale_str
+from discord import app_commands
 from discord.ext import commands
 from discord.utils import MISSING
 
 from . import EXTENSIONS, Config, errors
-from .translator import Translator
 
 
 _VT = TypeVar("_VT")
@@ -161,8 +159,6 @@ class CBot(commands.Bot):
         Also loads the cogs, and prints who the bot is logged in as
         """
         print("Setup started")
-        await self.tree.set_translator(Translator())
-        print("Loaded translator")
         webhooks = Config["discord"]["webhooks"]
         self.program_logs = await self.fetch_webhook(webhooks["program_logs"])
         self.error_logs = await self.fetch_webhook(webhooks["error"])
@@ -301,45 +297,6 @@ class CBot(commands.Bot):
             )
             return points + bonus
 
-    async def translate(
-        self, string: locale_str | str, locale: Locale, /, *, data: Any | None = None, fallback: str | None = None
-    ) -> str:
-        """Translate a string.
-
-        Parameters
-        ----------
-        string : locale_str | str
-            The string to translate.
-        locale : Locale
-            The locale to translate to.
-        data : Any, optional
-            The extra data to pass to the translator.
-        fallback : str | None, optional
-            String to fall back to if translation lookup fails.
-
-        Returns
-        -------
-        str
-            The translated string, or the fallback if the string isn't translatable.
-
-        Raises
-        ------
-        ValueError
-            If the key is not valid and a fallback was not provided.
-        """
-        translator = self.tree.translator
-        if translator is None:  # pragma: no cover
-            translator = Translator()
-            await self.tree.set_translator(translator)
-        context = TranslationContext(TranslationContextLocation.other, data=data)
-        key = string if isinstance(string, locale_str) else locale_str(string)
-        res = await translator.translate(key, locale, context)
-        if res is not None:
-            return res
-        if fallback is not None:
-            return fallback
-        raise ValueError(f"Key {string} not a valid key for translation")
-
     # for some reason deepsource doesn't like this, so i'm skipcq'ing the definition header
     async def on_command_error(
         self, ctx: commands.Context[Self], exception: commands.CommandError, /
@@ -447,39 +404,24 @@ class Tree(app_commands.CommandTree[CBot]):
             await interaction.response.defer(ephemeral=True)
         command = interaction.command
         if isinstance(command, (app_commands.Command, app_commands.ContextMenu)):
-            data = {"user": interaction.user.mention, "command": command.qualified_name}
+            user = interaction.user.mention
+            _command = command.qualified_name
             if isinstance(error, (errors.MissingProgramRole, errors.NoPoolFound, errors.WrongChannelError)):
                 message = error.message
             elif isinstance(error, app_commands.MissingAnyRole):
-                message = await self.client.translate(
-                    "missing-any-role",
-                    interaction.locale,
-                    data=data,
-                    fallback="You are missing a role to use this command.",
-                )
+                message = f"{user}, you don't have any of the required role(s) to use {command}"
             elif isinstance(error, app_commands.NoPrivateMessage):
                 message = error.args[0]
             elif isinstance(error, app_commands.CommandOnCooldown):
-                message = await self.client.translate(
-                    "command-on-cooldown",
-                    interaction.locale,
-                    data=data
-                    | {
-                        "retry_after": round(error.retry_after, 2),
-                        "$unix-timestamp": discord.utils.format_dt(
-                            discord.utils.utcnow() + datetime.timedelta(seconds=error.retry_after)
-                        ),
-                    },
-                    fallback=error.args[0],
+                after = discord.utils.format_dt(discord.utils.utcnow() + datetime.timedelta(seconds=error.retry_after))
+                message = (
+                    f"{user}, this command is on cooldown for "
+                    + f"{error.retry_after:.2f} seconds you can retry after {after}"
                 )
             elif isinstance(error, app_commands.CheckFailure):
-                message = await self.client.translate(
-                    "check-failed", interaction.locale, data=data, fallback="You can't use this command."
-                )
+                message = f"{user}, you can't use {_command}"
             elif isinstance(error, app_commands.CommandInvokeError):
-                message = await self.client.translate(
-                    "bad-code", interaction.locale, data=data, fallback="An error occurred, Bluesy has been notified."
-                )
+                message = f"{user}, an error occurred while executing {_command}, Bluesy has been notified."
                 self.logger.error("Ignoring exception in command %r", command.name, exc_info=error)
             else:
                 message = "An error occurred while executing the command."
