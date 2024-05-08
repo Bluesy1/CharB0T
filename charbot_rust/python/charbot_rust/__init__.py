@@ -11,7 +11,6 @@ __author__ = "Bluesy1"
 __license__ = "MIT"
 __copyright__ = "Copyright 2022-present Bluesy1"
 __version__ = _metadata.version(__title__)
-__all__ = ("tictactoe", "minesweeper", "translate")
-translate = charbot_rust.translate
+__all__ = ("tictactoe", "minesweeper")
 
 del charbot_rust

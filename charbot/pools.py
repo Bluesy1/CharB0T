@@ -92,11 +92,11 @@ class Pools(commands.GroupCog, name="pools", description="Reputation pools for c
             "SELECT required_roles FROM pools WHERE pool = $1", interaction.namespace["pool"]
         )
         if roles is None:
-            raise errors.NoPoolFound(interaction.namespace["pool"], interaction.locale)
+            raise errors.NoPoolFound(interaction.namespace["pool"])
         if all(role.id not in roles for role in member.roles):
-            raise errors.NoPoolFound(interaction.namespace["pool"], interaction.locale)
+            raise errors.NoPoolFound(interaction.namespace["pool"])
         if interaction.channel_id != 969972085445238784:
-            raise errors.WrongChannelError(969972085445238784, interaction.locale)
+            raise errors.WrongChannelError(969972085445238784)
         return True
 
     @app_commands.command(name="add", description="Add reputation to an active pool.")
