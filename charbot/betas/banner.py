@@ -1,5 +1,5 @@
-# -*- coding: utf-8 -*-
 """Banner code."""
+
 import asyncio
 from collections.abc import Iterable
 from io import BytesIO

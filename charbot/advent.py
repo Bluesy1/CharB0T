@@ -1,5 +1,5 @@
-# -*- coding: utf-8 -*-
 """Query extension."""
+
 import datetime
 from typing import TYPE_CHECKING, cast
 
@@ -7,6 +7,7 @@ import discord
 from discord.ext import commands
 
 from . import Config
+
 
 if TYPE_CHECKING:
     from charbot import CBot
@@ -68,4 +69,11 @@ class AdventOfCode(commands.Cog):
 
 
 async def setup(bot: "CBot"):
+    """Add the AdventOfCode cog to the bot.
+
+    Parameters
+    ----------
+    bot : commands.Bot
+        The bot object.
+    """
     await bot.add_cog(AdventOfCode(bot))

@@ -1,5 +1,5 @@
-# -*- coding: utf-8 -*-
 """Rolls dice."""
+
 import random
 from typing import Literal, cast
 
@@ -8,6 +8,7 @@ from discord.ext import commands
 from discord.ext.commands import Cog, Context
 
 from charbot import CBot, translate
+
 
 _LanguageTag = Literal["en-US", "es-ES", "fr", "nl"]
 

@@ -11,7 +11,7 @@ authors = [
 	{name = "Bluesy1", email = "68259537+Bluesy1@users.noreply.github.com"}
 ]
 license = {file = "LICENSE"}
-requires-python = ">=3.10"
+requires-python = ">=3.11"
 classifiers = [
 	"Development Status :: 5 - Production/Stable",
 	"Intended Audience :: End Users/Desktop",
@@ -36,7 +36,6 @@ dependencies = [
 	"Pillow==10.3.0",
 	"pytesseract==0.3.10",
 	"sentry-sdk==1.20.0",
-	"tomli==2.0.1; python_version < '3.11'",
 	"typing-extensions==4.11.0",
 	"urlextract==1.9.0",
 	"uvloop==0.19.0 ; sys_platform != 'win32'",
@@ -47,8 +46,7 @@ dependencies = [
 dev = [
 	"aioresponses==0.7.6",
 	"asyncpg-stubs==0.29.1",
-	"black==24.4.0",
-	"flake8==7.0.0",
+	"ruff==0.4.3",
 	"maturin[zig]==1.5.1",
 	"pre-commit==3.6.1",
 	"pyright==1.1.361",
@@ -80,13 +78,36 @@ reportUnnecessaryTypeIgnoreComment = true
 reportIncompatibleMethodOverride = false
 exclude = ["**/__pycache__/**", "venv", ".git", ".venv"]
 
-[tool.black]
-line-length = 120
+[tool.ruff]
+line-length = 120 # Maximum line length - 88 is too short IMO
 
-[tool.isort]
-profile = "black"
-skip_gitignore = true
-line_length = 120
-atomic = true
-known_local_folder = ["backup", "main", "card", "tictactoe", "sudoku", "shrugman", "bot", "errors"]
-lines_after_imports = 2
+[tool.ruff.lint]
+ignore = [
+	"E731", # The assigned lambdas are clearer than the alternative where used. (Simpler to read and understand due to the simple nature of the code in the lambdas)
+	"UP007", # Use `X | Y` for type annotations
+	"UP038", # Use `X | Y` in `isinstance` call instead of `(X, Y)` (I prefer the tuple syntax, it's easier to read and cheaper than the bitwise OR)
+	"RUF006", # Store a reference to the return value of `asyncio.create_task` (I don't want to store the reference)
+]
+extend-select = [
+	"UP",  # pyupgrade
+	"I",   # isort
+	"PT",  # flake8-pytest-style
+	"C4",  # flake8-comprehensions
+	"LOG", # flake8-logging
+	"G",   # flake8-logging-format
+	"SIM", # flake8-simplify
+	"RUF", # ruff
+]
+
+[tool.ruff.lint.per-file-ignores]
+"**/tictactoe/*" = [
+	"E741" # Ambiguous variable name 'O' (Not ambiguous in this context)
+]
+
+[tool.ruff.lint.pyupgrade]
+# Preserve types, even if a file imports `from __future__ import annotations`.
+keep-runtime-typing = true
+
+[tool.ruff.lint.isort]
+known-local-folder = ["backup", "main", "card", "tictactoe", "sudoku", "shrugman", "bot", "errors"]
+lines-after-imports = 2

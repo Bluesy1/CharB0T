@@ -1,5 +1,5 @@
-# -*- coding: utf-8 -*-
 """Giveaway view."""
+
 from __future__ import annotations
 
 import asyncio
@@ -13,8 +13,10 @@ from discord import Interaction, ui
 from discord.utils import MISSING, utcnow
 
 import charbot_rust
-from . import BidModal
+
 from .. import errors
+from . import BidModal
+
 
 if TYPE_CHECKING:  # pragma: no cover
     from .. import CBot
@@ -22,7 +24,7 @@ if TYPE_CHECKING:  # pragma: no cover
 _LanguageTag = Literal["en-US", "es-ES", "fr", "nl"]
 
 
-async def hit_max_wins(interaction: Interaction["CBot"]):
+async def hit_max_wins(interaction: Interaction[CBot]):
     """Standard response for when a user has hit max wins for a month."""
     try:
         await interaction.response.send_message(
@@ -117,7 +119,7 @@ class GiveawayView(ui.View):
             raise KeyError("Invalid giveaway embed.") from e
         return view
 
-    async def interaction_check(self, interaction: Interaction["CBot"]) -> bool:  # pragma: no cover
+    async def interaction_check(self, interaction: Interaction[CBot]) -> bool:  # pragma: no cover
         """Check if the interaction is valid.
         Parameters
         ----------
@@ -137,7 +139,7 @@ class GiveawayView(ui.View):
         return True
 
     async def on_error(
-        self, interaction: Interaction["CBot"], error: Exception, item: ui.Item[Any]
+        self, interaction: Interaction[CBot], error: Exception, item: ui.Item[Any]
     ) -> None:  # pragma: no cover
         """Error handler.
         Parameters
@@ -152,7 +154,7 @@ class GiveawayView(ui.View):
         if isinstance(error, errors.MissingProgramRole):
             await interaction.response.send_message(error.message, ephemeral=True)
         else:
-            await super(GiveawayView, self).on_error(interaction, error, item)
+            await super().on_error(interaction, error, item)
 
     def _prep_view_for_draw(self):
         """Disable all buttons."""
@@ -300,7 +302,7 @@ class GiveawayView(ui.View):
         )
 
     @ui.button(label="Bid", style=discord.ButtonStyle.green)
-    async def bid(self, interaction: Interaction["CBot"], button: ui.Button) -> None:  # skipcq: PYL-W0613
+    async def bid(self, interaction: Interaction[CBot], button: ui.Button) -> None:  # skipcq: PYL-W0613
         """Increase or make the initial bid for a user.
         Parameters
         ----------
@@ -329,7 +331,7 @@ class GiveawayView(ui.View):
         asyncio.create_task(_task())
 
     @ui.button(label="Check", style=discord.ButtonStyle.blurple, disabled=True)
-    async def check(self, interaction: Interaction["CBot"], button: ui.Button) -> None:  # skipcq: PYL-W0613
+    async def check(self, interaction: Interaction[CBot], button: ui.Button) -> None:  # skipcq: PYL-W0613
         """Check the current bid for a user.
         Parameters
         ----------
@@ -357,7 +359,7 @@ class GiveawayView(ui.View):
 
     @ui.button(label="Toggle Giveaway Alerts", style=discord.ButtonStyle.danger)
     async def toggle_alerts(
-        self, interaction: Interaction["CBot"], _: ui.Button
+        self, interaction: Interaction[CBot], _: ui.Button
     ) -> None:  # skipcq: PYL-W0613  # pragma: no cover
         """Toggle the giveaway alerts.
         Parameters

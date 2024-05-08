@@ -1,5 +1,5 @@
-# -*- coding: utf-8 -*-
 """Betas models."""
+
 from enum import Enum
 from typing import Literal
 

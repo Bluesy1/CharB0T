@@ -1,5 +1,5 @@
-# -*- coding: utf-8 -*-
 """Charbot discord bot."""
+
 import asyncio
 import logging.config
 import os

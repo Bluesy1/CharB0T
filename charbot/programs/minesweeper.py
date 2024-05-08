@@ -1,16 +1,16 @@
-# -*- coding: utf-8 -*-
 """Minesweeper game."""
+
 import string
 from io import BytesIO
-from typing import Literal, cast
+from typing import Literal, Self, cast
 
 import discord
-from PIL import Image
 from discord import ButtonStyle, Interaction, SelectOption, ui
-from typing_extensions import Self
+from PIL import Image
+
+from charbot_rust import minesweeper
 
 from .. import CBot, translate
-from charbot_rust import minesweeper
 
 
 _LanguageTag = Literal["en-US", "es-ES", "fr", "nl"]

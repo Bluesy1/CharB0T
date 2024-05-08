@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 import datetime
 from typing import Literal
 
@@ -9,20 +8,20 @@ from aioresponses import aioresponses
 from asyncpg import Pool
 from pytest_mock import MockerFixture
 
-from charbot import CBot
-from charbot import errors
+from charbot import CBot, errors
 from charbot.programs.cog import Reputation
+
 
 pytestmark = pytest.mark.asyncio
 
 
-@pytest.fixture
+@pytest.fixture()
 def mock_bot(mocker: MockerFixture):
     """Mock discord.Client."""
     return mocker.AsyncMock(spec=CBot, CHANNEL_ID=CBot.CHANNEL_ID, ALLOWED_ROLES=CBot.ALLOWED_ROLES, TIME=CBot.TIME)
 
 
-@pytest.fixture
+@pytest.fixture()
 def mock_inter(mock_bot, mocker: MockerFixture):
     """Mock discord.Interaction"""
     return mocker.AsyncMock(

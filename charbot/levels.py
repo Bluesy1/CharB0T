@@ -1,9 +1,10 @@
-# -*- coding: utf-8 -*-
 """Level system."""
+
 import asyncio
 import datetime
 import random
-from typing import Callable, Literal, Optional, cast
+from collections.abc import Callable
+from typing import Literal, Optional, cast
 
 import aiohttp
 import asyncpg
@@ -14,6 +15,7 @@ from discord.utils import utcnow
 from disrank.generator import Generator
 
 from . import CBot, Config, translate
+
 
 _LanguageTag = Literal["en-US", "es-ES", "fr", "nl"]
 
@@ -155,9 +157,9 @@ class Leveling(commands.Cog):
         Parameters
         ----------
         before : discord.User
-            The updated user’s old info.
+            The updated user`s old info.
         after: discord.User
-            The updated user’s updated info.
+            The updated user`s updated info.
         """
         async with self.bot.pool.acquire() as conn:
             exists: int | None = await conn.fetchval("SELECT 1 FROM xp_users WHERE id = $1", after.id)
@@ -229,7 +231,7 @@ class Leveling(commands.Cog):
         async with self.bot.pool.acquire() as conn:
             users = await conn.fetch("SELECT *, ROW_NUMBER() OVER(ORDER BY xp DESC) AS rank FROM xp_users")
             try:
-                user_record: asyncpg.Record = list(filter(lambda x: x["id"] == member.id, users))[0]
+                user_record: asyncpg.Record = next(filter(lambda x: x["id"] == member.id, users))
             except IndexError:
                 await interaction.followup.send(
                     translate(cast(_LanguageTag, interaction.locale.value), "rank-error", {})

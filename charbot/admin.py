@@ -1,11 +1,11 @@
-# -*- coding: utf-8 -*-
 """Admin commands for charbot."""
+
 import pathlib
 from time import perf_counter
-from typing import cast, Final
+from typing import Final, cast
 
 import discord
-from discord import Color, Interaction, app_commands, PermissionOverwrite, Permissions
+from discord import Color, Interaction, PermissionOverwrite, Permissions, app_commands
 from discord.ext import commands
 
 from . import CBot

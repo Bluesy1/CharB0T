@@ -1,5 +1,5 @@
-# -*- coding: utf-8 -*-
 """Admin commands for the reputation system."""
+
 import asyncio
 import datetime
 from typing import Optional, cast
@@ -8,7 +8,7 @@ import asyncpg
 import discord
 from discord import Interaction, app_commands
 from discord.ext import commands, tasks
-from discord.utils import utcnow, sleep_until
+from discord.utils import sleep_until, utcnow
 
 from . import CBot
 from .card import generate_card
@@ -49,7 +49,8 @@ class ReputationAdmin(
         @self.check_pool.autocomplete("pool")
         @self.delete_pool.autocomplete("pool")
         async def pool_autocomplete(
-            interaction: Interaction[CBot], current: str  # skipcq: PYL-W0613
+            interaction: Interaction[CBot],  # skipcq: PYL-W0613
+            current: str,
         ) -> list[app_commands.Choice[str]]:
             """Autocomplete a pool name.
 

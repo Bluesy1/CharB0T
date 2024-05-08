@@ -1,10 +1,10 @@
-# -*- coding: utf-8 -*-
 """Banner approval flow."""
+
 import discord
 from discord import Interaction, ui
 
-from .._types import BannerStatus
 from ... import CBot
+from .._types import BannerStatus
 
 
 class ApprovalView(ui.View):

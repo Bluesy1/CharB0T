@@ -1,9 +1,10 @@
-# -*- coding: utf-8 -*-
 """Program classes and functions."""
+
 from __future__ import annotations
 
-from .cog import Reputation
 from .. import CBot
+from .cog import Reputation
+
 
 __all__ = ("setup",)
 

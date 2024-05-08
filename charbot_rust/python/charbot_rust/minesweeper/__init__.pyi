@@ -1,6 +1,5 @@
-# -*- coding: utf-8 -*-
-import typing as __typing
 import enum as __enum
+import typing as __typing
 
 @__typing.type_check_only
 class Selected:
@@ -64,24 +63,24 @@ class Game:
     """
 
     def __init__(self, width: int, height: int, mines: int) -> None: ...
-    def __new__(cls, width: int, height: int, mines: int) -> "Game": ...
+    def __new__(cls, width: int, height: int, mines: int) -> Game: ...
     @classmethod
-    def beginner(cls) -> "Game":
+    def beginner(cls) -> Game:
         """Returns a beginner game, 8x8, 10 mines."""
         ...
 
     @classmethod
-    def intermediate(cls) -> "Game":
+    def intermediate(cls) -> Game:
         """Returns an intermediate game, 16x16, 40 mines."""
         ...
 
     @classmethod
-    def expert(cls) -> "Game":
+    def expert(cls) -> Game:
         """Returns an expert game, 22x22, 100 mines."""
         ...
 
     @classmethod
-    def super_expert(cls) -> "Game":
+    def super_expert(cls) -> Game:
         """Returns a super expert game, 25x25, 130 mines."""
         ...
 

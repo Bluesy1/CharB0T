@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 import datetime
 import zoneinfo
 
@@ -8,13 +7,12 @@ import pytest
 from discord.utils import MISSING
 from pytest_mock import MockerFixture
 
+from charbot import Config, _Config
 from charbot.bot import CBot, Holder, Tree
 
-from charbot import Config, _Config
 
-
-@pytest.fixture
-def unused_patch_datetime_now(monkeypatch: pytest.MonkeyPatch):
+@pytest.fixture()
+def _patch_datetime_now(monkeypatch: pytest.MonkeyPatch) -> None:
     """Patch the datetime.now() method to return a fixed time"""
 
     class MyDateTime(datetime.datetime):
@@ -53,12 +51,13 @@ def test_holder():
     assert holder.get("value") is MISSING
 
 
-def test_time(unused_patch_datetime_now):
+@pytest.mark.usefixtures("_patch_datetime_now")
+def test_time():
     """Test the time class method"""
     assert CBot.TIME() == datetime.datetime(1, 1, 1, 9, 0, 0, 0, tzinfo=zoneinfo.ZoneInfo(key="America/Detroit"))
 
 
-@pytest.mark.asyncio
+@pytest.mark.asyncio()
 async def test_first_time_gain(database: asyncpg.Pool):
     """Test that the first time gain is done properly"""
     bot = CBot(command_prefix=[], tree_cls=Tree, intents=discord.Intents.default())
@@ -78,7 +77,7 @@ async def test_first_time_gain(database: asyncpg.Pool):
     await database.execute("DELETE FROM users WHERE id = 10")
 
 
-@pytest.mark.asyncio
+@pytest.mark.asyncio()
 async def test_first_gain_of_day(database: asyncpg.Pool):
     """Test that the first gain of the day is done properly"""
     bot = CBot(command_prefix=[], tree_cls=Tree, intents=discord.Intents.default())
@@ -102,7 +101,7 @@ async def test_first_gain_of_day(database: asyncpg.Pool):
     await database.execute("DELETE FROM users WHERE id = 10")
 
 
-@pytest.mark.asyncio
+@pytest.mark.asyncio()
 async def test_fallback_gain(database: asyncpg.Pool):
     """Test that the fallback gain is done properly"""
     bot = CBot(command_prefix=[], tree_cls=Tree, intents=discord.Intents.default())
@@ -125,7 +124,7 @@ async def test_fallback_gain(database: asyncpg.Pool):
     await database.execute("DELETE FROM users WHERE id = 10")
 
 
-@pytest.mark.asyncio
+@pytest.mark.asyncio()
 async def test_first_time_gain_called(mocker: MockerFixture, database: asyncpg.Pool):
     """Test that the first time gain is called properly"""
     bot = CBot(command_prefix=[], tree_cls=Tree, intents=discord.Intents.default())
@@ -145,7 +144,7 @@ async def test_first_time_gain_called(mocker: MockerFixture, database: asyncpg.P
     await database.execute("DELETE FROM users WHERE id = 10")
 
 
-@pytest.mark.asyncio
+@pytest.mark.asyncio()
 async def test_first_gain_of_day_called(mocker: MockerFixture, database: asyncpg.Pool):
     """Test that the first gain of the day is called properly"""
     bot = CBot(command_prefix=[], tree_cls=Tree, intents=discord.Intents.default())
@@ -170,7 +169,7 @@ async def test_first_gain_of_day_called(mocker: MockerFixture, database: asyncpg
     await database.execute("DELETE FROM users WHERE id = 10")
 
 
-@pytest.mark.asyncio
+@pytest.mark.asyncio()
 async def test_fallback_gain_called(mocker: MockerFixture, database: asyncpg.Pool):
     """Test that the fallback gain is called properly"""
     bot = CBot(command_prefix=[], tree_cls=Tree, intents=discord.Intents.default())
@@ -194,7 +193,7 @@ async def test_fallback_gain_called(mocker: MockerFixture, database: asyncpg.Poo
     await database.execute("DELETE FROM users WHERE id = 10")
 
 
-@pytest.mark.asyncio
+@pytest.mark.asyncio()
 async def test_give_game_points_final_branch_called(mocker: MockerFixture, database: asyncpg.Pool):
     """Test that the supposed to be unreachable branch processes properly"""
     bot = CBot(command_prefix=[], tree_cls=Tree, intents=discord.Intents.default())
@@ -215,7 +214,7 @@ async def test_give_game_points_final_branch_called(mocker: MockerFixture, datab
     await database.execute("DELETE FROM users WHERE id = 10")
 
 
-@pytest.mark.asyncio
+@pytest.mark.asyncio()
 async def test_translate_good_key():
     """Test that the translation method works with a good key"""
     bot = CBot(command_prefix=[], tree_cls=Tree, intents=discord.Intents.default())
@@ -225,17 +224,16 @@ async def test_translate_good_key():
     )
 
 
-@pytest.mark.asyncio
+@pytest.mark.asyncio()
 async def test_translate_bad_key_with_fallback():
     """Test that the translation method works with a bad key"""
     bot = CBot(command_prefix=[], tree_cls=Tree, intents=discord.Intents.default())
     assert await bot.translate("bad-key", discord.Locale.american_english, fallback="fallback") == "fallback"
 
 
-@pytest.mark.asyncio
+@pytest.mark.asyncio()
 async def test_translate_bad_key_without_fallback():
     """Test that the translation method works with a bad key"""
     bot = CBot(command_prefix=[], tree_cls=Tree, intents=discord.Intents.default())
-    with pytest.raises(ValueError) as exec_info:
+    with pytest.raises(ValueError, match="Key bad-key not a valid key for translation"):
         await bot.translate("bad-key", discord.Locale.american_english)
-    assert exec_info.value.args[0] == "Key bad-key not a valid key for translation"

@@ -1,12 +1,13 @@
-# -*- coding: utf-8 -*-
 """Wrong roles error."""
+
 from typing import cast
 
 import discord
 from discord.app_commands import CheckFailure
 
-from . import _LanguageTag
 from charbot_rust import translate
+
+from . import _LanguageTag
 
 
 class NoPoolFound(CheckFailure):

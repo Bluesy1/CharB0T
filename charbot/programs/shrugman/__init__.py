@@ -1,5 +1,5 @@
-# -*- coding: utf-8 -*-
 """Shrugman minigame."""
+
 __all__ = ("GuessModal", "Shrugman", "words")
 
 from .modal import GuessModal

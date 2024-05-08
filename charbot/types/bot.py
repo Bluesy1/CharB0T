@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 import datetime
 from collections.abc import Callable, Coroutine
 from typing import Any, ClassVar
@@ -6,7 +5,7 @@ from zoneinfo import ZoneInfo
 
 import aiohttp
 import asyncpg
-from discord import app_commands, Member, User, Webhook
+from discord import Member, User, Webhook, app_commands
 from discord.ext import commands
 
 

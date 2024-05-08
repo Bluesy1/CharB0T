@@ -1,11 +1,10 @@
-# -*- coding: utf-8 -*-
 import discord
 import pytest
 from discord import Interaction
 from discord.ext import commands
 from pytest_mock import MockerFixture
 
-from charbot import query, CBot
+from charbot import CBot, query
 
 
 def test_cog_check_no_guild(mocker: MockerFixture):
@@ -43,7 +42,7 @@ def test_cog_check_allowed(mocker: MockerFixture):
     assert cog.cog_check(mock_ctx) is True
 
 
-@pytest.mark.asyncio
+@pytest.mark.asyncio()
 async def test_time_command(mocker: MockerFixture):
     """Test time command."""
     mock_ctx = mocker.Mock(spec=commands.Context)
@@ -53,7 +52,7 @@ async def test_time_command(mocker: MockerFixture):
     mock_ctx.reply.assert_called_once()
 
 
-@pytest.mark.asyncio
+@pytest.mark.asyncio()
 async def test_changelog_command(mocker: MockerFixture):
     """Test changelog command."""
     mock_ctx = mocker.Mock(spec=commands.Context)
@@ -63,7 +62,7 @@ async def test_changelog_command(mocker: MockerFixture):
     mock_ctx.reply.assert_called_once_with("Here's the changelog: https://bluesy1.github.io/CharB0T/changes")
 
 
-@pytest.mark.asyncio
+@pytest.mark.asyncio()
 async def test_faq_command(mocker: MockerFixture):
     """Test faq command."""
     mock_ctx = mocker.Mock(spec=commands.Context)
@@ -73,7 +72,7 @@ async def test_faq_command(mocker: MockerFixture):
     mock_ctx.reply.assert_called_once()
 
 
-@pytest.mark.asyncio
+@pytest.mark.asyncio()
 async def test_source_command(mocker: MockerFixture):
     """Test source command."""
     mock_ctx = mocker.Mock(spec=commands.Context)
@@ -83,8 +82,10 @@ async def test_source_command(mocker: MockerFixture):
     mock_ctx.reply.assert_called_once_with(f"https://bluesy1.github.io/CharB0T/\n{query.__source__}\nMIT License")
 
 
-@pytest.mark.asyncio
-@pytest.mark.parametrize("rule,member_id,expected_key", [(None, None, 1), (None, 1, 2), (1, None, 3), (1, 1, 4)])
+@pytest.mark.asyncio()
+@pytest.mark.parametrize(
+    ("rule", "member_id", "expected_key"), [(None, None, 1), (None, 1, 2), (1, None, 3), (1, 1, 4)]
+)
 async def test_rule_command(mocker: MockerFixture, rule: int | None, member_id: int | None, expected_key: int):
     """Test rule command."""
     mock_itx = mocker.AsyncMock(spec=Interaction[CBot])
@@ -95,7 +96,10 @@ async def test_rule_command(mocker: MockerFixture, rule: int | None, member_id: 
     mock_bot = mocker.AsyncMock(spec=commands.Bot)
     cog = query.Query(mock_bot)
     await cog.rules.callback(
-        cog, mock_itx, rule, mock_itx.user if member_id else None  # pyright: ignore[reportCallIssue]
+        cog,
+        mock_itx,
+        rule,
+        mock_itx.user if member_id else None,  # pyright: ignore[reportCallIssue]
     )
     mock_itx.response.send_message.assert_awaited_once()
     res = mock_itx.response.send_message.await_args.args[0]
@@ -150,7 +154,7 @@ async def test_rule_command(mocker: MockerFixture, rule: int | None, member_id: 
     )
 
 
-@pytest.mark.asyncio
+@pytest.mark.asyncio()
 @pytest.mark.parametrize("ephemeral", [True, False])
 async def test_leaderboard_command(mocker: MockerFixture, ephemeral: bool):
     """Test leaderboard command."""

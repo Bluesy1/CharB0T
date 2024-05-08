@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 from enum import Enum
 
 from .enums import Difficulty as Difficulty
@@ -39,7 +38,7 @@ class Game:
     """
 
     def __init__(self, difficulty: Difficulty): ...
-    def __new__(cls, difficulty: Difficulty) -> "Game": ...
+    def __new__(cls, difficulty: Difficulty) -> Game: ...
     @property
     def board(self) -> list[Piece]:
         """The board for the game, represented as a list of pieces.

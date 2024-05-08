@@ -1,5 +1,5 @@
-# -*- coding: utf-8 -*-
 """Shrugman view."""
+
 import datetime
 import pathlib
 import random
@@ -12,6 +12,7 @@ from discord.utils import utcnow
 
 from . import modal
 
+
 if TYPE_CHECKING:
     from ... import CBot  # pragma: no cover
 
@@ -23,7 +24,7 @@ FailStates = Enum(
     start=0,
 )
 
-with open(pathlib.Path(__file__).parent.parent.parent / "media/shrugman/words.csv") as f:
+with (pathlib.Path(__file__).parent.parent.parent / "media/shrugman/words.csv").open() as f:
     words = [word.replace("\n", "") for word in f.readlines()]
 
 

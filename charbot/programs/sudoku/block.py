@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """Block class."""
 
 from . import Cell

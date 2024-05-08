@@ -1,5 +1,5 @@
-# -*- coding: utf-8 -*-
 """Test the giveaway system."""
+
 from __future__ import annotations
 
 import asyncio
@@ -15,7 +15,7 @@ from charbot import giveaway
 from charbot.bot import CBot, Holder
 
 
-@pytest.fixture
+@pytest.fixture()
 def mock_pandas_read_csv(monkeypatch):
     """Mock pandas.read_csv"""
     df = pandas.DataFrame(
@@ -35,10 +35,10 @@ def mock_pandas_read_csv(monkeypatch):
         "read_csv",
         lambda *args, **kwargs: df,
     )
-    yield df
+    return df
 
 
-@pytest.fixture
+@pytest.fixture()
 def embed():
     """Test embed."""
     return discord.Embed.from_dict(
@@ -74,7 +74,7 @@ def test_cog_init(mock_pandas_read_csv, mocker: MockerFixture):
     assert 2 not in mock_bot.holder, "2 should not be in the holder anymore"
 
 
-@pytest.mark.asyncio
+@pytest.mark.asyncio()
 async def test_view_from_message(mocker: MockerFixture, embed):
     """Test view recreation"""
     message = mocker.AsyncMock(spec=discord.WebhookMessage, embeds=[embed])
@@ -100,7 +100,7 @@ def test_view_from_message_invalid(mocker: MockerFixture, embed):
         giveaway.GiveawayView.recreate_from_message(message, bot)
 
 
-@pytest.mark.asyncio
+@pytest.mark.asyncio()
 async def test_end_giveaway_with_users(mocker: MockerFixture, embed, database: asyncpg.Pool):
     """Test end_giveaway"""
     await database.executemany(
@@ -142,7 +142,7 @@ async def test_end_giveaway_with_users(mocker: MockerFixture, embed, database: a
     await database.execute("DELETE FROM bids WHERE bid = $1", 0)
 
 
-@pytest.mark.asyncio
+@pytest.mark.asyncio()
 async def test_end_giveaway_no_users(mocker: MockerFixture, embed, database: asyncpg.Pool):
     """Test giveaway end where no bids were done"""
     webhook = mocker.AsyncMock(spec=discord.Webhook)
@@ -159,7 +159,7 @@ async def test_end_giveaway_no_users(mocker: MockerFixture, embed, database: asy
     bot.program_logs.send.assert_awaited_once()
 
 
-@pytest.mark.asyncio
+@pytest.mark.asyncio()
 async def test_giveaway_bid_max_wins(mocker: MockerFixture, embed, database: asyncpg.Pool):
     """Test giveaway bid where user already has 3 wins for the month"""
     bot = mocker.AsyncMock(spec=CBot, pool=database)
@@ -180,7 +180,7 @@ async def test_giveaway_bid_max_wins(mocker: MockerFixture, embed, database: asy
     await database.execute("DELETE FROM winners WHERE id <> 1")
 
 
-@pytest.mark.asyncio
+@pytest.mark.asyncio()
 async def test_giveaway_bid(mocker: MockerFixture, embed, database: asyncpg.Pool):
     """Test giveaway bid"""
     bot = mocker.AsyncMock(spec=CBot, pool=database)
@@ -198,7 +198,7 @@ async def test_giveaway_bid(mocker: MockerFixture, embed, database: asyncpg.Pool
     modal.stop()
 
 
-@pytest.mark.asyncio
+@pytest.mark.asyncio()
 async def test_giveaway_check_max_wins(mocker: MockerFixture, embed, database: asyncpg.Pool):
     """Test giveaway check method where user already has 3 wins"""
     bot = mocker.AsyncMock(spec=CBot)
@@ -220,7 +220,7 @@ async def test_giveaway_check_max_wins(mocker: MockerFixture, embed, database: a
     await database.execute("DELETE FROM winners WHERE id <> 1")
 
 
-@pytest.mark.asyncio
+@pytest.mark.asyncio()
 async def test_giveaway_check(mocker: MockerFixture, embed, database: asyncpg.Pool):
     """Test giveaway check method where user already has 3 wins"""
     bot = mocker.AsyncMock(spec=CBot, pool=database)
@@ -244,7 +244,7 @@ async def test_giveaway_check(mocker: MockerFixture, embed, database: asyncpg.Po
     await database.execute("DELETE FROM winners WHERE id <> 1")
 
 
-@pytest.mark.asyncio
+@pytest.mark.asyncio()
 async def test_modal_check_points_none(mocker: MockerFixture):
     """Test the bid modal if the bidder has None for points"""
     bot = mocker.AsyncMock(spec=CBot)
@@ -259,7 +259,7 @@ async def test_modal_check_points_none(mocker: MockerFixture):
     interaction.followup.send.assert_awaited_once()
 
 
-@pytest.mark.asyncio
+@pytest.mark.asyncio()
 async def test_modal_check_points_not_enough_points(mocker: MockerFixture):
     """Test the modal check points method when too few points"""
     bot = mocker.AsyncMock(spec=CBot)
@@ -274,7 +274,7 @@ async def test_modal_check_points_not_enough_points(mocker: MockerFixture):
     interaction.followup.send.assert_awaited_once()
 
 
-@pytest.mark.asyncio
+@pytest.mark.asyncio()
 async def test_modal_check_points_valid(mocker: MockerFixture):
     """Test the modal check points method when enough points"""
     bot = mocker.AsyncMock(spec=CBot)
@@ -283,7 +283,7 @@ async def test_modal_check_points_valid(mocker: MockerFixture):
     assert await modal.check_points(1, interaction, 2) is True
 
 
-@pytest.mark.asyncio
+@pytest.mark.asyncio()
 async def test_modal_invalid_bid_callback(mocker: MockerFixture):
     """Test the modal invalid bid callback"""
     bot = mocker.AsyncMock(spec=CBot)
@@ -299,7 +299,7 @@ async def test_modal_invalid_bid_callback(mocker: MockerFixture):
     assert interaction.response.send_message.await_args.kwargs["ephemeral"] is True
 
 
-@pytest.mark.asyncio
+@pytest.mark.asyncio()
 async def test_modal_bid_success(mocker: MockerFixture):
     """Test the modal bid success callback"""
     bot = mocker.AsyncMock(spec=CBot)
@@ -316,7 +316,7 @@ async def test_modal_bid_success(mocker: MockerFixture):
     assert modal.view.top_bid == 2
 
 
-@pytest.mark.asyncio
+@pytest.mark.asyncio()
 async def test_modal_on_submit(mocker: MockerFixture, database: asyncpg.Pool):
     """Test the on modal submit works as expected"""
     await database.execute("INSERT INTO users (id, points) VALUES (2, 5)")

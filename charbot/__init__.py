@@ -1,14 +1,15 @@
-# -*- coding: utf-8 -*-
 """Charbot Module."""
-import logging
+
 import functools as _functools
+import logging
 import pathlib as _pathlib
-import sys as _sys
 from importlib import metadata as _metadata
 from pkgutil import iter_modules
 from typing import Any
 
-from charbot_rust import translate, __version__ as rust_version
+from charbot_rust import __version__ as rust_version
+from charbot_rust import translate
+
 
 __title__ = "charbot"
 __author__ = "Bluesy1"
@@ -67,7 +68,7 @@ class _Config:
 
     def __new__(cls):
         if not hasattr(cls, "__instance__"):
-            cls.__instance__ = super(_Config, cls).__new__(cls)
+            cls.__instance__ = super().__new__(cls)
         return cls.__instance__
 
     def __getitem__(self, item: str) -> dict[str, Any]:
@@ -76,11 +77,9 @@ class _Config:
     @_functools.cache
     def get(self, *args: str) -> str | int | dict[str, Any]:
         """Get a config key"""
-        if _sys.version_info >= (3, 11):
-            import tomllib
-        else:
-            import tomli as tomllib  # type: ignore  # pragma: no cover
-        with open(self._file, "rb") as f:
+        import tomllib
+
+        with self._file.open("rb") as f:
             config = tomllib.load(f)
         badkey: Any = ""
         try:

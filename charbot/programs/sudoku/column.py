@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """Column class."""
 
 from . import Cell

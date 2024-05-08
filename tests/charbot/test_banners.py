@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 import io
 import pathlib
 import sys
@@ -7,8 +6,8 @@ from os import environ
 
 import discord
 import pytest
-from PIL import Image
 from discord.utils import utcnow
+from PIL import Image
 from pytest_mock import MockerFixture
 
 from charbot import CBot
@@ -38,21 +37,19 @@ def test_interpolate():
         assert tuple(actual) == expected, f"Got {actual} but expected {expected}"
 
 
-def test_interpolate_low_interval():
-    """Test the interpolate function with no slices"""
-    with pytest.raises(ValueError, match="Interval must be greater than 1, got 0"):
-        for ret in banner.interpolate((0, 0, 0), (255, 255, 255), 0):
-            assert False, f"Expected no return but got {ret}"
+@pytest.mark.parametrize("interval", [0, 1])
+def test_interpolate_low_interval(interval):
+    """Test the interpolate function with 0 or 1 slices"""
+    with pytest.raises(ValueError, match=f"Interval must be greater than 1, got {interval}"):
+        _ = list(banner.interpolate((0, 0, 0), (255, 255, 255), interval))
 
 
 def test_interpolate_bad_color():
     """Test the interpolate function with an invalid color"""
     with pytest.raises(ValueError, match=r"Invalid start color: \(-1, 0, 0\)"):
-        for _ in banner.interpolate((-1, 0, 0), (255, 255, 255), 10):
-            pass
+        _ = list(banner.interpolate((-1, 0, 0), (255, 255, 255), 10))
     with pytest.raises(ValueError, match=r"Invalid end color: \(-1, 255, 255\)"):
-        for _ in banner.interpolate((0, 0, 0), (-1, 255, 255), 10):
-            pass
+        _ = list(banner.interpolate((0, 0, 0), (-1, 255, 255), 10))
 
 
 @pytest.mark.parametrize("prestige", [0, 5, 10, 15, 20])
@@ -70,8 +67,7 @@ def test_prestige_positions(prestige: int):
 def test_static_color_banner():
     """Check the banner gets created properly with a solid color background"""
     with (
-        open(pathlib.Path(__file__).parent / "media/test_avatar.png", "rb") as file,
-        io.BytesIO(file.read()) as profile,
+        io.BytesIO((pathlib.Path(__file__).parent / "media/test_avatar.png").read_bytes()) as profile,
         Image.open(pathlib.Path(__file__).parent / "media/test_banner_solid_color.png") as expected,
     ):
         got = Image.open(
@@ -91,8 +87,7 @@ def test_static_color_banner():
 def test_gradient_color_banner():
     """Check the banner gets created properly with a gradient color background"""
     with (
-        open(pathlib.Path(__file__).parent / "media/test_avatar.png", "rb") as file,
-        io.BytesIO(file.read()) as profile,
+        io.BytesIO((pathlib.Path(__file__).parent / "media/test_avatar.png").read_bytes()) as profile,
         Image.open(pathlib.Path(__file__).parent / "media/test_banner_gradient_color.png") as expected,
     ):
         got = Image.open(
@@ -109,14 +104,13 @@ def test_gradient_color_banner():
 
 
 @pytest.mark.xfail(
-    sys.platform == "win32" or environ.get("pythonLocation", "").startswith("/opt/hostedtoolcache"),
+    sys.platform == "win32" or environ.get("PYTHONLOCATION", "").startswith("/opt/hostedtoolcache"),
     reason="PIL not consistent between platforms due to various reasons",
 )
 def test_image_background_banner():
     """Check the banner gets created properly with a gradient color background"""
     with (
-        open(pathlib.Path(__file__).parent / "media/test_avatar.png", "rb") as file,
-        io.BytesIO(file.read()) as profile,
+        io.BytesIO((pathlib.Path(__file__).parent / "media/test_avatar.png").read_bytes()) as profile,
         Image.open(pathlib.Path(__file__).parent / "media/test_banner_image_background.png") as expected,
     ):
         got = Image.open(
@@ -129,11 +123,10 @@ def test_image_background_banner():
                 3,
             )
         )
-        # got.save(pathlib.Path(__file__).parent / "media/test_banner_image_background.png")
         assert got == expected, "Got unexpected banner"
 
 
-@pytest.mark.asyncio
+@pytest.mark.asyncio()
 async def test_banner_approval_view(mocker: MockerFixture, database):
     """Check the banner approval view gets created properly"""
     status: BannerStatus = {
@@ -179,7 +172,7 @@ async def test_banner_approval_view(mocker: MockerFixture, database):
 
 
 if __name__ == "__main__":
-    with open(pathlib.Path(__file__).parent / "media/test_avatar.png", "rb") as f, io.BytesIO(f.read()) as b:
+    with io.BytesIO((pathlib.Path(__file__).parent / "media/test_avatar.png").read_bytes()) as b:
         Image.open(
             banner.banner(
                 pathlib.Path(__file__).parent / "media/test_image.jpeg",

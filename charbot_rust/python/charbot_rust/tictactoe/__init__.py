@@ -1,9 +1,10 @@
-# -*- coding: utf-8 -*-
 import sys as __sys
-
-from .enums import *  # noqa: F403,F401
+from contextlib import suppress as __suppress
 
 from charbot_rust.charbot_rust import _tictactoe
+
+from .enums import Difficulty
+
 
 if hasattr(_tictactoe, "__doc__"):
     __doc__ = _tictactoe.__doc__
@@ -16,11 +17,9 @@ if hasattr(_tictactoe, "__all__"):
     __name: str
     for __name in _tictactoe.__all__:
         setattr(__sys.modules[__name__], __name, getattr(_tictactoe, __name))
-    try:
+    with __suppress(NameError):
         del __name  # pyright: ignore[reportPossiblyUnboundVariable]
-    except NameError:
-        pass
 else:
-    __all__ = ("Difficulty",)  # noqa: F405
+    __all__ = ("Difficulty",)
 
 del _tictactoe

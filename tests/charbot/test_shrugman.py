@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 import datetime
 import random
 
@@ -9,16 +8,18 @@ from pytest_mock import MockerFixture
 from charbot import CBot
 from charbot.programs import shrugman
 
+
 pytestmark = pytest.mark.asyncio
 
 
-@pytest.fixture
-def _unused_not_random(monkeypatch):
+@pytest.fixture()
+def _not_random(monkeypatch) -> None:
     """Mock random.choice() to return a fixed value."""
     monkeypatch.setattr(random, "choice", lambda *args: "mock")
 
 
-async def test_view_init(_unused_not_random, mocker: MockerFixture):
+@pytest.mark.usefixtures("_not_random")
+async def test_view_init(mocker: MockerFixture):
     """Test Shrugman view init."""
     mock_bot = mocker.Mock(spec=CBot)
     view = shrugman.Shrugman(mock_bot, "mock")
@@ -26,7 +27,8 @@ async def test_view_init(_unused_not_random, mocker: MockerFixture):
     assert view.word == "mock"
 
 
-async def test_view_buttons_alive(_unused_not_random, mocker: MockerFixture):
+@pytest.mark.usefixtures("_not_random")
+async def test_view_buttons_alive(mocker: MockerFixture):
     """Test Shrugman view buttons."""
     mock_bot = mocker.AsyncMock(spec=CBot)
     view = shrugman.Shrugman(mock_bot, "mock")
@@ -40,7 +42,8 @@ async def test_view_buttons_alive(_unused_not_random, mocker: MockerFixture):
     mock_interaction_two.response.edit_message.assert_called_once()
 
 
-async def test_view_buttons_dead(_unused_not_random, mocker: MockerFixture):
+@pytest.mark.usefixtures("_not_random")
+async def test_view_buttons_dead(mocker: MockerFixture):
     """Test Shrugman view buttons."""
     mock_bot = mocker.AsyncMock(spec=CBot)
     view = shrugman.Shrugman(mock_bot, "mock")
@@ -55,7 +58,8 @@ async def test_view_buttons_dead(_unused_not_random, mocker: MockerFixture):
     mock_interaction.message.edit.assert_called_once()
 
 
-async def test_view_cancel_long_game(_unused_not_random, mocker: MockerFixture):
+@pytest.mark.usefixtures("_not_random")
+async def test_view_cancel_long_game(mocker: MockerFixture):
     """Test Shrugman view cancel."""
     mock_bot = mocker.AsyncMock(spec=CBot)
     view = shrugman.Shrugman(mock_bot, "mock")
@@ -71,7 +75,8 @@ async def test_view_cancel_long_game(_unused_not_random, mocker: MockerFixture):
     assert embed.footer.text == "Play by typing /programs shrugman"
 
 
-async def test_modal_valid_guess(_unused_not_random, mocker: MockerFixture):
+@pytest.mark.usefixtures("_not_random")
+async def test_modal_valid_guess(mocker: MockerFixture):
     """Test Shrugman modal proper guess."""
     mock_bot = mocker.AsyncMock(spec=CBot)
     game = shrugman.Shrugman(mock_bot, "a")
@@ -88,7 +93,8 @@ async def test_modal_valid_guess(_unused_not_random, mocker: MockerFixture):
     assert embed.footer.text == "Play by typing /programs shrugman"
 
 
-async def test_modal_wrong_guess(_unused_not_random, mocker: MockerFixture):
+@pytest.mark.usefixtures("_not_random")
+async def test_modal_wrong_guess(mocker: MockerFixture):
     """Test Shrugman modal wrong guess."""
     mock_bot = mocker.AsyncMock(spec=CBot)
     game = shrugman.Shrugman(mock_bot, "a")
@@ -106,7 +112,8 @@ async def test_modal_wrong_guess(_unused_not_random, mocker: MockerFixture):
     assert embed.footer.text == "Play by typing /programs shrugman"
 
 
-async def test_modal_invalid_guess(_unused_not_random, mocker: MockerFixture):
+@pytest.mark.usefixtures("_not_random")
+async def test_modal_invalid_guess(mocker: MockerFixture):
     """Test Shrugman modal invalid guess."""
     mock_game = mocker.AsyncMock(spec=shrugman.Shrugman)
     modal = shrugman.GuessModal(mock_game)
@@ -119,7 +126,8 @@ async def test_modal_invalid_guess(_unused_not_random, mocker: MockerFixture):
     mock_interaction.response.defer.assert_called_once_with(ephemeral=True)
 
 
-async def test_modal_duplicate_guess(_unused_not_random, mocker: MockerFixture):
+@pytest.mark.usefixtures("_not_random")
+async def test_modal_duplicate_guess(mocker: MockerFixture):
     """Test Shrugman modal duplicate guess."""
     mock_game = mocker.AsyncMock(spec=shrugman.Shrugman)
     mock_game.guesses = ["a"]

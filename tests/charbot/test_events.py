@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 from datetime import timedelta
 
 import discord
@@ -8,6 +7,7 @@ from pytest_mock import MockerFixture
 
 from charbot import CBot, events
 
+
 TILDE_SHORT = "~~:.|:;~~"
 TILDE_LONG = "tilde tilde colon dot vertical bar colon semicolon tilde tilde"
 URL_1 = "https://www.google.ca/?gws_rd=ssl"
@@ -15,7 +15,7 @@ URL_2 = "https://canvas.ubc.ca/courses/100236/modules"
 
 
 @pytest.mark.parametrize(
-    "string,expected",
+    ("string", "expected"),
     [
         ("Hello", False),
         (f"{TILDE_SHORT}", True),
@@ -36,7 +36,7 @@ def test_tilde_regex(string: str, expected: bool, mocker: MockerFixture):
 
 
 @pytest.mark.parametrize(
-    "string,expected",
+    ("string", "expected"),
     [
         ("Hello", False),
         (f"{URL_1}", True),
@@ -90,7 +90,7 @@ def test_url_allowed_xcom(mocker: MockerFixture, role_id: int):
 
 
 @pytest.mark.parametrize(
-    "role_ids,expected",
+    ("role_ids", "expected"),
     [
         ([], False),
         ([0], False),
@@ -128,7 +128,7 @@ def test_url_no_early_exit(role_ids, expected, mocker: MockerFixture):
 
 
 @pytest.mark.parametrize(
-    "value,expected",
+    ("value", "expected"),
     [
         (0, "0 Year(s), 0 Day(s), 0 Hour(s), 0 Min(s), 0.00 Sec(s)"),
         (10, "0 Year(s), 0 Day(s), 0 Hour(s), 0 Min(s), 10.00 Sec(s)"),
@@ -141,7 +141,7 @@ def test_time_string_from_seconds(value: float, expected: str):
     assert events.time_string_from_seconds(value) == expected
 
 
-@pytest.mark.asyncio
+@pytest.mark.asyncio()
 @pytest.mark.parametrize("bot", [True, False])
 async def test_on_message_bot_user(bot: bool, mocker: MockerFixture):
     """Test on message where the message author is a bot"""
@@ -157,7 +157,7 @@ async def test_on_message_bot_user(bot: bool, mocker: MockerFixture):
         assert message.channel.send.assert_awaited_once()
 
 
-@pytest.mark.asyncio
+@pytest.mark.asyncio()
 async def test_fail_everyone_ping(mocker: MockerFixture):
     """Test that the on message deletes everyone pings from non mods"""
     message = mocker.AsyncMock(spec=discord.Message)
@@ -176,7 +176,7 @@ async def test_fail_everyone_ping(mocker: MockerFixture):
     )
 
 
-@pytest.mark.asyncio
+@pytest.mark.asyncio()
 async def test_fail_link(mocker: MockerFixture):
     """Test that the on message deletes everyone pings from non mods"""
     message = mocker.AsyncMock(spec=discord.Message)
@@ -192,7 +192,7 @@ async def test_fail_link(mocker: MockerFixture):
     message.author.send.assert_awaited_once()
 
 
-@pytest.mark.asyncio
+@pytest.mark.asyncio()
 async def test_parse_timeout(mocker: MockerFixture):
     """Test that the on message deletes everyone pings from non mods"""
     member = mocker.AsyncMock(spec=discord.Member)
@@ -218,7 +218,7 @@ async def test_parse_timeout(mocker: MockerFixture):
     assert "40 Second(s)" in dur
 
 
-@pytest.mark.asyncio
+@pytest.mark.asyncio()
 async def test_on_member_join(mocker: MockerFixture):
     """Test members get properly added on join."""
     member = mocker.AsyncMock(spec=discord.Member)
@@ -229,7 +229,7 @@ async def test_on_member_join(mocker: MockerFixture):
     assert 1 in cog.members
 
 
-@pytest.mark.asyncio
+@pytest.mark.asyncio()
 async def test_thread_create(mocker: MockerFixture):
     """Test that thread creates get handled properly"""
     cog = events.Events(mocker.AsyncMock(spec=CBot))

@@ -1,12 +1,12 @@
-# -*- coding: utf-8 -*-
 """Event handling for Charbot."""
+
 import pathlib
 import re
-from datetime import datetime, timedelta, timezone
-from typing import cast, TYPE_CHECKING, Final
+from datetime import UTC, datetime, timedelta
+from typing import TYPE_CHECKING, Final, cast
 
-import orjson
 import discord
+import orjson
 from discord import Color, Embed
 from discord.ext import tasks
 from discord.ext.commands import Cog
@@ -155,8 +155,9 @@ class Events(Cog):
         This is called when the cog is loaded, and initializes the
         log_un-timeout task and the members cache
         """
-        with open(self.sensitive_settings_path) as settings:
-            self.webhook = await self.bot.fetch_webhook(orjson.loads(settings.read())["webhook_id"])
+        self.webhook = await self.bot.fetch_webhook(  # skipcq: PYL-W0201
+            orjson.loads(self.sensitive_settings_path.read_bytes())["webhook_id"]
+        )
         self.log_untimeout.start()
         self.members.update(
             {
@@ -214,7 +215,7 @@ class Events(Cog):
         """
         removable = []
         for i, j in self.timeouts.copy().items():
-            if j < datetime.now(tz=timezone.utc):
+            if j < datetime.now(tz=UTC):
                 guild = self.bot.get_guild(MAIN_SERVER)
                 if guild is None:
                     guild = await self.bot.fetch_guild(MAIN_SERVER)

@@ -18,5 +18,5 @@ name = "secrets"
 enabled = true
 
 [[transformers]]
-name = "black"
+name = "ruff"
 enabled = true

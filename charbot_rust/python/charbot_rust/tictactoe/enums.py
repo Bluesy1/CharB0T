@@ -1,5 +1,5 @@
-# -*- coding: utf-8 -*-
 from enum import IntEnum
+
 
 __all__ = ("Difficulty",)
 

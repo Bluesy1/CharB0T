@@ -1,5 +1,5 @@
-# -*- coding: utf-8 -*-
 """Program classes and functions."""
+
 import asyncio
 import datetime
 import random
@@ -11,10 +11,12 @@ import discord
 from discord import Interaction, app_commands
 from discord.ext import commands
 
-from .. import CBot, errors
-from . import sudoku, tictactoe, shrugman
-from .minesweeper import Minesweeper
 from charbot_rust.minesweeper import Game as MinesweeperGame
+
+from .. import CBot, errors
+from . import shrugman, sudoku, tictactoe
+from .minesweeper import Minesweeper
+
 
 MESSAGE: Final = "You must be at least level 1 to participate in the giveaways system and be in <#969972085445238784>."
 
@@ -36,11 +38,13 @@ class Reputation(commands.Cog, name="Programs"):
         channel = cast(discord.abc.GuildChannel, interaction.channel)
         if channel.id == 839690221083820032:  # pragma: no cover
             return True
+        # fmt: off
         if (
             channel.id != interaction.client.CHANNEL_ID
             and interaction.command.name != self.query_points.name  # pyright: ignore[reportOptionalMemberAccess]
         ):
             raise errors.WrongChannelError(interaction.client.CHANNEL_ID, interaction.locale)
+        # fmt: on
         if all(
             role.id not in interaction.client.ALLOWED_ROLES for role in cast(discord.Member, interaction.user).roles
         ):
