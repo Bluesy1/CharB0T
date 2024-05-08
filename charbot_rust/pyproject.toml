@@ -6,7 +6,7 @@ build-backend = "maturin"
 name = "charbot_rust"
 version = "1.5.0"
 description = "A Rust library for the Charbot Discord bot"
-requires-python = ">=3.10"
+requires-python = ">=3.11"
 authors = [{name = "Bluesy1", email = "68259537+Bluesy1@users.noreply.github.com"}]
 license = "MIT"
 classifiers = [
@@ -18,8 +18,8 @@ classifiers = [
     "Programming Language :: Python :: Implementation :: CPython",
     "Programming Language :: Python :: Implementation :: PyPy",
 	"Programming Language :: Python :: 3",
-	"Programming Language :: Python :: 3.10",
 	"Programming Language :: Python :: 3.11",
+	"Programming Language :: Python :: 3.12",
 	"Programming Language :: Python :: 3 :: Only",
 	"Typing :: Typed",
 ]
