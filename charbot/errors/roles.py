@@ -1,13 +1,6 @@
 """Wrong roles error."""
 
-from typing import cast
-
-import discord
 from discord.app_commands import MissingAnyRole
-
-from charbot_rust import translate
-
-from . import _LanguageTag
 
 
 class MissingProgramRole(MissingAnyRole):
@@ -21,7 +14,7 @@ class MissingProgramRole(MissingAnyRole):
         The roles the command should be run with.
     """
 
-    def __init__(self, roles: list[int | str], locale: discord.Locale):
+    def __init__(self, roles: list[int | str]):
         super().__init__(roles)
         missing = [f"'{role}'" for role in roles]
 
@@ -32,7 +25,10 @@ class MissingProgramRole(MissingAnyRole):
             if len(missing) == 2
             else missing[0]
         )
-        self.message = translate(cast(_LanguageTag, locale.value), "missing-program-role", {"roles": fmt})
+        self.message = (
+            f"You are missing at least one of the required roles: {fmt} - "
+            + "you must be at least level 1 to use this command/button."
+        )
 
     def __str__(self):
         """Get the error as a string."""

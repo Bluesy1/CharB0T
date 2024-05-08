@@ -2,7 +2,7 @@
 
 import string
 from io import BytesIO
-from typing import Literal, Self, cast
+from typing import Self
 
 import discord
 from discord import ButtonStyle, Interaction, SelectOption, ui
@@ -10,10 +10,10 @@ from PIL import Image
 
 from charbot_rust import minesweeper
 
-from .. import CBot, translate
+from .. import CBot
 
 
-_LanguageTag = Literal["en-US", "es-ES", "fr", "nl"]
+IMG_ALT_TEXT = "Minesweeper Board"
 
 
 class Minesweeper(ui.View):
@@ -40,29 +40,28 @@ class Minesweeper(ui.View):
         x = self.game.x
         y = self.game.y
         # f"{i}" is significantly faster than str(i), as it doesn't make a command to CALL_FUNCTION internally.
-        _locale = cast(_LanguageTag, locale.value)
         self.row.options = [
             SelectOption(
-                label=translate(_locale, "minesweeper-select-row-label", {"letter": letter}),
+                label=f"Row {letter}",
                 value=f"{i}",
                 emoji=chr(0x1F1E6 + i),
                 default=i == y,
-                description=translate(_locale, "minesweeper-select-row-description", {"letter": letter}),
+                description=f"Change the row to {letter}",
             )
             for i, letter in enumerate(string.ascii_uppercase[: self.game.height])
         ]
         self.column.options = [
             SelectOption(
-                label=translate(_locale, "minesweeper-select-col-label", {"letter": letter}),
+                label=f"Column {letter}",
                 value=f"{i}",
                 emoji=chr(0x1F1E6 + i),
                 default=i == x,
-                description=translate(_locale, "minesweeper-select-row-description", {"letter": letter}),
+                description=f"Change the column to {letter}",
             )
             for i, letter in enumerate(string.ascii_uppercase[: self.game.width])
         ]
-        self.row.placeholder = translate(_locale, "minesweeper-select-row-placeholder", {})
-        self.column.placeholder = translate(_locale, "minesweeper-select-col-placeholder", {})
+        self.row.placeholder = "Select a row"
+        self.column.placeholder = "Select a column"
 
     async def draw(self, alt: str) -> discord.File:
         """Draw the game board.
@@ -92,19 +91,17 @@ class Minesweeper(ui.View):
             The interaction with the user.
         """
         await interaction.response.defer(ephemeral=True)
-        locale = cast(_LanguageTag, interaction.locale.value)
         points = self.game.points
         awarded = await interaction.client.give_game_points(interaction.user, *points)
+        description = f"You revealed a mine and lost the game. You gained {awarded} points."
+        if awarded != sum(points):
+            description += " (Hit daily cap)"
         embed = discord.Embed(
-            title=translate(locale, "minesweeper-lose-title", {}),
-            description=translate(
-                locale,
-                "minesweeper-lose-description" if awarded == sum(points) else "minesweeper-lose-hit-cap-description",
-                {"awarded": awarded},
-            ),
+            title="You lost!",
+            description=description,
             color=discord.Color.red(),
         ).set_image(url="attachment://minesweeper.png")
-        file = await self.draw(translate(locale, "minesweeper-image-alt-text", {}))
+        file = await self.draw(IMG_ALT_TEXT)
         await interaction.edit_original_response(attachments=[file], embed=embed, view=None)
         self.stop()
 
@@ -119,19 +116,17 @@ class Minesweeper(ui.View):
             The interaction with the user.
         """
         await interaction.response.defer(ephemeral=True)
-        locale = cast(_LanguageTag, interaction.locale.value)
         points = self.game.points
         awarded = await interaction.client.give_game_points(interaction.user, *points)
+        description = f"You revealed all the safe tiles and won the game. You gained {awarded} points."
+        if awarded != sum(points):
+            description += " (Hit daily cap)"
         embed = discord.Embed(
-            title=translate(locale, "minesweeper-win-title", {}),
-            description=translate(
-                locale,
-                "minesweeper-win-description" if awarded == sum(points) else "minesweeper-win-hit-cap-description",
-                {"awarded": awarded},
-            ),
+            title="You won!",
+            description=description,
             color=discord.Color.green(),
         ).set_image(url="attachment://minesweeper.png")
-        file = await self.draw(translate(locale, "minesweeper-image-alt-text", {}))
+        file = await self.draw(IMG_ALT_TEXT)
         await interaction.edit_original_response(attachments=[file], embed=embed, view=None)
         self.stop()
 
@@ -150,9 +145,7 @@ class Minesweeper(ui.View):
         """
         val = select.values[0]
         self.game.change_row(int(val))
-        file = await self.draw(
-            translate(cast(_LanguageTag, interaction.locale.value), "minesweeper-image-alt-text", {})
-        )
+        file = await self.draw(IMG_ALT_TEXT)
         for opt in select.options:
             opt.default = opt.value == val
         await interaction.response.edit_message(attachments=[file], view=self)
@@ -172,9 +165,7 @@ class Minesweeper(ui.View):
         """
         val = select.values[0]
         self.game.change_col(int(val))
-        file = await self.draw(
-            translate(cast(_LanguageTag, interaction.locale.value), "minesweeper-image-alt-text", {})
-        )
+        file = await self.draw(IMG_ALT_TEXT)
         for opt in select.options:
             opt.default = opt.value == val
         await interaction.response.edit_message(attachments=[file], view=self)
@@ -198,11 +189,14 @@ class Minesweeper(ui.View):
         elif self.game.is_win():
             await self.handle_win(interaction)
         else:
-            locale = cast(_LanguageTag, interaction.locale.value)
-            file = await self.draw(translate(locale, "minesweeper-image-alt-text", {}))
+            file = await self.draw(IMG_ALT_TEXT)
             await interaction.response.edit_message(attachments=[file], view=self)
             if res == minesweeper.RevealResult.Flagged:
-                await interaction.followup.send(translate(locale, "minesweeper-reveal-flag-fail", {}), ephemeral=True)
+                await interaction.followup.send(
+                    "WARNING: you tried to reveal a flagged cell. Instead of revealing it, it was unflagged. "
+                    + "If you meant to reveal it, press reveal again.",
+                    ephemeral=True,
+                )
 
     @ui.button(label="Chord", style=ButtonStyle.primary, emoji="\u2692")
     async def chord(self, interaction: Interaction[CBot], _button: ui.Button[Self]):
@@ -220,16 +214,15 @@ class Minesweeper(ui.View):
         res = self.game.chord()
         if res == minesweeper.ChordResult.Failed:
             await interaction.response.send_message(
-                translate(cast(_LanguageTag, interaction.locale.value), "minesweeper-chord-error", {}),
+                "WARNING: you tried to chord a cell that was not revealed, not a number, "
+                + "or didn't have the appropriate number of surrounding tiles marked.",
                 ephemeral=True,
             )
         elif res == minesweeper.ChordResult.Success:
             if self.game.is_win():
                 await self.handle_win(interaction)
             else:
-                file = await self.draw(
-                    translate(cast(_LanguageTag, interaction.locale.value), "minesweeper-image-alt-text", {})
-                )
+                file = await self.draw(IMG_ALT_TEXT)
                 await interaction.response.edit_message(attachments=[file], view=self)
         else:
             await self.handle_lose(interaction)
@@ -248,13 +241,12 @@ class Minesweeper(ui.View):
             The button.
         """
         res = self.game.toggle_flag()
-        locale = cast(_LanguageTag, interaction.locale.value)
         if res:
-            file = await self.draw(translate(locale, "minesweeper-image-alt-text", {}))
+            file = await self.draw(IMG_ALT_TEXT)
             await interaction.response.edit_message(attachments=[file], view=self)
         else:
             await interaction.response.send_message(  # pragma: no cover
-                translate(locale, "minesweeper-flag-error", {}), ephemeral=True
+                "WARNING: you tried to flag a revealed cell. This move was ignored.", ephemeral=True
             )
 
     @ui.button(label="Quit", style=ButtonStyle.danger, emoji="\u2620")
@@ -272,13 +264,10 @@ class Minesweeper(ui.View):
             The button.
         """
         self.game.quit()
-        locale = cast(_LanguageTag, interaction.locale.value)
         embed = discord.Embed(
-            title=translate(locale, "minesweeper-quit-title", {}),
-            description=translate(locale, "minesweeper-quit-description", {}),
-            color=discord.Color.red(),
+            title="You quit!", description="You quit the game without completing it", color=discord.Color.red()
         ).set_image(url="attachment://minesweeper.png")
-        file = await self.draw(translate(locale, "minesweeper-image-alt-text", {}))
+        file = await self.draw(IMG_ALT_TEXT)
         await interaction.response.edit_message(attachments=[file], embed=embed, view=None)
         self.stop()
 
@@ -295,43 +284,29 @@ class Minesweeper(ui.View):
         _button : ui.Button[Self]
             The button.
         """
-        value = cast(_LanguageTag, interaction.locale.value)
         await interaction.response.defer(ephemeral=True, thinking=True)
-        embed = discord.Embed(
-            title=translate(value, "minesweeper-help-title", {}),
-            description=translate(value, "minesweeper-help-description", {}),
-            color=0x00FF00,
-        ).set_image(url="attachment://help.gif")
+        embed = discord.Embed(title="Minesweeper", description="How to play minesweeper:", color=0x00FF00).set_image(
+            url="attachment://help.gif"
+        )
+        embed.add_field(name="Reveal \N{PICK}", value="Reveal a covered tile.", inline=False)
         embed.add_field(
-            name=translate(value, "minesweeper-help-reveal-title", {}),
-            value=translate(value, "minesweeper-help-reveal-description", {}),
+            name="Chord \N{HAMMER AND PICK}",
+            value="Reveal all tiles around an exposed number that has the correct number of flagged tiles around it. "
+            + "This will explode mines.",
             inline=False,
         )
         embed.add_field(
-            name=translate(value, "minesweeper-help-chord-title", {}),
-            value=translate(value, "minesweeper-help-chord-description", {}),
+            name="Flag \N{TRIANGULAR FLAG ON POST}",
+            value="Flag a tile, or remove the flag from a flagged tile.",
             inline=False,
         )
-        embed.add_field(
-            name=translate(value, "minesweeper-help-flag-title", {}),
-            value=translate(value, "minesweeper-help-flag-description", {}),
-            inline=False,
-        )
-        embed.add_field(
-            name=translate(value, "minesweeper-help-quit-title", {}),
-            value=translate(value, "minesweeper-help-quit-description", {}),
-            inline=False,
-        )
-        embed.add_field(
-            name=translate(value, "minesweeper-help-help-title", {}),
-            value=translate(value, "minesweeper-help-help-description", {}),
-            inline=False,
-        )
+        embed.add_field(name="Quit \N{SKULL AND CROSSBONES}", value="Quit the game.", inline=False)
+        embed.add_field(name="Help \N{EXCLAMATION QUESTION MARK}", value="Show this help message", inline=False)
         await interaction.followup.send(
             embed=embed,
             file=discord.File(  # skipcq: PYL-E1123
                 fp="charbot/media/minesweeper/help.gif",
                 filename="help.gif",
-                description=translate(value, "minesweeper-help-image-alt-text", {}),
+                description="Example play-through of Minesweeper.",
             ),
         )

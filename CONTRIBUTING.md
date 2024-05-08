@@ -31,12 +31,12 @@ We welcome people submitting their own code, as long as the code is a welcome ch
 [issue](https://github.com/Bluesy1/CharB0T/issues) on Github, or by communicating on discord with us!
 
 Once you know the code is a welcome change, clone the repository and make the changes.
-After you make sure the changes, please make sure that the code passes static type analysis via pyright[^1], and that the code style passes black[^1].
+After you make sure the changes, please make sure that the code passes static type analysis via pyright[^1], and that the code style passes ruff[^1] checks and formatting.
 The configuration for both of these can be found in the [pyproject.toml](./pyproject.toml) file if you need to do manual configuration.
 
-We also use other code analysis tools like flake8[^1] for python source analysis. We use pytest for python and a combination of the built in tests and `yare` for parametrized tests in rust.
-We target 80% project and diff coverage in this project. If you add new code, please add approprate unittests for the code as needed.
+We use pytest for python and a combination of the built in tests and `yare` for parametrized tests in rust.
+We target 80% project and diff coverage in this project. If you add new code, please add appropriate tests for the code as needed.
 
-Finally, if you are adding new files, make sure they contain copyright and lisence information, as well as explicit encoding for utf-8 files
+Finally, if you are adding new files, make sure they contain copyright and license information, as well as explicit encoding for utf-8 files
 
 [^1]: #type: ignore, #pyright: ignore, and other ignore comments for various parts of the CI are allowed with valid explanation.

@@ -8,7 +8,6 @@ from pkgutil import iter_modules
 from typing import Any
 
 from charbot_rust import __version__ as rust_version
-from charbot_rust import translate
 
 
 __title__ = "charbot"
@@ -27,7 +26,6 @@ __all__ = (
     "CBot",
     "Tree",
     "Config",
-    "translate",
 )
 __blacklist__ = [
     f"{__package__}.{item}"

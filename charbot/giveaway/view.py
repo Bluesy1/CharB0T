@@ -5,14 +5,12 @@ from __future__ import annotations
 import asyncio
 import random
 from statistics import mean
-from typing import TYPE_CHECKING, Any, Literal, cast
+from typing import TYPE_CHECKING, Any, cast
 
 import asyncpg
 import discord
 from discord import Interaction, ui
 from discord.utils import MISSING, utcnow
-
-import charbot_rust
 
 from .. import errors
 from . import BidModal
@@ -20,22 +18,6 @@ from . import BidModal
 
 if TYPE_CHECKING:  # pragma: no cover
     from .. import CBot
-
-_LanguageTag = Literal["en-US", "es-ES", "fr", "nl"]
-
-
-async def hit_max_wins(interaction: Interaction[CBot]):
-    """Standard response for when a user has hit max wins for a month."""
-    try:
-        await interaction.response.send_message(
-            charbot_rust.translate(cast(_LanguageTag, interaction.locale.value), "giveaway-try-later", {}),
-            ephemeral=True,
-        )
-    except RuntimeError:  # pragma: no cover
-        await interaction.response.send_message(
-            "You have won 3 giveaways recently, please wait until the first of the next month to bid again.",
-            ephemeral=True,
-        )
 
 
 class GiveawayView(ui.View):
@@ -135,7 +117,7 @@ class GiveawayView(ui.View):
             If no program roles are present.
         """
         if all(role.id not in self.bot.ALLOWED_ROLES for role in cast(discord.Member, interaction.user).roles):
-            raise errors.MissingProgramRole(self.bot.ALLOWED_ROLES, interaction.locale)
+            raise errors.MissingProgramRole(self.bot.ALLOWED_ROLES)
         return True
 
     async def on_error(
@@ -314,7 +296,10 @@ class GiveawayView(ui.View):
         async with interaction.client.pool.acquire() as conn:
             wins = await conn.fetchval("SELECT wins FROM winners WHERE id = $1", interaction.user.id) or 0
             if wins >= 3:
-                await hit_max_wins(interaction)
+                await interaction.response.send_message(
+                    "You have won 3 giveaways recently, please wait until the first of the next month to bid again.",
+                    ephemeral=True,
+                )
                 return
         modal = BidModal(self.bot, self)
         await interaction.response.send_modal(modal)
@@ -343,19 +328,19 @@ class GiveawayView(ui.View):
         async with interaction.client.pool.acquire() as conn:
             wins = await conn.fetchval("SELECT wins FROM winners WHERE id = $1", interaction.user.id) or 0
             if wins >= 3:
-                await hit_max_wins(interaction)
+                await interaction.response.send_message(
+                    "You have won 3 giveaways recently, please wait until the first of the next month to bid again.",
+                    ephemeral=True,
+                )
                 return
             record = await conn.fetchval("SELECT bid FROM bids WHERE id = $1", interaction.user.id)
             bid: int = record if record is not None else 0
         chance = round(100 * bid / self.total_entries, 2)
-        await interaction.response.send_message(
-            charbot_rust.translate(
-                cast(_LanguageTag, interaction.locale.value),
-                "giveaway-check-success",
-                {"bid": bid, "chance": chance, "wins": wins},
-            ),
-            ephemeral=True,
+        msg = (
+            f"You have bid {bid} entries, giving you a {chance}% chance of "
+            + "winning, and you have won {wins}/3 giveaways you can this month!"
         )
+        await interaction.response.send_message(msg, ephemeral=True)
 
     @ui.button(label="Toggle Giveaway Alerts", style=discord.ButtonStyle.danger)
     async def toggle_alerts(
@@ -375,13 +360,9 @@ class GiveawayView(ui.View):
                 await cast(discord.Member, interaction.user).add_roles(
                     discord.Object(id=972886729231044638), reason="Toggled giveaway alerts."
                 )
-                await interaction.followup.send(
-                    charbot_rust.translate(cast(_LanguageTag, interaction.locale.value), "giveaway-alerts-enable", {})
-                )
+                await interaction.followup.send("You will now receive giveaway alerts.")
             else:
                 await cast(discord.Member, interaction.user).remove_roles(
                     discord.Object(id=972886729231044638), reason="Toggled giveaway alerts."
                 )
-                await interaction.followup.send(
-                    charbot_rust.translate(cast(_LanguageTag, interaction.locale.value), "giveaway-alerts-disable", {})
-                )
+                await interaction.followup.send("You will no longer receive giveaway alerts.")

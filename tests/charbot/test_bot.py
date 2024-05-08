@@ -212,28 +212,3 @@ async def test_give_game_points_final_branch_called(mocker: MockerFixture, datab
         )
     ) == {"particip": 7, "won": 7}
     await database.execute("DELETE FROM users WHERE id = 10")
-
-
-@pytest.mark.asyncio()
-async def test_translate_good_key():
-    """Test that the translation method works with a good key"""
-    bot = CBot(command_prefix=[], tree_cls=Tree, intents=discord.Intents.default())
-    assert (
-        await bot.translate("giveaway-try-later", discord.Locale.american_english)
-        == "You have won 3 giveaways recently, please wait until the first of the next month to bid again."
-    )
-
-
-@pytest.mark.asyncio()
-async def test_translate_bad_key_with_fallback():
-    """Test that the translation method works with a bad key"""
-    bot = CBot(command_prefix=[], tree_cls=Tree, intents=discord.Intents.default())
-    assert await bot.translate("bad-key", discord.Locale.american_english, fallback="fallback") == "fallback"
-
-
-@pytest.mark.asyncio()
-async def test_translate_bad_key_without_fallback():
-    """Test that the translation method works with a bad key"""
-    bot = CBot(command_prefix=[], tree_cls=Tree, intents=discord.Intents.default())
-    with pytest.raises(ValueError, match="Key bad-key not a valid key for translation"):
-        await bot.translate("bad-key", discord.Locale.american_english)

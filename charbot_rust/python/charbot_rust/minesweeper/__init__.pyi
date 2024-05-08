@@ -29,10 +29,10 @@ class RevealResult(__enum.Enum):
         The cell was adjacent to mines.
     """
 
-    Flagged: int = ...
-    Mine: int = ...
-    Empty: int = ...
-    Number: int = ...
+    Flagged: int
+    Mine: int
+    Empty: int
+    Number: int
 
 class ChordResult(__enum.Enum):
     """An enum that represents the result of a chard operation.
@@ -45,9 +45,9 @@ class ChordResult(__enum.Enum):
         The chord was performed, but a mine was revealed, ending the game.
     """
 
-    Failed: int = ...
-    Success: int = ...
-    Death: int = ...
+    Failed: int
+    Success: int
+    Death: int
 
 class Game:
     """A class that represents a game of minesweeper.

@@ -1,13 +1,6 @@
 """Wrong channel error."""
 
-from typing import cast
-
-import discord
 from discord.app_commands import AppCommandError
-
-from charbot_rust import translate
-
-from . import _LanguageTag
 
 
 class WrongChannelError(AppCommandError):
@@ -21,10 +14,10 @@ class WrongChannelError(AppCommandError):
         The channel ID the command should be run in.
     """
 
-    def __init__(self, channel: int, locale: discord.Locale):
+    def __init__(self, channel: int):
         """Init."""
         super().__init__()
-        self.message = translate(cast(_LanguageTag, locale.value), "wrong-channel", {"channel-id": f"{channel}"})
+        self.message = f"This command can only be run in the channel <#{channel}> ."
         self._channel: int = channel
 
     def __str__(self):
