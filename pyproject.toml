@@ -47,7 +47,7 @@ dev = [
 	"aioresponses==0.7.6",
 	"asyncpg-stubs==0.29.1",
 	"ruff==0.4.9",
-	"maturin[zig]==1.5.1",
+	"maturin[zig]==1.6.0",
 	"pre-commit==3.6.1",
 	"pyright==1.1.361",
 	"pytest==8.2.1",
