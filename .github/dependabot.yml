@@ -26,16 +26,17 @@ updates:
           - "asyncpg*"
       formatting:
         patterns:
-          - "black"
-          - "flake8"
+          - "ruff"
           - "pre-commit"
+        update-types:
+          - "major"
+          - "minor"
       typing:
         patterns:
           - "pyright"
           - "typing-extensions"
       utils:
         patterns:
-          - "tomli"
           - "toml"
           - "urlextract"
           - "validators"
@@ -43,17 +44,13 @@ updates:
   - package-ecosystem: "github-actions"
     directory: "/"
     schedule:
-      # Check for updates to GitHub Actions every weekday
-      interval: "daily"
+      # Check for updates to GitHub Actions every monday
+      interval: "weekly"
     groups:
       rust:
         patterns:
           - "PyO3/maturin-action"
           - "actions-rs/toolchain"
-      code-coverage:
-        patterns:
-          - "paambaati/codeclimate-action"
-          - "codecov/codecov-action"
       python:
         patterns:
           - "jakebailey/pyright-action"
