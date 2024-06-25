@@ -4,7 +4,7 @@ use pyo3::prelude::*;
 // COV_EXCL_STOP
 
 
-#[pyclass(module = "tictactoe")] // COV_EXCL_LINE
+#[pyclass(eq, frozen, module = "tictactoe")] // COV_EXCL_LINE
 #[derive(PartialEq, Eq, Clone, Copy, Debug)] // COV_EXCL_LINE
 pub enum Piece { // COV_EXCL_LINE
     X,
@@ -76,7 +76,7 @@ impl IntoPy<PyResult<PyObject>> for Piece {
 // COV_EXCL_STOP
 
 /// Offsets for creating a graphical representation of the board.
-#[pyclass(module = "tictactoe")] // COV_EXCL_LINE
+#[pyclass(eq, frozen, module = "tictactoe")] // COV_EXCL_LINE
 #[derive(PartialEq, Eq, Clone, Copy, Debug)] // COV_EXCL_LINE
 pub enum Offset  { // COV_EXCL_LINE
     TopLeft,

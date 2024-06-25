@@ -6,7 +6,7 @@ use rand::rngs::StdRng;
 use rand::SeedableRng;
 // COV_EXCL_STOP
 
-#[pyclass(module = "minesweeper")] // COV_EXCL_LINE
+#[pyclass(eq, eq_int, frozen, module = "minesweeper")] // COV_EXCL_LINE
 #[derive(Debug, PartialEq, Eq)] // COV_EXCL_LINE
 pub enum RevealResult{ // COV_EXCL_LINE
     Flagged = 0,
@@ -15,7 +15,7 @@ pub enum RevealResult{ // COV_EXCL_LINE
     Number = 3,
 }
 
-#[pyclass(module = "minesweeper")] // COV_EXCL_LINE
+#[pyclass(eq, eq_int, frozen, module = "minesweeper")] // COV_EXCL_LINE
 #[derive(Debug, PartialEq, Eq)] // COV_EXCL_LINE
 pub enum ChordResult{ // COV_EXCL_LINE
     Failed = 0,
@@ -23,12 +23,10 @@ pub enum ChordResult{ // COV_EXCL_LINE
     Death = 2,
 }
 
-#[pyclass(module = "minesweeper")] // COV_EXCL_LINE
+#[pyclass(eq, frozen, get_all, module = "minesweeper")] // COV_EXCL_LINE
 #[derive(Debug, PartialEq, Eq)] // COV_EXCL_LINE
 pub struct ReturnCell {
-    #[pyo3(get)]
     pub revealed: bool,
-    #[pyo3(get)]
     pub marked: bool, // COV_EXCL_LINE
 }
 
