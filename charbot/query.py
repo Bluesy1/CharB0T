@@ -304,6 +304,42 @@ class Query(Cog):
         """
         await interaction.response.send_message("https://cpry.net/leaderboard", ephemeral=ephemeral)
 
+    @staticmethod
+    def _katie_info_cooldown(ctx: Context) -> commands.Cooldown:
+        """Determines the cooldown for a user for the katie info command
+
+        Parameters
+        ----------
+        ctx: Context
+            The context of the command.
+        """
+        if ctx.guild is None:
+            return commands.Cooldown(1, 600)
+        try:
+            if any(role.id in {338173415527677954, 253752685357039617, 225413350874546176} for role in ctx.author.roles):
+                return None
+            else:
+                return commands.Cooldown(1, 300)
+        except Exception:
+            return commands.Cooldown(1, 300)
+    
+    @commands.hybrid_command(name="katie", aliases=("kaitlin",))
+    @commands.dynamic_cooldown(_katie_info_cooldown, commands.BucketType.channel)
+    @commands.guild_only()
+    async def katie_info(self, ctx: Context):
+        """Send a message about Katie's message patterns, to remind people if they are being disrespectful
+
+        Parameters
+        ----------
+        ctx: Context
+            The context of the command.
+        """
+        await ctx.reply(
+            "When Kaitlin was a 3 month old child she died for about 5 minutes. "
+            + "When she was brought back she had brain damage to the parts of her brain that deal with spelling and grammar, as well as her optical cortex. "
+            + "While she's very smart, Katie is an auditory learner, meaning she learns better from audio formats and uses a screen reader (jaws for windows) on her PC."
+        )
+
 
 async def setup(bot: "CBot"):  # pragma: no cover
     """Load Plugin.
