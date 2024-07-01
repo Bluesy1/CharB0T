@@ -33,13 +33,13 @@ dependencies = [
 	"disrank==0.0.2",
 	"jishaku[procinfo] @ git+https://github.com/Gorialis/jishaku@664e009d80a3deea599a3bcea12be7b548b1ef34",
 	"orjson==3.10.5",
-	"Pillow==10.3.0",
+	"Pillow==10.4.0",
 	"pytesseract==0.3.10",
 	"sentry-sdk==1.20.0",
 	"typing-extensions==4.12.2",
 	"urlextract==1.9.0",
 	"uvloop==0.19.0 ; sys_platform != 'win32'",
-	"validators==0.28.3",
+	"validators==0.29.0",
 ]
 
 [project.optional-dependencies]
