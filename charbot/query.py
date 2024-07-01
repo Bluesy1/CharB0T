@@ -305,7 +305,7 @@ class Query(Cog):
         await interaction.response.send_message("https://cpry.net/leaderboard", ephemeral=ephemeral)
 
     @staticmethod
-    def _katie_info_cooldown(ctx: Context) -> commands.Cooldown:
+    def _katie_info_cooldown(ctx: Context) -> commands.Cooldown | None:
         """Determines the cooldown for a user for the katie info command
 
         Parameters
@@ -317,7 +317,7 @@ class Query(Cog):
             return commands.Cooldown(1, 600)
         try:
             if any(
-                role.id in {338173415527677954, 253752685357039617, 225413350874546176} for role in ctx.author.roles
+                role.id in {338173415527677954, 253752685357039617, 225413350874546176} for role in cast(discord.Member, ctx.author).roles
             ):
                 return None
             else:
