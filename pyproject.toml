@@ -103,6 +103,9 @@ extend-select = [
 "**/tictactoe/*" = [
 	"E741" # Ambiguous variable name 'O' (Not ambiguous in this context)
 ]
+"**/tests/*" = [
+	"SIM300" # Yoda condition detected (I don't care about Yodas in tests)
+]
 
 [tool.ruff.lint.pyupgrade]
 # Preserve types, even if a file imports `from __future__ import annotations`.
