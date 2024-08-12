@@ -1,7 +1,7 @@
 // COV_EXCL_START
 use std::io::Cursor;
 use std::collections::VecDeque;
-use image::{ImageBuffer, RgbImage, imageops, Rgb, io::Reader as ImageReader};
+use image::{ImageBuffer, RgbImage, imageops, Rgb, ImageReader};
 use imageproc::{rect::Rect, drawing::{draw_filled_rect_mut, draw_hollow_rect_mut}};
 use rand::rngs::StdRng;
 use rand::prelude::SliceRandom;
