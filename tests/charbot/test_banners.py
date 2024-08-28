@@ -126,7 +126,7 @@ def test_image_background_banner():
         assert got == expected, "Got unexpected banner"
 
 
-@pytest.mark.asyncio()
+@pytest.mark.asyncio
 async def test_banner_approval_view(mocker: MockerFixture, database):
     """Check the banner approval view gets created properly"""
     status: BannerStatus = {

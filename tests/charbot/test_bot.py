@@ -11,7 +11,7 @@ from charbot import Config, _Config
 from charbot.bot import CBot, Holder, Tree
 
 
-@pytest.fixture()
+@pytest.fixture
 def _patch_datetime_now(monkeypatch: pytest.MonkeyPatch) -> None:
     """Patch the datetime.now() method to return a fixed time"""
 
@@ -57,7 +57,7 @@ def test_time():
     assert CBot.TIME() == datetime.datetime(1, 1, 1, 9, 0, 0, 0, tzinfo=zoneinfo.ZoneInfo(key="America/Detroit"))
 
 
-@pytest.mark.asyncio()
+@pytest.mark.asyncio
 async def test_first_time_gain(database: asyncpg.Pool):
     """Test that the first time gain is done properly"""
     bot = CBot(command_prefix=[], tree_cls=Tree, intents=discord.Intents.default())
@@ -77,7 +77,7 @@ async def test_first_time_gain(database: asyncpg.Pool):
     await database.execute("DELETE FROM users WHERE id = 10")
 
 
-@pytest.mark.asyncio()
+@pytest.mark.asyncio
 async def test_first_gain_of_day(database: asyncpg.Pool):
     """Test that the first gain of the day is done properly"""
     bot = CBot(command_prefix=[], tree_cls=Tree, intents=discord.Intents.default())
@@ -101,7 +101,7 @@ async def test_first_gain_of_day(database: asyncpg.Pool):
     await database.execute("DELETE FROM users WHERE id = 10")
 
 
-@pytest.mark.asyncio()
+@pytest.mark.asyncio
 async def test_fallback_gain(database: asyncpg.Pool):
     """Test that the fallback gain is done properly"""
     bot = CBot(command_prefix=[], tree_cls=Tree, intents=discord.Intents.default())
@@ -124,7 +124,7 @@ async def test_fallback_gain(database: asyncpg.Pool):
     await database.execute("DELETE FROM users WHERE id = 10")
 
 
-@pytest.mark.asyncio()
+@pytest.mark.asyncio
 async def test_first_time_gain_called(mocker: MockerFixture, database: asyncpg.Pool):
     """Test that the first time gain is called properly"""
     bot = CBot(command_prefix=[], tree_cls=Tree, intents=discord.Intents.default())
@@ -144,7 +144,7 @@ async def test_first_time_gain_called(mocker: MockerFixture, database: asyncpg.P
     await database.execute("DELETE FROM users WHERE id = 10")
 
 
-@pytest.mark.asyncio()
+@pytest.mark.asyncio
 async def test_first_gain_of_day_called(mocker: MockerFixture, database: asyncpg.Pool):
     """Test that the first gain of the day is called properly"""
     bot = CBot(command_prefix=[], tree_cls=Tree, intents=discord.Intents.default())
@@ -169,7 +169,7 @@ async def test_first_gain_of_day_called(mocker: MockerFixture, database: asyncpg
     await database.execute("DELETE FROM users WHERE id = 10")
 
 
-@pytest.mark.asyncio()
+@pytest.mark.asyncio
 async def test_fallback_gain_called(mocker: MockerFixture, database: asyncpg.Pool):
     """Test that the fallback gain is called properly"""
     bot = CBot(command_prefix=[], tree_cls=Tree, intents=discord.Intents.default())
@@ -193,7 +193,7 @@ async def test_fallback_gain_called(mocker: MockerFixture, database: asyncpg.Poo
     await database.execute("DELETE FROM users WHERE id = 10")
 
 
-@pytest.mark.asyncio()
+@pytest.mark.asyncio
 async def test_give_game_points_final_branch_called(mocker: MockerFixture, database: asyncpg.Pool):
     """Test that the supposed to be unreachable branch processes properly"""
     bot = CBot(command_prefix=[], tree_cls=Tree, intents=discord.Intents.default())

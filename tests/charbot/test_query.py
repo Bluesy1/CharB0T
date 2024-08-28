@@ -42,7 +42,7 @@ def test_cog_check_allowed(mocker: MockerFixture):
     assert cog.cog_check(mock_ctx) is True
 
 
-@pytest.mark.asyncio()
+@pytest.mark.asyncio
 async def test_time_command(mocker: MockerFixture):
     """Test time command."""
     mock_ctx = mocker.Mock(spec=commands.Context)
@@ -52,7 +52,7 @@ async def test_time_command(mocker: MockerFixture):
     mock_ctx.reply.assert_called_once()
 
 
-@pytest.mark.asyncio()
+@pytest.mark.asyncio
 async def test_changelog_command(mocker: MockerFixture):
     """Test changelog command."""
     mock_ctx = mocker.Mock(spec=commands.Context)
@@ -62,7 +62,7 @@ async def test_changelog_command(mocker: MockerFixture):
     mock_ctx.reply.assert_called_once_with("Here's the changelog: https://bluesy1.github.io/CharB0T/changes")
 
 
-@pytest.mark.asyncio()
+@pytest.mark.asyncio
 async def test_faq_command(mocker: MockerFixture):
     """Test faq command."""
     mock_ctx = mocker.Mock(spec=commands.Context)
@@ -72,7 +72,7 @@ async def test_faq_command(mocker: MockerFixture):
     mock_ctx.reply.assert_called_once()
 
 
-@pytest.mark.asyncio()
+@pytest.mark.asyncio
 async def test_source_command(mocker: MockerFixture):
     """Test source command."""
     mock_ctx = mocker.Mock(spec=commands.Context)
@@ -82,7 +82,7 @@ async def test_source_command(mocker: MockerFixture):
     mock_ctx.reply.assert_called_once_with(f"https://bluesy1.github.io/CharB0T/\n{query.__source__}\nMIT License")
 
 
-@pytest.mark.asyncio()
+@pytest.mark.asyncio
 @pytest.mark.parametrize(
     ("rule", "member_id", "expected_key"), [(None, None, 1), (None, 1, 2), (1, None, 3), (1, 1, 4)]
 )
@@ -154,7 +154,7 @@ async def test_rule_command(mocker: MockerFixture, rule: int | None, member_id: 
     )
 
 
-@pytest.mark.asyncio()
+@pytest.mark.asyncio
 @pytest.mark.parametrize("ephemeral", [True, False])
 async def test_leaderboard_command(mocker: MockerFixture, ephemeral: bool):
     """Test leaderboard command."""

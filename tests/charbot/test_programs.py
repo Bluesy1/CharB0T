@@ -15,13 +15,13 @@ from charbot.programs.cog import Reputation
 pytestmark = pytest.mark.asyncio
 
 
-@pytest.fixture()
+@pytest.fixture
 def mock_bot(mocker: MockerFixture):
     """Mock discord.Client."""
     return mocker.AsyncMock(spec=CBot, CHANNEL_ID=CBot.CHANNEL_ID, ALLOWED_ROLES=CBot.ALLOWED_ROLES, TIME=CBot.TIME)
 
 
-@pytest.fixture()
+@pytest.fixture
 def mock_inter(mock_bot, mocker: MockerFixture):
     """Mock discord.Interaction"""
     return mocker.AsyncMock(

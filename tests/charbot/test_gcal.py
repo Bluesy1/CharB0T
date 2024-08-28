@@ -13,7 +13,7 @@ from charbot import CBot, _Config, gcal  # skipcq
 from charbot.bot import Holder
 
 
-@pytest.fixture()
+@pytest.fixture
 def mock_config(monkeypatch):
     """config.toml mocking"""
     data = {
@@ -94,7 +94,7 @@ def test_calendar_embed():
     assert embed.author.name == "Charlie"
 
 
-@pytest.mark.asyncio()
+@pytest.mark.asyncio
 async def test_cog_init_load_unload(mocker: MockerFixture, mock_config):
     """Test cog constructor, load, unload."""
     fake_webhook = mocker.AsyncMock(spec=discord.Webhook)
@@ -118,7 +118,7 @@ async def test_cog_init_load_unload(mocker: MockerFixture, mock_config):
     assert bot.holder.get("webhook") is fake_webhook
 
 
-@pytest.mark.asyncio()
+@pytest.mark.asyncio
 async def test_calendar_task(mocker: MockerFixture, mock_config, monkeypatch):
     """Test calendar task."""
     data = {

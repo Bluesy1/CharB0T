@@ -12,7 +12,7 @@ from charbot.programs import shrugman
 pytestmark = pytest.mark.asyncio
 
 
-@pytest.fixture()
+@pytest.fixture
 def _not_random(monkeypatch) -> None:
     """Mock random.choice() to return a fixed value."""
     monkeypatch.setattr(random, "choice", lambda *args: "mock")

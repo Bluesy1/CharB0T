@@ -141,7 +141,7 @@ def test_time_string_from_seconds(value: float, expected: str):
     assert events.time_string_from_seconds(value) == expected
 
 
-@pytest.mark.asyncio()
+@pytest.mark.asyncio
 @pytest.mark.parametrize("bot", [True, False])
 async def test_on_message_bot_user(bot: bool, mocker: MockerFixture):
     """Test on message where the message author is a bot"""
@@ -157,7 +157,7 @@ async def test_on_message_bot_user(bot: bool, mocker: MockerFixture):
         assert message.channel.send.assert_awaited_once()
 
 
-@pytest.mark.asyncio()
+@pytest.mark.asyncio
 async def test_fail_everyone_ping(mocker: MockerFixture):
     """Test that the on message deletes everyone pings from non mods"""
     message = mocker.AsyncMock(spec=discord.Message)
@@ -176,7 +176,7 @@ async def test_fail_everyone_ping(mocker: MockerFixture):
     )
 
 
-@pytest.mark.asyncio()
+@pytest.mark.asyncio
 async def test_fail_link(mocker: MockerFixture):
     """Test that the on message deletes everyone pings from non mods"""
     message = mocker.AsyncMock(spec=discord.Message)
@@ -192,7 +192,7 @@ async def test_fail_link(mocker: MockerFixture):
     message.author.send.assert_awaited_once()
 
 
-@pytest.mark.asyncio()
+@pytest.mark.asyncio
 async def test_parse_timeout(mocker: MockerFixture):
     """Test that the on message deletes everyone pings from non mods"""
     member = mocker.AsyncMock(spec=discord.Member)
@@ -218,7 +218,7 @@ async def test_parse_timeout(mocker: MockerFixture):
     assert "40 Second(s)" in dur
 
 
-@pytest.mark.asyncio()
+@pytest.mark.asyncio
 async def test_on_member_join(mocker: MockerFixture):
     """Test members get properly added on join."""
     member = mocker.AsyncMock(spec=discord.Member)
@@ -229,7 +229,7 @@ async def test_on_member_join(mocker: MockerFixture):
     assert 1 in cog.members
 
 
-@pytest.mark.asyncio()
+@pytest.mark.asyncio
 async def test_thread_create(mocker: MockerFixture):
     """Test that thread creates get handled properly"""
     cog = events.Events(mocker.AsyncMock(spec=CBot))
