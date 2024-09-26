@@ -1,2 +1,2 @@
-psycopg2==2.9.3
-orjson==3.7.2
+psycopg2==2.9.9
+orjson==3.10.7
