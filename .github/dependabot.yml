@@ -87,3 +87,12 @@ updates:
     groups:
       pages:
         patterns: ["*"]
+  - package-ecosystem: "bundler"
+    directory: "/"
+    target-branch: "gh-pages"
+    schedule:
+      # Check for updates to GitHub Actions every monday
+      interval: "monthly"
+    groups:
+      pages:
+        patterns: ["*"]
