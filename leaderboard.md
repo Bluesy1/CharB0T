@@ -65,8 +65,6 @@ layout: default
 {% else %}
 {{ nil }}
 {% endcase %}
-{% assign num = {{  user.prestige  }} %}
-{% for i in (1..num) %}🏅{% endfor %}
 </td>
 <td><img alt="pfp" src="{{ user.avatar }}" width="50" /></td>
 <td>{{ user.name }}</td>
