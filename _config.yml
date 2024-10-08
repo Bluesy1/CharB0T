@@ -25,6 +25,7 @@ domain: bluesy1.github.io    # if you want to force HTTPS, specify the domain wi
 url: https://bluesy1.github.io/CharB0T/  # the base hostname and protocol for your site, e.g. http://example.com
 baseurl: /CharB0T      # place folder name if the site is served in a subfolder
 github_username:  Bluesy1
+repository: Bluesy1/CharB0T
 
 # Build settings
 markdown: GFM
