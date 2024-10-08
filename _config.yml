@@ -26,6 +26,7 @@ url: https://bluesy1.github.io/CharB0T/  # the base hostname and protocol for yo
 baseurl: /CharB0T      # place folder name if the site is served in a subfolder
 github_username:  Bluesy1
 repository: Bluesy1/CharB0T
+github: [metadata]
 
 # Build settings
 markdown: GFM
