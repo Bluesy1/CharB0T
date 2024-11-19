@@ -28,7 +28,7 @@ classifiers = [
 ]
 dependencies = [
 	"aiohttp[speedups]==3.10.10",
-	"asyncpg==0.29.0",
+	"asyncpg==0.30.0",
 	"discord.py[speed] @ git+https://github.com/Rapptz/discord.py@425edd2e10b9be3d7799c0df0cd1d43a1a34654e",
 	"disrank==0.0.2",
 	"jishaku[procinfo] @ git+https://github.com/Gorialis/jishaku@664e009d80a3deea599a3bcea12be7b548b1ef34",
@@ -45,7 +45,7 @@ dependencies = [
 [project.optional-dependencies]
 dev = [
 	"aioresponses==0.7.7",
-	"asyncpg-stubs==0.29.1",
+	"asyncpg-stubs==0.30.0",
 	"ruff==0.6.2",
 	"maturin[zig]==1.7.4",
 	"pre-commit==3.6.1",
