@@ -32,13 +32,13 @@ dependencies = [
 	"discord.py[speed] @ git+https://github.com/Rapptz/discord.py@425edd2e10b9be3d7799c0df0cd1d43a1a34654e",
 	"disrank==0.0.2",
 	"jishaku[procinfo] @ git+https://github.com/Gorialis/jishaku@664e009d80a3deea599a3bcea12be7b548b1ef34",
-	"orjson==3.10.7",
+	"orjson==3.10.13",
 	"Pillow==11.0.0",
 	"pytesseract==0.3.13",
 	"sentry-sdk==2.8.0",
 	"typing-extensions==4.12.2",
 	"urlextract==1.9.0",
-	"uvloop==0.20.0 ; sys_platform != 'win32'",
+	"uvloop==0.21.0 ; sys_platform != 'win32'",
 	"validators==0.29.0",
 ]
 
