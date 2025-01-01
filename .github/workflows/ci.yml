@@ -99,7 +99,7 @@ jobs:
           python-version: "3.12"
       - name: Dependencies
         run: |
-          pip install ruff
+          pip install ruff -c ruff-requirements.txt
       - name: Run Ruff Check
         env:
           RUFF_OUTPUT_FORMAT: github
