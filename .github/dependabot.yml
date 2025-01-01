@@ -8,7 +8,7 @@ updates:
   - package-ecosystem: "pip" # See documentation for possible values
     directory: "/" # Location of package manifests
     schedule:
-      interval: "weekly"
+      interval: "monthly"
     groups:
       pytest:
         patterns:
@@ -63,7 +63,7 @@ updates:
     directory: "charbot_rust"
     schedule:
       # Check for updates to Rust dependencies every weekday
-      interval: "weekly"
+      interval: "monthly"
     groups:
       images:
         patterns:
