@@ -415,8 +415,8 @@ class ModSupportModal(ui.Modal, title="Mod Support Form"):
         channel = await guild.create_text_channel(
             self.channel_name,
             category=category,
-            overwrites=self.perm_overrides,
-            topic=topic,  # pyright: ignore[reportArgumentType]
+            overwrites=self.perm_overrides,  # pyright: ignore[reportArgumentType]
+            topic=topic,
         )
         long = "     They supplied a longer description: "
         await channel.send(
