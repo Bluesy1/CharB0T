@@ -32,7 +32,7 @@ dependencies = [
 	"discord.py[speed]==2.5.0",
 	"disrank==0.0.2",
 	"jishaku[procinfo]==2.6.0",
-	"orjson==3.10.13",
+	"orjson==3.10.15",
 	"Pillow==11.0.0",
 	"pytesseract==0.3.13",
 	"sentry-sdk==2.8.0",
