@@ -413,7 +413,7 @@ class ModSupportModal(ui.Modal, title="Mod Support Form"):
         assert isinstance(guild, discord.Guild)  # skipcq: BAN-B101
         assert isinstance(topic, str)  # skipcq: BAN-B101
         channel = await guild.create_text_channel(
-            self.channel_name, category=category, overwrites=self.perm_overrides, topic=topic
+            self.channel_name, category=category, overwrites=self.perm_overrides, topic=topic  # pyright: ignore[reportArgumentType]
         )
         long = "     They supplied a longer description: "
         await channel.send(
