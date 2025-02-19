@@ -46,7 +46,7 @@ dependencies = [
 dev = [
 	"aioresponses==0.7.8",
 	"asyncpg-stubs==0.30.0",
-	"ruff==0.8.4",
+	"ruff==0.9.6",
 	"maturin[zig]==1.8.1",
 	"pre-commit==3.6.1",
 	"pyright==1.1.361",
