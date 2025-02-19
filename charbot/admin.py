@@ -136,7 +136,7 @@ class Admin(commands.Cog):
                 channel = await ctx.guild.create_text_channel(  # pyright: ignore
                     name=f"xcom-{member.name}-mod-support",
                     category=category,
-                    overwrites=self.base_overrides
+                    overwrites=self.base_overrides  # pyright: ignore[reportArgumentType]
                     | {
                         member: PermissionOverwrite.from_pair(Permissions(139586817088), Permissions.none()),
                     },
