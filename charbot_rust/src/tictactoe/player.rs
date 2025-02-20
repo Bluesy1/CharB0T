@@ -10,7 +10,7 @@ pub use minimax_player::MinimaxPlayer;
 pub use random_player::RandomPlayer;
 // COV_EXCL_STOP
 
-pub trait Player: Display + Debug {
+pub trait Player: Display + Debug + Send {
     fn play(&self, board: &Board, piece: Piece) -> Index;
 }
 

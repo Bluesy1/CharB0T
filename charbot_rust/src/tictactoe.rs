@@ -1,6 +1,8 @@
 mod board; // COV_EXCL_LINE
 mod player;
 
+use std::sync::Mutex;
+
 use rand::prelude::*;
 use pyo3::exceptions::PyException;
 use pyo3::prelude::*;
@@ -32,8 +34,8 @@ impl Difficulty {
 #[derive(Debug)]
 struct Game {
     pub board: board::Board,
-    pub player_x: Box<dyn player::Player>,
-    pub player_o: Box<dyn player::Player>,
+    pub player_x: Mutex<Box<dyn player::Player>>,
+    pub player_o: Mutex<Box<dyn player::Player>>,
     pub human_first: bool,
     points: Points,
 }
@@ -88,17 +90,18 @@ impl Game {
                 }
             },
         };
+
         match (x, o) { // COV_EXCL_LINE
             (Some(player_x), Some(player_o)) => {
                 let mut game = Game{
                     board: board::Board::new(),
-                    player_x,
-                    player_o,
+                    player_x: Mutex::new(player_x),
+                    player_o: Mutex::new(player_o),
                     human_first,
                     points
                     };
                 if !human_first {
-                    let action = game.player_x.play(&game.board, Piece::X);
+                    let action = game.player_x.lock().expect("lock not poisoned").play(&game.board, Piece::X);
                     game.board.place_piece(action, Piece::X);
                 }
                 Ok(game)
@@ -139,7 +142,7 @@ impl Game {
         if self.board.is_victory_for_player(human) | self.board.is_draw() {
             return None;
         }
-        let comp_move = computer.play(&self.board, computer_piece);
+        let comp_move = computer.lock().expect("lock not poisoned").play(&self.board, computer_piece);
         self.board.place_piece(comp_move, computer_piece);
         Some(comp_move)
     }
@@ -188,10 +191,10 @@ impl Game {
 }
 
 // COV_EXCL_START
-const DOCSTRING: &str = "Rust based reimplementation of tictactoe";
+const DOCSTRING: &str = "Rust based re-implementation of tictactoe";
 
 pub(crate) fn register_tictactoe(parent_module: &Bound<PyModule>) -> PyResult<()> {
-    let tictactoe = PyModule::new_bound(parent_module.py(), "_tictactoe")?;
+    let tictactoe = PyModule::new(parent_module.py(), "_tictactoe")?;
     tictactoe.add_class::<Game>()?;
     tictactoe.add_class::<Piece>()?;
     tictactoe.add_class::<Offset>()?;
@@ -206,7 +209,7 @@ mod tests {
     use yare::parameterized;
 
     #[test]
-    fn dificulty() {
+    fn difficulty() {
         Difficulty::extract(0).expect_err("Expected error");
         let difficulty = Difficulty::extract(1).unwrap();
         assert_eq!(difficulty, Difficulty::Easy);
