@@ -2,12 +2,12 @@ from typing import Any
 
 import discord
 import pytest
+from charbot_rust.minesweeper import ChordResult, Game, RevealResult
 from discord import Interaction
 from pytest_mock import MockerFixture
 
 from charbot import CBot
 from charbot.programs import minesweeper
-from charbot_rust.minesweeper import ChordResult, Game, RevealResult
 
 
 @pytest.fixture

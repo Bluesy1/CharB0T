@@ -5,10 +5,9 @@ from io import BytesIO
 from typing import Self
 
 import discord
+from charbot_rust import minesweeper
 from discord import ButtonStyle, Interaction, SelectOption, ui
 from PIL import Image
-
-from charbot_rust import minesweeper
 
 from .. import CBot
 

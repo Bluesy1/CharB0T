@@ -74,6 +74,7 @@ jobs:
           cache-dependency-path: pyproject.toml
       - name: Dependencies
         run: |
+          pip install maturin[zig]
           maturin develop -E dev
       - name: Run pytest
         id: pytest
