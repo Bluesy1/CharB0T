@@ -42,7 +42,7 @@ pub struct Game {
 impl Game {
     #[new] // COV_EXCL_LINE
     fn new(width: u32, height: u32, mines: u32) -> Self { // COV_EXCL_LINE
-        let rng = StdRng::from_entropy();
+        let rng = StdRng::from_os_rng();
         Game {
             field: Field::new(width, height, mines, rng,),
             win_points: (1, 0),
@@ -54,7 +54,7 @@ impl Game {
     #[staticmethod] // COV_EXCL_LINE
     fn beginner() -> Self {
         Game {
-            field: Field::new(8, 8, 10, StdRng::from_entropy()),
+            field: Field::new(8, 8, 10, StdRng::from_os_rng()),
             win_points: (1, 1),
             lose_points: (1, 0),
             quit: false
@@ -64,7 +64,7 @@ impl Game {
     #[staticmethod] // COV_EXCL_LINE
     fn intermediate() -> Self {
         Game {
-            field: Field::new(16, 16, 40, StdRng::from_entropy()),
+            field: Field::new(16, 16, 40, StdRng::from_os_rng()),
             win_points: (2, 3),
             lose_points: (2, 0),
             quit: false
@@ -74,7 +74,7 @@ impl Game {
     #[staticmethod] // COV_EXCL_LINE
     fn expert() -> Self {
         Game {
-            field: Field::new(22, 22, 100, StdRng::from_entropy()),
+            field: Field::new(22, 22, 100, StdRng::from_os_rng()),
             win_points: (2, 4),
             lose_points: (2, 0),
             quit: false
@@ -84,7 +84,7 @@ impl Game {
     #[staticmethod] // COV_EXCL_LINE
     fn super_expert() -> Self {
         Game {
-            field: Field::new(25, 25, 130, StdRng::from_entropy()),
+            field: Field::new(25, 25, 130, StdRng::from_os_rng()),
             win_points: (3, 5),
             lose_points: (3, 0),
             quit: false
@@ -415,7 +415,7 @@ mod tests {
     #[test]
     fn draw() {
         let mut game = Game::new(5, 5, 5);
-        let field = Field::new(5, 5, 5, StdRng::from_entropy());
+        let field = Field::new(5, 5, 5, StdRng::from_os_rng());
         let drawn_field = field.draw().to_vec();
         let (drawn_game, dims) = game.draw();
         assert_eq!(dims, (300, 300));
@@ -424,14 +424,14 @@ mod tests {
     #[test]
     fn chord() {
         //with the given seed, the board should be:
-        // 1M11M1EE
-        // 122211EE
-        // E1M1E111
-        // E111E1M1
-        // EEEEE111
-        // EEEEEEEE
-        // EEEE111E
-        // EEEE1M1E
+        // 11111EEE
+        // M11M1EEE
+        // 12221EEE
+        // E1M1EEEE
+        // E111EEEE
+        // EE111111
+        // EE1M11M1
+        // EE111111
         let mut game = Game {
             field: Field::new(8, 8, 5, StdRng::from_seed([0; 32])),
             win_points: (0, 0),
@@ -440,21 +440,30 @@ mod tests {
         };
         let ind = game.field.get_selected_ind();
         game.field.reset_if_need(ind);
-        game.change_row(3).unwrap();
-        game.change_col(6).unwrap();
+        game.change_row(1).unwrap();
+        game.change_col(0).unwrap();
         game.toggle_flag();
-        game.change_col(7).unwrap();
         game.change_row(2).unwrap();
+        game.change_col(1).unwrap();
+        game.reveal();
         assert_eq!(game.chord(), ChordResult::Failed);
+        game.change_row(1).unwrap();
+        game.change_col(1).unwrap();
         game.reveal();
         assert_eq!(game.chord(), ChordResult::Success);
-        game.change_row(1).unwrap();
-        assert_eq!(game.chord(), ChordResult::Failed);
-        game.change_col(6).unwrap();
-        assert_eq!(game.chord(), ChordResult::Failed);
-        game.change_col(4).unwrap();
+        game.change_row(2).unwrap();
+        game.change_col(1).unwrap();
+        game.change_row(3).unwrap();
+        game.change_col(2).unwrap();
         game.toggle_flag();
-        game.change_col(5).unwrap();
+        game.change_row(2).unwrap();
+        game.change_col(1).unwrap();
+        assert_eq!(game.chord(), ChordResult::Success);
+        game.change_row(0).unwrap();
+        game.change_col(3).unwrap();
+        game.toggle_flag();
+        game.change_row(0).unwrap();
+        game.change_col(2).unwrap();
         assert_eq!(game.chord(), ChordResult::Death);
     }
 }

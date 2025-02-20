@@ -84,6 +84,8 @@ jobs:
           cache-workspaces: |
             charbot_rust
       - name: Run tests
+        env:
+          RUST_BACKTRACE: full
         run: |
           cd charbot_rust
           cargo build

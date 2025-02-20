@@ -579,7 +579,7 @@ mod tests {
     use super::*;
     #[test]
     fn draw() {
-        let mut field = Field::new(10, 10, 10, StdRng::from_entropy());
+        let mut field = Field::new(10, 10, 10, StdRng::from_os_rng());
         for i in 0..9 {
             field.get_cell_mut(i).content = Content::Number(i as u8);
         }
