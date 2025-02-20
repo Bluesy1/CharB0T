@@ -1,9 +1,9 @@
 import discord
 import pytest
-from charbot_rust.tictactoe import Difficulty, Game
 from pytest_mock import MockerFixture
 
 from charbot.programs import tictactoe
+from charbot.rust.tictactoe import Difficulty, Game
 from charbot.types.bot import CBot
 
 
