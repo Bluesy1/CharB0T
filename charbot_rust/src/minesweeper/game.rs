@@ -3,7 +3,6 @@ use pyo3::exceptions::PyValueError;
 use crate::minesweeper::{field::{Field, Content, TILE_HEIGHT, TILE_WIDTH}, common::MoveDestination};
 use pyo3::prelude::*;
 use rand::rngs::StdRng;
-use rand::SeedableRng;
 // COV_EXCL_STOP
 
 #[pyclass(eq, eq_int, frozen, module = "minesweeper")] // COV_EXCL_LINE
@@ -42,7 +41,7 @@ pub struct Game {
 impl Game {
     #[new] // COV_EXCL_LINE
     fn new(width: u32, height: u32, mines: u32) -> Self { // COV_EXCL_LINE
-        let rng = StdRng::from_entropy();
+        let rng = StdRng::from_os_rng();
         Game {
             field: Field::new(width, height, mines, rng,),
             win_points: (1, 0),
@@ -54,7 +53,7 @@ impl Game {
     #[staticmethod] // COV_EXCL_LINE
     fn beginner() -> Self {
         Game {
-            field: Field::new(8, 8, 10, StdRng::from_entropy()),
+            field: Field::new(8, 8, 10, StdRng::from_os_rng()),
             win_points: (1, 1),
             lose_points: (1, 0),
             quit: false
@@ -64,7 +63,7 @@ impl Game {
     #[staticmethod] // COV_EXCL_LINE
     fn intermediate() -> Self {
         Game {
-            field: Field::new(16, 16, 40, StdRng::from_entropy()),
+            field: Field::new(16, 16, 40, StdRng::from_os_rng()),
             win_points: (2, 3),
             lose_points: (2, 0),
             quit: false
@@ -74,7 +73,7 @@ impl Game {
     #[staticmethod] // COV_EXCL_LINE
     fn expert() -> Self {
         Game {
-            field: Field::new(22, 22, 100, StdRng::from_entropy()),
+            field: Field::new(22, 22, 100, StdRng::from_os_rng()),
             win_points: (2, 4),
             lose_points: (2, 0),
             quit: false
@@ -84,7 +83,7 @@ impl Game {
     #[staticmethod] // COV_EXCL_LINE
     fn super_expert() -> Self {
         Game {
-            field: Field::new(25, 25, 130, StdRng::from_entropy()),
+            field: Field::new(25, 25, 130, StdRng::from_os_rng()),
             win_points: (3, 5),
             lose_points: (3, 0),
             quit: false
@@ -415,7 +414,7 @@ mod tests {
     #[test]
     fn draw() {
         let mut game = Game::new(5, 5, 5);
-        let field = Field::new(5, 5, 5, StdRng::from_entropy());
+        let field = Field::new(5, 5, 5, StdRng::from_os_rng());
         let drawn_field = field.draw().to_vec();
         let (drawn_game, dims) = game.draw();
         assert_eq!(dims, (300, 300));
