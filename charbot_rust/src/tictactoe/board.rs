@@ -54,26 +54,6 @@ impl Display for Piece {
         Ok(())
     }
 }
-// COV_EXCL_START
-impl IntoPy<PyResult<String>> for Piece {
-    fn into_py(self, _py: Python<'_>) -> PyResult<String> {
-        match self {
-            Self::X => Ok(String::from("X")),
-            Self::O => Ok(String::from("O")),
-            Self::Empty => Ok(String::from("Empty"))
-        }
-    }
-}
-impl IntoPy<PyResult<PyObject>> for Piece {
-    fn into_py(self, py: Python) -> PyResult<PyObject> {
-        match self {
-            Piece::X => Ok("X".into_py(py)),
-            Piece::O => Ok("O".into_py(py)),
-            Piece::Empty => Ok(" ".into_py(py))
-        }
-    }
-}
-// COV_EXCL_STOP
 
 /// Offsets for creating a graphical representation of the board.
 #[pyclass(eq, frozen, module = "tictactoe")] // COV_EXCL_LINE
