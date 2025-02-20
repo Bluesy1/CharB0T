@@ -33,7 +33,7 @@ impl MinimaxPlayer {
         let mut best_move = 0;
         let mut indices: Vec<_> = Board::VALID_INDICES.collect();
 
-        indices.shuffle(&mut rand::thread_rng());
+        indices.shuffle(&mut rand::rng());
 
         self.minimax_step(
             board.clone(),
