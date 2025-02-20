@@ -67,6 +67,10 @@ jobs:
       - uses: harmon758/postgresql-action@v1
         with:
           postgresql version: '14'
+      - name: Install stable toolchain
+        uses: actions-rust-lang/setup-rust-toolchain@v1
+        with:
+          toolchain: stable
       - uses: actions/setup-python@v5
         with:
           python-version: ${{ matrix.python-version }}
