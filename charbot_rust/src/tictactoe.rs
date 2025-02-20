@@ -54,7 +54,7 @@ impl Game {
                 o = player::choose_player("r");
             },
             Difficulty::Medium => {
-                if rng.gen_bool(0.5){ // COV_EXCL_LINE
+                if rng.random_bool(0.5){ // COV_EXCL_LINE
                     x = player::choose_player("h");
                     o = player::choose_player("m");
                 } else {
@@ -77,7 +77,7 @@ impl Game {
                     "r" => {0.75}, // COV_EXCL_LINE
                     _ => {0.0} // COV_EXCL_LINE
                 };
-                if rng.gen_bool(chance) { // COV_EXCL_LINE
+                if rng.random_bool(chance) { // COV_EXCL_LINE
                     x = player::choose_player(comp_mode);
                     o = player::choose_player("h");
                     human_first = false;
@@ -117,7 +117,7 @@ impl Game {
 
     #[new]
     fn __new__(difficulty: i32) -> PyResult<Self> { // COV_EXCL_LINE
-        Self::new(difficulty, StdRng::from_entropy())
+        Self::new(difficulty, StdRng::from_os_rng())
             .map_err(PyErr::new::<PyException, _>)
     }
 
@@ -243,13 +243,13 @@ mod tests {
     }
     #[test]
     fn creator_err() {
-        Game::new(0, StdRng::from_entropy()).expect_err("Expected error");
-        Game::new(5, StdRng::from_entropy()).expect_err("Expected error");
+        Game::new(0, StdRng::from_os_rng()).expect_err("Expected error");
+        Game::new(5, StdRng::from_os_rng()).expect_err("Expected error");
     }
     #[test]
     fn play() {
-        let mut human_first = Game::new(1, StdRng::from_entropy()).expect("Failed to create game");
-        let mut computer_first = Game::new(3, StdRng::from_entropy()).expect("Failed to create game");
+        let mut human_first = Game::new(1, StdRng::from_os_rng()).expect("Failed to create game");
+        let mut computer_first = Game::new(3, StdRng::from_os_rng()).expect("Failed to create game");
         human_first.board.board = [Piece::X, Piece::X, Piece::Empty, Piece::Empty, Piece::O, Piece::Empty, Piece::O, Piece::Empty, Piece::Empty];
         assert_eq!(None, human_first.play(2));
         if computer_first.board.cell_is_empty(0) {
@@ -261,7 +261,7 @@ mod tests {
     }
     #[test]
     fn display() {
-        let mut game = Game::new(1, StdRng::from_entropy()).expect("Failed to create game");
+        let mut game = Game::new(1, StdRng::from_os_rng()).expect("Failed to create game");
         game.play(1).expect("Failed to play");
         let commands = game.display_commands();
         assert_eq!(commands.len(), 9);
@@ -275,8 +275,8 @@ mod tests {
     }
     #[test]
     fn win_cases() {
-        let human_first = Game::new(1, StdRng::from_entropy()).expect("Failed to create game");
-        let computer_first = Game::new(3, StdRng::from_entropy()).expect("Failed to create game");
+        let human_first = Game::new(1, StdRng::from_os_rng()).expect("Failed to create game");
+        let computer_first = Game::new(3, StdRng::from_os_rng()).expect("Failed to create game");
         assert!(!human_first.is_draw());
         assert!(!computer_first.is_draw());
         assert_eq!(None, human_first.is_victory_for());
@@ -288,7 +288,7 @@ mod tests {
     }
     #[test]
     fn points() {
-        let mut game = Game::new(1, StdRng::from_entropy()).expect("Failed to create game");
+        let mut game = Game::new(1, StdRng::from_os_rng()).expect("Failed to create game");
         assert_eq!(game.points(), game.points.loss, "1");
         game.board.board = [Piece::X, Piece::X, Piece::X, Piece::Empty, Piece::O, Piece::Empty, Piece::O, Piece::Empty, Piece::Empty];
         assert_eq!(game.points(), game.points.win, "2");
