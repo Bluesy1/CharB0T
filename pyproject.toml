@@ -6,7 +6,7 @@ build-backend = "setuptools.build_meta"
 name = "charbot"
 description = "A simple Discord bot written in Python and Rust"
 readme = "README.md"
-version = "1.5.0"
+version = "1.5.0.post0"
 authors = [
 	{name = "Bluesy1", email = "68259537+Bluesy1@users.noreply.github.com"}
 ]
@@ -58,7 +58,7 @@ dev = [
 ]
 
 [tool.pytest.ini_options]
-minversion = "7.1.2"
+minversion = "8.3.4"
 asyncio_mode = "strict"
 filterwarnings = [
 	"error",
