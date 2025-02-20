@@ -21,16 +21,22 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Configure cache
-        uses: actions/cache@v4
+      - name: Install stable toolchain
+        uses: actions-rust-lang/setup-rust-toolchain@v1
         with:
-          path: |
-            ~/.cargo/bin/
-            ~/.cargo/registry/index/
-            ~/.cargo/registry/cache/
-            ~/.cargo/git/db/
-            charbot_rust/target/
-          key: clippy-${{ hashFiles('**/Cargo.lock') }}
+          toolchain: stable
+          cache-workspaces: |
+            charbot_rust
+      # - name: Configure cache
+      #   uses: actions/cache@v4
+      #   with:
+      #     path: |
+      #       ~/.cargo/bin/
+      #       ~/.cargo/registry/index/
+      #       ~/.cargo/registry/cache/
+      #       ~/.cargo/git/db/
+      #       charbot_rust/target/
+      #     key: clippy-${{ hashFiles('**/Cargo.lock') }}
       - name: Run Clippy
         run: |
           cd charbot_rust
