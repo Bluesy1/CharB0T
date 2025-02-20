@@ -424,14 +424,14 @@ mod tests {
     #[test]
     fn chord() {
         //with the given seed, the board should be:
-        // 1M11M1EE
-        // 122211EE
-        // E1M1E111
-        // E111E1M1
-        // EEEEE111
-        // EEEEEEEE
-        // EEEE111E
-        // EEEE1M1E
+        // 11111EEE
+        // M11M1EEE
+        // 12221EEE
+        // E1M1EEEE
+        // E111EEEE
+        // EE111111
+        // EE1M11M1
+        // EE111111
         let mut game = Game {
             field: Field::new(8, 8, 5, StdRng::from_seed([0; 32])),
             win_points: (0, 0),
@@ -440,21 +440,30 @@ mod tests {
         };
         let ind = game.field.get_selected_ind();
         game.field.reset_if_need(ind);
-        game.change_row(3).unwrap();
-        game.change_col(6).unwrap();
+        game.change_row(1).unwrap();
+        game.change_col(0).unwrap();
         game.toggle_flag();
-        game.change_col(7).unwrap();
         game.change_row(2).unwrap();
+        game.change_col(1).unwrap();
+        game.reveal();
         assert_eq!(game.chord(), ChordResult::Failed);
+        game.change_row(1).unwrap();
+        game.change_col(1).unwrap();
         game.reveal();
         assert_eq!(game.chord(), ChordResult::Success);
-        game.change_row(1).unwrap();
-        assert_eq!(game.chord(), ChordResult::Failed);
-        game.change_col(6).unwrap();
-        assert_eq!(game.chord(), ChordResult::Failed);
-        game.change_col(4).unwrap();
+        game.change_row(2).unwrap();
+        game.change_col(1).unwrap();
+        game.change_row(3).unwrap();
+        game.change_col(2).unwrap();
         game.toggle_flag();
-        game.change_col(5).unwrap();
+        game.change_row(2).unwrap();
+        game.change_col(1).unwrap();
+        assert_eq!(game.chord(), ChordResult::Success);
+        game.change_row(0).unwrap();
+        game.change_col(3).unwrap();
+        game.toggle_flag();
+        game.change_row(0).unwrap();
+        game.change_col(2).unwrap();
         assert_eq!(game.chord(), ChordResult::Death);
     }
 }
