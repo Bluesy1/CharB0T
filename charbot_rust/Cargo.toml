@@ -1,7 +1,7 @@
 [package]
 name = "charbot_rust"
 version = "1.5.0"
-edition = "2021"
+edition = "2024"
 
 [package.metadata.maturin]
 name = "charbot_rust._charbot_rust"
