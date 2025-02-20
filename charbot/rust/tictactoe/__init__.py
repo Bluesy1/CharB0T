@@ -1,8 +1,7 @@
 import sys as __sys
 from contextlib import suppress as __suppress
 
-from charbot_rust.charbot_rust import _tictactoe
-
+from .._rust import _tictactoe
 from .enums import Difficulty
 
 

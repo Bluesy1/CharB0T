@@ -11,9 +11,8 @@ import discord
 from discord import Interaction, app_commands
 from discord.ext import commands
 
-from charbot_rust.minesweeper import Game as MinesweeperGame
-
 from .. import CBot, errors
+from ..rust.minesweeper import Game as MinesweeperGame
 from . import shrugman, sudoku, tictactoe
 from .minesweeper import Minesweeper
 

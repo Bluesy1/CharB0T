@@ -1,6 +1,6 @@
 [build-system]
-requires = ["setuptools>=42", "wheel"]
-build-backend = "setuptools.build_meta"
+requires = ["maturin>=1.8,<1.9"]
+build-backend = "maturin"
 
 [project]
 name = "charbot"
@@ -56,6 +56,9 @@ dev = [
 	"pytest-mock==3.14.0",
 	"toml==0.10.2",
 ]
+
+[tool.maturin]
+module-name = "charbot.rust._rust"
 
 [tool.pytest.ini_options]
 minversion = "8.3.4"
