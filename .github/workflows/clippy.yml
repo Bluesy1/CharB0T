@@ -3,12 +3,14 @@ on:
     branches:
       - main
     paths:
-    - 'charbot_rust/**'
+    - 'src/**'
+    - 'Cargo.*'
     - '.github/workflows/clippy.yml'
   pull_request:
     types: [ opened, reopened, synchronize ]
     paths:
-    - 'charbot_rust/**'
+    - 'src/**'
+    - 'Cargo.*'
     - '.github/workflows/clippy.yml'
 name: Clippy check
 
@@ -25,19 +27,6 @@ jobs:
         uses: actions-rust-lang/setup-rust-toolchain@v1
         with:
           toolchain: stable
-          cache-workspaces: |
-            charbot_rust
-      # - name: Configure cache
-      #   uses: actions/cache@v4
-      #   with:
-      #     path: |
-      #       ~/.cargo/bin/
-      #       ~/.cargo/registry/index/
-      #       ~/.cargo/registry/cache/
-      #       ~/.cargo/git/db/
-      #       charbot_rust/target/
-      #     key: clippy-${{ hashFiles('**/Cargo.lock') }}
       - name: Run Clippy
         run: |
-          cd charbot_rust
           cargo clippy --all-targets --all-features
