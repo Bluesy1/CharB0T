@@ -18,7 +18,7 @@ impl Player for RandomPlayer {
 
         Board::VALID_INDICES
             .filter(|index| board.cell_is_empty(*index))
-            .choose(&mut rand::thread_rng())
+            .choose(&mut rand::rng())
             .unwrap()
     }
 }
