@@ -3,6 +3,7 @@ use pyo3::exceptions::PyValueError;
 use crate::minesweeper::{field::{Field, Content, TILE_HEIGHT, TILE_WIDTH}, common::MoveDestination};
 use pyo3::prelude::*;
 use rand::rngs::StdRng;
+use rand::SeedableRng;
 // COV_EXCL_STOP
 
 #[pyclass(eq, eq_int, frozen, module = "minesweeper")] // COV_EXCL_LINE
