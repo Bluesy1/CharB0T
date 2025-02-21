@@ -8,9 +8,8 @@ import discord
 from discord import ButtonStyle, Interaction, SelectOption, ui
 from PIL import Image
 
-from charbot_rust import minesweeper
-
 from .. import CBot
+from ..rust import minesweeper
 
 
 IMG_ALT_TEXT = "Minesweeper Board"

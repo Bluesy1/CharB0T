@@ -7,19 +7,12 @@ from importlib import metadata as _metadata
 from pkgutil import iter_modules
 from typing import Any
 
-from charbot_rust import __version__ as rust_version
-
 
 __title__ = "charbot"
 __author__ = "Bluesy1"
 __license__ = "MIT"
 __copyright__ = "Copyright 2021-present Bluesy1"
 __version__ = _metadata.version(__title__)
-if __version__ != rust_version:  # pragma: no cover
-    raise RuntimeError(
-        f"The version of charbot does not match the version of the rust library for charbot,"
-        f" Python: {__version__} != Rust: {rust_version}"
-    )
 
 __all__ = (
     "EXTENSIONS",

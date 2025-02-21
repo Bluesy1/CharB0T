@@ -7,7 +7,8 @@ on:
     paths:
     - 'charbot/**'
     - 'tests/**'
-    - 'charbot_rust/**'
+    - 'src/**'
+    - 'Cargo.*'
     - 'pyproject.toml'
     - '.github/workflows/ci.yml'
   pull_request:
@@ -15,63 +16,12 @@ on:
     paths:
     - 'charbot/**'
     - 'tests/**'
-    - 'charbot_rust/**'
+    - 'src/**'
+    - 'Cargo.*'
     - 'pyproject.toml'
     - '.github/workflows/ci.yml'
 
 jobs:
-  changes:
-    runs-on: ubuntu-latest
-    # Required permissions
-    permissions:
-      pull-requests: read
-    # Set job outputs to values from filter step
-    outputs:
-      rust: ${{ steps.filter.outputs.rust }}
-      python: ${{ steps.filter.outputs.python }}
-    steps:
-      - uses: actions/checkout@v4
-        if: ${{ github.event_name == 'push' }}
-        with:
-          # This may save additional git fetch roundtrip if
-          # merge-base is found within latest 20 commits
-          fetch-depth: 20
-      # For pull requests it's not necessary to checkout the code
-      - uses: dorny/paths-filter@v3
-        id: filter
-        with:
-          filters: |
-            rust:
-              - 'charbot_rust/**'
-              - '.github/workflows/ci.yml'
-            python:
-              - 'charbot/**'
-              - 'tests/**'
-              - 'pyproject.toml'
-              - '.github/workflows/ci.yml'
-  maturin:
-    runs-on: ubuntu-latest
-    strategy:
-      fail-fast: false
-    steps:
-      - uses: actions/checkout@v4
-      - name: Cache deps
-        uses: Swatinem/rust-cache@v2
-        with:
-          key: test-${{ hashFiles('**/Cargo.lock') }}
-          workspaces: |
-            charbot_rust
-      - uses: PyO3/maturin-action@v1
-        with:
-          manylinux: auto
-          command: build
-          args: --release --sdist -o dist -i python3.11 -i python3.12 -m charbot_rust/Cargo.toml
-      - name: Upload wheels
-        uses: actions/upload-artifact@v4
-        with:
-          name: wheel
-          path: dist
-          retention-days: 5
   rust-tests:
     continue-on-error: true
     runs-on: ubuntu-latest
@@ -81,18 +31,13 @@ jobs:
         uses: actions-rust-lang/setup-rust-toolchain@v1
         with:
           toolchain: stable
-          cache-workspaces: |
-            charbot_rust
       - name: Run tests
         env:
           RUST_BACKTRACE: full
         run: |
-          cd charbot_rust
           cargo build
           cargo test --no-default-features
   lint:
-    needs: changes
-    if: ${{ needs.changes.outputs.python == 'true' }}
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -109,68 +54,30 @@ jobs:
       - name: Run Ruff Format
         if: ${{ success() || failure()}}
         run: ruff format --check .
-  pyright:
-    needs: [changes, maturin]
-    if: ${{ needs.changes.outputs.python == 'true' || needs.changes.outputs.rust == 'true' }}
-    runs-on: ubuntu-latest
-    strategy:
-      fail-fast: false
-      matrix:
-        python-version: [ "3.11", "3.12" ]
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/download-artifact@v4
-        with:
-          name: wheel
-          path: wheels
-      - uses: actions/setup-python@v5
-        with:
-          python-version: ${{ matrix.python-version }}
-          cache: "pip"
-          cache-dependency-path: pyproject.toml
-      - name: Dependencies
-        run: |
-          pip install -U pip
-          pip install -U wheel
-          pip install -U -e ".[dev]"
-          VER=$(echo ${{ matrix.python-version }} | tr -d .)
-          find . -name "*cp${VER}*.whl" | xargs pip install
-      - name: Run Pyright
-        uses: jakebailey/pyright-action@v2
-        with:
-          warnings: false
-          annotate: ${{ matrix.python-version != '3.12' && 'none' || 'all' }}
-          version: 1.1.361 # Optional
   python-tests:
-    needs: maturin
-    if: ${{ success() || failure() }}
+    needs: rust-tests
     runs-on: ubuntu-latest
     continue-on-error: true
     strategy:
       fail-fast: false
       matrix:
-        python-version: [ "3.11", "3.12" ]
+        python-version: [ "3.11", "3.12", "3.13" ]
     steps:
       - uses: actions/checkout@v4
       - uses: harmon758/postgresql-action@v1
         with:
           postgresql version: '14'
-      - uses: actions/download-artifact@v4
+      - name: Install stable toolchain
+        uses: actions-rust-lang/setup-rust-toolchain@v1
         with:
-          name: wheel
-          path: wheels
+          toolchain: stable
       - uses: actions/setup-python@v5
         with:
           python-version: ${{ matrix.python-version }}
           cache: "pip"
           cache-dependency-path: pyproject.toml
-      - name: Dependencies
-        run: |
-          pip install -U pip
-          pip install -U wheel
-          pip install -U -e ".[dev]"
-          VER=$(echo ${{ matrix.python-version }} | tr -d .)
-          find . -name "*cp${VER}*.whl" | xargs pip install
+      - name: Install
+        run: pip install -e ".[dev]"
       - name: Run pytest
         id: pytest
         run: pytest
@@ -181,3 +88,10 @@ jobs:
           CC_TEST_REPORTER_ID: cd4356d60fb8cccd11ac24ddba6df70da91c8d603d64ed31f04e60cd1109ffab
         with:
           coverageLocations: ./coverage/reports/coverage.xml:coverage.py
+      - name: Run Pyright
+        if: ${{ success() || failure() }}
+        uses: jakebailey/pyright-action@v2
+        with:
+          warnings: false
+          annotate: ${{ matrix.python-version != '3.12' && 'none' || 'all' }}
+          version: 1.1.361 # Optional

@@ -9,9 +9,8 @@ from discord import ButtonStyle, Interaction, ui
 from discord.utils import utcnow
 from PIL import Image
 
-from charbot_rust.tictactoe import Difficulty, Game, Piece
-
 from .. import CBot
+from ..rust.tictactoe import Difficulty, Game, Piece
 
 
 class TicTacToe(ui.View):

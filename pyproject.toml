@@ -1,6 +1,6 @@
 [build-system]
-requires = ["setuptools>=42", "wheel"]
-build-backend = "setuptools.build_meta"
+requires = ["maturin>=1.8,<1.9"]
+build-backend = "maturin"
 
 [project]
 name = "charbot"
@@ -47,7 +47,6 @@ dev = [
 	"aioresponses==0.7.8",
 	"asyncpg-stubs==0.30.0",
 	"ruff==0.8.4",
-	"maturin[zig]==1.8.1",
 	"pre-commit==3.6.1",
 	"pyright==1.1.361",
 	"pytest==8.3.4",
@@ -57,9 +56,13 @@ dev = [
 	"toml==0.10.2",
 ]
 
+[tool.maturin]
+module-name = "charbot.rust._rust"
+
 [tool.pytest.ini_options]
 minversion = "8.3.4"
 asyncio_mode = "strict"
+asyncio_default_fixture_loop_scope = "function"
 filterwarnings = [
 	"error",
 	"ignore::ResourceWarning",

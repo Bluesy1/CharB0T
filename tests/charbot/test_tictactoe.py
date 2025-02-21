@@ -3,8 +3,8 @@ import pytest
 from pytest_mock import MockerFixture
 
 from charbot.programs import tictactoe
+from charbot.rust.tictactoe import Difficulty, Game
 from charbot.types.bot import CBot
-from charbot_rust.tictactoe import Difficulty, Game
 
 
 @pytest.mark.asyncio

@@ -7,7 +7,7 @@ from pytest_mock import MockerFixture
 
 from charbot import CBot
 from charbot.programs import minesweeper
-from charbot_rust.minesweeper import ChordResult, Game, RevealResult
+from charbot.rust.minesweeper import ChordResult, Game, RevealResult
 
 
 @pytest.fixture
@@ -21,6 +21,7 @@ def inter(mocker: MockerFixture):
         spec=Interaction[CBot],
         client=mocker.AsyncMock(spec=CBot),
         response=mocker.AsyncMock(spec=discord.InteractionResponse),
+        edit_original_response=mocker.AsyncMock(),
         locale=discord.Locale.american_english,
     )
 

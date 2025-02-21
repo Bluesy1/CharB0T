@@ -6,8 +6,8 @@ mod minesweeper;
 
 /// A rewrite of parts of charbot in rust.
 #[pymodule]
-#[pyo3(name = "charbot_rust")]
-fn charbot_rust(m: &Bound<PyModule>) -> PyResult<()> {
+#[pyo3(name = "_rust")]
+fn _rust(m: &Bound<PyModule>) -> PyResult<()> {
     tictactoe::register_tictactoe(m)?;
     minesweeper::register_minesweeper(m)?;
     Ok(())

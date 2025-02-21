@@ -1,14 +1,14 @@
 [package]
-name = "charbot_rust"
+name = "charbot"
 version = "1.5.1"
 edition = "2024"
 
 [package.metadata.maturin]
-name = "charbot_rust._charbot_rust"
+name = "_charbot"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 [lib]
-name = "charbot_rust"
+name = "_charbot"
 crate-type = ["cdylib"]
 
 [dependencies]

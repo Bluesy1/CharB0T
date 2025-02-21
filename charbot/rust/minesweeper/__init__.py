@@ -1,7 +1,7 @@
 import sys as __sys
 from contextlib import suppress as __suppress
 
-from charbot_rust.charbot_rust import _minesweeper
+from .._rust import _minesweeper
 
 
 if hasattr(_minesweeper, "__doc__"):

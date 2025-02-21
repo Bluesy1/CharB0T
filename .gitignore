@@ -20,3 +20,7 @@ giveaway.csv
 /charbot.service
 /coverage/reports/coverage.xml
 /.venv/
+
+# C extensions
+*.so
+target/
