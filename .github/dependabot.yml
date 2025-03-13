@@ -60,7 +60,7 @@ updates:
           - "actions/upload-artifact"
           - "actions/download-artifact"
   - package-ecosystem: "cargo"
-    directory: "charbot_rust"
+    directory: "/" # Location of package manifests
     schedule:
       # Check for updates to Rust dependencies every weekday
       interval: "monthly"
