@@ -11,7 +11,7 @@ authors = [
 	{name = "Bluesy1", email = "68259537+Bluesy1@users.noreply.github.com"}
 ]
 license = {file = "LICENSE"}
-requires-python = ">=3.11"
+requires-python = ">=3.13"
 classifiers = [
 	"Development Status :: 5 - Production/Stable",
 	"Intended Audience :: End Users/Desktop",
@@ -20,9 +20,6 @@ classifiers = [
 	"Programming Language :: Python :: Implementation :: CPython",
 	"Programming Language :: Rust",
 	"Programming Language :: Python :: 3",
-	"Programming Language :: Python :: 3.10",
-	"Programming Language :: Python :: 3.11",
-	"Programming Language :: Python :: 3.12",
 	"Programming Language :: Python :: 3 :: Only",
 	"Typing :: Typed",
 ]
