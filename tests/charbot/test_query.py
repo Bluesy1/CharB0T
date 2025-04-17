@@ -145,11 +145,11 @@ async def test_rule_command(mocker: MockerFixture, rule: int | None, member_id: 
             3: "**Rule 1** is Be respectful to others. Being drunk is not an excuse for being stupid. "
             "Common-sense matters. Just because it isn't explicitly written here, doesn't mean it doesn't break the "
             "rules.\n The rules can be found here: "
-            "<https://cpry.net/DiscordRules>",
+            "<#1331317655482929154>",
             4: "<@1>:\n**Rule 1** is Be respectful to others. Being drunk is not an excuse for being stupid. "
             "Common-sense matters. Just because it isn't explicitly written here, doesn't mean it doesn't break the "
             "rules.\n The rules can be found here: "
-            "<https://cpry.net/DiscordRules>",
+            "<#1331317655482929154>",
         }[expected_key]
     )
 
