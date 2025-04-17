@@ -15,7 +15,7 @@ ERROR_TEMPLATE = """\
 """
 
 
-def roll(arg: str, user: str, locale: discord.Locale) -> str:
+def roll(arg: str, user: str) -> str:
     """Dice roller.
 
     Parameters
@@ -38,9 +38,7 @@ def roll(arg: str, user: str, locale: discord.Locale) -> str:
                 except ValueError:  # pragma: no cover
                     num_rolls = 1
                 for _ in range(1, num_rolls + 1):
-                    # fmt: off
-                    roll1 = random.randint(1, int(die[die.find("d") + 1:]))
-                    # fmt: on
+                    roll1 = random.randint(1, int(die[die.find("d") + 1 :]))
                     rolls.append(roll1)
                     sums += roll1
             else:
@@ -104,10 +102,7 @@ class Roll(Cog):
         dice : str
             The dice to roll.
         """
-        await ctx.reply(
-            roll(dice, ctx.author.mention, discord.Locale.american_english),
-            mention_author=True,
-        )
+        await ctx.reply(roll(dice, ctx.author.mention), mention_author=True)
 
 
 async def setup(bot: commands.Bot):
