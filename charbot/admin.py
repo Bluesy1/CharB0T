@@ -5,7 +5,7 @@ from time import perf_counter
 from typing import cast
 
 import discord
-from discord import Interaction, PermissionOverwrite, Permissions, app_commands
+from discord import PermissionOverwrite, Permissions
 from discord.ext import commands
 
 from . import CBot
@@ -84,35 +84,6 @@ class Admin(commands.Cog):
         await message.edit(
             content=f"Pong!\n\nPing: {(end - start) * 100:.2f}ms\nTyping: {typing * 1000:.2f}ms\nDatabase: "
             f"{database * 1000:.2f}ms\nWebsocket: {self.bot.latency * 1000:.2f}ms"
-        )
-
-    @app_commands.command(name="confirm", description="[Charlie only] confirm a winner")
-    @app_commands.guild_only()
-    @app_commands.default_permissions(administrator=True)
-    @app_commands.checks.cooldown(1, 3600, key=lambda i: i.namespace.member)
-    async def confirm(self, interaction: Interaction[CBot], member: discord.Member) -> None:
-        """Confirm a winner.
-
-        Parameters
-        ----------
-        interaction: charbot.Interaction[CBot]
-            The interaction of the command invocation. At runtime, this is a discord.Interaction object, buy for
-            typechecking, it's a charbot.Interaction object to help infer the properties of the object.
-        member : discord.Member
-            The user to confirm as a winner.
-        """
-        if interaction.user.id != 225344348903047168:
-            await interaction.response.send_message("Only Charlie can confirm a winner.", ephemeral=True)
-            return
-        async with self.bot.pool.acquire() as conn:
-            await conn.execute(
-                "INSERT INTO winners (id, wins) VALUES ($1, 1) ON CONFLICT (id) DO UPDATE SET wins = winners.wins + 1",
-                member.id,
-            )
-            wins = await conn.fetchrow("SELECT wins FROM winners WHERE id = $1", member.id)
-        await interaction.response.send_message(
-            f"Confirmed {member} (ID: {member.id}) as having won a giveaway, ({wins}/3 this month for them)",
-            ephemeral=True,
         )
 
 

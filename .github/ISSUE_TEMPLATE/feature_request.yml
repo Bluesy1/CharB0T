@@ -19,7 +19,7 @@ body:
         - The pools
         - Leveling System
         - Automod
-        - Other exisiting features
+        - Other existing features
         - Something new
     validations:
       required: true

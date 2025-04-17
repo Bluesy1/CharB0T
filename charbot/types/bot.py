@@ -21,7 +21,6 @@ class CBot(commands.Bot):
     pool: asyncpg.Pool
     program_logs: Webhook
     setup_hook: Callable[..., Coroutine[None, None, None]]
-    giveaway_user: Callable[[int], Coroutine[None, None, None | asyncpg.Record]]
 
     async def give_game_points(self, member: Member | User, game: str, points: int, bonus: int = 0) -> int:
         """Give points to a member for a game."""

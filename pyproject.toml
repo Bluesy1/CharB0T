@@ -73,7 +73,7 @@ filterwarnings = [
 addopts = "--cov-report=xml:coverage/reports/coverage.xml --cov=charbot tests/ --cov-report=term-missing:skip-covered --cov-config=pyproject.toml --cov-branch"
 
 [tool.coverage.run]
-omit = ["*/__main__.py", "*/tests/*.py", "*/types/*.py", "*/pools.py", "*/admin.py", "*/reputation_admin.py", "*/advent.py", "*/giveaway/*"]
+omit = ["*/__main__.py", "*/tests/*.py", "*/types/*.py", "*/pools.py", "*/admin.py", "*/reputation_admin.py", "*/advent.py"]
 
 [tool.pyright]
 pythonPlatform = "Linux"
