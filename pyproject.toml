@@ -73,7 +73,7 @@ filterwarnings = [
 addopts = "--cov-report=xml:coverage/reports/coverage.xml --cov=charbot tests/ --cov-report=term-missing:skip-covered --cov-config=pyproject.toml --cov-branch"
 
 [tool.coverage.run]
-omit = ["*/__main__.py", "*/tests/*.py", "*/types/*.py", "*/pools.py", "*/admin.py", "*/reputation_admin.py", "*/advent.py"]
+omit = ["*/__main__.py", "*/tests/*.py", "*/types/*.py", "*/admin.py", "*/reputation_admin.py", "*/advent.py"]
 
 [tool.pyright]
 pythonPlatform = "Linux"
@@ -90,7 +90,7 @@ ignore = [
 	"UP007", # Use `X | Y` for type annotations
 	"UP038", # Use `X | Y` in `isinstance` call instead of `(X, Y)` (I prefer the tuple syntax, it's easier to read and cheaper than the bitwise OR)
 	"RUF006", # Store a reference to the return value of `asyncio.create_task` (I don't want to store the reference)
- 	"RUF022", "RUF023",  # __all__ and __slots__ sorting
+	"RUF022", "RUF023",  # __all__ and __slots__ sorting
 ]
 extend-select = [
 	"UP",  # pyupgrade

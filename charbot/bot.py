@@ -404,7 +404,7 @@ class Tree(app_commands.CommandTree[CBot]):
         if isinstance(command, (app_commands.Command, app_commands.ContextMenu)):
             user = interaction.user.mention
             _command = command.qualified_name
-            if isinstance(error, (errors.MissingProgramRole, errors.NoPoolFound, errors.WrongChannelError)):
+            if isinstance(error, (errors.MissingProgramRole, errors.WrongChannelError)):
                 message = error.message
             elif isinstance(error, app_commands.MissingAnyRole):
                 message = f"{user}, you don't have any of the required role(s) to use {command}"
