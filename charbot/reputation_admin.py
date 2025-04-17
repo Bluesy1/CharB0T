@@ -1,14 +1,13 @@
 """Admin commands for the reputation system."""
 
 import asyncio
-import datetime
 from typing import Optional, cast
 
 import asyncpg
 import discord
 from discord import Interaction, app_commands
-from discord.ext import commands, tasks
-from discord.utils import sleep_until, utcnow
+from discord.ext import commands
+from discord.utils import utcnow
 
 from . import CBot
 from .card import generate_card
@@ -77,14 +76,9 @@ class ReputationAdmin(
         """Allow roles."""
         return self._allowed_roles
 
-    async def cog_load(self) -> None:
-        """Load the cog."""
-        self._del_role.start()
-
     async def cog_unload(self) -> None:
         """Unload the cog."""
         self.bot.tree.remove_command(self.ctx_menu.name, type=self.ctx_menu.type)
-        self._del_role.cancel()
 
     pools = app_commands.Group(name="pools", description="Administration commands for the reputation pools.")
     reputation = app_commands.Group(name="reputation", description="Administration commands for the reputation system.")
@@ -684,82 +678,6 @@ class ReputationAdmin(
                 embed.add_field(name="Channels", value=", ".join(f"<#{c}>" for c in noxp["channels"]), inline=False)
                 embed.add_field(name="Roles", value=", ".join(f"<@&{r}>" for r in noxp["roles"]), inline=False)
                 await interaction.followup.send(embed=embed)
-
-    @app_commands.command()
-    async def deal_role(
-        self,
-        interaction: Interaction[CBot],
-        user: discord.Member,
-        color: str,
-        days: app_commands.Range[int, 1, 28],
-        above: discord.Role,
-        hoist: bool = False,
-    ):
-        """Give a user a role that lasts for a certain amount of days.
-
-        Parameters
-        ----------
-        interaction : Interaction
-            The interaction object.
-        user : discord.Member
-            The user to give the role to.
-        color : str
-            The color of the role.
-        days : app_commands.Range[int, 0, 28]
-            The amount of days the role lasts.
-        above : discord.Role
-            The role that the new role should be moved above.
-        hoist : bool
-            Whether the role should be hoisted.
-        """
-        await interaction.response.defer(ephemeral=True)
-        try:
-            _color = discord.Color.from_str(color)
-        except ValueError:
-            await interaction.followup.send("Invalid color, it is being ignored.")
-            _color = discord.utils.MISSING
-        role = await cast(discord.Guild, interaction.guild).create_role(
-            name=f"{user.name}'s deal",
-            color=_color,
-            hoist=hoist,
-            permissions=discord.Permissions(139589959744),
-            reason=f"{interaction.user} (id: {interaction.user.id}) requested a deal or no deal role role for"
-            f" {user.name} (id: {user.id})",
-        )
-        await cast(discord.Guild, interaction.guild).edit_role_positions(
-            {role: above.position + 1}, reason="Correct placement of deal role"
-        )
-        await self.bot.pool.execute(
-            "INSERT INTO deal_no_deal (user_id, role_id, until) VALUES ($1, $2, $3)",
-            user.id,
-            role.id,
-            utcnow() + datetime.timedelta(days=days),
-        )
-        await user.add_roles(role, reason="Deal role")
-        await interaction.followup.send(
-            f"{user.mention} has been given their deal role for {days} days.", ephemeral=True
-        )
-        if self._del_role.is_running():
-            self._del_role.cancel()
-        self._del_role.start(role, days)
-
-    @tasks.loop(hours=1)
-    async def _del_role(self):
-        """Removes the deal role from users who have it."""
-        async with self.bot.pool.acquire() as conn, conn.transaction():
-            rle = await conn.fetchrow("SELECT * FROM deal_no_deal ORDER BY until LIMIT 1")
-            if rle is None:
-                self._del_role.stop()  # pyright: ignore[reportFunctionMemberAccess]
-                return
-            if rle["until"] < utcnow():
-                await sleep_until(rle["until"])
-            guild = self.bot.get_guild(225345178955808768) or await self.bot.fetch_guild(225345178955808768)
-            role = guild.get_role(rle["role_id"])
-            if role is not None:
-                await role.delete(reason="Deal role expired")
-            await conn.execute("DELETE FROM deal_no_deal WHERE role_id = $1", rle["role_id"])
-            if len(await conn.fetch("SELECT * FROM deal_no_deal")) == 0:
-                self._del_role.stop()  # pyright: ignore[reportFunctionMemberAccess]
 
 
 async def setup(bot: CBot):

@@ -79,17 +79,6 @@ CREATE TABLE IF NOT EXISTS no_xp
     roles    BIGINT[] DEFAULT '{}'::BIGINT[] NOT NULL
 );
 
-CREATE TABLE IF NOT EXISTS deal_no_deal
-(
-    user_id BIGINT                   NOT NULL
-        CONSTRAINT deal_pk
-            PRIMARY KEY,
-    role_id BIGINT                   NOT NULL,
-    until   TIMESTAMP WITH TIME ZONE NOT NULL
-);
-
-CREATE INDEX IF NOT EXISTS until_idx on deal_no_deal (until);
-
 CREATE TABLE IF NOT EXISTS banners
 (
     user_id  BIGINT                                                                    NOT NULL
