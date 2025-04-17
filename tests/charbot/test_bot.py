@@ -65,7 +65,11 @@ async def test_first_time_gain(database: asyncpg.Pool):
     await bot.first_time_game_gain(10, 1, 1)
     assert await database.fetchval("SELECT points FROM users WHERE id = 10") == 2
     assert await database.fetchval("SELECT bid FROM bids WHERE id = 10") == 0
-    assert dict(await database.fetchrow("SELECT last_particip_dt, particip, won FROM daily_points WHERE id = 10")) == {
+    assert dict(  # pyright: ignore[reportCallIssue]
+        await database.fetchrow(  # pyright: ignore[reportArgumentType]
+            "SELECT last_particip_dt, particip, won FROM daily_points WHERE id = 10"
+        )
+    ) == {
         "last_particip_dt": bot.TIME(),
         "particip": 1,
         "won": 1,
@@ -85,7 +89,11 @@ async def test_first_gain_of_day(database: asyncpg.Pool):
     )
     await bot.first_of_day_game_gain(10, 1, 1)
     assert await database.fetchval("SELECT points FROM users WHERE id = 10") == 2
-    assert dict(await database.fetchrow("SELECT last_particip_dt, particip, won FROM daily_points WHERE id = 10")) == {
+    assert dict(  # pyright: ignore[reportCallIssue]
+        await database.fetchrow(  # pyright: ignore[reportArgumentType]
+            "SELECT last_particip_dt, particip, won FROM daily_points WHERE id = 10"
+        )
+    ) == {
         "last_particip_dt": bot.TIME(),
         "particip": 1,
         "won": 1,
@@ -105,7 +113,11 @@ async def test_fallback_gain(database: asyncpg.Pool):
     )
     await bot.fallback_game_gain(10, 9, 2, 2)
     assert await database.fetchval("SELECT points FROM users WHERE id = 10") == 2
-    assert dict(await database.fetchrow("SELECT particip, won FROM daily_points WHERE id = 10")) == {
+    assert dict(  # pyright: ignore[reportCallIssue]
+        await database.fetchrow(  # pyright: ignore[reportArgumentType]
+            "SELECT particip, won FROM daily_points WHERE id = 10"
+        )
+    ) == {
         "particip": 10,
         "won": 10,
     }
@@ -120,7 +132,11 @@ async def test_first_time_gain_called(mocker: MockerFixture, database: asyncpg.P
     await bot.give_game_points(mocker.AsyncMock(discord.Member, id=10), 1, 1)
     assert await database.fetchval("SELECT points FROM users WHERE id = 10") == 2
     assert await database.fetchval("SELECT bid FROM bids WHERE id = 10") == 0
-    assert dict(await database.fetchrow("SELECT last_particip_dt, particip, won FROM daily_points WHERE id = 10")) == {
+    assert dict(  # pyright: ignore[reportCallIssue]
+        await database.fetchrow(  # pyright: ignore[reportArgumentType]
+            "SELECT last_particip_dt, particip, won FROM daily_points WHERE id = 10"
+        )
+    ) == {
         "last_particip_dt": bot.TIME(),
         "particip": 1,
         "won": 1,
@@ -141,7 +157,11 @@ async def test_first_gain_of_day_called(mocker: MockerFixture, database: asyncpg
     await database.execute("INSERT INTO bids (id, bid) VALUES (10, 0)")
     await bot.give_game_points(mocker.AsyncMock(discord.Member, id=10), 1, 1)
     assert await database.fetchval("SELECT points FROM users WHERE id = 10") == 2
-    assert dict(await database.fetchrow("SELECT last_particip_dt, particip, won FROM daily_points WHERE id = 10")) == {
+    assert dict(  # pyright: ignore[reportCallIssue]
+        await database.fetchrow(  # pyright: ignore[reportArgumentType]
+            "SELECT last_particip_dt, particip, won FROM daily_points WHERE id = 10"
+        )
+    ) == {
         "last_particip_dt": bot.TIME(),
         "particip": 1,
         "won": 1,
@@ -162,7 +182,11 @@ async def test_fallback_gain_called(mocker: MockerFixture, database: asyncpg.Poo
     await database.execute("INSERT INTO bids (id, bid) VALUES (10, 0)")
     await bot.give_game_points(mocker.AsyncMock(discord.Member, id=10), 2, 2)
     assert await database.fetchval("SELECT points FROM users WHERE id = 10") == 2
-    assert dict(await database.fetchrow("SELECT particip, won FROM daily_points WHERE id = 10")) == {
+    assert dict(  # pyright: ignore[reportCallIssue]
+        await database.fetchrow(  # pyright: ignore[reportArgumentType]
+            "SELECT particip, won FROM daily_points WHERE id = 10"
+        )
+    ) == {
         "particip": 10,
         "won": 10,
     }
@@ -182,8 +206,9 @@ async def test_give_game_points_final_branch_called(mocker: MockerFixture, datab
     await database.execute("INSERT INTO bids (id, bid) VALUES (10, 0)")
     assert await bot.give_game_points(mocker.AsyncMock(discord.Member, id=10), 2, 2) == 0
     assert await database.fetchval("SELECT points FROM users WHERE id = 10") == 0
-    assert dict(await database.fetchrow("SELECT particip, won FROM daily_points WHERE id = 10")) == {
-        "particip": 7,
-        "won": 7,
-    }
+    assert dict(  # pyright: ignore[reportCallIssue]
+        await database.fetchrow(  # pyright: ignore[reportArgumentType]
+            "SELECT particip, won FROM daily_points WHERE id = 10"
+        )
+    ) == {"particip": 7, "won": 7}
     await database.execute("DELETE FROM users WHERE id = 10")
