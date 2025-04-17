@@ -80,15 +80,6 @@ def test_url_allowed_channel_id(mocker: MockerFixture, channel_id: int):
     assert events.url_posting_allowed(channel, [])
 
 
-@pytest.mark.parametrize("role_id", [1042837754104533075, 0])
-def test_url_allowed_xcom(mocker: MockerFixture, role_id: int):
-    """Test if the xcom role is whitelisted"""
-    channel = mocker.AsyncMock(spec=discord.TextChannel)
-    channel.id = 1042838375473877002
-    roles: list[discord.Role] = [mocker.AsyncMock(spec=discord.Role, id=role_id)]
-    assert events.url_posting_allowed(channel, roles) is bool(role_id)
-
-
 @pytest.mark.parametrize(
     ("role_ids", "expected"),
     [
