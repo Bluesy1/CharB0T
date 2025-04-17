@@ -11,7 +11,7 @@ authors = [
 	{name = "Bluesy1", email = "68259537+Bluesy1@users.noreply.github.com"}
 ]
 license = {file = "LICENSE"}
-requires-python = ">=3.13"
+requires-python = ">=3.12"
 classifiers = [
 	"Development Status :: 5 - Production/Stable",
 	"Intended Audience :: End Users/Desktop",
