@@ -275,7 +275,7 @@ class Query(Cog):
             The member to get the rules for, if None, the author is quietly sent the rule(s).
         """
         resp = (
-            f"**Rule {rule}** is {__rules__[rule]}\n The rules can be found here: <https://cpry.net/DiscordRules>"
+            f"**Rule {rule}** is {__rules__[rule]}\n The rules can be found here: <#1331317655482929154>"
             if rule
             else "\n".join(f"**{num}**: {_rule}" for num, _rule in __rules__.items())
         )
