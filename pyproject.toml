@@ -27,7 +27,6 @@ dependencies = [
 	"aiohttp[speedups]==3.11.11",
 	"asyncpg==0.30.0",
 	"discord.py[speed]==2.5.2",
-	"disrank==0.0.2",
 	"jishaku[procinfo]==2.6.0",
 	"orjson==3.10.16",
 	"Pillow==11.1.0",
