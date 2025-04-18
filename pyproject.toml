@@ -24,7 +24,7 @@ classifiers = [
 	"Typing :: Typed",
 ]
 dependencies = [
-	"aiohttp[speedups]==3.11.11",
+	"aiohttp[speedups]==3.11.16",
 	"asyncpg==0.30.0",
 	"discord.py[speed]==2.5.2",
 	"jishaku[procinfo]==2.6.0",
