@@ -42,19 +42,6 @@ CREATE TABLE IF NOT EXISTS winners
     wins SMALLINT DEFAULT 0
 );
 
-CREATE TABLE IF NOT EXISTS pools
-(
-    pool           VARCHAR                                           NOT NULL
-        CONSTRAINT pools_pk
-            PRIMARY KEY,
-    cap            INTEGER                                           NOT NULL,
-    current        INTEGER  DEFAULT 0                                NOT NULL,
-    reward         VARCHAR                                           NOT NULL,
-    level          INTEGER  DEFAULT 1                                NOT NULL,
-    start          INTEGER  DEFAULT 0                                NOT NULL,
-    required_roles BIGINT[] DEFAULT '{225345178955808768}'::BIGINT[] NOT NULL
-);
-
 CREATE TABLE IF NOT EXISTS xp_users
 (
     id            BIGINT             NOT NULL
@@ -78,17 +65,6 @@ CREATE TABLE IF NOT EXISTS no_xp
     channels BIGINT[] DEFAULT '{}'::BIGINT[] NOT NULL,
     roles    BIGINT[] DEFAULT '{}'::BIGINT[] NOT NULL
 );
-
-CREATE TABLE IF NOT EXISTS deal_no_deal
-(
-    user_id BIGINT                   NOT NULL
-        CONSTRAINT deal_pk
-            PRIMARY KEY,
-    role_id BIGINT                   NOT NULL,
-    until   TIMESTAMP WITH TIME ZONE NOT NULL
-);
-
-CREATE INDEX IF NOT EXISTS until_idx on deal_no_deal (until);
 
 CREATE TABLE IF NOT EXISTS banners
 (

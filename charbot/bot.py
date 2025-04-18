@@ -124,12 +124,12 @@ class CBot(commands.Bot):
 
     @classmethod
     def TIME(cls) -> datetime.datetime:
-        """Return the current giveaway time in the bot's timezone.
+        """Return the current day reset time in the bot's timezone.
 
         Returns
         -------
         datetime.datetime
-            The current giveaway time in the bot's timezone.
+            The current day reset time in the bot's timezone.
         """
         return (
             datetime.datetime.now(cls.ZONEINFO).replace(microsecond=0, second=0, minute=0, hour=9)
@@ -143,11 +143,10 @@ class CBot(commands.Bot):
         self, *args: Any, strip_after_prefix: bool = True, tree_cls: type["Tree"], **kwargs: Any
     ) -> None:  # pragma: no cover
         super().__init__(*args, strip_after_prefix=strip_after_prefix, tree_cls=tree_cls, **kwargs)
-        self.pool: asyncpg.Pool[Any] = MISSING
+        self.pool: asyncpg.Pool = MISSING
         self.session: aiohttp.ClientSession = MISSING
         self.program_logs: discord.Webhook = MISSING
         self.error_logs: discord.Webhook = MISSING
-        self.giveaway_webhook: discord.Webhook = MISSING
         self.holder: Holder = Holder()
         self.no_dms: set[int] = set()
 
@@ -162,7 +161,6 @@ class CBot(commands.Bot):
         webhooks = Config["discord"]["webhooks"]
         self.program_logs = await self.fetch_webhook(webhooks["program_logs"])
         self.error_logs = await self.fetch_webhook(webhooks["error"])
-        self.giveaway_webhook = await self.fetch_webhook(webhooks["giveaway"])
         print("Webhooks Fetched")
         await self.load_extension("jishaku")
         for extension in EXTENSIONS:
@@ -406,7 +404,7 @@ class Tree(app_commands.CommandTree[CBot]):
         if isinstance(command, (app_commands.Command, app_commands.ContextMenu)):
             user = interaction.user.mention
             _command = command.qualified_name
-            if isinstance(error, (errors.MissingProgramRole, errors.NoPoolFound, errors.WrongChannelError)):
+            if isinstance(error, (errors.MissingProgramRole, errors.WrongChannelError)):
                 message = error.message
             elif isinstance(error, app_commands.MissingAnyRole):
                 message = f"{user}, you don't have any of the required role(s) to use {command}"

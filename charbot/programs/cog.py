@@ -17,9 +17,6 @@ from . import shrugman, sudoku, tictactoe
 from .minesweeper import Minesweeper
 
 
-MESSAGE: Final = "You must be at least level 1 to participate in the giveaways system and be in <#969972085445238784>."
-
-
 class Reputation(commands.Cog, name="Programs"):
     """Programs."""
 
@@ -169,32 +166,33 @@ class Reputation(commands.Cog, name="Programs"):
             The interaction of the command invocation.
         """
         await interaction.response.defer(ephemeral=True)
-        giveaway_user = await interaction.client.pool.fetchrow(
+        result_user = await interaction.client.pool.fetchrow(
             "SELECT users.id as id, points, b.bid as bid, dp.last_claim as daily, dp.last_particip_dt as "
             "particip_dt, dp.particip as particip, dp.won as won "
             "FROM users join bids b on users.id = b.id join daily_points dp on users.id = dp.id WHERE users.id = $1",
             interaction.user.id,
         )
-        if giveaway_user is None:
+        current_time = interaction.client.TIME()
+        if result_user is None:
             async with interaction.client.pool.acquire() as conn:
                 await conn.execute("INSERT INTO users (id, points) VALUES ($1, 20)", interaction.user.id)
                 await conn.execute(
                     "INSERT INTO daily_points (id, last_claim, last_particip_dt, particip, won) VALUES "
                     "($1, $2, $3, 0, 0)",
                     interaction.user.id,
-                    interaction.client.TIME(),
-                    interaction.client.TIME() - datetime.timedelta(days=1),
+                    current_time,
+                    current_time - datetime.timedelta(days=1),
                 )
                 await conn.execute("INSERT INTO bids (id, bid) VALUES ($1, 0)", interaction.user.id)
                 await interaction.followup.send("You got some Rep today, inmate")
             return
-        if giveaway_user["daily"] >= interaction.client.TIME():
+        if result_user["daily"] >= current_time:
             await interaction.followup.send("No more Rep for you yet, get back to your cell")
             return
         async with interaction.client.pool.acquire() as conn:
             await conn.execute("UPDATE users SET points = points + 20 WHERE id = $1", interaction.user.id)
             await conn.execute(
-                "UPDATE daily_points SET last_claim = $1 WHERE id = $2", interaction.client.TIME(), interaction.user.id
+                "UPDATE daily_points SET last_claim = $1 WHERE id = $2", current_time, interaction.user.id
             )
         await interaction.followup.send("You got some Rep today, inmate")
 

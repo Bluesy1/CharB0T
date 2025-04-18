@@ -2,6 +2,8 @@
 
 import asyncio
 import datetime
+import io
+import pathlib
 import random
 from collections.abc import Callable
 from typing import Optional, cast
@@ -12,9 +14,9 @@ import discord
 from discord import Interaction, app_commands
 from discord.ext import commands, tasks
 from discord.utils import utcnow
-from disrank.generator import Generator
 
 from . import CBot, Config
+from .card import generate_profile
 
 
 async def update_level_roles(member: discord.Member, new_level: int) -> None:
@@ -55,9 +57,7 @@ class Leveling(commands.Cog):
         self._max_xp = 18
         self._xp_function: Callable[[int], int] = lambda x: (5 * x**2) + (50 * x) + 100
         self.off_cooldown: dict[int, datetime.datetime] = {}
-        self.generator = Generator()
-        self.generator.default_bg = "charbot/media/pools/card.png"
-        self.default_profile = "https://raw.githubusercontent.com/Bluesy1/CharB0T/main/charbot/media/pools/profile.png"
+        self.default_profile = pathlib.Path(__file__).parent.joinpath("media/pools/profile.png").resolve(strict=True)
         self.session = aiohttp.ClientSession(
             auth=aiohttp.BasicAuth(login="Bluesy1", password=Config["github"]["token"]),
             headers=Config["github"]["headers"],
@@ -234,16 +234,23 @@ class Leveling(commands.Cog):
                     "Error: You aren't ranked yet. Send some messages first, then try again."
                 )
                 return
+        if member.avatar is not None:
+            profile_img = await member.avatar.read()
+        else:
+            profile_img = self.default_profile.read_bytes()
+
+        xp_details = user_record["detailed_xp"]
+
         image = await asyncio.to_thread(
-            self.generator.generate_profile,
-            profile_image=member.avatar.url if member.avatar is not None else self.default_profile,
-            level=user_record["level"],
-            current_xp=user_record["detailed_xp"][2] - user_record["detailed_xp"][0],
-            user_xp=user_record["xp"],
-            next_xp=user_record["detailed_xp"][2] - user_record["detailed_xp"][0] + user_record["detailed_xp"][1],
-            user_position=user_record["rank"],
+            generate_profile,
             user_name=str(member),
-            user_status="offline" if isinstance(cached_member.status, str) else cached_member.status.value,
+            profile_image=io.BytesIO(profile_img),
+            level=user_record["level"],
+            current_xp=xp_details[2] - xp_details[0],
+            user_xp=user_record["xp"],
+            next_xp=xp_details[2] - xp_details[0] + xp_details[1],
+            user_position=user_record["rank"],
+            user_status=status.value if not isinstance((status := cached_member.status), str) else "offline",
         )
 
         await interaction.followup.send(file=discord.File(image, "profile.png"))
