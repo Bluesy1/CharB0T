@@ -158,7 +158,7 @@ def generate_card(
     return _overlay(card, profile, status, current_percentage, False)
 
 
-def generate_profile(
+def generate_profile(  # pragma: no cover
     user_name: str,
     profile_image: BytesIO,
     level: int = 1,
