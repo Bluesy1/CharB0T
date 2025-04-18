@@ -146,11 +146,11 @@ def generate_card(
     current_percentage = (xp_have / xp_need) * 100
 
     status = Image.open(__OFFLINE__)
-    if current_percentage < 34:
+    if 0 < current_percentage < 34:
         status = Image.open(__DND__)
-    elif current_percentage < 67:
+    elif 34 <= current_percentage < 67:
         status = Image.open(__IDLE__)
-    elif current_percentage < 100:
+    elif 67 <= current_percentage < 100:
         status = Image.open(__STREAMING__)
     elif current_percentage == 100:
         status = Image.open(__ONLINE__)
