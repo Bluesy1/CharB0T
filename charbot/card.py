@@ -172,6 +172,9 @@ def generate_profile(  # pragma: no cover
 
     profile = Image.open(profile_image)
     profile = profile.convert("RGBA").resize((180, 180))
+    mask = Image.new("L", profile.size, 0)
+    mask_draw = ImageDraw.Draw(mask).ellipse((0, 0, 180, 180), fill=255)
+    profile.putalpha(mask)
 
     match user_status:
         case "online":
@@ -206,4 +209,4 @@ def generate_profile(  # pragma: no cover
     xp_need = next_xp - current_xp
     xp_have = user_xp - current_xp
 
-    return _overlay(card, profile, status, (xp_have / xp_need) * 100, False)
+    return _overlay(card, profile, status, (xp_have / xp_need) * 100, True)
