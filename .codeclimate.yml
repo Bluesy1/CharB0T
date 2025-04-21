@@ -90,4 +90,3 @@ exclude_patterns:
 - "**/.gitignore"
 - "**/*.pyi"
 - "**/py.typed"
-- "**/charbot_rust/"

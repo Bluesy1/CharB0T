@@ -56,7 +56,7 @@ class ModSupport(GroupCog, name="modsupport", description="mod support command g
     def __init__(self, bot: CBot):
         super().__init__()
         self.bot = bot
-        self.blacklist_path: Final[pathlib.Path] = pathlib.Path(__file__).parent / "mod_support_blacklist.json"
+        self.blacklist_path: Final[pathlib.Path] = pathlib.Path.cwd() / "mod_support_blacklist.json"
 
     async def cog_unload(self) -> None:  # skipcq: PYL-W0236
         """Unload func."""
@@ -215,7 +215,7 @@ class ModSupportButtons(ui.View):
         self.everyone = everyone
         self.mod_role = mod_role
         self.mods = mods
-        self.filename: Final[pathlib.Path] = pathlib.Path(__file__).parent / "mod_support_blacklist.json"
+        self.filename: Final[pathlib.Path] = pathlib.Path.cwd() / "mod_support_blacklist.json"
 
     async def interaction_check(self, interaction: Interaction[CBot]) -> bool:
         """Check to run for all interaction instances.
@@ -359,7 +359,7 @@ class ModSupportModal(ui.Modal, title="Mod Support Form"):
         super().__init__(title="Mod Support Form")
         self.perm_overrides = perm_overrides
         self.channel_name = channel_name
-        self.filename = "charbot/mod_support_blacklist.json"
+        self.filename = "mod_support_blacklist.json"
 
     async def interaction_check(self, interaction: Interaction[CBot]) -> bool:
         """Check to run for all interaction instances.

@@ -143,7 +143,7 @@ class Events(Cog):
             r"~~:\.\|:;~~|tilde tilde colon dot vertical bar colon semicolon tilde tilde", re.MULTILINE | re.IGNORECASE
         )
         self.extractor = URLExtract()
-        self.sensitive_settings_path: Final[pathlib.Path] = pathlib.Path(__file__).parent / "sensitive_settings.json"
+        self.sensitive_settings_path: Final[pathlib.Path] = pathlib.Path("sensitive_settings.json")
 
     async def cog_load(self) -> None:  # pragma: no cover
         """Cog load function.

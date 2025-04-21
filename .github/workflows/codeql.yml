@@ -17,14 +17,12 @@ on:
     paths:
       - 'charbot/**'
       - 'tests/**'
-      - 'charbot_rust/charbot_rust/**'
   pull_request:
     # The branches below must be a subset of the branches above
     branches: [ "main" ]
     paths:
       - 'charbot/**'
       - 'tests/**'
-      - 'charbot_rust/charbot_rust/**'
   schedule:
     - cron: '40 6 * * 5'
 
