@@ -175,7 +175,7 @@ MOD_SUPPORT_HEADER = """\
 Use the buttons provided to open a modmail text channel, selecting a suitable level of importance. \
 You can make the modmail private to only admins, Charlie and up to 5 mods of your choosing. \
 Upon selecting an option, you will be prompted to provide some information in a modal form. \
-We have detailed descriptions of each category below.\
+We have detailed each category below.\
 """
 MOD_SUPPORT_ADMIN_DESCRIPTION = """\
 For sensitive matters, this goes to admins only. This could increase wait time. \
