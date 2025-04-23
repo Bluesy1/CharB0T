@@ -3,7 +3,6 @@
 import logging
 import pathlib
 from datetime import timedelta
-from typing import Any, Final
 
 import discord
 import orjson
@@ -176,59 +175,18 @@ MOD_SUPPORT_HEADER = """\
 Use the buttons provided to open a modmail text channel, selecting a suitable level of importance. \
 You can make the modmail private to only admins, Charlie and up to 5 mods of your choosing. \
 Upon selecting an option, you will be prompted to provide some information in a modal form. \
-You need to be on a up to date client as of March 10th for this to work. We have detailed each category below.\
+We have detailed descriptions of each category below.\
 """
-MOD_SUPPORT_PRIVATE = """\
-## Private
-For sensitive matters, choose only Admin Only. This could increase wait time. \
-Choosing up to 5 mods to include them will get a quicker response. \
+MOD_SUPPORT_ADMIN_DESCRIPTION = """\
+For sensitive matters, this goes to admins only. This could increase wait time. \
 We respect private matters unless they are important enough to inform our mod team about potential issues.
 This should only be used for truly private information or if this has to do with one of our mods.\
 """
 
 
 class ModSupportButton(ui.Button):
-    async def callback(self, interaction: Interaction[CBot]) -> Any:
+    async def callback(self, interaction: Interaction[CBot]):
         """Just general and important and emergency callback helper."""
-        if interaction.user.id not in orjson.loads(_BLACKLIST.read_bytes())["blacklisted"]:
-            user = interaction.user
-            assert isinstance(user, discord.Member)  # skipcq: BAN-B101
-            await interaction.response.send_modal(
-                ModSupportModal(
-                    {
-                        _MOD_ROLE: PermissionOverwrite.from_pair(Permissions(139586817088), Permissions.none()),
-                        _EVERYONE: PermissionOverwrite(view_channel=False, send_messages=False, read_messages=False),
-                        user: PermissionOverwrite.from_pair(Permissions(139586817088), Permissions.none()),
-                    },
-                    f"{self.label}-{user.name}-mod-support",
-                )
-            )
-        else:
-            await interaction.response.send_message("You are not allowed to use this.", ephemeral=True)
-
-
-class ModSupportPrivateActionRow(ui.ActionRow):
-    _PRIVATE_OPTIONS: Final = [
-        discord.SelectOption(label="Admins Only", value="146285543146127361"),
-        discord.SelectOption(label="Bluesy", value="363095569515806722"),
-        discord.SelectOption(label="Krios", value="138380316095021056"),
-        discord.SelectOption(label="Mike Takumi", value="162833689196101632"),
-        discord.SelectOption(label="Kaitlin", value="82495450153750528"),
-    ]
-
-    @ui.select(placeholder="Private", custom_id="Modmail_Private", max_values=5, options=_PRIVATE_OPTIONS, row=1)
-    async def private(self, interaction: Interaction[CBot], select: discord.ui.Select):
-        """Private mod support callback.
-
-        This is the only callback does not use the standard_callback helper
-
-        Parameters
-        ----------
-        interaction : Interaction
-            The interaction instance
-        select : discord.ui.Select
-            The select instance
-        """
         if interaction.user.id not in orjson.loads(_BLACKLIST.read_bytes())["blacklisted"]:
             user = interaction.user
             assert isinstance(user, discord.Member)  # skipcq: BAN-B101
@@ -237,7 +195,9 @@ class ModSupportPrivateActionRow(ui.ActionRow):
                 _EVERYONE: PermissionOverwrite(view_channel=False, send_messages=False, read_messages=False),
                 user: PermissionOverwrite.from_pair(Permissions(139586817088), Permissions.none()),
             }
-            await interaction.response.send_modal(ModSupportModal(perms, f"private-{user.name}-mod-support"))
+            if self.label == "Private":
+                perms[_MOD_ROLE] = PermissionOverwrite(view_channel=False, send_messages=False, read_messages=False)
+            await interaction.response.send_modal(ModSupportModal(perms, f"{self.label}-{user.name}-mod-support"))
         else:
             await interaction.response.send_message("You are not allowed to use this.", ephemeral=True)
 
@@ -290,9 +250,12 @@ class ModSupportLayout(ui.LayoutView):
                     label="Emergency", style=discord.ButtonStyle.danger, custom_id="Modmail_Emergency", emoji="‼"
                 ),
             ),
-            ui.Separator(visible=True),
-            ui.TextDisplay(MOD_SUPPORT_PRIVATE),
-            ModSupportPrivateActionRow(),
+            ui.Section(
+                [ui.TextDisplay("## Private (Admins Only)"), ui.TextDisplay(MOD_SUPPORT_ADMIN_DESCRIPTION)],
+                accessory=ModSupportButton(
+                    label="Private", style=discord.ButtonStyle.danger, custom_id="Modmail_Admin", emoji="🔐"
+                ),
+            ),
         ],
         accent_color=0x0000FF,
     )
