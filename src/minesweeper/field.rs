@@ -519,37 +519,6 @@ impl Field {
         self.selected_y
     }
 
-    /*
-    pub fn reinit_field(&mut self, num: u32, param: ParamType) {
-        let mut restart_needed = false;
-        match param {
-            ParamType::Height => {
-                if self.height != num {
-                    self.height = num;
-                    self.reinit_vec();
-                    restart_needed = true;
-                }
-            }
-            ParamType::Width => {
-                if self.width != num {
-                    self.width = num;
-                    self.reinit_vec();
-                    restart_needed = true;
-                }
-            }
-            ParamType::Mines => {
-                if self.mines != num {
-                    self.mines = num;
-                    restart_needed = true;
-                }
-            }
-        }
-        if restart_needed {
-            self.restart();
-        }
-    }
-    */
-
     pub fn toggle_mark(&mut self, i: u32) -> bool {
         let cell = self.get_cell_mut(i);
         if cell.revealed {
