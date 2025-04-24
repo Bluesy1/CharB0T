@@ -6,7 +6,6 @@ import os
 
 import asyncpg
 import discord
-import niquests
 import sentry_sdk
 from discord.ext import commands
 
@@ -58,10 +57,8 @@ async def main():
             password=Config["postgres"]["password"],
             database=Config["postgres"]["database"],
         ) as pool,
-        niquests.AsyncSession() as session,
     ):
         bot.pool = pool
-        bot.session = session
         await bot.start(Config["discord"]["token"])
 
 

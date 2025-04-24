@@ -103,7 +103,6 @@ async def test_interaction_check_allowed(mock_inter, mocker: MockerFixture):
 
 async def test_sudoku_command_no_puzzle(mock_inter, mocker: MockerFixture):
     """Test that the code for the sudoku command functions as expected when no puzzle is returned."""
-    mock_inter.client.session = mocker.AsyncMock()
     mockedRequest = mocker.AsyncMock(return_value="", spec=Reputation._get_sudoku)
     cog = Reputation()
     cog._get_sudoku = mockedRequest
@@ -115,7 +114,7 @@ async def test_sudoku_command_no_puzzle(mock_inter, mocker: MockerFixture):
 
 async def test_sudoku_command_with_puzzle(mock_inter, mocker: MockerFixture):
     """Test that the code for the sudoku command functions as expected when a puzzle is returned."""
-    mock_inter.client.session = mocker.AsyncMock()
+    # cspell:disable
     mock_resp = """<INPUT NAME=prefix ID="prefix" TYPE=hidden VALUE="fm8jy"> <INPUT NAME=start TYPE=hidden
 VALUE="1666103758"> <INPUT NAME=inchallenge TYPE=hidden VALUE=""> <INPUT NAME=level TYPE=hidden
 VALUE="2"> <INPUT NAME=id ID="pid" TYPE=hidden VALUE="864770552"> <INPUT NAME=cheat ID="cheat"
@@ -124,6 +123,7 @@ TYPE=hidden VALUE="3816425792459738169671582344295376816734819521582963475148297
 VALUE="101111110011111000111001111110110010101010101010011011111100111000111110011111101"> <INPUT
 NAME=options TYPE=hidden VALUE="2"> <INPUT NAME=errors TYPE=hidden VALUE="0" ID="errors"> <INPUT
 NAME=layout TYPE=hidden VALUE="">"""
+    # cspell:enable
     mockedRequest = mocker.AsyncMock(return_value=mock_resp, spec=Reputation._get_sudoku)
     cog = Reputation()
     cog._get_sudoku = mockedRequest
@@ -151,7 +151,7 @@ async def test_tictactoe_command(mock_inter, mocker: MockerFixture):
 
 async def test_shrugman_command(mock_bot, mocker: MockerFixture):
     """Test that the code for the shrugman command functions as expected"""
-    cog = Reputation(mock_bot)
+    cog = Reputation()
     mock_interaction = mocker.AsyncMock(
         spec=discord.Interaction,
         user=mocker.AsyncMock(spec=discord.Member),

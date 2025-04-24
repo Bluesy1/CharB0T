@@ -26,6 +26,9 @@ class Reputation(commands.Cog, name="Programs"):
         re.RegexFlag.MULTILINE | re.RegexFlag.DOTALL | re.RegexFlag.IGNORECASE,
     )
 
+    def __init__(self):
+        self.session = niquests.AsyncSession()
+
     async def interaction_check(self, interaction: Interaction[CBot]):  # skipcq: PYL-W0221
         """Check if the user is allowed to use the cog."""
         if interaction.guild is None:
@@ -51,8 +54,8 @@ class Reputation(commands.Cog, name="Programs"):
     programs = app_commands.Group(name="programs", description="Programs to gain you rep.", guild_only=True)
     beta = app_commands.Group(name="beta", description="Beta programs..", parent=programs)
 
-    async def _get_sudoku(self, session: niquests.AsyncSession) -> str:  # pragma: no cover
-        async with await session.get("https://nine.websudoku.com/?level=2") as response:
+    async def _get_sudoku(self) -> str:  # pragma: no cover
+        async with await self.session.get("https://nine.websudoku.com/?level=2") as response:
             return response.text or ""
 
     @programs.command(name="sudoku", description="Play a Sudoku puzzle")
@@ -67,7 +70,7 @@ class Reputation(commands.Cog, name="Programs"):
             Whether to turn off formatting that only works on desktop.
         """
         await interaction.response.defer(ephemeral=True)
-        match = self.SUDOKU_REGEX.search(await self._get_sudoku(interaction.client.session))
+        match = self.SUDOKU_REGEX.search(await self._get_sudoku())
         if match is None:
             await interaction.followup.send("Couldn't find a puzzle.")
             return

@@ -9,6 +9,7 @@ from typing import Literal, NamedTuple, NotRequired, Optional, TypedDict, cast
 from zoneinfo import ZoneInfo
 
 import discord
+import niquests
 from discord.ext import commands, tasks
 from discord.utils import MISSING, format_dt, utcnow
 from validators import url
@@ -226,12 +227,14 @@ class Calendar(commands.Cog):
         )
         self.webhook: Optional[discord.Webhook] = MISSING
         self.calendar.change_interval(time=list(half_hour_intervals()))
+        self.session = niquests.AsyncSession()
 
     async def cog_unload(self) -> None:  # skipcq: PYL-W0236
         """Unload hook."""
         self.calendar.cancel()
         self.bot.holder["message"] = self.message
         self.bot.holder["webhook"] = self.webhook
+        await self.session.close()
 
     async def cog_load(self) -> None:
         """Load hook."""
@@ -255,7 +258,7 @@ class Calendar(commands.Cog):
         await ctx.message.add_reaction("✅")
 
     async def _get_cal_data(self, mindatetime: datetime, maxdatetime: datetime, /) -> CalResponse:  # pragma: no cover
-        async with await self.bot.session.get(
+        async with await self.session.get(
             "https://www.googleapis.com/calendar/v3/calendars/u8n1onpbv9pb5du7gssv2md58s@group.calendar.google.com/events",
             params=get_params(mindatetime, maxdatetime),
         ) as response:

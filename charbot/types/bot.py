@@ -4,7 +4,6 @@ from typing import Any, ClassVar
 from zoneinfo import ZoneInfo
 
 import asyncpg
-import niquests
 from discord import Member, User, Webhook, app_commands
 from discord.ext import commands
 
@@ -17,7 +16,6 @@ class CBot(commands.Bot):
     CHANNEL_ID: ClassVar[int]
     TIME: Callable[[], datetime.datetime]
     __init__: Callable[[tuple[Any, ...], bool, type["Tree"], dict[str, Any]], None]
-    session: niquests.AsyncSession
     pool: asyncpg.Pool
     program_logs: Webhook
     setup_hook: Callable[..., Coroutine[None, None, None]]

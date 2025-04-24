@@ -16,4 +16,4 @@ async def setup(bot: CBot) -> None:  # pragma: no cover
     ----------
     bot : CBot
     """
-    await bot.add_cog(Reputation(bot), override=True)
+    await bot.add_cog(Reputation(), override=True)
