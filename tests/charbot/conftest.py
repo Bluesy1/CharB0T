@@ -24,23 +24,6 @@ if os.name != "nt":
         return request.param
 
 
-from sys import modules
-
-import niquests
-import niquests.adapters
-from niquests.packages import urllib3  # pyright: ignore
-
-
-# responses is tied to Requests
-# and Niquests is entirely compatible with it.
-# we can fool it without effort.
-modules["requests"] = niquests
-modules["requests.adapters"] = niquests.adapters
-modules["requests.models"] = niquests.models
-modules["requests.exceptions"] = niquests.exceptions
-modules["requests.packages.urllib3"] = urllib3
-
-
 @pytest.fixture(scope="session")
 def cluster() -> asyncpg.cluster.TempCluster:  # pyright: ignore[reportInvalidTypeForm]
     """Create the temp database cluster"""
