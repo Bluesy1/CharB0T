@@ -5,7 +5,6 @@ import logging
 from typing import Any, ClassVar, Final, Self, TypeVar, cast
 from zoneinfo import ZoneInfo
 
-import aiohttp
 import asyncpg
 import discord
 from discord import app_commands
@@ -144,7 +143,6 @@ class CBot(commands.Bot):
     ) -> None:  # pragma: no cover
         super().__init__(*args, strip_after_prefix=strip_after_prefix, tree_cls=tree_cls, **kwargs)
         self.pool: asyncpg.Pool = MISSING
-        self.session: aiohttp.ClientSession = MISSING
         self.program_logs: discord.Webhook = MISSING
         self.error_logs: discord.Webhook = MISSING
         self.holder: Holder = Holder()

@@ -9,7 +9,7 @@ from typing import Literal, NamedTuple, NotRequired, Optional, TypedDict, cast
 from zoneinfo import ZoneInfo
 
 import discord
-import orjson
+import niquests
 from discord.ext import commands, tasks
 from discord.utils import MISSING, format_dt, utcnow
 from validators import url
@@ -19,6 +19,7 @@ from . import CBot, Config
 
 ytLink = "https://www.youtube.com/charliepryor/live"
 chartime = ZoneInfo("US/Michigan")
+calTimeZone = ZoneInfo("America/New_York")
 time_format = "%H:%M %x %Z"
 
 
@@ -226,12 +227,14 @@ class Calendar(commands.Cog):
         )
         self.webhook: Optional[discord.Webhook] = MISSING
         self.calendar.change_interval(time=list(half_hour_intervals()))
+        self.session = niquests.AsyncSession()
 
     async def cog_unload(self) -> None:  # skipcq: PYL-W0236
         """Unload hook."""
         self.calendar.cancel()
         self.bot.holder["message"] = self.message
         self.bot.holder["webhook"] = self.webhook
+        await self.session.close()
 
     async def cog_load(self) -> None:
         """Load hook."""
@@ -254,6 +257,13 @@ class Calendar(commands.Cog):
         await self.calendar()
         await ctx.message.add_reaction("✅")
 
+    async def _get_cal_data(self, mindatetime: datetime, maxdatetime: datetime, /) -> CalResponse:  # pragma: no cover
+        async with await self.session.get(
+            "https://www.googleapis.com/calendar/v3/calendars/u8n1onpbv9pb5du7gssv2md58s@group.calendar.google.com/events",
+            params=get_params(mindatetime, maxdatetime),
+        ) as response:
+            return response.json()
+
     @tasks.loop()
     async def calendar(self):
         """Calendar loop.
@@ -262,14 +272,9 @@ class Calendar(commands.Cog):
         It queries the Google calendar API and posts the results to the
         webhook, after parsing and formatting the results.
         """
-        mindatetime = datetime.now(tz=ZoneInfo("America/New_York"))
-        maxdatetime = datetime.now(tz=ZoneInfo("America/New_York")) + timedelta(weeks=1)
-        async with self.bot.session.get(
-            "https://www.googleapis.com/calendar/v3/calendars/"
-            "u8n1onpbv9pb5du7gssv2md58s@group.calendar.google.com/events",
-            params=get_params(mindatetime, maxdatetime),
-        ) as response:
-            items: CalResponse = await response.json(loads=orjson.loads)
+        mindatetime = datetime.now(tz=calTimeZone)
+        maxdatetime = mindatetime + timedelta(weeks=1)
+        items = await self._get_cal_data(mindatetime, maxdatetime)
         fields: dict[int, EmbedField] = {}
         cancelled_times = []
         times: set[datetime] = set()
@@ -291,7 +296,7 @@ class Calendar(commands.Cog):
                 times.add(sub_time)  # pragma: no cover
             if mindatetime < sub_time > maxdatetime:
                 continue
-            desc = item.get("description", None)
+            desc = item.get("description", None)  # pragma: no cover
             if desc is None:  # pragma: no cover
                 default_field(fields, sub_time, item)
             else:  # pragma: no cover

@@ -8,9 +8,9 @@ import random
 from collections.abc import Callable
 from typing import Optional, cast
 
-import aiohttp
 import asyncpg
 import discord
+import niquests
 from discord import Interaction, app_commands
 from discord.ext import commands, tasks
 from discord.utils import utcnow
@@ -57,12 +57,6 @@ class Leveling(commands.Cog):
         self._max_xp = 18
         self._xp_function: Callable[[int], int] = lambda x: (5 * x**2) + (50 * x) + 100
         self.off_cooldown: dict[int, datetime.datetime] = {}
-        self.default_profile = pathlib.Path(__file__).parent.joinpath("media/pools/profile.png").resolve(strict=True)
-        self.session = aiohttp.ClientSession(
-            auth=aiohttp.BasicAuth(login="Bluesy1", password=Config["github"]["token"]),
-            headers=Config["github"]["headers"],
-        )
-        self._post_url = "https://api.github.com/repos/bluesy1/charb0t/actions/workflows/leaderboard.yml/dispatches"
         self._upload: bool = False
         self.cooldown: commands.CooldownMapping[discord.Message] = commands.CooldownMapping.from_cooldown(
             1, 60, commands.BucketType.user
@@ -77,14 +71,17 @@ class Leveling(commands.Cog):
         """Unload the cog."""
         self.bot.holder["off_xp_cooldown"] = self.off_cooldown
         self.update_pages.cancel()
-        await self.session.close()
 
     @tasks.loop(time=[datetime.time(i) for i in range(24)])  # skipcq: PYL-E1123
     async def update_pages(self) -> None:
         """Update the page."""
         if self._upload:
-            async with self.session.post(self._post_url, json={"ref": "gh-pages"}) as _:
-                pass
+            await niquests.apost(
+                "https://api.github.com/repos/bluesy1/charb0t/actions/workflows/leaderboard.yml/dispatches",
+                json={"ref": "gh-pages"},
+                headers=Config["github"]["headers"],
+                auth=("Bluesy1", Config["github"]["token"]),
+            )
         self._upload = False
 
     async def proc_xp(self, message: discord.Message):
@@ -237,7 +234,7 @@ class Leveling(commands.Cog):
         if member.avatar is not None:
             profile_img = await member.avatar.read()
         else:
-            profile_img = self.default_profile.read_bytes()
+            profile_img = pathlib.Path(__file__).parent.joinpath("media/pools/profile.png").read_bytes()
 
         xp_details = user_record["detailed_xp"]
 

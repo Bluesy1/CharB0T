@@ -4,7 +4,6 @@ import asyncio
 import logging.config
 import os
 
-import aiohttp
 import asyncpg
 import discord
 import sentry_sdk
@@ -58,10 +57,8 @@ async def main():
             password=Config["postgres"]["password"],
             database=Config["postgres"]["database"],
         ) as pool,
-        aiohttp.ClientSession() as session,
     ):
         bot.pool = pool
-        bot.session = session
         await bot.start(Config["discord"]["token"])
 
 
