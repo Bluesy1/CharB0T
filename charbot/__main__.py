@@ -4,9 +4,9 @@ import asyncio
 import logging.config
 import os
 
-import aiohttp
 import asyncpg
 import discord
+import niquests
 import sentry_sdk
 from discord.ext import commands
 
@@ -58,7 +58,7 @@ async def main():
             password=Config["postgres"]["password"],
             database=Config["postgres"]["database"],
         ) as pool,
-        aiohttp.ClientSession() as session,
+        niquests.AsyncSession() as session,
     ):
         bot.pool = pool
         bot.session = session

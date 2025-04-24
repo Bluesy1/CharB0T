@@ -8,6 +8,7 @@ from itertools import count
 from typing import Final, Literal, cast
 
 import discord
+import niquests
 from discord import Interaction, app_commands
 from discord.ext import commands
 
@@ -50,6 +51,10 @@ class Reputation(commands.Cog, name="Programs"):
     programs = app_commands.Group(name="programs", description="Programs to gain you rep.", guild_only=True)
     beta = app_commands.Group(name="beta", description="Beta programs..", parent=programs)
 
+    async def _get_sudoku(self, session: niquests.AsyncSession) -> str:  # pragma: no cover
+        async with await session.get("https://nine.websudoku.com/?level=2") as response:
+            return response.text or ""
+
     @programs.command(name="sudoku", description="Play a Sudoku puzzle")
     async def sudoku(self, interaction: Interaction[CBot], mobile: bool):
         """Generate a sudoku puzzle.
@@ -62,12 +67,11 @@ class Reputation(commands.Cog, name="Programs"):
             Whether to turn off formatting that only works on desktop.
         """
         await interaction.response.defer(ephemeral=True)
-        async with interaction.client.session.get("https://nine.websudoku.com/?level=2") as response:
-            match = self.SUDOKU_REGEX.search(str(await response.content.read()))
-            if match is None:
-                await interaction.followup.send("Couldn't find a puzzle.")
-                return
-            vals, hidden = match.group("solution", "mask")
+        match = self.SUDOKU_REGEX.search(await self._get_sudoku(interaction.client.session))
+        if match is None:
+            await interaction.followup.send("Couldn't find a puzzle.")
+            return
+        vals, hidden = match.group("solution", "mask")
         board: list[list[int]] = [[] for _ in range(9)]
         for i, num, hidden_bit in zip(count(), vals, hidden):
             board[i // 9].append(int(num) if int(hidden_bit) == 0 else 0)

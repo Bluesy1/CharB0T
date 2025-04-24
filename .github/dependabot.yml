@@ -13,7 +13,6 @@ updates:
       pytest:
         patterns:
           - "pytest*"
-          - "aioresponses"
       core:
         patterns:
           - "aiohttp"
