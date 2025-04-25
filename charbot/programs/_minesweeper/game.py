@@ -20,8 +20,8 @@ class Game:
         self.mines: Final[int] = mines
         self.size = width**2
         self.cells: list[Cell] = []
-        self.selected_x = init_selected = width // 2
-        self.selected_y = init_selected
+        self.selected_col = init_selected = width // 2
+        self.selected_row = init_selected
         self.numbers_total = self.numbers_needed = 0
         self.__initialized = False
         self.points = (0, 0)  # TODO: implement points properly
@@ -32,11 +32,16 @@ class Game:
 
     @property
     def x(self):
-        return self.selected_x
+        return self.selected_col
 
     @property
     def y(self):
-        return self.selected_y
+        return self.selected_row
+
+    @property
+    def selected_cell(self) -> Cell:
+        idx = self.selected_col + self.selected_row * self.width
+        return self.cells[idx]
 
     def get_neighbors(self, x: int, y: int) -> list[int]:
         begin_x = x - 1 if x > 0 else x
@@ -54,7 +59,7 @@ class Game:
         if self.__initialized:
             return
         self.numbers_total = self.numbers_needed = 0
-        cells_near_selected = self.get_neighbors(self.selected_x, self.selected_y)
+        cells_near_selected = self.get_neighbors(self.selected_col, self.selected_row)
         cells = [Cell(False) if i < self.mines else Cell() for i in range(self.size - len(cells_near_selected))]
         random.shuffle(cells)
         for idx in cells_near_selected:
@@ -139,8 +144,8 @@ class Game:
             img.paste(Image.open(tile), (x, y))
 
         draw = ImageDraw.Draw(img)
-        row_start = (self.selected_y + 1) * 50
-        col_start = (self.selected_x + 1) * 50
+        row_start = (self.selected_row + 1) * 50
+        col_start = (self.selected_col + 1) * 50
         draw.rectangle([(0, row_start), (img_size, row_start + 50)], fill=None, outline=(255, 255, 255))
         draw.rectangle([(col_start, 0), (col_start + 50, img_size)], fill=None, outline=(255, 255, 255))
 
@@ -150,10 +155,16 @@ class Game:
         return result
 
     def change_row(self, row: int) -> None:
-        raise NotImplementedError()
+        if 0 <= row < self.height and isinstance(row, int):
+            self.selected_row = row
+        else:
+            raise ValueError(f"Expected an integer between 0 and {self.height}, got {row!r} instead.")
 
     def change_col(self, col: int) -> None:
-        raise NotImplementedError()
+        if 0 <= col < self.height and isinstance(col, int):
+            self.selected_col = col
+        else:
+            raise ValueError(f"Expected an integer between 0 and {self.width}, got {col!r} instead.")
 
     def reveal(self):
         raise NotImplementedError()
