@@ -1,15 +1,15 @@
 """Minesweeper game."""
 
+import asyncio
 import string
-from io import BytesIO
 from typing import Self
 
 import discord
 from discord import ButtonStyle, Interaction, SelectOption, ui
-from PIL import Image
 
 from .. import CBot
 from ..rust import minesweeper
+from ._minesweeper.game import Game
 
 
 IMG_ALT_TEXT = "Minesweeper Board"
@@ -29,11 +29,7 @@ class Minesweeper(ui.View):
 
     __slots__ = ("game",)
 
-    def __init__(
-        self,
-        game: minesweeper.Game,
-        locale: discord.Locale = discord.Locale.american_english,
-    ):
+    def __init__(self, game: Game):
         super().__init__()
         self.game = game
         x = self.game.x
@@ -72,12 +68,8 @@ class Minesweeper(ui.View):
         discord.File
             The game board as a discord.File.
         """
-        board, size = self.game.draw()
-        img = Image.frombytes("RGB", size, bytes(board))
-        bytesio = BytesIO()
-        img.save(bytesio, "PNG")
-        bytesio.seek(0)
-        return discord.File(bytesio, filename="minesweeper.png", description=alt)
+        board = await asyncio.to_thread(self.game.draw)
+        return discord.File(board, filename="minesweeper.png", description=alt)
 
     async def handle_lose(self, interaction: Interaction[CBot]):
         """Handle a loss.
