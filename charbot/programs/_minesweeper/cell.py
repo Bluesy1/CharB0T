@@ -14,6 +14,9 @@ class Cell:
         self._marked = False
         self.content: ContentType = content
 
+    def __repr__(self) -> str:  # pragma: no cover
+        return f"<Cell revealed={self._revealed}, marked={self.marked}, content={self.content!r}>"
+
     @property
     def revealed(self) -> bool:
         return self._revealed

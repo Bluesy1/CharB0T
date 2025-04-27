@@ -97,10 +97,6 @@ class Game:
         return self.selected_row
 
     @property
-    def selected(self):
-        return self.selected_row + self.selected_col - self.width
-
-    @property
     def points(self) -> tuple[int, int]:
         return self.__win_points if self.is_win() else self.__lose_points
 
@@ -144,7 +140,7 @@ class Game:
                 return 0
             else:
                 if isinstance(cell.content, bool):
-                    return int(cell.content)
+                    return 1
             return 0
 
         for pos in range(self.size):
@@ -182,8 +178,8 @@ class Game:
         for i, cell in enumerate(self.cells):
             row = i // self.width
             col = i % self.width
-            x = (row + 1) * 50
-            y = (col + 1) * 50
+            x = (col + 1) * 50
+            y = (row + 1) * 50
             tile = TILE_BASE / "default.png"
             match cell.content:
                 case bool(trigger):
@@ -205,7 +201,7 @@ class Game:
                         tile = tile.with_stem("empty")
                     elif cell.marked:
                         tile = tile.with_stem("flag")
-                case unexpected:
+                case unexpected:  # pragma: no cover
                     assert_never(unexpected)
             img.paste(Image.open(tile), (x, y))
 
@@ -223,13 +219,13 @@ class Game:
     def change_row(self, row: int) -> None:
         if 0 <= row < self.height and isinstance(row, int):
             self.selected_row = row
-        else:
+        else:  # pragma: no cover
             raise ValueError(f"Expected an integer between 0 and {self.height}, got {row!r} instead.")
 
     def change_col(self, col: int) -> None:
         if 0 <= col < self.height and isinstance(col, int):
             self.selected_col = col
-        else:
+        else:  # pragma: no cover
             raise ValueError(f"Expected an integer between 0 and {self.width}, got {col!r} instead.")
 
     def reveal(self) -> RevealResult:
@@ -250,9 +246,9 @@ class Game:
                 self.numbers_opened += 1
                 return RevealResult.Number
             case None:
-                self._chain_reveal(self.selected)
+                self._chain_reveal(self.selected_col + (self.selected_row * self.width))
                 return RevealResult.Empty
-            case unexpected:
+            case unexpected:  # pragma: no cover
                 assert_never(unexpected)
 
     def _chain_reveal(self, idx: int):
@@ -269,7 +265,7 @@ class Game:
                 if not isinstance(content, bool):
                     cell.marked = False
                     cell.revealed = True
-                    if cell is None:
+                    if cell.content is None:
                         queue.append(i)
                     else:
                         self.numbers_opened += 1
@@ -324,7 +320,7 @@ class Game:
         return ChordResult.Success
 
     def toggle_flag(self):
-        if self.selected_cell.revealed:
+        if self.selected_cell.revealed is True:
             return False
         self.selected_cell.marked = not self.selected_cell.marked
         return True

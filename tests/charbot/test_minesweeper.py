@@ -1,8 +1,12 @@
+import pathlib
+import random
+import sys
 from typing import Any
 
 import discord
 import pytest
 from discord import Interaction
+from PIL import Image
 from pytest_mock import MockerFixture
 
 from charbot import CBot
@@ -276,3 +280,38 @@ def test_cell_marked_setter():
     assert cell.marked is True
     with pytest.raises(TypeError, match="Expected bool, got <class 'int'> instead!"):
         cell.marked = 1  # pyright: ignore[reportAttributeAccessIssue]
+
+
+@pytest.mark.xfail(sys.platform == "win32", reason="PIL not consistent between platforms due to various reasons")
+def test_board_draw(monkeypatch):
+    rand = random.Random(1234567890)
+    monkeypatch.setattr(random, "shuffle", rand.shuffle)
+    game = Game.beginner()
+    assert game.reveal() is RevealResult.Empty
+    game.reset()
+    game.draw()
+    with (
+        Image.open(game.draw()) as got,
+        Image.open(pathlib.Path(__file__).parent / "media/test_minesweeper_draw.png") as expected,
+    ):
+        assert got == expected, "Got unexpected banner"
+
+
+@pytest.mark.xfail(sys.platform == "win32", reason="PIL not consistent between platforms due to various reasons")
+def test_board_draw_after_fail(monkeypatch):
+    rand = random.Random(1234567890)
+    monkeypatch.setattr(random, "shuffle", rand.shuffle)
+    game = Game.beginner()
+    assert game.reveal() is RevealResult.Empty
+    game.change_row(game.selected_row - 2)
+    game.change_col(game.selected_col + 1)
+    assert game.toggle_flag() is True
+    game.change_row(game.selected_row - 1)
+    game.change_col(game.selected_col + 1)
+    assert game.reveal() == RevealResult.Mine
+    assert game.is_win() is False
+    with (
+        Image.open(game.draw()) as got,
+        Image.open(pathlib.Path(__file__).parent / "media/test_minesweeper_draw_after_fail.png") as expected,
+    ):
+        assert got == expected, "Got unexpected banner"
