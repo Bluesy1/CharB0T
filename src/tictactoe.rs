@@ -19,7 +19,7 @@ pub enum Difficulty {
 
 impl Difficulty {
     fn extract(obj: i32) -> Result<Self, String> {
-         match obj {
+        match obj {
             1 => Ok(Difficulty::Easy),
             2 => Ok(Difficulty::Medium),
             3 => Ok(Difficulty::Hard),
