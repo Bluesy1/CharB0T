@@ -250,15 +250,15 @@ class Game:
                 self.numbers_opened += 1
                 return RevealResult.Number
             case None:
-                self._chain_reveal()
+                self._chain_reveal(self.selected)
                 return RevealResult.Empty
             case unexpected:
                 assert_never(unexpected)
 
-    def _chain_reveal(self):
-        if self.selected_cell.marked:
+    def _chain_reveal(self, idx: int):
+        if self.cells[idx].marked:
             return
-        queue = deque([self.selected])
+        queue = deque([idx])
 
         def check_idx(i: int):
             if 0 <= i < self.size:
@@ -294,7 +294,34 @@ class Game:
             cell.revealed = True
 
     def chord(self) -> ChordResult:
-        raise NotImplementedError
+        if self.selected_cell.revealed is False:  # Cell must be revealed
+            return ChordResult.Failed
+        content = self.selected_cell.content
+        # Cell must be a number
+        if not isinstance(content, int) or isinstance(content, bool):
+            return ChordResult.Failed
+        marked_count = 0
+        neighbors = self.get_neighbors(self.selected_col, self.selected_row)
+        for idx in neighbors:
+            cell = self.cells[idx]
+            if cell.marked and not cell.revealed:
+                marked_count += 1
+        if marked_count != content:
+            return ChordResult.Failed
+
+        for idx in neighbors:
+            cell = self.cells[idx]
+            if cell.marked:
+                continue
+            cell.revealed = True
+            if isinstance(cell.content, bool):
+                cell.content = True
+                self._reveal_all()
+                return ChordResult.Death
+            if cell.content is None:
+                self._chain_reveal(idx)
+
+        return ChordResult.Success
 
     def toggle_flag(self):
         if self.selected_cell.revealed:
