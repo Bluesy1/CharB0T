@@ -7,6 +7,8 @@ type ContentType = None | bool | Literal[1, 2, 3, 4, 5, 6, 7, 8]
 
 
 class Cell:
+    __slots__ = ("_revealed", "_marked", "content")
+
     def __init__(self, content: ContentType = None) -> None:
         self._revealed = False
         self._marked = False

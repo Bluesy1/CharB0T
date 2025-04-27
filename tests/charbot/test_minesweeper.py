@@ -7,7 +7,7 @@ from pytest_mock import MockerFixture
 
 from charbot import CBot
 from charbot.programs import minesweeper
-from charbot.programs._minesweeper.game import ChordResult, Game, RevealResult
+from charbot.programs._minesweeper.game import Cell, ChordResult, Game, RevealResult
 
 
 @pytest.fixture
@@ -258,3 +258,21 @@ async def test_help(game, inter, mocker: MockerFixture):
     assert len(kwargs) == 2, "Kwargs should have two elements"
     file: discord.File = kwargs["file"]
     assert file._filename == "help.gif", "File name should be help.gif"
+
+
+def test_cell_revealed_setter():
+    cell = Cell()
+    assert cell.revealed is False
+    cell.revealed = True
+    assert cell.revealed is True
+    with pytest.raises(TypeError, match="Expected bool, got <class 'int'> instead!"):
+        cell.revealed = 1  # pyright: ignore[reportAttributeAccessIssue]
+
+
+def test_cell_marked_setter():
+    cell = Cell()
+    assert cell.marked is False
+    cell.marked = True
+    assert cell.marked is True
+    with pytest.raises(TypeError, match="Expected bool, got <class 'int'> instead!"):
+        cell.marked = 1  # pyright: ignore[reportAttributeAccessIssue]
