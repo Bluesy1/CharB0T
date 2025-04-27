@@ -105,17 +105,22 @@ class Game:
         idx = self.selected_col + (self.selected_row * self.width)
         return self.cells[idx]
 
-    def get_neighbors(self, x: int, y: int) -> list[int]:
+    def get_neighbors(self, x: int, y: int, /) -> list[int]:
         begin_x = x - 1 if x > 0 else x
-        end_x = x - 1 if x < self.width else x
+        end_x = x + 1 if x < self.width - 1 else x
         begin_y = y - 1 if y > 0 else y
-        end_y = y - 1 if y < self.height else y
+        end_y = y + 1 if y < self.height - 1 else y
         idxs: list[int] = []
         for new_x in range(begin_x, end_x + 1):
             for new_y in range(begin_y, end_y + 1):
-                if new_x != x and new_y != y:
-                    idxs.append(x + y * self.width)
+                if new_x != x or new_y != y:
+                    idxs.append(new_x + (new_y * self.width))
         return idxs
+
+    def get_neighbors_for_idx(self, idx: int) -> list[int]:
+        x = idx % self.width
+        y = idx // self.width
+        return self.get_neighbors(x, y)
 
     def reset(self):
         if self.__initialized:
@@ -270,20 +275,9 @@ class Game:
                     else:
                         self.numbers_opened += 1
 
-        width = self.width
         while queue:
-            idx = queue.popleft()
-            # Check above/below
-            check_idx(idx - width)
-            check_idx(idx + width)
-            # Check left side
-            check_idx(idx - 1 - width)
-            check_idx(idx - 1)
-            check_idx(idx - 1 + width)
-            # Check right side
-            check_idx(idx + 1 - width)
-            check_idx(idx + 1)
-            check_idx(idx + 1 + width)
+            for neighbor in self.get_neighbors_for_idx(queue.popleft()):
+                check_idx(neighbor)
 
     def _reveal_all(self):
         for cell in self.cells:

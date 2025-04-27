@@ -288,13 +288,13 @@ def test_board_draw(monkeypatch):
     monkeypatch.setattr(random, "shuffle", rand.shuffle)
     game = Game.beginner()
     assert game.reveal() is RevealResult.Empty
+    assert game._Game__initialized is True  # pyright: ignore[reportAttributeAccessIssue]
     game.reset()
-    game.draw()
     with (
         Image.open(game.draw()) as got,
         Image.open(pathlib.Path(__file__).parent / "media/test_minesweeper_draw.png") as expected,
     ):
-        assert got == expected, "Got unexpected banner"
+        assert got == expected
 
 
 @pytest.mark.xfail(sys.platform == "win32", reason="PIL not consistent between platforms due to various reasons")
@@ -303,15 +303,26 @@ def test_board_draw_after_fail(monkeypatch):
     monkeypatch.setattr(random, "shuffle", rand.shuffle)
     game = Game.beginner()
     assert game.reveal() is RevealResult.Empty
-    game.change_row(game.selected_row - 2)
-    game.change_col(game.selected_col + 1)
+    game.change_row(game.selected_row + 2)
     assert game.toggle_flag() is True
-    game.change_row(game.selected_row - 1)
-    game.change_col(game.selected_col + 1)
+    game.change_col(game.selected_col + 2)
     assert game.reveal() == RevealResult.Mine
     assert game.is_win() is False
     with (
         Image.open(game.draw()) as got,
         Image.open(pathlib.Path(__file__).parent / "media/test_minesweeper_draw_after_fail.png") as expected,
     ):
-        assert got == expected, "Got unexpected banner"
+        assert got == expected
+
+
+def test_chord(monkeypatch):
+    rand = random.Random(1234567890)
+    monkeypatch.setattr(random, "shuffle", rand.shuffle)
+    game = Game.beginner()
+    assert game.reveal() is RevealResult.Empty
+    game.change_row(game.selected_row - 2)
+    game.change_col(game.selected_col + 1)
+    assert game.toggle_flag() is True
+    game.change_row(game.selected_row + 1)
+    assert game.chord() == ChordResult.Success
+    assert game.is_win() is False
