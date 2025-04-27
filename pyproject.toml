@@ -29,7 +29,7 @@ dependencies = [
 	"jishaku[procinfo]==2.6.0",
 	"niquests[speedups]==3.14.0",
 	"orjson==3.10.16",
-	"Pillow==11.1.0",
+	"Pillow==11.2.1",
 	"pytesseract==0.3.13",
 	"sentry-sdk==2.8.0",
 	"typing-extensions==4.13.2",
