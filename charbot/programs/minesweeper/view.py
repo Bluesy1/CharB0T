@@ -84,7 +84,7 @@ class Minesweeper(ui.View):
         points = self.game.points
         awarded = await interaction.client.give_game_points(interaction.user, *points)
         description = f"You revealed a mine and lost the game. You gained {awarded} points."
-        if awarded != sum(points):
+        if awarded != sum(points):  # pragma: no branch
             description += " (Hit daily cap)"
         embed = discord.Embed(
             title="You lost!",
@@ -109,7 +109,7 @@ class Minesweeper(ui.View):
         points = self.game.points
         awarded = await interaction.client.give_game_points(interaction.user, *points)
         description = f"You revealed all the safe tiles and won the game. You gained {awarded} points."
-        if awarded != sum(points):
+        if awarded != sum(points):  # pragma: no branch
             description += " (Hit daily cap)"
         embed = discord.Embed(
             title="You won!",
