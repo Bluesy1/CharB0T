@@ -13,7 +13,7 @@ crate-type = ["cdylib"]
 
 [dependencies]
 pyo3 = { version = "0.24.1" }
-rand = "0.9.0"
+rand = "0.9.1"
 
 [dev-dependencies]
 yare = "3.0.0"
