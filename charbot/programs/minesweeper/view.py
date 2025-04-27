@@ -7,8 +7,8 @@ from typing import Self
 import discord
 from discord import ButtonStyle, Interaction, SelectOption, ui
 
-from .. import CBot
-from ._minesweeper import game as minesweeper
+from ... import CBot
+from . import game as minesweeper
 
 
 IMG_ALT_TEXT = "Minesweeper Board"
