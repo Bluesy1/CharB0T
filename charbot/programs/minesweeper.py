@@ -8,8 +8,7 @@ import discord
 from discord import ButtonStyle, Interaction, SelectOption, ui
 
 from .. import CBot
-from ..rust import minesweeper
-from ._minesweeper.game import Game
+from ._minesweeper import game as minesweeper
 
 
 IMG_ALT_TEXT = "Minesweeper Board"
@@ -29,7 +28,7 @@ class Minesweeper(ui.View):
 
     __slots__ = ("game",)
 
-    def __init__(self, game: Game):
+    def __init__(self, game: minesweeper.Game):
         super().__init__()
         self.game = game
         x = self.game.x

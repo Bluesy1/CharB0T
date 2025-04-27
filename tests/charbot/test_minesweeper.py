@@ -7,12 +7,12 @@ from pytest_mock import MockerFixture
 
 from charbot import CBot
 from charbot.programs import minesweeper
-from charbot.rust.minesweeper import ChordResult, Game, RevealResult
+from charbot.programs._minesweeper.game import ChordResult, Game, RevealResult
 
 
 @pytest.fixture
 def game() -> Game:
-    return Game(5, 5, 1)
+    return Game(5, 1, (0, 0), (0, 0))
 
 
 @pytest.fixture

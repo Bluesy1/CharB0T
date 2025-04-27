@@ -51,8 +51,11 @@ class ChordResult(enum.Enum):
     Death = 2
 
 
+type ResultPoints = tuple[int, int]
+
+
 class Game:
-    def __init__(self, width: int, mines: int) -> None:
+    def __init__(self, width: int, mines: int, on_win: ResultPoints, on_lose: ResultPoints) -> None:
         self.width: Final[int] = width
         self.mines: Final[int] = mines
         self.size = width**2
@@ -62,6 +65,24 @@ class Game:
         self.numbers_total = self.numbers_opened = 0
         self.__initialized = False
         self._quit = False
+        self.__win_points: Final[ResultPoints] = on_win
+        self.__lose_points: Final[ResultPoints] = on_lose
+
+    @classmethod
+    def beginner(cls):
+        return cls(8, 10, (1, 1), (1, 0))
+
+    @classmethod
+    def intermediate(cls):
+        return cls(8, 10, (2, 3), (2, 0))
+
+    @classmethod
+    def expert(cls):
+        return cls(8, 10, (2, 4), (2, 0))
+
+    @classmethod
+    def super_expert(cls):
+        return cls(8, 10, (3, 5), (3, 0))
 
     @property
     def height(self):
@@ -80,8 +101,8 @@ class Game:
         return self.selected_row + self.selected_col - self.width
 
     @property
-    def points(self) -> tuple[int, int]:  # TODO: implement points properly
-        return (0, 0)
+    def points(self) -> tuple[int, int]:
+        return self.__win_points if self.is_win() else self.__lose_points
 
     @property
     def selected_cell(self) -> Cell:

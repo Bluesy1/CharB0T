@@ -13,8 +13,8 @@ from discord import Interaction, app_commands
 from discord.ext import commands
 
 from .. import CBot, errors
-from ..rust.minesweeper import Game as MinesweeperGame
 from . import shrugman, sudoku, tictactoe
+from ._minesweeper.game import Game as MinesweeperGame
 from .minesweeper import Minesweeper
 
 
