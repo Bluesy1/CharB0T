@@ -58,15 +58,15 @@ class Game:
     def __init__(self, width: int, mines: int, on_win: ResultPoints, on_lose: ResultPoints) -> None:
         self.width: Final[int] = width
         self.mines: Final[int] = mines
-        self.size = width**2
-        self.cells: list[Cell] = []
+        self.__win_points: Final[ResultPoints] = on_win
+        self.__lose_points: Final[ResultPoints] = on_lose
+        self.size = size = width**2
+        self.cells = [Cell()] * size
         self.selected_col = init_selected = width // 2
         self.selected_row = init_selected
         self.numbers_total = self.numbers_opened = 0
         self.__initialized = False
         self._quit = False
-        self.__win_points: Final[ResultPoints] = on_win
-        self.__lose_points: Final[ResultPoints] = on_lose
 
     @classmethod
     def beginner(cls):
@@ -106,7 +106,7 @@ class Game:
 
     @property
     def selected_cell(self) -> Cell:
-        idx = self.selected_col + self.selected_row * self.width
+        idx = self.selected_col + (self.selected_row * self.width)
         return self.cells[idx]
 
     def get_neighbors(self, x: int, y: int) -> list[int]:
@@ -297,7 +297,10 @@ class Game:
         raise NotImplementedError
 
     def toggle_flag(self):
+        if self.selected_cell.revealed:
+            return False
         self.selected_cell.marked = not self.selected_cell.marked
+        return True
 
     def quit(self):
         self._quit = True
