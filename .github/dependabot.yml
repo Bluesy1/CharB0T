@@ -63,11 +63,6 @@ updates:
     schedule:
       # Check for updates to Rust dependencies every weekday
       interval: "monthly"
-    groups:
-      images:
-        patterns:
-          - "image"
-          - "imageproc"
 # GH Pages branch
   - package-ecosystem: "pip" # See documentation for possible values
     directory: "/" # Location of package manifests

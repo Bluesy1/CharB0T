@@ -13,9 +13,9 @@ from discord import Interaction, app_commands
 from discord.ext import commands
 
 from .. import CBot, errors
-from ..rust.minesweeper import Game as MinesweeperGame
 from . import shrugman, sudoku, tictactoe
-from .minesweeper import Minesweeper
+from .minesweeper.game import Game as MinesweeperGame
+from .minesweeper.view import Minesweeper
 
 
 class Reputation(commands.Cog, name="Programs"):

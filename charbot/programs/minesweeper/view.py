@@ -1,15 +1,14 @@
 """Minesweeper game."""
 
+import asyncio
 import string
-from io import BytesIO
 from typing import Self
 
 import discord
 from discord import ButtonStyle, Interaction, SelectOption, ui
-from PIL import Image
 
-from .. import CBot
-from ..rust import minesweeper
+from ... import CBot
+from . import game as minesweeper
 
 
 IMG_ALT_TEXT = "Minesweeper Board"
@@ -29,11 +28,7 @@ class Minesweeper(ui.View):
 
     __slots__ = ("game",)
 
-    def __init__(
-        self,
-        game: minesweeper.Game,
-        locale: discord.Locale = discord.Locale.american_english,
-    ):
+    def __init__(self, game: minesweeper.Game):
         super().__init__()
         self.game = game
         x = self.game.x
@@ -72,12 +67,8 @@ class Minesweeper(ui.View):
         discord.File
             The game board as a discord.File.
         """
-        board, size = self.game.draw()
-        img = Image.frombytes("RGB", size, bytes(board))
-        bytesio = BytesIO()
-        img.save(bytesio, "PNG")
-        bytesio.seek(0)
-        return discord.File(bytesio, filename="minesweeper.png", description=alt)
+        board = await asyncio.to_thread(self.game.draw)
+        return discord.File(board, filename="minesweeper.png", description=alt)
 
     async def handle_lose(self, interaction: Interaction[CBot]):
         """Handle a loss.
@@ -93,7 +84,7 @@ class Minesweeper(ui.View):
         points = self.game.points
         awarded = await interaction.client.give_game_points(interaction.user, *points)
         description = f"You revealed a mine and lost the game. You gained {awarded} points."
-        if awarded != sum(points):
+        if awarded != sum(points):  # pragma: no branch
             description += " (Hit daily cap)"
         embed = discord.Embed(
             title="You lost!",
@@ -118,7 +109,7 @@ class Minesweeper(ui.View):
         points = self.game.points
         awarded = await interaction.client.give_game_points(interaction.user, *points)
         description = f"You revealed all the safe tiles and won the game. You gained {awarded} points."
-        if awarded != sum(points):
+        if awarded != sum(points):  # pragma: no branch
             description += " (Hit daily cap)"
         embed = discord.Embed(
             title="You won!",

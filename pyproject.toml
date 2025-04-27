@@ -77,6 +77,8 @@ omit = [
 	"*/reputation_admin.py",
 	"*/mod_support.py",
 	"*/levels.py",
+	"*/rust/**/*.py",
+	"*/rust/*.py",
 ]
 
 [tool.pyright]

@@ -1,4 +1,4 @@
-from . import minesweeper, tictactoe
+from . import tictactoe
 
 
-__all__ = ("tictactoe", "minesweeper")
+__all__ = ("tictactoe",)
