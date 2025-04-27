@@ -1,6 +1,8 @@
+import enum
 import pathlib
 import random
 import string
+from collections import deque
 from io import BytesIO
 from typing import Final, assert_never
 
@@ -14,6 +16,41 @@ LABEL_BASE = MEDIA_BASE / "labels"
 TILE_BASE = MEDIA_BASE / "tiles"
 
 
+class RevealResult(enum.Enum):
+    """An enum that represents the result of a reveal operation.
+
+    Flagged:
+        The cell was flagged, the flag was removed, but to reveal the cell, call again.
+    Mine:
+        The cell was a mine, the game is over.
+    Empty:
+        The cell was empty, floodfill has occurred.
+    Number:
+        The cell was adjacent to mines.
+    """
+
+    Flagged = 0
+    Mine = 1
+    Empty = 2
+    Number = 3
+
+
+class ChordResult(enum.Enum):
+    """An enum that represents the result of a chard operation.
+
+    Failed:
+        The cell was not revealed, not a number, or didn't have the appropriate amount of flags.
+    Success:
+        The chord was performed properly and no mines were revealed.
+    Death:
+        The chord was performed, but a mine was revealed, ending the game.
+    """
+
+    Failed = 0
+    Success = 1
+    Death = 2
+
+
 class Game:
     def __init__(self, width: int, mines: int) -> None:
         self.width: Final[int] = width
@@ -22,9 +59,9 @@ class Game:
         self.cells: list[Cell] = []
         self.selected_col = init_selected = width // 2
         self.selected_row = init_selected
-        self.numbers_total = self.numbers_needed = 0
+        self.numbers_total = self.numbers_opened = 0
         self.__initialized = False
-        self.points = (0, 0)  # TODO: implement points properly
+        self._quit = False
 
     @property
     def height(self):
@@ -37,6 +74,14 @@ class Game:
     @property
     def y(self):
         return self.selected_row
+
+    @property
+    def selected(self):
+        return self.selected_row + self.selected_col - self.width
+
+    @property
+    def points(self) -> tuple[int, int]:  # TODO: implement points properly
+        return (0, 0)
 
     @property
     def selected_cell(self) -> Cell:
@@ -58,7 +103,7 @@ class Game:
     def reset(self):
         if self.__initialized:
             return
-        self.numbers_total = self.numbers_needed = 0
+        self.numbers_total = self.numbers_opened = 0
         cells_near_selected = self.get_neighbors(self.selected_col, self.selected_row)
         cells = [Cell(False) if i < self.mines else Cell() for i in range(self.size - len(cells_near_selected))]
         random.shuffle(cells)
@@ -166,17 +211,79 @@ class Game:
         else:
             raise ValueError(f"Expected an integer between 0 and {self.width}, got {col!r} instead.")
 
-    def reveal(self):
-        raise NotImplementedError()
+    def reveal(self) -> RevealResult:
+        if not self.__initialized:
+            self.reset()
+        if self.selected_cell.marked:
+            self.selected_cell.marked = False
+            return RevealResult.Flagged
+        self.selected_cell.revealed = True
+        content = self.selected_cell.content
+        match content:
+            case bool(_):
+                self._reveal_all()
+                self.selected_cell.content = True
+                self._quit = True
+                return RevealResult.Mine
+            case 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8:
+                self.numbers_opened += 1
+                return RevealResult.Number
+            case None:
+                self._chain_reveal()
+                return RevealResult.Empty
+            case unexpected:
+                assert_never(unexpected)
 
-    def chord(self):
-        raise NotImplementedError()
+    def _chain_reveal(self):
+        if self.selected_cell.marked:
+            return
+        queue = deque([self.selected])
+
+        def check_idx(i: int):
+            if 0 <= i < self.size:
+                cell = self.cells[i]
+                if cell.revealed:
+                    return
+                content = cell.content
+                if not isinstance(content, bool):
+                    cell.marked = False
+                    cell.revealed = True
+                    if cell is None:
+                        queue.append(i)
+                    else:
+                        self.numbers_opened += 1
+
+        width = self.width
+        while queue:
+            idx = queue.popleft()
+            # Check above/below
+            check_idx(idx - width)
+            check_idx(idx + width)
+            # Check left side
+            check_idx(idx - 1 - width)
+            check_idx(idx - 1)
+            check_idx(idx - 1 + width)
+            # Check right side
+            check_idx(idx + 1 - width)
+            check_idx(idx + 1)
+            check_idx(idx + 1 + width)
+
+    def _reveal_all(self):
+        for cell in self.cells:
+            cell.revealed = True
+
+    def chord(self) -> ChordResult:
+        raise NotImplementedError
 
     def toggle_flag(self):
-        raise NotImplementedError()
+        self.selected_cell.marked = not self.selected_cell.marked
 
     def quit(self):
-        raise NotImplementedError()
+        self._quit = True
+        self._reveal_all()
 
     def is_win(self):
-        raise NotImplementedError()
+        if self._quit:
+            return False
+        else:
+            return self.numbers_total == self.numbers_opened
