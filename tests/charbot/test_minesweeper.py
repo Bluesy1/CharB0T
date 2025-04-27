@@ -320,9 +320,27 @@ def test_chord(monkeypatch):
     monkeypatch.setattr(random, "shuffle", rand.shuffle)
     game = Game.beginner()
     assert game.reveal() is RevealResult.Empty
-    game.change_row(game.selected_row - 2)
-    game.change_col(game.selected_col + 1)
+    assert game.toggle_flag() is False
+    assert game.chord() == ChordResult.Failed
+    game.change_row(game.selected_row + 2)
     assert game.toggle_flag() is True
-    game.change_row(game.selected_row + 1)
+    assert game.chord() == ChordResult.Failed
+    game.change_row(game.selected_row - 1)
     assert game.chord() == ChordResult.Success
+    game.change_col(game.selected_col + 1)
+    assert game.chord() == ChordResult.Failed
+    assert game.is_win() is False
+
+
+def test_chord_death_2(monkeypatch):
+    rand = random.Random(1234567890)
+    monkeypatch.setattr(random, "shuffle", rand.shuffle)
+    game = Game.beginner()
+    assert game.reveal() is RevealResult.Empty
+    game.change_row(game.selected_row + 2)
+    game.change_col(game.selected_col - 1)
+    assert game.toggle_flag() is True
+    game.change_row(game.selected_row - 1)
+    game.change_col(game.selected_col + 1)
+    assert game.chord() == ChordResult.Death
     assert game.is_win() is False
