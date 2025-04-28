@@ -49,7 +49,7 @@ class Leveling(commands.Cog):
         self.bucket_previous: dict[int, set[int]] = {}
         self.drain.start()
 
-    def cog_unload(self):
+    async def cog_unload(self):
         self.drain.cancel()
 
     async def proc_xp(self, message: discord.Message):
