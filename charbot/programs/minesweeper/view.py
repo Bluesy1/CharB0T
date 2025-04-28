@@ -15,7 +15,7 @@ IMG_ALT_TEXT = "Minesweeper Board"
 
 
 class Minesweeper(ui.View):
-    """Minesweeper view for rust.
+    """Minesweeper view.
 
     This is a view for the minesweeper game. It is a subclass of discord.ui.View, and it is used to display the game
     board and handle user input.
