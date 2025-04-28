@@ -12,32 +12,6 @@ from discord.ext import commands, tasks
 from . import CBot
 
 
-async def update_level_roles(member: discord.Member, new_level: int) -> None:
-    """Update the level roles of the user.
-
-    Parameters
-    ----------
-    member : discord.Member
-        The member to update the level roles of.
-    new_level : int
-        The new level of the user.
-    """
-    if new_level == 1:
-        await member.add_roles(discord.Object(969626979353632790), reason="Level 1")
-    elif new_level == 2:
-        await member.remove_roles(discord.Object(969626979353632790), reason="Level 2")
-        await member.add_roles(discord.Object(969627321239760967), reason="Level 2")
-    elif new_level == 3:
-        await member.remove_roles(discord.Object(969627321239760967), reason="Level 3")
-        await member.add_roles(discord.Object(969628342733119518), reason="Level 3")
-    elif new_level == 4:
-        await member.remove_roles(discord.Object(969628342733119518), reason="Level 4")
-        await member.add_roles(discord.Object(969629632028614699), reason="Level 4")
-    elif new_level == 5:
-        await member.remove_roles(discord.Object(969629632028614699), reason="Level 5")
-        await member.add_roles(discord.Object(969629628249563166), reason="Level 5")
-
-
 class Leveling(commands.Cog):
     """Level system."""
 
@@ -130,7 +104,21 @@ class Leveling(commands.Cog):
                         message.created_at,
                     )
                     if (old_xp // 20) < (level := new_xp // 20):
-                        await update_level_roles(member, level)
+                        match level:
+                            case 1:
+                                await member.add_roles(discord.Object(969626979353632790), reason="Level 1 reached")
+                            case 2:
+                                await member.remove_roles(discord.Object(969626979353632790), reason="Level 2 reached")
+                                await member.add_roles(discord.Object(969627321239760967), reason="Level 2 reached")
+                            case 3:
+                                await member.remove_roles(discord.Object(969627321239760967), reason="Level 3 reached")
+                                await member.add_roles(discord.Object(969628342733119518), reason="Level 3 reached")
+                            case 4:
+                                await member.remove_roles(discord.Object(969628342733119518), reason="Level 4 reached")
+                                await member.add_roles(discord.Object(969629632028614699), reason="Level 4 reached")
+                            case 5:
+                                await member.remove_roles(discord.Object(969629632028614699), reason="Level 5 reached")
+                                await member.add_roles(discord.Object(969629628249563166), reason="Level 5 reached")
                         messages.append(f"{member.mention} has reached level **{level}** congratulations!")
             if messages:
                 await message.channel.send("\n".join(messages))
