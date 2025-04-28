@@ -42,19 +42,12 @@ CREATE TABLE IF NOT EXISTS winners
     wins SMALLINT DEFAULT 0
 );
 
-CREATE TABLE IF NOT EXISTS xp_users
+CREATE TABLE IF NOT EXISTS levels
 (
     id            BIGINT             NOT NULL
-        CONSTRAINT xp_users_pk
-            PRIMARY KEY,
-    username      VARCHAR(32)        NOT NULL,
-    discriminator VARCHAR(4),
-    xp            BIGINT   DEFAULT 0 NOT NULL,
-    detailed_xp   BIGINT[] DEFAULT '{0,100,0}'::BIGINT[],
-    level         INTEGER  DEFAULT 0 NOT NULL,
-    messages      BIGINT   DEFAULT 0 NOT NULL,
-    avatar        VARCHAR,
-    prestige      SMALLINT DEFAULT 0
+        CONSTRAINT levels_pk PRIMARY KEY,
+    xp            BIGINT    DEFAULT 0 NOT NULL,
+    last_message  TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 
 CREATE TABLE IF NOT EXISTS no_xp
