@@ -102,7 +102,7 @@ class Game:
         return move
 
     def display_commands(self):
-        return [(Offset.new(i), self.board.board[i]) for i in range(9)]
+        return [(offset.value, spot) for offset, spot in zip(Offset, self.board.board)]
 
     def is_draw(self) -> bool:
         return self.board.is_draw()

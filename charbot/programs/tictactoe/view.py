@@ -66,14 +66,15 @@ class TicTacToe(ui.View):
         discord.File
             The image of the tictactoe game.
         """
-        grid = Image.open(pathlib.Path(__file__).parent.parent / "media/tictactoe/grid.png", "r").convert("RGBA")
-        cross = Image.open(pathlib.Path(__file__).parent.parent / "media/tictactoe/X.png", "r")
-        circle = Image.open(pathlib.Path(__file__).parent.parent / "media/tictactoe/O.png", "r")
+        FILE_BASE = pathlib.Path(__file__).parent.parent.parent
+        grid = Image.open(FILE_BASE / "media/tictactoe/grid.png", "r").convert("RGBA")
+        cross = Image.open(FILE_BASE / "media/tictactoe/X.png", "r")
+        circle = Image.open(FILE_BASE / "media/tictactoe/O.png", "r")
         for command, display in self.game.display_commands():
             if display == Piece.X:
-                grid.paste(cross, command.value, cross)
+                grid.paste(cross, command, cross)
             elif display == Piece.O:
-                grid.paste(circle, command.value, circle)
+                grid.paste(circle, command, circle)
         buffer = BytesIO()
         grid.save(buffer, format="PNG")
         buffer.seek(0)

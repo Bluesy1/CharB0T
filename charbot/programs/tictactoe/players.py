@@ -35,8 +35,8 @@ class MinimaxPlayer(Player):
         return best_move
 
     def minimax_search(self, board: Board, piece: Piece) -> tuple[int, int]:
-        counter = 0
-        best_move = 0
+        counter_ref = [0]
+        best_move_ref = [0]
         indices = list(Board.VALID_INDICES)
         random.shuffle(indices)
 
@@ -48,10 +48,10 @@ class MinimaxPlayer(Player):
             alpha=GameResult.Defeat,
             beta=GameResult.Victory,
             indices=indices,
-            best_move_ref=[best_move],
-            counter_ref=[counter],
+            best_move_ref=best_move_ref,
+            counter_ref=counter_ref,
         )
-        return best_move, counter
+        return best_move_ref[0], counter_ref[0]
 
     def minimax_step(
         self,

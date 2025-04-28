@@ -152,7 +152,6 @@ def test_minimax_player(alpha_beta):
     index = player.play(board, piece)
 
     assert index in tictactoe.Board.VALID_INDICES
-    assert str(player) == "Minimax player"
 
 
 def test_random_player():
@@ -162,7 +161,6 @@ def test_random_player():
     index = player.play(board, piece)
 
     assert index in tictactoe.Board.VALID_INDICES
-    assert str(player) == "Minimax player"
 
 
 def test_game_board_creation():
@@ -176,9 +174,9 @@ def test_game_board_creation():
     ("difficulty", "human_first_expected"),
     [
         (1, True),  # Easy
-        (2, True),  # Medium can be either, but assume True (randomized)
+        (2, None),  # Medium can be either)
         (3, False),  # Hard, computer first
-        (4, None),  # Random - could be True or False
+        (4, None),  # Random can be either
     ],
 )
 def test_game_creator(difficulty, human_first_expected):

@@ -27,21 +27,6 @@ class Offset(Enum):
     BottomMiddle = (179, 357)
     BottomRight = (355, 357)
 
-    @staticmethod
-    def new(index: int) -> "Offset":
-        try:
-            return list(Offset)[index]
-        except IndexError:
-            raise ValueError(f"Invalid index {index}") from None
-
-    @property
-    def value(self) -> tuple[int, int]:
-        return self.value
-
-    @property
-    def name(self) -> str:
-        return self.name
-
 
 WINNING_INDICES: list[tuple[int, int, int]] = [
     (0, 1, 2),
