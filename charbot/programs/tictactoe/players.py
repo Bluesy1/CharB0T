@@ -35,8 +35,8 @@ class MinimaxPlayer(Player):
         return best_move
 
     def minimax_search(self, board: Board, piece: Piece) -> tuple[int, int]:
-        counter_ref = [0]
-        best_move_ref = [0]
+        self.counter = 0
+        self.best_move = 0
         indices = list(Board.VALID_INDICES)
         random.shuffle(indices)
 
@@ -48,10 +48,8 @@ class MinimaxPlayer(Player):
             alpha=GameResult.Defeat,
             beta=GameResult.Victory,
             indices=indices,
-            best_move_ref=best_move_ref,
-            counter_ref=counter_ref,
         )
-        return best_move_ref[0], counter_ref[0]
+        return self.best_move, self.counter
 
     def minimax_step(
         self,
@@ -62,10 +60,8 @@ class MinimaxPlayer(Player):
         alpha: GameResult,
         beta: GameResult,
         indices: list[int],
-        best_move_ref: list[int],
-        counter_ref: list[int],
     ) -> GameResult:
-        counter_ref[0] += 1
+        self.counter += 1
 
         if board.is_victory_for_player(piece):
             return GameResult.Victory
@@ -85,24 +81,14 @@ class MinimaxPlayer(Player):
             new_board.n_pieces = board.n_pieces
             new_board.place_piece(index, piece if maximizing else piece.swap())
 
-            result = self.minimax_step(
-                new_board,
-                piece,
-                not maximizing,
-                level + 1,
-                alpha,
-                beta,
-                indices,
-                best_move_ref,
-                counter_ref,
-            )
+            result = self.minimax_step(new_board, piece, not maximizing, level + 1, alpha, beta, indices)
 
             if (maximizing and result.value > best_result.value) or (
                 not maximizing and result.value < best_result.value
             ):
                 best_result = result
                 if level == 0:
-                    best_move_ref[0] = index
+                    self.best_move = index
 
             # Alpha-beta pruning
             if self.alpha_beta:
