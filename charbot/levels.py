@@ -1,51 +1,15 @@
 """Level system."""
 
-import asyncio
+import collections
 import datetime
-import io
-import pathlib
-import random
-from collections.abc import Callable
-from typing import Optional, cast
+import time
+from typing import Optional
 
-import asyncpg
 import discord
-import niquests
 from discord import Interaction, app_commands
 from discord.ext import commands, tasks
-from discord.utils import utcnow
 
-from . import CBot, Config
-from .card import generate_profile
-
-
-async def update_level_roles(member: discord.Member, new_level: int) -> None:
-    """Update the level roles of the user.
-
-    Parameters
-    ----------
-    member : discord.Member
-        The member to update the level roles of.
-    new_level : int
-        The new level of the user.
-    """
-    if new_level == 1:
-        await member.add_roles(discord.Object(969626979353632790), reason="Level 1")
-    elif new_level == 5:
-        await member.remove_roles(discord.Object(969626979353632790), reason="Level 5")
-        await member.add_roles(discord.Object(969627321239760967), reason="Level 5")
-    elif new_level == 10:
-        await member.remove_roles(discord.Object(969627321239760967), reason="Level 10")
-        await member.add_roles(discord.Object(969628342733119518), reason="Level 10")
-    elif new_level == 20:
-        await member.remove_roles(discord.Object(969628342733119518), reason="Level 20")
-        await member.add_roles(discord.Object(969629632028614699), reason="Level 20")
-    elif new_level == 25:
-        await member.remove_roles(discord.Object(969629632028614699), reason="Level 25")
-        await member.add_roles(discord.Object(969629628249563166), reason="Level 25")
-    elif new_level == 30:
-        await member.remove_roles(discord.Object(969629628249563166), reason="Level 30")
-        await member.add_roles(discord.Object(969629622453039104), reason="Level 30")
+from . import CBot
 
 
 class Leveling(commands.Cog):
@@ -53,36 +17,13 @@ class Leveling(commands.Cog):
 
     def __init__(self, bot: CBot):
         self.bot = bot
-        self._min_xp = 11
-        self._max_xp = 18
-        self._xp_function: Callable[[int], int] = lambda x: (5 * x**2) + (50 * x) + 100
-        self.off_cooldown: dict[int, datetime.datetime] = {}
-        self._upload: bool = False
-        self.cooldown: commands.CooldownMapping[discord.Message] = commands.CooldownMapping.from_cooldown(
-            1, 60, commands.BucketType.user
-        )
+        self.buckets: dict[int, collections.deque[discord.Message]] = {}
+        self.bucket_cooldown: dict[int, float] = {}
+        self.bucket_previous: dict[int, set[int]] = {}
+        self.drain.start()
 
-    async def cog_load(self) -> None:
-        """Load the cog."""
-        self.off_cooldown = self.bot.holder.pop("off_xp_cooldown", {})
-        self.update_pages.start()
-
-    async def cog_unload(self) -> None:  # skipcq: PYL-W0236
-        """Unload the cog."""
-        self.bot.holder["off_xp_cooldown"] = self.off_cooldown
-        self.update_pages.cancel()
-
-    @tasks.loop(time=[datetime.time(i) for i in range(24)])  # skipcq: PYL-E1123
-    async def update_pages(self) -> None:
-        """Update the page."""
-        if self._upload:
-            await niquests.apost(
-                "https://api.github.com/repos/bluesy1/charb0t/actions/workflows/leaderboard.yml/dispatches",
-                json={"ref": "gh-pages"},
-                headers=Config["github"]["headers"],
-                auth=("Bluesy1", Config["github"]["token"]),
-            )
-        self._upload = False
+    async def cog_unload(self):
+        self.drain.cancel()
 
     async def proc_xp(self, message: discord.Message):
         """Add XP to the user when they send a message.
@@ -94,78 +35,93 @@ class Leveling(commands.Cog):
         """
         if message.author.bot or message.guild is None:
             return
+
+        guild = message.guild
+        channel_id = message.channel.id
+
         async with self.bot.pool.acquire() as conn, conn.transaction():
-            no_xp = await conn.fetchrow("SELECT * FROM no_xp WHERE guild = $1", message.guild.id)
+            no_xp = await conn.fetchrow("SELECT * FROM no_xp WHERE guild = $1", guild.id)
             if no_xp is None or message.channel.id in no_xp["channels"]:
                 return
-            member = cast(discord.Member, message.author)
-            if any(role.id in no_xp["roles"] for role in member.roles):
-                return
-            cooldown = self.cooldown.get_bucket(message)
-            if cooldown is None or cooldown.update_rate_limit() is None:
-                self._upload = True
-                self.off_cooldown[message.author.id] = utcnow() + datetime.timedelta(minutes=1)
-                user = await conn.fetchrow("SELECT * FROM xp_users WHERE id = $1", message.author.id)
-                gained = random.randint(self._min_xp, self._max_xp)
-                if user is None:
-                    await conn.execute(
-                        "INSERT INTO xp_users "
-                        "(id, username, discriminator, xp, detailed_xp, level, messages, avatar, prestige)"
-                        " VALUES ($1, $2, $3, $4, $5, 0, 1, $6, 0) ON CONFLICT (id) DO NOTHING",
-                        member.id,
-                        member.name,
-                        member.discriminator,
-                        gained,
-                        [gained, self._xp_function(0), gained],
-                        member.avatar.key if member.avatar else None,
-                    )
-                    return
-                if gained + user["detailed_xp"][0] >= self._xp_function(user["level"]):
-                    new_level = user["level"] + 1
-                    detailed = [0, self._xp_function(new_level), user["xp"] + gained]
-                    new_xp = detailed[2]
-                    await message.channel.send(
-                        f"{message.author.mention} has done some time, and is now level **{new_level}**."
-                    )
-                    await update_level_roles(member, new_level)
-                else:
-                    detailed = user["detailed_xp"]
-                    detailed[0] += gained
-                    detailed[2] += gained
-                    new_level = user["level"]
-                    new_xp = user["xp"] + gained
-                await conn.execute(
-                    "UPDATE xp_users SET level = $1, detailed_xp = $2, xp = $3, messages = messages + 1,"
-                    " avatar = $4 WHERE id = $5",
-                    new_level,
-                    detailed,
-                    new_xp,
-                    member.avatar.key if member.avatar else None,
-                    member.id,
-                )
 
-    @commands.Cog.listener()
-    async def on_user_update(self, before: discord.User, after: discord.User) -> None:
-        """Update a user's info for xp data when they have updated their discord info.
-
-        Parameters
-        ----------
-        before : discord.User
-            The updated user`s old info.
-        after: discord.User
-            The updated user`s updated info.
-        """
-        async with self.bot.pool.acquire() as conn:
-            exists: int | None = await conn.fetchval("SELECT 1 FROM xp_users WHERE id = $1", after.id)
-            if exists is None:
-                return
             await conn.execute(
-                "UPDATE xp_users SET username = $1, discriminator = $2, avatar = $3 WHERE id = $4",
-                after.name,
-                getattr(after, "discriminator", "0"),
-                after.avatar.key if after.avatar else None,
-                after.id,
+                "UPDATE levels SET last_message = $1 WHERE id = $2", message.created_at, message.author.id
             )
+
+            if channel_id not in self.buckets:
+                self.buckets[channel_id] = collections.deque([message])
+                return
+            bucket = self.buckets[channel_id]
+            bucket.appendleft(message)
+
+            if (
+                channel_id in self.bucket_cooldown and time.monotonic() - self.bucket_cooldown[channel_id] < 600
+            ):  # bucket too soon after previous, exit
+                return
+
+            oldest_allowed = message.created_at - datetime.timedelta(minutes=10)
+            first = bucket[0]
+            if first.created_at > oldest_allowed:  # bucket too small, less than 10 mins
+                return
+
+            while bucket:
+                first_dt = bucket[0].created_at
+                if first_dt < oldest_allowed:
+                    bucket.popleft()
+                else:
+                    break
+
+            unique_accounts = {message.author.id for message in bucket}
+
+            if len(unique_accounts) < 3:
+                return
+
+            bucket.clear()
+            new_cooldown = time.monotonic()
+            prev_cooldown = self.bucket_cooldown.get(channel_id, 0)
+            self.bucket_cooldown[channel_id] = new_cooldown
+            if new_cooldown - prev_cooldown > 900:  # over 50% extra, no bonus
+                self.bucket_previous[channel_id] = bonus_users = set()
+            bonus_users = self.bucket_previous.get(channel_id, set())
+            messages: list[str] = []
+            for user in unique_accounts:
+                try:
+                    member = guild.get_member(user) or await guild.fetch_member(user)
+                except discord.HTTPException:
+                    pass
+                else:
+                    if any(role.id in no_xp["roles"] for role in member.roles):
+                        continue
+                    old_xp: int = await conn.fetchval("SELECT xp FROM levels WHERE id = $1", member.id) or 0
+                    xp_to_add = 3 if user in bonus_users else 1
+                    new_xp = await conn.fetchval(
+                        "INSERT INTO levels (id, xp, last_message) VALUES ($1, $2, $3) "
+                        "ON CONFLICT (id) DO UPDATE SET "
+                        "xp = xp + EXCLUDED.xp, last_message = EXCLUDED.last_message "
+                        "RETURNING xp",
+                        member.id,
+                        xp_to_add,
+                        message.created_at,
+                    )
+                    if (old_xp // 20) < (level := new_xp // 20):
+                        match level:
+                            case 1:
+                                await member.add_roles(discord.Object(969626979353632790), reason="Level 1 reached")
+                            case 2:
+                                await member.remove_roles(discord.Object(969626979353632790), reason="Level 2 reached")
+                                await member.add_roles(discord.Object(969627321239760967), reason="Level 2 reached")
+                            case 3:
+                                await member.remove_roles(discord.Object(969627321239760967), reason="Level 3 reached")
+                                await member.add_roles(discord.Object(969628342733119518), reason="Level 3 reached")
+                            case 4:
+                                await member.remove_roles(discord.Object(969628342733119518), reason="Level 4 reached")
+                                await member.add_roles(discord.Object(969629632028614699), reason="Level 4 reached")
+                            case 5:
+                                await member.remove_roles(discord.Object(969629632028614699), reason="Level 5 reached")
+                                await member.add_roles(discord.Object(969629628249563166), reason="Level 5 reached")
+                        messages.append(f"{member.mention} has reached level **{level}** congratulations!")
+            if messages:
+                await message.channel.send("\n".join(messages))
 
     @commands.Cog.listener()
     async def on_member_join(self, member: discord.Member) -> None:
@@ -177,28 +133,20 @@ class Leveling(commands.Cog):
             The member that joined.
         """
         async with self.bot.pool.acquire() as conn:
-            level: int | None = await conn.fetchval("SELECT level FROM xp_users WHERE id = $1", member.id)
-            if level is None:
+            xp: int | None = await conn.fetchval("SELECT xp FROM levels WHERE id = $1", member.id)
+            if xp is None:
                 return
-            await conn.execute(
-                "UPDATE xp_users SET username = $1, discriminator = $2, avatar = $3 WHERE id = $4",
-                member.name,
-                getattr(member, "discriminator", "0"),
-                member.avatar.key if member.avatar else None,
-                member.id,
-            )
-            if 0 < level < 5:
-                await member.add_roles(discord.Object(969626979353632790), reason=f"Rejoined at level {level}")
-            elif 5 <= level < 10:
-                await member.add_roles(discord.Object(969627321239760967), reason=f"Rejoined at level {level}")
-            elif 10 <= level < 20:
-                await member.add_roles(discord.Object(969628342733119518), reason=f"Rejoined at level {level}")
-            elif 20 <= level < 25:
-                await member.add_roles(discord.Object(969629632028614699), reason=f"Rejoined at level {level}")
-            elif 25 <= level < 30:
-                await member.add_roles(discord.Object(969629628249563166), reason=f"Rejoined at level {level}")
-            elif level >= 30:
-                await member.add_roles(discord.Object(969629622453039104), reason=f"Rejoined at level {level}")
+            match xp // 20:
+                case 1:
+                    await member.add_roles(discord.Object(969626979353632790), reason="Rejoined at level 1")
+                case 2:
+                    await member.add_roles(discord.Object(969627321239760967), reason="Rejoined at level 2")
+                case 3:
+                    await member.add_roles(discord.Object(969628342733119518), reason="Rejoined at level 3")
+                case 4:
+                    await member.add_roles(discord.Object(969629632028614699), reason="Rejoined at level 4")
+                case 5:
+                    await member.add_roles(discord.Object(969629628249563166), reason="Rejoined at level 5")
 
     @app_commands.command()
     @app_commands.guild_only()
@@ -217,40 +165,36 @@ class Leveling(commands.Cog):
         if interaction.guild is None:
             await interaction.followup.send("This Must be used in a guild")
             return
-        member = user or interaction.user
-        guild = interaction.guild
-        assert isinstance(member, discord.Member)  # skipcq: BAN-B101
-        assert isinstance(guild, discord.Guild)  # skipcq: BAN-B101
-        cached_member = guild.get_member(member.id) or member
+
         async with self.bot.pool.acquire() as conn:
-            users = await conn.fetch("SELECT *, ROW_NUMBER() OVER(ORDER BY xp DESC) AS rank FROM xp_users")
-            try:
-                user_record: asyncpg.Record = next(filter(lambda x: x["id"] == member.id, users))
-            except IndexError:
-                await interaction.followup.send(
-                    "Error: You aren't ranked yet. Send some messages first, then try again."
-                )
-                return
-        if member.avatar is not None:
-            profile_img = await member.avatar.read()
-        else:
-            profile_img = pathlib.Path(__file__).parent.joinpath("media/pools/profile.png").read_bytes()
+            xp: int | None = await conn.fetchval("SELECT xp FROM levels WHERE id = $1", interaction.user.id)
+            if xp is None:
+                await interaction.followup.send(f"Error: {interaction.user.mention} isn't ranked yet.")
+            else:
+                await interaction.followup.send(f"{interaction.user.mention} is level **{xp // 20}**.")
 
-        xp_details = user_record["detailed_xp"]
-
-        image = await asyncio.to_thread(
-            generate_profile,
-            user_name=str(member),
-            profile_image=io.BytesIO(profile_img),
-            level=user_record["level"],
-            current_xp=xp_details[2] - xp_details[0],
-            user_xp=user_record["xp"],
-            next_xp=xp_details[2] - xp_details[0] + xp_details[1],
-            user_position=user_record["rank"],
-            user_status=status.value if not isinstance((status := cached_member.status), str) else "offline",
-        )
-
-        await interaction.followup.send(file=discord.File(image, "profile.png"))
+    @tasks.loop(time=datetime.time(hour=0, tzinfo=datetime.UTC))
+    async def drain(self):
+        async with self.bot.pool.acquire() as conn, conn.transaction():
+            users = await conn.fetch(
+                "UPDATE levels SET xp = xp - 1 "
+                "WHERE xp > 40 AND last_message < (CURRENT_TIMESTAMP - '3 days'::interval) "
+                "RETURNING id, xp"
+            )
+            guild = self.bot.get_guild(225345178955808768) or await self.bot.fetch_guild(225345178955808768)
+            for user in users:
+                if (xp := user["xp"]) % 20 == 0:
+                    new_level: int = xp // 20
+                    member = guild.get_member(user["id"]) or await guild.fetch_member(user["id"])
+                    if new_level == 2:
+                        await member.add_roles(discord.Object(969627321239760967), reason="Dropped to Level 2")
+                        await member.remove_roles(discord.Object(969628342733119518), reason="Dropped to Level 2")
+                    elif new_level == 3:
+                        await member.remove_roles(discord.Object(969629632028614699), reason="Dropped to Level 3")
+                        await member.add_roles(discord.Object(969628342733119518), reason="Dropped to Level 3")
+                    elif new_level == 4:
+                        await member.remove_roles(discord.Object(969629628249563166), reason="Dropped to Level 4")
+                        await member.add_roles(discord.Object(969629632028614699), reason="Dropped to Level 4")
 
 
 async def setup(bot: CBot):
