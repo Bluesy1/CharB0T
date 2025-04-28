@@ -110,7 +110,7 @@ class Leveling(commands.Cog):
             if new_cooldown - prev_cooldown > 900:  # over 50% extra, no bonus
                 self.bucket_previous[channel_id] = bonus_users = set()
             bonus_users = self.bucket_previous.get(channel_id, set())
-
+            messages: list[str] = []
             for user in unique_accounts:
                 try:
                     member = guild.get_member(user) or await guild.fetch_member(user)
@@ -132,7 +132,9 @@ class Leveling(commands.Cog):
                     )
                     if (old_xp // 20) < (level := new_xp // 20):
                         await update_level_roles(member, level)
-                        await message.channel.send(f"{member.mention} has reached level **{level}** congratulations!")
+                        messages.append(f"{member.mention} has reached level **{level}** congratulations!")
+            if messages:
+                await message.channel.send("\n".join(messages))
 
     @commands.Cog.listener()
     async def on_member_join(self, member: discord.Member) -> None:
