@@ -9,8 +9,8 @@ from discord import ButtonStyle, Interaction, ui
 from discord.utils import utcnow
 from PIL import Image
 
-from .. import CBot
-from ..rust.tictactoe import Difficulty, Game, Piece
+from ... import CBot
+from .game import Difficulty, Game, Piece
 
 
 class TicTacToe(ui.View):
@@ -41,7 +41,7 @@ class TicTacToe(ui.View):
             self.bot_mid,
             self.bot_right,
         ]
-        for i, item in enumerate(self.game.board):
+        for i, item in enumerate(self.game.board.board):
             self._buttons[i].disabled = item.value != " "
 
     def disable(self) -> None:

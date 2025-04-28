@@ -3,7 +3,7 @@ import pytest
 from pytest_mock import MockerFixture
 
 from charbot.programs import tictactoe
-from charbot.rust.tictactoe import Difficulty, Game
+from charbot.programs.tictactoe import Difficulty, Game, Piece
 from charbot.types.bot import CBot
 
 
@@ -142,3 +142,112 @@ async def test_cancel_button(mocker: MockerFixture):
     assert embed.title == "TicTacToe"
     assert embed.color == discord.Color.red()
     assert embed.footer.text == "Start playing by typing /programs tictactoe"
+
+
+@pytest.mark.parametrize("alpha_beta", [False, True])
+def test_minimax_player(alpha_beta):
+    player = tictactoe.MinimaxPlayer(alpha_beta)
+    board = tictactoe.Board()
+    piece = tictactoe.Piece.X
+    index = player.play(board, piece)
+
+    assert index in tictactoe.Board.VALID_INDICES
+    assert str(player) == "Minimax player"
+
+
+def test_random_player():
+    player = tictactoe.RandomPlayer()
+    board = tictactoe.Board()
+    piece = tictactoe.Piece.X
+    index = player.play(board, piece)
+
+    assert index in tictactoe.Board.VALID_INDICES
+    assert str(player) == "Minimax player"
+
+
+def test_game_board_creation():
+    game = Game(Difficulty.EASY)  # Easy difficulty
+    board = game.board.board
+    assert len(board) == 9
+    assert all(p == Piece.Empty for p in board)
+
+
+@pytest.mark.parametrize(
+    ("difficulty", "human_first_expected"),
+    [
+        (1, True),  # Easy
+        (2, True),  # Medium can be either, but assume True (randomized)
+        (3, False),  # Hard, computer first
+        (4, None),  # Random - could be True or False
+    ],
+)
+def test_game_creator(difficulty, human_first_expected):
+    game = Game(difficulty)
+    if human_first_expected is not None:
+        assert game.human_first == human_first_expected
+    else:
+        assert isinstance(game.human_first, bool)  # random, just check it's a boolean
+
+
+def test_play_move():
+    game = Game(Difficulty.EASY)  # Easy mode
+    game.board.board = [
+        Piece.X,
+        Piece.X,
+        Piece.Empty,
+        Piece.Empty,
+        Piece.O,
+        Piece.Empty,
+        Piece.O,
+        Piece.Empty,
+        Piece.Empty,
+    ]
+
+    move = game.play(2)  # Human completes a line
+    assert move is None  # Game ends after victory
+
+
+def test_play_move_computer_first():
+    game = Game(Difficulty.HARD)  # Hard mode
+    available_move = 0 if game.board.cell_is_empty(0) else 1
+    move = game.play(available_move)
+    assert move is not None
+
+
+def test_display_commands():
+    game = Game(Difficulty.EASY)
+    game.play(1)  # Human move
+    commands = game.display_commands()
+    assert len(commands) == 9
+    for idx, (_, piece) in enumerate(commands):
+        if game.board.cell_is_empty(idx):
+            assert piece == Piece.Empty
+        else:
+            assert piece != Piece.Empty
+
+
+def test_win_loss_draw_detection():
+    game = Game(Difficulty.EASY)
+    assert not game.is_draw()
+    assert game.is_victory_for() is None
+    assert not game.has_player_won()
+    assert not game.has_player_lost()
+
+    game.board.board = [Piece.X, Piece.X, Piece.X, Piece.O, Piece.O, Piece.Empty, Piece.Empty, Piece.Empty, Piece.Empty]
+    assert not game.is_draw()
+    assert game.has_player_won()
+
+
+def test_points_awarded():
+    game = Game(Difficulty.EASY)
+
+    # Loss by default
+    assert game.points() == Difficulty.EASY.points.loss
+
+    # Win condition
+    game.board.board = [Piece.X, Piece.X, Piece.X, Piece.Empty, Piece.O, Piece.Empty, Piece.O, Piece.Empty, Piece.Empty]
+    assert game.points() == Difficulty.EASY.points.win
+
+    # Draw condition
+    game.board.n_pieces = 9
+    assert game.points() == Difficulty.EASY.points.draw

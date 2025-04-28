@@ -13,9 +13,10 @@ from discord import Interaction, app_commands
 from discord.ext import commands
 
 from .. import CBot, errors
-from . import shrugman, sudoku, tictactoe
+from . import shrugman, sudoku
 from .minesweeper.game import Game as MinesweeperGame
 from .minesweeper.view import Minesweeper
+from .tictactoe import Difficulty, TicTacToe
 
 
 class Reputation(commands.Cog, name="Programs"):
@@ -82,8 +83,8 @@ class Reputation(commands.Cog, name="Programs"):
         await interaction.followup.send(embed=view.block_choose_embed(), view=view)
 
     @programs.command(name="tictactoe", description="Play a game of Tic Tac Toe!")
-    async def tictactoe(self, interaction: Interaction[CBot], difficulty: tictactoe.Difficulty):
-        """Play a game of Tic Tac Toe! Now built with rust.
+    async def tictactoe(self, interaction: Interaction[CBot], difficulty: Difficulty):
+        """Play a game of Tic Tac Toe!
 
         Parameters
         ----------
@@ -93,7 +94,7 @@ class Reputation(commands.Cog, name="Programs"):
             The difficulty of the game.
         """
         await interaction.response.defer(ephemeral=True)
-        view = tictactoe.TicTacToe(difficulty)
+        view = TicTacToe(difficulty)
         embed = discord.Embed(title="TicTacToe").set_image(url="attachment://tictactoe.png")
         embed.set_footer(text="Play by typing /programs tictactoe")
         image = await asyncio.to_thread(view.display)
