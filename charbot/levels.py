@@ -190,11 +190,11 @@ class Leveling(commands.Cog):
                         await member.add_roles(discord.Object(969627321239760967), reason="Dropped to Level 2")
                         await member.remove_roles(discord.Object(969628342733119518), reason="Dropped to Level 2")
                     elif new_level == 3:
-                        await member.remove_roles(discord.Object(969629632028614699), reason="Dropped Level 3")
-                        await member.add_roles(discord.Object(969628342733119518), reason="Dropped Level 3")
+                        await member.remove_roles(discord.Object(969629632028614699), reason="Dropped to Level 3")
+                        await member.add_roles(discord.Object(969628342733119518), reason="Dropped to Level 3")
                     elif new_level == 4:
-                        await member.remove_roles(discord.Object(969629628249563166), reason="Dropped Level 4")
-                        await member.add_roles(discord.Object(969629632028614699), reason="Dropped Level 4")
+                        await member.remove_roles(discord.Object(969629628249563166), reason="Dropped to Level 4")
+                        await member.add_roles(discord.Object(969629632028614699), reason="Dropped to Level 4")
 
 
 async def setup(bot: CBot):
