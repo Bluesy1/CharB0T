@@ -185,9 +185,8 @@ class Leveling(commands.Cog):
                 user_record: asyncpg.Record = next(filter(lambda x: x["id"] == member.id, users))
             except IndexError:
                 await interaction.followup.send("Error: You (or the user) aren't ranked yet.")
-                return
-
-        await interaction.followup.send(f"{member.mention} is level **{user_record["xp"] // 20}**.")
+            else:
+                await interaction.followup.send(f"{member.mention} is level **{user_record["xp"] // 20}**.")
 
     @tasks.loop(time=datetime.time(hour=0, tzinfo=datetime.UTC))
     async def drain(self):
