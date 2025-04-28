@@ -61,10 +61,10 @@ class Board:
         return self.n_pieces >= 9
 
     def is_victory_for_player(self, player: Piece) -> bool:
-        for a, b, c in WINNING_INDICES:
-            if self.board[a] == player and self.board[b] == player and self.board[c] == player:
-                return True
-        return False
+        return any(
+            self.board[a] == player and self.board[b] == player and self.board[c] == player
+            for a, b, c in WINNING_INDICES
+        )
 
     def is_victory(self) -> Piece | None:  # pragma: no cover
         if self.is_victory_for_player(Piece.X):
