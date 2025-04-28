@@ -5,7 +5,6 @@ import datetime
 import time
 from typing import Optional
 
-import asyncpg
 import discord
 from discord import Interaction, app_commands
 from discord.ext import commands, tasks
@@ -178,15 +177,13 @@ class Leveling(commands.Cog):
         if interaction.guild is None:
             await interaction.followup.send("This Must be used in a guild")
             return
-        member = user or interaction.user
+
         async with self.bot.pool.acquire() as conn:
-            users = await conn.fetch("SELECT id, xp, ROW_NUMBER() OVER(ORDER BY xp DESC) AS rank FROM levels")
-            try:
-                user_record: asyncpg.Record = next(filter(lambda x: x["id"] == member.id, users))
-            except IndexError:
-                await interaction.followup.send("Error: You (or the user) aren't ranked yet.")
+            xp: int | None = await conn.fetchval("SELECT xp FROM levels WHERE id = $1", interaction.user.id)
+            if xp is None:
+                await interaction.followup.send(f"Error: {interaction.user.mention} isn't ranked yet.")
             else:
-                await interaction.followup.send(f"{member.mention} is level **{user_record["xp"] // 20}**.")
+                await interaction.followup.send(f"{interaction.user.mention} is level **{xp // 20}**.")
 
     @tasks.loop(time=datetime.time(hour=0, tzinfo=datetime.UTC))
     async def drain(self):
