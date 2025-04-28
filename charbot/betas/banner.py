@@ -109,10 +109,9 @@ def banner(
             img = Image.open(base)
         except (OSError, ValueError, TypeError) as e:  # pragma: no cover
             raise ValueError("Invalid base image") from e
-        else:
-            if img.size != (1000, 250):  # pragma: no branch  # i don't care to test this, incorrectly supplied
-                # images are at the invokers own risk
-                img = img.resize((1000, 250))
+        if img.size != (1000, 250):  # pragma: no branch  # i don't care to test this, incorrectly supplied
+            # images are at the invokers own risk
+            img = img.resize((1000, 250))
     elif isinstance(base, Color):
         img = Image.new("RGBA", (1000, 250), base.to_rgb())
     else:

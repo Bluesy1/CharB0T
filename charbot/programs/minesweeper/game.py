@@ -142,7 +142,7 @@ class Game:
             try:
                 cell = self.cells[idx]
             except IndexError:
-                return 0
+                pass
             else:
                 if isinstance(cell.content, bool):
                     return 1
