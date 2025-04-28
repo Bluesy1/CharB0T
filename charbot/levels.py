@@ -8,7 +8,7 @@ from typing import Optional
 import asyncpg
 import discord
 from discord import Interaction, app_commands
-from discord.ext import commands
+from discord.ext import commands, tasks
 
 from . import CBot
 
@@ -47,6 +47,10 @@ class Leveling(commands.Cog):
         self.buckets: dict[int, collections.deque[discord.Message]] = {}
         self.bucket_cooldown: dict[int, float] = {}
         self.bucket_previous: dict[int, set[int]] = {}
+        self.drain.start()
+
+    def cog_unload(self):
+        self.drain.cancel()
 
     async def proc_xp(self, message: discord.Message):
         """Add XP to the user when they send a message.
@@ -178,12 +182,33 @@ class Leveling(commands.Cog):
             try:
                 user_record: asyncpg.Record = next(filter(lambda x: x["id"] == member.id, users))
             except IndexError:
-                await interaction.followup.send(
-                    "Error: You (or the user) aren't ranked yet. Send some messages first, then try again."
-                )
+                await interaction.followup.send("Error: You (or the user) aren't ranked yet.")
                 return
 
         await interaction.followup.send(f"{member.mention} is level **{user_record["xp"] // 20}**.")
+
+    @tasks.loop(time=datetime.time(hour=0, tzinfo=datetime.UTC))
+    async def drain(self):
+        async with self.bot.pool.acquire() as conn, conn.transaction():
+            users = await conn.fetch(
+                "UPDATE levels SET xp = xp - 1 "
+                "WHERE xp > 40 AND last_message < (CURRENT_TIMESTAMP - '3 days'::interval) "
+                "RETURNING id, xp"
+            )
+            guild = self.bot.get_guild(225345178955808768) or await self.bot.fetch_guild(225345178955808768)
+            for user in users:
+                if (xp := user["xp"]) % 20 == 0:
+                    new_level: int = xp // 20
+                    member = guild.get_member(user["id"]) or await guild.fetch_member(user["id"])
+                    if new_level == 2:
+                        await member.add_roles(discord.Object(969627321239760967), reason="Dropped to Level 2")
+                        await member.remove_roles(discord.Object(969628342733119518), reason="Dropped to Level 2")
+                    elif new_level == 3:
+                        await member.remove_roles(discord.Object(969629632028614699), reason="Dropped Level 3")
+                        await member.add_roles(discord.Object(969628342733119518), reason="Dropped Level 3")
+                    elif new_level == 4:
+                        await member.remove_roles(discord.Object(969629628249563166), reason="Dropped Level 4")
+                        await member.add_roles(discord.Object(969629632028614699), reason="Dropped Level 4")
 
 
 async def setup(bot: CBot):
