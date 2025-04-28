@@ -326,5 +326,4 @@ class Game:
     def is_win(self):
         if self._quit:
             return False
-        else:
-            return self.numbers_total == self.numbers_opened
+        return self.numbers_total == self.numbers_opened

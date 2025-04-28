@@ -69,7 +69,7 @@ class Board:
     def is_victory(self) -> Piece | None:  # pragma: no cover
         if self.is_victory_for_player(Piece.X):
             return Piece.X
-        elif self.is_victory_for_player(Piece.O):
+        if self.is_victory_for_player(Piece.O):
             return Piece.O
         return None
 
