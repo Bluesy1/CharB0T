@@ -1,6 +1,6 @@
 [build-system]
-requires = ["maturin>=1.8,<1.9"]
-build-backend = "maturin"
+requires = ["hatchling"]
+build-backend = "hatchling.build"
 
 [project]
 name = "charbot"
@@ -53,8 +53,6 @@ dev = [
 	"toml==0.10.2",
 ]
 
-[tool.maturin]
-module-name = "charbot.rust._rust"
 
 [tool.pytest.ini_options]
 minversion = "8.3.4"
@@ -78,8 +76,6 @@ omit = [
 	"*/reputation_admin.py",
 	"*/mod_support.py",
 	"*/levels.py",
-	"*/rust/**/*.py",
-	"*/rust/*.py",
 ]
 
 [tool.pyright]

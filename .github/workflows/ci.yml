@@ -22,21 +22,6 @@ on:
     - '.github/workflows/ci.yml'
 
 jobs:
-  rust-tests:
-    continue-on-error: true
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - name: Install stable toolchain
-        uses: actions-rust-lang/setup-rust-toolchain@v1
-        with:
-          toolchain: stable
-      - name: Run tests
-        env:
-          RUST_BACKTRACE: full
-        run: |
-          cargo build
-          cargo test --no-default-features
   lint:
     runs-on: ubuntu-latest
     steps:
@@ -55,7 +40,6 @@ jobs:
         if: ${{ success() || failure()}}
         run: ruff format --check .
   python-tests:
-    needs: rust-tests
     runs-on: ubuntu-latest
     continue-on-error: true
     strategy:
@@ -67,10 +51,6 @@ jobs:
       - uses: harmon758/postgresql-action@v1
         with:
           postgresql version: '14'
-      - name: Install stable toolchain
-        uses: actions-rust-lang/setup-rust-toolchain@v1
-        with:
-          toolchain: stable
       - uses: actions/setup-python@v5
         with:
           python-version: ${{ matrix.python-version }}

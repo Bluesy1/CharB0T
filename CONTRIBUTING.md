@@ -34,7 +34,7 @@ Once you know the code is a welcome change, clone the repository and make the ch
 After you make sure the changes, please make sure that the code passes static type analysis via pyright[^1], and that the code style passes ruff[^1] checks and formatting.
 The configuration for both of these can be found in the [pyproject.toml](./pyproject.toml) file if you need to do manual configuration.
 
-We use pytest for python and a combination of the built in tests and `yare` for parametrized tests in rust.
+We use pytest for python.
 We target 80% project and diff coverage in this project. If you add new code, please add appropriate tests for the code as needed.
 
 Finally, if you are adding new files, make sure they contain copyright and license information, as well as explicit encoding for utf-8 files

@@ -46,10 +46,6 @@ updates:
       # Check for updates to GitHub Actions every monday
       interval: "monthly"
     groups:
-      rust:
-        patterns:
-          - "PyO3/maturin-action"
-          - "actions-rs/toolchain"
       python:
         patterns:
           - "jakebailey/pyright-action"
@@ -58,11 +54,6 @@ updates:
         patterns:
           - "actions/upload-artifact"
           - "actions/download-artifact"
-  - package-ecosystem: "cargo"
-    directory: "/" # Location of package manifests
-    schedule:
-      # Check for updates to Rust dependencies every weekday
-      interval: "monthly"
 # GH Pages branch
   - package-ecosystem: "pip" # See documentation for possible values
     directory: "/" # Location of package manifests
