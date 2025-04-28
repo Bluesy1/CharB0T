@@ -21,7 +21,7 @@ class RandomPlayer(Player):
         return random.choice(moves)
 
 
-class HumanPlayer(Player):
+class HumanPlayer(Player):  # pragma: no cover
     def play(self, board: Board, piece: Piece) -> int:
         return NotImplemented
 

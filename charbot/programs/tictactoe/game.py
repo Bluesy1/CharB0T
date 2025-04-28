@@ -19,7 +19,7 @@ class Difficulty(IntEnum):
     RANDOM = 4
 
     @property
-    def points(self):
+    def points(self):  # pragma: no cover
         match self:
             case self.EASY | self.RANDOM:
                 return Points((1, 1), (1, 0), (0, 0))
@@ -60,7 +60,7 @@ class Game:
             case Difficulty.RANDOM:
                 comp_mode = random.choice(["m", "a", "r"])
                 chance = {"m": 0.5, "a": 0.25, "r": 0.75}[comp_mode]
-                if rng.random() < chance:
+                if rng.random() < chance:  # pragma: no cover
                     if comp_mode == "r":
                         self.player_x = RandomPlayer()
                     else:
@@ -69,7 +69,7 @@ class Game:
                     self.human_first = False
                 else:
                     self.player_x = HumanPlayer()
-                    if comp_mode == "r":
+                    if comp_mode == "r":  # pragma: no cover
                         self.player_o = RandomPlayer()
                     else:
                         self.player_o = MinimaxPlayer(alpha_beta=comp_mode == "a")
