@@ -6,12 +6,12 @@ build-backend = "hatchling.build"
 name = "charbot"
 description = "A simple Discord bot written in Python and Rust"
 readme = "README.md"
-version = "1.6.0"
+version = "1.7.0"
 authors = [
 	{name = "Bluesy1", email = "68259537+Bluesy1@users.noreply.github.com"}
 ]
 license = {file = "LICENSE"}
-requires-python = ">=3.12"
+requires-python = ">=3.13"
 classifiers = [
 	"Development Status :: 5 - Production/Stable",
 	"Intended Audience :: End Users/Desktop",
