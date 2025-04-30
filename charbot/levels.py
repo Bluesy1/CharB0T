@@ -195,7 +195,7 @@ class Leveling(commands.Cog):
             guild = self.bot.get_guild(225345178955808768) or await self.bot.fetch_guild(225345178955808768)
             for user in users:
                 xp: int = user["xp"]
-                if (xp % XP_PER_LEVEL) < 2:
+                if (xp % XP_PER_LEVEL) >= 18:
                     new_level: int = xp // XP_PER_LEVEL
                     member = guild.get_member(user["id"]) or await guild.fetch_member(user["id"])
                     if new_level == 2:
