@@ -3,13 +3,22 @@
 import collections
 import datetime
 import time
-from typing import Optional
 
 import discord
 from discord import Interaction, app_commands
 from discord.ext import commands, tasks
 
 from . import CBot
+
+
+XP_PER_LEVEL = 20
+XP_CAP = (XP_PER_LEVEL * 5) + 2
+INTERVAL_LENGTH = 600
+LEVEL_1 = discord.Object(969626979353632790, type=discord.Role)
+LEVEL_2 = discord.Object(969627321239760967, type=discord.Role)
+LEVEL_3 = discord.Object(969628342733119518, type=discord.Role)
+LEVEL_4 = discord.Object(969629632028614699, type=discord.Role)
+LEVEL_5 = discord.Object(969629628249563166, type=discord.Role)
 
 
 class Leveling(commands.Cog):
@@ -55,7 +64,8 @@ class Leveling(commands.Cog):
             bucket.appendleft(message)
 
             if (
-                channel_id in self.bucket_cooldown and time.monotonic() - self.bucket_cooldown[channel_id] < 600
+                channel_id in self.bucket_cooldown
+                and time.monotonic() - self.bucket_cooldown[channel_id] < INTERVAL_LENGTH
             ):  # bucket too soon after previous, exit
                 return
 
@@ -80,7 +90,9 @@ class Leveling(commands.Cog):
             new_cooldown = time.monotonic()
             prev_cooldown = self.bucket_cooldown.get(channel_id, 0)
             self.bucket_cooldown[channel_id] = new_cooldown
-            if new_cooldown - prev_cooldown > 900:  # over 50% extra, no bonus
+            if new_cooldown - prev_cooldown > (
+                INTERVAL_LENGTH * 1.5
+            ):  # no bonus awarded if over half a bucket of downtime elapsed
                 self.bucket_previous[channel_id] = bonus_users = set()
             bonus_users = self.bucket_previous.get(channel_id, set())
             messages: list[str] = []
@@ -94,31 +106,31 @@ class Leveling(commands.Cog):
                         continue
                     old_xp: int = await conn.fetchval("SELECT xp FROM levels WHERE id = $1", member.id) or 0
                     xp_to_add = 3 if user in bonus_users else 1
-                    new_xp = await conn.fetchval(
+                    new_xp: int = await conn.fetchval(
                         "INSERT INTO levels (id, xp, last_message) VALUES ($1, $2, $3) "
                         "ON CONFLICT (id) DO UPDATE SET "
-                        "xp = xp + EXCLUDED.xp, last_message = EXCLUDED.last_message "
+                        "xp = EXCLUDED.xp, last_message = EXCLUDED.last_message "
                         "RETURNING xp",
                         member.id,
-                        xp_to_add,
+                        min(XP_CAP, old_xp + xp_to_add),
                         message.created_at,
                     )
-                    if (old_xp // 20) < (level := new_xp // 20):
+                    if (old_xp // XP_PER_LEVEL) < (level := new_xp // XP_PER_LEVEL):
                         match level:
                             case 1:
-                                await member.add_roles(discord.Object(969626979353632790), reason="Level 1 reached")
+                                await member.add_roles(LEVEL_1, reason="Level 1 reached")
                             case 2:
-                                await member.remove_roles(discord.Object(969626979353632790), reason="Level 2 reached")
-                                await member.add_roles(discord.Object(969627321239760967), reason="Level 2 reached")
+                                await member.add_roles(LEVEL_2, reason="Level 2 reached")
+                                await member.remove_roles(LEVEL_1, reason="Level 2 reached")
                             case 3:
-                                await member.remove_roles(discord.Object(969627321239760967), reason="Level 3 reached")
-                                await member.add_roles(discord.Object(969628342733119518), reason="Level 3 reached")
+                                await member.add_roles(LEVEL_3, reason="Level 3 reached")
+                                await member.remove_roles(LEVEL_2, reason="Level 3 reached")
                             case 4:
-                                await member.remove_roles(discord.Object(969628342733119518), reason="Level 4 reached")
-                                await member.add_roles(discord.Object(969629632028614699), reason="Level 4 reached")
+                                await member.add_roles(LEVEL_4, reason="Level 4 reached")
+                                await member.remove_roles(LEVEL_3, reason="Level 4 reached")
                             case 5:
-                                await member.remove_roles(discord.Object(969629632028614699), reason="Level 5 reached")
-                                await member.add_roles(discord.Object(969629628249563166), reason="Level 5 reached")
+                                await member.add_roles(LEVEL_5, reason="Level 5 reached")
+                                await member.remove_roles(LEVEL_4, reason="Level 5 reached")
                         messages.append(f"{member.mention} has reached level **{level}** congratulations!")
             if messages:
                 await message.channel.send("\n".join(messages))
@@ -136,30 +148,28 @@ class Leveling(commands.Cog):
             xp: int | None = await conn.fetchval("SELECT xp FROM levels WHERE id = $1", member.id)
             if xp is None:
                 return
-            match xp // 20:
+            match xp // XP_PER_LEVEL:
                 case 1:
-                    await member.add_roles(discord.Object(969626979353632790), reason="Rejoined at level 1")
+                    await member.add_roles(LEVEL_1, reason="Rejoined at level 1")
                 case 2:
-                    await member.add_roles(discord.Object(969627321239760967), reason="Rejoined at level 2")
+                    await member.add_roles(LEVEL_2, reason="Rejoined at level 2")
                 case 3:
-                    await member.add_roles(discord.Object(969628342733119518), reason="Rejoined at level 3")
+                    await member.add_roles(LEVEL_3, reason="Rejoined at level 3")
                 case 4:
-                    await member.add_roles(discord.Object(969629632028614699), reason="Rejoined at level 4")
+                    await member.add_roles(LEVEL_4, reason="Rejoined at level 4")
                 case 5:
-                    await member.add_roles(discord.Object(969629628249563166), reason="Rejoined at level 5")
+                    await member.add_roles(LEVEL_5, reason="Rejoined at level 5")
 
     @app_commands.command()
     @app_commands.guild_only()
     @app_commands.checks.cooldown(1, 900, key=lambda interaction: interaction.user.id)
-    async def rank(self, interaction: Interaction[CBot], user: Optional[discord.Member] = None):
-        """Check your or someone's level and rank.
+    async def rank(self, interaction: Interaction[CBot]):
+        """Check your someone's level.
 
         Parameters
         ----------
         interaction : Interaction
             The interaction object.
-        user : Optional[discord.Member]
-            The user to check the level and rank of.
         """
         await interaction.response.defer(ephemeral=True)
         if interaction.guild is None:
@@ -169,32 +179,34 @@ class Leveling(commands.Cog):
         async with self.bot.pool.acquire() as conn:
             xp: int | None = await conn.fetchval("SELECT xp FROM levels WHERE id = $1", interaction.user.id)
             if xp is None:
-                await interaction.followup.send(f"Error: {interaction.user.mention} isn't ranked yet.")
+                await interaction.followup.send("You haven't interacted on the server yet.")
             else:
-                await interaction.followup.send(f"{interaction.user.mention} is level **{xp // 20}**.")
+                await interaction.followup.send(f"You are level **{xp // XP_PER_LEVEL}**.")
 
     @tasks.loop(time=datetime.time(hour=0, tzinfo=datetime.UTC))
     async def drain(self):
         async with self.bot.pool.acquire() as conn, conn.transaction():
             users = await conn.fetch(
-                "UPDATE levels SET xp = xp - 1 "
-                "WHERE xp > 40 AND last_message < (CURRENT_TIMESTAMP - '3 days'::interval) "
-                "RETURNING id, xp"
+                "UPDATE levels SET xp = xp - 2 "
+                "WHERE xp > $1 AND last_message < (CURRENT_TIMESTAMP - '3 days'::interval) "
+                "RETURNING id, xp",
+                XP_PER_LEVEL * 2,
             )
             guild = self.bot.get_guild(225345178955808768) or await self.bot.fetch_guild(225345178955808768)
             for user in users:
-                if (xp := user["xp"]) % 20 == 0:
-                    new_level: int = xp // 20
+                xp: int = user["xp"]
+                if (xp % XP_PER_LEVEL) < 2:
+                    new_level: int = xp // XP_PER_LEVEL
                     member = guild.get_member(user["id"]) or await guild.fetch_member(user["id"])
                     if new_level == 2:
-                        await member.add_roles(discord.Object(969627321239760967), reason="Dropped to Level 2")
-                        await member.remove_roles(discord.Object(969628342733119518), reason="Dropped to Level 2")
+                        await member.add_roles(LEVEL_2, reason="Dropped to Level 2")
+                        await member.remove_roles(LEVEL_3, reason="Dropped to Level 2")
                     elif new_level == 3:
-                        await member.remove_roles(discord.Object(969629632028614699), reason="Dropped to Level 3")
-                        await member.add_roles(discord.Object(969628342733119518), reason="Dropped to Level 3")
+                        await member.add_roles(LEVEL_3, reason="Dropped to Level 3")
+                        await member.remove_roles(LEVEL_4, reason="Dropped to Level 3")
                     elif new_level == 4:
-                        await member.remove_roles(discord.Object(969629628249563166), reason="Dropped to Level 4")
-                        await member.add_roles(discord.Object(969629632028614699), reason="Dropped to Level 4")
+                        await member.add_roles(LEVEL_4, reason="Dropped to Level 4")
+                        await member.remove_roles(LEVEL_5, reason="Dropped to Level 4")
 
 
 async def setup(bot: CBot):

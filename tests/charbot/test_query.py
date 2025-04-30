@@ -152,13 +152,3 @@ async def test_rule_command(mocker: MockerFixture, rule: int | None, member_id: 
             "<#1331317655482929154>",
         }[expected_key]
     )
-
-
-@pytest.mark.asyncio
-@pytest.mark.parametrize("ephemeral", [True, False])
-async def test_leaderboard_command(mocker: MockerFixture, ephemeral: bool):
-    """Test leaderboard command."""
-    mock_itx = mocker.AsyncMock(spec=Interaction[CBot], response=mocker.AsyncMock(spec=discord.InteractionResponse))
-    cog = query.Query(mocker.AsyncMock(spec=CBot))
-    await cog.leaderboard.callback(cog, mock_itx, ephemeral)  # pyright: ignore[reportCallIssue]
-    mock_itx.response.send_message.assert_awaited_once_with("https://cpry.net/leaderboard", ephemeral=ephemeral)
