@@ -53,16 +53,6 @@ async def test_time_command(mocker: MockerFixture):
 
 
 @pytest.mark.asyncio
-async def test_changelog_command(mocker: MockerFixture):
-    """Test changelog command."""
-    mock_ctx = mocker.Mock(spec=commands.Context)
-    mock_bot = mocker.Mock(spec=commands.Bot)
-    cog = query.Query(mock_bot)
-    await cog.changelog.__call__(mock_ctx, mock_ctx)  # type: ignore  # skipcq: PYL-E1102
-    mock_ctx.reply.assert_called_once_with("Here's the changelog: https://bluesy1.github.io/CharB0T/changes")
-
-
-@pytest.mark.asyncio
 async def test_faq_command(mocker: MockerFixture):
     """Test faq command."""
     mock_ctx = mocker.Mock(spec=commands.Context)
