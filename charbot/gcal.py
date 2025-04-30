@@ -167,8 +167,7 @@ def calendar_embed(fields: dict[int, EmbedField], next_event: datetime | None) -
 
     embed.set_author(
         name="Charlie",
-        icon_url="https://cdn.discordapp.com/avatars/225344348903047168/"
-        "c093900592dfcd9b9e5c711f4e1c627d.webp?size=160",
+        icon_url="https://cdn.discordapp.com/avatars/225344348903047168/c093900592dfcd9b9e5c711f4e1c627d.webp?size=160",
     )
     return embed.set_footer(text="Last Updated")
 
