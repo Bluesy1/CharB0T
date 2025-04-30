@@ -11,7 +11,7 @@ from discord.ext import tasks
 from discord.ext.commands import GroupCog
 from discord.utils import utcnow
 
-from . import CBot
+from . import CBot, constants
 
 
 _BLACKLIST = pathlib.Path.cwd() / "mod_support_blacklist.json"
@@ -218,45 +218,38 @@ class ModSupportLayout(ui.LayoutView):
     """
 
     container = ui.Container(
-        [
-            ui.TextDisplay(MOD_SUPPORT_HEADER),
-            ui.Separator(visible=True),
-            ui.Section(
-                [
-                    ui.TextDisplay("## General"),
-                    ui.TextDisplay(
-                        "This should be where most requests go, for inquiries and requests. There is no time guarantee for this option."
-                    ),
-                ],
-                accessory=ModSupportButton(
-                    label="General", style=discord.ButtonStyle.success, custom_id="Modmail_General", emoji="❔"
-                ),
+        ui.TextDisplay(MOD_SUPPORT_HEADER),
+        ui.Separator(visible=True),
+        ui.Section(
+            ui.TextDisplay("## General"),
+            ui.TextDisplay(
+                "This should be where most requests go, for inquiries and requests. There is no time guarantee for this option."
             ),
-            ui.Section(
-                [
-                    ui.TextDisplay("## Important"),
-                    ui.TextDisplay("This is for requests that have a level of time importance, but are not urgent."),
-                ],
-                accessory=ModSupportButton(
-                    label="Important", style=discord.ButtonStyle.primary, custom_id="Modmail_Important", emoji="❗"
-                ),
+            accessory=ModSupportButton(
+                label="General", style=discord.ButtonStyle.success, custom_id="Modmail_General", emoji="❔"
             ),
-            ui.Section(
-                [
-                    ui.TextDisplay("## Emergency"),
-                    ui.TextDisplay("This is for requests that need a response as soon as possible."),
-                ],
-                accessory=ModSupportButton(
-                    label="Emergency", style=discord.ButtonStyle.danger, custom_id="Modmail_Emergency", emoji="‼"
-                ),
+        ),
+        ui.Section(
+            ui.TextDisplay("## Important"),
+            ui.TextDisplay("This is for requests that have a level of time importance, but are not urgent."),
+            accessory=ModSupportButton(
+                label="Important", style=discord.ButtonStyle.primary, custom_id="Modmail_Important", emoji="❗"
             ),
-            ui.Section(
-                [ui.TextDisplay("## Private (Admins Only)"), ui.TextDisplay(MOD_SUPPORT_ADMIN_DESCRIPTION)],
-                accessory=ModSupportButton(
-                    label="Private", style=discord.ButtonStyle.danger, custom_id="Modmail_Admin", emoji="🔐"
-                ),
+        ),
+        ui.Section(
+            ui.TextDisplay("## Emergency"),
+            ui.TextDisplay("This is for requests that need a response as soon as possible."),
+            accessory=ModSupportButton(
+                label="Emergency", style=discord.ButtonStyle.danger, custom_id="Modmail_Emergency", emoji="‼"
             ),
-        ],
+        ),
+        ui.Section(
+            ui.TextDisplay("## Private (Admins Only)"),
+            ui.TextDisplay(MOD_SUPPORT_ADMIN_DESCRIPTION),
+            accessory=ModSupportButton(
+                label="Private", style=discord.ButtonStyle.blurple, custom_id="Modmail_Admin", emoji="🔒"
+            ),
+        ),
         accent_color=0x0000FF,
     )
 
