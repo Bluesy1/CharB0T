@@ -7,7 +7,6 @@
 *.log*
 *.env*
 mod_support_blacklist.json
-sensitive_settings.json
 giveaway.csv
 /charbot/media/pools/Discord-pool-bg-01.jpg
 .coverage

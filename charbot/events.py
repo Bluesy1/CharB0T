@@ -1,12 +1,10 @@
 """Event handling for Charbot."""
 
-import pathlib
 import re
 from datetime import UTC, datetime, timedelta
-from typing import TYPE_CHECKING, Final, cast
+from typing import TYPE_CHECKING, cast
 
 import discord
-import orjson
 from discord import Color, Embed
 from discord.ext import tasks
 from discord.ext.commands import Cog
@@ -119,16 +117,12 @@ class Events(Cog):
     ----------
     bot : CBot
         The bot instance.
-    last_sensitive_logged : dict
-        A dictionary of the last time sensitive messages were logged.
     """
 
     __slots__ = (
         "bot",
-        "last_sensitive_logged",
         "timeouts",
         "members",
-        "sensitive_settings_path",
         "webhook",
         "tilde_regex",
         "extractor",
@@ -136,14 +130,12 @@ class Events(Cog):
 
     def __init__(self, bot: CBot):
         self.bot = bot
-        self.last_sensitive_logged = {}
         self.timeouts = {}
         self.members: dict[int, datetime] = {}
         self.tilde_regex = re.compile(
             r"~~:\.\|:;~~|tilde tilde colon dot vertical bar colon semicolon tilde tilde", re.MULTILINE | re.IGNORECASE
         )
         self.extractor = URLExtract()
-        self.sensitive_settings_path: Final[pathlib.Path] = pathlib.Path("sensitive_settings.json")
 
     async def cog_load(self) -> None:  # pragma: no cover
         """Cog load function.
@@ -151,9 +143,7 @@ class Events(Cog):
         This is called when the cog is loaded, and initializes the
         log_un-timeout task and the members cache
         """
-        self.webhook = await self.bot.fetch_webhook(  # skipcq: PYL-W0201
-            orjson.loads(self.sensitive_settings_path.read_bytes())["webhook_id"]
-        )
+        self.webhook = await self.bot.fetch_webhook(945514428047167578)
         self.log_untimeout.start()
         self.members.update(
             {
@@ -338,7 +328,7 @@ class Events(Cog):
 
         If the message is sent by a non-mod user, it will check for a disallowed ping
         and will delete the message if it is found, and log it.
-        Scans guild messages for sensitive content
+        Scans guild messages for prohibited content
         If the message is a dm, it logs it in the dm_logs channel and redirects them to the new mod support method.
 
         Parameters

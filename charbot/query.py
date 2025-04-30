@@ -4,6 +4,7 @@ import asyncio
 import re
 from datetime import datetime
 from io import BytesIO
+from time import perf_counter
 from typing import TYPE_CHECKING, Final, cast
 from zoneinfo import ZoneInfo
 
@@ -103,17 +104,6 @@ class Query(Cog):
             The context of the command.
         """
         await ctx.reply(f"Charlie's time is: {datetime.now(ZoneInfo('America/Detroit')).strftime('%X %x %Z')}")
-
-    @commands.command()
-    async def changelog(self, ctx: Context):
-        """Return the changelog.
-
-        Parameters
-        ----------
-        ctx : Context
-            The context of the command.
-        """
-        await ctx.reply("Here's the changelog: https://bluesy1.github.io/CharB0T/changes")
 
     @commands.command()
     @commands.cooldown(1, 300, commands.BucketType.channel)
@@ -327,6 +317,61 @@ class Query(Cog):
             "When Kaitlin was a 3 month old child she died for about 5 minutes. "
             + "When she was brought back she had brain damage to the parts of her brain that deal with spelling and grammar, as well as her optical cortex. "
             + "While she's very smart, Katie is an auditory learner, meaning she learns better from audio formats and uses a screen reader (jaws for windows) on her PC."
+        )
+
+    @staticmethod
+    async def _ping_check(ctx: commands.Context) -> bool:
+        """Check to make sure runner is a moderator.
+
+        Parameters
+        ----------
+        ctx : Context
+            The context of the command.
+
+        Returns
+        -------
+        bool
+            True if the user is a moderator, False otherwise.
+
+        Raises
+        ------
+        commands.CheckFailure
+            If the user is not a moderator.
+        """
+        if ctx.guild is None:
+            return False
+        author = ctx.author
+        assert isinstance(author, discord.Member)  # skipcq: BAN-B101
+        return any(role.id in {338173415527677954, 253752685357039617, 225413350874546176} for role in author.roles)
+
+    @commands.command()
+    @commands.check(_ping_check)
+    async def ping(self, ctx: commands.Context):
+        """Ping Command TO Check Bot Is Alive.
+
+        This command is used to check if the bot is alive.
+
+        Parameters
+        ----------
+        self : Query
+            The Query cog object.
+        ctx : Context
+            The context of the command.
+        """
+        start = perf_counter()
+        await ctx.typing()
+        end = perf_counter()
+        typing = end - start
+        start = perf_counter()
+        await self.bot.pool.fetchrow("SELECT * FROM users WHERE id = $1", ctx.author.id)
+        end = perf_counter()
+        database = end - start
+        start = perf_counter()
+        message = await ctx.send("Ping ...")
+        end = perf_counter()
+        await message.edit(
+            content=f"Pong!\n\nPing: {(end - start) * 1000:.2f}ms\nTyping: {typing * 1000:.2f}ms\nDatabase: "
+            f"{database * 1000:.2f}ms\nWebsocket: {self.bot.latency * 1000:.2f}ms"
         )
 
 
