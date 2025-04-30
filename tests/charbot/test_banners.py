@@ -155,9 +155,9 @@ async def test_banner_approval_view(mocker: MockerFixture, database):
     mock_interaction.edit_original_response.assert_awaited_once_with(
         content="Banner approved.", attachments=[], view=None
     )
-    assert await database.fetchval("SELECT approved FROM banners WHERE user_id = 1") is True, (
-        "Banner should be approved"
-    )
+    assert (
+        await database.fetchval("SELECT approved FROM banners WHERE user_id = 1") is True
+    ), "Banner should be approved"
     mock_interaction.reset_mock()
     mock_interaction.response.reset_mock()
     await view.deny.callback(mock_interaction)

@@ -206,9 +206,9 @@ async def test_rollcall_new_user(mock_inter, database: Pool):
     await cog.rollcall.callback(cog, mock_inter)  # pyright: ignore[reportCallIssue]
     mock_inter.response.defer.assert_awaited_once_with(ephemeral=True)
     mock_inter.followup.send.assert_awaited_once_with("You got some Rep today, inmate")
-    assert await database.fetchval("SELECT points FROM users WHERE id=10") == 20, (
-        "Points should be 20 after the first rollcall"
-    )
+    assert (
+        await database.fetchval("SELECT points FROM users WHERE id=10") == 20
+    ), "Points should be 20 after the first rollcall"
     daily_points = await database.fetchrow("SELECT * FROM daily_points WHERE id=10")
     assert daily_points is not None, "Expected a row to be created in the daily_points table."
     assert daily_points["particip"] == daily_points["won"] == 0, "Programs points should be set to 0"
@@ -231,9 +231,9 @@ async def test_rollcall_existing_user_no_gain(mock_inter, database: Pool):
     await cog.rollcall.callback(cog, mock_inter)  # pyright: ignore[reportCallIssue]
     mock_inter.response.defer.assert_awaited_once_with(ephemeral=True)
     mock_inter.followup.send.assert_awaited_once_with("No more Rep for you yet, get back to your cell")
-    assert await database.fetchval("SELECT points FROM users WHERE id=10") == 20, (
-        "Points should be 20 after the rejected rollcall"
-    )
+    assert (
+        await database.fetchval("SELECT points FROM users WHERE id=10") == 20
+    ), "Points should be 20 after the rejected rollcall"
     await database.execute("DELETE FROM users WHERE id=10")
 
 
@@ -251,7 +251,7 @@ async def test_rollcall_existing_user_gain(mock_inter, database: Pool):
     await cog.rollcall.callback(cog, mock_inter)  # pyright: ignore[reportCallIssue]
     mock_inter.response.defer.assert_awaited_once_with(ephemeral=True)
     mock_inter.followup.send.assert_awaited_once_with("You got some Rep today, inmate")
-    assert await database.fetchval("SELECT points FROM users WHERE id=10") == 40, (
-        "Points should be 40 after the accepted rollcall"
-    )
+    assert (
+        await database.fetchval("SELECT points FROM users WHERE id=10") == 40
+    ), "Points should be 40 after the accepted rollcall"
     await database.execute("DELETE FROM users WHERE id=10")
