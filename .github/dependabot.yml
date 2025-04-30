@@ -54,30 +54,30 @@ updates:
         patterns:
           - "actions/upload-artifact"
           - "actions/download-artifact"
-# GH Pages branch
-  - package-ecosystem: "pip" # See documentation for possible values
-    directory: "/" # Location of package manifests
-    target-branch: "gh-pages"
-    schedule:
-      interval: "monthly"
-    groups:
-      pages:
-        patterns: ["*"]
-  - package-ecosystem: "github-actions"
-    directory: "/"
-    target-branch: "gh-pages"
-    schedule:
-      # Check for updates to GitHub Actions every monday
-      interval: "monthly"
-    groups:
-      pages:
-        patterns: ["*"]
-  - package-ecosystem: "bundler"
-    directory: "/"
-    target-branch: "gh-pages"
-    schedule:
-      # Check for updates to GitHub Actions every monday
-      interval: "monthly"
-    groups:
-      pages:
-        patterns: ["*"]
+## GH Pages branch
+#  - package-ecosystem: "pip" # See documentation for possible values
+#    directory: "/" # Location of package manifests
+#    target-branch: "gh-pages"
+#    schedule:
+#      interval: "monthly"
+#    groups:
+#      pages:
+#        patterns: ["*"]
+#  - package-ecosystem: "github-actions"
+#    directory: "/"
+#    target-branch: "gh-pages"
+#    schedule:
+#      # Check for updates to GitHub Actions every monday
+#      interval: "monthly"
+#    groups:
+#      pages:
+#        patterns: ["*"]
+#  - package-ecosystem: "bundler"
+#    directory: "/"
+#    target-branch: "gh-pages"
+#    schedule:
+#      # Check for updates to GitHub Actions every monday
+#      interval: "monthly"
+#    groups:
+#      pages:
+#        patterns: ["*"]
