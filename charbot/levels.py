@@ -67,9 +67,9 @@ class Leveling(commands.Cog):
 
             await conn.execute(
                 "INSERT INTO levels (id, xp, last_message) VALUES ($1, 0, $2) "
-                "ON CONFLICT DO UPDATE SET last_message = EXCLUDED.last_message",
-                created_at,
+                "ON CONFLICT (id) DO UPDATE SET last_message = EXCLUDED.last_message",
                 author_id,
+                created_at,
             )
 
             message_tuple = (created_at, author_id)
