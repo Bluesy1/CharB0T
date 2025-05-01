@@ -26,13 +26,16 @@ class Leveling(commands.Cog):
 
     def __init__(self, bot: CBot):
         self.bot = bot
-        self.buckets: dict[int, collections.deque[discord.Message]] = {}
-        self.bucket_cooldown: dict[int, float] = {}
-        self.bucket_previous: dict[int, set[int]] = {}
+        self.buckets: dict[int, collections.deque[discord.Message]] = self.bot.holder.pop("leveling_buckets", {})
+        self.bucket_cooldown: dict[int, float] = self.bot.holder.pop("leveling_bucket_cooldown", {})
+        self.bucket_previous: dict[int, set[int]] = self.bot.holder.pop("leveling_bucket_previous", {})
         self.drain.start()
 
     async def cog_unload(self):
         self.drain.cancel()
+        self.bot.holder["leveling_buckets"] = self.buckets
+        self.bot.holder["leveling_bucket_cooldown"] = self.bucket_cooldown
+        self.bot.holder["leveling_bucket_previous"] = self.bucket_previous
 
     async def proc_xp(self, message: discord.Message):
         """Add XP to the user when they send a message.
@@ -61,7 +64,7 @@ class Leveling(commands.Cog):
                 self.buckets[channel_id] = collections.deque([message])
                 return
             bucket = self.buckets[channel_id]
-            bucket.appendleft(message)
+            bucket.append(message)
 
             if (
                 channel_id in self.bucket_cooldown
