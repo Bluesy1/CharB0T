@@ -57,7 +57,8 @@ dev = [
 [tool.pytest.ini_options]
 minversion = "8.3.4"
 asyncio_mode = "strict"
-asyncio_default_fixture_loop_scope = "session"
+asyncio_default_fixture_loop_scope = "function"
+asyncio_default_test_loop_scope = "function"
 filterwarnings = [
 	"error",
 	"ignore::ResourceWarning",

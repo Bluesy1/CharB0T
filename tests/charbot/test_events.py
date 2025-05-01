@@ -16,7 +16,7 @@ URL_2 = "https://canvas.ubc.ca/courses/100236/modules"
 
 @pytest.fixture(autouse=True)
 def patch_grace_period(monkeypatch):
-    monkeypatch(events, "GRACE_PERIOD_END", utcnow() - timedelta(days=1))
+    monkeypatch.setattr(events, "GRACE_PERIOD_END", utcnow() - timedelta(days=1))
 
 
 @pytest.mark.parametrize(

@@ -34,7 +34,7 @@ def cluster() -> asyncpg.cluster.TempCluster:  # pyright: ignore[reportInvalidTy
     test_cluster.stop()
 
 
-@pytest_asyncio.fixture
+@pytest_asyncio.fixture(scope="function")
 async def database(cluster) -> asyncpg.Pool:  # pyright: ignore[reportInvalidTypeForm]
     """Create a database pool for a test."""
     pool = cast(asyncpg.Pool, await asyncpg.create_pool(**cluster.get_connection_spec(), database="postgres"))
