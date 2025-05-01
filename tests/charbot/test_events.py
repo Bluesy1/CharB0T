@@ -14,7 +14,7 @@ URL_1 = "https://www.google.ca/?gws_rd=ssl"
 URL_2 = "https://canvas.ubc.ca/courses/100236/modules"
 
 
-@pytest.fixture(autouse=True, scope="module")
+@pytest.fixture(autouse=True)
 def patch_grace_period(monkeypatch):
     monkeypatch(events, "GRACE_PERIOD_END", utcnow() - timedelta(days=1))
 

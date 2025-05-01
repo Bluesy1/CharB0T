@@ -3,29 +3,12 @@
 [![Maintainability](https://api.codeclimate.com/v1/badges/8234bccb87107f9068b9/maintainability)](https://codeclimate.com/github/Bluesy1/CharB0T/maintainability)
 [![Test Coverage](https://api.codeclimate.com/v1/badges/8234bccb87107f9068b9/test_coverage)](https://codeclimate.com/github/Bluesy1/CharB0T/test_coverage)
 
-[![DeepSource](https://deepsource.io/gh/Bluesy1/CharB0T.svg/?label=active+issues&show_trend=true&token=wb08Mu693aFli6scALkkEmql)](https://deepsource.io/gh/Bluesy1/CharB0T/?ref=repository-badge)
-[![DeepSource](https://deepsource.io/gh/Bluesy1/CharB0T.svg/?label=resolved+issues&show_trend=true&token=wb08Mu693aFli6scALkkEmql)](https://deepsource.io/gh/Bluesy1/CharB0T/?ref=repository-badge)
-
 [![CI](https://github.com/Bluesy1/CharB0T/actions/workflows/ci.yml/badge.svg)](https://github.com/Bluesy1/CharB0T/actions/workflows/ci.yml)
 [![CodeQL](https://github.com/Bluesy1/CharB0T/actions/workflows/codeql.yml/badge.svg)](https://github.com/Bluesy1/CharB0T/actions/workflows/codeql.yml)
-[![Update GitHub Pages Site](https://github.com/Bluesy1/CharB0T/actions/workflows/leaderboard.yml/badge.svg?branch=gh-pages&event=workflow_dispatch)](https://github.com/Bluesy1/CharB0T/actions/workflows/leaderboard.yml)
 
 ## Code Info
 
 ![](https://img.shields.io/badge/license-MIT-blue.svg)
-[![Checked with pyright](https://img.shields.io/badge/pyright-checked-informational.svg)](https://github.com/microsoft/pyright/)
-[![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
-[![Code style: flake8](https://img.shields.io/badge/code%20style-flake8-blue.svg)](https://github.com/pycqa/flake8)
-[![wakatime](https://wakatime.com/badge/github/Bluesy1/CharB0T.svg)](https://wakatime.com/badge/github/Bluesy1/CharB0T)
-
-![GitHub commit activity](https://img.shields.io/github/commit-activity/w/Bluesy1/CharB0T)
-![GitHub issues by-label](https://img.shields.io/github/issues/Bluesy1/CharB0T/feature%20request?label=Feature%20Requests)
-![GitHub issues by-label](https://img.shields.io/github/issues/Bluesy1/CharB0T/bug?label=Confirmed%20Bugs)
-![GitHub issues by-label](https://img.shields.io/github/issues/Bluesy1/CharB0T/unconfirmed%20bug?label=Unconfirmed%20Bugs)
-![GitHub issues](https://img.shields.io/github/issues/Bluesy1/CharB0T)
-![GitHub closed issues](https://img.shields.io/github/issues-closed/Bluesy1/CharB0T)
-![GitHub pull requests](https://img.shields.io/github/issues-pr/Bluesy1/CharB0T)
-![GitHub closed pull requests](https://img.shields.io/github/issues-pr-closed/Bluesy1/CharB0T)
 
 ## Contributors
 
