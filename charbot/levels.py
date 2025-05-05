@@ -71,7 +71,6 @@ class Leveling(commands.Cog):
                 author_id,
                 created_at,
             )
-
             message_tuple = (created_at, author_id)
 
             if channel_id not in self.buckets:
@@ -83,7 +82,7 @@ class Leveling(commands.Cog):
             oldest_allowed = created_at - datetime.timedelta(minutes=10)
 
             while bucket:
-                first_dt, _ = bucket[0]
+                first_dt, *_ = bucket[0]
                 if first_dt < oldest_allowed:
                     bucket.popleft()
                 else:
@@ -94,28 +93,31 @@ class Leveling(commands.Cog):
             if len(unique_accounts) < 3:
                 return
 
-            if any(role.id in no_xp["roles"] for role in member.roles):
-                return
-
             messages: list[str] = []
             for user in unique_accounts:
                 try:
-                    member = guild.get_member(user) or await guild.fetch_member(user)
+                    this_member = guild.get_member(user) or await guild.fetch_member(user)
                 except discord.HTTPException:
+                    continue
+
+                if any(role.id in no_xp["roles"] for role in member.roles):
                     continue
 
                 if user == member.id:
                     cooldown = self.cooldown.get_bucket(message)
+                    off_cooldown = cooldown is None or cooldown.update_rate_limit() is None
                 else:
                     self.cooldown._verify_cache_integrity()
                     key = (channel_id, user)
                     if key not in self.cooldown._cache:
                         cooldown = self.cooldown.create_bucket(message)
                         self.cooldown._cache[key] = cooldown
+                        off_cooldown = True
                     else:
                         cooldown = self.cooldown._cache[key]
+                        off_cooldown = cooldown.update_rate_limit() is None
 
-                if cooldown is None or cooldown.update_rate_limit() is None:
+                if off_cooldown:
                     last_author_time = self.bucket_previous[channel_id][user]
                     self.bucket_previous[channel_id][user] = time.monotonic()
                     diff = time.monotonic() - last_author_time
@@ -133,20 +135,20 @@ class Leveling(commands.Cog):
                     if (old_xp // XP_PER_LEVEL) < (level := new_xp // XP_PER_LEVEL):
                         match level:
                             case 1:
-                                await member.add_roles(LEVEL_1, reason="Level 1 reached")
+                                await this_member.add_roles(LEVEL_1, reason="Level 1 reached")
                             case 2:
-                                await member.add_roles(LEVEL_2, reason="Level 2 reached")
-                                await member.remove_roles(LEVEL_1, reason="Level 2 reached")
+                                await this_member.add_roles(LEVEL_2, reason="Level 2 reached")
+                                await this_member.remove_roles(LEVEL_1, reason="Level 2 reached")
                             case 3:
-                                await member.add_roles(LEVEL_3, reason="Level 3 reached")
-                                await member.remove_roles(LEVEL_2, reason="Level 3 reached")
+                                await this_member.add_roles(LEVEL_3, reason="Level 3 reached")
+                                await this_member.remove_roles(LEVEL_2, reason="Level 3 reached")
                             case 4:
-                                await member.add_roles(LEVEL_4, reason="Level 4 reached")
-                                await member.remove_roles(LEVEL_3, reason="Level 4 reached")
+                                await this_member.add_roles(LEVEL_4, reason="Level 4 reached")
+                                await this_member.remove_roles(LEVEL_3, reason="Level 4 reached")
                             case 5:
-                                await member.add_roles(LEVEL_5, reason="Level 5 reached")
-                                await member.remove_roles(LEVEL_4, reason="Level 5 reached")
-                        messages.append(f"Congratulations {member.mention}, you have reached level **{level}**!")
+                                await this_member.add_roles(LEVEL_5, reason="Level 5 reached")
+                                await this_member.remove_roles(LEVEL_4, reason="Level 5 reached")
+                        messages.append(f"Congratulations {this_member.mention}, you have reached level **{level}**!")
             if messages:
                 await message.channel.send("\n".join(messages))
 
