@@ -94,13 +94,14 @@ class Leveling(commands.Cog):
                 return
 
             messages: list[str] = []
+            no_xp_roles: set[int] = set(no_xp["roles"])
             for user in unique_accounts:
                 try:
                     this_member = guild.get_member(user) or await guild.fetch_member(user)
                 except discord.HTTPException:
                     continue
 
-                if any(role.id in no_xp["roles"] for role in this_member.roles):
+                if any(role.id in no_xp_roles for role in this_member.roles):
                     continue
 
                 if user == member.id:
