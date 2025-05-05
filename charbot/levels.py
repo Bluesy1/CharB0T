@@ -81,7 +81,7 @@ class Leveling(commands.Cog):
             bucket = self.buckets[channel_id]
             bucket.append(message_tuple)
 
-            oldest_allowed = created_at - datetime.timedelta(minutes=10)
+            oldest_allowed = created_at - datetime.timedelta(seconds=INTERVAL_LENGTH)
 
             while bucket:
                 first_dt, *_ = bucket[0]
@@ -90,7 +90,7 @@ class Leveling(commands.Cog):
                 else:
                     break
 
-            oldest_allowed = created_at + datetime.timedelta(minutes=5)
+            oldest_allowed = created_at - datetime.timedelta(seconds=INTERVAL_LENGTH // 2)
 
             unique_accounts = {author for _, author in bucket}
 
