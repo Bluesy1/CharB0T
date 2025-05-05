@@ -94,7 +94,7 @@ class Leveling(commands.Cog):
                 return
 
             messages: list[str] = []
-            no_xp_roles: set[int] = set(no_xp["roles"])
+            no_xp_roles: frozenset[int] = frozenset(no_xp["roles"])
             for user in unique_accounts:
                 try:
                     this_member = guild.get_member(user) or await guild.fetch_member(user)
@@ -106,22 +106,24 @@ class Leveling(commands.Cog):
 
                 if user == member.id:
                     cooldown = self.cooldown.get_bucket(message)
-                    off_cooldown = cooldown is None or cooldown.update_rate_limit() is None
+                    at_ts = created_at.timestamp()
+                    off_cooldown = cooldown is None or cooldown.update_rate_limit(at_ts) is None
                 else:
+                    at_ts = min(ts for ts, author in bucket if author == user).timestamp()
                     self.cooldown._verify_cache_integrity()
                     key = (channel_id, user)
                     if key not in self.cooldown._cache:
                         cooldown = self.cooldown.create_bucket(message)
                         self.cooldown._cache[key] = cooldown
-                        off_cooldown = True
+                        off_cooldown = cooldown.update_rate_limit(at_ts) is None or True
                     else:
                         cooldown = self.cooldown._cache[key]
-                        off_cooldown = cooldown.update_rate_limit() is None
+                        off_cooldown = cooldown.update_rate_limit(at_ts) is None
 
                 if off_cooldown:
                     last_author_time = self.bucket_previous[channel_id][user]
-                    self.bucket_previous[channel_id][user] = time.monotonic()
-                    diff = time.monotonic() - last_author_time
+                    self.bucket_previous[channel_id][user] = this_author_time = time.monotonic()
+                    diff = this_author_time - last_author_time
                     old_xp: int = await conn.fetchval("SELECT xp FROM levels WHERE id = $1", user) or 0
                     xp_to_add = 3 if diff <= INTERVAL_LENGTH * 1.5 else 1
                     new_xp: int = await conn.fetchval(
@@ -150,6 +152,11 @@ class Leveling(commands.Cog):
                                 await this_member.add_roles(LEVEL_5, reason="Level 5 reached")
                                 await this_member.remove_roles(LEVEL_4, reason="Level 5 reached")
                         messages.append(f"Congratulations {this_member.mention}, you have reached level **{level}**!")
+                    await self.bot.error_logs.send(
+                        f"{this_member.mention} got `{old_xp} + {xp_to_add} => {new_xp}`  (new level {level}) in channel <#{channel_id}>\n"
+                        f" - `{cooldown=!r}`\n - `{last_author_time = }`\n - `{this_author_time = }`\n - `{off_cooldown = }`\n"
+                        f" - `{unique_accounts = }`\n - `current = {time.time()}`"
+                    )
             if messages:
                 await message.channel.send("\n".join(messages))
 
