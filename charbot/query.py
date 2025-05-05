@@ -145,7 +145,7 @@ class Query(Cog):
         ctx: discord.ext.commands.Context
             The context of the command
         """
-        await ctx.reply(f"https://bluesy1.github.io/CharB0T/\n{__source__}\nMIT License")
+        await ctx.reply(f"{__source__}\nMIT License")
 
     @staticmethod
     def get_text(image: BytesIO) -> str:  # pragma: no cover

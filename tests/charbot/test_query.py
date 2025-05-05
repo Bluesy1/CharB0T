@@ -69,7 +69,7 @@ async def test_source_command(mocker: MockerFixture):
     mock_bot = mocker.Mock(spec=commands.Bot)
     cog = query.Query(mock_bot)
     await cog.source.__call__(mock_ctx, mock_ctx)  # type: ignore  # skipcq: PYL-E1102
-    mock_ctx.reply.assert_called_once_with(f"https://bluesy1.github.io/CharB0T/\n{query.__source__}\nMIT License")
+    mock_ctx.reply.assert_called_once_with(f"{query.__source__}\nMIT License")
 
 
 @pytest.mark.asyncio
