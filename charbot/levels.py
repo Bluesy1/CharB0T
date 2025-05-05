@@ -100,7 +100,7 @@ class Leveling(commands.Cog):
                 except discord.HTTPException:
                     continue
 
-                if any(role.id in no_xp["roles"] for role in member.roles):
+                if any(role.id in no_xp["roles"] for role in this_member.roles):
                     continue
 
                 if user == member.id:
