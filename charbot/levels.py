@@ -12,8 +12,8 @@ from discord.ext import commands, tasks
 from . import CBot
 
 
-XP_PER_LEVEL = 20
-XP_CAP = (XP_PER_LEVEL * 5) + 2
+XP_PER_LEVEL = 10
+XP_CAP = (XP_PER_LEVEL * 5) + 1
 INTERVAL_LENGTH = 600
 LEVEL_1 = discord.Object(969626979353632790, type=discord.Role)
 LEVEL_2 = discord.Object(969627321239760967, type=discord.Role)
@@ -202,7 +202,7 @@ class Leveling(commands.Cog):
     async def drain(self):
         async with self.bot.pool.acquire() as conn, conn.transaction():
             users = await conn.fetch(
-                "UPDATE levels SET xp = xp - 2 "
+                "UPDATE levels SET xp = xp - 1 "
                 "WHERE xp > $1 AND last_message < (CURRENT_TIMESTAMP - '3 days'::interval) "
                 "RETURNING id, xp",
                 XP_PER_LEVEL * 2,
