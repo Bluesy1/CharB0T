@@ -1,5 +1,6 @@
 """Level system."""
 
+import asyncio
 import datetime
 import time
 from collections import defaultdict, deque
@@ -35,6 +36,7 @@ class Leveling(commands.Cog):
         self.bucket_previous: defaultdict[int, defaultdict[int, float]] = self.bot.holder.pop(
             "leveling_bucket_previous", defaultdict(lambda: defaultdict(lambda: 0))
         )
+        self.lock = asyncio.Lock()
         self.drain.start()
 
     async def cog_unload(self):
@@ -60,7 +62,7 @@ class Leveling(commands.Cog):
         member = cast(discord.Member, message.author)
         author_id = member.id
 
-        async with self.bot.pool.acquire() as conn, conn.transaction():
+        async with self.lock, self.bot.pool.acquire() as conn, conn.transaction():
             no_xp = await conn.fetchrow("SELECT * FROM no_xp WHERE guild = $1", guild.id)
             if no_xp is None or message.channel.id in no_xp["channels"]:
                 return
@@ -88,6 +90,8 @@ class Leveling(commands.Cog):
                 else:
                     break
 
+            oldest_allowed = created_at + datetime.timedelta(minutes=5)
+
             unique_accounts = {author for _, author in bucket}
 
             if len(unique_accounts) < 3:
@@ -96,6 +100,8 @@ class Leveling(commands.Cog):
             messages: list[str] = []
             no_xp_roles: frozenset[int] = frozenset(no_xp["roles"])
             for user in unique_accounts:
+                if max(ts for ts, usr in bucket if usr == user) < oldest_allowed:
+                    continue
                 try:
                     this_member = guild.get_member(user) or await guild.fetch_member(user)
                 except discord.HTTPException:
@@ -104,12 +110,11 @@ class Leveling(commands.Cog):
                 if any(role.id in no_xp_roles for role in this_member.roles):
                     continue
 
+                at_ts = created_at.timestamp()
                 if user == member.id:
                     cooldown = self.cooldown.get_bucket(message)
-                    at_ts = created_at.timestamp()
                     off_cooldown = cooldown is None or cooldown.update_rate_limit(at_ts) is None
                 else:
-                    at_ts = min(ts for ts, author in bucket if author == user).timestamp()
                     self.cooldown._verify_cache_integrity()
                     key = (channel_id, user)
                     if key not in self.cooldown._cache:
@@ -153,9 +158,11 @@ class Leveling(commands.Cog):
                                 await this_member.remove_roles(LEVEL_4, reason="Level 5 reached")
                         messages.append(f"Congratulations {this_member.mention}, you have reached level **{level}**!")
                     await self.bot.error_logs.send(
-                        f"{this_member.mention} got `{old_xp} + {xp_to_add} => {new_xp}`  (new level {level}) in channel <#{channel_id}>\n"
-                        f" - `{cooldown=!r}`\n - `{last_author_time = }`\n - `{this_author_time = }`\n - `{off_cooldown = }`\n"
-                        f" - `{unique_accounts = }`\n - `current = {time.time()}`"
+                        f"{this_member.mention} got `{old_xp} + {xp_to_add} => {new_xp}`  (level {old_xp // XP_PER_LEVEL} => {level}) in channel <#{channel_id}>\n"
+                        f" - `{cooldown=!r}`\n"
+                        f" - `this_author_time - last_author_time = {this_author_time} - {last_author_time} = {diff}`\n"
+                        f" - `{off_cooldown=}`\n"
+                        f" - `{unique_accounts=}`\n - `{at_ts=}`"
                     )
             if messages:
                 await message.channel.send("\n".join(messages))
