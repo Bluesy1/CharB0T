@@ -97,40 +97,58 @@ class Leveling(commands.Cog):
             if any(role.id in no_xp["roles"] for role in member.roles):
                 return
 
-            cooldown = self.cooldown.get_bucket(message)
+            messages: list[str] = []
+            for user in unique_accounts:
+                try:
+                    member = guild.get_member(user) or await guild.fetch_member(user)
+                except discord.HTTPException:
+                    continue
 
-            if cooldown is None or cooldown.update_rate_limit() is None:
-                last_author_time = self.bucket_previous[channel_id][author_id]
-                self.bucket_previous[channel_id][author_id] = time.monotonic()
-                diff = time.monotonic() - last_author_time
-                old_xp: int = await conn.fetchval("SELECT xp FROM levels WHERE id = $1", member.id) or 0
-                xp_to_add = 3 if diff <= INTERVAL_LENGTH * 1.5 else 1
-                new_xp: int = await conn.fetchval(
-                    "INSERT INTO levels (id, xp, last_message) VALUES ($1, $2, $3) "
-                    "ON CONFLICT (id) DO UPDATE SET "
-                    "xp = EXCLUDED.xp, last_message = EXCLUDED.last_message "
-                    "RETURNING xp",
-                    member.id,
-                    min(XP_CAP, old_xp + xp_to_add),
-                    created_at,
-                )
-                if (old_xp // XP_PER_LEVEL) < (level := new_xp // XP_PER_LEVEL):
-                    match level:
-                        case 1:
-                            await member.add_roles(LEVEL_1, reason="Level 1 reached")
-                        case 2:
-                            await member.add_roles(LEVEL_2, reason="Level 2 reached")
-                            await member.remove_roles(LEVEL_1, reason="Level 2 reached")
-                        case 3:
-                            await member.add_roles(LEVEL_3, reason="Level 3 reached")
-                            await member.remove_roles(LEVEL_2, reason="Level 3 reached")
-                        case 4:
-                            await member.add_roles(LEVEL_4, reason="Level 4 reached")
-                            await member.remove_roles(LEVEL_3, reason="Level 4 reached")
-                        case 5:
-                            await member.add_roles(LEVEL_5, reason="Level 5 reached")
-                            await member.remove_roles(LEVEL_4, reason="Level 5 reached")
-                    await message.channel.send(f"Congratulations {member.mention}, you have reached level **{level}**!")
+                if user == member.id:
+                    cooldown = self.cooldown.get_bucket(message)
+                else:
+                    self.cooldown._verify_cache_integrity()
+                    key = (channel_id, user)
+                    if key not in self.cooldown._cache:
+                        cooldown = self.cooldown.create_bucket(message)
+                        self.cooldown._cache[key] = cooldown
+                    else:
+                        cooldown = self.cooldown._cache[key]
+
+                if cooldown is None or cooldown.update_rate_limit() is None:
+                    last_author_time = self.bucket_previous[channel_id][user]
+                    self.bucket_previous[channel_id][user] = time.monotonic()
+                    diff = time.monotonic() - last_author_time
+                    old_xp: int = await conn.fetchval("SELECT xp FROM levels WHERE id = $1", user) or 0
+                    xp_to_add = 3 if diff <= INTERVAL_LENGTH * 1.5 else 1
+                    new_xp: int = await conn.fetchval(
+                        "INSERT INTO levels (id, xp, last_message) VALUES ($1, $2, $3) "
+                        "ON CONFLICT (id) DO UPDATE SET "
+                        "xp = EXCLUDED.xp, last_message = EXCLUDED.last_message "
+                        "RETURNING xp",
+                        user,
+                        min(XP_CAP, old_xp + xp_to_add),
+                        created_at,
+                    )
+                    if (old_xp // XP_PER_LEVEL) < (level := new_xp // XP_PER_LEVEL):
+                        match level:
+                            case 1:
+                                await member.add_roles(LEVEL_1, reason="Level 1 reached")
+                            case 2:
+                                await member.add_roles(LEVEL_2, reason="Level 2 reached")
+                                await member.remove_roles(LEVEL_1, reason="Level 2 reached")
+                            case 3:
+                                await member.add_roles(LEVEL_3, reason="Level 3 reached")
+                                await member.remove_roles(LEVEL_2, reason="Level 3 reached")
+                            case 4:
+                                await member.add_roles(LEVEL_4, reason="Level 4 reached")
+                                await member.remove_roles(LEVEL_3, reason="Level 4 reached")
+                            case 5:
+                                await member.add_roles(LEVEL_5, reason="Level 5 reached")
+                                await member.remove_roles(LEVEL_4, reason="Level 5 reached")
+                        messages.append(f"Congratulations {member.mention}, you have reached level **{level}**!")
+            if messages:
+                await message.channel.send("\n".join(messages))
 
     @commands.Cog.listener()
     async def on_member_join(self, member: discord.Member) -> None:
