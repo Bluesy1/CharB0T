@@ -94,7 +94,7 @@ class Leveling(commands.Cog):
 
             unique_accounts = {author for _, author in bucket}
 
-            if len(unique_accounts) < 3:
+            if (num_unique := len(unique_accounts)) < 2:
                 return
 
             messages: list[str] = []
@@ -108,6 +108,10 @@ class Leveling(commands.Cog):
                     continue
 
                 if any(role.id in no_xp_roles for role in this_member.roles):
+                    continue
+
+                old_xp: int = await conn.fetchval("SELECT xp FROM levels WHERE id = $1", user) or 0
+                if (old_level := old_xp // XP_PER_LEVEL) >= 2 and num_unique == 2:
                     continue
 
                 at_ts = created_at.timestamp()
@@ -129,7 +133,6 @@ class Leveling(commands.Cog):
                     last_author_time = self.bucket_previous[channel_id][user]
                     self.bucket_previous[channel_id][user] = this_author_time = time.monotonic()
                     diff = this_author_time - last_author_time
-                    old_xp: int = await conn.fetchval("SELECT xp FROM levels WHERE id = $1", user) or 0
                     xp_to_add = 3 if diff <= INTERVAL_LENGTH * 1.5 else 1
                     new_xp: int = await conn.fetchval(
                         "INSERT INTO levels (id, xp, last_message) VALUES ($1, $2, $3) "
@@ -140,30 +143,30 @@ class Leveling(commands.Cog):
                         min(XP_CAP, old_xp + xp_to_add),
                         created_at,
                     )
-                    if (old_xp // XP_PER_LEVEL) < (level := new_xp // XP_PER_LEVEL):
+                    if old_level < (level := new_xp // XP_PER_LEVEL):
                         match level:
                             case 1:
                                 await this_member.add_roles(LEVEL_1, reason="Level 1 reached")
                             case 2:
                                 await this_member.add_roles(LEVEL_2, reason="Level 2 reached")
-                                await this_member.remove_roles(LEVEL_1, reason="Level 2 reached")
+                                await this_member.remove_roles(LEVEL_1)
                             case 3:
                                 await this_member.add_roles(LEVEL_3, reason="Level 3 reached")
-                                await this_member.remove_roles(LEVEL_2, reason="Level 3 reached")
+                                await this_member.remove_roles(LEVEL_2)
                             case 4:
                                 await this_member.add_roles(LEVEL_4, reason="Level 4 reached")
-                                await this_member.remove_roles(LEVEL_3, reason="Level 4 reached")
+                                await this_member.remove_roles(LEVEL_3)
                             case 5:
                                 await this_member.add_roles(LEVEL_5, reason="Level 5 reached")
-                                await this_member.remove_roles(LEVEL_4, reason="Level 5 reached")
+                                await this_member.remove_roles(LEVEL_4)
                         messages.append(f"Congratulations {this_member.mention}, you have reached level **{level}**!")
-                    await self.bot.error_logs.send(
-                        f"{this_member.mention} got `{old_xp} + {xp_to_add} => {new_xp}`  (level {old_xp // XP_PER_LEVEL} => {level}) in channel <#{channel_id}>\n"
-                        f" - `{cooldown=!r}`\n"
-                        f" - `this_author_time - last_author_time = {this_author_time} - {last_author_time} = {diff}`\n"
-                        f" - `{off_cooldown=}`\n"
-                        f" - `{unique_accounts=}`\n - `{at_ts=}`"
-                    )
+                    # await self.bot.error_logs.send(
+                    #     f"{this_member.mention} got `{old_xp} + {xp_to_add} => {new_xp}`  (level {old_level} => {level}) in channel <#{channel_id}>\n"
+                    #     f" - `{cooldown=!r}`\n"
+                    #     f" - `this_author_time - last_author_time = {this_author_time} - {last_author_time} = {diff}`\n"
+                    #     f" - `{off_cooldown=}`\n"
+                    #     f" - `{unique_accounts=}`\n - `{at_ts=}`"
+                    # )
             if messages:
                 await message.channel.send("\n".join(messages))
 
@@ -232,13 +235,13 @@ class Leveling(commands.Cog):
                     member = guild.get_member(user["id"]) or await guild.fetch_member(user["id"])
                     if new_level == 2:
                         await member.add_roles(LEVEL_2, reason="Dropped to Level 2")
-                        await member.remove_roles(LEVEL_3, reason="Dropped to Level 2")
+                        await member.remove_roles(LEVEL_3)
                     elif new_level == 3:
                         await member.add_roles(LEVEL_3, reason="Dropped to Level 3")
-                        await member.remove_roles(LEVEL_4, reason="Dropped to Level 3")
+                        await member.remove_roles(LEVEL_4)
                     elif new_level == 4:
                         await member.add_roles(LEVEL_4, reason="Dropped to Level 4")
-                        await member.remove_roles(LEVEL_5, reason="Dropped to Level 4")
+                        await member.remove_roles(LEVEL_5)
 
 
 async def setup(bot: CBot):
