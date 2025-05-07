@@ -20,7 +20,6 @@ if TYPE_CHECKING:  # pragma: no cover
 MAIN_SERVER = 225345178955808768
 GAMES_FORUM = 1019647326601609338
 GAME_SUGGESTIONS_TAG = 1019691620741959730
-GRACE_PERIOD_END = datetime(2025, 5, 8, tzinfo=UTC)
 
 
 def time_string_from_seconds(delta: float) -> str:
@@ -60,8 +59,6 @@ def url_posting_allowed(
     allowed: bool
         Whether or not the combination is allowed
     """
-    if utcnow() < GRACE_PERIOD_END:  # pragma: no cover
-        return True
     if (
         isinstance(channel, discord.Thread)
         and channel.parent_id == GAMES_FORUM
