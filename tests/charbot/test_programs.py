@@ -206,15 +206,11 @@ async def test_rollcall_new_user(mock_inter, database: Pool):
     await cog.rollcall.callback(cog, mock_inter)  # pyright: ignore[reportCallIssue]
     mock_inter.response.defer.assert_awaited_once_with(ephemeral=True)
     mock_inter.followup.send.assert_awaited_once_with("You got some Rep today, inmate")
-    assert await database.fetchval("SELECT points FROM users WHERE id=10") == 20, (
-        "Points should be 20 after the first rollcall"
-    )
-    daily_points = await database.fetchrow("SELECT * FROM daily_points WHERE id=10")
-    assert daily_points is not None, "Expected a row to be created in the daily_points table."
-    assert daily_points["particip"] == daily_points["won"] == 0, "Programs points should be set to 0"
-    assert daily_points["last_claim"] == mock_inter.client.TIME(), "Last claim time should be now"
-    assert await database.fetchval("SELECT bid FROM bids WHERE id=10") == 0, "Bid should be 0"
-    await database.execute("DELETE FROM users WHERE id=10")
+    results = await database.fetchrow("SELECT * FROM users WHERE id=10")
+    assert results is not None, "Expected a row to be created in the users table."
+    assert results["points"] == 20, "Points should be 20 after the first rollcall"
+    assert results["particip"] == results["won"] == 0, "Programs points should be set to 0"
+    assert results["last_claim"] == mock_inter.client.TIME(), "Last claim time should be now"
 
 
 async def test_rollcall_existing_user_no_gain(mock_inter, database: Pool):
@@ -222,19 +218,16 @@ async def test_rollcall_existing_user_no_gain(mock_inter, database: Pool):
     mock_inter.user.id = 10
     mock_inter.client.pool = database
     cog = Reputation()
-    await database.execute("INSERT INTO users (id, points) VALUES (10, 20)")
     await database.execute(
-        "INSERT INTO daily_points (id, last_claim, last_particip_dt, particip, won) VALUES (10, $1, $1, 0, 0)",
+        "INSERT INTO users (id, points, last_claim, last_particip_dt, particip, won) VALUES (10, 20, $1, $1, 0, 0)",
         mock_inter.client.TIME(),
     )
-    await database.execute("INSERT INTO bids (id, bid) VALUES (10, 0)")
     await cog.rollcall.callback(cog, mock_inter)  # pyright: ignore[reportCallIssue]
     mock_inter.response.defer.assert_awaited_once_with(ephemeral=True)
     mock_inter.followup.send.assert_awaited_once_with("No more Rep for you yet, get back to your cell")
     assert await database.fetchval("SELECT points FROM users WHERE id=10") == 20, (
         "Points should be 20 after the rejected rollcall"
     )
-    await database.execute("DELETE FROM users WHERE id=10")
 
 
 async def test_rollcall_existing_user_gain(mock_inter, database: Pool):
@@ -242,16 +235,13 @@ async def test_rollcall_existing_user_gain(mock_inter, database: Pool):
     mock_inter.user.id = 10
     mock_inter.client.pool = database
     cog = Reputation()
-    await database.execute("INSERT INTO users (id, points) VALUES (10, 20)")
     await database.execute(
-        "INSERT INTO daily_points (id, last_claim, last_particip_dt, particip, won) VALUES (10, $1, $1, 0, 0)",
+        "INSERT INTO users (id, points, last_claim, last_particip_dt, particip, won) VALUES (10, 20, $1, $1, 0, 0)",
         mock_inter.client.TIME() - datetime.timedelta(days=1),
     )
-    await database.execute("INSERT INTO bids (id, bid) VALUES (10, 0)")
     await cog.rollcall.callback(cog, mock_inter)  # pyright: ignore[reportCallIssue]
     mock_inter.response.defer.assert_awaited_once_with(ephemeral=True)
     mock_inter.followup.send.assert_awaited_once_with("You got some Rep today, inmate")
     assert await database.fetchval("SELECT points FROM users WHERE id=10") == 40, (
         "Points should be 40 after the accepted rollcall"
     )
-    await database.execute("DELETE FROM users WHERE id=10")

@@ -174,35 +174,33 @@ class Reputation(commands.Cog, name="Programs"):
             The interaction of the command invocation.
         """
         await interaction.response.defer(ephemeral=True)
-        result_user = await interaction.client.pool.fetchrow(
-            "SELECT users.id as id, points, b.bid as bid, dp.last_claim as daily, dp.last_particip_dt as "
-            "particip_dt, dp.particip as particip, dp.won as won "
-            "FROM users join bids b on users.id = b.id join daily_points dp on users.id = dp.id WHERE users.id = $1",
-            interaction.user.id,
-        )
-        current_time = interaction.client.TIME()
-        if result_user is None:
-            async with interaction.client.pool.acquire() as conn:
-                await conn.execute("INSERT INTO users (id, points) VALUES ($1, 20)", interaction.user.id)
+
+        async with interaction.client.pool.acquire() as conn:
+            result_user = await conn.fetchrow(
+                "SELECT id, points, particip, won, last_claim as daily, last_particip_dt as particip_dt "
+                "FROM users WHERE id = $1",
+                interaction.user.id,
+            )
+            current_time = interaction.client.TIME()
+            if result_user is None:
                 await conn.execute(
-                    "INSERT INTO daily_points (id, last_claim, last_particip_dt, particip, won) VALUES "
-                    "($1, $2, $3, 0, 0)",
+                    "INSERT INTO users (id, points, last_claim, last_particip_dt, particip, won) "
+                    "VALUES ($1, 20, $2, $3, 0, 0)",
                     interaction.user.id,
                     current_time,
                     current_time - datetime.timedelta(days=1),
                 )
-                await conn.execute("INSERT INTO bids (id, bid) VALUES ($1, 0)", interaction.user.id)
                 await interaction.followup.send("You got some Rep today, inmate")
-            return
-        if result_user["daily"] >= current_time:
-            await interaction.followup.send("No more Rep for you yet, get back to your cell")
-            return
-        async with interaction.client.pool.acquire() as conn:
-            await conn.execute("UPDATE users SET points = points + 20 WHERE id = $1", interaction.user.id)
+                return
+            if result_user["daily"] >= current_time:
+                await interaction.followup.send("No more Rep for you yet, get back to your cell")
+                return
             await conn.execute(
-                "UPDATE daily_points SET last_claim = $1 WHERE id = $2", current_time, interaction.user.id
+                "UPDATE users SET points = points + 20, last_claim = $2 WHERE id = $1",
+                interaction.user.id,
+                current_time,
             )
-        await interaction.followup.send("You got some Rep today, inmate")
+            await interaction.followup.send("You got some Rep today, inmate")
 
     @app_commands.command(name="reputation", description="Check your reputation")
     @app_commands.guild_only()
@@ -216,21 +214,23 @@ class Reputation(commands.Cog, name="Programs"):
         """
         await interaction.response.defer(ephemeral=True)
         async with interaction.client.pool.acquire() as conn:
-            points = await conn.fetchval("SELECT points from users where id = $1", interaction.user.id) or 0
-            limits = await conn.fetchrow("SELECT * from daily_points where id = $1", interaction.user.id) or {
+            results = await conn.fetchrow(
+                "SELECT points, last_claim, last_particip_dt, particip, wins FROM users WHERE id = $1",
+                interaction.user.id,
+            ) or {
+                "points": 0,
                 "last_claim": 0,
                 "last_particip_dt": 0,
                 "particip": 0,
+                "wins": 0,
             }
-            wins = await conn.fetchval("SELECT wins FROM winners WHERE id = $1", interaction.user.id) or 0
-        claim = "have" if limits["last_claim"] == interaction.client.TIME() else "haven't"
+        current_time = interaction.client.TIME()
+        claim = "have" if results["last_claim"] == current_time else "haven't"
         particip = (
-            "have"
-            if (limits["last_particip_dt"] == interaction.client.TIME()) and (limits["particip"] >= 10)
-            else "haven't"
+            "have" if (results["last_particip_dt"] == current_time) and (results["particip"] >= 10) else "haven't"
         )
         await interaction.followup.send(
-            f"You have {points} reputation, you {claim} claimed your daily bonus, and you {particip} hit"
-            f" your daily program cap, and have {wins}/3 wins in the last month.",
+            f"You have {results['points']} reputation, you {claim} claimed your daily bonus, and you {particip} hit"
+            f" your daily program cap, and have {results['wins']}/3 wins in the last month.",
             ephemeral=True,
         )
