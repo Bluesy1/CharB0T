@@ -215,14 +215,15 @@ class Reputation(commands.Cog, name="Programs"):
         await interaction.response.defer(ephemeral=True)
         async with interaction.client.pool.acquire() as conn:
             results = await conn.fetchrow(
-                "SELECT points, last_claim, last_particip_dt, particip FROM users WHERE id = $1", interaction.user.id
+                "SELECT points, last_claim, last_particip_dt, particip, wins FROM users WHERE id = $1",
+                interaction.user.id,
             ) or {
                 "points": 0,
                 "last_claim": 0,
                 "last_particip_dt": 0,
                 "particip": 0,
+                "wins": 0,
             }
-            wins = await conn.fetchval("SELECT wins FROM winners WHERE id = $1", interaction.user.id) or 0
         current_time = interaction.client.TIME()
         claim = "have" if results["last_claim"] == current_time else "haven't"
         particip = (
@@ -230,6 +231,6 @@ class Reputation(commands.Cog, name="Programs"):
         )
         await interaction.followup.send(
             f"You have {results['points']} reputation, you {claim} claimed your daily bonus, and you {particip} hit"
-            f" your daily program cap, and have {wins}/3 wins in the last month.",
+            f" your daily program cap, and have {results['wins']}/3 wins in the last month.",
             ephemeral=True,
         )

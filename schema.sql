@@ -4,22 +4,12 @@ CREATE TABLE IF NOT EXISTS users
         CONSTRAINT points_pk PRIMARY KEY              ,
     points           SMALLINT DEFAULT 0       NOT NULL,
     last_claim       TIMESTAMP WITH TIME ZONE NOT NULL
-                        DEFAULT CURRENT_TIMESTAMP,
+                        DEFAULT CURRENT_TIMESTAMP     ,
     last_particip_dt TIMESTAMP WITH TIME ZONE NOT NULL
-                        DEFAULT CURRENT_TIMESTAMP,
+                        DEFAULT CURRENT_TIMESTAMP     ,
     particip         SMALLINT DEFAULT 0       NOT NULL,
-    won              SMALLINT DEFAULT 0       NOT NULL
-);
-
-CREATE TABLE IF NOT EXISTS winners
-(
-    id   BIGSERIAL
-        CONSTRAINT winners_pk
-            PRIMARY KEY
-        CONSTRAINT winners_users_id_fk
-            REFERENCES users
-            ON UPDATE CASCADE ON DELETE CASCADE,
-    wins SMALLINT DEFAULT 0
+    won              SMALLINT DEFAULT 0       NOT NULL,
+    wins             SMALLINT DEFAULT 0
 );
 
 CREATE TABLE IF NOT EXISTS levels
