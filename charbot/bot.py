@@ -184,9 +184,9 @@ class CBot(commands.Bot):
             The points gained
         """
         user = await self.pool.fetchrow(
-            "SELECT users.id as id, points, b.bid as bid, dp.last_claim as daily, dp.last_particip_dt as "
+            "SELECT users.id as id, points, dp.last_claim as daily, dp.last_particip_dt as "
             "particip_dt, dp.particip as particip, dp.won as won "
-            "FROM users join bids b on users.id = b.id join daily_points dp on users.id = dp.id WHERE users.id = $1",
+            "FROM users JOIN daily_points dp on users.id = dp.id WHERE users.id = $1",
             member.id,
         )
         if user is None:
@@ -281,7 +281,6 @@ class CBot(commands.Bot):
                 user,
                 points + bonus,
             )
-            await conn.execute("INSERT INTO bids (id, bid) VALUES ($1, 0)", user)
             await conn.execute(
                 "INSERT INTO daily_points (id, last_claim, last_particip_dt, particip, won)"
                 " VALUES ($1, $2, $3, $4, $5)",

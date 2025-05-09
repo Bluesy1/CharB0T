@@ -175,9 +175,9 @@ class Reputation(commands.Cog, name="Programs"):
         """
         await interaction.response.defer(ephemeral=True)
         result_user = await interaction.client.pool.fetchrow(
-            "SELECT users.id as id, points, b.bid as bid, dp.last_claim as daily, dp.last_particip_dt as "
+            "SELECT users.id as id, points, dp.last_claim as daily, dp.last_particip_dt as "
             "particip_dt, dp.particip as particip, dp.won as won "
-            "FROM users join bids b on users.id = b.id join daily_points dp on users.id = dp.id WHERE users.id = $1",
+            "FROM users JOIN daily_points dp on users.id = dp.id WHERE users.id = $1",
             interaction.user.id,
         )
         current_time = interaction.client.TIME()
@@ -191,7 +191,6 @@ class Reputation(commands.Cog, name="Programs"):
                     current_time,
                     current_time - datetime.timedelta(days=1),
                 )
-                await conn.execute("INSERT INTO bids (id, bid) VALUES ($1, 0)", interaction.user.id)
                 await interaction.followup.send("You got some Rep today, inmate")
             return
         if result_user["daily"] >= current_time:

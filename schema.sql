@@ -20,17 +20,6 @@ CREATE TABLE IF NOT EXISTS daily_points
     won              SMALLINT DEFAULT 0       NOT NULL
 );
 
-CREATE TABLE IF NOT EXISTS bids
-(
-    id  BIGINT   NOT NULL
-        CONSTRAINT bids_pk
-            PRIMARY KEY
-        CONSTRAINT bids_user_id_fk
-            REFERENCES users
-            ON UPDATE CASCADE ON DELETE CASCADE,
-    bid SMALLINT NOT NULL
-);
-
 CREATE TABLE IF NOT EXISTS winners
 (
     id   BIGSERIAL
