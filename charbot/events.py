@@ -20,6 +20,30 @@ if TYPE_CHECKING:  # pragma: no cover
 MAIN_SERVER = 225345178955808768
 GAMES_FORUM = 1019647326601609338
 GAME_SUGGESTIONS_TAG = 1019691620741959730
+ALLOWED_ROLES = {
+    337743478190637077,
+    685331877057658888,
+    969629622453039104,
+    969629628249563166,
+    969629632028614699,
+    969628342733119518,
+    969627321239760967,
+    406690402956083210,
+    387037912782471179,
+    338173415527677954,
+    725377514414932030,
+    925956396057513985,
+    253752685357039617,
+    225413350874546176,
+    729368484211064944,
+    1359917004932386826,
+    225414953820094465,
+    926150286098194522,
+    733541021488513035,
+    338870051853697033,
+    970819808784441435,
+    400445639210827786,
+}
 
 
 def time_string_from_seconds(delta: float) -> str:
@@ -73,35 +97,14 @@ def url_posting_allowed(
         # suggestions tag, then it's a game thread, and we want to allow urls in it
         # OR the message is the starter message for a thread in the channel, and we want to allow it
         return True
-    if channel.category_id in {360814817457733635, 360818916861280256, 942578610336837632}:
+    if channel.category_id in {360814817457733635, 360818916861280256, 942578610336837632, 360819195904262144}:
         # if the channel is in an admin or info category, we want to allow urls
         return True
     if channel.id in {723653004301041745, 338894508894715904, 407185164200968203}:
         # the channel is allowed to have links, but they may not embed
         return True
     # If so far the url hasn't been allowed, test if the author has a role that allows it
-    return any(
-        role.id
-        in {
-            337743478190637077,
-            685331877057658888,
-            969629622453039104,
-            969629628249563166,
-            969629632028614699,
-            969628342733119518,
-            969627321239760967,
-            406690402956083210,
-            387037912782471179,
-            338173415527677954,
-            725377514414932030,
-            925956396057513985,
-            253752685357039617,
-            225413350874546176,
-            729368484211064944,
-            1359917004932386826,
-        }
-        for role in roles
-    )
+    return any(role.id in ALLOWED_ROLES for role in roles)
 
 
 class Events(Cog):
@@ -395,7 +398,7 @@ class Events(Cog):
                 await message.delete()
             finally:
                 try:
-                    await message.author.send(f"You need to be at least level 5 to post links in {message.guild.name}!")
+                    await message.author.send(f"You need to be at least level 2 to post links in {message.guild.name}!")
                 finally:
                     return  # skipcq: PYL-W0150
         # at this point, all checks for bad messages have passed, and we can let the levels cog assess XP gain
