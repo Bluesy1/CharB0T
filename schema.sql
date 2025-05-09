@@ -1,21 +1,12 @@
 CREATE TABLE IF NOT EXISTS users
 (
-    id          BIGINT             NOT NULL
-        CONSTRAINT points_pk
-            PRIMARY KEY,
-    points      SMALLINT DEFAULT 0 NOT NULL
-);
-
-CREATE TABLE IF NOT EXISTS daily_points
-(
     id               BIGINT                   NOT NULL
-        CONSTRAINT daily_points_pk
-            PRIMARY KEY
-        CONSTRAINT daily_user_id_fk
-            REFERENCES users
-            ON UPDATE CASCADE ON DELETE CASCADE,
-    last_claim       TIMESTAMP WITH TIME ZONE NOT NULL,
-    last_particip_dt TIMESTAMP WITH TIME ZONE NOT NULL,
+        CONSTRAINT points_pk PRIMARY KEY              ,
+    points           SMALLINT DEFAULT 0       NOT NULL,
+    last_claim       TIMESTAMP WITH TIME ZONE NOT NULL
+                        DEFAULT CURRENT_TIMESTAMP,
+    last_particip_dt TIMESTAMP WITH TIME ZONE NOT NULL
+                        DEFAULT CURRENT_TIMESTAMP,
     particip         SMALLINT DEFAULT 0       NOT NULL,
     won              SMALLINT DEFAULT 0       NOT NULL
 );

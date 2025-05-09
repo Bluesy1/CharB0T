@@ -184,9 +184,9 @@ class CBot(commands.Bot):
             The points gained
         """
         user = await self.pool.fetchrow(
-            "SELECT users.id as id, points, dp.last_claim as daily, dp.last_particip_dt as "
-            "particip_dt, dp.particip as particip, dp.won as won "
-            "FROM users JOIN daily_points dp on users.id = dp.id WHERE users.id = $1",
+            "SELECT id, points, particip, won, "
+            "last_claim as daily, last_particip_dt as particip_dt "
+            "FROM users WHERE id = $1",
             member.id,
         )
         if user is None:
@@ -222,12 +222,12 @@ class CBot(commands.Bot):
             points = real_points
         async with self.pool.acquire() as conn:
             await conn.execute(
-                "UPDATE daily_points SET particip = particip + $1, won = won + $2 WHERE id = $3",
+                "UPDATE users SET points = points + $1, particip = particip + $2, won = won + $3 WHERE id = $4",
+                points + bonus,
                 points,
                 bonus,
                 user,
             )
-            await conn.execute("UPDATE users SET points = points + $1 WHERE id = $2", points + bonus, user)
         return points + bonus
 
     async def first_of_day_game_gain(self, user: int, points: int, bonus: int, /) -> int:
@@ -249,13 +249,13 @@ class CBot(commands.Bot):
         """
         async with self.pool.acquire() as conn:
             await conn.execute(
-                "UPDATE daily_points SET last_particip_dt = $1, particip = $2, won = $3 WHERE id = $4",
+                "UPDATE users SET last_particip_dt = $1, points = points + $2, particip = $3, won = $4 WHERE id = $5",
                 self.TIME(),
+                points + bonus,
                 points,
                 bonus,
                 user,
             )
-            await conn.execute("UPDATE users SET points = points + $1 WHERE id = $2", points + bonus, user)
         return points + bonus
 
     async def first_time_game_gain(self, user: int, points: int, bonus: int, /) -> int:
@@ -275,18 +275,15 @@ class CBot(commands.Bot):
         gained: int
             The points gained
         """
+        time = self.TIME()
         async with self.pool.acquire() as conn:
             await conn.execute(
-                "INSERT INTO users (id, points) VALUES ($1, $2)",
+                "INSERT INTO users (id, points, last_claim, last_particip_dt, particip, won) "
+                "VALUES ($1, $2, $3, $4, $5, $6)",
                 user,
                 points + bonus,
-            )
-            await conn.execute(
-                "INSERT INTO daily_points (id, last_claim, last_particip_dt, particip, won)"
-                " VALUES ($1, $2, $3, $4, $5)",
-                user,
-                self.TIME() - datetime.timedelta(days=1),
-                self.TIME(),
+                time - datetime.timedelta(days=1),
+                time,
                 points,
                 bonus,
             )
