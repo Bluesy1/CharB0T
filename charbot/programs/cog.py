@@ -29,21 +29,6 @@ class Reputation(commands.Cog, name="Programs"):
     async def interaction_check(self, interaction: Interaction[CBot]):  # pragma: no cover  # skipcq: PYL-W0221
         """Check if the user is allowed to use the cog."""
         return interaction.channel_id == 839690221083820032
-        # if interaction.guild is None:
-        #     raise app_commands.NoPrivateMessage("Programs can't be used in direct messages.")
-        # if interaction.guild.id != constants.GUILD_ID:
-        #     raise app_commands.NoPrivateMessage("Programs can't be used in this server.")
-        # channel = cast(discord.abc.GuildChannel, interaction.channel)
-        # if channel.id == 839690221083820032:  # pragma: no cover
-        #     return True
-        # # fmt: off
-        # if (
-        #     channel.id != interaction.client.CHANNEL_ID
-        #     and interaction.command.name != self.query_points.name
-        # ):
-        #     raise errors.WrongChannelError(interaction.client.CHANNEL_ID)
-        # # fmt: on
-        # return True
 
     default_permissions = discord.Permissions.none()
     default_permissions.move_members = True

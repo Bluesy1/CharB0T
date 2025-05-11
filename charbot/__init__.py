@@ -21,7 +21,9 @@ __all__ = (
     "Tree",
     "Config",
 )
-__blacklist__ = [f"{__package__}.{item}" for item in ("__main__", "bot", "betas", "card", "errors", "types")]
+__blacklist__ = [
+    f"{__package__}.{item}" for item in ("__main__", "bot", "betas", "card", "constants", "errors", "types")
+]
 
 EXTENSIONS = [module.name for module in iter_modules(__path__, f"{__package__}.") if module.name not in __blacklist__]
 

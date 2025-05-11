@@ -306,7 +306,7 @@ class Query(Cog):
 
     @commands.hybrid_command(name="katie", aliases=("kaitlin",))
     @commands.dynamic_cooldown(_katie_info_cooldown, commands.BucketType.channel)
-    @commands.guild_only()
+    @app_commands.guilds(constants.GUILD_ID)
     async def katie_info(self, ctx: Context):
         """Send a message about Katie's message patterns, to remind people if they are being disrespectful
 

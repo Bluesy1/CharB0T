@@ -37,6 +37,7 @@ async def edit_check(interaction: Interaction[CBot]) -> bool:
     )
 
 
+@app_commands.guilds(constants.GUILD_ID)
 class ModSupport(GroupCog, name="modsupport", description="mod support command group"):
     """Mod Support Cog.
 
