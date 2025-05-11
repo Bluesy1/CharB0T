@@ -11,39 +11,11 @@ from discord.ext.commands import Cog
 from discord.utils import utcnow
 from urlextract import URLExtract
 
-from . import CBot
+from . import CBot, constants
 
 
 if TYPE_CHECKING:  # pragma: no cover
     from .levels import Leveling
-
-MAIN_SERVER = 225345178955808768
-GAMES_FORUM = 1019647326601609338
-GAME_SUGGESTIONS_TAG = 1019691620741959730
-ALLOWED_ROLES = {
-    337743478190637077,
-    685331877057658888,
-    969629622453039104,
-    969629628249563166,
-    969629632028614699,
-    969628342733119518,
-    969627321239760967,
-    406690402956083210,
-    387037912782471179,
-    338173415527677954,
-    725377514414932030,
-    925956396057513985,
-    253752685357039617,
-    225413350874546176,
-    729368484211064944,
-    1359917004932386826,
-    225414953820094465,
-    926150286098194522,
-    733541021488513035,
-    338870051853697033,
-    970819808784441435,
-    400445639210827786,
-}
 
 
 def time_string_from_seconds(delta: float) -> str:
@@ -85,9 +57,9 @@ def url_posting_allowed(
     """
     if (
         isinstance(channel, discord.Thread)
-        and channel.parent_id == GAMES_FORUM
+        and channel.parent_id == constants.GAMES_FORUM_ID
         and (
-            any(tag.id == GAME_SUGGESTIONS_TAG for tag in channel.applied_tags)
+            any(tag.id == constants.GAME_SUGGESTIONS_TAG_ID for tag in channel.applied_tags)
             or channel.message_count < 2
             or channel.id == channel.last_message_id
             or channel.id == getattr(channel.starter_message, "id", None)
@@ -97,14 +69,14 @@ def url_posting_allowed(
         # suggestions tag, then it's a game thread, and we want to allow urls in it
         # OR the message is the starter message for a thread in the channel, and we want to allow it
         return True
-    if channel.category_id in {360814817457733635, 360818916861280256, 942578610336837632, 360819195904262144}:
+    if channel.category_id in constants.SPECIAL_CATEGORIES:
         # if the channel is in an admin or info category, we want to allow urls
         return True
-    if channel.id in {723653004301041745, 338894508894715904, 407185164200968203}:
+    if channel.id in constants.LINK_ALLOWED_CHANNELS:
         # the channel is allowed to have links, but they may not embed
         return True
     # If so far the url hasn't been allowed, test if the author has a role that allows it
-    return any(role.id in ALLOWED_ROLES for role in roles)
+    return any(role.id in constants.LINK_ALLOWED_ROLES for role in roles)
 
 
 class Events(Cog):
@@ -154,7 +126,7 @@ class Events(Cog):
                 user.id: user.joined_at
                 async for user in cast(
                     discord.Guild,
-                    self.bot.get_guild(MAIN_SERVER) or await self.bot.fetch_guild(MAIN_SERVER),
+                    self.bot.get_guild(constants.GUILD_ID) or await self.bot.fetch_guild(constants.GUILD_ID),
                 ).fetch_members(limit=None)
                 if user.joined_at is not None
             }
@@ -206,9 +178,9 @@ class Events(Cog):
         removable = []
         for i, j in self.timeouts.copy().items():
             if j < datetime.now(tz=UTC):
-                guild = self.bot.get_guild(MAIN_SERVER)
+                guild = self.bot.get_guild(constants.GUILD_ID)
                 if guild is None:
-                    guild = await self.bot.fetch_guild(MAIN_SERVER)
+                    guild = await self.bot.fetch_guild(constants.GUILD_ID)
                 member = await guild.fetch_member(i)
                 if not member.is_timed_out():
                     embed = Embed(color=Color.green())
@@ -231,7 +203,7 @@ class Events(Cog):
         member : discord.Member
             The member that joined the server
         """
-        if member.guild.id == MAIN_SERVER:  # pragma: no branch
+        if member.guild.id == constants.GUILD_ID:  # pragma: no branch
             self.members.update({member.id: utcnow()})
 
     @Cog.listener()
@@ -243,7 +215,7 @@ class Events(Cog):
         payload : discord.RawMemberRemoveEvent
             The payload of the member leaving the server
         """
-        if payload.guild_id == MAIN_SERVER:
+        if payload.guild_id == constants.GUILD_ID:
             user = payload.user
             if isinstance(user, discord.Member):
                 _time = self.members.pop(user.id, user.joined_at) or utcnow() - timedelta(hours=1)
@@ -307,8 +279,8 @@ class Events(Cog):
             await message.pin()
             msg = await message.fetch()
             if (
-                thread.parent_id == GAMES_FORUM
-                and any(tag.id == GAME_SUGGESTIONS_TAG for tag in thread.applied_tags)
+                thread.parent_id == constants.GAMES_FORUM_ID
+                and any(tag.id == constants.GAME_SUGGESTIONS_TAG_ID for tag in thread.applied_tags)
                 and not self.extractor.has_urls(msg.content)
             ):
                 # If the parent is this, then the channel is the games channel and if the thread has the

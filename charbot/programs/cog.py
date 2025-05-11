@@ -31,7 +31,7 @@ class Reputation(commands.Cog, name="Programs"):
         return interaction.channel_id == 839690221083820032
         # if interaction.guild is None:
         #     raise app_commands.NoPrivateMessage("Programs can't be used in direct messages.")
-        # if interaction.guild.id != 225345178955808768:
+        # if interaction.guild.id != constants.GUILD_ID:
         #     raise app_commands.NoPrivateMessage("Programs can't be used in this server.")
         # channel = cast(discord.abc.GuildChannel, interaction.channel)
         # if channel.id == 839690221083820032:  # pragma: no cover
@@ -43,10 +43,6 @@ class Reputation(commands.Cog, name="Programs"):
         # ):
         #     raise errors.WrongChannelError(interaction.client.CHANNEL_ID)
         # # fmt: on
-        # if all(
-        #     role.id not in interaction.client.ALLOWED_ROLES for role in cast(discord.Member, interaction.user).roles
-        # ):
-        #     raise errors.MissingProgramRole(interaction.client.ALLOWED_ROLES)
         # return True
 
     default_permissions = discord.Permissions.none()

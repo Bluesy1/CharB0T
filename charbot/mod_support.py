@@ -65,9 +65,7 @@ class ModSupport(GroupCog, name="modsupport", description="mod support command g
     async def cog_load(self) -> None:
         """Cog load func."""
         self.check_mod_support_channels.start()
-        guild = self.bot.get_guild(225345178955808768)
-        if guild is None:
-            guild = await self.bot.fetch_guild(225345178955808768)
+        guild = self.bot.get_guild(constants.GUILD_ID) or await self.bot.fetch_guild(constants.GUILD_ID)
         everyone = guild.default_role
         mod_roles = guild.get_role(338173415527677954)
         assert isinstance(mod_roles, discord.Role)  # skipcq: BAN-B101
@@ -83,9 +81,7 @@ class ModSupport(GroupCog, name="modsupport", description="mod support command g
     @tasks.loop(hours=8)
     async def check_mod_support_channels(self):
         """Remove stale modmail channels."""
-        guild = self.bot.get_guild(225345178955808768)
-        if guild is None:
-            guild = await self.bot.fetch_guild(225345178955808768)
+        guild = self.bot.get_guild(constants.GUILD_ID) or await self.bot.fetch_guild(constants.GUILD_ID)
         channels = await guild.fetch_channels()
         cared: list[discord.TextChannel] = [
             channel

@@ -220,7 +220,7 @@ class Query(Cog):
             The payload of the reaction.
         """
         if (
-            payload.guild_id != 225345178955808768
+            payload.guild_id != constants.GUILD_ID
             or (not payload.emoji.is_unicode_emoji() or payload.emoji.name != "\U0001f984")
             or payload.message_id in self.ocr_done
         ):

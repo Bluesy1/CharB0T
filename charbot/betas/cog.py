@@ -42,7 +42,7 @@ class Betas(commands.Cog):
         if message.author.bot or message.guild is None:
             return
         member = cast(discord.Member, message.author)
-        if "my banner" in message.content.lower() and message.channel.id == 225345178955808768:
+        if "my banner" in message.content.lower() and message.channel.id == constants.GUILD_ID:
             async with self.bot.pool.acquire() as conn:
                 banner_rec: BannerStatusPoints | None = await conn.fetchrow(
                     "SELECT banners.user_id as user_id, quote, banners.color as color, cooldown, approved,"

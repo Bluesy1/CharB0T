@@ -2,7 +2,7 @@
 
 import datetime
 import logging
-from typing import Any, ClassVar, Final, Self, TypeVar, cast
+from typing import Any, ClassVar, Self, TypeVar, cast
 from zoneinfo import ZoneInfo
 
 import asyncpg
@@ -109,16 +109,6 @@ class CBot(commands.Bot):
     """
 
     ZONEINFO: ClassVar[ZoneInfo] = ZoneInfo("America/Detroit")
-    ALLOWED_ROLES: Final[list[int | str]] = [
-        337743478190637077,
-        685331877057658888,
-        969629622453039104,
-        969629628249563166,
-        969629632028614699,
-        969628342733119518,
-        969627321239760967,
-        969626979353632790,
-    ]
     CHANNEL_ID: ClassVar[int] = 969972085445238784
 
     @classmethod

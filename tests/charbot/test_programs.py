@@ -5,7 +5,7 @@ import discord
 import pytest
 from pytest_mock import MockerFixture
 
-from charbot import CBot  # , errors
+from charbot import CBot  # ,constants ,errors
 from charbot.programs.cog import Reputation
 
 
@@ -15,7 +15,7 @@ pytestmark = pytest.mark.asyncio
 @pytest.fixture
 def mock_bot(mocker: MockerFixture):
     """Mock discord.Client."""
-    return mocker.AsyncMock(spec=CBot, CHANNEL_ID=CBot.CHANNEL_ID, ALLOWED_ROLES=CBot.ALLOWED_ROLES, TIME=CBot.TIME)
+    return mocker.AsyncMock(spec=CBot, CHANNEL_ID=CBot.CHANNEL_ID, TIME=CBot.TIME)
 
 
 @pytest.fixture
@@ -50,7 +50,7 @@ def mock_inter(mock_bot, mocker: MockerFixture):
 # async def test_interaction_check_wrong_channel(mock_inter, mocker: MockerFixture):
 #     """Test the interaction check when the interaction is in the wrong channel."""
 #     mock_inter.channel = mocker.AsyncMock(spec=discord.TextChannel, id=0)
-#     mock_inter.guild = mocker.AsyncMock(spec=discord.Guild, id=225345178955808768)
+#     mock_inter.guild = mocker.AsyncMock(spec=discord.Guild, id=constants.GUILD_ID)
 #     with pytest.raises(errors.WrongChannelError) as exc:
 #         await Reputation().interaction_check(mock_inter)
 #     assert exc.value._channel == 969972085445238784
@@ -60,7 +60,7 @@ def mock_inter(mock_bot, mocker: MockerFixture):
 # async def test_interaction_check_no_allowed_roles(mock_inter, mocker: MockerFixture):
 #     """Test the interaction check when the interaction is in the wrong channel."""
 #     mock_inter.channel = mocker.AsyncMock(spec=discord.TextChannel, id=969972085445238784)
-#     mock_inter.guild = mocker.AsyncMock(spec=discord.Guild, id=225345178955808768)
+#     mock_inter.guild = mocker.AsyncMock(spec=discord.Guild, id=constants.GUILD_ID)
 #     with pytest.raises(errors.MissingProgramRole) as exc:
 #         await Reputation().interaction_check(mock_inter)
 #     assert (
@@ -89,7 +89,7 @@ def mock_inter(mock_bot, mocker: MockerFixture):
 # async def test_interaction_check_allowed(mock_inter, mocker: MockerFixture):
 #     """Test the interaction check when the interaction is in the right channel and guild."""
 #     mock_inter.channel = mocker.AsyncMock(spec=discord.TextChannel, id=969972085445238784)
-#     mock_inter.guild = mocker.AsyncMock(spec=discord.Guild, id=225345178955808768)
+#     mock_inter.guild = mocker.AsyncMock(spec=discord.Guild, id=constants.GUILD_ID)
 #     mock_inter.user = mocker.AsyncMock(
 #         spec=discord.Member,
 #         roles=[

@@ -12,7 +12,6 @@ class CBot(commands.Bot):
     """Charbot Class."""
 
     ZONEINFO: ClassVar[ZoneInfo]
-    ALLOWED_ROLES: ClassVar[list[int | str]]
     CHANNEL_ID: ClassVar[int]
     TIME: Callable[[], datetime.datetime]
     __init__: Callable[[tuple[Any, ...], bool, type["Tree"], dict[str, Any]], None]

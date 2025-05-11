@@ -5,7 +5,7 @@ import pytest
 from discord.utils import utcnow
 from pytest_mock import MockerFixture
 
-from charbot import CBot, events
+from charbot import CBot, constants, events
 
 
 TILDE_SHORT = "~~:.|:;~~"
@@ -98,7 +98,6 @@ def test_url_allowed_channel_id(mocker: MockerFixture, channel_id: int):
                 [387037912782471179],
                 [338173415527677954],
                 [725377514414932030],
-                [925956396057513985],
                 [253752685357039617],
                 [225413350874546176],
                 [729368484211064944],
@@ -214,7 +213,7 @@ async def test_on_member_join(mocker: MockerFixture):
     """Test members get properly added on join."""
     member = mocker.AsyncMock(spec=discord.Member)
     member.id = 1
-    member.guild.id = 225345178955808768
+    member.guild.id = constants.GUILD_ID
     cog = events.Events(mocker.AsyncMock(spec=CBot))
     await cog.on_member_join(member)
     assert 1 in cog.members
