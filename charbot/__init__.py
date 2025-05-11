@@ -44,7 +44,7 @@ class _Config:
     """
 
     __instance__: "_Config"
-    if path := _os.getenv("CHARBOT_CONFIG_FILE"):
+    if path := _os.getenv("CHARBOT_CONFIG_FILE"):  # pragma: no cover
         _file = _pathlib.Path(path).resolve(strict=True)
     else:
         _file: _pathlib.Path = _pathlib.Path(__file__).parent.parent / "config.toml"

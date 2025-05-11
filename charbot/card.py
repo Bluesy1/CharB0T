@@ -42,7 +42,7 @@ def _overlay(card: Image.Image, profile: Image.Image, status: Image.Image, perce
     length_of_bar = (percentage * 4.9) + 248
 
     blank_draw.rectangle((248, 188, length_of_bar, 202), fill=__DARK__)
-    if ellipse:
+    if ellipse:  # pragma: no cover
         blank_draw.ellipse((20, 20, 218, 218), fill=(255, 255, 255, 0), outline=__DARK__)
 
     profile_pic_holder = Image.new("RGBA", card.size, (255, 255, 255, 0))  # Used as blank image for a mask

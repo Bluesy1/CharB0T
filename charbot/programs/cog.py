@@ -26,7 +26,7 @@ class Reputation(commands.Cog, name="Programs"):
         re.RegexFlag.MULTILINE | re.RegexFlag.DOTALL | re.RegexFlag.IGNORECASE,
     )
 
-    async def interaction_check(self, interaction: Interaction[CBot]):  # skipcq: PYL-W0221
+    async def interaction_check(self, interaction: Interaction[CBot]):  # pragma: no cover  # skipcq: PYL-W0221
         """Check if the user is allowed to use the cog."""
         return interaction.channel_id == 839690221083820032
         # if interaction.guild is None:

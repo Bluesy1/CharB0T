@@ -46,7 +46,7 @@ class Game:
                 self.player_x = HumanPlayer()
                 self.player_o = RandomPlayer()
             case Difficulty.MEDIUM:
-                if rng.random() < 0.5:
+                if rng.random() < 0.5:  # pragma: no cover
                     self.player_x = HumanPlayer()
                     self.player_o = MinimaxPlayer(alpha_beta=False)
                 else:

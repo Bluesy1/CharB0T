@@ -12,7 +12,7 @@ class GameResult(Enum):
 
 
 class Player(Protocol):
-    def play(self, board: Board, piece: Piece) -> int: ...
+    def play(self, board: Board, piece: Piece) -> int: ...  # pragma: no branch
 
 
 class RandomPlayer(Player):
