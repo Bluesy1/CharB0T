@@ -10,7 +10,7 @@ import discord
 from discord import Interaction, app_commands
 from discord.ext import commands, tasks
 
-from . import CBot
+from . import CBot, constants
 
 
 XP_PER_LEVEL = 10
@@ -196,7 +196,7 @@ class Leveling(commands.Cog):
                     await member.add_roles(LEVEL_5, reason="Rejoined at level 5")
 
     @app_commands.command()
-    @app_commands.guild_only()
+    @app_commands.guilds(constants.GUILD_ID)
     @app_commands.checks.cooldown(1, 900, key=lambda interaction: interaction.user.id)
     async def rank(self, interaction: Interaction[CBot]):
         """Check your someone's level.

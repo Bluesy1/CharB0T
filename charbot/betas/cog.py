@@ -13,7 +13,7 @@ from discord import Interaction, app_commands, utils
 from discord.ext import commands
 from PIL import Image
 
-from .. import CBot
+from .. import CBot, constants
 from . import ColorOpts, views
 from ._types import BannerStatus, BannerStatusPoints
 from .banner import generate_banner
@@ -32,6 +32,7 @@ class Betas(commands.Cog):
         name="beta",
         description="Beta testing commands",
         guild_only=True,
+        guild_ids=constants.GUILD_IDS,
     )
     banner = app_commands.Group(name="banner", description="Base group for managing the user banner", parent=beta)
 

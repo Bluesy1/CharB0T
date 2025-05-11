@@ -7,7 +7,7 @@ from discord import Interaction, app_commands
 from discord.ext import commands
 from discord.utils import utcnow
 
-from . import CBot
+from . import CBot, constants
 
 
 _ALLOWED_MENTIONS = discord.AllowedMentions(roles=False, users=False, everyone=False)
@@ -15,7 +15,7 @@ _ALLOWED_MENTIONS = discord.AllowedMentions(roles=False, users=False, everyone=F
 
 @app_commands.default_permissions(manage_messages=True)
 @app_commands.checks.has_any_role(225413350874546176, 253752685357039617, 725377514414932030, 338173415527677954)
-@app_commands.guild_only()
+@app_commands.guilds(constants.GUILD_ID)
 class ReputationAdmin(
     commands.GroupCog, group_name="admin", group_description="Administration commands for the reputation system."
 ):
@@ -31,7 +31,9 @@ class ReputationAdmin(
 
     def __init__(self, bot: CBot):
         self.bot = bot
-        self.ctx_menu = app_commands.ContextMenu(name="Check User's Reputation", callback=self.check_reputation_context)
+        self.ctx_menu = app_commands.ContextMenu(
+            name="Check User's Reputation", callback=self.check_reputation_context, guild_ids=constants.GUILD_IDS
+        )
         self.bot.tree.add_command(self.ctx_menu)
         self._allowed_roles: list[int | str] = [
             225413350874546176,
@@ -49,8 +51,14 @@ class ReputationAdmin(
         """Unload the cog."""
         self.bot.tree.remove_command(self.ctx_menu.name, type=self.ctx_menu.type)
 
-    reputation = app_commands.Group(name="reputation", description="Administration commands for the reputation system.")
-    levels = app_commands.Group(name="levels", description="Administration commands for the leveling system.")
+    reputation = app_commands.Group(
+        name="reputation",
+        description="Administration commands for the reputation system.",
+        guild_ids=constants.GUILD_IDS,
+    )
+    levels = app_commands.Group(
+        name="levels", description="Administration commands for the leveling system.", guild_ids=constants.GUILD_IDS
+    )
 
     async def interaction_check(self, interaction: Interaction[CBot]) -> bool:
         """Check if the interaction is allowed.

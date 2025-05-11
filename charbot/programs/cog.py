@@ -11,7 +11,7 @@ import niquests
 from discord import Interaction, app_commands
 from discord.ext import commands
 
-from .. import CBot  # , errors
+from .. import CBot, constants  # , errors
 from . import shrugman, sudoku
 from .minesweeper.game import Game as MinesweeperGame
 from .minesweeper.view import Minesweeper
@@ -54,7 +54,7 @@ class Reputation(commands.Cog, name="Programs"):
     programs = app_commands.Group(
         name="programs",
         description="Programs to gain you rep.",
-        guild_only=True,
+        guild_ids=constants.GUILD_IDS,
         default_permissions=default_permissions,
     )
     # beta = app_commands.Group(name="beta", description="Beta programs..", parent=programs)
@@ -168,7 +168,7 @@ class Reputation(commands.Cog, name="Programs"):
         await interaction.followup.send(embed=embed, view=view, file=file)
 
     # @app_commands.command()
-    # @app_commands.guild_only()
+    # @app_commands.guilds(constants.GUILD_ID)
     # async def rollcall(self, interaction: Interaction[CBot]):
     #     """Claim your daily reputation bonus.
 
@@ -207,7 +207,7 @@ class Reputation(commands.Cog, name="Programs"):
     #         await interaction.followup.send("You got some Rep today, inmate")
 
     # @app_commands.command(name="reputation", description="Check your reputation")
-    # @app_commands.guild_only()
+    # @app_commands.guilds(constants.GUILD_ID)
     # async def query_points(self, interaction: Interaction[CBot]):
     #     """Query your reputation.
 

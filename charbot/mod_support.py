@@ -13,7 +13,7 @@ from discord.ext.commands import GroupCog
 from discord.ui import Item
 from discord.utils import utcnow
 
-from . import CBot
+from . import CBot, constants
 
 
 async def edit_check(interaction: Interaction[CBot]) -> bool:
@@ -110,7 +110,7 @@ class ModSupport(GroupCog, name="modsupport", description="mod support command g
                     await channel.delete()
 
     @app_commands.command(name="query", description="queries list of users banned from mod support")
-    @app_commands.guild_only()
+    @app_commands.guilds(constants.GUILD_ID)
     async def query(self, interaction: Interaction[CBot]):
         """Modmail blacklist query command.
 
@@ -134,7 +134,7 @@ class ModSupport(GroupCog, name="modsupport", description="mod support command g
         name="edit",
         description="adds or removes a user from the list of users banned from mod support",
     )
-    @app_commands.guild_only()
+    @app_commands.guilds(constants.GUILD_ID)
     async def edit(self, interaction: Interaction[CBot], add: bool, user: discord.Member):
         """Modmail edit blacklist command.
 

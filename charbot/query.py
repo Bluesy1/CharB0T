@@ -15,6 +15,8 @@ from discord.ext import commands, tasks
 from discord.ext.commands import Cog, Context
 from PIL import Image, ImageOps
 
+from . import constants
+
 
 if TYPE_CHECKING:  # pragma: no cover
     from . import CBot
@@ -127,7 +129,7 @@ class Query(Cog):
         )
 
     @commands.hybrid_command(name="source", description="Info about the source code")
-    @app_commands.guild_only()
+    @app_commands.guilds(constants.GUILD_ID)
     @commands.cooldown(1, 60, commands.BucketType.channel)
     async def source(self, ctx: Context):
         """Return a reference to the source code for the bot and its license.
@@ -246,7 +248,7 @@ class Query(Cog):
         self.ocr_done.clear()
 
     @app_commands.command()
-    @app_commands.guild_only()
+    @app_commands.guilds(constants.GUILD_ID)
     async def rules(
         self,
         interaction: Interaction["CBot"],
