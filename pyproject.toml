@@ -73,7 +73,7 @@ omit = [
 	"*/__main__.py",
 	"*/tests/**/*.py",
 	"*/types/*.py",
-	"*/reputation_admin.py",
+	"*/admin.py",
 	"*/mod_support.py",
 	"*/levels.py",
 ]
