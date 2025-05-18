@@ -18,14 +18,14 @@ MOD_ROLE = discord.Object(338173415527677954)
 @app_commands.default_permissions(manage_messages=True)
 @app_commands.checks.has_any_role(*constants.MOD_ROLE_IDS)
 @app_commands.guilds(constants.GUILD_ID)
-class ReputationAdmin(
+class Admin(
     commands.GroupCog,
     group_name="admin",
-    group_description="Administration commands for the reputation system.",
+    group_description="Administration commands for the server/bot.",
 ):
     """Reputation Admin Commands.
 
-    These commands are used to manage the reputation system.
+    These commands are used to manage the the server/bot.
 
     Parameters
     ----------
@@ -241,4 +241,4 @@ class ReputationAdmin(
 
 async def setup(bot: CBot):
     """Initialize the cog."""
-    await bot.add_cog(ReputationAdmin(bot))
+    await bot.add_cog(Admin(bot))
