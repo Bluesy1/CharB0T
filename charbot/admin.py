@@ -52,7 +52,7 @@ class Admin(
         self,
         interaction: Interaction[CBot],
         member: discord.Member,
-        tag: app_commands.Range[str, 4, 4],
+        tag: app_commands.Range[str, 1, 4],
     ):
         """Sends a user a warning that they have an unacceptable server tag active.
 
@@ -62,7 +62,7 @@ class Admin(
             The interaction object.
         member : discord.Member
             The member to warn.
-        tag : app_commands.Range[str, 4, 4]
+        tag : app_commands.Range[str, 1, 4]
             The server tag the user has.
         """
         await interaction.response.defer()
@@ -101,7 +101,7 @@ class Admin(
         self,
         interaction: Interaction[CBot],
         member: discord.Member,
-        tag: app_commands.Range[str, 4, 4],
+        tag: app_commands.Range[str, 1, 4],
     ):
         """Kick a member for having an unacceptable server tag active.
 
@@ -111,7 +111,7 @@ class Admin(
             The interaction object.
         member : discord.Member
             The member to kick.
-        tag : app_commands.Range[str, 4, 4]
+        tag : app_commands.Range[str, 1, 4]
             The server tag the user has.
         """
         await interaction.response.defer()
