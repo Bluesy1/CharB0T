@@ -343,9 +343,14 @@ class Events(Cog):
                 discord.TextChannel,
                 self.bot.get_channel(906578081496584242) or await self.bot.fetch_channel(906578081496584242),
             )
-            mentions = discord.AllowedMentions(everyone=False, roles=False, users=False)
+            mentions = discord.AllowedMentions.none()
             await channel.send(message.author.mention, allowed_mentions=mentions)
-            await channel.send(message.content, allowed_mentions=mentions)
+            view = ui.LayoutView()
+            if message.content:
+                view.add_item(ui.Container(ui.TextDisplay(f"```md\n{message.content[:3950]}\n```")))
+            else:
+                view.add_item(ui.Container(ui.TextDisplay(f"Message Contained no text Content:```\n{message!r}\n```")))
+            await channel.send(view=view, allowed_mentions=mentions)
             await message.channel.send(
                 "Hi! If this was an attempt to reach the mod team through modmail,"
                 " that has been removed, in favor of "
