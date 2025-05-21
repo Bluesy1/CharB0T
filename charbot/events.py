@@ -282,7 +282,7 @@ class Events(Cog):
                     bot_user = cast(discord.ClientUser, self.bot.user)
                     await self.webhook.send(view=view, username=bot_user.name, avatar_url=bot_user.display_avatar.url)
                     self.timeouts.pop(after.id)
-        except Exception:  # skipcq: PYL-W0703
+        except Exception:  # skipcq: PYL-W0703  # pragma: no cover
             if after.is_timed_out():
                 await self.parse_timeout(after)
 
