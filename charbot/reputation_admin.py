@@ -3,9 +3,9 @@
 from typing import cast
 
 import discord
-from discord import Interaction, app_commands
+from discord import Interaction, app_commands, ui
 from discord.ext import commands
-from discord.utils import utcnow
+from discord.utils import format_dt, utcnow
 
 from . import CBot, constants
 
@@ -266,17 +266,19 @@ class ReputationAdmin(
                 await interaction.followup.send("Xp is not set up??.")
             else:
                 guild = cast(discord.Guild, interaction.guild)
-                embed = discord.Embed(title="Noxp", description="", timestamp=utcnow())
-                embed.set_author(name=guild.name, icon_url=guild.icon.url if guild.icon else None)
-                embed.set_footer(
-                    text=f"Requested by {interaction.user.name}",
-                    icon_url=(
-                        interaction.user.avatar.url if interaction.user.avatar else interaction.user.default_avatar.url
-                    ),
+                view = ui.LayoutView()
+                view.add_item(
+                    ui.Container(
+                        ui.TextDisplay(f"# {guild.name} NoXP Configuration"),
+                        ui.TextDisplay(f"## Channels\n{'\n'.join(f'<#{c}> (`{c}`)' for c in noxp['channels'])}"),
+                        ui.TextDisplay(f"## Roles\n{'\n'.join(f'<@&{r}> (`{r}`)' for r in noxp['roles'])}"),
+                        ui.Separator(),
+                        ui.TextDisplay(
+                            f"-# Requested by {interaction.user.name} ({interaction.user.id}) at {format_dt(utcnow())}"
+                        ),
+                    )
                 )
-                embed.add_field(name="Channels", value=", ".join(f"<#{c}>" for c in noxp["channels"]), inline=False)
-                embed.add_field(name="Roles", value=", ".join(f"<@&{r}>" for r in noxp["roles"]), inline=False)
-                await interaction.followup.send(embed=embed)
+                await interaction.followup.send(view=view)
 
 
 async def setup(bot: CBot):
