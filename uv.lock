@@ -290,7 +290,7 @@ requires-dist = [
     { name = "orjson", specifier = "==3.10.18" },
     { name = "pillow", specifier = "==11.2.1" },
     { name = "pre-commit", marker = "extra == 'dev'", specifier = "==3.6.1" },
-    { name = "pyright", marker = "extra == 'dev'", specifier = "==1.1.361" },
+    { name = "pyright", marker = "extra == 'dev'", specifier = "==1.1.400" },
     { name = "pytesseract", specifier = "==0.3.13" },
     { name = "pytest", marker = "extra == 'dev'", specifier = "==8.3.5" },
     { name = "pytest-asyncio", marker = "extra == 'dev'", specifier = "==0.26.0" },
@@ -821,14 +821,15 @@ wheels = [
 
 [[package]]
 name = "pyright"
-version = "1.1.361"
+version = "1.1.400"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "nodeenv" },
+    { name = "typing-extensions" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/42/65/21f87b9c6bc1e45583e66c155ba81d36c6685847395e604711059d7701b1/pyright-1.1.361.tar.gz", hash = "sha256:1d67933315666b05d230c85ea8fb97aaa2056e4092a13df87b7765bb9e8f1a8d", size = 17479, upload_time = "2024-05-01T16:26:01.386Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/6c/cb/c306618a02d0ee8aed5fb8d0fe0ecfed0dbf075f71468f03a30b5f4e1fe0/pyright-1.1.400.tar.gz", hash = "sha256:b8a3ba40481aa47ba08ffb3228e821d22f7d391f83609211335858bf05686bdb", size = 3846546, upload_time = "2025-04-24T12:55:18.907Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/26/84/7f04734caa42479632e15446a1d8054292c54bdeea76a86263f714bf0822/pyright-1.1.361-py3-none-any.whl", hash = "sha256:c50fc94ce92b5c958cfccbbe34142e7411d474da43d6c14a958667e35b9df7ea", size = 18224, upload_time = "2024-05-01T16:25:59.239Z" },
+    { url = "https://files.pythonhosted.org/packages/c8/a5/5d285e4932cf149c90e3c425610c5efaea005475d5f96f1bfdb452956c62/pyright-1.1.400-py3-none-any.whl", hash = "sha256:c80d04f98b5a4358ad3a35e241dbf2a408eee33a40779df365644f8054d2517e", size = 5563460, upload_time = "2025-04-24T12:55:17.002Z" },
 ]
 
 [[package]]

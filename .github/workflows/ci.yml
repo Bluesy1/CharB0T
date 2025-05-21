@@ -74,4 +74,4 @@ jobs:
         with:
           warnings: false
           annotate: ${{ matrix.python-version != '3.13' && 'none' || 'all' }}
-          version: 1.1.361 # Optional
+          version: 1.1.400 # Optional
