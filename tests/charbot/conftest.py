@@ -11,7 +11,7 @@ import pytest_asyncio
 if os.name != "nt":
     import uvloop
 
-    # Also test uvloop on non windows OSes
+    # Test under uvloop on non windows OSes
     @pytest.fixture(
         scope="session",
         params=(uvloop.EventLoopPolicy(),),

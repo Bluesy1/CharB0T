@@ -73,7 +73,7 @@ addopts = "--cov-report=xml:coverage/reports/coverage.xml --cov=charbot tests/ -
 [tool.coverage.run]
 omit = [
 	"*/__main__.py",
-	"*/tests/**/*.py",
+	"*/tests/charbot/*.py",
 	"*/types/*.py",
 	"*/reputation_admin.py",
 	"*/mod_support.py",
