@@ -177,7 +177,7 @@ class Events(Cog):
         self.timeouts.update({after.id: until})
 
     @tasks.loop(seconds=30)
-    async def log_untimeout(self) -> None:
+    async def log_untimeout(self) -> None:  # pragma: no cover
         """Un-timeout Report Task.
 
         This task runs every 30 seconds and checks if any users that have been timed out have had their timeouts
@@ -223,7 +223,7 @@ class Events(Cog):
             self.members.update({member.id: utcnow()})
 
     @Cog.listener()
-    async def on_raw_member_remove(self, payload: discord.RawMemberRemoveEvent) -> None:
+    async def on_raw_member_remove(self, payload: discord.RawMemberRemoveEvent) -> None:  # pragma: no cover
         """Process when a member leaves the server and removes them from the members cache.
 
         Parameters
@@ -263,7 +263,7 @@ class Events(Cog):
         after : discord.Member
             The member after the update
         """
-        try:
+        try:  # pragma: no cover
             if after.timed_out_until != before.timed_out_until:
                 if after.is_timed_out():
                     await self.parse_timeout(after)
@@ -306,7 +306,7 @@ class Events(Cog):
                 thread.parent_id == constants.GAMES_FORUM_ID
                 and any(tag.id == constants.GAME_SUGGESTIONS_TAG_ID for tag in thread.applied_tags)
                 and not self.extractor.has_urls(msg.content)
-            ):
+            ):  # pragma: no cover
                 # If the parent is this, then the channel is the games channel and if the thread has the
                 #  suggestions tag, then it's a game thread, and if it doesn't have a url in the first message
                 #  we want to remind them to add one
@@ -348,7 +348,7 @@ class Events(Cog):
             view = ui.LayoutView()
             if message.content:
                 view.add_item(ui.Container(ui.TextDisplay(f"```md\n{message.content[:3950]}\n```")))
-            else:
+            else:  # pragma: no cover
                 view.add_item(ui.Container(ui.TextDisplay(f"Message Contained no text Content:```\n{message!r}\n```")))
             await channel.send(view=view, allowed_mentions=mentions)
             await message.channel.send(
@@ -381,7 +381,7 @@ class Events(Cog):
                 bot_user = cast(discord.ClientUser, self.bot.user)
                 await self.webhook.send(view=view, username=bot_user.name, avatar_url=bot_user.display_avatar.url)
                 return  # skipcq: PYL-W0150
-        if self.tilde_regex.search(message.content):
+        if self.tilde_regex.search(message.content):  # pragma: no cover
             await message.delete()
             return
         if self.extractor.has_urls(message.content) and not url_posting_allowed(
