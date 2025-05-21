@@ -1,4 +1,3 @@
-import asyncio
 import os
 import pathlib
 from typing import cast
@@ -15,10 +14,7 @@ if os.name != "nt":
     # Also test uvloop on non windows OSes
     @pytest.fixture(
         scope="session",
-        params=(
-            asyncio.DefaultEventLoopPolicy(),
-            uvloop.EventLoopPolicy(),
-        ),
+        params=(uvloop.EventLoopPolicy(),),
     )
     def event_loop_policy(request):
         return request.param
