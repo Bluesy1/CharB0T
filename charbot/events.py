@@ -358,18 +358,9 @@ class Events(Cog):
             )
             return
         author = cast(discord.Member, message.author)
-        if all(
-            role.id
-            not in {
-                338173415527677954,
-                253752685357039617,
-                225413350874546176,
-                387037912782471179,
-                406690402956083210,
-                729368484211064944,
-            }
-            for role in author.roles
-        ) and any(item in message.content for item in [f"<@&{message.guild.id}>", "@everyone", "@here"]):
+        if all(role.id not in constants.EVERYONE_PING_ALLOWED_ROLES for role in author.roles) and any(
+            item in message.content for item in [f"<@&{message.guild.id}>", "@everyone", "@here"]
+        ):
             try:
                 await message.delete()
             finally:
