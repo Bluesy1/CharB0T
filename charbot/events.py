@@ -2,7 +2,7 @@
 
 import re
 from datetime import UTC, datetime, timedelta
-from typing import TYPE_CHECKING, Generator, Tuple, cast
+from typing import TYPE_CHECKING, cast
 
 import discord
 from discord import Color, Embed
