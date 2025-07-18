@@ -72,7 +72,9 @@ class Admin(
             for member in members
             if member.primary_guild.id in tags
         )
-        await interaction.followup.send(f"Users with tags not shared by a moderator:\n{message}", allowed_mentions=discord.AllowedMentions.none())
+        await interaction.followup.send(
+            f"Users with tags not shared by a moderator:\n{message}", allowed_mentions=discord.AllowedMentions.none()
+        )
 
     @tags.command()
     async def warn(
