@@ -48,11 +48,37 @@ class Admin(
     )
 
     @tags.command()
+    async def check(self, interaction: Interaction[CBot]):
+        """Lists tags members with a tag on the server, that is not present on a moderator's account.
+
+        Parameters
+        ----------
+        interaction : Interaction
+            The interaction object.
+        """
+        await interaction.response.defer()
+        guild = cast(discord.Guild, interaction.guild)
+        members = [
+            member for member in guild.members if member.primary_guild.identity_enabled and member.primary_guild.tag
+        ]
+        mod_tags = {
+            member.primary_guild.id
+            for member in members
+            if any(member.get_role(role) for role in constants.MOD_ROLE_IDS)
+        }
+        tags = {member.primary_guild.id for member in members} - mod_tags
+        message = "\n".join(
+            f"- {member.mention} ({member.id}): `{member.primary_guild.tag.casefold()}`"  # pyright: ignore[reportOptionalMemberAccess]
+            for member in members
+            if member.primary_guild.id in tags
+        )
+        await interaction.followup.send(f"Users with tags not shared by a moderator:\n{message}", allowed_mentions=discord.AllowedMentions.none())
+
+    @tags.command()
     async def warn(
         self,
         interaction: Interaction[CBot],
         member: discord.Member,
-        tag: app_commands.Range[str, 1, 4],
     ):
         """Sends a user a warning that they have an unacceptable server tag active.
 
@@ -62,12 +88,11 @@ class Admin(
             The interaction object.
         member : discord.Member
             The member to warn.
-        tag : app_commands.Range[str, 1, 4]
-            The server tag the user has.
         """
         await interaction.response.defer()
         guild = cast(discord.Guild, interaction.guild)
         deadline = utcnow() + SEVEN_DAYS
+        tag = member.primary_guild.tag
         warn_msg = (
             f"Hi {member.mention}, we noticed that you have an inappropriate Server Tag active, ``{tag}``.\n"
             f"Please remove or change your tag by {format_dt(deadline)} ({format_dt(deadline, 'R')}) "
@@ -101,7 +126,6 @@ class Admin(
         self,
         interaction: Interaction[CBot],
         member: discord.Member,
-        tag: app_commands.Range[str, 1, 4],
     ):
         """Kick a member for having an unacceptable server tag active.
 
@@ -111,11 +135,10 @@ class Admin(
             The interaction object.
         member : discord.Member
             The member to kick.
-        tag : app_commands.Range[str, 1, 4]
-            The server tag the user has.
         """
         await interaction.response.defer()
         allowed = interaction.permissions.kick_members or await interaction.client.is_owner(interaction.user)
+        tag = member.primary_guild.tag
         if not allowed:
             await interaction.followup.send(
                 f"Cannot kick {member}: you do not have kick members and are not a bot owner."
