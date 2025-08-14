@@ -217,28 +217,28 @@ class ModSupportLayout(ui.LayoutView):
                 "This should be where most requests go, for inquiries and requests. There is no time guarantee for this option."
             ),
             accessory=ModSupportButton(
-                label="General", style=discord.ButtonStyle.success, custom_id="Modmail_General", emoji="❔"
+                label="General", style=discord.ButtonStyle.success, custom_id="mod_mail_General", emoji="❔"
             ),
         ),
         ui.Section(
             ui.TextDisplay("## Important"),
             ui.TextDisplay("This is for requests that have a level of time importance, but are not urgent."),
             accessory=ModSupportButton(
-                label="Important", style=discord.ButtonStyle.primary, custom_id="Modmail_Important", emoji="❗"
+                label="Important", style=discord.ButtonStyle.primary, custom_id="mod_mail_Important", emoji="❗"
             ),
         ),
         ui.Section(
             ui.TextDisplay("## Emergency"),
             ui.TextDisplay("This is for requests that need a response as soon as possible."),
             accessory=ModSupportButton(
-                label="Emergency", style=discord.ButtonStyle.danger, custom_id="Modmail_Emergency", emoji="‼"
+                label="Emergency", style=discord.ButtonStyle.danger, custom_id="mod_mail_Emergency", emoji="‼"
             ),
         ),
         ui.Section(
             ui.TextDisplay("## Private (Admins Only)"),
             ui.TextDisplay(MOD_SUPPORT_ADMIN_DESCRIPTION),
             accessory=ModSupportButton(
-                label="Private", style=discord.ButtonStyle.blurple, custom_id="Modmail_Admin", emoji="🔒"
+                label="Private", style=discord.ButtonStyle.blurple, custom_id="mod_mail_Admin", emoji="🔒"
             ),
         ),
         ui.Separator(visible=True),
