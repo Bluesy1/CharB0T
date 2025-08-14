@@ -44,7 +44,7 @@ class Betas(commands.Cog):
         member = cast(discord.Member, message.author)
         if "my banner" in message.content.lower() and message.channel.id == constants.GUILD_ID:
             async with self.bot.pool.acquire() as conn:
-                banner_rec: BannerStatusPoints | None = await conn.fetchrow(
+                banner_rec: BannerStatusPoints | None = await conn.fetchrow(  # pyright: ignore[reportAssignmentType]
                     "SELECT banners.user_id as user_id, quote, banners.color as color, cooldown, approved,"
                     "u.points as POINTS FROM banners JOIN users u on banners.user_id = u.id WHERE banners.user_id = $1",
                     member.id,
@@ -156,7 +156,7 @@ class Betas(commands.Cog):
             The interaction object for the current context
         """
         await interaction.response.defer(ephemeral=True)
-        banner_rec: BannerStatusPoints | None = await interaction.client.pool.fetchrow(
+        banner_rec: BannerStatusPoints | None = await interaction.client.pool.fetchrow(  # pyright: ignore[reportAssignmentType]
             "SELECT banners.user_id as user_id, quote, banners.color as color, cooldown, approved,"
             "u.points as POINTS FROM banners JOIN users u on banners.user_id = u.id WHERE banners.user_id = $1",
             interaction.user.id,
@@ -182,7 +182,7 @@ class Betas(commands.Cog):
         member = cast(discord.Member, ctx.author)
         if not member.guild_permissions.manage_roles:
             return
-        banner_rec: BannerStatus | None = await ctx.bot.pool.fetchrow(
+        banner_rec: BannerStatus | None = await ctx.bot.pool.fetchrow(  # pyright: ignore[reportAssignmentType]
             "SELECT banners.user_id as user_id, quote, banners.color as color, cooldown, approved,"
             "u.points as POINTS FROM banners JOIN users u on banners.user_id = u.id WHERE banners.approved = FALSE "
             "ORDER BY cooldown LIMIT 1",
