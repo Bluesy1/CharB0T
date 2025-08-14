@@ -25,7 +25,7 @@ classifiers = [
 ]
 dependencies = [
 	"asyncpg==0.30.0",
-	"discord.py[speed] @ git+https://github.com/rapptz/discord.py@7724764ffebebf1584847b49ff6823f6c0402d01",
+	"discord.py[speed] @ git+https://github.com/Rapptz/discord.py@439bd71c0d3712a2a754ab1dc166932e97541397",
 	"jishaku[procinfo]==2.6.0",
 	"niquests[speedups]==3.14.0",
 	"orjson==3.10.18",
@@ -45,7 +45,7 @@ dev = [
 	"asyncpg-stubs==0.30.1",
 	"ruff==0.11.7",
 	"pre-commit==3.6.1",
-	"pyright==1.1.361",
+	"pyright==1.1.400",
 	"pytest==8.3.5",
 	"pytest-asyncio==0.26.0",
 	"pytest-cov==6.1.1",
@@ -73,7 +73,7 @@ addopts = "--cov-report=xml:coverage/reports/coverage.xml --cov=charbot tests/ -
 [tool.coverage.run]
 omit = [
 	"*/__main__.py",
-	"*/tests/**/*.py",
+	"*/tests/charbot/*.py",
 	"*/types/*.py",
 	"*/admin.py",
 	"*/mod_support.py",

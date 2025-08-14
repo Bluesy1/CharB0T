@@ -5,10 +5,10 @@ from datetime import UTC, datetime, timedelta
 from typing import TYPE_CHECKING, cast
 
 import discord
-from discord import Color, Embed
+from discord import Color, ui
 from discord.ext import tasks
 from discord.ext.commands import Cog
-from discord.utils import utcnow
+from discord.utils import format_dt, utcnow
 from urlextract import URLExtract
 
 from . import CBot, constants
@@ -106,7 +106,7 @@ class Events(Cog):
 
     def __init__(self, bot: CBot):
         self.bot = bot
-        self.timeouts = {}
+        self.timeouts: dict[int, datetime] = {}
         self.members: dict[int, datetime] = {}
         self.tilde_regex = re.compile(
             r"~~:\.\|:;~~|tilde tilde colon dot vertical bar colon semicolon tilde tilde", re.MULTILINE | re.IGNORECASE
@@ -160,16 +160,24 @@ class Events(Cog):
             time_string += f"{', ' if bool(time_string) else ''}{(time_delta.seconds % 3600) // 60} Minute(s) "
         if (time_delta.seconds % 3600) % 60 != 0:  # pragma: no branch
             time_string += f"{', ' if bool(time_string) else ''}{(time_delta.seconds % 3600) % 60} Second(s) "
-        embed = Embed(color=Color.red())
-        embed.set_author(name=f"[TIMEOUT] {after}")
-        embed.add_field(name="User", value=after.mention, inline=True)
-        embed.add_field(name="Duration", value=time_string, inline=True)
+        view = ui.LayoutView()
+        view.add_item(
+            ui.Container(
+                ui.TextDisplay(f"## [TIMEOUT] {after}"),
+                ui.TextDisplay(f"### User\n{after.mention}"),
+                ui.TextDisplay(f"### Duration\n{time_string}"),
+                ui.TextDisplay(f"### Until\n{format_dt(until)}"),
+                ui.Separator(),
+                ui.TextDisplay(f"-# \n{after.id}"),
+                accent_color=Color.red(),
+            )
+        )
         bot_user = cast(discord.ClientUser, self.bot.user)
-        await self.webhook.send(username=bot_user.name, avatar_url=bot_user.display_avatar.url, embed=embed)
-        self.timeouts.update({after.id: after.timed_out_until})
+        await self.webhook.send(view=view, username=bot_user.name, avatar_url=bot_user.display_avatar.url)
+        self.timeouts.update({after.id: until})
 
     @tasks.loop(seconds=30)
-    async def log_untimeout(self) -> None:
+    async def log_untimeout(self) -> None:  # pragma: no cover
         """Un-timeout Report Task.
 
         This task runs every 30 seconds and checks if any users that have been timed out have had their timeouts
@@ -183,14 +191,22 @@ class Events(Cog):
                     guild = await self.bot.fetch_guild(constants.GUILD_ID)
                 member = await guild.fetch_member(i)
                 if not member.is_timed_out():
-                    embed = Embed(color=Color.green())
-                    embed.set_author(name=f"[UNTIMEOUT] {member}")
-                    embed.add_field(name="User", value=member.mention, inline=True)
+                    view = ui.LayoutView()
+                    view.add_item(
+                        ui.Container(
+                            ui.TextDisplay(f"## [UNTIMEOUT] {member}"),
+                            ui.TextDisplay(f"### User\n{member.mention}"),
+                            ui.TextDisplay(f"### Ended\n{format_dt(j)}"),
+                            ui.Separator(),
+                            ui.TextDisplay(f"-# \n{member.id}"),
+                            accent_color=Color.green(),
+                        )
+                    )
                     bot_user = cast(discord.ClientUser, self.bot.user)
-                    await self.webhook.send(username=bot_user.name, avatar_url=bot_user.display_avatar.url, embed=embed)
+                    await self.webhook.send(view=view, username=bot_user.name, avatar_url=bot_user.display_avatar.url)
                     removable.append(i)
                 elif member.is_timed_out():
-                    self.timeouts.update({i: member.timed_out_until})
+                    self.timeouts.update({i: cast(datetime, member.timed_out_until)})
         for i in removable:
             self.timeouts.pop(i)
 
@@ -207,7 +223,7 @@ class Events(Cog):
             self.members.update({member.id: utcnow()})
 
     @Cog.listener()
-    async def on_raw_member_remove(self, payload: discord.RawMemberRemoveEvent) -> None:
+    async def on_raw_member_remove(self, payload: discord.RawMemberRemoveEvent) -> None:  # pragma: no cover
         """Process when a member leaves the server and removes them from the members cache.
 
         Parameters
@@ -247,18 +263,26 @@ class Events(Cog):
         after : discord.Member
             The member after the update
         """
-        try:
+        try:  # pragma: no cover
             if after.timed_out_until != before.timed_out_until:
                 if after.is_timed_out():
                     await self.parse_timeout(after)
                 else:
-                    embed = Embed(color=Color.green())
-                    embed.set_author(name=f"[UNTIMEOUT] {after}")
-                    embed.add_field(name="User", value=after.mention, inline=True)
+                    view = ui.LayoutView()
+                    view.add_item(
+                        ui.Container(
+                            ui.TextDisplay(f"## [UNTIMEOUT] {after}"),
+                            ui.TextDisplay(f"### User\n{after.mention}"),
+                            ui.TextDisplay(f"### Ended\n{format_dt(utcnow())}"),
+                            ui.Separator(),
+                            ui.TextDisplay(f"-# \n{after.id}"),
+                            accent_color=Color.green(),
+                        )
+                    )
                     bot_user = cast(discord.ClientUser, self.bot.user)
-                    await self.webhook.send(username=bot_user.name, avatar_url=bot_user.display_avatar.url, embed=embed)
+                    await self.webhook.send(view=view, username=bot_user.name, avatar_url=bot_user.display_avatar.url)
                     self.timeouts.pop(after.id)
-        except Exception:  # skipcq: PYL-W0703
+        except Exception:  # skipcq: PYL-W0703  # pragma: no cover
             if after.is_timed_out():
                 await self.parse_timeout(after)
 
@@ -282,7 +306,7 @@ class Events(Cog):
                 thread.parent_id == constants.GAMES_FORUM_ID
                 and any(tag.id == constants.GAME_SUGGESTIONS_TAG_ID for tag in thread.applied_tags)
                 and not self.extractor.has_urls(msg.content)
-            ):
+            ):  # pragma: no cover
                 # If the parent is this, then the channel is the games channel and if the thread has the
                 #  suggestions tag, then it's a game thread, and if it doesn't have a url in the first message
                 #  we want to remind them to add one
@@ -319,9 +343,14 @@ class Events(Cog):
                 discord.TextChannel,
                 self.bot.get_channel(906578081496584242) or await self.bot.fetch_channel(906578081496584242),
             )
-            mentions = discord.AllowedMentions(everyone=False, roles=False, users=False)
+            mentions = discord.AllowedMentions.none()
             await channel.send(message.author.mention, allowed_mentions=mentions)
-            await channel.send(message.content, allowed_mentions=mentions)
+            view = ui.LayoutView()
+            if message.content:
+                view.add_item(ui.Container(ui.TextDisplay(f"```md\n{message.content[:3950]}\n```")))
+            else:  # pragma: no cover
+                view.add_item(ui.Container(ui.TextDisplay(f"Message Contained no text Content:```\n{message!r}\n```")))
+            await channel.send(view=view, allowed_mentions=mentions)
             await message.channel.send(
                 "Hi! If this was an attempt to reach the mod team through modmail,"
                 " that has been removed, in favor of "
@@ -329,18 +358,9 @@ class Events(Cog):
             )
             return
         author = cast(discord.Member, message.author)
-        if all(
-            role.id
-            not in {
-                338173415527677954,
-                253752685357039617,
-                225413350874546176,
-                387037912782471179,
-                406690402956083210,
-                729368484211064944,
-            }
-            for role in author.roles
-        ) and any(item in message.content for item in [f"<@&{message.guild.id}>", "@everyone", "@here"]):
+        if all(role.id not in constants.EVERYONE_PING_ALLOWED_ROLES for role in author.roles) and any(
+            item in message.content for item in [f"<@&{message.guild.id}>", "@everyone", "@here"]
+        ):
             try:
                 await message.delete()
             finally:
@@ -348,18 +368,20 @@ class Events(Cog):
                     discord.Object(id=676250179929636886),
                     discord.Object(id=684936661745795088),
                 )
-                embed = Embed(
-                    description=f"```\n{message.content[:4050]}\n```",
-                    title="Mute: Everyone/Here Ping sent by non mod",
-                    color=Color.red(),
-                ).set_footer(
-                    text=f"Sent by {message.author.display_name}-{message.author.id}",
-                    icon_url=author.display_avatar.url,
+                view = ui.LayoutView()
+                view.add_item(
+                    ui.Container(
+                        ui.TextDisplay("## Mute: Everyone/Here Ping sent by non mod"),
+                        ui.TextDisplay(f"```md\n{message.content[:3950]}\n```"),
+                        ui.Separator(),
+                        ui.TextDisplay(f"-# Sent by {message.author.display_name}-{message.author.id}"),
+                        accent_color=Color.red(),
+                    )
                 )
                 bot_user = cast(discord.ClientUser, self.bot.user)
-                await self.webhook.send(username=bot_user.name, avatar_url=bot_user.display_avatar.url, embed=embed)
+                await self.webhook.send(view=view, username=bot_user.name, avatar_url=bot_user.display_avatar.url)
                 return  # skipcq: PYL-W0150
-        if self.tilde_regex.search(message.content):
+        if self.tilde_regex.search(message.content):  # pragma: no cover
             await message.delete()
             return
         if any(
