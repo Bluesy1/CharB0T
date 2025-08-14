@@ -189,6 +189,7 @@ class ModSupportButton(ui.Button):
     presents a modal form for the user to provide additional information. If the user is blacklisted, an
     ephemeral message is sent denying access.
     """
+
     async def callback(self, interaction: Interaction[CBot]):
         """Just general and important and emergency callback helper."""
         if interaction.user.id not in orjson.loads(_BLACKLIST.read_bytes())["blacklisted"]:
