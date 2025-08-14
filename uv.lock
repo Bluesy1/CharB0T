@@ -288,7 +288,7 @@ requires-dist = [
     { name = "jishaku", extras = ["procinfo"], specifier = "==2.6.0" },
     { name = "niquests", extras = ["speedups"], specifier = "==3.14.0" },
     { name = "orjson", specifier = "==3.10.18" },
-    { name = "pillow", specifier = "==11.2.1" },
+    { name = "pillow", specifier = "==11.3.0" },
     { name = "pre-commit", marker = "extra == 'dev'", specifier = "==3.6.1" },
     { name = "pyright", marker = "extra == 'dev'", specifier = "==1.1.400" },
     { name = "pytesseract", specifier = "==0.3.13" },
@@ -297,7 +297,7 @@ requires-dist = [
     { name = "pytest-cov", marker = "extra == 'dev'", specifier = "==6.1.1" },
     { name = "pytest-mock", marker = "extra == 'dev'", specifier = "==3.14.0" },
     { name = "ruff", marker = "extra == 'dev'", specifier = "==0.11.7" },
-    { name = "sentry-sdk", specifier = "==2.8.0" },
+    { name = "sentry-sdk", specifier = "==2.28.0" },
     { name = "toml", marker = "extra == 'dev'", specifier = "==0.10.2" },
     { name = "typing-extensions", specifier = "==4.13.2" },
     { name = "tzdata", specifier = "==2025.2" },
@@ -669,7 +669,7 @@ wheels = [
 
 [[package]]
 name = "pillow"
-version = "11.2.1"
+version = "11.3.0"
 source = { registry = "https://pypi.org/simple" }
 sdist = { url = "https://files.pythonhosted.org/packages/af/cb/bb5c01fcd2a69335b86c22142b2bccfc3464087efb7fd382eee5ffc7fdf7/pillow-11.2.1.tar.gz", hash = "sha256:a64dd61998416367b7ef979b73d3a85853ba9bec4c2925f74e588879a58716b6", size = 47026707, upload-time = "2025-04-12T17:50:03.289Z" }
 wheels = [
@@ -978,7 +978,7 @@ wheels = [
 
 [[package]]
 name = "sentry-sdk"
-version = "2.8.0"
+version = "2.28.0"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "certifi" },

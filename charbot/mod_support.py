@@ -34,10 +34,7 @@ async def edit_check(interaction: Interaction[CBot]) -> bool:
     """
     user = interaction.user
     assert isinstance(user, discord.Member)  # skipcq: BAN-B101
-    return any(
-        role.id in (225413350874546176, 253752685357039617, 725377514414932030, 338173415527677954)
-        for role in user.roles
-    )
+    return any(role.id in constants.MOD_ROLE_IDS for role in user.roles)
 
 
 @app_commands.guilds(constants.GUILD_ID)

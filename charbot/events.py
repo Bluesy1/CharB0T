@@ -384,7 +384,9 @@ class Events(Cog):
         if self.tilde_regex.search(message.content):  # pragma: no cover
             await message.delete()
             return
-        if self.extractor.has_urls(message.content) and not url_posting_allowed(
+        if any(
+            "discord.com/channels/225345178955808768" not in url for url in self.extractor.gen_urls(message.content)
+        ) and not url_posting_allowed(
             cast(discord.TextChannel | discord.VoiceChannel | discord.Thread, message.channel), author.roles
         ):
             try:
