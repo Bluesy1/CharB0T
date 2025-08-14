@@ -67,14 +67,12 @@ class Admin(
             if any(member.get_role(role) for role in constants.MOD_ROLE_IDS)
         }
         tags = {member.primary_guild.id for member in members} - mod_tags
-        message = "\n".join(
-            f"- {member.mention} ({member.id}): `{member.primary_guild.tag.casefold()}`"  # pyright: ignore[reportOptionalMemberAccess]
+        non_mod_guilds = {
+            f"`{member.primary_guild.tag.casefold()}`"  # pyright: ignore[reportOptionalMemberAccess]
             for member in members
             if member.primary_guild.id in tags
-        )
-        await interaction.followup.send(
-            f"Users with tags not shared by a moderator:\n{message}", allowed_mentions=discord.AllowedMentions.none()
-        )
+        }
+        await interaction.followup.send(f"Tags not shared by a moderator:\n{'\n'.join(non_mod_guilds)}")
 
     @tags.command()
     async def warn(
