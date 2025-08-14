@@ -348,7 +348,6 @@ class ModSupportModal(ui.Modal, title="Mod Support Form"):
         await interaction.response.send_message(f"Channel Created: {channel.mention}", ephemeral=True)
         if self.full_description.value:
             await channel.send(self.full_description.value)
-        await interaction.response.send_message(f"Channel Created: {channel.mention}", ephemeral=True)
 
     async def on_error(self, interaction: Interaction[CBot], error: Exception) -> None:
         """Error handler for modal.
