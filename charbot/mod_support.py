@@ -182,6 +182,13 @@ This should only be used for truly private information or if this has to do with
 
 
 class ModSupportButton(ui.Button):
+    """A button component for mod support requests.
+
+    This button is used in the mod support UI to allow users to initiate different types of modmail requests
+    (General, Important, Emergency, Private). When clicked, it checks if the user is blacklisted and, if not,
+    presents a modal form for the user to provide additional information. If the user is blacklisted, an
+    ephemeral message is sent denying access.
+    """
     async def callback(self, interaction: Interaction[CBot]):
         """Just general and important and emergency callback helper."""
         if interaction.user.id not in orjson.loads(_BLACKLIST.read_bytes())["blacklisted"]:
@@ -338,7 +345,6 @@ class ModSupportModal(ui.Modal, title="Mod Support Form"):
             allowed_mentions=discord.AllowedMentions(users=True),
         )
         await interaction.response.send_message(f"Channel Created: {channel.mention}", ephemeral=True)
-        if self.full_description.value:
         if self.full_description.value:
             await channel.send(self.full_description.value)
         await interaction.response.send_message(f"Channel Created: {channel.mention}", ephemeral=True)
