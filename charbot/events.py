@@ -172,8 +172,8 @@ class Events(Cog):
                 accent_color=Color.red(),
             )
         )
-        bot_user = cast(discord.ClientUser, self.bot.user)
-        await self.webhook.send(view=view, username=bot_user.name, avatar_url=bot_user.display_avatar.url)
+        bot = self.bot.user
+        await self.webhook.send(view=view, username=bot.name, avatar_url=bot.display_avatar.url)
         self.timeouts.update({after.id: until})
 
     @tasks.loop(seconds=30)
@@ -202,8 +202,8 @@ class Events(Cog):
                             accent_color=Color.green(),
                         )
                     )
-                    bot_user = cast(discord.ClientUser, self.bot.user)
-                    await self.webhook.send(view=view, username=bot_user.name, avatar_url=bot_user.display_avatar.url)
+                    bot = self.bot.user
+                    await self.webhook.send(view=view, username=bot.name, avatar_url=bot.display_avatar.url)
                     removable.append(i)
                 elif member.is_timed_out():
                     self.timeouts.update({i: cast(datetime, member.timed_out_until)})
@@ -279,8 +279,8 @@ class Events(Cog):
                             accent_color=Color.green(),
                         )
                     )
-                    bot_user = cast(discord.ClientUser, self.bot.user)
-                    await self.webhook.send(view=view, username=bot_user.name, avatar_url=bot_user.display_avatar.url)
+                    bot = self.bot.user
+                    await self.webhook.send(view=view, username=bot.name, avatar_url=bot.display_avatar.url)
                     self.timeouts.pop(after.id)
         except Exception:  # skipcq: PYL-W0703  # pragma: no cover
             if after.is_timed_out():
@@ -378,8 +378,8 @@ class Events(Cog):
                         accent_color=Color.red(),
                     )
                 )
-                bot_user = cast(discord.ClientUser, self.bot.user)
-                await self.webhook.send(view=view, username=bot_user.name, avatar_url=bot_user.display_avatar.url)
+                bot = self.bot.user
+                await self.webhook.send(view=view, username=bot.name, avatar_url=bot.display_avatar.url)
                 return  # skipcq: PYL-W0150
         if self.tilde_regex.search(message.content):  # pragma: no cover
             await message.delete()

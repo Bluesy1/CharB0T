@@ -110,6 +110,7 @@ class CBot(commands.Bot):
 
     ZONEINFO: ClassVar[ZoneInfo] = ZoneInfo("America/Detroit")
     CHANNEL_ID: ClassVar[int] = 969972085445238784
+    user: discord.ClientUser
 
     @classmethod
     def TIME(cls) -> datetime.datetime:

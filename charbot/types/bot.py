@@ -4,7 +4,7 @@ from typing import Any, ClassVar
 from zoneinfo import ZoneInfo
 
 import asyncpg
-from discord import Member, User, Webhook, app_commands
+from discord import ClientUser, Member, User, Webhook, app_commands
 from discord.ext import commands
 
 
@@ -18,6 +18,7 @@ class CBot(commands.Bot):
     pool: asyncpg.Pool
     program_logs: Webhook
     setup_hook: Callable[..., Coroutine[None, None, None]]
+    user: ClientUser
 
     async def give_game_points(self, member: Member | User, game: str, points: int, bonus: int = 0) -> int:
         """Give points to a member for a game."""
