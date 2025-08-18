@@ -190,6 +190,8 @@ class ModSupportButton(ui.Button):
     ephemeral message is sent denying access.
     """
 
+    
+
     async def callback(self, interaction: Interaction[CBot]):
         """Just general and important and emergency callback helper."""
         if interaction.user.id not in orjson.loads(_BLACKLIST.read_bytes())["blacklisted"]:
@@ -212,6 +214,9 @@ class ModSupportLayout(ui.LayoutView):
     mods : dict
         A dict of the mods in the guild.
     """
+
+    def __init__(self) -> None:
+        super().__init__(timeout=None)
 
     container = ui.Container(
         ui.TextDisplay(MOD_SUPPORT_HEADER),
