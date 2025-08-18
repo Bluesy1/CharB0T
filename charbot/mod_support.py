@@ -15,8 +15,8 @@ from . import CBot, constants
 
 
 _BLACKLIST = pathlib.Path.cwd() / "mod_support_blacklist.json"
-_MOD_ROLE = discord.Object(725377514414932030, type=discord.Role)
-_EVERYONE = discord.Object(225345178955808768, type=discord.Role)
+_MOD_ROLE = 725377514414932030
+_EVERYONE = 225345178955808768
 
 
 async def edit_check(interaction: Interaction[CBot]) -> bool:
@@ -190,7 +190,7 @@ class ModSupportButton(ui.Button):
     ephemeral message is sent denying access.
     """
 
-    
+
 
     async def callback(self, interaction: Interaction[CBot]):
         """Just general and important and emergency callback helper."""
@@ -334,12 +334,13 @@ class ModSupportModal(ui.Modal, title="Mod Support Form"):
         ) or await interaction.client.fetch_channel(942578610336837632)  # pyright: ignore[reportAssignmentType]
         guild: discord.Guild = interaction.guild  # pyright: ignore[reportAssignmentType]
         perms = {
-            _MOD_ROLE: PermissionOverwrite.from_pair(Permissions(139586817088), Permissions.none()),
-            _EVERYONE: PermissionOverwrite(view_channel=False, send_messages=False, read_messages=False),
+            guild.get_role(_EVERYONE): PermissionOverwrite(view_channel=False, send_messages=False, read_messages=False),
             interaction.user: PermissionOverwrite.from_pair(Permissions(139586817088), Permissions.none()),
         }
         if self.channel_name.startswith("Private"):
-            perms[_MOD_ROLE] = PermissionOverwrite(view_channel=False, send_messages=False, read_messages=False)
+            perms[guild.get_role(_MOD_ROLE)] = PermissionOverwrite(view_channel=False, send_messages=False, read_messages=False)
+        else:
+            perms[guild.get_role(_MOD_ROLE)] = PermissionOverwrite.from_pair(Permissions(139586817088), Permissions.none())
         channel = await guild.create_text_channel(
             self.channel_name, category=category, overwrites=perms, topic=self.short_description.value
         )
