@@ -18,6 +18,21 @@ if TYPE_CHECKING:  # pragma: no cover
     from .levels import Leveling
 
 
+class UnTimeoutView(ui.LayoutView):
+    def __init__(self, member: discord.Member, at: datetime | None = None) -> None:
+        super().__init__()
+        self.add_item(
+            ui.Container(
+                ui.TextDisplay(f"## [UNTIMEOUT] {member}"),  # cspell: disable-line
+                ui.TextDisplay(f"### User\n{member.mention}"),
+                ui.TextDisplay(f"### Ended\n{format_dt(at or utcnow())}"),
+                ui.Separator(),
+                ui.TextDisplay(f"-# \n{member.id}"),
+                accent_color=Color.green(),
+            )
+        )
+
+
 def time_string_from_seconds(delta: float) -> str:
     """Convert seconds to a string.
 
@@ -191,19 +206,8 @@ class Events(Cog):
                     guild = await self.bot.fetch_guild(constants.GUILD_ID)
                 member = await guild.fetch_member(i)
                 if not member.is_timed_out():
-                    view = ui.LayoutView()
-                    view.add_item(
-                        ui.Container(
-                            ui.TextDisplay(f"## [UNTIMEOUT] {member}"),
-                            ui.TextDisplay(f"### User\n{member.mention}"),
-                            ui.TextDisplay(f"### Ended\n{format_dt(j)}"),
-                            ui.Separator(),
-                            ui.TextDisplay(f"-# \n{member.id}"),
-                            accent_color=Color.green(),
-                        )
-                    )
                     bot = self.bot.user
-                    await self.webhook.send(view=view, username=bot.name, avatar_url=bot.display_avatar.url)
+                    await self.webhook.send(view=UnTimeoutView(member, j), username=bot.name, avatar_url=bot.display_avatar.url)
                     removable.append(i)
                 elif member.is_timed_out():
                     self.timeouts.update({i: cast(datetime, member.timed_out_until)})
@@ -268,19 +272,8 @@ class Events(Cog):
                 if after.is_timed_out():
                     await self.parse_timeout(after)
                 else:
-                    view = ui.LayoutView()
-                    view.add_item(
-                        ui.Container(
-                            ui.TextDisplay(f"## [UNTIMEOUT] {after}"),
-                            ui.TextDisplay(f"### User\n{after.mention}"),
-                            ui.TextDisplay(f"### Ended\n{format_dt(utcnow())}"),
-                            ui.Separator(),
-                            ui.TextDisplay(f"-# \n{after.id}"),
-                            accent_color=Color.green(),
-                        )
-                    )
                     bot = self.bot.user
-                    await self.webhook.send(view=view, username=bot.name, avatar_url=bot.display_avatar.url)
+                    await self.webhook.send(view=UnTimeoutView(after), username=bot.name, avatar_url=bot.display_avatar.url)
                     self.timeouts.pop(after.id)
         except Exception:  # skipcq: PYL-W0703  # pragma: no cover
             if after.is_timed_out():
