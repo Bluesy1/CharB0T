@@ -17,6 +17,8 @@ from . import CBot, constants
 _BLACKLIST = pathlib.Path.cwd() / "mod_support_blacklist.json"
 _MOD_ROLE = 725377514414932030
 _EVERYONE = 225345178955808768
+_PERMS_HIDE_CHANNEL = PermissionOverwrite(view_channel=False, send_messages=False, read_messages=False)
+_PERMS_SHOW_CHANNEL = PermissionOverwrite.from_pair(Permissions(139586817088), Permissions.none())
 
 
 async def edit_check(interaction: Interaction[CBot]) -> bool:
@@ -190,8 +192,6 @@ class ModSupportButton(ui.Button):
     ephemeral message is sent denying access.
     """
 
-
-
     async def callback(self, interaction: Interaction[CBot]):
         """Just general and important and emergency callback helper."""
         if interaction.user.id not in orjson.loads(_BLACKLIST.read_bytes())["blacklisted"]:
@@ -333,14 +333,11 @@ class ModSupportModal(ui.Modal, title="Mod Support Form"):
             942578610336837632
         ) or await interaction.client.fetch_channel(942578610336837632)  # pyright: ignore[reportAssignmentType]
         guild: discord.Guild = interaction.guild  # pyright: ignore[reportAssignmentType]
-        perms = {
-            guild.get_role(_EVERYONE): PermissionOverwrite(view_channel=False, send_messages=False, read_messages=False),
-            interaction.user: PermissionOverwrite.from_pair(Permissions(139586817088), Permissions.none()),
-        }
+        perms = {guild.get_role(_EVERYONE): _PERMS_HIDE_CHANNEL, interaction.user: _PERMS_SHOW_CHANNEL}
         if self.channel_name.startswith("Private"):
-            perms[guild.get_role(_MOD_ROLE)] = PermissionOverwrite(view_channel=False, send_messages=False, read_messages=False)
+            perms[guild.get_role(_MOD_ROLE)] = _PERMS_HIDE_CHANNEL
         else:
-            perms[guild.get_role(_MOD_ROLE)] = PermissionOverwrite.from_pair(Permissions(139586817088), Permissions.none())
+            perms[guild.get_role(_MOD_ROLE)] = _PERMS_SHOW_CHANNEL
         channel = await guild.create_text_channel(
             self.channel_name, category=category, overwrites=perms, topic=self.short_description.value
         )

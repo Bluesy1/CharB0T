@@ -207,7 +207,9 @@ class Events(Cog):
                 member = await guild.fetch_member(i)
                 if not member.is_timed_out():
                     bot = self.bot.user
-                    await self.webhook.send(view=UnTimeoutView(member, j), username=bot.name, avatar_url=bot.display_avatar.url)
+                    await self.webhook.send(
+                        view=UnTimeoutView(member, j), username=bot.name, avatar_url=bot.display_avatar.url
+                    )
                     removable.append(i)
                 elif member.is_timed_out():
                     self.timeouts.update({i: cast(datetime, member.timed_out_until)})
@@ -273,7 +275,9 @@ class Events(Cog):
                     await self.parse_timeout(after)
                 else:
                     bot = self.bot.user
-                    await self.webhook.send(view=UnTimeoutView(after), username=bot.name, avatar_url=bot.display_avatar.url)
+                    await self.webhook.send(
+                        view=UnTimeoutView(after), username=bot.name, avatar_url=bot.display_avatar.url
+                    )
                     self.timeouts.pop(after.id)
         except Exception:  # skipcq: PYL-W0703  # pragma: no cover
             if after.is_timed_out():
