@@ -4,7 +4,7 @@ import asyncio
 import random
 import re
 from itertools import count
-from typing import Final, Literal, cast
+from typing import Final, Literal
 
 import discord
 import niquests
@@ -64,7 +64,7 @@ class Reputation(commands.Cog, name="Programs"):
         board: list[list[int]] = [[] for _ in range(9)]
         for i, num, hidden_bit in zip(count(), vals, hidden):
             board[i // 9].append(int(num) if int(hidden_bit) == 0 else 0)
-        view = sudoku.Sudoku(sudoku.Puzzle(board, mobile), cast(discord.Member, interaction.user), interaction.client)
+        view = sudoku.Sudoku(sudoku.Puzzle(board, mobile), interaction.user, interaction.client)
         await interaction.followup.send(embed=view.block_choose_embed(), view=view)
 
     @programs.command(name="tictactoe", description="Play a game of Tic Tac Toe!")

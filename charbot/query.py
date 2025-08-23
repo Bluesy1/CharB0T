@@ -294,10 +294,8 @@ class Query(Cog):
         if ctx.guild is None:
             return commands.Cooldown(1, 600)
         try:
-            if any(
-                role.id in {338173415527677954, 253752685357039617, 225413350874546176}
-                for role in cast(discord.Member, ctx.author).roles
-            ):
+            member = cast(discord.Member, ctx.author)
+            if any(member.get_role(role) for role in constants.MOD_ROLE_IDS):
                 return None
             else:
                 return commands.Cooldown(1, 300)

@@ -4,7 +4,6 @@ import asyncio
 import datetime
 import time
 from collections import defaultdict, deque
-from typing import cast
 
 import discord
 from discord import Interaction, app_commands
@@ -60,8 +59,8 @@ class Leveling(commands.Cog):
         guild = message.guild
         channel_id = message.channel.id
         created_at = message.created_at
-        member = cast(discord.Member, message.author)
-        author_id = member.id
+        # member = message.author
+        author_id = message.author.id
 
         async with self.lock, self.bot.pool.acquire() as conn, conn.transaction():
             no_xp = await conn.fetchrow("SELECT * FROM no_xp WHERE guild = $1", guild.id)
@@ -116,7 +115,7 @@ class Leveling(commands.Cog):
                     continue
 
                 at_ts = created_at.timestamp()
-                if user == member.id:
+                if user == author_id:
                     cooldown = self.cooldown.get_bucket(message)
                     off_cooldown = cooldown is None or cooldown.update_rate_limit(at_ts) is None
                 else:

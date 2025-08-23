@@ -136,15 +136,9 @@ class Events(Cog):
         """
         self.webhook = await self.bot.fetch_webhook(945514428047167578)
         self.log_untimeout.start()
+        guild = self.bot.get_guild(constants.GUILD_ID) or await self.bot.fetch_guild(constants.GUILD_ID)
         self.members.update(
-            {
-                user.id: user.joined_at
-                async for user in cast(
-                    discord.Guild,
-                    self.bot.get_guild(constants.GUILD_ID) or await self.bot.fetch_guild(constants.GUILD_ID),
-                ).fetch_members(limit=None)
-                if user.joined_at is not None
-            }
+            {user.id: user.joined_at async for user in guild.fetch_members(limit=None) if user.joined_at is not None}
         )
 
     async def cog_unload(self) -> None:  # skipcq: PYL-W0236  # pragma: no cover

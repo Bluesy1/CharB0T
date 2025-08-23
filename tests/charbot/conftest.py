@@ -1,6 +1,5 @@
 import os
 import pathlib
-from typing import cast
 
 import asyncpg
 import asyncpg.cluster
@@ -33,7 +32,7 @@ def cluster() -> asyncpg.cluster.TempCluster:  # pyright: ignore[reportInvalidTy
 @pytest_asyncio.fixture(scope="function")
 async def database(cluster) -> asyncpg.Pool:  # pyright: ignore[reportInvalidTypeForm]
     """Create a database pool for a test."""
-    pool = cast(asyncpg.Pool, await asyncpg.create_pool(**cluster.get_connection_spec(), database="postgres"))
+    pool: asyncpg.Pool[asyncpg.Record] = await asyncpg.create_pool(**cluster.get_connection_spec(), database="postgres")
     await pool.execute((pathlib.Path(__file__).parent.parent.parent / "schema.sql").read_text())
     await pool.execute("INSERT INTO users (id, points) VALUES (1, 50)")
     await pool.execute(

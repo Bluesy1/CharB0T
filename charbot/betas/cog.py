@@ -41,13 +41,12 @@ class Betas(commands.Cog):
         """Handle messages."""
         if message.author.bot or message.guild is None:
             return
-        member = cast(discord.Member, message.author)
         if "my banner" in message.content.lower() and message.channel.id == constants.GUILD_ID:
             async with self.bot.pool.acquire() as conn:
                 banner_rec: BannerStatusPoints | None = await conn.fetchrow(  # pyright: ignore[reportAssignmentType]
                     "SELECT banners.user_id as user_id, quote, banners.color as color, cooldown, approved,"
                     "u.points as POINTS FROM banners JOIN users u on banners.user_id = u.id WHERE banners.user_id = $1",
-                    member.id,
+                    message.author.id,
                 )
                 if (
                     banner_rec is not None
@@ -55,13 +54,13 @@ class Betas(commands.Cog):
                     and banner_rec["approved"]
                     and banner_rec["points"] > 50
                 ):
-                    banner_bytes = await generate_banner(banner_rec, member)
+                    banner_bytes = await generate_banner(banner_rec, message.author)
                     banner_file = discord.File(banner_bytes, filename="banner.png")
                     await message.reply(file=banner_file)
                     await conn.execute(
                         "UPDATE banners SET cooldown = $1 WHERE user_id = $2",
                         utils.utcnow() + datetime.timedelta(days=7),
-                        member.id,
+                        message.author.id,
                     )
                     # await conn.execute("UPDATE users SET points = points - 50 WHERE id = $1", member.id)
 
@@ -167,7 +166,7 @@ class Betas(commands.Cog):
         if banner_rec["approved"] is False:
             await interaction.followup.send("Your banner_rec is still pending approval!")
             return
-        banner_bytes = await generate_banner(banner_rec, cast(discord.Member, interaction.user))
+        banner_bytes = await generate_banner(banner_rec, interaction.user)
         banner_file = discord.File(banner_bytes, filename="banner.png")
         await interaction.followup.send(
             f"Your banner has been approved and is as follows! Cooldown until: "
@@ -190,9 +189,9 @@ class Betas(commands.Cog):
         if banner_rec is None:
             await ctx.reply("There are currently no banner awaiting approval!")
             return
-        guild = cast(discord.Guild, ctx.guild)
-        requester = guild.get_member(banner_rec["user_id"]) or await guild.fetch_member(banner_rec["user_id"])
-        banner_bytes = await generate_banner(banner_rec, requester)
+        guild = member.guild
+        requestor = guild.get_member(banner_rec["user_id"]) or await guild.fetch_member(banner_rec["user_id"])
+        banner_bytes = await generate_banner(banner_rec, requestor)
         await ctx.reply(
             "Approve, deny, or cancel?",
             file=discord.File(banner_bytes, filename="banner.png"),

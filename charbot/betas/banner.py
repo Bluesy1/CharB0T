@@ -144,14 +144,14 @@ def banner(
     return res
 
 
-async def generate_banner(payload: BannerStatus, member: discord.Member) -> BytesIO:  # pragma: no cover
+async def generate_banner(payload: BannerStatus, member: discord.User | discord.Member) -> BytesIO:  # pragma: no cover
     """Generate a banner image.
 
     Parameters
     ----------
     payload : BannerStatus
         The info about the banner being generated
-    member : discord.Member
+    member : discord.User
         The member who owns the banner.
     """
     with BytesIO(await member.display_avatar.replace(size=128, format="png", static_format="png").read()) as profile:

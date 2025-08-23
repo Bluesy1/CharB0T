@@ -5,7 +5,7 @@ import itertools
 import re
 from calendar import timegm
 from datetime import datetime, time, timedelta
-from typing import Literal, NamedTuple, NotRequired, Optional, TypedDict, cast
+from typing import Literal, NamedTuple, NotRequired, TypedDict
 from zoneinfo import ZoneInfo
 
 import discord
@@ -215,6 +215,7 @@ class Calendar(commands.Cog):
         r"RRULE:FREQ=WEEKLY;UNTIL=(?P<year>\d{4})(?P<month>\d{2})(?P<day>\d{2})T"
         r"(?P<hour>\d{2})(?P<minute>\d{2})(?P<second>\d{2})"
     )  # in case this is ever needed, leaving it in
+    webhook: discord.Webhook
 
     def __init__(self, bot: CBot):
         self.bot: CBot = bot
@@ -224,7 +225,6 @@ class Calendar(commands.Cog):
             - timedelta(days=utcnow().weekday())
             + timedelta(days=7)
         )
-        self.webhook: Optional[discord.Webhook] = MISSING
         self.calendar.change_interval(time=list(half_hour_intervals()))
         self.session = niquests.AsyncSession()
 
@@ -313,9 +313,7 @@ class Calendar(commands.Cog):
             fields.pop(timegm(sub_time.utctimetuple()), None)
             times.discard(sub_time)
         if self.message is MISSING:  # pragma: no branch
-            self.message = await cast(discord.Webhook, self.webhook).fetch_message(
-                Config["discord"]["messages"]["calendar"]
-            )
+            self.message = await self.webhook.fetch_message(Config["discord"]["messages"]["calendar"])
         self.message = await self.message.edit(embed=calendar_embed(fields, min(times, default=None)))
 
 

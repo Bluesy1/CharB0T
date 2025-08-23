@@ -1,7 +1,7 @@
 """View class."""
 
 import datetime
-from typing import TYPE_CHECKING, Literal, cast
+from typing import TYPE_CHECKING, Literal
 
 import discord
 from discord import ButtonStyle, Interaction, SelectOption, ui
@@ -30,7 +30,7 @@ class Sudoku(ui.View):
     ----------
     puzzle : Puzzle
         Puzzle being played.
-    author: discord.Member
+    author: discord.Member | discord.User
         Member playing the puzzle.
     bot: CBot
         The bot instance.
@@ -48,7 +48,7 @@ class Sudoku(ui.View):
 
     __slots__ = ("puzzle", "author", "bot", "level", "block", "cell", "noting_mode", "start_time", "moves")
 
-    def __init__(self, puzzle: Puzzle, author: discord.Member, bot: "CBot"):
+    def __init__(self, puzzle: Puzzle, author: discord.Member | discord.User, bot: "CBot"):
         super().__init__(timeout=None)
         self.puzzle = puzzle
         self.author = author
@@ -237,7 +237,7 @@ class Sudoku(ui.View):
             if self.cell is not None:  # skipcq: PTC-W0048  # pragma: no branch
                 if self.cell.editable and not self.noting_mode:
                     self.moves += 1
-                    self.cell.value = int(cast(str, button.label))
+                    self.cell.value = int(button.label)  # pyright: ignore[reportArgumentType]
                     self.level = "Block"
                     self.cell.possible_values.clear()
                     self.cell.selected = False
@@ -250,7 +250,7 @@ class Sudoku(ui.View):
                         self.update_keypad()
                         await interaction.edit_original_response(embed=self.cell_choose_embed(), view=self)
                 elif self.cell.editable:
-                    real_val = int(cast(str, button.label))
+                    real_val = int(button.label)  # pyright: ignore[reportArgumentType]
                     if real_val not in self.cell.possible_values:
                         self.cell.possible_values.add(real_val)
                     else:
