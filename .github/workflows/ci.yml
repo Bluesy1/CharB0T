@@ -61,13 +61,6 @@ jobs:
       - name: Run pytest
         id: pytest
         run: pytest
-      - name: Code Climate Coverage Action
-        uses: paambaati/codeclimate-action@v8.0.0
-        if: ${{ matrix.python-version == '3.13' }}
-        env:
-          CC_TEST_REPORTER_ID: cd4356d60fb8cccd11ac24ddba6df70da91c8d603d64ed31f04e60cd1109ffab
-        with:
-          coverageLocations: ./coverage/reports/coverage.xml:coverage.py
       - name: Run Pyright
         if: ${{ success() || failure() }}
         uses: jakebailey/pyright-action@v2

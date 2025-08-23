@@ -1,8 +1,5 @@
 ## Continuous Integration Status
 
-[![Maintainability](https://api.codeclimate.com/v1/badges/8234bccb87107f9068b9/maintainability)](https://codeclimate.com/github/Bluesy1/CharB0T/maintainability)
-[![Test Coverage](https://api.codeclimate.com/v1/badges/8234bccb87107f9068b9/test_coverage)](https://codeclimate.com/github/Bluesy1/CharB0T/test_coverage)
-
 [![CI](https://github.com/Bluesy1/CharB0T/actions/workflows/ci.yml/badge.svg)](https://github.com/Bluesy1/CharB0T/actions/workflows/ci.yml)
 [![CodeQL](https://github.com/Bluesy1/CharB0T/actions/workflows/codeql.yml/badge.svg)](https://github.com/Bluesy1/CharB0T/actions/workflows/codeql.yml)
 

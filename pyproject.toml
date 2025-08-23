@@ -48,7 +48,6 @@ dev = [
 	"pyright==1.1.400",
 	"pytest==8.4.1",
 	"pytest-asyncio==1.1.0",
-	"pytest-cov==6.2.1",
 	"pytest-mock==3.14.1",
 	"toml==0.10.2",
 ]
@@ -67,17 +66,6 @@ filterwarnings = [
 	"ignore:'audioop' is deprecated and slated for removal in Python 3.13:DeprecationWarning",
 	"ignore: module 'sre_constants' is deprecated:DeprecationWarning",
 	"ignore:'pkgutil.find_loader' is deprecated and slated for removal in Python 3.14:DeprecationWarning"
-]
-addopts = "--cov-report=xml:coverage/reports/coverage.xml --cov=charbot tests/ --cov-report=term-missing:skip-covered --cov-config=pyproject.toml --cov-branch"
-
-[tool.coverage.run]
-omit = [
-	"*/__main__.py",
-	"*/tests/charbot/*.py",
-	"*/types/*.py",
-	"*/admin.py",
-	"*/mod_support.py",
-	"*/levels.py",
 ]
 
 [tool.pyright]
