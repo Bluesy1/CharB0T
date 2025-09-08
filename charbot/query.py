@@ -283,8 +283,8 @@ class Query(Cog):
             await interaction.response.send_message(resp, ephemeral=True)
 
     @staticmethod
-    def _katie_info_cooldown(ctx: Context) -> commands.Cooldown | None:
-        """Determines the cooldown for a user for the katie info command
+    def _non_mod_cooldown(ctx: Context) -> commands.Cooldown | None:
+        """Determines the cooldown for a user depending on their role.
 
         Parameters
         ----------
@@ -303,7 +303,7 @@ class Query(Cog):
             return commands.Cooldown(1, 300)
 
     @commands.hybrid_command(name="katie", aliases=("kaitlin",))  # pyright: ignore[reportArgumentType]
-    @commands.dynamic_cooldown(_katie_info_cooldown, commands.BucketType.channel)
+    @commands.dynamic_cooldown(_non_mod_cooldown, commands.BucketType.channel)
     @app_commands.guilds(constants.GUILD_ID)
     async def katie_info(self, ctx: Context):
         """Send a message about Katie's message patterns, to remind people if they are being disrespectful
@@ -373,6 +373,33 @@ class Query(Cog):
             content=f"Pong!\n\nPing: {(end - start) * 1000:.2f}ms\nTyping: {typing * 1000:.2f}ms\nDatabase: "
             f"{database * 1000:.2f}ms\nWebsocket: {self.bot.latency * 1000:.2f}ms"
         )
+
+    @commands.hybrid_command(name="sign")
+    @commands.dynamic_cooldown(_non_mod_cooldown, commands.BucketType.channel)
+    @app_commands.guilds(constants.GUILD_ID)
+    async def sign_info(self, ctx: Context):
+        """Send a message about BA sign design.
+
+        Parameters
+        ----------
+        ctx: Context
+            The context of the command.
+        """
+        await ctx.reply("""\
+**Looking to make a sign for Charlie's Big Ambitions businesses? Here's how it works:**
+
+1. Pick a place that's made/named already in game, preferably one that's already final in name. 
+
+2. Create an ad-banner, and a front-of-store-display image, jpg formatting. The measurements for the images must be exact, or they will not appear correctly in game. You can have your canvas be any size you want, but the final images submitted must be exactly the following sizes: 
+
+For the front of store image, use
+**1024 x 150**
+For the square ad banner and logo, use
+**1024 x 1024**
+
+3. When you have some things that are cohesive and you're happy with, Send him a DM and let him know. Wait for a reply from him before uploading the images (helps prevent things being flagged as spam).
+
+*Standard disclaimer: Charlie does not promise to use any/every image submitted. By submitting any image you agree that you are the original creator of the image, that no AI was used in the creation of the image, and agree to grant Charlie a non-exclusive, worldwide commercial license to use this image in his YouTube videos in perpetuity. Charlie will only use them for his own videos on his own channel, and will not show them or use them for any other purpose.*""")
 
 
 async def setup(bot: "CBot"):  # pragma: no cover
