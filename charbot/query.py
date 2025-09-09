@@ -385,7 +385,7 @@ class Query(Cog):
         ctx: Context
             The context of the command.
         """
-        await ctx.reply("""\
+        msg = """\
 **Looking to make a sign for Charlie's Big Ambitions businesses? Here's how it works:**
 
 1. Pick a place that's made/named already in game, preferably one that's already final in name. 
@@ -399,7 +399,14 @@ For the square ad banner and logo, use
 
 3. When you have some things that are cohesive and you're happy with, Send him a DM and let him know. Wait for a reply from him before uploading the images (helps prevent things being flagged as spam).
 
-*Standard disclaimer: Charlie does not promise to use any/every image submitted. By submitting any image you agree that you are the original creator of the image, that no AI was used in the creation of the image, and agree to grant Charlie a non-exclusive, worldwide commercial license to use this image in his YouTube videos in perpetuity. Charlie will only use them for his own videos on his own channel, and will not show them or use them for any other purpose.*""")
+*Standard disclaimer: Charlie does not promise to use any/every image submitted. By submitting any image you agree that you are the original creator of the image, that no AI was used in the creation of the image, and agree to grant Charlie a non-exclusive, worldwide commercial license to use this image in his YouTube videos in perpetuity. Charlie will only use them for his own videos on his own channel, and will not show them or use them for any other purpose.*"""
+        if ctx.interaction:
+            await ctx.interaction.response.send_message(msg, ephemeral=True)
+        else:
+            try:
+                await ctx.author.send(msg)
+            except discord.Forbidden:
+                await ctx.reply(msg)
 
 
 async def setup(bot: "CBot"):  # pragma: no cover
