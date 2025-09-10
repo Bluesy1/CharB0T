@@ -375,7 +375,6 @@ class Query(Cog):
         )
 
     @commands.hybrid_command(name="sign")
-    @commands.dynamic_cooldown(_non_mod_cooldown, commands.BucketType.channel)
     @app_commands.guilds(constants.GUILD_ID)
     async def sign_info(self, ctx: Context):
         """Send a message about BA sign design.
