@@ -28,7 +28,7 @@ dependencies = [
 	"discord.py[speed]==2.6.0",
 	"jishaku[procinfo]==2.6.0",
 	"niquests[speedups]==3.15.1",
-	"orjson==3.11.2",
+	"orjson==3.11.3",
 	"Pillow==11.3.0",
 	"pytesseract==0.3.13",
 	"sentry-sdk==2.28.0",
