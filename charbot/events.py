@@ -27,7 +27,7 @@ class UnTimeoutView(ui.LayoutView):
                 ui.TextDisplay(f"### User\n{member.mention}"),
                 ui.TextDisplay(f"### Ended\n{format_dt(at or utcnow())}"),
                 ui.Separator(),
-                ui.TextDisplay(f"-# \n{member.id}"),
+                ui.TextDisplay(f"-# {member.id}"),
                 accent_color=Color.green(),
             )
         )
@@ -177,7 +177,7 @@ class Events(Cog):
                 ui.TextDisplay(f"### Duration\n{time_string}"),
                 ui.TextDisplay(f"### Until\n{format_dt(until)}"),
                 ui.Separator(),
-                ui.TextDisplay(f"-# \n{after.id}"),
+                ui.TextDisplay(f"-# {after.id}"),
                 accent_color=Color.red(),
             )
         )
