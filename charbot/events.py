@@ -363,8 +363,8 @@ class Events(Cog):
             )
             return
         author = cast(discord.Member, message.author)
-        is_mod = all(role.id not in constants.EVERYONE_PING_ALLOWED_ROLES for role in author.roles)
-        if any(item in message.content for item in [f"<@&{message.guild.id}>", "@everyone", "@here"]) and not is_mod:
+        IS_NOT_MOD = all(role.id not in constants.EVERYONE_PING_ALLOWED_ROLES for role in author.roles)
+        if any(item in message.content for item in [f"<@&{message.guild.id}>", "@everyone", "@here"]) and IS_NOT_MOD:
             try:
                 await message.delete()
             finally:
@@ -380,7 +380,7 @@ class Events(Cog):
             await message.delete()
             return
         urls: frozenset[str] = frozenset(self.extractor.gen_urls(message.content))  # pyright: ignore[reportAssignmentType]
-        if any("t.me" in url or "telegram.me" in url for url in urls) and not is_mod:
+        if any("t.me" in url or "telegram.me" in url for url in urls) and IS_NOT_MOD:
             try:
                 await message.delete()
             finally:

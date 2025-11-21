@@ -165,6 +165,23 @@ async def test_fail_everyone_ping(mocker: MockerFixture):
         discord.Object(id=676250179929636886), discord.Object(id=684936661745795088)
     )
 
+@pytest.mark.asyncio
+async def test_fail_telegram_link(mocker: MockerFixture):
+    """Test that the on message deletes telegram links from non mods"""
+    message = mocker.AsyncMock(spec=discord.Message)
+    message.author = mocker.AsyncMock(spec=discord.Member)
+    message.author.bot = False
+    message.author.roles = []
+    message.content = "https://t.me/abcd1234"
+    message.guild = mocker.AsyncMock(spec=discord.Guild)
+    bot = mocker.AsyncMock(spec=CBot)
+    cog = events.Events(bot)
+    cog.webhook = mocker.AsyncMock(spec=discord.Webhook)
+    await cog.on_message(message)
+    message.delete.assert_awaited_once()
+    message.author.add_roles.assert_awaited_once_with(
+        discord.Object(id=676250179929636886), discord.Object(id=684936661745795088)
+    )
 
 @pytest.mark.asyncio
 async def test_fail_link(mocker: MockerFixture):
