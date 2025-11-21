@@ -33,6 +33,20 @@ class UnTimeoutView(ui.LayoutView):
         )
 
 
+class MuteView(ui.LayoutView):
+    def __init__(self, message: discord.Message, reason: str) -> None:
+        super().__init__()
+        self.add_item(
+            ui.Container(
+                ui.TextDisplay(f"## Mute: {reason} by non mod"),
+                ui.TextDisplay(f"```md\n{message.content[:3950]}\n```"),
+                ui.Separator(),
+                ui.TextDisplay(f"-# Sent by {message.author.display_name}-{message.author.id}"),
+                accent_color=Color.red(),
+            )
+        )
+
+
 def time_string_from_seconds(delta: float) -> str:
     """Convert seconds to a string.
 
@@ -349,9 +363,8 @@ class Events(Cog):
             )
             return
         author = cast(discord.Member, message.author)
-        if all(role.id not in constants.EVERYONE_PING_ALLOWED_ROLES for role in author.roles) and any(
-            item in message.content for item in [f"<@&{message.guild.id}>", "@everyone", "@here"]
-        ):
+        is_mod = all(role.id not in constants.EVERYONE_PING_ALLOWED_ROLES for role in author.roles)
+        if any(item in message.content for item in [f"<@&{message.guild.id}>", "@everyone", "@here"]) and not is_mod:
             try:
                 await message.delete()
             finally:
@@ -359,25 +372,27 @@ class Events(Cog):
                     discord.Object(id=676250179929636886),
                     discord.Object(id=684936661745795088),
                 )
-                view = ui.LayoutView()
-                view.add_item(
-                    ui.Container(
-                        ui.TextDisplay("## Mute: Everyone/Here Ping sent by non mod"),
-                        ui.TextDisplay(f"```md\n{message.content[:3950]}\n```"),
-                        ui.Separator(),
-                        ui.TextDisplay(f"-# Sent by {message.author.display_name}-{message.author.id}"),
-                        accent_color=Color.red(),
-                    )
-                )
+                view = MuteView(message, "Everyone/Here Ping")
                 bot = self.bot.user
                 await self.webhook.send(view=view, username=bot.name, avatar_url=bot.display_avatar.url)
-                return  # skipcq: PYL-W0150
+            return  # skipcq: PYL-W0150
         if self.tilde_regex.search(message.content):  # pragma: no cover
             await message.delete()
             return
-        if any(
-            "discord.com/channels/225345178955808768" not in url for url in self.extractor.gen_urls(message.content)
-        ) and not url_posting_allowed(
+        urls: frozenset[str] = frozenset(self.extractor.gen_urls(message.content))  # pyright: ignore[reportAssignmentType]
+        if any("t.me" in url or "telegram.me" in url for url in urls) and not is_mod:
+            try:
+                await message.delete()
+            finally:
+                await author.add_roles(
+                    discord.Object(id=676250179929636886),
+                    discord.Object(id=684936661745795088),
+                )
+                view = MuteView(message, "Telegram link sent")
+                bot = self.bot.user
+                await self.webhook.send(view=view, username=bot.name, avatar_url=bot.display_avatar.url)
+            return  # skipcq: PYL-W0150
+        if any("discord.com/channels/225345178955808768" not in url for url in urls) and not url_posting_allowed(
             cast(discord.TextChannel | discord.VoiceChannel | discord.Thread, message.channel), author.roles
         ):
             try:
