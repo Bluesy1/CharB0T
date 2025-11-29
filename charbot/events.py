@@ -24,8 +24,7 @@ class UnTimeoutView(ui.LayoutView):
         self.add_item(
             ui.Container(
                 ui.TextDisplay(f"## [UNTIMEOUT] {member}"),  # cspell: disable-line
-                ui.TextDisplay(f"### User\n{member.mention}"),
-                ui.TextDisplay(f"### Ended\n{format_dt(at or utcnow())}"),
+                ui.TextDisplay(f"*User*:\t{member.mention}\n*Ended*:\t{format_dt(at or utcnow())}"),
                 ui.Separator(),
                 ui.TextDisplay(f"-# {member.id}"),
                 accent_color=Color.green(),
@@ -187,9 +186,7 @@ class Events(Cog):
         view.add_item(
             ui.Container(
                 ui.TextDisplay(f"## [TIMEOUT] {after}"),
-                ui.TextDisplay(f"### User\n{after.mention}"),
-                ui.TextDisplay(f"### Duration\n{time_string}"),
-                ui.TextDisplay(f"### Until\n{format_dt(until)}"),
+                ui.TextDisplay(f"*User*:\t{after.mention}\n*Duration*:\t{time_string}\n*Until*:\t{format_dt(until)}"),
                 ui.Separator(),
                 ui.TextDisplay(f"-# {after.id}"),
                 accent_color=Color.red(),
