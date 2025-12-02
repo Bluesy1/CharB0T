@@ -45,12 +45,12 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        python-version: [ "3.13" ]
+        python-version: [ "3.13", "3.14" ]
     steps:
       - uses: actions/checkout@v6
       - uses: harmon758/postgresql-action@v1
         with:
-          postgresql version: '14'
+          postgresql version: '18'
       - uses: actions/setup-python@v6
         with:
           python-version: ${{ matrix.python-version }}
