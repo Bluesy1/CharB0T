@@ -11,12 +11,9 @@ if os.name != "nt":
     import uvloop
 
     # Test under uvloop on non windows OSes
-    @pytest.fixture(
-        scope="session",
-        params=(uvloop.EventLoopPolicy(),),
-    )
-    def event_loop_policy(request):
-        return request.param
+    @pytest.fixture(scope="session")
+    def event_loop_policy():
+        return uvloop.EventLoopPolicy()
 
 
 @pytest.fixture(scope="session")

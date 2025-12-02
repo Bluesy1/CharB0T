@@ -10,12 +10,11 @@ version = "1.7.0"
 authors = [
 	{name = "Bluesy1", email = "68259537+Bluesy1@users.noreply.github.com"}
 ]
-license = {file = "LICENSE"}
+license = "MIT"
 requires-python = ">=3.13"
 classifiers = [
 	"Development Status :: 5 - Production/Stable",
 	"Intended Audience :: End Users/Desktop",
-	"License :: OSI Approved :: MIT License",
 	"Operating System :: OS Independent",
 	"Programming Language :: Python :: Implementation :: CPython",
 	"Programming Language :: Rust",
@@ -24,7 +23,7 @@ classifiers = [
 	"Typing :: Typed",
 ]
 dependencies = [
-	"asyncpg==0.30.0",
+	"asyncpg==0.31.0",
 	"discord.py[speed]==2.6.4",
 	"jishaku[procinfo]==2.6.3",
 	"niquests[speedups]==3.15.2",
@@ -42,7 +41,7 @@ dependencies = [
 [project.optional-dependencies]
 dev = [
 	"aioresponses==0.7.8",
-	"asyncpg-stubs==0.30.2",
+	"asyncpg-stubs==0.31.0",
 	"ruff==0.11.7",
 	"pre-commit==3.6.1",
 	"pyright==1.1.400",
@@ -63,9 +62,8 @@ asyncio_default_test_loop_scope = "function"
 filterwarnings = [
 	"error",
 	"ignore::ResourceWarning",
-	"ignore:'audioop' is deprecated and slated for removal in Python 3.13:DeprecationWarning",
-	"ignore: module 'sre_constants' is deprecated:DeprecationWarning",
-	"ignore:'pkgutil.find_loader' is deprecated and slated for removal in Python 3.14:DeprecationWarning"
+	"ignore:'asyncio.iscoroutinefunction' is deprecated and slated for removal in Python 3.16:DeprecationWarning",
+	"ignore:'asyncio.AbstractEventLoopPolicy' is deprecated and slated for removal in Python 3.16:DeprecationWarning",
 ]
 
 [tool.pyright]

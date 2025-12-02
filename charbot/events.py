@@ -398,9 +398,9 @@ class Events(Cog):
             finally:
                 try:
                     await message.author.send(f"You need to be at least level 2 to post links in {message.guild.name}!")
-                finally:
-                    return  # skipcq: PYL-W0150
-        # at this point, all checks for bad messages have passed, and we can let the levels cog assess XP gain
+                except discord.HTTPException:  # pragma: no cover
+                    pass
+    # at this point, all checks for bad messages have passed, and we can let the levels cog assess XP gain
         levels_cog = cast("Leveling | None", self.bot.get_cog("Leveling"))  # pragma: no cover
         if levels_cog is not None:  # pragma: no cover
             await levels_cog.proc_xp(message)
