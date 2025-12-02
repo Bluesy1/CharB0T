@@ -18,7 +18,7 @@ You can find the documentation for the bot [here](https://bluesy1.github.io/Char
 
 ## Non python dependencies
 - [Tesseract 5.X](https://github.com/tesseract-ocr/tesseract) for OCR. You can find the installation instructions [here](https://tesseract-ocr.github.io/tessdoc/Installation.html)
-- [Postgresql 14 or later](https://www.postgresql.org/) as the database. Versions earlier than 14 may work, but are not guaranteed to.
+- [Postgresql 18 or later](https://www.postgresql.org/) as the database. Versions earlier than 18 may work, but are not guaranteed to.
 
 ## Contributing
 
