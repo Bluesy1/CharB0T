@@ -221,7 +221,7 @@ async def test_parse_timeout(mocker: MockerFixture):
     title = container.children[0]
     assert isinstance(title, discord.ui.TextDisplay)
     assert "[TIMEOUT]" in title.content
-    duration = container.children[2]
+    duration = container.children[1]
     assert isinstance(duration, discord.ui.TextDisplay)
     dur = duration.content
     assert dur is not None
