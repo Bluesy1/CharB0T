@@ -302,7 +302,7 @@ class Query(Cog):
         except Exception:
             return commands.Cooldown(1, 300)
 
-    @commands.hybrid_command(name="katie", aliases=("kaitlin",))  # pyright: ignore[reportArgumentType]
+    @commands.hybrid_command(name="katie", aliases=("kaitlin",))
     @commands.dynamic_cooldown(_non_mod_cooldown, commands.BucketType.channel)
     @app_commands.guilds(constants.GUILD_ID)
     async def katie_info(self, ctx: Context):
