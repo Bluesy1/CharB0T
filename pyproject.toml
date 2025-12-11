@@ -79,7 +79,6 @@ line-length = 120 # Maximum line length - 88 is too short IMO
 ignore = [
 	"E731", # The assigned lambdas are clearer than the alternative where used. (Simpler to read and understand due to the simple nature of the code in the lambdas)
 	"UP007", # Use `X | Y` for type annotations
-	"UP038", # Use `X | Y` in `isinstance` call instead of `(X, Y)` (I prefer the tuple syntax, it's easier to read and cheaper than the bitwise OR)
 	"RUF006", # Store a reference to the return value of `asyncio.create_task` (I don't want to store the reference)
 	"RUF022", "RUF023",  # __all__ and __slots__ sorting
 	"SIM105", # No cost exception handling (I don't like contextlib.suppress in most cases)

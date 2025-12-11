@@ -188,7 +188,9 @@ class Events(Cog):
         view.add_item(
             ui.Container(
                 ui.TextDisplay(f"## [TIMEOUT] {after}{' **Rejoin**' if rejoin else ''}"),
-                ui.TextDisplay(f"**User**:\t{after.mention}\n**Duration**:\t{time_string}\n**Until**:\t{format_dt(until)}"),
+                ui.TextDisplay(
+                    f"**User**:\t{after.mention}\n**Duration**:\t{time_string}\n**Until**:\t{format_dt(until)}"
+                ),
                 ui.Separator(),
                 ui.TextDisplay(f"-# {after.id}"),
                 accent_color=Color.red(),
@@ -240,7 +242,6 @@ class Events(Cog):
             self.members.update({member.id: utcnow()})
             if member.is_timed_out():
                 await self.parse_timeout(member, rejoin=True)
-
 
     @Cog.listener()
     async def on_raw_member_remove(self, payload: discord.RawMemberRemoveEvent) -> None:  # pragma: no cover
