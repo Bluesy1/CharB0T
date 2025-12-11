@@ -238,6 +238,7 @@ async def test_on_member_join(mocker: MockerFixture):
     member = mocker.AsyncMock(spec=discord.Member)
     member.id = 1
     member.guild.id = constants.GUILD_ID
+    member.is_timed_out.return_value = False
     cog = events.Events(mocker.AsyncMock(spec=CBot))
     await cog.on_member_join(member)
     assert 1 in cog.members
