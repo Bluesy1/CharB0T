@@ -549,7 +549,7 @@ def test_block_index(puzzle_unsolved):
 
 def test_row_init():
     """Test row validation"""
-    with pytest.raises(ValueError, match="Row must have exactly 9 cells."):
+    with pytest.raises(ValueError, match=r"Row must have exactly 9 cells\."):
         sudoku.Row([sudoku.Cell(0, True) for _ in range(10)])
 
 
@@ -566,7 +566,7 @@ def test_row_clear(editable: bool, expected: int):
 
 def test_column_init():
     """Test column validation"""
-    with pytest.raises(ValueError, match="Column must have exactly 9 cells."):
+    with pytest.raises(ValueError, match=r"Column must have exactly 9 cells\."):
         sudoku.Column([sudoku.Cell(0, True) for _ in range(10)])
 
 
@@ -584,7 +584,7 @@ def test_column_clear(editable: bool, expected: int):
 
 def test_block_init():
     """Test block validation"""
-    with pytest.raises(ValueError, match="Block must have exactly 9 cells."):
+    with pytest.raises(ValueError, match=r"Block must have exactly 9 cells\."):
         sudoku.Block([sudoku.Cell(0, True) for _ in range(10)])
 
 
@@ -605,7 +605,7 @@ def test_block_select_toggle():
 
 def test_cell_validation():
     """Test cell validation"""
-    with pytest.raises(ValueError, match="Value must be between 0 and 9."):
+    with pytest.raises(ValueError, match=r"Value must be between 0 and 9\."):
         sudoku.Cell(10, True)
 
 
@@ -618,33 +618,33 @@ def test_cell_hash():
 def test_cell_validate_value_not_editable():
     """Test cell validate value not editable"""
     cell = sudoku.Cell(1, False)
-    with pytest.raises(ValueError, match="Cannot set value of non-editable cell."):
+    with pytest.raises(ValueError, match=r"Cannot set value of non-editable cell\."):
         cell.value = 2
 
 
 def test_cell_validate_value_editable():
     """Test cell validate value editable"""
     cell = sudoku.Cell(1, True)
-    with pytest.raises(ValueError, match="Value must be between 0 and 9."):
+    with pytest.raises(ValueError, match=r"Value must be between 0 and 9\."):
         cell.value = 10
 
 
 def test_possible_value_not_editable():
     """Test possible value not editable"""
     cell = sudoku.Cell(1, False)
-    with pytest.raises(ValueError, match="Cannot set possible values of non-editable cell."):
+    with pytest.raises(ValueError, match=r"Cannot set possible values of non-editable cell\."):
         cell.possible_values = {2}
 
 
 def test_cell_selected_state():
     """Test cell selected state"""
     cell = sudoku.Cell(1, True)
-    with pytest.raises(TypeError, match="Selected must be a bool."):
+    with pytest.raises(TypeError, match=r"Selected must be a bool\."):
         cell.selected = "This is not a boolean"  # type: ignore  # skipcq
 
 
 def test_cell_validate_clear():
     """Test cell validate clear"""
     cell = sudoku.Cell(1, False)
-    with pytest.raises(ValueError, match="Cannot clear non-editable cell."):
+    with pytest.raises(ValueError, match=r"Cannot clear non-editable cell\."):
         cell.clear()
