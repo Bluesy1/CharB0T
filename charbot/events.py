@@ -24,7 +24,7 @@ class UnTimeoutView(ui.LayoutView):
         self.add_item(
             ui.Container(
                 ui.TextDisplay(f"## [UNTIMEOUT] {member}"),  # cspell: disable-line
-                ui.TextDisplay(f"*User*:\t{member.mention}\n*Ended*:\t{format_dt(at or utcnow())}"),
+                ui.TextDisplay(f"**User**:\t{member.mention}\n**Ended**:\t{format_dt(at or utcnow())}"),
                 ui.Separator(),
                 ui.TextDisplay(f"-# {member.id}"),
                 accent_color=Color.green(),
@@ -161,13 +161,15 @@ class Events(Cog):
         """
         self.log_untimeout.cancel()
 
-    async def parse_timeout(self, after: discord.Member):
+    async def parse_timeout(self, after: discord.Member, *, rejoin: bool = False) -> None:
         """Parse the timeout and logs it to the mod log.
 
         Parameters
         ----------
         after : discord.Member
             The member after the update
+        rejoin : bool, optional
+            Whether the member rejoined while timed out, by default False
         """
         until = cast(datetime, after.timed_out_until)
         time_delta = until + timedelta(seconds=1) - utcnow()
@@ -185,8 +187,10 @@ class Events(Cog):
         view = ui.LayoutView()
         view.add_item(
             ui.Container(
-                ui.TextDisplay(f"## [TIMEOUT] {after}"),
-                ui.TextDisplay(f"*User*:\t{after.mention}\n*Duration*:\t{time_string}\n*Until*:\t{format_dt(until)}"),
+                ui.TextDisplay(f"## [TIMEOUT] {after}{' **Rejoin**' if rejoin else ''}"),
+                ui.TextDisplay(
+                    f"**User**:\t{after.mention}\n**Duration**:\t{time_string}\n**Until**:\t{format_dt(until)}"
+                ),
                 ui.Separator(),
                 ui.TextDisplay(f"-# {after.id}"),
                 accent_color=Color.red(),
@@ -209,7 +213,11 @@ class Events(Cog):
                 guild = self.bot.get_guild(constants.GUILD_ID)
                 if guild is None:
                     guild = await self.bot.fetch_guild(constants.GUILD_ID)
-                member = await guild.fetch_member(i)
+                try:
+                    member = await guild.fetch_member(i)
+                except discord.NotFound:
+                    removable.append(i)
+                    continue
                 if not member.is_timed_out():
                     bot = self.bot.user
                     await self.webhook.send(
@@ -232,6 +240,8 @@ class Events(Cog):
         """
         if member.guild.id == constants.GUILD_ID:  # pragma: no branch
             self.members.update({member.id: utcnow()})
+            if member.is_timed_out():
+                await self.parse_timeout(member, rejoin=True)
 
     @Cog.listener()
     async def on_raw_member_remove(self, payload: discord.RawMemberRemoveEvent) -> None:  # pragma: no cover
@@ -244,6 +254,7 @@ class Events(Cog):
         """
         if payload.guild_id == constants.GUILD_ID:
             user = payload.user
+            self.timeouts.pop(user.id, None)
             if isinstance(user, discord.Member):
                 _time = self.members.pop(user.id, user.joined_at) or utcnow() - timedelta(hours=1)
                 time_string = time_string_from_seconds(abs(utcnow() - _time).total_seconds())
