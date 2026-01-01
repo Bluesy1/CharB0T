@@ -5,7 +5,7 @@ import pytest
 from discord.utils import utcnow
 from pytest_mock import MockerFixture
 
-from charbot import CBot, events
+from charbot import CBot, constants, events
 
 
 TILDE_SHORT = "~~:.|:;~~"
@@ -80,15 +80,6 @@ def test_url_allowed_channel_id(mocker: MockerFixture, channel_id: int):
     assert events.url_posting_allowed(channel, [])
 
 
-@pytest.mark.parametrize("role_id", [1042837754104533075, 0])
-def test_url_allowed_xcom(mocker: MockerFixture, role_id: int):
-    """Test if the xcom role is whitelisted"""
-    channel = mocker.AsyncMock(spec=discord.TextChannel)
-    channel.id = 1042838375473877002
-    roles: list[discord.Role] = [mocker.AsyncMock(spec=discord.Role, id=role_id)]
-    assert events.url_posting_allowed(channel, roles) is bool(role_id)
-
-
 @pytest.mark.parametrize(
     ("role_ids", "expected"),
     [
@@ -107,7 +98,6 @@ def test_url_allowed_xcom(mocker: MockerFixture, role_id: int):
                 [387037912782471179],
                 [338173415527677954],
                 [725377514414932030],
-                [925956396057513985],
                 [253752685357039617],
                 [225413350874546176],
                 [729368484211064944],
@@ -141,7 +131,7 @@ def test_time_string_from_seconds(value: float, expected: str):
     assert events.time_string_from_seconds(value) == expected
 
 
-@pytest.mark.asyncio()
+@pytest.mark.asyncio
 @pytest.mark.parametrize("bot", [True, False])
 async def test_on_message_bot_user(bot: bool, mocker: MockerFixture):
     """Test on message where the message author is a bot"""
@@ -157,7 +147,7 @@ async def test_on_message_bot_user(bot: bool, mocker: MockerFixture):
         assert message.channel.send.assert_awaited_once()
 
 
-@pytest.mark.asyncio()
+@pytest.mark.asyncio
 async def test_fail_everyone_ping(mocker: MockerFixture):
     """Test that the on message deletes everyone pings from non mods"""
     message = mocker.AsyncMock(spec=discord.Message)
@@ -176,7 +166,26 @@ async def test_fail_everyone_ping(mocker: MockerFixture):
     )
 
 
-@pytest.mark.asyncio()
+@pytest.mark.asyncio
+async def test_fail_telegram_link(mocker: MockerFixture):
+    """Test that the on message deletes telegram links from non mods"""
+    message = mocker.AsyncMock(spec=discord.Message)
+    message.author = mocker.AsyncMock(spec=discord.Member)
+    message.author.bot = False
+    message.author.roles = []
+    message.content = "https://t.me/abcd1234"
+    message.guild = mocker.AsyncMock(spec=discord.Guild)
+    bot = mocker.AsyncMock(spec=CBot)
+    cog = events.Events(bot)
+    cog.webhook = mocker.AsyncMock(spec=discord.Webhook)
+    await cog.on_message(message)
+    message.delete.assert_awaited_once()
+    message.author.add_roles.assert_awaited_once_with(
+        discord.Object(id=676250179929636886), discord.Object(id=684936661745795088)
+    )
+
+
+@pytest.mark.asyncio
 async def test_fail_link(mocker: MockerFixture):
     """Test that the on message deletes everyone pings from non mods"""
     message = mocker.AsyncMock(spec=discord.Message)
@@ -192,7 +201,7 @@ async def test_fail_link(mocker: MockerFixture):
     message.author.send.assert_awaited_once()
 
 
-@pytest.mark.asyncio()
+@pytest.mark.asyncio
 async def test_parse_timeout(mocker: MockerFixture):
     """Test that the on message deletes everyone pings from non mods"""
     member = mocker.AsyncMock(spec=discord.Member)
@@ -205,11 +214,16 @@ async def test_parse_timeout(mocker: MockerFixture):
     assert 1 in cog.timeouts
     assert cog.timeouts[1] == member.timed_out_until
     webhook.send.assert_awaited_once()
-    embed = webhook.send.await_args.kwargs["embed"]
-    assert isinstance(embed, discord.Embed)
-    assert embed.author.name is not None
-    assert "[TIMEOUT]" in embed.author.name
-    dur = embed.fields[1].value
+    view = webhook.send.await_args.kwargs["view"]
+    assert isinstance(view, discord.ui.LayoutView)
+    container = view.children[0]
+    assert isinstance(container, discord.ui.Container)
+    title = container.children[0]
+    assert isinstance(title, discord.ui.TextDisplay)
+    assert "[TIMEOUT]" in title.content
+    duration = container.children[1]
+    assert isinstance(duration, discord.ui.TextDisplay)
+    dur = duration.content
     assert dur is not None
     assert "1 Week" in dur
     assert "1 Day(s)" in dur
@@ -218,18 +232,19 @@ async def test_parse_timeout(mocker: MockerFixture):
     assert "40 Second(s)" in dur
 
 
-@pytest.mark.asyncio()
+@pytest.mark.asyncio
 async def test_on_member_join(mocker: MockerFixture):
     """Test members get properly added on join."""
     member = mocker.AsyncMock(spec=discord.Member)
     member.id = 1
-    member.guild.id = 225345178955808768
+    member.guild.id = constants.GUILD_ID
+    member.is_timed_out.return_value = False
     cog = events.Events(mocker.AsyncMock(spec=CBot))
     await cog.on_member_join(member)
     assert 1 in cog.members
 
 
-@pytest.mark.asyncio()
+@pytest.mark.asyncio
 async def test_thread_create(mocker: MockerFixture):
     """Test that thread creates get handled properly"""
     cog = events.Events(mocker.AsyncMock(spec=CBot))

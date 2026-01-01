@@ -5,11 +5,11 @@ import itertools
 import re
 from calendar import timegm
 from datetime import datetime, time, timedelta
-from typing import Literal, NamedTuple, NotRequired, Optional, TypedDict, cast
+from typing import Literal, NamedTuple, NotRequired, TypedDict
 from zoneinfo import ZoneInfo
 
 import discord
-import orjson
+import niquests
 from discord.ext import commands, tasks
 from discord.utils import MISSING, format_dt, utcnow
 from validators import url
@@ -19,6 +19,7 @@ from . import CBot, Config
 
 ytLink = "https://www.youtube.com/charliepryor/live"
 chartime = ZoneInfo("US/Michigan")
+calTimeZone = ZoneInfo("America/New_York")
 time_format = "%H:%M %x %Z"
 
 
@@ -166,8 +167,7 @@ def calendar_embed(fields: dict[int, EmbedField], next_event: datetime | None) -
 
     embed.set_author(
         name="Charlie",
-        icon_url="https://cdn.discordapp.com/avatars/225344348903047168/"
-        "c093900592dfcd9b9e5c711f4e1c627d.webp?size=160",
+        icon_url="https://cdn.discordapp.com/avatars/225344348903047168/c093900592dfcd9b9e5c711f4e1c627d.webp?size=160",
     )
     return embed.set_footer(text="Last Updated")
 
@@ -215,6 +215,7 @@ class Calendar(commands.Cog):
         r"RRULE:FREQ=WEEKLY;UNTIL=(?P<year>\d{4})(?P<month>\d{2})(?P<day>\d{2})T"
         r"(?P<hour>\d{2})(?P<minute>\d{2})(?P<second>\d{2})"
     )  # in case this is ever needed, leaving it in
+    webhook: discord.Webhook
 
     def __init__(self, bot: CBot):
         self.bot: CBot = bot
@@ -224,14 +225,15 @@ class Calendar(commands.Cog):
             - timedelta(days=utcnow().weekday())
             + timedelta(days=7)
         )
-        self.webhook: Optional[discord.Webhook] = MISSING
         self.calendar.change_interval(time=list(half_hour_intervals()))
+        self.session = niquests.AsyncSession()
 
     async def cog_unload(self) -> None:  # skipcq: PYL-W0236
         """Unload hook."""
         self.calendar.cancel()
         self.bot.holder["message"] = self.message
         self.bot.holder["webhook"] = self.webhook
+        await self.session.close()
 
     async def cog_load(self) -> None:
         """Load hook."""
@@ -254,6 +256,13 @@ class Calendar(commands.Cog):
         await self.calendar()
         await ctx.message.add_reaction("✅")
 
+    async def _get_cal_data(self, mindatetime: datetime, maxdatetime: datetime, /) -> CalResponse:  # pragma: no cover
+        async with await self.session.get(
+            "https://www.googleapis.com/calendar/v3/calendars/u8n1onpbv9pb5du7gssv2md58s@group.calendar.google.com/events",
+            params=get_params(mindatetime, maxdatetime),
+        ) as response:
+            return response.json()
+
     @tasks.loop()
     async def calendar(self):
         """Calendar loop.
@@ -262,14 +271,9 @@ class Calendar(commands.Cog):
         It queries the Google calendar API and posts the results to the
         webhook, after parsing and formatting the results.
         """
-        mindatetime = datetime.now(tz=ZoneInfo("America/New_York"))
-        maxdatetime = datetime.now(tz=ZoneInfo("America/New_York")) + timedelta(weeks=1)
-        async with self.bot.session.get(
-            "https://www.googleapis.com/calendar/v3/calendars/"
-            "u8n1onpbv9pb5du7gssv2md58s@group.calendar.google.com/events",
-            params=get_params(mindatetime, maxdatetime),
-        ) as response:
-            items: CalResponse = await response.json(loads=orjson.loads)
+        mindatetime = datetime.now(tz=calTimeZone)
+        maxdatetime = mindatetime + timedelta(weeks=1)
+        items = await self._get_cal_data(mindatetime, maxdatetime)
         fields: dict[int, EmbedField] = {}
         cancelled_times = []
         times: set[datetime] = set()
@@ -291,7 +295,7 @@ class Calendar(commands.Cog):
                 times.add(sub_time)  # pragma: no cover
             if mindatetime < sub_time > maxdatetime:
                 continue
-            desc = item.get("description", None)
+            desc = item.get("description", None)  # pragma: no cover
             if desc is None:  # pragma: no cover
                 default_field(fields, sub_time, item)
             else:  # pragma: no cover
@@ -309,9 +313,7 @@ class Calendar(commands.Cog):
             fields.pop(timegm(sub_time.utctimetuple()), None)
             times.discard(sub_time)
         if self.message is MISSING:  # pragma: no branch
-            self.message = await cast(discord.Webhook, self.webhook).fetch_message(
-                Config["discord"]["messages"]["calendar"]
-            )
+            self.message = await self.webhook.fetch_message(Config["discord"]["messages"]["calendar"])
         self.message = await self.message.edit(embed=calendar_embed(fields, min(times, default=None)))
 
 

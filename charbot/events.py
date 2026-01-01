@@ -1,27 +1,49 @@
 """Event handling for Charbot."""
 
-import pathlib
 import re
 from datetime import UTC, datetime, timedelta
-from typing import TYPE_CHECKING, Final, cast
+from typing import TYPE_CHECKING, cast
 
 import discord
-import orjson
-from discord import Color, Embed
+from discord import Color, ui
 from discord.ext import tasks
 from discord.ext.commands import Cog
-from discord.utils import utcnow
+from discord.utils import format_dt, utcnow
 from urlextract import URLExtract
 
-from . import CBot
+from . import CBot, constants
 
 
 if TYPE_CHECKING:  # pragma: no cover
     from .levels import Leveling
 
-MAIN_SERVER = 225345178955808768
-GAMES_FORUM = 1019647326601609338
-GAME_SUGGESTIONS_TAG = 1019691620741959730
+
+class UnTimeoutView(ui.LayoutView):
+    def __init__(self, member: discord.Member, at: datetime | None = None) -> None:
+        super().__init__()
+        self.add_item(
+            ui.Container(
+                ui.TextDisplay(f"## [UNTIMEOUT] {member}"),  # cspell: disable-line
+                ui.TextDisplay(f"**User**:\t{member.mention}\n**Ended**:\t{format_dt(at or utcnow())}"),
+                ui.Separator(),
+                ui.TextDisplay(f"-# {member.id}"),
+                accent_color=Color.green(),
+            )
+        )
+
+
+class MuteView(ui.LayoutView):
+    def __init__(self, message: discord.Message, reason: str) -> None:
+        super().__init__()
+        self.add_item(
+            ui.Container(
+                ui.TextDisplay(f"## Mute: {reason} by non mod"),
+                ui.TextDisplay(f"```md\n{message.content[:3950]}\n```"),
+                ui.Separator(),
+                ui.TextDisplay(f"-# Sent by {message.author.display_name}-{message.author.id}"),
+                accent_color=Color.red(),
+            )
+        )
 
 
 def time_string_from_seconds(delta: float) -> str:
@@ -63,9 +85,9 @@ def url_posting_allowed(
     """
     if (
         isinstance(channel, discord.Thread)
-        and channel.parent_id == GAMES_FORUM
+        and channel.parent_id == constants.GAMES_FORUM_ID
         and (
-            any(tag.id == GAME_SUGGESTIONS_TAG for tag in channel.applied_tags)
+            any(tag.id == constants.GAME_SUGGESTIONS_TAG_ID for tag in channel.applied_tags)
             or channel.message_count < 2
             or channel.id == channel.last_message_id
             or channel.id == getattr(channel.starter_message, "id", None)
@@ -75,38 +97,14 @@ def url_posting_allowed(
         # suggestions tag, then it's a game thread, and we want to allow urls in it
         # OR the message is the starter message for a thread in the channel, and we want to allow it
         return True
-    if channel.category_id in {360814817457733635, 360818916861280256, 942578610336837632}:
+    if channel.category_id in constants.SPECIAL_CATEGORIES:
         # if the channel is in an admin or info category, we want to allow urls
         return True
-    if channel.id in {723653004301041745, 338894508894715904, 407185164200968203}:
+    if channel.id in constants.LINK_ALLOWED_CHANNELS:
         # the channel is allowed to have links, but they may not embed
         return True
-    if channel.id == 1042838375473877002 and any(role.id == 1042837754104533075 for role in roles):
-        # if the channel is the xcom channel, and the user has the xcom role, then
-        # allow the message
-        return True
     # If so far the url hasn't been allowed, test if the author has a role that allows it
-    return any(
-        role.id
-        in {
-            337743478190637077,
-            685331877057658888,
-            969629622453039104,
-            969629628249563166,
-            969629632028614699,
-            969628342733119518,
-            969627321239760967,
-            406690402956083210,
-            387037912782471179,
-            338173415527677954,
-            725377514414932030,
-            925956396057513985,
-            253752685357039617,
-            225413350874546176,
-            729368484211064944,
-        }
-        for role in roles
-    )
+    return any(role.id in constants.LINK_ALLOWED_ROLES for role in roles)
 
 
 class Events(Cog):
@@ -123,16 +121,12 @@ class Events(Cog):
     ----------
     bot : CBot
         The bot instance.
-    last_sensitive_logged : dict
-        A dictionary of the last time sensitive messages were logged.
     """
 
     __slots__ = (
         "bot",
-        "last_sensitive_logged",
         "timeouts",
         "members",
-        "sensitive_settings_path",
         "webhook",
         "tilde_regex",
         "extractor",
@@ -140,14 +134,12 @@ class Events(Cog):
 
     def __init__(self, bot: CBot):
         self.bot = bot
-        self.last_sensitive_logged = {}
-        self.timeouts = {}
+        self.timeouts: dict[int, datetime] = {}
         self.members: dict[int, datetime] = {}
         self.tilde_regex = re.compile(
             r"~~:\.\|:;~~|tilde tilde colon dot vertical bar colon semicolon tilde tilde", re.MULTILINE | re.IGNORECASE
         )
         self.extractor = URLExtract()
-        self.sensitive_settings_path: Final[pathlib.Path] = pathlib.Path(__file__).parent / "sensitive_settings.json"
 
     async def cog_load(self) -> None:  # pragma: no cover
         """Cog load function.
@@ -155,19 +147,11 @@ class Events(Cog):
         This is called when the cog is loaded, and initializes the
         log_un-timeout task and the members cache
         """
-        self.webhook = await self.bot.fetch_webhook(  # skipcq: PYL-W0201
-            orjson.loads(self.sensitive_settings_path.read_bytes())["webhook_id"]
-        )
+        self.webhook = await self.bot.fetch_webhook(945514428047167578)
         self.log_untimeout.start()
+        guild = self.bot.get_guild(constants.GUILD_ID) or await self.bot.fetch_guild(constants.GUILD_ID)
         self.members.update(
-            {
-                user.id: user.joined_at
-                async for user in cast(
-                    discord.Guild,
-                    self.bot.get_guild(MAIN_SERVER) or await self.bot.fetch_guild(MAIN_SERVER),
-                ).fetch_members(limit=None)
-                if user.joined_at is not None
-            }
+            {user.id: user.joined_at async for user in guild.fetch_members(limit=None) if user.joined_at is not None}
         )
 
     async def cog_unload(self) -> None:  # skipcq: PYL-W0236  # pragma: no cover
@@ -177,13 +161,15 @@ class Events(Cog):
         """
         self.log_untimeout.cancel()
 
-    async def parse_timeout(self, after: discord.Member):
+    async def parse_timeout(self, after: discord.Member, *, rejoin: bool = False) -> None:
         """Parse the timeout and logs it to the mod log.
 
         Parameters
         ----------
         after : discord.Member
             The member after the update
+        rejoin : bool, optional
+            Whether the member rejoined while timed out, by default False
         """
         until = cast(datetime, after.timed_out_until)
         time_delta = until + timedelta(seconds=1) - utcnow()
@@ -198,16 +184,24 @@ class Events(Cog):
             time_string += f"{', ' if bool(time_string) else ''}{(time_delta.seconds % 3600) // 60} Minute(s) "
         if (time_delta.seconds % 3600) % 60 != 0:  # pragma: no branch
             time_string += f"{', ' if bool(time_string) else ''}{(time_delta.seconds % 3600) % 60} Second(s) "
-        embed = Embed(color=Color.red())
-        embed.set_author(name=f"[TIMEOUT] {after}")
-        embed.add_field(name="User", value=after.mention, inline=True)
-        embed.add_field(name="Duration", value=time_string, inline=True)
-        bot_user = cast(discord.ClientUser, self.bot.user)
-        await self.webhook.send(username=bot_user.name, avatar_url=bot_user.display_avatar.url, embed=embed)
-        self.timeouts.update({after.id: after.timed_out_until})
+        view = ui.LayoutView()
+        view.add_item(
+            ui.Container(
+                ui.TextDisplay(f"## [TIMEOUT] {after}{' **Rejoin**' if rejoin else ''}"),
+                ui.TextDisplay(
+                    f"**User**:\t{after.mention}\n**Duration**:\t{time_string}\n**Until**:\t{format_dt(until)}"
+                ),
+                ui.Separator(),
+                ui.TextDisplay(f"-# {after.id}"),
+                accent_color=Color.red(),
+            )
+        )
+        bot = self.bot.user
+        await self.webhook.send(view=view, username=bot.name, avatar_url=bot.display_avatar.url)
+        self.timeouts.update({after.id: until})
 
     @tasks.loop(seconds=30)
-    async def log_untimeout(self) -> None:
+    async def log_untimeout(self) -> None:  # pragma: no cover
         """Un-timeout Report Task.
 
         This task runs every 30 seconds and checks if any users that have been timed out have had their timeouts
@@ -216,19 +210,22 @@ class Events(Cog):
         removable = []
         for i, j in self.timeouts.copy().items():
             if j < datetime.now(tz=UTC):
-                guild = self.bot.get_guild(MAIN_SERVER)
+                guild = self.bot.get_guild(constants.GUILD_ID)
                 if guild is None:
-                    guild = await self.bot.fetch_guild(MAIN_SERVER)
-                member = await guild.fetch_member(i)
+                    guild = await self.bot.fetch_guild(constants.GUILD_ID)
+                try:
+                    member = await guild.fetch_member(i)
+                except discord.NotFound:
+                    removable.append(i)
+                    continue
                 if not member.is_timed_out():
-                    embed = Embed(color=Color.green())
-                    embed.set_author(name=f"[UNTIMEOUT] {member}")
-                    embed.add_field(name="User", value=member.mention, inline=True)
-                    bot_user = cast(discord.ClientUser, self.bot.user)
-                    await self.webhook.send(username=bot_user.name, avatar_url=bot_user.display_avatar.url, embed=embed)
+                    bot = self.bot.user
+                    await self.webhook.send(
+                        view=UnTimeoutView(member, j), username=bot.name, avatar_url=bot.display_avatar.url
+                    )
                     removable.append(i)
                 elif member.is_timed_out():
-                    self.timeouts.update({i: member.timed_out_until})
+                    self.timeouts.update({i: cast(datetime, member.timed_out_until)})
         for i in removable:
             self.timeouts.pop(i)
 
@@ -241,11 +238,13 @@ class Events(Cog):
         member : discord.Member
             The member that joined the server
         """
-        if member.guild.id == MAIN_SERVER:  # pragma: no branch
+        if member.guild.id == constants.GUILD_ID:  # pragma: no branch
             self.members.update({member.id: utcnow()})
+            if member.is_timed_out():
+                await self.parse_timeout(member, rejoin=True)
 
     @Cog.listener()
-    async def on_raw_member_remove(self, payload: discord.RawMemberRemoveEvent) -> None:
+    async def on_raw_member_remove(self, payload: discord.RawMemberRemoveEvent) -> None:  # pragma: no cover
         """Process when a member leaves the server and removes them from the members cache.
 
         Parameters
@@ -253,8 +252,9 @@ class Events(Cog):
         payload : discord.RawMemberRemoveEvent
             The payload of the member leaving the server
         """
-        if payload.guild_id == MAIN_SERVER:
+        if payload.guild_id == constants.GUILD_ID:
             user = payload.user
+            self.timeouts.pop(user.id, None)
             if isinstance(user, discord.Member):
                 _time = self.members.pop(user.id, user.joined_at) or utcnow() - timedelta(hours=1)
                 time_string = time_string_from_seconds(abs(utcnow() - _time).total_seconds())
@@ -285,18 +285,17 @@ class Events(Cog):
         after : discord.Member
             The member after the update
         """
-        try:
+        try:  # pragma: no cover
             if after.timed_out_until != before.timed_out_until:
                 if after.is_timed_out():
                     await self.parse_timeout(after)
                 else:
-                    embed = Embed(color=Color.green())
-                    embed.set_author(name=f"[UNTIMEOUT] {after}")
-                    embed.add_field(name="User", value=after.mention, inline=True)
-                    bot_user = cast(discord.ClientUser, self.bot.user)
-                    await self.webhook.send(username=bot_user.name, avatar_url=bot_user.display_avatar.url, embed=embed)
+                    bot = self.bot.user
+                    await self.webhook.send(
+                        view=UnTimeoutView(after), username=bot.name, avatar_url=bot.display_avatar.url
+                    )
                     self.timeouts.pop(after.id)
-        except Exception:  # skipcq: PYL-W0703
+        except Exception:  # skipcq: PYL-W0703  # pragma: no cover
             if after.is_timed_out():
                 await self.parse_timeout(after)
 
@@ -317,10 +316,10 @@ class Events(Cog):
             await message.pin()
             msg = await message.fetch()
             if (
-                thread.parent_id == GAMES_FORUM
-                and any(tag.id == GAME_SUGGESTIONS_TAG for tag in thread.applied_tags)
+                thread.parent_id == constants.GAMES_FORUM_ID
+                and any(tag.id == constants.GAME_SUGGESTIONS_TAG_ID for tag in thread.applied_tags)
                 and not self.extractor.has_urls(msg.content)
-            ):
+            ):  # pragma: no cover
                 # If the parent is this, then the channel is the games channel and if the thread has the
                 #  suggestions tag, then it's a game thread, and if it doesn't have a url in the first message
                 #  we want to remind them to add one
@@ -342,7 +341,7 @@ class Events(Cog):
 
         If the message is sent by a non-mod user, it will check for a disallowed ping
         and will delete the message if it is found, and log it.
-        Scans guild messages for sensitive content
+        Scans guild messages for prohibited content
         If the message is a dm, it logs it in the dm_logs channel and redirects them to the new mod support method.
 
         Parameters
@@ -357,9 +356,14 @@ class Events(Cog):
                 discord.TextChannel,
                 self.bot.get_channel(906578081496584242) or await self.bot.fetch_channel(906578081496584242),
             )
-            mentions = discord.AllowedMentions(everyone=False, roles=False, users=False)
+            mentions = discord.AllowedMentions.none()
             await channel.send(message.author.mention, allowed_mentions=mentions)
-            await channel.send(message.content, allowed_mentions=mentions)
+            view = ui.LayoutView()
+            if message.content:
+                view.add_item(ui.Container(ui.TextDisplay(f"```md\n{message.content[:3950]}\n```")))
+            else:  # pragma: no cover
+                view.add_item(ui.Container(ui.TextDisplay(f"Message Contained no text Content:```\n{message!r}\n```")))
+            await channel.send(view=view, allowed_mentions=mentions)
             await message.channel.send(
                 "Hi! If this was an attempt to reach the mod team through modmail,"
                 " that has been removed, in favor of "
@@ -367,18 +371,8 @@ class Events(Cog):
             )
             return
         author = cast(discord.Member, message.author)
-        if all(
-            role.id
-            not in {
-                338173415527677954,
-                253752685357039617,
-                225413350874546176,
-                387037912782471179,
-                406690402956083210,
-                729368484211064944,
-            }
-            for role in author.roles
-        ) and any(item in message.content for item in [f"<@&{message.guild.id}>", "@everyone", "@here"]):
+        IS_NOT_MOD = all(role.id not in constants.EVERYONE_PING_ALLOWED_ROLES for role in author.roles)
+        if any(item in message.content for item in [f"<@&{message.guild.id}>", "@everyone", "@here"]) and IS_NOT_MOD:
             try:
                 await message.delete()
             finally:
@@ -386,31 +380,39 @@ class Events(Cog):
                     discord.Object(id=676250179929636886),
                     discord.Object(id=684936661745795088),
                 )
-                embed = Embed(
-                    description=f"```\n{message.content[:4050]}\n```",
-                    title="Mute: Everyone/Here Ping sent by non mod",
-                    color=Color.red(),
-                ).set_footer(
-                    text=f"Sent by {message.author.display_name}-{message.author.id}",
-                    icon_url=author.display_avatar.url,
-                )
-                bot_user = cast(discord.ClientUser, self.bot.user)
-                await self.webhook.send(username=bot_user.name, avatar_url=bot_user.display_avatar.url, embed=embed)
-                return  # skipcq: PYL-W0150
-        if self.tilde_regex.search(message.content):
+                view = MuteView(message, "Everyone/Here Ping")
+                bot = self.bot.user
+                await self.webhook.send(view=view, username=bot.name, avatar_url=bot.display_avatar.url)
+            return  # skipcq: PYL-W0150
+        if self.tilde_regex.search(message.content):  # pragma: no cover
             await message.delete()
             return
-        if self.extractor.has_urls(message.content) and not url_posting_allowed(
+        urls: frozenset[str] = frozenset(self.extractor.gen_urls(message.content))  # pyright: ignore[reportAssignmentType]
+        if any("t.me" in url or "telegram.me" in url for url in urls) and IS_NOT_MOD:
+            try:
+                await message.delete()
+            finally:
+                await author.add_roles(
+                    discord.Object(id=676250179929636886),
+                    discord.Object(id=684936661745795088),
+                )
+                view = MuteView(message, "Telegram link sent")
+                bot = self.bot.user
+                await self.webhook.send(view=view, username=bot.name, avatar_url=bot.display_avatar.url)
+            return  # skipcq: PYL-W0150
+        if any("discord.com/channels/225345178955808768" not in url for url in urls) and not url_posting_allowed(
             cast(discord.TextChannel | discord.VoiceChannel | discord.Thread, message.channel), author.roles
         ):
             try:
                 # if the url still isn't allowed, delete the message
                 await message.delete()
-            finally:
-                try:
-                    await message.author.send(f"You need to be at least level 5 to post links in {message.guild.name}!")
-                finally:
-                    return  # skipcq: PYL-W0150
+            except discord.HTTPException:
+                pass
+            try:
+                await message.author.send(f"You need to be at least level 2 to post links in {message.guild.name}!")
+            except discord.HTTPException:
+                pass
+            return
         # at this point, all checks for bad messages have passed, and we can let the levels cog assess XP gain
         levels_cog = cast("Leveling | None", self.bot.get_cog("Leveling"))  # pragma: no cover
         if levels_cog is not None:  # pragma: no cover

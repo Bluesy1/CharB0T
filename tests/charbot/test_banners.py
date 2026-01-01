@@ -75,8 +75,7 @@ def test_static_color_banner():
                 discord.Color.blue(),
                 "Name",
                 profile,
-                "Lorem ipsum dolor sit amet, consectetur adipisci elit, sed eiusmod tempor incidunt ut labore et "
-                "dolo",
+                "Lorem ipsum dolor sit amet, consectetur adipisci elit, sed eiusmod tempor incidunt ut labore et dolo",
                 3,
             )
         )
@@ -95,8 +94,7 @@ def test_gradient_color_banner():
                 (discord.Color.blue(), discord.Color.red()),
                 "Name",
                 profile,
-                "Lorem ipsum dolor sit amet, consectetur adipisci elit, sed eiusmod tempor incidunt ut labore et "
-                "dolo",
+                "Lorem ipsum dolor sit amet, consectetur adipisci elit, sed eiusmod tempor incidunt ut labore et dolo",
                 3,
             )
         )
@@ -118,15 +116,14 @@ def test_image_background_banner():
                 pathlib.Path(__file__).parent / "media/test_image.jpeg",
                 "Name",
                 profile,
-                "Lorem ipsum dolor sit amet, consectetur adipisci elit, sed eiusmod tempor incidunt ut labore et "
-                "dolo",
+                "Lorem ipsum dolor sit amet, consectetur adipisci elit, sed eiusmod tempor incidunt ut labore et dolo",
                 3,
             )
         )
         assert got == expected, "Got unexpected banner"
 
 
-@pytest.mark.asyncio()
+@pytest.mark.asyncio
 async def test_banner_approval_view(mocker: MockerFixture, database):
     """Check the banner approval view gets created properly"""
     status: BannerStatus = {
@@ -158,9 +155,9 @@ async def test_banner_approval_view(mocker: MockerFixture, database):
     mock_interaction.edit_original_response.assert_awaited_once_with(
         content="Banner approved.", attachments=[], view=None
     )
-    assert (
-        await database.fetchval("SELECT approved FROM banners WHERE user_id = 1") is True
-    ), "Banner should be approved"
+    assert await database.fetchval("SELECT approved FROM banners WHERE user_id = 1") is True, (
+        "Banner should be approved"
+    )
     mock_interaction.reset_mock()
     mock_interaction.response.reset_mock()
     await view.deny.callback(mock_interaction)

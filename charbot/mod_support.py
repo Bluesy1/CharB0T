@@ -3,17 +3,22 @@
 import logging
 import pathlib
 from datetime import timedelta
-from typing import Any, ClassVar, Final
 
 import discord
 import orjson
-from discord import Embed, Interaction, PermissionOverwrite, Permissions, app_commands, ui
+from discord import Interaction, PermissionOverwrite, Permissions, app_commands, ui
 from discord.ext import tasks
 from discord.ext.commands import GroupCog
-from discord.ui import Item
 from discord.utils import utcnow
 
-from . import CBot
+from . import CBot, constants
+
+
+_BLACKLIST = pathlib.Path.cwd() / "mod_support_blacklist.json"
+_MOD_ROLE = 725377514414932030
+_EVERYONE = 225345178955808768
+_PERMS_HIDE_CHANNEL = PermissionOverwrite(view_channel=False, send_messages=False, read_messages=False)
+_PERMS_SHOW_CHANNEL = PermissionOverwrite.from_pair(Permissions(139586817088), Permissions.none())
 
 
 async def edit_check(interaction: Interaction[CBot]) -> bool:
@@ -31,12 +36,11 @@ async def edit_check(interaction: Interaction[CBot]) -> bool:
     """
     user = interaction.user
     assert isinstance(user, discord.Member)  # skipcq: BAN-B101
-    return any(
-        role.id in (225413350874546176, 253752685357039617, 725377514414932030, 338173415527677954)
-        for role in user.roles
-    )
+    return any(role.id in constants.MOD_ROLE_IDS for role in user.roles)
 
 
+@app_commands.guilds(constants.GUILD_ID)
+@app_commands.default_permissions(moderate_members=True)
 class ModSupport(GroupCog, name="modsupport", description="mod support command group"):
     """Mod Support Cog.
 
@@ -56,7 +60,6 @@ class ModSupport(GroupCog, name="modsupport", description="mod support command g
     def __init__(self, bot: CBot):
         super().__init__()
         self.bot = bot
-        self.blacklist_path: Final[pathlib.Path] = pathlib.Path(__file__).parent / "mod_support_blacklist.json"
 
     async def cog_unload(self) -> None:  # skipcq: PYL-W0236
         """Unload func."""
@@ -65,27 +68,12 @@ class ModSupport(GroupCog, name="modsupport", description="mod support command g
     async def cog_load(self) -> None:
         """Cog load func."""
         self.check_mod_support_channels.start()
-        guild = self.bot.get_guild(225345178955808768)
-        if guild is None:
-            guild = await self.bot.fetch_guild(225345178955808768)
-        everyone = guild.default_role
-        mod_roles = guild.get_role(338173415527677954)
-        assert isinstance(mod_roles, discord.Role)  # skipcq: BAN-B101
-        mods = {
-            "146285543146127361": await guild.fetch_member(146285543146127361),
-            "363095569515806722": await guild.fetch_member(363095569515806722),
-            "138380316095021056": await guild.fetch_member(138380316095021056),
-            "162833689196101632": await guild.fetch_member(162833689196101632),
-            "82495450153750528": await guild.fetch_member(82495450153750528),
-        }
-        self.bot.add_view(ModSupportButtons(everyone, mod_roles, mods))
+        self.bot.add_view(ModSupportLayout())
 
     @tasks.loop(hours=8)
     async def check_mod_support_channels(self):
         """Remove stale modmail channels."""
-        guild = self.bot.get_guild(225345178955808768)
-        if guild is None:
-            guild = await self.bot.fetch_guild(225345178955808768)
+        guild = self.bot.get_guild(constants.GUILD_ID) or await self.bot.fetch_guild(constants.GUILD_ID)
         channels = await guild.fetch_channels()
         cared: list[discord.TextChannel] = [
             channel
@@ -110,7 +98,6 @@ class ModSupport(GroupCog, name="modsupport", description="mod support command g
                     await channel.delete()
 
     @app_commands.command(name="query", description="queries list of users banned from mod support")
-    @app_commands.guild_only()
     async def query(self, interaction: Interaction[CBot]):
         """Modmail blacklist query command.
 
@@ -122,10 +109,11 @@ class ModSupport(GroupCog, name="modsupport", description="mod support command g
             The interaction object for the command.
         """
         if await edit_check(interaction):
-            blacklisted = [f"<@{item}>" for item in orjson.loads(self.blacklist_path.read_bytes())["blacklisted"]]
+            blacklisted = [f"<@{item}>" for item in orjson.loads(_BLACKLIST.read_bytes())["blacklisted"]]
             await interaction.response.send_message(
-                embed=Embed(title="Blacklisted users", description="\n".join(blacklisted)),
+                f"# Blacklisted users \n{'\n'.join(blacklisted)}",
                 ephemeral=True,
+                allowed_mentions=discord.AllowedMentions.none(),
             )
         else:
             await interaction.response.send_message("You are not authorized to use this command", ephemeral=True)
@@ -134,7 +122,6 @@ class ModSupport(GroupCog, name="modsupport", description="mod support command g
         name="edit",
         description="adds or removes a user from the list of users banned from mod support",
     )
-    @app_commands.guild_only()
     async def edit(self, interaction: Interaction[CBot], add: bool, user: discord.Member):
         """Modmail edit blacklist command.
 
@@ -149,15 +136,15 @@ class ModSupport(GroupCog, name="modsupport", description="mod support command g
         """
         if await edit_check(interaction):
             successful = False
-            modmail_blacklist = orjson.loads(self.blacklist_path.read_bytes())
+            modmail_blacklist = orjson.loads(_BLACKLIST.read_bytes())
             if add:
                 if user.id not in modmail_blacklist["blacklisted"]:
                     modmail_blacklist["blacklisted"].append(user.id)
-                    self.blacklist_path.write_bytes(orjson.dumps(modmail_blacklist))
+                    _BLACKLIST.write_bytes(orjson.dumps(modmail_blacklist))
                     successful = True
             elif user.id in modmail_blacklist["blacklisted"]:
                 modmail_blacklist["blacklisted"].remove(user.id)
-                self.blacklist_path.write_bytes(orjson.dumps(modmail_blacklist))
+                _BLACKLIST.write_bytes(orjson.dumps(modmail_blacklist))
                 successful = True
             if add and successful:
                 await interaction.response.send_message(
@@ -182,8 +169,39 @@ class ModSupport(GroupCog, name="modsupport", description="mod support command g
             await interaction.response.send_message("You are not authorized to use this command", ephemeral=True)
 
 
-class ModSupportButtons(ui.View):
-    """Creates a mod support buttons view.
+MOD_SUPPORT_HEADER = """\
+# Mod Support
+Use the buttons provided to open a modmail text channel, selecting a suitable level of importance. \
+You can make the modmail private to only admins, Charlie and up to 5 mods of your choosing. \
+Upon selecting an option, you will be prompted to provide some information in a modal form. \
+We have detailed each category below.\
+"""
+MOD_SUPPORT_ADMIN_DESCRIPTION = """\
+For sensitive matters, this goes to admins only. This could increase wait time. \
+We respect private matters unless they are important enough to inform our mod team about potential issues.
+This should only be used for truly private information or if this has to do with one of our mods.\
+"""
+
+
+class ModSupportButton(ui.Button):
+    """A button component for mod support requests.
+
+    This button is used in the mod support UI to allow users to initiate different types of modmail requests
+    (General, Important, Emergency, Private). When clicked, it checks if the user is blacklisted and, if not,
+    presents a modal form for the user to provide additional information. If the user is blacklisted, an
+    ephemeral message is sent denying access.
+    """
+
+    async def callback(self, interaction: Interaction[CBot]):
+        """Just general and important and emergency callback helper."""
+        if interaction.user.id not in orjson.loads(_BLACKLIST.read_bytes())["blacklisted"]:
+            await interaction.response.send_modal(ModSupportModal(f"{self.label}-{interaction.user.name}-mod-support"))
+        else:
+            await interaction.response.send_message("You are not allowed to use this.", ephemeral=True)
+
+
+class ModSupportLayout(ui.LayoutView):
+    """Creates a mod buttons view (components v2 style).
 
     This view is used to create a mod support buttons view.
 
@@ -197,134 +215,46 @@ class ModSupportButtons(ui.View):
         A dict of the mods in the guild.
     """
 
-    _PRIVATE_OPTIONS: ClassVar[list[discord.SelectOption]] = [
-        discord.SelectOption(label="Admins Only", value="146285543146127361"),
-        discord.SelectOption(label="Bluesy", value="363095569515806722"),
-        discord.SelectOption(label="Krios", value="138380316095021056"),
-        discord.SelectOption(label="Mike Takumi", value="162833689196101632"),
-        discord.SelectOption(label="Kaitlin", value="82495450153750528"),
-    ]
-
-    def __init__(
-        self,
-        everyone: discord.Role,
-        mod_role: discord.Role,
-        mods: dict[str, discord.Member],
-    ):
+    def __init__(self) -> None:
         super().__init__(timeout=None)
-        self.everyone = everyone
-        self.mod_role = mod_role
-        self.mods = mods
-        self.filename: Final[pathlib.Path] = pathlib.Path(__file__).parent / "mod_support_blacklist.json"
 
-    async def interaction_check(self, interaction: Interaction[CBot]) -> bool:
-        """Check to run for all interaction instances.
-
-        Parameters
-        ----------
-        interaction : Interaction
-            The interaction instance to check.
-
-        Returns
-        -------
-        bool
-            True if the interaction should be run, False otherwise.
-        """
-        return interaction.user.id not in orjson.loads(self.filename.read_bytes())["blacklisted"]
-
-    async def on_error(self, interaction: Interaction[CBot], error: Exception, item: Item[Any], /) -> None:
-        """On error logger"""
-        logging.getLogger("charbot.mod_support").error(
-            "Ignoring exception in view %r for item %r, with user %s", self, item, interaction.user, exc_info=error
-        )
-
-    async def standard_callback(self, button: discord.ui.Button, interaction: Interaction[CBot]):
-        """Just general and important and emergency callback helper.
-
-        This is the callback for all buttons.
-
-        Parameters
-        ----------
-        button : discord.ui.Button
-            The button that was pressed
-        interaction : Interaction
-            The interaction instance
-        """
-        user = interaction.user
-        assert isinstance(user, discord.Member)  # skipcq: BAN-B101
-        await interaction.response.send_modal(
-            ModSupportModal(
-                {
-                    self.mod_role: PermissionOverwrite.from_pair(Permissions(139586817088), Permissions.none()),
-                    self.everyone: PermissionOverwrite(view_channel=False, send_messages=False, read_messages=False),
-                    user: PermissionOverwrite.from_pair(Permissions(139586817088), Permissions.none()),
-                },
-                f"{button.label}-{user.name}-mod-support",
-            )
-        )
-
-    @ui.button(label="General", style=discord.ButtonStyle.success, custom_id="Modmail_General", emoji="❔", row=0)
-    async def general(self, interaction: Interaction[CBot], button: discord.ui.Button):
-        """General mod support callback.
-
-        Parameters
-        ----------
-        interaction : Interaction
-            The interaction instance
-        button : discord.ui.Button
-            The button instance
-        """
-        await self.standard_callback(button, interaction)
-
-    @ui.button(label="Important", style=discord.ButtonStyle.primary, custom_id="Modmail_Important", emoji="❗", row=0)
-    async def important(self, interaction: Interaction[CBot], button: discord.ui.Button):
-        """Mod support callback for important issues.
-
-        Parameters
-        ----------
-        interaction : Interaction
-            The interaction instance
-        button : discord.ui.Button
-            The button instance
-        """
-        await self.standard_callback(button, interaction)
-
-    @ui.button(label="Emergency", style=discord.ButtonStyle.danger, custom_id="Modmail_Emergency", emoji="‼", row=0)
-    async def emergency(self, interaction: Interaction[CBot], button: discord.ui.Button):
-        """Emergency mod support callback.
-
-        Parameters
-        ----------
-        interaction : Interaction
-            The interaction instance
-        button : discord.ui.Button
-            The button instance
-        """
-        await self.standard_callback(button, interaction)
-
-    @ui.select(placeholder="Private", custom_id="Modmail_Private", max_values=5, options=_PRIVATE_OPTIONS, row=1)
-    async def private(self, interaction: Interaction[CBot], select: discord.ui.Select):
-        """Private mod support callback.
-
-        This is the only callback does not use the standard_callback helper
-
-        Parameters
-        ----------
-        interaction : Interaction
-            The interaction instance
-        select : discord.ui.Select
-            The select instance
-        """
-        user = interaction.user
-        assert isinstance(user, discord.Member)  # skipcq: BAN-B101
-        perms = {
-            self.mod_role: PermissionOverwrite(view_channel=False, send_messages=False, read_messages=False),
-            self.everyone: PermissionOverwrite(view_channel=False, send_messages=False, read_messages=False),
-            user: PermissionOverwrite.from_pair(Permissions(139586817088), Permissions.none()),
-        }
-        for uid in select.values:
-            perms[self.mods[uid]] = PermissionOverwrite.from_pair(Permissions(139586817088), Permissions.none())
-        await interaction.response.send_modal(ModSupportModal(perms, f"Private-{user.name}-mod-support"))
+    container = ui.Container(
+        ui.TextDisplay(MOD_SUPPORT_HEADER),
+        ui.Separator(visible=True),
+        ui.Section(
+            ui.TextDisplay("## General"),
+            ui.TextDisplay(
+                "This should be where most requests go, for inquiries and requests. There is no time guarantee for this option."
+            ),
+            accessory=ModSupportButton(
+                label="General", style=discord.ButtonStyle.success, custom_id="mod_mail_General", emoji="❔"
+            ),
+        ),
+        ui.Section(
+            ui.TextDisplay("## Important"),
+            ui.TextDisplay("This is for requests that have a level of time importance, but are not urgent."),
+            accessory=ModSupportButton(
+                label="Important", style=discord.ButtonStyle.primary, custom_id="mod_mail_Important", emoji="❗"
+            ),
+        ),
+        ui.Section(
+            ui.TextDisplay("## Emergency"),
+            ui.TextDisplay("This is for requests that need a response as soon as possible."),
+            accessory=ModSupportButton(
+                label="Emergency", style=discord.ButtonStyle.danger, custom_id="mod_mail_Emergency", emoji="‼"
+            ),
+        ),
+        ui.Section(
+            ui.TextDisplay("## Private (Admins Only)"),
+            ui.TextDisplay(MOD_SUPPORT_ADMIN_DESCRIPTION),
+            accessory=ModSupportButton(
+                label="Private", style=discord.ButtonStyle.blurple, custom_id="mod_mail_Admin", emoji="🔒"
+            ),
+        ),
+        ui.Separator(visible=True),
+        ui.TextDisplay("-# Mod Support V3"),
+        accent_color=0x0000FF,
+    )
 
 
 class ModSupportModal(ui.Modal, title="Mod Support Form"):
@@ -341,7 +271,7 @@ class ModSupportModal(ui.Modal, title="Mod Support Form"):
 
     Attributes
     ----------
-    perm_overrides: dict[discord.Role | discord.Member | discord.User, discord.PermissionOverwrite]
+    perm_overrides: dict[discord.Role | discord.Member | discord.Object, discord.PermissionOverwrite]
         A dictionary of role, member, and user to permission overrides.
     channel_name: str
         The name of the channel to be created on modal submit.
@@ -351,15 +281,9 @@ class ModSupportModal(ui.Modal, title="Mod Support Form"):
 
     logger = logging.getLogger("charbot.mod_support")
 
-    def __init__(
-        self,
-        perm_overrides: dict[discord.Role | discord.Member, discord.PermissionOverwrite],
-        channel_name: str,
-    ):
+    def __init__(self, channel_name: str):
         super().__init__(title="Mod Support Form")
-        self.perm_overrides = perm_overrides
         self.channel_name = channel_name
-        self.filename = "charbot/mod_support_blacklist.json"
 
     async def interaction_check(self, interaction: Interaction[CBot]) -> bool:
         """Check to run for all interaction instances.
@@ -376,8 +300,7 @@ class ModSupportModal(ui.Modal, title="Mod Support Form"):
         bool
             Whether or not the interaction user is allowed to use this modal.
         """
-        with open(self.filename, "rb") as file:
-            return interaction.user.id not in orjson.loads(file.read())["blacklisted"]
+        return interaction.user.id not in orjson.loads(_BLACKLIST.read_bytes())["blacklisted"]
 
     short_description = ui.TextInput(
         label="Short Description of your problem/query",
@@ -406,14 +329,17 @@ class ModSupportModal(ui.Modal, title="Mod Support Form"):
         interaction : Interaction
             The interaction instance.
         """
-        category = await interaction.client.fetch_channel(942578610336837632)
-        guild = interaction.guild
-        topic = self.short_description.value
-        assert isinstance(category, discord.CategoryChannel)  # skipcq: BAN-B101
-        assert isinstance(guild, discord.Guild)  # skipcq: BAN-B101
-        assert isinstance(topic, str)  # skipcq: BAN-B101
+        category: discord.CategoryChannel = interaction.client.get_channel(
+            942578610336837632
+        ) or await interaction.client.fetch_channel(942578610336837632)  # pyright: ignore[reportAssignmentType]
+        guild: discord.Guild = interaction.guild  # pyright: ignore[reportAssignmentType]
+        perms = {guild.get_role(_EVERYONE): _PERMS_HIDE_CHANNEL, interaction.user: _PERMS_SHOW_CHANNEL}
+        if self.channel_name.startswith("Private"):
+            perms[guild.get_role(_MOD_ROLE)] = _PERMS_HIDE_CHANNEL
+        else:
+            perms[guild.get_role(_MOD_ROLE)] = _PERMS_SHOW_CHANNEL
         channel = await guild.create_text_channel(
-            self.channel_name, category=category, overwrites=self.perm_overrides, topic=topic
+            self.channel_name, category=category, overwrites=perms, topic=self.short_description.value
         )
         long = "     They supplied a longer description: "
         await channel.send(
@@ -422,9 +348,9 @@ class ModSupportModal(ui.Modal, title="Mod Support Form"):
             f"{long if self.full_description.value else ''}",
             allowed_mentions=discord.AllowedMentions(users=True),
         )
+        await interaction.response.send_message(f"Channel Created: {channel.mention}", ephemeral=True)
         if self.full_description.value:
             await channel.send(self.full_description.value)
-        await interaction.response.send_message(f"Channel Created: {channel.mention}", ephemeral=True)
 
     async def on_error(self, interaction: Interaction[CBot], error: Exception) -> None:
         """Error handler for modal.

@@ -10,13 +10,6 @@ def test_wrong_channel_error():
     assert isinstance(error, AppCommandError)
 
 
-def test_no_pool_found_default_message():
-    """Test no pool error."""
-    error = errors.NoPoolFound("test")
-    assert error.message == "test pool not found. Please choose one from the autocomplete."
-    assert isinstance(error, AppCommandError)
-
-
 def test_missing_single_program_role():
     """Test missing program role error."""
     error = errors.MissingProgramRole(["role1"])

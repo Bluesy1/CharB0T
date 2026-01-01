@@ -8,12 +8,11 @@ updates:
   - package-ecosystem: "pip" # See documentation for possible values
     directory: "/" # Location of package manifests
     schedule:
-      interval: "daily"
+      interval: "monthly"
     groups:
       pytest:
         patterns:
           - "pytest*"
-          - "aioresponses"
       core:
         patterns:
           - "aiohttp"
@@ -26,16 +25,17 @@ updates:
           - "asyncpg*"
       formatting:
         patterns:
-          - "black"
-          - "flake8"
+          - "ruff"
           - "pre-commit"
+        update-types:
+          - "major"
+          - "minor"
       typing:
         patterns:
           - "pyright"
           - "typing-extensions"
       utils:
         patterns:
-          - "tomli"
           - "toml"
           - "urlextract"
           - "validators"
@@ -43,17 +43,9 @@ updates:
   - package-ecosystem: "github-actions"
     directory: "/"
     schedule:
-      # Check for updates to GitHub Actions every weekday
-      interval: "daily"
+      # Check for updates to GitHub Actions every monday
+      interval: "monthly"
     groups:
-      rust:
-        patterns:
-          - "PyO3/maturin-action"
-          - "actions-rs/toolchain"
-      code-coverage:
-        patterns:
-          - "paambaati/codeclimate-action"
-          - "codecov/codecov-action"
       python:
         patterns:
           - "jakebailey/pyright-action"
@@ -62,13 +54,30 @@ updates:
         patterns:
           - "actions/upload-artifact"
           - "actions/download-artifact"
-  - package-ecosystem: "cargo"
-    directory: "charbot_rust"
-    schedule:
-      # Check for updates to Rust dependencies every weekday
-      interval: "daily"
-    groups:
-      images:
-        patterns:
-          - "image"
-          - "imageproc"
+## GH Pages branch
+#  - package-ecosystem: "pip" # See documentation for possible values
+#    directory: "/" # Location of package manifests
+#    target-branch: "gh-pages"
+#    schedule:
+#      interval: "monthly"
+#    groups:
+#      pages:
+#        patterns: ["*"]
+#  - package-ecosystem: "github-actions"
+#    directory: "/"
+#    target-branch: "gh-pages"
+#    schedule:
+#      # Check for updates to GitHub Actions every monday
+#      interval: "monthly"
+#    groups:
+#      pages:
+#        patterns: ["*"]
+#  - package-ecosystem: "bundler"
+#    directory: "/"
+#    target-branch: "gh-pages"
+#    schedule:
+#      # Check for updates to GitHub Actions every monday
+#      interval: "monthly"
+#    groups:
+#      pages:
+#        patterns: ["*"]

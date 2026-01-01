@@ -1,19 +1,16 @@
 import asyncio
 import datetime
-import re
 from zoneinfo import ZoneInfo
 
-import aiohttp
 import discord
 import pytest
-from aioresponses import aioresponses
 from pytest_mock import MockerFixture
 
 from charbot import CBot, _Config, gcal  # skipcq
 from charbot.bot import Holder
 
 
-@pytest.fixture()
+@pytest.fixture
 def mock_config(monkeypatch):
     """config.toml mocking"""
     data = {
@@ -94,7 +91,7 @@ def test_calendar_embed():
     assert embed.author.name == "Charlie"
 
 
-@pytest.mark.asyncio()
+@pytest.mark.asyncio
 async def test_cog_init_load_unload(mocker: MockerFixture, mock_config):
     """Test cog constructor, load, unload."""
     fake_webhook = mocker.AsyncMock(spec=discord.Webhook)
@@ -118,7 +115,7 @@ async def test_cog_init_load_unload(mocker: MockerFixture, mock_config):
     assert bot.holder.get("webhook") is fake_webhook
 
 
-@pytest.mark.asyncio()
+@pytest.mark.asyncio
 async def test_calendar_task(mocker: MockerFixture, mock_config, monkeypatch):
     """Test calendar task."""
     data = {
@@ -187,23 +184,17 @@ async def test_calendar_task(mocker: MockerFixture, mock_config, monkeypatch):
             },
         ],
     }
-    with aioresponses() as mocked:
-        async with aiohttp.ClientSession() as session:
-            mocked.get(
-                re.compile(r"^https://www.googleapis.com/calendar/v3/calendars/.*"),
-                status=200,
-                payload=data,
-            )
-            bot = mocker.AsyncMock(spec=CBot, loop=asyncio.get_running_loop(), session=session)
-            bot.holder = Holder()
-            bot.holder["webhook"] = mocker.AsyncMock(spec=discord.Webhook)
-            bot.user = mocker.AsyncMock(spec=discord.ClientUser)
-            fake_message = mocker.AsyncMock(spec=discord.WebhookMessage)
-            fake_webhook = mocker.AsyncMock(
-                spec=discord.Webhook, fetch_message=mocker.AsyncMock(return_value=fake_message)
-            )
-            bot.fetch_webhook.return_value = fake_webhook
-            cog = gcal.Calendar(bot)
-            await cog.cog_load()
-            await cog.calendar.__call__()  # skipcq: PYL-E1102
-            cog.calendar.cancel()
+    bot = mocker.AsyncMock(spec=CBot, loop=asyncio.get_running_loop())
+    bot.holder = Holder()
+    bot.holder["webhook"] = mocker.AsyncMock(spec=discord.Webhook)
+    bot.user = mocker.AsyncMock(spec=discord.ClientUser)
+    fake_message = mocker.AsyncMock(spec=discord.WebhookMessage)
+    fake_webhook = mocker.AsyncMock(spec=discord.Webhook, fetch_message=mocker.AsyncMock(return_value=fake_message))
+    bot.fetch_webhook.return_value = fake_webhook
+    mockedRequest = mocker.AsyncMock(return_value=data, spec=gcal.Calendar._get_cal_data)
+    cog = gcal.Calendar(bot)
+    cog._get_cal_data = mockedRequest
+    await cog.cog_load()
+    await cog.calendar.__call__()  # skipcq: PYL-E1102
+    cog.calendar.cancel()
+    mockedRequest.assert_awaited_once()

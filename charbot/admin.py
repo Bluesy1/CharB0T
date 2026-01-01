@@ -1,191 +1,265 @@
-"""Admin commands for charbot."""
+"""Admin commands for the reputation system."""
 
-import pathlib
-from time import perf_counter
-from typing import Final, cast
+from datetime import timedelta
+from typing import cast
 
 import discord
-from discord import Color, Interaction, PermissionOverwrite, Permissions, app_commands
+from discord import Interaction, app_commands, ui
 from discord.ext import commands
+from discord.utils import format_dt, utcnow
 
-from . import CBot
-
-
-class Admin(commands.Cog):
-    """Admin Cog."""
-
-    XCOM_MESSAGE: Final[str] = (
-        "**You have been recruited into XCOM**. Welcome! You'll find you have access to new channels reserved for those"
-        " in the barracks. For the most up-to-date information on the state of the campaign, **CHECK THE PINS!** "
-        "<:CheckPins:907814529319202836> There's a chance also that you are tagged in these updates. It means that you "
-        "may have information I require of you (like for promotions). Please try to respond to those requests within 24"
-        " hours. I will proceed and make a decision without you if you don't, but if you don't plan to, please tell me "
-        "that instead so I can play on faster.\n\nInfo is secret...\nWe ask that information that's in the barracks "
-        "stay in the barracks, including all conversations related to the events of the videos that are not yet public."
-        " You also have access to these videos now. **__DO NOT SHARE THESE VIDEOS WITH ANYONE PLEASE__**. "
-        "If I see any of these leak ahead of schedule, advanced access to them will immediately cease. - Comments on "
-        "the video are disabled while they are in this channel. When they publish, THAT would be a great time to try "
-        "and boost the series a little bit with YouTube by leaving a comment on the video then. Comments on the"
-        " videos themselves ALWAYS help substantially more than remarks made here on Discord."
-    )
-    EMBED = discord.Embed(title="Welcome to XCOM!", description=XCOM_MESSAGE, color=Color.dark_blue()).set_footer(
-        text="I am a bot, and this action was taken automatically. If you think this was done by accident,"
-        " please reply to this message."
-    )
-
-    def __init__(self, bot: CBot):
-        self.bot = bot
-        self.settings: pathlib.Path = pathlib.Path(__file__).parent / "sensitive_settings.json"
-        self.base_overrides = {}
-
-    async def cog_load(self) -> None:  # pragma: no cover
-        """Make sure the guild stuff is loaded."""
-        guild = cast(
-            discord.Guild, self.bot.get_guild(225345178955808768) or await self.bot.fetch_guild(225345178955808768)
-        )
-        self.base_overrides = {
-            cast(discord.Role, guild.get_role(338173415527677954)): PermissionOverwrite.from_pair(
-                Permissions(139586817088), Permissions.none()
-            ),
-            guild.default_role: PermissionOverwrite(view_channel=False, send_messages=False, read_messages=False),
-        }
-
-    def cog_check(self, ctx: commands.Context) -> bool:
-        """Check to make sure runner is a moderator.
-
-        Parameters
-        ----------
-        self : Admin
-            The Admin cog object.
-        ctx : Context
-            The context of the command.
-
-        Returns
-        -------
-        bool
-            True if the user is a moderator, False otherwise.
-
-        Raises
-        ------
-        commands.CheckFailure
-            If the user is not a moderator.
-        """
-        if ctx.guild is None:
-            return False
-        author = ctx.author
-        assert isinstance(author, discord.Member)  # skipcq: BAN-B101
-        return any(role.id in (338173415527677954, 253752685357039617, 225413350874546176) for role in author.roles)
-
-    @commands.command()
-    async def ping(self, ctx: commands.Context):
-        """Ping Command TO Check Bot Is Alive.
-
-        This command is used to check if the bot is alive.
-
-        Parameters
-        ----------
-        self : Admin
-            The Admin cog object.
-        ctx : Context
-            The context of the command.
-        """
-        start = perf_counter()
-        await ctx.typing()
-        end = perf_counter()
-        typing = end - start
-        start = perf_counter()
-        await self.bot.pool.fetchrow("SELECT * FROM users WHERE id = $1", ctx.author.id)
-        end = perf_counter()
-        database = end - start
-        start = perf_counter()
-        message = await ctx.send("Ping ...")
-        end = perf_counter()
-        await message.edit(
-            content=f"Pong!\n\nPing: {(end - start) * 100:.2f}ms\nTyping: {typing * 1000:.2f}ms\nDatabase: "
-            f"{database * 1000:.2f}ms\nWebsocket: {self.bot.latency * 1000:.2f}ms"
-        )
-
-    @commands.command(hidden=True)
-    async def recruit(self, ctx: commands.Context[CBot], *members: discord.Member):  # pragma: no cover
-        """Recruit a member to XCOM.
-
-        Parameters
-        ----------
-        ctx : Context
-            The context of the command.
-        *members : Member
-            The members to recruit.
-        """
-        if not await ctx.bot.is_owner(ctx.author):  # pragma: no cover
-            return  # ignore if not from bot owner
-        ret = 0
-        for member in members:
-            try:
-                await member.add_roles(discord.Object(1042837754104533075), reason="New recruit")
-            except discord.HTTPException:
-                await ctx.send("I cannot add the XCOM role.")
-                return
-            try:
-                await member.send(embed=self.EMBED)
-            except discord.HTTPException:
-                guild = cast(discord.Guild, ctx.guild)
-                category = cast(
-                    discord.CategoryChannel,
-                    guild.get_channel(942578610336837632) or await guild.fetch_channel(942578610336837632),
-                )
-                channel = await ctx.guild.create_text_channel(  # pyright: ignore
-                    name=f"xcom-{member.name}-mod-support",
-                    category=category,
-                    overwrites=self.base_overrides
-                    | {
-                        member: PermissionOverwrite.from_pair(Permissions(139586817088), Permissions.none()),
-                    },
-                )
-                await channel.send(
-                    f"{member.mention} welcome to XCOM! because you have DMs disabled, please acknowledge the "
-                    f"onboarding information here:",
-                    embed=self.EMBED,
-                )
-            else:
-                ret += 1
-        await ctx.reply(f"{ret}/{len(members)} members were added to XCOM and recruited.")
-
-    @app_commands.command(name="confirm", description="[Charlie only] confirm a winner")
-    @app_commands.guild_only()
-    @app_commands.default_permissions(administrator=True)
-    @app_commands.checks.cooldown(1, 3600, key=lambda i: i.namespace.member)
-    async def confirm(self, interaction: Interaction[CBot], member: discord.Member) -> None:
-        """Confirm a winner.
-
-        Parameters
-        ----------
-        interaction: charbot.Interaction[CBot]
-            The interaction of the command invocation. At runtime, this is a discord.Interaction object, buy for
-            typechecking, it's a charbot.Interaction object to help infer the properties of the object.
-        member : discord.Member
-            The user to confirm as a winner.
-        """
-        if interaction.user.id != 225344348903047168:
-            await interaction.response.send_message("Only Charlie can confirm a winner.", ephemeral=True)
-            return
-        async with self.bot.pool.acquire() as conn:
-            await conn.execute(
-                "INSERT INTO winners (id, wins) VALUES ($1, 1) ON CONFLICT (id) DO UPDATE SET wins = winners.wins + 1",
-                member.id,
-            )
-            wins = await conn.fetchrow("SELECT wins FROM winners WHERE id = $1", member.id)
-        await interaction.response.send_message(
-            f"Confirmed {member} (ID: {member.id}) as having won a giveaway, ({wins}/3 this month for them)",
-            ephemeral=True,
-        )
+from . import CBot, constants
 
 
-async def setup(bot: CBot):
-    """Add the Admin cog to the bot.
+SEVEN_DAYS = timedelta(days=7)
+MOD_ROLE = discord.Object(338173415527677954)
+
+
+@app_commands.default_permissions(manage_messages=True)
+@app_commands.checks.has_any_role(*constants.MOD_ROLE_IDS)
+@app_commands.guilds(constants.GUILD_ID)
+class Admin(
+    commands.GroupCog,
+    group_name="admin",
+    group_description="Administration commands for the server/bot.",
+):
+    """Reputation Admin Commands.
+
+    These commands are used to manage the the server/bot.
 
     Parameters
     ----------
-    bot : commands.Bot
+    bot : CBot
         The bot object.
     """
+
+    def __init__(self, bot: CBot):
+        self.bot = bot
+
+    tags = app_commands.Group(
+        name="tags",
+        description="Administration commands for moderating guild tags.",
+        guild_ids=constants.GUILD_IDS,
+    )
+    levels = app_commands.Group(
+        name="levels",
+        description="Administration commands for the leveling system.",
+        guild_ids=constants.GUILD_IDS,
+    )
+
+    @tags.command()
+    async def check(self, interaction: Interaction[CBot]):
+        """Lists tags members with a tag on the server, that is not present on a moderator's account.
+
+        Parameters
+        ----------
+        interaction : Interaction
+            The interaction object.
+        """
+        await interaction.response.defer()
+        guild = cast(discord.Guild, interaction.guild)
+        members = [
+            member for member in guild.members if member.primary_guild.identity_enabled and member.primary_guild.tag
+        ]
+        mod_tags = {
+            member.primary_guild.id
+            for member in members
+            if any(member.get_role(role) for role in constants.MOD_ROLE_IDS)
+        }
+        tags = {member.primary_guild.id for member in members} - mod_tags
+        non_mod_guilds = {
+            f"`{member.primary_guild.tag.casefold()}`"  # pyright: ignore[reportOptionalMemberAccess]
+            for member in members
+            if member.primary_guild.id in tags
+        }
+        await interaction.followup.send(f"Tags not shared by a moderator:\n{'\n'.join(non_mod_guilds)}")
+
+    @tags.command()
+    async def warn(
+        self,
+        interaction: Interaction[CBot],
+        member: discord.Member,
+    ):
+        """Sends a user a warning that they have an unacceptable server tag active.
+
+        Parameters
+        ----------
+        interaction : Interaction
+            The interaction object.
+        member : discord.Member
+            The member to warn.
+        """
+        await interaction.response.defer()
+        guild = cast(discord.Guild, interaction.guild)
+        deadline = utcnow() + SEVEN_DAYS
+        tag = member.primary_guild.tag
+        warn_msg = (
+            f"Hi {member.mention}, we noticed that you have an inappropriate Server Tag active, ``{tag}``.\n"
+            f"Please remove or change your tag by {format_dt(deadline)} ({format_dt(deadline, 'R')}) "
+            f"or we will have to kick you from {guild.name}.\n"
+            "Thanks in advance for your cooperation."
+        )
+        try:
+            await member.send(warn_msg)
+        except discord.HTTPException:
+            # Cannot DM the user, blocked | left server? Create a mod support ticket instead....
+            category: discord.CategoryChannel = discord.Object(942578610336837632, type=discord.CategoryChannel)  # pyright: ignore[reportAssignmentType]
+            permissions = {
+                guild.default_role: discord.PermissionOverwrite(
+                    view_channel=False, send_messages=False, read_messages=False
+                ),
+                MOD_ROLE: discord.PermissionOverwrite(view_channel=False, send_messages=False, read_messages=False),
+                member: discord.PermissionOverwrite.from_pair(
+                    discord.Permissions(139586817088), discord.Permissions.none()
+                ),
+            }
+            channel = await guild.create_text_channel(
+                f"Tag-{member.name}-mod-support", category=category, overwrites=permissions
+            )
+            await channel.send(warn_msg)
+        await interaction.followup.send(
+            f"{member.mention} has successfully been warned about their selected server tag."
+        )
+
+    @tags.command()
+    async def kick(
+        self,
+        interaction: Interaction[CBot],
+        member: discord.Member,
+    ):
+        """Kick a member for having an unacceptable server tag active.
+
+        Parameters
+        ----------
+        interaction : Interaction
+            The interaction object.
+        member : discord.Member
+            The member to kick.
+        """
+        await interaction.response.defer()
+        allowed = interaction.permissions.kick_members or await interaction.client.is_owner(interaction.user)
+        tag = member.primary_guild.tag
+        if not allowed:
+            await interaction.followup.send(
+                f"Cannot kick {member}: you do not have kick members and are not a bot owner."
+            )
+            return
+        guild = cast(discord.Guild, interaction.guild)
+        kick_msg = (
+            f"Hi {member.mention}, we noticed that you have an inappropriate Server Tag active, ``{tag}``.\n"
+            f"We have had to kick you from {guild.name}, feel free to rejoin once you change or remove your tag: "
+            "http://cpry.net/discord"
+        )
+        try:
+            await member.send(kick_msg)
+        except discord.HTTPException:
+            notified = False
+        else:
+            notified = True
+        try:
+            await member.kick(reason=f"User had an inappropriate tag: {tag}")
+        except discord.HTTPException:
+            await interaction.followup.send(
+                f"Failed to kick {member.mention} (id {member.id}) was kicked for their tag ``{tag}``. (Notified of kick successfully: {notified})."
+            )
+        else:
+            await interaction.followup.send(
+                f"{member} (id {member.id}) was kicked for their tag ``{tag}`` successfully. (Notified of kick successfully: {notified})."
+            )
+
+    @levels.command()
+    async def noxp_role(self, interaction: Interaction[CBot], role: discord.Role):
+        """Toggles a roles ability to block xp gain.
+
+        Parameters
+        ----------
+        interaction : Interaction
+            The interaction object.
+        role : discord.Role
+            The role to toggle.
+        """
+        await interaction.response.defer(ephemeral=True)
+        async with self.bot.pool.acquire() as conn, conn.transaction():
+            no_xp = await conn.fetchrow("SELECT * FROM no_xp WHERE guild = $1", interaction.guild_id)
+            if no_xp is None:
+                await interaction.followup.send("Xp is not set up??.")
+            elif role.id in no_xp["roles"]:
+                await conn.execute(
+                    "UPDATE no_xp SET roles = array_remove(roles, $1) WHERE guild = $2",
+                    role.id,
+                    interaction.guild_id,
+                )
+                await interaction.followup.send(f"Role `{role.name}` removed from noxp.")
+            else:
+                await conn.execute(
+                    "UPDATE no_xp SET roles = array_append(roles, $1) WHERE guild = $2",
+                    role.id,
+                    interaction.guild_id,
+                )
+                await interaction.followup.send(f"Role `{role.name}` added to noxp.")
+
+    @levels.command()
+    async def no_xp_channel(self, interaction: Interaction[CBot], channel: discord.TextChannel | discord.VoiceChannel):
+        """Toggles a channels ability to block xp gain.
+
+        Parameters
+        ----------
+        interaction : Interaction
+            The interaction object.
+        channel: discord.TextChannel | discord.VoiceChannel
+            The role to toggle.
+        """
+        await interaction.response.defer(ephemeral=True)
+        async with self.bot.pool.acquire() as conn, conn.transaction():
+            no_xp = await conn.fetchrow("SELECT * FROM no_xp WHERE guild = $1", interaction.guild_id)
+            if no_xp is None:
+                await interaction.followup.send("Xp is not set up??.")
+            elif channel.id in no_xp["channels"]:
+                await conn.execute(
+                    "UPDATE no_xp SET channels = array_remove(channels, $1) WHERE guild = $2",
+                    channel.id,
+                    interaction.guild_id,
+                )
+                await interaction.followup.send(f"{channel.mention} removed from noxp.")
+            else:
+                await conn.execute(
+                    "UPDATE no_xp SET channels = array_append(channels, $1) WHERE guild = $2",
+                    channel.id,
+                    interaction.guild_id,
+                )
+                await interaction.followup.send(f"{channel.mention} added to noxp.")
+
+    @levels.command()
+    async def noxp_query(self, interaction: Interaction[CBot]):
+        """Sees the channels and roles that are banned from gaining xp.
+
+        Parameters
+        ----------
+        interaction : Interaction
+            The interaction object.
+        """
+        await interaction.response.defer(ephemeral=True)
+        async with self.bot.pool.acquire() as conn:
+            noxp = await conn.fetchrow("SELECT * FROM no_xp WHERE guild = $1", interaction.guild_id)
+            if noxp is None:
+                await interaction.followup.send("Xp is not set up??.")
+            else:
+                guild = cast(discord.Guild, interaction.guild)
+                view = ui.LayoutView()
+                view.add_item(
+                    ui.Container(
+                        ui.TextDisplay(f"# {guild.name} NoXP Configuration"),
+                        ui.TextDisplay(f"## Channels\n{'\n'.join(f'<#{c}> (`{c}`)' for c in noxp['channels'])}"),
+                        ui.TextDisplay(f"## Roles\n{'\n'.join(f'<@&{r}> (`{r}`)' for r in noxp['roles'])}"),
+                        ui.Separator(),
+                        ui.TextDisplay(
+                            f"-# Requested by {interaction.user.name} ({interaction.user.id}) at {format_dt(utcnow())}"
+                        ),
+                    )
+                )
+                await interaction.followup.send(view=view)
+
+
+async def setup(bot: CBot):
+    """Initialize the cog."""
     await bot.add_cog(Admin(bot))

@@ -2,16 +2,15 @@ import asyncio
 import datetime
 import pathlib
 from io import BytesIO
-from typing import Self, cast
+from typing import Self
 
 import discord
 from discord import ButtonStyle, Interaction, ui
 from discord.utils import utcnow
 from PIL import Image
 
-from charbot_rust.tictactoe import Difficulty, Game, Piece
-
-from .. import CBot
+from ... import CBot
+from .game import Difficulty, Game, Piece
 
 
 class TicTacToe(ui.View):
@@ -42,7 +41,7 @@ class TicTacToe(ui.View):
             self.bot_mid,
             self.bot_right,
         ]
-        for i, item in enumerate(self.game.board):
+        for i, item in enumerate(self.game.board.board):
             self._buttons[i].disabled = item.value != " "
 
     def disable(self) -> None:
@@ -67,14 +66,15 @@ class TicTacToe(ui.View):
         discord.File
             The image of the tictactoe game.
         """
-        grid = Image.open(pathlib.Path(__file__).parent.parent / "media/tictactoe/grid.png", "r").convert("RGBA")
-        cross = Image.open(pathlib.Path(__file__).parent.parent / "media/tictactoe/X.png", "r")
-        circle = Image.open(pathlib.Path(__file__).parent.parent / "media/tictactoe/O.png", "r")
+        FILE_BASE = pathlib.Path(__file__).parent.parent.parent
+        grid = Image.open(FILE_BASE / "media/tictactoe/grid.png", "r").convert("RGBA")
+        cross = Image.open(FILE_BASE / "media/tictactoe/X.png", "r")
+        circle = Image.open(FILE_BASE / "media/tictactoe/O.png", "r")
         for command, display in self.game.display_commands():
             if display == Piece.X:
-                grid.paste(cross, command.value, cross)
+                grid.paste(cross, command, cross)
             elif display == Piece.O:
-                grid.paste(circle, command.value, circle)
+                grid.paste(circle, command, circle)
         buffer = BytesIO()
         grid.save(buffer, format="PNG")
         buffer.seek(0)
@@ -99,7 +99,7 @@ class TicTacToe(ui.View):
             self._buttons[comp_move].disabled = True
         if self.game.has_player_won():
             points: tuple[int, int] = self.game.points()
-            member = cast(discord.Member, interaction.user)
+            member = interaction.user
             gained_points = await interaction.client.give_game_points(member, points[0], points[1])
             max_points = points[0] + points[1]
             embed = discord.Embed(
@@ -115,7 +115,7 @@ class TicTacToe(ui.View):
             await interaction.edit_original_response(attachments=[image], embed=embed, view=self)
         elif self.game.has_player_lost():
             points = self.game.points()
-            member = cast(discord.Member, interaction.user)
+            member = interaction.user
             gained_points = await interaction.client.give_game_points(member, points[0], points[1])
             max_points = points[0] + points[1]
             embed = discord.Embed(
@@ -131,7 +131,7 @@ class TicTacToe(ui.View):
             await interaction.edit_original_response(attachments=[image], embed=embed, view=self)
         elif self.game.is_draw():
             points = self.game.points()
-            member = cast(discord.Member, interaction.user)
+            member = interaction.user
             gained_points = await interaction.client.give_game_points(member, points[0], points[1])
             max_points = points[0] + points[1]
             embed = discord.Embed(

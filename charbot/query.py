@@ -4,6 +4,7 @@ import asyncio
 import re
 from datetime import datetime
 from io import BytesIO
+from time import perf_counter
 from typing import TYPE_CHECKING, Final, cast
 from zoneinfo import ZoneInfo
 
@@ -13,6 +14,8 @@ from discord import Interaction, app_commands
 from discord.ext import commands, tasks
 from discord.ext.commands import Cog, Context
 from PIL import Image, ImageOps
+
+from . import constants
 
 
 if TYPE_CHECKING:  # pragma: no cover
@@ -105,17 +108,6 @@ class Query(Cog):
         await ctx.reply(f"Charlie's time is: {datetime.now(ZoneInfo('America/Detroit')).strftime('%X %x %Z')}")
 
     @commands.command()
-    async def changelog(self, ctx: Context):
-        """Return the changelog.
-
-        Parameters
-        ----------
-        ctx : Context
-            The context of the command.
-        """
-        await ctx.reply("Here's the changelog: https://bluesy1.github.io/CharB0T/changes")
-
-    @commands.command()
     @commands.cooldown(1, 300, commands.BucketType.channel)
     async def faq(self, ctx: commands.Context):
         """Return the FAQ.
@@ -137,7 +129,7 @@ class Query(Cog):
         )
 
     @commands.hybrid_command(name="source", description="Info about the source code")
-    @app_commands.guild_only()
+    @app_commands.guilds(constants.GUILD_ID)
     @commands.cooldown(1, 60, commands.BucketType.channel)
     async def source(self, ctx: Context):
         """Return a reference to the source code for the bot and its license.
@@ -155,7 +147,7 @@ class Query(Cog):
         ctx: discord.ext.commands.Context
             The context of the command
         """
-        await ctx.reply(f"https://bluesy1.github.io/CharB0T/\n{__source__}\nMIT License")
+        await ctx.reply(f"{__source__}\nMIT License")
 
     @staticmethod
     def get_text(image: BytesIO) -> str:  # pragma: no cover
@@ -228,7 +220,7 @@ class Query(Cog):
             The payload of the reaction.
         """
         if (
-            payload.guild_id != 225345178955808768
+            payload.guild_id != constants.GUILD_ID
             or (not payload.emoji.is_unicode_emoji() or payload.emoji.name != "\U0001f984")
             or payload.message_id in self.ocr_done
         ):
@@ -256,7 +248,7 @@ class Query(Cog):
         self.ocr_done.clear()
 
     @app_commands.command()
-    @app_commands.guild_only()
+    @app_commands.guilds(constants.GUILD_ID)
     async def rules(
         self,
         interaction: Interaction["CBot"],
@@ -275,7 +267,7 @@ class Query(Cog):
             The member to get the rules for, if None, the author is quietly sent the rule(s).
         """
         resp = (
-            f"**Rule {rule}** is {__rules__[rule]}\n The rules can be found here: <https://cpry.net/DiscordRules>"
+            f"**Rule {rule}** is {__rules__[rule]}\n The rules can be found here: <#1331317655482929154>"
             if rule
             else "\n".join(f"**{num}**: {_rule}" for num, _rule in __rules__.items())
         )
@@ -290,19 +282,130 @@ class Query(Cog):
         else:
             await interaction.response.send_message(resp, ephemeral=True)
 
-    @app_commands.command()
-    @app_commands.guild_only()
-    async def leaderboard(self, interaction: Interaction["CBot"], ephemeral: bool = True):
-        """Get the leaderboard of the server.
+    @staticmethod
+    def _non_mod_cooldown(ctx: Context) -> commands.Cooldown | None:
+        """Determines the cooldown for a user depending on their role.
 
         Parameters
         ----------
-        interaction: Interaction
-            The interaction of the command.
-        ephemeral: bool, default True
-            Send the leaderboard as an ephemeral message. Default True.
+        ctx: Context
+            The context of the command.
         """
-        await interaction.response.send_message("https://cpry.net/leaderboard", ephemeral=ephemeral)
+        if ctx.guild is None:
+            return commands.Cooldown(1, 600)
+        try:
+            member = cast(discord.Member, ctx.author)
+            if any(member.get_role(role) for role in constants.MOD_ROLE_IDS):
+                return None
+            else:
+                return commands.Cooldown(1, 300)
+        except Exception:
+            return commands.Cooldown(1, 300)
+
+    @commands.hybrid_command(name="katie", aliases=("kaitlin",))
+    @commands.dynamic_cooldown(_non_mod_cooldown, commands.BucketType.channel)
+    @app_commands.guilds(constants.GUILD_ID)
+    async def katie_info(self, ctx: Context):
+        """Send a message about Katie's message patterns, to remind people if they are being disrespectful
+
+        Parameters
+        ----------
+        ctx: Context
+            The context of the command.
+        """
+        await ctx.reply(
+            "When Kaitlin was a 3 month old child she died for about 5 minutes. "
+            + "When she was brought back she had brain damage to the parts of her brain that deal with spelling and grammar, as well as her optical cortex. "
+            + "While she's very smart, Katie is an auditory learner, meaning she learns better from audio formats and uses a screen reader (jaws for windows) on her PC."
+        )
+
+    @staticmethod
+    async def _ping_check(ctx: commands.Context) -> bool:
+        """Check to make sure runner is a moderator.
+
+        Parameters
+        ----------
+        ctx : Context
+            The context of the command.
+
+        Returns
+        -------
+        bool
+            True if the user is a moderator, False otherwise.
+
+        Raises
+        ------
+        commands.CheckFailure
+            If the user is not a moderator.
+        """
+        if ctx.guild is None:
+            return False
+        author = ctx.author
+        assert isinstance(author, discord.Member)  # skipcq: BAN-B101
+        return any(role.id in {338173415527677954, 253752685357039617, 225413350874546176} for role in author.roles)
+
+    @commands.command()
+    @commands.check(_ping_check)
+    async def ping(self, ctx: commands.Context):
+        """Ping Command TO Check Bot Is Alive.
+
+        This command is used to check if the bot is alive.
+
+        Parameters
+        ----------
+        self : Query
+            The Query cog object.
+        ctx : Context
+            The context of the command.
+        """
+        start = perf_counter()
+        await ctx.typing()
+        end = perf_counter()
+        typing = end - start
+        start = perf_counter()
+        await self.bot.pool.fetchrow("SELECT * FROM users WHERE id = $1", ctx.author.id)
+        end = perf_counter()
+        database = end - start
+        start = perf_counter()
+        message = await ctx.send("Ping ...")
+        end = perf_counter()
+        await message.edit(
+            content=f"Pong!\n\nPing: {(end - start) * 1000:.2f}ms\nTyping: {typing * 1000:.2f}ms\nDatabase: "
+            f"{database * 1000:.2f}ms\nWebsocket: {self.bot.latency * 1000:.2f}ms"
+        )
+
+    @commands.hybrid_command(name="sign")
+    @app_commands.guilds(constants.GUILD_ID)
+    async def sign_info(self, ctx: Context):
+        """Send a message about BA sign design.
+
+        Parameters
+        ----------
+        ctx: Context
+            The context of the command.
+        """
+        msg = """\
+**Looking to make a sign for Charlie's Big Ambitions businesses? Here's how it works:**
+
+1. Pick a place that's made/named already in game, preferably one that's already final in name. 
+
+2. Create an ad-banner, and a front-of-store-display image, jpg formatting. The measurements for the images must be exact, or they will not appear correctly in game. You can have your canvas be any size you want, but the final images submitted must be exactly the following sizes: 
+
+For the front of store image, use
+**1024 x 150**
+For the square ad banner and logo, use
+**1024 x 1024**
+
+3. When you have some things that are cohesive and you're happy with, Send him a DM and let him know. Wait for a reply from him before uploading the images (helps prevent things being flagged as spam).
+
+*Standard disclaimer: Charlie does not promise to use any/every image submitted. By submitting any image you agree that you are the original creator of the image, that no AI was used in the creation of the image, and agree to grant Charlie a non-exclusive, worldwide commercial license to use this image in his YouTube videos in perpetuity. Charlie will only use them for his own videos on his own channel, and will not show them or use them for any other purpose.*"""
+        if ctx.interaction:
+            await ctx.interaction.response.send_message(msg, ephemeral=True)
+        else:
+            try:
+                await ctx.author.send(msg)
+            except discord.Forbidden:
+                await ctx.reply(msg)
 
 
 async def setup(bot: "CBot"):  # pragma: no cover

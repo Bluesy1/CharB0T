@@ -2,10 +2,9 @@
 
 import datetime
 import logging
-from typing import Any, ClassVar, Final, Self, TypeVar, cast
+from typing import Any, ClassVar, Self, TypeVar, cast
 from zoneinfo import ZoneInfo
 
-import aiohttp
 import asyncpg
 import discord
 from discord import app_commands
@@ -110,26 +109,17 @@ class CBot(commands.Bot):
     """
 
     ZONEINFO: ClassVar[ZoneInfo] = ZoneInfo("America/Detroit")
-    ALLOWED_ROLES: Final[list[int | str]] = [
-        337743478190637077,
-        685331877057658888,
-        969629622453039104,
-        969629628249563166,
-        969629632028614699,
-        969628342733119518,
-        969627321239760967,
-        969626979353632790,
-    ]
     CHANNEL_ID: ClassVar[int] = 969972085445238784
+    user: discord.ClientUser
 
     @classmethod
     def TIME(cls) -> datetime.datetime:
-        """Return the current giveaway time in the bot's timezone.
+        """Return the current day reset time in the bot's timezone.
 
         Returns
         -------
         datetime.datetime
-            The current giveaway time in the bot's timezone.
+            The current day reset time in the bot's timezone.
         """
         return (
             datetime.datetime.now(cls.ZONEINFO).replace(microsecond=0, second=0, minute=0, hour=9)
@@ -143,11 +133,9 @@ class CBot(commands.Bot):
         self, *args: Any, strip_after_prefix: bool = True, tree_cls: type["Tree"], **kwargs: Any
     ) -> None:  # pragma: no cover
         super().__init__(*args, strip_after_prefix=strip_after_prefix, tree_cls=tree_cls, **kwargs)
-        self.pool: asyncpg.Pool[Any] = MISSING
-        self.session: aiohttp.ClientSession = MISSING
+        self.pool: asyncpg.Pool = MISSING
         self.program_logs: discord.Webhook = MISSING
         self.error_logs: discord.Webhook = MISSING
-        self.giveaway_webhook: discord.Webhook = MISSING
         self.holder: Holder = Holder()
         self.no_dms: set[int] = set()
 
@@ -162,7 +150,6 @@ class CBot(commands.Bot):
         webhooks = Config["discord"]["webhooks"]
         self.program_logs = await self.fetch_webhook(webhooks["program_logs"])
         self.error_logs = await self.fetch_webhook(webhooks["error"])
-        self.giveaway_webhook = await self.fetch_webhook(webhooks["giveaway"])
         print("Webhooks Fetched")
         await self.load_extension("jishaku")
         for extension in EXTENSIONS:
@@ -188,9 +175,9 @@ class CBot(commands.Bot):
             The points gained
         """
         user = await self.pool.fetchrow(
-            "SELECT users.id as id, points, b.bid as bid, dp.last_claim as daily, dp.last_particip_dt as "
-            "particip_dt, dp.particip as particip, dp.won as won "
-            "FROM users join bids b on users.id = b.id join daily_points dp on users.id = dp.id WHERE users.id = $1",
+            "SELECT id, points, particip, won, "
+            "last_claim as daily, last_particip_dt as particip_dt "
+            "FROM users WHERE id = $1",
             member.id,
         )
         if user is None:
@@ -226,12 +213,12 @@ class CBot(commands.Bot):
             points = real_points
         async with self.pool.acquire() as conn:
             await conn.execute(
-                "UPDATE daily_points SET particip = particip + $1, won = won + $2 WHERE id = $3",
+                "UPDATE users SET points = points + $1, particip = particip + $2, won = won + $3 WHERE id = $4",
+                points + bonus,
                 points,
                 bonus,
                 user,
             )
-            await conn.execute("UPDATE users SET points = points + $1 WHERE id = $2", points + bonus, user)
         return points + bonus
 
     async def first_of_day_game_gain(self, user: int, points: int, bonus: int, /) -> int:
@@ -253,13 +240,13 @@ class CBot(commands.Bot):
         """
         async with self.pool.acquire() as conn:
             await conn.execute(
-                "UPDATE daily_points SET last_particip_dt = $1, particip = $2, won = $3 WHERE id = $4",
+                "UPDATE users SET last_particip_dt = $1, points = points + $2, particip = $3, won = $4 WHERE id = $5",
                 self.TIME(),
+                points + bonus,
                 points,
                 bonus,
                 user,
             )
-            await conn.execute("UPDATE users SET points = points + $1 WHERE id = $2", points + bonus, user)
         return points + bonus
 
     async def first_time_game_gain(self, user: int, points: int, bonus: int, /) -> int:
@@ -279,19 +266,15 @@ class CBot(commands.Bot):
         gained: int
             The points gained
         """
+        time = self.TIME()
         async with self.pool.acquire() as conn:
             await conn.execute(
-                "INSERT INTO users (id, points) VALUES ($1, $2)",
+                "INSERT INTO users (id, points, last_claim, last_particip_dt, particip, won) "
+                "VALUES ($1, $2, $3, $4, $5, $6)",
                 user,
                 points + bonus,
-            )
-            await conn.execute("INSERT INTO bids (id, bid) VALUES ($1, 0)", user)
-            await conn.execute(
-                "INSERT INTO daily_points (id, last_claim, last_particip_dt, particip, won)"
-                " VALUES ($1, $2, $3, $4, $5)",
-                user,
-                self.TIME() - datetime.timedelta(days=1),
-                self.TIME(),
+                time - datetime.timedelta(days=1),
+                time,
                 points,
                 bonus,
             )
@@ -406,7 +389,7 @@ class Tree(app_commands.CommandTree[CBot]):
         if isinstance(command, (app_commands.Command, app_commands.ContextMenu)):
             user = interaction.user.mention
             _command = command.qualified_name
-            if isinstance(error, (errors.MissingProgramRole, errors.NoPoolFound, errors.WrongChannelError)):
+            if isinstance(error, (errors.MissingProgramRole, errors.WrongChannelError)):
                 message = error.message
             elif isinstance(error, app_commands.MissingAnyRole):
                 message = f"{user}, you don't have any of the required role(s) to use {command}"

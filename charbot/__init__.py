@@ -2,12 +2,11 @@
 
 import functools as _functools
 import logging
+import os as _os
 import pathlib as _pathlib
 from importlib import metadata as _metadata
 from pkgutil import iter_modules
 from typing import Any
-
-from charbot_rust import __version__ as rust_version
 
 
 __title__ = "charbot"
@@ -15,11 +14,6 @@ __author__ = "Bluesy1"
 __license__ = "MIT"
 __copyright__ = "Copyright 2021-present Bluesy1"
 __version__ = _metadata.version(__title__)
-if __version__ != rust_version:  # pragma: no cover
-    raise RuntimeError(
-        f"The version of charbot does not match the version of the rust library for charbot,"
-        f" Python: {__version__} != Rust: {rust_version}"
-    )
 
 __all__ = (
     "EXTENSIONS",
@@ -28,8 +22,7 @@ __all__ = (
     "Config",
 )
 __blacklist__ = [
-    f"{__package__}.{item}"
-    for item in ("__main__", "advent", "bot", "card", "errors", "giveaway", "types", "translator")
+    f"{__package__}.{item}" for item in ("__main__", "bot", "betas", "card", "constants", "errors", "types")
 ]
 
 EXTENSIONS = [module.name for module in iter_modules(__path__, f"{__package__}.") if module.name not in __blacklist__]
@@ -53,7 +46,10 @@ class _Config:
     """
 
     __instance__: "_Config"
-    _file: _pathlib.Path = _pathlib.Path(__file__).parent.parent / "config.toml"
+    if path := _os.getenv("CHARBOT_CONFIG_FILE"):  # pragma: no cover
+        _file = _pathlib.Path(path).resolve(strict=True)
+    else:
+        _file: _pathlib.Path = _pathlib.Path(__file__).parent.parent / "config.toml"
     logger = logging.getLogger("charbot.config")
 
     def clear_cache(self):  # pragma: no cover

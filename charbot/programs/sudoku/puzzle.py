@@ -1,7 +1,6 @@
 """Puzzle Class."""
 
-from collections.abc import Callable, Generator
-from typing import Any
+from collections.abc import Callable, Iterator
 
 from . import Block, Cell, Column, Row
 
@@ -181,7 +180,7 @@ class Puzzle:
         return cls(rows)
 
     @staticmethod
-    def short_sudoku_solve(_board: list[list[int]]) -> Generator[list[list[int]], Any, None]:
+    def short_sudoku_solve(_board: list[list[int]]) -> Iterator[list[list[int]]]:
         """Solutions to a sudoku puzzle.
 
         Parameters
