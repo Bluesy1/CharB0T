@@ -26,7 +26,7 @@ dependencies = [
 	"asyncpg==0.31.0",
 	"discord.py[speed]==2.6.4",
 	"jishaku[procinfo]==2.6.3",
-	"niquests[speedups]==3.15.2",
+	"niquests[speedups]==3.16.1",
 	"orjson==3.11.4",
 	"Pillow==12.0.0",
 	"pytesseract==0.3.13",
