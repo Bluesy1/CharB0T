@@ -55,6 +55,9 @@ class Leveling(commands.Cog):
         """
         if message.author.bot or message.guild is None:
             return
+        
+        if message.is_system():
+            return
 
         guild = message.guild
         channel_id = message.channel.id
