@@ -55,7 +55,7 @@ class Leveling(commands.Cog):
         """
         if message.author.bot or message.guild is None:
             return
-        
+
         if message.is_system():
             return
 
@@ -233,7 +233,7 @@ class Leveling(commands.Cog):
             guild = self.bot.get_guild(constants.GUILD_ID) or await self.bot.fetch_guild(constants.GUILD_ID)
             for user in users:
                 xp: int = user["xp"]
-                if (xp % XP_PER_LEVEL) >= XP_PER_LEVEL-1:
+                if (xp % XP_PER_LEVEL) >= XP_PER_LEVEL - 1:
                     new_level: int = xp // XP_PER_LEVEL
                     member = guild.get_member(user["id"]) or await guild.fetch_member(user["id"])
                     if new_level == 2:

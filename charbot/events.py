@@ -1,7 +1,8 @@
 """Event handling for Charbot."""
 
+import difflib
 import re
-from datetime import UTC, datetime, timedelta
+from datetime import UTC, datetime, time, timedelta
 from typing import TYPE_CHECKING, cast
 
 import discord
@@ -16,6 +17,10 @@ from . import CBot, constants
 
 if TYPE_CHECKING:  # pragma: no cover
     from .levels import Leveling
+
+
+CONTENT_PLANS_CURRENT_PLANS = 922616414781714442
+CONTENT_PLANS_FUTURE_PLANS = 941908627399258162
 
 
 class UnTimeoutView(ui.LayoutView):
@@ -148,8 +153,21 @@ class Events(Cog):
         log_un-timeout task and the members cache
         """
         self.webhook = await self.bot.fetch_webhook(945514428047167578)
+        self.nosy_webhook = await self.bot.fetch_webhook(1464810032020324500)
         self.log_untimeout.start()
         guild = self.bot.get_guild(constants.GUILD_ID) or await self.bot.fetch_guild(constants.GUILD_ID)
+        self.update_channel = cast(
+            discord.TextChannel,
+            guild.get_channel(constants.CONTENT_PLANS) or await guild.fetch_channel(constants.CONTENT_PLANS),
+        )
+        self.current_message = (
+            self.bot.holder.pop("content_plans_current_message_content", None)
+            or await self.update_channel.fetch_message(CONTENT_PLANS_CURRENT_PLANS)
+        ).content
+        self.future_message = (
+            self.bot.holder.pop("content_plans_future_message_content", None)
+            or await self.update_channel.fetch_message(CONTENT_PLANS_FUTURE_PLANS)
+        ).content
         self.members.update(
             {user.id: user.joined_at async for user in guild.fetch_members(limit=None) if user.joined_at is not None}
         )
@@ -160,6 +178,8 @@ class Events(Cog):
         This stops the log_untimeout task
         """
         self.log_untimeout.cancel()
+        self.bot.holder["content_plans_current_message_content"] = self.current_message
+        self.bot.holder["content_plans_future_message_content"] = self.future_message
 
     async def parse_timeout(self, after: discord.Member, *, rejoin: bool = False) -> None:
         """Parse the timeout and logs it to the mod log.
@@ -417,6 +437,60 @@ class Events(Cog):
         levels_cog = cast("Leveling | None", self.bot.get_cog("Leveling"))  # pragma: no cover
         if levels_cog is not None:  # pragma: no cover
             await levels_cog.proc_xp(message)
+
+    @tasks.loop(
+        time=[time(0), time(6), time(12), time(18)],  # UTC times for every 6 hours
+    )
+    async def notify_updated_content_plans(self) -> None:
+        """Notify about updated content plans if there are any changes."""
+        current_message = await self.update_channel.fetch_message(CONTENT_PLANS_CURRENT_PLANS)
+        future_message = await self.update_channel.fetch_message(CONTENT_PLANS_FUTURE_PLANS)
+        bot = self.bot.user
+        # cspell: ignore tofile lineterm
+        if current_message.content != self.current_message:
+            edited_at = cast(datetime, current_message.edited_at)
+            diff = difflib.unified_diff(
+                self.current_message.splitlines(),
+                current_message.content.splitlines(),
+                fromfile="Previous Plans",
+                tofile="Updated Plans",
+                lineterm="",
+            )
+            diff_text = "\n".join(diff)
+            view = ui.LayoutView()
+            view.add_item(
+                ui.Container(
+                    ui.TextDisplay("## Current Plans Updated"),
+                    ui.TextDisplay(f"```diff\n{diff_text[:3950]}\n```"),
+                    ui.Separator(),
+                    ui.TextDisplay(f"-# Updated at {format_dt(edited_at)}"),
+                    accent_color=Color.blue(),
+                )
+            )
+            await self.webhook.send(view=view, avatar_url=bot.display_avatar.url)
+            self.current_message = current_message.content
+        if future_message.content != self.future_message:
+            edited_at = cast(datetime, future_message.edited_at)
+            diff = difflib.unified_diff(
+                self.future_message.splitlines(),
+                future_message.content.splitlines(),
+                fromfile="Previous Plans",
+                tofile="Updated Plans",
+                lineterm="",
+            )
+            diff_text = "\n".join(diff)
+            view = ui.LayoutView()
+            view.add_item(
+                ui.Container(
+                    ui.TextDisplay("## Future Plans Updated"),
+                    ui.TextDisplay(f"```diff\n{diff_text[:3950]}\n```"),
+                    ui.Separator(),
+                    ui.TextDisplay(f"-# Updated at {format_dt(edited_at)}"),
+                    accent_color=Color.blue(),
+                )
+            )
+            await self.webhook.send(view=view, avatar_url=bot.display_avatar.url)
+            self.future_message = future_message.content
 
 
 async def setup(bot: CBot):  # pragma: no cover
