@@ -469,7 +469,7 @@ class Events(Cog):
                     accent_color=Color.blue(),
                 )
             )
-            await self.webhook.send(view=view, avatar_url=bot.display_avatar.url)
+            await self.nosy_webhook.send(view=view, avatar_url=bot.display_avatar.url)
             self.current_message = current_message.content
         if future_message.content != self.future_message:
             edited_at = cast(datetime, future_message.edited_at)
@@ -491,7 +491,7 @@ class Events(Cog):
                     accent_color=Color.blue(),
                 )
             )
-            await self.webhook.send(view=view, avatar_url=bot.display_avatar.url)
+            await self.nosy_webhook.send(view=view, avatar_url=bot.display_avatar.url)
             self.future_message = future_message.content
 
 
