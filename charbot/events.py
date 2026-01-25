@@ -171,6 +171,7 @@ class Events(Cog):
         self.members.update(
             {user.id: user.joined_at async for user in guild.fetch_members(limit=None) if user.joined_at is not None}
         )
+        self.notify_updated_content_plans.start()
 
     async def cog_unload(self) -> None:  # skipcq: PYL-W0236  # pragma: no cover
         """Call when cog is unloaded.
@@ -178,6 +179,7 @@ class Events(Cog):
         This stops the log_untimeout task
         """
         self.log_untimeout.cancel()
+        self.notify_updated_content_plans.cancel()
         self.bot.holder["content_plans_current_message_content"] = self.current_message
         self.bot.holder["content_plans_future_message_content"] = self.future_message
 
