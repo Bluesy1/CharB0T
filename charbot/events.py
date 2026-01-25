@@ -21,6 +21,7 @@ if TYPE_CHECKING:  # pragma: no cover
 
 CONTENT_PLANS_CURRENT_PLANS = 922616414781714442
 CONTENT_PLANS_FUTURE_PLANS = 941908627399258162
+NOSY_ALLOWED_MENTIONS = discord.AllowedMentions(roles=[discord.Object(constants.NOSY_ROLE)])
 
 
 class UnTimeoutView(ui.LayoutView):
@@ -449,6 +450,7 @@ class Events(Cog):
         future_message = await self.update_channel.fetch_message(CONTENT_PLANS_FUTURE_PLANS)
         bot = self.bot.user
         # cspell: ignore tofile lineterm
+        notification_sent = False
         if current_message.content != self.current_message:
             edited_at = cast(datetime, current_message.edited_at)
             diff = difflib.unified_diff(
@@ -471,6 +473,7 @@ class Events(Cog):
             )
             await self.nosy_webhook.send(view=view, avatar_url=bot.display_avatar.url)
             self.current_message = current_message.content
+            notification_sent = True
         if future_message.content != self.future_message:
             edited_at = cast(datetime, future_message.edited_at)
             diff = difflib.unified_diff(
@@ -493,6 +496,11 @@ class Events(Cog):
             )
             await self.nosy_webhook.send(view=view, avatar_url=bot.display_avatar.url)
             self.future_message = future_message.content
+            notification_sent = True
+        if notification_sent:
+            await self.nosy_webhook.send(
+                f"<@&{constants.NOSY_ROLE}>", avatar_url=bot.display_avatar.url, allowed_mentions=NOSY_ALLOWED_MENTIONS
+            )
 
 
 async def setup(bot: CBot):  # pragma: no cover
