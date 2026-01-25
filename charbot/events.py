@@ -43,7 +43,7 @@ class MuteView(ui.LayoutView):
         self.add_item(
             ui.Container(
                 ui.TextDisplay(f"## Mute: {reason} by non mod"),
-                ui.TextDisplay(f"```md\n{message.content[:3950]}\n```"),
+                ui.TextDisplay(f"```md\n{message.content[:3900]}\n```"),
                 ui.Separator(),
                 ui.TextDisplay(f"-# Sent by {message.author.display_name}-{message.author.id}"),
                 accent_color=Color.red(),
@@ -162,12 +162,12 @@ class Events(Cog):
         )
         self.current_message = (
             self.bot.holder.pop("content_plans_current_message_content", None)
-            or await self.update_channel.fetch_message(CONTENT_PLANS_CURRENT_PLANS)
-        ).content
+            or (await self.update_channel.fetch_message(CONTENT_PLANS_CURRENT_PLANS)).content
+        )
         self.future_message = (
             self.bot.holder.pop("content_plans_future_message_content", None)
-            or await self.update_channel.fetch_message(CONTENT_PLANS_FUTURE_PLANS)
-        ).content
+            or (await self.update_channel.fetch_message(CONTENT_PLANS_FUTURE_PLANS)).content
+        )
         self.members.update(
             {user.id: user.joined_at async for user in guild.fetch_members(limit=None) if user.joined_at is not None}
         )
@@ -382,7 +382,7 @@ class Events(Cog):
             await channel.send(message.author.mention, allowed_mentions=mentions)
             view = ui.LayoutView()
             if message.content:
-                view.add_item(ui.Container(ui.TextDisplay(f"```md\n{message.content[:3950]}\n```")))
+                view.add_item(ui.Container(ui.TextDisplay(f"```md\n{message.content[:3900]}\n```")))
             else:  # pragma: no cover
                 view.add_item(ui.Container(ui.TextDisplay(f"Message Contained no text Content:```\n{message!r}\n```")))
             await channel.send(view=view, allowed_mentions=mentions)
@@ -463,7 +463,7 @@ class Events(Cog):
             view.add_item(
                 ui.Container(
                     ui.TextDisplay("## Current Plans Updated"),
-                    ui.TextDisplay(f"```diff\n{diff_text[:3950]}\n```"),
+                    ui.TextDisplay(f"```diff\n{diff_text[:3900]}\n```"),
                     ui.Separator(),
                     ui.TextDisplay(f"-# Updated at {format_dt(edited_at)}"),
                     accent_color=Color.blue(),
@@ -485,7 +485,7 @@ class Events(Cog):
             view.add_item(
                 ui.Container(
                     ui.TextDisplay("## Future Plans Updated"),
-                    ui.TextDisplay(f"```diff\n{diff_text[:3950]}\n```"),
+                    ui.TextDisplay(f"```diff\n{diff_text[:3900]}\n```"),
                     ui.Separator(),
                     ui.TextDisplay(f"-# Updated at {format_dt(edited_at)}"),
                     accent_color=Color.blue(),
