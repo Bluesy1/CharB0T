@@ -233,15 +233,15 @@ class Leveling(commands.Cog):
             guild = self.bot.get_guild(constants.GUILD_ID) or await self.bot.fetch_guild(constants.GUILD_ID)
             for user in users:
                 xp: int = user["xp"]
-                if (xp % XP_PER_LEVEL) >= 18:
+                if (xp % XP_PER_LEVEL) >= XP_PER_LEVEL-1:
                     new_level: int = xp // XP_PER_LEVEL
                     member = guild.get_member(user["id"]) or await guild.fetch_member(user["id"])
                     if new_level == 2:
                         await member.add_roles(LEVEL_2_ROLE, reason="Dropped to Level 2")
-                        await member.remove_roles(LEVEL_3_ROLE)
+                        await member.remove_roles(LEVEL_3_ROLE, LEVEL_4_ROLE, LEVEL_5_ROLE)
                     elif new_level == 3:
                         await member.add_roles(LEVEL_3_ROLE, reason="Dropped to Level 3")
-                        await member.remove_roles(LEVEL_4_ROLE)
+                        await member.remove_roles(LEVEL_4_ROLE, LEVEL_5_ROLE)
                     elif new_level == 4:
                         await member.add_roles(LEVEL_4_ROLE, reason="Dropped to Level 4")
                         await member.remove_roles(LEVEL_5_ROLE)
