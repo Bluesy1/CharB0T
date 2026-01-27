@@ -112,6 +112,26 @@ def url_posting_allowed(
     # If so far the url hasn't been allowed, test if the author has a role that allows it
     return any(role.id in constants.LINK_ALLOWED_ROLES for role in roles)
 
+_EMOJI_RE = re.compile(r"<a?:\w+:\d{17,19}>")
+_CHANNEL_MENTION_RE = re.compile(r"<#\d{17,20}>")
+
+def clean_diff(text: str, /) -> str:
+    """Clean a diff text for display.
+
+    Parameters
+    ----------
+    text : str
+        The diff text to clean.
+    Returns
+    -------
+    str
+        The cleaned diff text.
+    """
+    text = _EMOJI_RE.sub("", text)
+    text = text.replace("<#362020420821450753>", "#schedule")
+    text = _CHANNEL_MENTION_RE.sub("#unknown", text)  # Temporary replacement
+        
+    return text
 
 class Events(Cog):
     """Event Cog.
@@ -460,7 +480,7 @@ class Events(Cog):
                 tofile="Updated Plans",
                 lineterm="",
             )
-            diff_text = "\n".join(diff)
+            diff_text = clean_diff("\n".join(diff))
             view = ui.LayoutView()
             view.add_item(
                 ui.Container(
@@ -483,7 +503,7 @@ class Events(Cog):
                 tofile="Updated Plans",
                 lineterm="",
             )
-            diff_text = "\n".join(diff)
+            diff_text = clean_diff("\n".join(diff))
             view = ui.LayoutView()
             view.add_item(
                 ui.Container(
