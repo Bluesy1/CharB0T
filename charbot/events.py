@@ -471,7 +471,7 @@ class Events(Cog):
                     accent_color=Color.blue(),
                 )
             )
-            await self.nosy_webhook.send(view=view, avatar_url=bot.display_avatar.url)
+            await self.nosy_webhook.send(view=view, avatar_url=bot.display_avatar.url, wait=True)
             self.current_message = current_message.content
             notification_sent = True
         if future_message.content != self.future_message:
@@ -494,7 +494,7 @@ class Events(Cog):
                     accent_color=Color.blue(),
                 )
             )
-            await self.nosy_webhook.send(view=view, avatar_url=bot.display_avatar.url)
+            await self.nosy_webhook.send(view=view, avatar_url=bot.display_avatar.url, wait=True)
             self.future_message = future_message.content
             notification_sent = True
         if notification_sent:
