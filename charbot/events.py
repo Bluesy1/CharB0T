@@ -4,6 +4,7 @@ import difflib
 import re
 from datetime import UTC, datetime, time, timedelta
 from typing import TYPE_CHECKING, cast
+from zoneinfo import ZoneInfo
 
 import discord
 from discord import Color, ui
@@ -22,6 +23,7 @@ if TYPE_CHECKING:  # pragma: no cover
 CONTENT_PLANS_CURRENT_PLANS = 922616414781714442
 CONTENT_PLANS_FUTURE_PLANS = 941908627399258162
 NOSY_ALLOWED_MENTIONS = discord.AllowedMentions(roles=[discord.Object(constants.NOSY_ROLE)])
+_TZ = ZoneInfo("US/Michigan")
 
 
 class UnTimeoutView(ui.LayoutView):
@@ -112,7 +114,7 @@ def url_posting_allowed(
     # If so far the url hasn't been allowed, test if the author has a role that allows it
     return any(role.id in constants.LINK_ALLOWED_ROLES for role in roles)
 
-_EMOJI_RE = re.compile(r"<a?:\w+:\d{17,19}>")
+_EMOJI_RE = re.compile(r"<a?:(\w+):\d{17,19}>")
 _CHANNEL_MENTION_RE = re.compile(r"<#\d{17,20}>")
 
 def clean_diff(text: str, /) -> str:
@@ -127,8 +129,8 @@ def clean_diff(text: str, /) -> str:
     str
         The cleaned diff text.
     """
-    text = _EMOJI_RE.sub("", text)
-    text = text.replace("<#362020420821450753>", "#schedule")
+    text = _EMOJI_RE.sub(r":\1:", text)
+    text = text.replace("<#377852839189282827>", "#schedule")
     text = _CHANNEL_MENTION_RE.sub("#unknown", text)  # Temporary replacement
         
     return text
@@ -462,7 +464,7 @@ class Events(Cog):
             await levels_cog.proc_xp(message)
 
     @tasks.loop(
-        time=[time(0), time(6), time(12), time(18)],  # UTC times for every 6 hours
+        time=[time(14), time(17), time(20), time(1), time(4)],  # UTC times for 9am, 12pm, 3pm, 8pm, and 11pm Eastern
     )
     async def notify_updated_content_plans(self) -> None:
         """Notify about updated content plans if there are any changes."""
