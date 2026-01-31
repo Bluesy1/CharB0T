@@ -1,10 +1,11 @@
 """Event handling for Charbot."""
 
 import difflib
+import logging
+from os import times
 import re
 from datetime import UTC, datetime, time, timedelta
 from typing import TYPE_CHECKING, cast
-from zoneinfo import ZoneInfo
 
 import discord
 from discord import Color, ui
@@ -23,7 +24,7 @@ if TYPE_CHECKING:  # pragma: no cover
 CONTENT_PLANS_CURRENT_PLANS = 922616414781714442
 CONTENT_PLANS_FUTURE_PLANS = 941908627399258162
 NOSY_ALLOWED_MENTIONS = discord.AllowedMentions(roles=[discord.Object(constants.NOSY_ROLE)])
-_TZ = ZoneInfo("US/Michigan")
+_LOGGER = logging.getLogger(__name__)
 
 
 class UnTimeoutView(ui.LayoutView):
@@ -493,7 +494,13 @@ class Events(Cog):
                     accent_color=Color.blue(),
                 )
             )
-            await self.nosy_webhook.send(view=view, avatar_url=bot.display_avatar.url, wait=True)
+            try:
+                m = await self.nosy_webhook.send(view=view, avatar_url=bot.display_avatar.url, wait=True)
+            except discord.DiscordServerError as e: # Discord server error, log and skip
+                _LOGGER.debug("Discord server error when sending content plans update", exc_info=e)
+                m = None
+            if m is None:
+                return # Bail out if we couldn't send the message due to a server error
             self.current_message = current_message.content
             notification_sent = True
         if future_message.content != self.future_message:
@@ -516,13 +523,22 @@ class Events(Cog):
                     accent_color=Color.blue(),
                 )
             )
-            await self.nosy_webhook.send(view=view, avatar_url=bot.display_avatar.url, wait=True)
+            try:
+                m = await self.nosy_webhook.send(view=view, avatar_url=bot.display_avatar.url, wait=True)
+            except discord.DiscordServerError as e: # Discord server error, log and skip
+                _LOGGER.debug("Discord server error when sending content plans update", exc_info=e)
+                m = None
+            if m is None:
+                return # Bail out if we couldn't send the message due to a server error
             self.future_message = future_message.content
             notification_sent = True
         if notification_sent:
-            await self.nosy_webhook.send(
-                f"<@&{constants.NOSY_ROLE}>", avatar_url=bot.display_avatar.url, allowed_mentions=NOSY_ALLOWED_MENTIONS
-            )
+            try:
+                await self.nosy_webhook.send(
+                    f"<@&{constants.NOSY_ROLE}>", avatar_url=bot.display_avatar.url, allowed_mentions=NOSY_ALLOWED_MENTIONS
+                )
+            except discord.DiscordServerError as e: # Discord server error, log and skip
+                _LOGGER.debug("Discord server error when sending content plans update", exc_info=e)
 
 
 async def setup(bot: CBot):  # pragma: no cover

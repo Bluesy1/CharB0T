@@ -2,6 +2,7 @@
 
 import datetime as _datetime
 import itertools
+import logging
 import re
 from calendar import timegm
 from datetime import datetime, time, timedelta
@@ -22,6 +23,7 @@ chartime = ZoneInfo("US/Michigan")
 calTimeZone = ZoneInfo("America/New_York")
 time_format = "%H:%M %x %Z"
 
+_LOGGER = logging.getLogger(__name__)
 
 class EmbedField(NamedTuple):
     """A named tuple for an embed field."""
@@ -314,7 +316,10 @@ class Calendar(commands.Cog):
             times.discard(sub_time)
         if self.message is MISSING:  # pragma: no branch
             self.message = await self.webhook.fetch_message(Config["discord"]["messages"]["calendar"])
-        self.message = await self.message.edit(embed=calendar_embed(fields, min(times, default=None)))
+        try:
+            self.message = await self.message.edit(embed=calendar_embed(fields, min(times, default=None)))
+        except discord.DiscordServerError as e: # Discord server error, log and skip
+            _LOGGER.debug("Discord server error when updating calendar message", exc_info=e)
 
 
 async def setup(bot: CBot):  # pragma: no cover
