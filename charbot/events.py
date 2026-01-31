@@ -2,7 +2,6 @@
 
 import difflib
 import logging
-from os import times
 import re
 from datetime import UTC, datetime, time, timedelta
 from typing import TYPE_CHECKING, cast
@@ -115,8 +114,10 @@ def url_posting_allowed(
     # If so far the url hasn't been allowed, test if the author has a role that allows it
     return any(role.id in constants.LINK_ALLOWED_ROLES for role in roles)
 
+
 _EMOJI_RE = re.compile(r"<a?:(\w+):\d{17,19}>")
 _CHANNEL_MENTION_RE = re.compile(r"<#\d{17,20}>")
+
 
 def clean_diff(text: str, /) -> str:
     """Clean a diff text for display.
@@ -133,8 +134,9 @@ def clean_diff(text: str, /) -> str:
     text = _EMOJI_RE.sub(r":\1:", text)
     text = text.replace("<#377852839189282827>", "#schedule")
     text = _CHANNEL_MENTION_RE.sub("#unknown", text)  # Temporary replacement
-        
+
     return text
+
 
 class Events(Cog):
     """Event Cog.
@@ -496,11 +498,11 @@ class Events(Cog):
             )
             try:
                 m = await self.nosy_webhook.send(view=view, avatar_url=bot.display_avatar.url, wait=True)
-            except discord.DiscordServerError as e: # Discord server error, log and skip
+            except discord.DiscordServerError as e:  # Discord server error, log and skip
                 _LOGGER.debug("Discord server error when sending content plans update", exc_info=e)
                 m = None
             if m is None:
-                return # Bail out if we couldn't send the message due to a server error
+                return  # Bail out if we couldn't send the message due to a server error
             self.current_message = current_message.content
             notification_sent = True
         if future_message.content != self.future_message:
@@ -525,19 +527,21 @@ class Events(Cog):
             )
             try:
                 m = await self.nosy_webhook.send(view=view, avatar_url=bot.display_avatar.url, wait=True)
-            except discord.DiscordServerError as e: # Discord server error, log and skip
+            except discord.DiscordServerError as e:  # Discord server error, log and skip
                 _LOGGER.debug("Discord server error when sending content plans update", exc_info=e)
                 m = None
             if m is None:
-                return # Bail out if we couldn't send the message due to a server error
+                return  # Bail out if we couldn't send the message due to a server error
             self.future_message = future_message.content
             notification_sent = True
         if notification_sent:
             try:
                 await self.nosy_webhook.send(
-                    f"<@&{constants.NOSY_ROLE}>", avatar_url=bot.display_avatar.url, allowed_mentions=NOSY_ALLOWED_MENTIONS
+                    f"<@&{constants.NOSY_ROLE}>",
+                    avatar_url=bot.display_avatar.url,
+                    allowed_mentions=NOSY_ALLOWED_MENTIONS,
                 )
-            except discord.DiscordServerError as e: # Discord server error, log and skip
+            except discord.DiscordServerError as e:  # Discord server error, log and skip
                 _LOGGER.debug("Discord server error when sending content plans update", exc_info=e)
 
 
