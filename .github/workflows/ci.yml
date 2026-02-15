@@ -48,9 +48,9 @@ jobs:
         python-version: [ "3.13", "3.14" ]
     steps:
       - uses: actions/checkout@v6
-      - uses: harmon758/postgresql-action@v1
+      - uses: ikalnytskyi/action-setup-postgres@v8
         with:
-          postgresql version: '18'
+          postgres-version: '18'
       - uses: actions/setup-python@v6
         with:
           python-version: ${{ matrix.python-version }}
