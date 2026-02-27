@@ -412,11 +412,11 @@ class Events(Cog):
             else:  # pragma: no cover
                 view.add_item(ui.Container(ui.TextDisplay(f"Message Contained no text Content:```\n{message!r}\n```")))
             await channel.send(view=view, allowed_mentions=mentions)
-            await message.channel.send(
-                "Hi! If this was an attempt to reach the mod team through modmail,"
-                " that has been removed, in favor of "
-                "mod support, which you can find in <#398949472840712192>"
-            )
+            # await message.channel.send(
+            #     "Hi! If this was an attempt to reach the mod team through modmail,"
+            #     " that has been removed, in favor of "
+            #     "mod support, which you can find in <#398949472840712192>"
+            # )
             return
         author = cast(discord.Member, message.author)
         IS_NOT_MOD = all(role.id not in constants.EVERYONE_PING_ALLOWED_ROLES for role in author.roles)
