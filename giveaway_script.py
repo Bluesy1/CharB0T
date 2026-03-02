@@ -42,9 +42,9 @@ class GiveawayBot(discord.Client):
         random.shuffle(unique_messages)
         
         BASE_GIVEN = 0
-        IDX = 2
         
-        first, second = unique_messages[:2]
+        first = unique_messages.pop(0)
+        second = unique_messages.pop(0)
         LOG_MESSAGE = f"Selected winners: {first.author} ({first.jump_url}) and {second.author} ({second.jump_url})."
         result = f"""\
 The giveaway has concluded! The winners are {first.author.mention} and {second.author.mention}!
@@ -56,28 +56,41 @@ The giveaway has concluded! The winners are {first.author.mention} and {second.a
         
         if "dlc" not in second.content.strip().casefold():
             BASE_GIVEN += 1
-        
-        extra_base = 2 - BASE_GIVEN
-        
-        match extra_base:
-            case 0:
-                pass
-            case 1:
-                third = unique_messages[IDX]
-                result += f"Since one of the winners only wanted the DLC, {third.author.mention} has been selected to win a copy of the base game!"
-                IDX += 1
-                LOG_MESSAGE += f" Also selected {third.author} ({third.jump_url}) as the base game winner."
-            case 2:
-                third, fourth = unique_messages[IDX:IDX+2]
-                result += f"Since both winners only wanted the DLC, {third.author.mention} and {fourth.author.mention} have been selected to win a copy of the base game!"
-                IDX += 2
+
+        if BASE_GIVEN < 2:
+            result += "However, since "
+            if BASE_GIVEN == 0:
+                result += "neither winner wanted the base game, "
+                two_extra = True
+            else:
+                result += "one of the winners only wanted the DLC, "
+                two_extra = False
+            
+            extra_winners: list[discord.Message] = []
+            
+            while BASE_GIVEN < 2:
+                next_message = unique_messages.pop(0)
+                LOG_MESSAGE += f"\n Checking {next_message.author} ({next_message.jump_url}) for base game eligibility..."
+                if "dlc" not in next_message.content.strip().casefold():
+                    BASE_GIVEN += 1
+                    LOG_MESSAGE += " Eligible for base game."
+                    extra_winners.append(next_message)
+                else:
+                    LOG_MESSAGE += " Not eligible for base game."
+            
+            if two_extra:
+                third, fourth = extra_winners[:2]
+                result += f"both {third.author.mention} and {fourth.author.mention} have been selected to win copies of the base game!"
                 LOG_MESSAGE += f" Also selected {third.author} ({third.jump_url}) and {fourth.author} ({fourth.jump_url}) as the base game winners."
-        
+            else:
+                third = extra_winners[0]
+                result += f"{third.author.mention} has been selected to win a copy of the base game!"
+                LOG_MESSAGE += f" Also selected {third.author} ({third.jump_url}) as the base game winner."
         
         result += """
 Congratulations to the winners! Remember to DM Charlie within 48 hours to claim your key(s)!
 """
-        backup_winners = unique_messages[IDX:IDX+5]
+        backup_winners = unique_messages[:5]
         backup_winners_mentions = ", ".join(f"{winner.author.mention} ({winner.jump_url})" for winner in backup_winners)
         LOG_MESSAGE += f"\n Backup winners in order are: {backup_winners_mentions}."
         await channel.send(result)
