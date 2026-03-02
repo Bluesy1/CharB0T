@@ -63,7 +63,7 @@ jobs:
         run: pytest
       - name: Run Pyright
         if: ${{ success() || failure() }}
-        uses: jakebailey/pyright-action@v2
+        uses: jakebailey/pyright-action@v3
         with:
           warnings: false
           annotate: ${{ matrix.python-version != '3.13' && 'none' || 'all' }}
