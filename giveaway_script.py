@@ -23,7 +23,7 @@ class GiveawayBot(discord.Client):
         messages = [
             message
             async for message in channel.history(after=discord.Object(id=START_MESSAGE))
-            if not message.author.bot and not message.is_system() and message.author.id != 225344348903047168
+            if not message.author.bot and not message.is_system() and message.author.id != 225344348903047168 and isinstance(message.author, discord.Member)
         ]
         
         if not messages:
