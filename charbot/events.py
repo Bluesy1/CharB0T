@@ -1,4 +1,5 @@
 """Event handling for Charbot."""
+# cspell: ignore modmail
 
 import difflib
 import logging

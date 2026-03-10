@@ -1,3 +1,5 @@
+-- cspell: ignore particip
+
 CREATE TABLE IF NOT EXISTS users
 (
     id               BIGINT                   NOT NULL
@@ -41,4 +43,19 @@ CREATE TABLE IF NOT EXISTS banners
     color    CHAR(8),
     cooldown TIMESTAMP WITH TIME ZONE DEFAULT (CURRENT_TIMESTAMP + '7 days'::interval) NOT NULL,
     approved boolean                  DEFAULT FALSE                                    NOT NULL
+);
+
+
+CREATE TABLE IF NOT EXISTS giveaway
+(
+    channel     BIGINT                          NOT NULL
+        CONSTRAINT giveaway_pk
+            PRIMARY KEY,
+    end_dt      TIMESTAMP WITH TIME ZONE        NOT NULL,
+    winners     SMALLINT CHECK(winners > 0)     NOT NULL,
+    game        VARCHAR(255)                    NOT NULL,
+    distributor BIGINT                          NOT NULL,
+    complete    BOOLEAN     DEFAULT FALSE       NOT NULL,
+    min_level   SMALLINT    DEFAULT 0           NOT NULL,
+    random_num  BOOLEAN     DEFAULT FALSE       NOT NULL
 );
