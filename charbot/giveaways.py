@@ -132,8 +132,6 @@ class GiveawaySetupModal(ui.Modal, title="Giveaway Setup"):
         _LOGGER.exception("Error in GiveawaySetupModal: %s", error)
 
 
-@app_commands.guilds(constants.GUILD_ID)
-@app_commands.default_permissions(manage_channels=True)
 class Giveaways(Cog):
     """Giveaway Cog.
 
@@ -159,7 +157,10 @@ class Giveaways(Cog):
     async def cog_unload(self) -> None:
         self.do_finish_giveaways.cancel()
 
+
     @app_commands.command(name="create_giveaway", description="Create a new giveaway")
+    @app_commands.guilds(constants.GUILD_ID)
+    @app_commands.default_permissions(manage_channels=True)
     async def create_giveaway(
         self,
         interaction: discord.Interaction[CBot],
