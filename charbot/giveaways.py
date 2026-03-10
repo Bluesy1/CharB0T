@@ -120,9 +120,7 @@ class GiveawaySetupModal(ui.Modal, title="Giveaway Setup"):
 
 **GOOD LUCK TO ALL!!!**
 ------------------------------""")
-        await interaction.followup.send(
-            f"The giveaway for {self.game} has begun in <#{channel.id}>.", ephemeral=True
-        )
+        await interaction.followup.send(f"The giveaway for {self.game} has begun in <#{channel.id}>.", ephemeral=True)
 
     async def on_error(self, interaction: discord.Interaction, error: Exception) -> None:
         if interaction.response.is_done():
@@ -156,7 +154,6 @@ class Giveaways(Cog):
 
     async def cog_unload(self) -> None:
         self.do_finish_giveaways.cancel()
-
 
     @app_commands.command(name="create_giveaway", description="Create a new giveaway")
     @app_commands.guilds(constants.GUILD_ID)
