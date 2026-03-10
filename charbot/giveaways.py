@@ -106,6 +106,11 @@ class GiveawaySetupModal(ui.Modal, title="Giveaway Setup"):
                 self.min_level,
                 random_number,
             )
+            await conn.execute(
+                "UPDATE no_xp SET channels = array_append(channels, $1) WHERE guild = $2",
+                channel.id,
+                interaction.guild_id,
+            )
 
         await channel.send(f"""**NEW GIVEAWAY** for **{self.game}** available to everyone! <@&605419188873330739> 
 
