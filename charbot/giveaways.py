@@ -43,13 +43,13 @@ class GiveawaySetupModal(ui.Modal, title="Giveaway Setup"):
         self.end_time = end_time
         self.min_level = min_level
 
-        detail_text = f"Game: {self.game}\nWinners: {self.winners}\nDeliverer: {self.deliverer.mention}\nEnd Time: {format_dt(self.end_time, style='F')}"
-        if self.min_level > 0:
-            detail_text += f"\nMinimum Level (non-supporters): {self.min_level}"
-        detail_text += "\n\nPlease fill out the description and select the giveaway entry method (important details provided already will be added to the sent description)."
+        # detail_text = f"Game: {self.game}\nWinners: {self.winners}\nDeliverer: {self.deliverer.display_name}\nEnd Time: {format_dt(self.end_time, style='F')}"
+        # if self.min_level > 0:
+        #     detail_text += f"\nMinimum Level (non-supporters): {self.min_level}"
+        # detail_text += "\n\nPlease fill out the description and select the giveaway entry method (important details provided already will be added to the sent description)."
 
-        self.details = ui.Label(text="Details", component=ui.TextDisplay(detail_text))
-        self.add_item(self.details)
+        # self.details = ui.Label(text="Details", component=ui.TextDisplay(detail_text))
+        # self.add_item(self.details)
 
         self.description = ui.Label(
             text="Description",
@@ -95,7 +95,7 @@ class GiveawaySetupModal(ui.Modal, title="Giveaway Setup"):
         async with interaction.client.pool.acquire() as conn:
             await conn.execute(
                 """
-                INSERT INTO giveaways (channel, game, winners, distributor, end_dt, min_level, random_num)
+                INSERT INTO giveaway (channel, game, winners, distributor, end_dt, min_level, random_num)
                 VALUES ($1, $2, $3, $4, $5, $6, $7)
                 """,
                 channel.id,
@@ -120,8 +120,8 @@ class GiveawaySetupModal(ui.Modal, title="Giveaway Setup"):
 
 **GOOD LUCK TO ALL!!!**
 ------------------------------""")
-        await interaction.response.send_message(
-            f"The giveaway for {self.game} has begin in <#{channel.id}>.", ephemeral=True
+        await interaction.followup.send(
+            f"The giveaway for {self.game} has begun in <#{channel.id}>.", ephemeral=True
         )
 
     async def on_error(self, interaction: discord.Interaction, error: Exception) -> None:
@@ -204,7 +204,7 @@ class Giveaways(Cog):
         log_channel = self.bot.get_channel(LOG_CHANNEL) or await self.bot.fetch_channel(LOG_CHANNEL)
         assert isinstance(log_channel, discord.TextChannel)
         async with self.bot.pool.acquire() as conn:
-            giveaways = await conn.fetch("SELECT * FROM giveaways WHERE end_dt <= $1 AND complete = FALSE", utcnow())
+            giveaways = await conn.fetch("SELECT * FROM giveaway WHERE end_dt <= $1 AND complete = FALSE", utcnow())
             for giveaway in giveaways:
                 channel_id = giveaway["channel"]
                 num_winners = giveaway["winners"]
@@ -266,7 +266,7 @@ class Giveaways(Cog):
 
                     if not entry_numbers:
                         await channel.send("No valid entries were submitted. No winners can be selected.")
-                        await conn.execute("UPDATE giveaways SET complete = TRUE WHERE id = $1", giveaway["id"])
+                        await conn.execute("UPDATE giveaway SET complete = TRUE WHERE id = $1", giveaway["id"])
                         continue
 
                     if len(entry_numbers) < num_winners:
@@ -274,12 +274,12 @@ class Giveaways(Cog):
 {", ".join(entry[0].author.mention for entry in entry_numbers)}
 
 {REMINDER_TEXT}""")
-                        await conn.execute("UPDATE giveaways SET complete = TRUE WHERE id = $1", giveaway["id"])
+                        await conn.execute("UPDATE giveaway SET complete = TRUE WHERE id = $1", giveaway["id"])
                         continue
 
                     sorted_entries = sorted(entry_numbers, key=lambda x: abs(x[1] - winning_number))
                     winners = sorted_entries[:num_winners]
-                    await conn.execute("UPDATE giveaways SET complete = TRUE WHERE id = $1", giveaway["id"])
+                    await conn.execute("UPDATE giveaway SET complete = TRUE WHERE id = $1", giveaway["id"])
 
                     winner_mentions = ", ".join(entry[0].author.mention for entry in winners)
                     await channel.send(
@@ -297,7 +297,7 @@ class Giveaways(Cog):
                     # Select winners by shuffle method
                     if not entries:
                         await channel.send("No entries were submitted. No winners can be selected.")
-                        await conn.execute("UPDATE giveaways SET complete = TRUE WHERE id = $1", giveaway["id"])
+                        await conn.execute("UPDATE giveaway SET complete = TRUE WHERE id = $1", giveaway["id"])
                         continue
 
                     if len(entries) < num_winners:
@@ -305,14 +305,14 @@ class Giveaways(Cog):
                         await channel.send(
                             f"There were less entries than winners for this giveaway. The following {len(entries)} participant(s) win by default:\n{winner_mentions}\n\n{REMINDER_TEXT}"
                         )
-                        await conn.execute("UPDATE giveaways SET complete = TRUE WHERE id = $1", giveaway["id"])
+                        await conn.execute("UPDATE giveaway SET complete = TRUE WHERE id = $1", giveaway["id"])
                         continue
 
                     random.shuffle(entries)
                     winners = entries[:num_winners]
                     winner_mentions = ", ".join(entry.author.mention for entry in winners)
                     await channel.send(f"Congratulations to the winner(s):\n{winner_mentions}!\n\n{REMINDER_TEXT}")
-                    await conn.execute("UPDATE giveaways SET complete = TRUE WHERE id = $1", giveaway["id"])
+                    await conn.execute("UPDATE giveaway SET complete = TRUE WHERE id = $1", giveaway["id"])
 
                     backups = entries[num_winners : (num_winners * 3)]
                     if backups:
