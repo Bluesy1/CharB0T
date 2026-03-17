@@ -207,7 +207,7 @@ class Giveaways(Cog):
                 num_winners = giveaway["winners"]
                 channel = self.bot.get_channel(channel_id) or await self.bot.fetch_channel(channel_id)
                 if not isinstance(channel, discord.TextChannel):
-                    _LOGGER.warning("Channel with ID %s not found for giveaway ID %s", channel_id, giveaway["id"])
+                    _LOGGER.warning("Channel with ID %s not found for giveaway ID %s", channel_id, channel_id)
                     continue
                 guild = channel.guild
                 deliverer_id = giveaway["distributor"]
@@ -263,7 +263,7 @@ class Giveaways(Cog):
 
                     if not entry_numbers:
                         await channel.send("No valid entries were submitted. No winners can be selected.")
-                        await conn.execute("UPDATE giveaway SET complete = TRUE WHERE id = $1", giveaway["id"])
+                        await conn.execute("UPDATE giveaway SET complete = TRUE WHERE channel = $1", channel_id)
                         continue
 
                     if len(entry_numbers) < num_winners:
@@ -271,12 +271,12 @@ class Giveaways(Cog):
 {", ".join(entry[0].author.mention for entry in entry_numbers)}
 
 {REMINDER_TEXT}""")
-                        await conn.execute("UPDATE giveaway SET complete = TRUE WHERE id = $1", giveaway["id"])
+                        await conn.execute("UPDATE giveaway SET complete = TRUE WHERE channel = $1", channel_id)
                         continue
 
                     sorted_entries = sorted(entry_numbers, key=lambda x: abs(x[1] - winning_number))
                     winners = sorted_entries[:num_winners]
-                    await conn.execute("UPDATE giveaway SET complete = TRUE WHERE id = $1", giveaway["id"])
+                    await conn.execute("UPDATE giveaway SET complete = TRUE WHERE channel = $1", channel_id)
 
                     winner_mentions = ", ".join(entry[0].author.mention for entry in winners)
                     await channel.send(
@@ -294,7 +294,7 @@ class Giveaways(Cog):
                     # Select winners by shuffle method
                     if not entries:
                         await channel.send("No entries were submitted. No winners can be selected.")
-                        await conn.execute("UPDATE giveaway SET complete = TRUE WHERE id = $1", giveaway["id"])
+                        await conn.execute("UPDATE giveaway SET complete = TRUE WHERE channel = $1", channel_id)
                         continue
 
                     if len(entries) < num_winners:
@@ -302,14 +302,14 @@ class Giveaways(Cog):
                         await channel.send(
                             f"There were less entries than winners for this giveaway. The following {len(entries)} participant(s) win by default:\n{winner_mentions}\n\n{REMINDER_TEXT}"
                         )
-                        await conn.execute("UPDATE giveaway SET complete = TRUE WHERE id = $1", giveaway["id"])
+                        await conn.execute("UPDATE giveaway SET complete = TRUE WHERE channel = $1", channel_id)
                         continue
 
                     random.shuffle(entries)
                     winners = entries[:num_winners]
                     winner_mentions = ", ".join(entry.author.mention for entry in winners)
                     await channel.send(f"Congratulations to the winner(s):\n{winner_mentions}!\n\n{REMINDER_TEXT}")
-                    await conn.execute("UPDATE giveaway SET complete = TRUE WHERE id = $1", giveaway["id"])
+                    await conn.execute("UPDATE giveaway SET complete = TRUE WHERE channel = $1", channel_id)
 
                     backups = entries[num_winners : (num_winners * 3)]
                     if backups:
