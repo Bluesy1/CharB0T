@@ -25,8 +25,8 @@ jobs:
   lint:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v6
-      - uses: actions/setup-python@v6
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+      - uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405 # v6.2.0
         with:
           python-version: "3.13"
       - name: Dependencies
@@ -47,11 +47,11 @@ jobs:
       matrix:
         python-version: [ "3.13", "3.14" ]
     steps:
-      - uses: actions/checkout@v6
-      - uses: ikalnytskyi/action-setup-postgres@v8
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+      - uses: ikalnytskyi/action-setup-postgres@c4dda34aae1c821e3a771b68b73b13af3198a7ee # v8
         with:
           postgres-version: '18'
-      - uses: actions/setup-python@v6
+      - uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405 # v6.2.0
         with:
           python-version: ${{ matrix.python-version }}
           cache: "pip"
@@ -63,7 +63,7 @@ jobs:
         run: pytest
       - name: Run Pyright
         if: ${{ success() || failure() }}
-        uses: jakebailey/pyright-action@v3
+        uses: jakebailey/pyright-action@8ec14b5cfe41f26e5f41686a31eb6012758217ef # v3.0.2
         with:
           warnings: false
           annotate: ${{ matrix.python-version != '3.13' && 'none' || 'all' }}
