@@ -112,11 +112,20 @@ class GiveawaySetupModal(ui.Modal, title="Giveaway Setup"):
                 interaction.guild_id,
             )
 
+            enter_by = "Enter by sending a *single* message in this channel."
+            if random_number:
+                enter_by = "Enter by sending a *single* number between 1 and 100 in this channel."
+
+            if self.min_level > 0:
+                enter_by += f"\n\nAt the time of the draw, **you must either be at least level {self.min_level} or be a channel supporter**. See <#338734957251788803> for more details on our leveling system."
+
         await channel.send(f"""**NEW GIVEAWAY** for **{self.game}** available to everyone! <@&605419188873330739> 
 
 {description}
 
 {self.winners} winners will be chosen on {format_dt(self.end_time)}.
+
+{enter_by}
 
 **GOOD LUCK TO ALL!!!**
 ------------------------------""")
