@@ -326,6 +326,7 @@ class Events(Cog):
         If the member is timed out, it adds them to the timeouts cache
         If the member is untimed out, it removes them from the timeouts cache
         In both cases, it logs the action to the mod log
+        If a member picked up the honeypot role, they are banned immediately, and the action is logged to the mod log.
 
         Parameters
         ----------
@@ -334,12 +335,14 @@ class Events(Cog):
         after : discord.Member
             The member after the update
         """
+        if after.guild.id != constants.GUILD_ID:
+            return
+        bot = self.bot.user
         try:  # pragma: no cover
             if after.timed_out_until != before.timed_out_until:
                 if after.is_timed_out():
                     await self.parse_timeout(after)
                 else:
-                    bot = self.bot.user
                     await self.webhook.send(
                         view=UnTimeoutView(after), username=bot.name, avatar_url=bot.display_avatar.url
                     )
@@ -347,6 +350,27 @@ class Events(Cog):
         except Exception:  # skipcq: PYL-W0703  # pragma: no cover
             if after.is_timed_out():
                 await self.parse_timeout(after)
+        
+        if (
+            before.roles != after.roles
+            and all(after.get_role(role_id) for role_id in constants.HONEYPOT_ROLES_IDS)
+            and not any(after.get_role(role_id) for role_id in constants.HONEYPOT_EXCLUDED_ROLE_IDS)
+        ):
+            try:
+                await after.timeout(timedelta(days=1), reason="Picked up honeypot role")
+            except discord.HTTPException:
+                pass
+            view = ui.LayoutView()
+            view.add_item(
+                ui.Container(
+                    ui.TextDisplay(f"## [LOG] {after} picked up the honeypot role"),
+                    ui.TextDisplay(f"**User**:\t{after.mention}\n**Action**:\tTimed out for picking up honeypot role"),
+                    ui.Separator(),
+                    ui.TextDisplay(f"-# {after.id}"),
+                    accent_color=Color.dark_red(),
+                )
+            )
+            await self.webhook.send(view=view, username=bot.name, avatar_url=bot.display_avatar.url)
 
     @Cog.listener()
     async def on_thread_create(self, thread: discord.Thread) -> None:
