@@ -43,13 +43,13 @@ class GiveawaySetupModal(ui.Modal, title="Giveaway Setup"):
         self.end_time = end_time
         self.min_level = min_level
 
-        # detail_text = f"Game: {self.game}\nWinners: {self.winners}\nDeliverer: {self.deliverer.display_name}\nEnd Time: {format_dt(self.end_time, style='F')}"
-        # if self.min_level > 0:
-        #     detail_text += f"\nMinimum Level (non-supporters): {self.min_level}"
-        # detail_text += "\n\nPlease fill out the description and select the giveaway entry method (important details provided already will be added to the sent description)."
+        detail_text = f"# Base Details:\nGame: {self.game}\nWinners: {self.winners}\nDeliverer: {self.deliverer.display_name}\nEnd Time: {format_dt(self.end_time, style='F')}"
+        if self.min_level > 0:
+            detail_text += f"\nMinimum Level (non-supporters): {self.min_level}"
+        detail_text += "\n\nPlease fill out the description and select the giveaway entry method (important details provided already will be added to the sent description)."
 
-        # self.details = ui.Label(text="Details", component=ui.TextDisplay(detail_text))
-        # self.add_item(self.details)
+        self.details = component=ui.TextDisplay(detail_text)
+        self.add_item(self.details)
 
         self.description = ui.Label(
             text="Description",
