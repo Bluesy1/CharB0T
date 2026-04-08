@@ -48,7 +48,7 @@ class GiveawaySetupModal(ui.Modal, title="Giveaway Setup"):
             detail_text += f"\nMinimum Level (non-supporters): {self.min_level}"
         detail_text += "\n\nPlease fill out the description and select the giveaway entry method (important details provided already will be added to the sent description)."
 
-        self.details = component = ui.TextDisplay(detail_text)
+        self.details = ui.TextDisplay(detail_text)
         self.add_item(self.details)
 
         self.description = ui.Label(
