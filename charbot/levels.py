@@ -202,7 +202,7 @@ class Leveling(commands.Cog):
     @app_commands.guilds(constants.GUILD_ID)
     @app_commands.checks.cooldown(1, 900, key=lambda interaction: interaction.user.id)
     async def rank(self, interaction: Interaction[CBot]):
-        """Check your someone's level.
+        """Check your level.
 
         Parameters
         ----------

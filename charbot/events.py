@@ -350,7 +350,7 @@ class Events(Cog):
         except Exception:  # skipcq: PYL-W0703  # pragma: no cover
             if after.is_timed_out():
                 await self.parse_timeout(after)
-        
+
         if (
             before.roles != after.roles
             and all(after.get_role(role_id) for role_id in constants.HONEYPOT_ROLES_IDS)
