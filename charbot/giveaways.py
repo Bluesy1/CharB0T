@@ -249,6 +249,7 @@ class Giveaways(Cog):
                         frozenset(constants.LEVEL_ROLE_IDS_LIST[min_level - 1 :])
                         | constants.SUPPORTER_ROLE_IDS
                         | constants.MOD_ROLE_IDS
+                        | constants.LEGACY_ROLE_IDS
                     )
                     entries = [
                         entry
