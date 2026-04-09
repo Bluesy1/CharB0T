@@ -133,11 +133,13 @@ class GiveawaySetupModal(ui.Modal, title="Giveaway Setup"):
             enter_by = "Enter by sending a *single* message in this channel."
             if random_number:
                 enter_by = "Enter by sending a *single* number between 1 and 100 in this channel."
+            
+            enter_by += " **Messages that are edited after being sent will not count as valid entries.**"
 
             if self.min_level > 0:
                 enter_by += f"\n\nAt the time of the draw, **you must either be at least level {self.min_level} or be a channel supporter**. See <#338734957251788803> for more details on our leveling system."
 
-        await channel.send(f"""**NEW GIVEAWAY** for **{self.game}** available to everyone! <@&605419188873330739> 
+        msg = await channel.send(f"""**NEW GIVEAWAY** for **{self.game}** available to everyone! <@&605419188873330739> 
 
 {description}
 
@@ -148,6 +150,7 @@ class GiveawaySetupModal(ui.Modal, title="Giveaway Setup"):
 **GOOD LUCK TO ALL!!!**
 ------------------------------""")
         await interaction.followup.send(f"The giveaway for {self.game} has begun in <#{channel.id}>.", ephemeral=True)
+        await msg.pin()
 
     async def on_error(self, interaction: discord.Interaction, error: Exception) -> None:
         if interaction.response.is_done():
