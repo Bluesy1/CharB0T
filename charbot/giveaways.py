@@ -3,6 +3,7 @@
 import logging
 import random
 import secrets
+from collections import Counter
 from datetime import datetime, time
 
 import discord
@@ -234,14 +235,15 @@ class Giveaways(Cog):
                 overwrites[deliverer] = deliverer_overwrite
                 await channel.edit(overwrites=overwrites)
 
-                entries = [message async for message in channel.history(limit=None)]
+                entries = [message async for message in channel.history(limit=None) if not message.edited_at]
                 # Eliminate bots and messages from the giveaway deliverer
                 entries = [entry for entry in entries if not entry.author.bot and entry.author.id != deliverer_id]
-                entries = list(
-                    {entry.author.id: entry for entry in entries}.values()
-                )  # De-dup entries by user ID, keeping the most recent entry for each user
+                author_counts = Counter(entry.author.id for entry in entries)
+                duplicate_authors = [author_id for author_id, count in author_counts.items() if count > 1]
 
-                await log_channel.send(f"Finishing giveaway for {giveaway['game']} with {len(entries)} entries.")
+                entries = [entry for entry in entries if entry.author.id not in duplicate_authors]
+
+                await log_channel.send(f"Finishing giveaway for {giveaway['game']} with {len(entries)} valid entries.")
 
                 if (min_level := giveaway["min_level"]) > 0:
                     # Filter entries based on minimum level requirement for non-supporters
