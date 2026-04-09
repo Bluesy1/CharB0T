@@ -70,6 +70,18 @@ class GiveawaySetupModal(ui.Modal, title="Giveaway Setup"):
             ),
         )
         self.add_item(self.specifics)
+        
+        self.category = ui.Label(
+            text="Category",
+            component=ui.Select(
+                placeholder="Select giveaway category",
+                options=[
+                    discord.SelectOption(label="General", value="general"),
+                    discord.SelectOption(label="VIP", value="vip"),
+                ],
+            ),
+        )
+        self.add_item(self.category)
 
     async def on_submit(self, interaction: discord.Interaction[CBot]):
         await interaction.response.defer(ephemeral=True)
@@ -77,14 +89,19 @@ class GiveawaySetupModal(ui.Modal, title="Giveaway Setup"):
 
         assert isinstance(self.description.component, ui.TextInput)
         assert isinstance(self.specifics.component, ui.Select)
+        assert isinstance(self.category.component, ui.Select)
 
         description = self.description.component.value
         entry_method = self.specifics.component.values[0]
         random_number = entry_method == "number"
+        category_value = self.category.component.values[0]
 
         guild = interaction.guild
         assert isinstance(guild, discord.Guild)
-        category = guild.get_channel(constants.GENERAL_CATEGORY)
+        if category_value == "general":
+            category = guild.get_channel(constants.GENERAL_CATEGORY)
+        else:
+            category = guild.get_channel(constants.VIP_CATEGORY)
         assert isinstance(category, discord.CategoryChannel)
         channel = await category.create_text_channel(
             "giveaway",
