@@ -316,7 +316,11 @@ class Giveaways(Cog):
                 overwrites[deliverer] = deliverer_overwrite
                 await channel.edit(overwrites=overwrites)
 
-                entries = [message async for message in channel.history(limit=None) if not message.edited_at]
+                entries = [
+                    message
+                    async for message in channel.history(limit=None)
+                    if not message.edited_at and isinstance(message.author, discord.Member)
+                ]
                 # Eliminate bots and messages from the giveaway deliverer
                 entries = [entry for entry in entries if not entry.author.bot and entry.author.id != deliverer_id]
                 author_counts = Counter(entry.author.id for entry in entries)
