@@ -70,7 +70,7 @@ class GiveawaySetupModal(ui.Modal, title="Giveaway Setup"):
             ),
         )
         self.add_item(self.specifics)
-        
+
         self.category = ui.Label(
             text="Category",
             component=ui.Select(
@@ -133,7 +133,7 @@ class GiveawaySetupModal(ui.Modal, title="Giveaway Setup"):
             enter_by = "Enter by sending a *single* message in this channel."
             if random_number:
                 enter_by = "Enter by sending a *single* number between 1 and 100 in this channel."
-            
+
             enter_by += " **Messages that are edited after being sent will not count as valid entries.**"
 
             if self.min_level > 0:
@@ -160,6 +160,43 @@ class GiveawaySetupModal(ui.Modal, title="Giveaway Setup"):
         _LOGGER.exception("Error in GiveawaySetupModal: %s", error)
 
 
+class MessageEditModal(ui.Modal, title="Edit Giveaway Message"):
+    """Modal for editing giveaway messages.
+
+    Parameters
+    ----------
+    original_message : str
+        The original giveaway message content.
+    """
+
+    def __init__(self, original_message: discord.Message):
+        super().__init__()
+        self.original_message = original_message
+
+        self.new_content = ui.Label(
+            text="New Giveaway Message",
+            description="Edit the giveaway message content (max 3000 characters).",
+            component=ui.TextInput(
+                max_length=3000, style=discord.TextStyle.paragraph, default=original_message.content
+            ),
+        )
+        self.add_item(self.new_content)
+
+    async def on_submit(self, interaction: discord.Interaction[CBot]):
+        await interaction.response.defer(ephemeral=True)
+        interaction.response.is_done()
+
+        assert isinstance(self.new_content.component, ui.TextInput)
+        new_content = self.new_content.component.value
+
+        try:
+            await self.original_message.edit(content=new_content)
+            await interaction.followup.send("Giveaway message updated successfully!", ephemeral=True)
+        except Exception as e:
+            _LOGGER.exception("Error editing giveaway message: %s", e)
+            await interaction.followup.send("Failed to update giveaway message.", ephemeral=True)
+
+
 class Giveaways(Cog):
     """Giveaway Cog.
 
@@ -181,9 +218,14 @@ class Giveaways(Cog):
 
     async def cog_load(self):
         self.do_finish_giveaways.start()
+        self.edit_giveaway_message_cmd = app_commands.ContextMenu(
+            name="Edit Giveaway Message", callback=self.edit_giveaway_message
+        )
+        self.bot.tree.add_command(self.edit_giveaway_message_cmd)
 
     async def cog_unload(self) -> None:
         self.do_finish_giveaways.cancel()
+        self.bot.tree.remove_command(self.edit_giveaway_message_cmd.name, type=self.edit_giveaway_message_cmd.type)
 
     @app_commands.command(name="create_giveaway", description="Create a new giveaway")
     @app_commands.guilds(constants.GUILD_ID)
@@ -224,6 +266,25 @@ class Giveaways(Cog):
             )
             return
         await interaction.response.send_modal(GiveawaySetupModal(game, winners, deliverer, end_time, min_level))
+
+    @app_commands.guilds(constants.GUILD_ID)
+    @app_commands.default_permissions(manage_channels=True)
+    async def edit_giveaway_message(self, interaction: discord.Interaction[CBot], message: discord.Message):
+        """Context menu command to edit giveaway messages."""
+        if message.author.id != self.bot.user.id:
+            await interaction.response.send_message(
+                "This command can only be used on bot-sent giveaway messages.", ephemeral=True
+            )
+            return
+        async with self.bot.pool.acquire() as conn:
+            giveaway = conn.fetchrow("SELECT * FROM giveaway WHERE channel = $1", message.channel.id)
+            if not giveaway:
+                await interaction.response.send_message(
+                    "This command can only be used on giveaway messages.", ephemeral=True
+                )
+                return
+
+        await interaction.response.send_modal(MessageEditModal(message))
 
     @tasks.loop(time=[time(hour) for hour in range(24)])
     async def do_finish_giveaways(self):
