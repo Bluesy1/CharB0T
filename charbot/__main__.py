@@ -43,7 +43,6 @@ async def main():
         CBot(  # skipcq: PYL-E1701
             tree_cls=Tree,
             command_prefix=commands.when_mentioned_or("!"),
-            owner_ids=[225344348903047168, 363095569515806722],
             case_insensitive=True,
             intents=discord.Intents.all(),
             help_command=None,
