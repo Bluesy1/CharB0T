@@ -324,7 +324,7 @@ class Giveaways(Cog):
                 # Eliminate bots and messages from the giveaway deliverer
                 entries = [entry for entry in entries if not entry.author.bot and entry.author.id != deliverer_id]
                 author_counts = Counter(entry.author.id for entry in entries)
-                duplicate_authors = [author_id for author_id, count in author_counts.items() if count > 1]
+                duplicate_authors = {author_id for author_id, count in author_counts.items() if count > 1}
 
                 entries = [entry for entry in entries if entry.author.id not in duplicate_authors]
 
