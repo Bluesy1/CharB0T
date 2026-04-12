@@ -132,7 +132,7 @@ class GiveawaySetupModal(ui.Modal, title="Giveaway Setup"):
 
             enter_by = "Enter by sending a *single* message in this channel."
             if random_number:
-                enter_by = "Enter by sending a *single* number between 1 and 100 in this channel."
+                enter_by = "Enter by sending a *single* message with a number between 1 and 100 in this channel."
 
             enter_by += " **Messages that are edited after being sent will not count as valid entries.**"
 
