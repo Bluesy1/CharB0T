@@ -198,6 +198,47 @@ class Leveling(commands.Cog):
                 case 5:
                     await member.add_roles(LEVEL_5_ROLE, reason="Rejoined at level 5")
 
+    @commands.Cog.listener()
+    async def on_message_delete(self, message: discord.Message):
+        """Remove message from XP tracking if it was tracked.
+
+        Parameters
+        ----------
+        message : discord.Message
+            The message that was deleted.
+        """
+        if message.guild is None or message.guild != constants.GUILD_ID:
+            return
+        channel_id = message.channel.id
+        async with self.lock:
+            if channel_id in self.buckets:
+                bucket = self.buckets[channel_id]
+                try:
+                    bucket.remove((message.created_at, message.author.id))
+                except ValueError:
+                    pass
+
+    @commands.Cog.listener()
+    async def on_bulk_message_delete(self, messages: list[discord.Message]):
+        """Remove messages from XP tracking if they were tracked.
+
+        Parameters
+        ----------
+        messages : list[discord.Message]
+            The messages that were deleted.
+        """
+        if not messages:
+            return
+        if (guild := messages[0].guild) is None or guild.id != constants.GUILD_ID:
+            return
+        channel_id = messages[0].channel.id
+        async with self.lock:
+            if channel_id in self.buckets:
+                bucket = self.buckets[channel_id]
+                to_remove = {(message.created_at, message.author.id) for message in messages}
+                bucket = deque(entry for entry in bucket if entry not in to_remove)
+                self.buckets[channel_id] = bucket
+
     @app_commands.command()
     @app_commands.guilds(constants.GUILD_ID)
     @app_commands.checks.cooldown(1, 900, key=lambda interaction: interaction.user.id)
@@ -223,7 +264,7 @@ class Leveling(commands.Cog):
 
     @tasks.loop(time=datetime.time(hour=0, tzinfo=datetime.UTC))
     async def drain(self):
-        async with self.bot.pool.acquire() as conn, conn.transaction():
+        async with self.lock, self.bot.pool.acquire() as conn, conn.transaction():
             users = await conn.fetch(
                 "UPDATE levels SET xp = xp - 1 "
                 "WHERE xp > $1 AND last_message < (CURRENT_TIMESTAMP - '3 days'::interval) "
