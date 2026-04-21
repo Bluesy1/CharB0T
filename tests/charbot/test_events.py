@@ -158,7 +158,7 @@ async def test_fail_everyone_ping(mocker: MockerFixture):
     message.guild = mocker.AsyncMock(spec=discord.Guild)
     bot = mocker.AsyncMock(spec=CBot)
     cog = events.Events(bot)
-    cog.webhook = mocker.AsyncMock(spec=discord.Webhook)
+    cog.timeout_webhook = mocker.AsyncMock(spec=discord.Webhook)
     await cog.on_message(message)
     message.delete.assert_awaited_once()
     message.author.add_roles.assert_awaited_once_with(
@@ -177,7 +177,7 @@ async def test_fail_telegram_link(mocker: MockerFixture):
     message.guild = mocker.AsyncMock(spec=discord.Guild)
     bot = mocker.AsyncMock(spec=CBot)
     cog = events.Events(bot)
-    cog.webhook = mocker.AsyncMock(spec=discord.Webhook)
+    cog.timeout_webhook = mocker.AsyncMock(spec=discord.Webhook)
     await cog.on_message(message)
     message.delete.assert_awaited_once()
     message.author.add_roles.assert_awaited_once_with(
@@ -209,7 +209,7 @@ async def test_parse_timeout(mocker: MockerFixture):
     member.timed_out_until = utcnow() + timedelta(seconds=694900)
     cog = events.Events(mocker.AsyncMock(spec=CBot))
     webhook = mocker.AsyncMock(spec=discord.Webhook)
-    cog.webhook = webhook
+    cog.timeout_webhook = webhook
     await cog.parse_timeout(member)
     assert 1 in cog.timeouts
     assert cog.timeouts[1] == member.timed_out_until
