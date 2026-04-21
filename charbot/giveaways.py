@@ -102,7 +102,7 @@ class GiveawaySetupModal(ui.Modal, title="Giveaway Setup"):
             category = guild.get_channel(constants.GENERAL_CATEGORY)
         else:
             category = guild.get_channel(constants.VIP_CATEGORY)
-            self.min_level = 0 # VIP giveaways should not have a minimum level requirement for non-supporters since they are already restricted to supporters
+            self.min_level = 0  # VIP giveaways should not have a minimum level requirement for non-supporters since they are already restricted to supporters
         assert isinstance(category, discord.CategoryChannel)
         channel = await category.create_text_channel(
             "giveaway",
