@@ -34,6 +34,7 @@ class Reputation(commands.Cog, name="Programs"):
     default_permissions.move_members = True
     games = app_commands.Group(
         name="games",
+        description="...",
         guild_ids=constants.GUILD_IDS,
         default_permissions=default_permissions,
     )
