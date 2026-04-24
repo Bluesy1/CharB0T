@@ -1,15 +1,12 @@
 """XCOM Stuff"""
 
-import datetime as dt
 import logging
-from collections import Counter
 from typing import Literal
 
 import discord
 from discord import app_commands, ui
 from discord.app_commands import Choice, Range
 from discord.ext.commands import Cog
-from discord.utils import format_dt, utcnow
 
 from . import CBot, constants
 
