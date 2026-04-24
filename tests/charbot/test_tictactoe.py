@@ -2,8 +2,8 @@ import discord
 import pytest
 from pytest_mock import MockerFixture
 
-from charbot.programs import tictactoe
-from charbot.programs.tictactoe import Difficulty, Game, Piece
+from charbot.games import tictactoe
+from charbot.games.tictactoe import Difficulty, Game, Piece
 from charbot.types.bot import CBot
 
 

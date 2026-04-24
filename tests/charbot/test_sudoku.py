@@ -6,7 +6,7 @@ import pytest
 from pytest_mock import MockerFixture
 
 from charbot import CBot
-from charbot.programs import sudoku
+from charbot.games import sudoku
 
 
 @pytest.fixture

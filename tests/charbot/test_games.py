@@ -6,7 +6,7 @@ import pytest
 from pytest_mock import MockerFixture
 
 from charbot import CBot  # ,constants ,errors
-from charbot.programs.cog import Reputation
+from charbot.games.cog import Reputation
 
 
 pytestmark = pytest.mark.asyncio

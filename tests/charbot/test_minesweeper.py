@@ -10,8 +10,8 @@ from PIL import Image
 from pytest_mock import MockerFixture
 
 from charbot import CBot
-from charbot.programs.minesweeper.game import Cell, ChordResult, Game, RevealResult
-from charbot.programs.minesweeper.view import Minesweeper
+from charbot.games.minesweeper.game import Cell, ChordResult, Game, RevealResult
+from charbot.games.minesweeper.view import Minesweeper
 
 
 @pytest.fixture

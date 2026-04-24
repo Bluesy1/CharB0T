@@ -32,9 +32,8 @@ class Reputation(commands.Cog, name="Programs"):
 
     default_permissions = discord.Permissions.none()
     default_permissions.move_members = True
-    programs = app_commands.Group(
-        name="programs",
-        description="Programs to gain you rep.",
+    games = app_commands.Group(
+        name="games",
         guild_ids=constants.GUILD_IDS,
         default_permissions=default_permissions,
     )
@@ -44,7 +43,7 @@ class Reputation(commands.Cog, name="Programs"):
         async with await niquests.aget("https://nine.websudoku.com/?level=2") as response:
             return response.text or ""
 
-    @programs.command(name="sudoku", description="Play a Sudoku puzzle")
+    @games.command(name="sudoku", description="Play a Sudoku puzzle")
     async def sudoku(self, interaction: Interaction[CBot], mobile: bool):
         """Generate a sudoku puzzle.
 
@@ -67,7 +66,7 @@ class Reputation(commands.Cog, name="Programs"):
         view = sudoku.Sudoku(sudoku.Puzzle(board, mobile), interaction.user, interaction.client)
         await interaction.followup.send(embed=view.block_choose_embed(), view=view)
 
-    @programs.command(name="tictactoe", description="Play a game of Tic Tac Toe!")
+    @games.command(name="tictactoe", description="Play a game of Tic Tac Toe!")
     async def tictactoe(self, interaction: Interaction[CBot], difficulty: Difficulty):
         """Play a game of Tic Tac Toe!
 
@@ -85,7 +84,7 @@ class Reputation(commands.Cog, name="Programs"):
         image = await asyncio.to_thread(view.display)
         await interaction.followup.send(embed=embed, view=view, file=image)
 
-    @programs.command(name="shrugman", description="Play the shrugman minigame. (Hangman clone)")
+    @games.command(name="shrugman", description="Play the shrugman minigame. (Hangman clone)")
     async def shrugman(self, interaction: Interaction[CBot]) -> None:
         """Play a game of Shrugman.
 
@@ -116,7 +115,7 @@ class Reputation(commands.Cog, name="Programs"):
         view = shrugman.Shrugman(interaction.client, word)
         await interaction.followup.send(embed=embed, view=view)
 
-    @programs.command()
+    @games.command()
     async def minesweeper(
         self,
         interaction: Interaction[CBot],
