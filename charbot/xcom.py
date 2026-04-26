@@ -1,5 +1,6 @@
 """XCOM Stuff"""
 
+import asyncio
 import logging
 from typing import Literal
 
@@ -9,50 +10,10 @@ from discord.app_commands import Choice, Range
 from discord.ext.commands import Cog
 
 from . import CBot, constants
-
+from .xcom_helpers import XCOM_COUNTRIES, COUNTRIES_BY_NAME, RACES, ATTITUDES, create_base_bin_file
 
 _LOGGER = logging.getLogger(__name__)
-XCOM_COUNTRIES = {
-    "Country_USA": "United States",
-    "Country_Russia": "Russia",
-    "Country_China": "China",
-    "Country_UK": "United Kingdom",
-    "Country_Germany": "Germany",
-    "Country_France": "France",
-    "Country_Japan": "Japan",
-    "Country_India": "India",
-    "Country_Australia": "Australia",
-    "Country_Italy": "Italy",
-    "Country_SouthKorea": "South Korea",
-    "Country_Turkey": "Turkey",
-    "Country_Indonesia": "Indonesia",
-    "Country_Spain": "Spain",
-    "Country_Pakistan": "Pakistan",
-    "Country_Canada": "Canada",
-    "Country_Iran": "Iran",
-    "Country_Israel": "Israel",
-    "Country_Egypt": "Egypt",
-    "Country_Brazil": "Brazil",
-    "Country_Argentina": "Argentina",
-    "Country_Mexico": "Mexico",
-    "Country_SouthAfrica": "South Africa",
-    "Country_Poland": "Poland",
-    "Country_Ukraine": "Ukraine",
-    "Country_Nigeria": "Nigeria",
-    "Country_Venezuela": "Venezuela",
-    "Country_Greece": "Greece",
-    "Country_Columbia": "Colombia",
-    "Country_Portugal": "Portugal",
-    "Country_Sweden": "Sweden",
-    "Country_Ireland": "Ireland",
-    "Country_Scotland": "Scotland",
-    "Country_Norway": "Norway",
-    "Country_Netherlands": "Netherlands",
-    "Country_Belgium": "Belgium",
-}
-COUNTRIES_BY_NAME = {v: k for k, v in XCOM_COUNTRIES.items()}
-RACES = ("Caucasian", "African", "Asian", "Hispanic")
-ATTITUDES = ("By The Book", "Laid Back", "Normal", "Twitchy", "Happy-Go-Lucky", "Hard Luck", "Intense")
+_REQUESTS_CHANNEL_ID: int = ...
 
 
 class CharacterRequestModal(ui.Modal, title="Character Request"):
@@ -384,6 +345,11 @@ class XCOM(Cog):
 
     def __init__(self, bot: CBot) -> None:
         self.bot = bot
+        self.reserve_lock = asyncio.Lock()
+
+    async def cog_unload(self) -> None:
+        async with self.reserve_lock:
+            return await super().cog_unload()
 
     async def country_autocomplete(self, interaction: discord.Interaction, current: str) -> list[Choice[str]]:
         """Autocomplete for the country field."""
@@ -409,7 +375,7 @@ class XCOM(Cog):
         attitude: Choice[int],  # Choices decorator
     ) -> None:
         """Request a character to be added to the XCOM roster.
-        
+
         Parameters
         ----------
         interaction: discord.Interaction
@@ -429,7 +395,7 @@ class XCOM(Cog):
         attitude: int
             The personality of the character being requested.
         """
-        
+
         if country not in COUNTRIES_BY_NAME:
             await interaction.response.send_message(
                 "Invalid country. Please choose a valid country from the autocomplete suggestions.", ephemeral=True
@@ -475,6 +441,86 @@ class XCOM(Cog):
                     attitude=attitude.name,
                 )
                 await interaction.followup.send(view=view, ephemeral=True)
+
+    @character.command(name="reserve")
+    async def reserve_request(self, interaction: discord.Interaction):
+        """Reserve the next request in the character request queue for creation.
+
+        Parameters
+        ----------
+        interaction: discord.Interaction
+            The interaction instance for the command.
+        """
+        await interaction.response.defer(ephemeral=True)
+        assert isinstance(interaction.user, discord.Member)
+        if not (member := interaction.user).get_role(constants.HELPER_ROLE_ID):
+            await interaction.followup.send(
+                "You are not allowed to use this command! Reach out to the mod team to become an XCOM helper."
+            )
+            return
+        guild = member.guild
+        async with self.reserve_lock, self.bot.pool.acquire() as conn:
+            next_req = discord.utils.MISSING
+            while True:
+                next_req = await conn.fetchrow("""\
+    SELECT requestor, first_name, last_name, nickname, gender, country, race, attitude, details, biography
+    FROM xcom_character_request
+    WHERE fulfiller IS NULL
+    ORDER BY req_dt DESC""")
+                if next_req is None:
+                    await interaction.followup.send("There are no unassigned character requests at this time!")
+                    return
+                requestor_id = next_req["requestor"]
+                requestor = guild.get_member(requestor_id)
+                if requestor is not None:
+                    break
+                try:
+                    requestor = await guild.fetch_member(requestor_id)
+                except discord.NotFound, discord.Forbidden:
+                    await conn.execute("DELETE FROM xcom_character_request WHERE requestor=$1;", requestor_id)
+                    _LOGGER.debug("Deleting request from user %s: Could not find user on server.", requestor_id)
+                else:
+                    break
+            first_name: str = next_req["first_name"]
+            last_name = next_req["last_name"]
+            nickname = next_req["nickname"]
+            gender = next_req["gender"]
+            country = next_req["country"]
+            race = next_req["race"]
+            attitude = next_req["attitude"]
+            biography = next_req["biography"]
+            bin_bytes = create_base_bin_file(
+                first_name, last_name, nickname, gender, country, race, attitude, biography
+            )
+            channel: discord.TextChannel = guild.get_channel(_REQUESTS_CHANNEL_ID)  # pyright: ignore[reportAssignmentType]
+            thread = await channel.create_thread(name=f"Character Request for {member}")
+            await thread.add_user(member)
+            await thread.add_user(requestor)
+            starter_msg = await thread.send(
+                f"""\
+Hi {member.mention}, here are the details of the character {requestor.mention} has requested:
+**Name**: {first_name} '{nickname}' {last_name}
+**Sex**: {gender.capitalize()}
+**Country**: {country}
+**Race**: {race}
+**Attitude**: {attitude}
+
+Here is the details of the requested appearance to use to modify the attached bin:
+{next_req["details"]}""",
+                file=discord.File(bin_bytes, f"{first_name.upper()}.bin"),
+            )
+            await thread.send(f"Character Biography (Info Only):\n{biography}")
+            await starter_msg.pin()
+            await interaction.followup.send(
+                f"You have been assigned the request from {requestor.mention}!"
+                f" Please see {thread.mention}: {starter_msg.jump_url}."
+            )
+            await conn.execute(
+                "UPDATE xcom_character_request SET fulfiller=$1, fulfill_thread=$2 WHERE requestor=$3",
+                member.id,
+                thread.id,
+                requestor_id,
+            )
 
 
 async def setup(bot: CBot) -> None:
