@@ -54,99 +54,90 @@ COUNTRIES_BY_NAME = {v: k for k, v in XCOM_COUNTRIES.items()}
 RACES = ("Caucasian", "African", "Asian", "Hispanic")
 ATTITUDES = ("By The Book", "Laid Back", "Normal", "Twitchy", "Happy-Go-Lucky", "Hard Luck", "Intense")
 
-#     details = ui.TextDisplay("""\
-# Please fill out the following form to request a character.
-# The more information you provide, the better!
-# Once you submit the form, it will be reviewed by one of our volunteers on a first-come, first-served basis.
-# """)
-# first_name = ui.Label(
-#     text="First Name",
-#     description="Enter the first name of the character you want to request.",
-#     component=ui.TextInput(placeholder="Enter the first name of the character you want to request.", max_length=25),
-# )
-# last_name = ui.Label(
-#     text="Last Name",
-#     description="Enter the last name of the character you want to request.",
-#     component=ui.TextInput(placeholder="Enter the last name of the character you want to request.", max_length=25),
-# )
-# nickname = ui.Label(
-#     text="Nickname",
-#     description="Enter a nickname for the character (optional).",
-#     component=ui.TextInput(
-#         placeholder="Enter a nickname for the character (optional).", max_length=25, required=False
-#     ),
-# )
-
 
 class CharacterRequestModal(ui.Modal, title="Character Request"):
     """Modal for requesting a character."""
 
-    name = ui.Label(
-        text="Name",
-        description="Enter the full name of the character you want to request, in the form \"First 'Nick' Last\".",
-        component=ui.TextInput(placeholder="Enter the full name of the character you want to request.", max_length=100),
-    )
-    country = ui.Label(
-        text="Country",
-        description="Enter the country of origin for the character.",
-        component=ui.TextInput(placeholder="Enter the country of origin for the character.", max_length=50),
-    )
-    sex = ui.Label(
-        text="Select your character's sex",
-        component=ui.RadioGroup(
-            options=[
-                discord.RadioGroupOption(label="Male", value="male"),
-                discord.RadioGroupOption(label="Female", value="female"),
-            ]
-        ),
-    )
-    description = ui.Label(
-        text="Description",
-        description="Enter a brief description of the character.",
-        component=ui.TextInput(
-            placeholder="Enter a brief description of the character.", style=discord.TextStyle.paragraph, max_length=500
-        ),
-    )
-    bio = ui.Label(
-        text="Biography",
-        description="Optional: Enter a detailed biography of the character.",
-        component=ui.TextInput(
-            placeholder="Enter a detailed biography of the character.",
-            style=discord.TextStyle.paragraph,
-            max_length=2000,
-            required=False,
-        ),
-    )
-
-    async def on_submit(self, interaction: discord.Interaction) -> None:
-        """Handle the form submission."""
-        await interaction.response.send_message(
-            "Thank you for your character request! Your request has been submitted and will be reviewed by our volunteers. You will be notified once a decision has been made.",
-            ephemeral=True,
-        )
-
-
-class DemoButton(ui.View):
-    """A simple view with a button to demonstrate the character request modal."""
-
     def __init__(
         self,
+        first_name: str,
+        last_name: str,
+        nickname: str,
+        gender: str,
+        country: str,
+        race: str,
+        attitude: str,
     ):
-        super().__init__(timeout=None)
+        super().__init__(timeout=1200)
+        self.first_name = first_name
+        self.last_name = last_name
+        self.nickname = nickname
+        self.gender = gender
+        self.country = country
+        self.race = race
+        self.attitude = attitude
+        self.desc = ui.TextDisplay(f"""\
+You are initiating a request for a character with the following details. Please provide a description of what you want the character to look like, provide a backstory if you wish, and then hit submit below to confirm.
+**Name**: {first_name} '{nickname}' {last_name}
+**Sex**: {gender.capitalize()}
+**Country**: {country}
+**Race**: {race}
+**Attitude**: {attitude}
+""")
+        self.add_item(self.desc)
+        self.description = ui.Label(
+            text="Description",
+            description="Enter a brief description of the character.",
+            component=ui.TextInput(
+                placeholder="Enter a brief description of the character.",
+                style=discord.TextStyle.paragraph,
+                max_length=500,
+            ),
+        )
+        self.add_item(self.description)
+        self.bio = ui.Label(
+            text="Biography",
+            description="Optional: Enter a detailed biography of the character.",
+            component=ui.TextInput(
+                placeholder="Enter a detailed biography of the character.",
+                style=discord.TextStyle.paragraph,
+                max_length=2000,
+                required=False,
+            ),
+        )
+        self.add_item(self.bio)
 
-    @ui.button(label="Request a Character", style=discord.ButtonStyle.primary)
-    async def request_character(self, interaction: discord.Interaction, button: ui.Button) -> None:
-        """Show the character request modal when the button is clicked."""
-        await interaction.response.send_modal(CharacterRequestModal())
+    async def on_submit(self, interaction: discord.Interaction[CBot]) -> None:
+        await interaction.response.defer(ephemeral=True)
+        assert isinstance(self.description.component, ui.TextInput)
+        assert isinstance(self.bio.component, ui.TextInput)
+        async with interaction.client.pool.acquire() as conn, conn.transaction():
+            await conn.execute(
+                """\
+INSERT INTO xcom_character_request (requestor, first_name, last_name, nickname, country, gender, race, attitude, details, biography)
+VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10);
+""",
+                interaction.user.id,
+                self.first_name,
+                self.last_name,
+                self.nickname,
+                self.country,
+                self.gender,
+                self.race,
+                self.attitude,
+                self.description.component.value,
+                self.bio.component.value,
+            )
+        await interaction.followup.send("Your character request has been submitted!")
 
 
-class EditRequestButton(ui.Button):
-    """A button to for the edit request layout."""
+class CreateRequestButton(ui.Button):
+    """A button to for the create request layout."""
 
     def __init__(
         self, first_name: str, last_name: str, nickname: str, gender: str, country: str, race: str, attitude: str
     ):
-        super().__init__(label="Edit Request", style=discord.ButtonStyle.primary)
+        super().__init__(label="Request Character", style=discord.ButtonStyle.primary)
         self.first_name = first_name
         self.last_name = last_name
         self.nickname = nickname
@@ -157,9 +148,171 @@ class EditRequestButton(ui.Button):
 
     async def callback(self, interaction: discord.Interaction[CBot]) -> None:
         """Handle the button click."""
-        await interaction.response.send_message(
-            "You clicked the edit request button! This would show the edit request modal, but that hasn't been implemented yet.",
-            ephemeral=True,
+        await interaction.response.send_modal(
+            CharacterRequestModal(
+                self.first_name, self.last_name, self.nickname, self.gender, self.country, self.race, self.attitude
+            )
+        )
+
+
+class CreateRequestLayout(ui.LayoutView):
+    """A layout view to demonstrate editing an existing character request."""
+
+    def __init__(
+        self,
+        first_name: str,
+        last_name: str,
+        nickname: str,
+        gender: str,
+        country: str,
+        race: str,
+        attitude: str,
+    ):
+        super().__init__()
+        self.add_item(
+            ui.Section(
+                ui.TextDisplay("## Confirm your request"),
+                ui.TextDisplay(
+                    "Please review your submitted details below, then press the request character button."
+                    + " Doing so will set the following properties automatically, and you will be prompted to fill out provide a description and optionally backstory for your character:\n"
+                    + f"- **Name**: {first_name} '{nickname}' {last_name} \n"
+                    + f"- **Sex**: {gender.capitalize()} \n"
+                    + f"- **Country**: {country} \n"
+                    + f"- **Race**: {race} \n"
+                    + f"- **Attitude**: {attitude} \n"
+                ),
+                accessory=CreateRequestButton(first_name, last_name, nickname, gender, country, race, attitude),
+            )
+        )
+
+
+class CharacterEditModal(ui.Modal, title="Edit Character Request"):
+    """Modal for editing a request for a character."""
+
+    def __init__(
+        self,
+        first_name: str,
+        last_name: str,
+        nickname: str,
+        gender: str,
+        country: str,
+        race: str,
+        attitude: str,
+        existing_details: str,
+        existing_backstory: str,
+    ):
+        super().__init__(timeout=600)
+        self.first_name = first_name
+        self.last_name = last_name
+        self.nickname = nickname
+        self.gender = gender
+        self.country = country
+        self.race = race
+        self.attitude = attitude
+        self.existing_details = existing_details
+        self.existing_backstory = existing_backstory
+        self.desc = ui.TextDisplay(f"""\
+You are currently editing a character with the following details. Hit submit below to confirm.
+**Name**: {first_name} '{nickname}' {last_name}
+**Sex**: {gender.capitalize()}
+**Country**: {country}
+**Race**: {race}
+**Attitude**: {attitude}
+""")
+        self.add_item(self.desc)
+        self.description = ui.Label(
+            text="Description",
+            description="Enter a brief description of the character.",
+            component=ui.TextInput(
+                placeholder="Enter a brief description of the character.",
+                style=discord.TextStyle.paragraph,
+                max_length=500,
+                default=self.existing_details,
+            ),
+        )
+        self.add_item(self.description)
+        self.bio = ui.Label(
+            text="Biography",
+            description="Optional: Enter a detailed biography of the character.",
+            component=ui.TextInput(
+                placeholder="Enter a detailed biography of the character.",
+                style=discord.TextStyle.paragraph,
+                max_length=2000,
+                required=False,
+                default=self.existing_backstory,
+            ),
+        )
+        self.add_item(self.bio)
+
+    async def on_submit(self, interaction: discord.Interaction[CBot]) -> None:
+        await interaction.response.defer(ephemeral=True)
+        assert isinstance(self.description.component, ui.TextInput)
+        assert isinstance(self.bio.component, ui.TextInput)
+        async with interaction.client.pool.acquire() as conn, conn.transaction():
+            await conn.execute(
+                """\
+UPDATE xcom_character_request 
+SET req_dt=CURRENT_TIMESTAMP, fulfiller=NULL, first_name=$1, last_name=$2,
+    nickname=$3, country=$4, gender=$5, race=$6, attitude=$7, details=$8, biography=$9
+WHERE requestor=$10;
+""",
+                self.first_name,
+                self.last_name,
+                self.nickname,
+                self.country,
+                self.gender,
+                self.race,
+                self.attitude,
+                self.description.component.value,
+                self.bio.component.value,
+                interaction.user.id,
+            )
+        await interaction.followup.send("Your character request has been updated!")
+
+
+class EditRequestButton(ui.Button):
+    """A button to for the edit request layout."""
+
+    def __init__(
+        self,
+        first_name: str,
+        last_name: str,
+        nickname: str,
+        gender: str,
+        country: str,
+        race: str,
+        attitude: str,
+        existing_details: str,
+        existing_backstory: str,
+    ):
+        super().__init__(label="Edit Request", style=discord.ButtonStyle.primary)
+        self.first_name = first_name
+        self.last_name = last_name
+        self.nickname = nickname
+        self.gender = gender
+        self.country = country
+        self.race = race
+        self.attitude = attitude
+        self.existing_details = existing_details
+        self.existing_backstory = existing_backstory
+
+    async def callback(self, interaction: discord.Interaction[CBot]) -> None:
+        """Handle the button click."""
+        await interaction.client.pool.execute(
+            "UPDATE xcom_character_request SET fulfiller=$1 WHERE requestor=$1", interaction.user.id
+        )
+        await interaction.response.send_modal(
+            CharacterEditModal(
+                self.first_name,
+                self.last_name,
+                self.nickname,
+                self.gender,
+                self.country,
+                self.race,
+                self.attitude,
+                self.existing_details,
+                self.existing_backstory,
+            )
         )
 
 
@@ -204,7 +357,17 @@ class EditRequestLayout(ui.LayoutView):
                     + f"- **Race**: {race} \n"
                     + f"- **Attitude**: {attitude} \n"
                 ),
-                accessory=EditRequestButton(first_name, last_name, nickname, gender, country, race, attitude),
+                accessory=EditRequestButton(
+                    first_name,
+                    last_name,
+                    nickname,
+                    gender,
+                    country,
+                    race,
+                    attitude,
+                    existing["details"],
+                    existing["biography"],
+                ),
             )
         )
 
@@ -228,7 +391,7 @@ class XCOM(Cog):
             Choice(name=value, value=key) for key, value in XCOM_COUNTRIES.items() if current.lower() in value.lower()
         ][:25]
 
-    @character.command(name="request", description="Request a character to be added to the XCOM roster.")
+    @character.command(name="request")
     @app_commands.choices(
         race=[Choice(name=race, value=i) for i, race in enumerate(RACES)],
         attitude=[Choice(name=attitude, value=i) for i, attitude in enumerate(ATTITUDES)],
@@ -245,6 +408,28 @@ class XCOM(Cog):
         race: Choice[int],  # Choices decorator
         attitude: Choice[int],  # Choices decorator
     ) -> None:
+        """Request a character to be added to the XCOM roster.
+        
+        Parameters
+        ----------
+        interaction: discord.Interaction
+            The interaction instance for the command.
+        first_name: str
+            The first name for the character being requested.
+        last_name: str
+            The last name for the character being requested.
+        nickname: str
+            The nickname for the character being requested.
+        gender: Literal["male", "female"]
+            The gender of the character being requested.
+        country: str
+            The country of origin for the character being requested.
+        race: int
+            The race of the character being requested.
+        attitude: int
+            The personality of the character being requested.
+        """
+        
         if country not in COUNTRIES_BY_NAME:
             await interaction.response.send_message(
                 "Invalid country. Please choose a valid country from the autocomplete suggestions.", ephemeral=True
@@ -263,7 +448,6 @@ class XCOM(Cog):
                     + " otherwise please contact the mod team if there is a reason for further changes.",
                     ephemeral=True,
                 )
-                return
             elif existing:
                 details = await conn.fetchrow(
                     "SELECT * FROM xcom_character_request WHERE requestor = $1", interaction.user.id
@@ -280,7 +464,17 @@ class XCOM(Cog):
                     attitude=attitude.name,
                 )
                 await interaction.followup.send(view=view, ephemeral=True)
-                return
+            else:
+                view = CreateRequestLayout(
+                    first_name=first_name,
+                    last_name=last_name,
+                    nickname=nickname,
+                    gender=gender,
+                    country=country,
+                    race=race.name,
+                    attitude=attitude.name,
+                )
+                await interaction.followup.send(view=view, ephemeral=True)
 
 
 async def setup(bot: CBot) -> None:
