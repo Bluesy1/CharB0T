@@ -140,7 +140,7 @@ class CreateRequestButton(ui.Button):
         assert isinstance(view, ui.LayoutView)
         assert interaction.message
         try:
-            await interaction.message.edit(view=view)
+            await interaction.edit_original_response(view=view)
         finally:
             view.stop()
 
@@ -320,7 +320,7 @@ class EditRequestButton(ui.Button):
         assert isinstance(view, ui.LayoutView)
         assert interaction.message
         try:
-            await interaction.message.edit(view=view)
+            await interaction.edit_original_response(view=view)
         finally:
             view.stop()
 
