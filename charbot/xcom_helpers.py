@@ -136,7 +136,9 @@ def create_base_bin_file(
     result = result.replace(_NICK_NAME_BYTESTRING, _write_str_prop(nickname))
 
     # Character Properties
-    result = result.replace(_COUNTRY_BYTESTRING, _write_name_prop(XCOM_COUNTRIES[country]))
+    if country not in XCOM_COUNTRIES and country in COUNTRIES_BY_NAME:
+        country = COUNTRIES_BY_NAME[country]
+    result = result.replace(_COUNTRY_BYTESTRING, _write_name_prop(country))
     result = result.replace(_RACE_HEADER + _RACE_BYTESTRING, _RACE_HEADER + _write_int_prop(RACES.index(race)))
     result = result.replace(
         _ATTITUDE_HEADER + _ATTITUDE_BYTESTRING, _ATTITUDE_HEADER + _write_int_prop(ATTITUDES.index(attitude))

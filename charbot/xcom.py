@@ -31,12 +31,11 @@ def validate_pool(pool: bytes) -> Literal[False] | str:
             if len(chars) != 1:
                 return False
         except Exception:
-            pass
+            return False
         else:
             details = chars[0].details()
             details = details.replace("appearance: <struct: TAppearance>\n", "")
             return details.replace("timestamp: April 23, 2026 - 6:57 PM\n\n", "")
-    return False
 
 
 class CharacterRequestModal(ui.Modal, title="Character Request"):
@@ -64,7 +63,7 @@ class CharacterRequestModal(ui.Modal, title="Character Request"):
 You are initiating a request for a character with the following details. Please provide a description of what you want the character to look like, provide a backstory if you wish, and then hit submit below to confirm.
 **Name**: {first_name} '{nickname}' {last_name}
 **Sex**: {gender.capitalize()}
-**Country**: {country}
+**Country**: {XCOM_COUNTRIES.get(country, country)}
 **Race**: {race}
 **Attitude**: {attitude}
 """)
@@ -169,7 +168,7 @@ class CreateRequestLayout(ui.LayoutView):
                     + " Doing so will set the following properties automatically, and you will be prompted to fill out provide a description and optionally backstory for your character:\n"
                     + f"- **Name**: {first_name} '{nickname}' {last_name} \n"
                     + f"- **Sex**: {gender.capitalize()} \n"
-                    + f"- **Country**: {country} \n"
+                    + f"- **Country**: {XCOM_COUNTRIES.get(country, country)} \n"
                     + f"- **Race**: {race} \n"
                     + f"- **Attitude**: {attitude} \n"
                 ),
@@ -364,7 +363,7 @@ class EditRequestLayout(ui.LayoutView):
                     + " Doing so will set the following properties automatically, and you will be prompted to fill out the rest of the details of your request again:\n"
                     + f"- **Name**: {first_name} '{nickname}' {last_name} \n"
                     + f"- **Sex**: {gender.capitalize()} \n"
-                    + f"- **Country**: {country} \n"
+                    + f"- **Country**: {XCOM_COUNTRIES.get(country, country)} \n"
                     + f"- **Race**: {race} \n"
                     + f"- **Attitude**: {attitude} \n"
                 ),
@@ -410,7 +409,7 @@ class ConfirmReplaceSubmissionView(ui.View):
             "UPDATE xcom_character_submissions SET message_id = $1 WHERE submitter = $2;", msg.id, interaction.user.id
         )
         await interaction.followup.send(
-            f"Your submission of a character with the following details has been successful:{self.details[:2000]}",
+            f"Your submission of a character with the following details has been successful:{self.details[:1900]}",
             ephemeral=True,
         )
         self.bin = b""
@@ -560,7 +559,8 @@ class XCOM(Cog):
 SELECT requestor, first_name, last_name, nickname, gender, country, race, attitude, details, biography
 FROM xcom_character_request
 WHERE fulfiller IS NULL
-ORDER BY req_dt DESC""")
+ORDER BY req_dt DESC
+LIMIT 1""")
                 if next_req is None:
                     await interaction.followup.send("There are no unassigned character requests at this time!")
                     return
@@ -596,7 +596,7 @@ ORDER BY req_dt DESC""")
     Hi {member.mention}, here are the details of the character {requestor.mention} has requested:
 **Name**: {first_name} '{nickname}' {last_name}
 **Sex**: {gender.capitalize()}
-**Country**: {country}
+**Country**: {XCOM_COUNTRIES.get(country, country)}
 **Race**: {race}
 **Attitude**: {attitude}
 
@@ -604,7 +604,7 @@ Here is the details of the requested appearance to use to modify the attached bi
 {next_req["details"]}""",
                     file=discord.File(file, f"{first_name.upper()}.bin"),
                 )
-            await thread.send(f"Character Biography (Info Only):\n{biography}")
+            await thread.send(f"Character Biography (Info Only):\n{biography[:1900]}")
             await starter_msg.pin()
             await interaction.followup.send(
                 f"You have been assigned the request from {requestor.mention}!"
@@ -679,7 +679,7 @@ Here is the details of the requested appearance to use to modify the attached bi
                     "INSERT INTO xcom_character_submissions (submitter, message_id) VALUES ($1, $2);", user.id, msg.id
                 )
                 await interaction.followup.send(
-                    f"Your submission of a character with the following details has been successful:\n{details[:2000]}"
+                    f"Your submission of a character with the following details has been successful:\n{details[:1900]}"
                 )
 
 
