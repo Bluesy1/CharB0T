@@ -12,7 +12,7 @@ from discord.app_commands import Choice, Range
 from discord.ext.commands import Cog
 
 from . import CBot, constants
-from .xcfp import CharacterPool # https://github.com/gnutrino/xcfp
+from .xcfp import CharacterPool  # https://github.com/gnutrino/xcfp
 from .xcom_helpers import ATTITUDES, RACES, XCOM_COUNTRIES, create_base_bin_file
 
 
