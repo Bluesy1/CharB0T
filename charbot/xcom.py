@@ -32,9 +32,7 @@ def validate_pool(pool: bytes) -> Literal[False] | str:
         else:
             details = chars[0].details()
             details = "".join(
-                line
-                for line in details.splitlines(keepends=True)
-                if not line.startswith(("appearance:", "timestamp:"))
+                line for line in details.splitlines(keepends=True) if not line.startswith(("appearance:", "timestamp:"))
             )
             return details.rstrip()
 
