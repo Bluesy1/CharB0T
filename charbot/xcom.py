@@ -16,7 +16,7 @@ from . import CBot, constants
 # External GH project copied into project, but not on git repo - MIT licensed
 # https://github.com/gnutrino/xcfp
 from .xcfp import CharacterPool
-from .xcom_helpers import ATTITUDES, COUNTRIES_BY_NAME, RACES, XCOM_COUNTRIES, create_base_bin_file
+from .xcom_helpers import ATTITUDES, RACES, XCOM_COUNTRIES, create_base_bin_file
 
 
 _LOGGER = logging.getLogger(__name__)
@@ -35,7 +35,7 @@ def validate_pool(pool: bytes) -> Literal[False] | str:
         else:
             details = chars[0].details()
             details = details.replace("appearance: <struct: TAppearance>\n", "")
-            details = details.replace("timestamp: April 23, 2026 - 6:57 PM\n\n", "")
+            return details.replace("timestamp: April 23, 2026 - 6:57 PM\n\n", "")
     return False
 
 
@@ -192,6 +192,8 @@ class CharacterEditModal(ui.Modal, title="Edit Character Request"):
         attitude: str,
         existing_details: str,
         existing_backstory: str,
+        bot: CBot,
+        user_id: int,
     ):
         super().__init__(timeout=600)
         self.first_name = first_name
@@ -203,6 +205,8 @@ class CharacterEditModal(ui.Modal, title="Edit Character Request"):
         self.attitude = attitude
         self.existing_details = existing_details
         self.existing_backstory = existing_backstory
+        self.bot = bot
+        self.user_id = user_id
         self.desc = ui.TextDisplay(f"""\
 You are currently editing a character with the following details. Hit submit below to confirm.
 **Name**: {first_name} '{nickname}' {last_name}
@@ -261,6 +265,11 @@ WHERE requestor=$10;
             )
         await interaction.followup.send("Your character request has been updated!")
 
+    async def on_timeout(self) -> None:
+        await self.bot.pool.execute(
+            "UPDATE xcom_character_request SET fulfiller=NULL WHERE requestor=$1;", self.user_id
+        )
+
 
 class EditRequestButton(ui.Button):
     """A button to for the edit request layout."""
@@ -304,6 +313,8 @@ class EditRequestButton(ui.Button):
                 self.attitude,
                 self.existing_details,
                 self.existing_backstory,
+                interaction.client,
+                interaction.user.id,
             )
         )
         self.disabled = True
@@ -336,11 +347,11 @@ class EditRequestLayout(ui.LayoutView):
                 "# Request Already Submitted\n"
                 + "You already have a pending character request. Here are the details of your request:\n"
                 + f"- **Name:** {existing['first_name']} '{existing['nickname']}' {existing['last_name']}\n"
-                + f"- **Sex:** {existing['sex'].capitalize()}\n"
-                + f"- **Country:** {COUNTRIES_BY_NAME.get(existing['country'], existing['country'])}\n"
-                + f"- **Race:** {RACES[existing['race']]}\n"
-                + f"- **Attitude:** {ATTITUDES[existing['attitude']]}\n"
-                + f"- **Details:** {existing['existing']}\n"
+                + f"- **Sex:** {existing['gender'].capitalize()}\n"
+                + f"- **Country:** {XCOM_COUNTRIES.get(existing['country'], existing['country'])}\n"
+                + f"- **Race:** {existing['race']}\n"
+                + f"- **Attitude:** {existing['attitude']}\n"
+                + f"- **Details:** {existing['details']}\n"
                 + f"- **Biography:** {existing['biography'] if existing['biography'] else 'N/A'}\n\n"
                 + "Your request is currently awaiting review by our volunteers."
             )
@@ -373,15 +384,19 @@ class EditRequestLayout(ui.LayoutView):
 
 
 class ConfirmReplaceSubmissionView(ui.View):
-    def __init__(self, contents: bytes, fname: str, old_message: discord.Message, details: str):
+    def __init__(self, contents: bytes, fname: str, old_message: discord.Message, details: str, user: int):
         super().__init__()
         self.bin = contents
         self.fname = fname
         self.old_message = old_message
         self.details = details
+        self.user = user
 
     @ui.button(label="Replace Existing Submission", style=discord.ButtonStyle.green)
     async def replace_button(self, interaction: discord.Interaction[CBot], _: ui.Button):
+        if interaction.user.id != self.user:
+            await interaction.response.send_message("This is not for you!")
+            return
         self.replace_button.disabled = True
         self.cancel_button.disabled = True
         await interaction.response.edit_message(content="Your previous submission will be replaced.", view=self)
@@ -402,6 +417,9 @@ class ConfirmReplaceSubmissionView(ui.View):
 
     @ui.button(label="Keep Existing Submission", style=discord.ButtonStyle.blurple)
     async def cancel_button(self, interaction: discord.Interaction, _: ui.Button):
+        if interaction.user.id != self.user:
+            await interaction.response.send_message("This is not for you!")
+            return
         self.replace_button.disabled = True
         self.cancel_button.disabled = True
         await interaction.response.edit_message(content="Your previous submission has been maintained.", view=self)
@@ -472,7 +490,7 @@ class XCOM(Cog):
             The personality of the character being requested.
         """
 
-        if country not in COUNTRIES_BY_NAME:
+        if country not in XCOM_COUNTRIES:
             await interaction.response.send_message(
                 "Invalid country. Please choose a valid country from the autocomplete suggestions.", ephemeral=True
             )
@@ -576,14 +594,14 @@ ORDER BY req_dt DESC""")
                 starter_msg = await thread.send(
                     f"""\
     Hi {member.mention}, here are the details of the character {requestor.mention} has requested:
-    **Name**: {first_name} '{nickname}' {last_name}
-    **Sex**: {gender.capitalize()}
-    **Country**: {country}
-    **Race**: {race}
-    **Attitude**: {attitude}
+**Name**: {first_name} '{nickname}' {last_name}
+**Sex**: {gender.capitalize()}
+**Country**: {country}
+**Race**: {race}
+**Attitude**: {attitude}
 
-    Here is the details of the requested appearance to use to modify the attached bin:
-    {next_req["details"]}""",
+Here is the details of the requested appearance to use to modify the attached bin:
+{next_req["details"]}""",
                     file=discord.File(file, f"{first_name.upper()}.bin"),
                 )
             await thread.send(f"Character Biography (Info Only):\n{biography}")
@@ -649,7 +667,7 @@ ORDER BY req_dt DESC""")
                 else:
                     await interaction.followup.send(
                         f"You have a previous submission here: {message.jump_url}, do you want to replace it?",
-                        view=ConfirmReplaceSubmissionView(contents, fname, message, details),
+                        view=ConfirmReplaceSubmissionView(contents, fname, message, details, user.id),
                     )
             else:
                 await interaction.followup.send("Processing your submission now.")

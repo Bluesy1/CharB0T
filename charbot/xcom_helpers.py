@@ -69,7 +69,7 @@ ATTITUDES = ("By The Book", "Laid Back", "Normal", "Twitchy", "Happy-Go-Lucky", 
 PADDING = b"\x00" * 4
 
 
-def _cp2521(text: str) -> bytes:
+def _cp1521(text: str) -> bytes:
     return text.encode("cp1251")
 
 
@@ -81,7 +81,7 @@ def _write_int_prop(prop: int) -> bytes:
 # Size + 4, Padding, Size, Value
 def _write_str_prop(prop: str | bytes) -> bytes:
     if isinstance(prop, str):
-        prop = _cp2521(prop)
+        prop = _cp1521(prop)
 
     if not prop.endswith(b"\x00"):
         prop += b"\x00"
@@ -94,7 +94,7 @@ def _write_str_prop(prop: str | bytes) -> bytes:
 # Similar to str: Size + 8, Padding, Size, Value, Padding
 def _write_name_prop(prop: str | bytes) -> bytes:
     if isinstance(prop, str):
-        prop = _cp2521(prop)
+        prop = _cp1521(prop)
 
     if not prop.endswith(b"\x00"):
         prop += b"\x00"
@@ -127,7 +127,7 @@ def create_base_bin_file(
         result = _FEMALE_TEMPLATE
         FILENAME_BYTESTRING = _FEMALE_FILENAME_BYTESTRING
     result = result.replace(
-        FILENAME_BYTESTRING, _write_str_prop(b"CharacterPool\\Importable\\" + _cp2521(first_name.upper()) + b".bin")
+        FILENAME_BYTESTRING, _write_str_prop(b"CharacterPool\\Importable\\" + _cp1521(first_name.upper()) + b".bin")
     )
 
     # Names
@@ -136,7 +136,7 @@ def create_base_bin_file(
     result = result.replace(_NICK_NAME_BYTESTRING, _write_str_prop(nickname))
 
     # Character Properties
-    result = result.replace(_COUNTRY_BYTESTRING, _write_name_prop(COUNTRIES_BY_NAME[country]))
+    result = result.replace(_COUNTRY_BYTESTRING, _write_name_prop(XCOM_COUNTRIES[country]))
     result = result.replace(_RACE_HEADER + _RACE_BYTESTRING, _RACE_HEADER + _write_int_prop(RACES.index(race)))
     result = result.replace(
         _ATTITUDE_HEADER + _ATTITUDE_BYTESTRING, _ATTITUDE_HEADER + _write_int_prop(ATTITUDES.index(attitude))
