@@ -71,11 +71,11 @@ CREATE TABLE IF NOT EXISTS xcom_character_request
     last_name       VARCHAR(25)                     NOT NULL,
     nickname        VARCHAR(25)                     NOT NULL,
     country         VARCHAR(20)                     NOT NULL,
-    gender          CHAR(6)                         NOT NULL
+    gender          VARCHAR(6)                      NOT NULL
         CHECK(gender IN ('male', 'female'))                 ,
-    race            CHAR(9)                         NOT NULL
+    race            VARCHAR(9)                      NOT NULL
         CHECK(race IN ('Caucasian', 'African', 'Asian', 'Hispanic')),
-    attitude        CHAR(14)                        NOT NULL
+    attitude        VARCHAR(14)                     NOT NULL
         CHECK(attitude IN ('By The Book', 'Laid Back', 'Normal', 'Twitchy', 'Happy-Go-Lucky', 'Hard Luck', 'Intense')),
     details         VARCHAR(500)                    NOT NULL,
     biography       VARCHAR(2000)                   NOT NULL,
