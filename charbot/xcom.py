@@ -1,4 +1,5 @@
 """XCOM Stuff"""
+# pyright: reportMissingImports=false
 
 import asyncio
 import io
@@ -11,7 +12,10 @@ from discord.app_commands import Choice, Range
 from discord.ext.commands import Cog
 
 from . import CBot, constants
-from .xcfp import CharacterPool  # External GH project copied into project, but not on git repo - MIT licensed
+
+# External GH project copied into project, but not on git repo - MIT licensed
+# https://github.com/gnutrino/xcfp
+from .xcfp import CharacterPool
 from .xcom_helpers import ATTITUDES, COUNTRIES_BY_NAME, RACES, XCOM_COUNTRIES, create_base_bin_file
 
 
