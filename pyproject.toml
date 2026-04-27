@@ -70,10 +70,19 @@ filterwarnings = [
 pythonPlatform = "Linux"
 reportUnnecessaryTypeIgnoreComment = true
 reportIncompatibleMethodOverride = false
-exclude = ["**/__pycache__/**", "venv", ".git", ".venv"]
+exclude = [
+	"**/__pycache__/**",
+	"venv",
+	".git",
+	".venv",
+	"**/node_modules",
+	"**/.*",
+	"**/xcfp",
+]
 
 [tool.ruff]
 line-length = 120 # Maximum line length - 88 is too short IMO
+extend-exclude = ["charbot/xcfp"]
 
 [tool.ruff.lint]
 ignore = [

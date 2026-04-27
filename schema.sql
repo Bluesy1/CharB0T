@@ -59,3 +59,34 @@ CREATE TABLE IF NOT EXISTS giveaway
     min_level   SMALLINT    DEFAULT 0           NOT NULL,
     random_num  BOOLEAN     DEFAULT FALSE       NOT NULL
 );
+
+CREATE TABLE IF NOT EXISTS xcom_character_request
+(
+    requestor       BIGINT                          NOT NULL
+        CONSTRAINT xcom_character_request_pk
+            PRIMARY KEY,
+    req_dt          TIMESTAMP WITH TIME ZONE        NOT NULL
+                                DEFAULT CURRENT_TIMESTAMP   ,
+    first_name      VARCHAR(25)                     NOT NULL,
+    last_name       VARCHAR(25)                     NOT NULL,
+    nickname        VARCHAR(25)                     NOT NULL,
+    country         VARCHAR(20)                     NOT NULL,
+    gender          VARCHAR(6)                      NOT NULL
+        CHECK(gender IN ('male', 'female'))                 ,
+    race            VARCHAR(9)                      NOT NULL
+        CHECK(race IN ('Caucasian', 'African', 'Asian', 'Hispanic')),
+    attitude        VARCHAR(14)                     NOT NULL
+        CHECK(attitude IN ('By The Book', 'Laid Back', 'Normal', 'Twitchy', 'Happy-Go-Lucky', 'Hard Luck', 'Intense')),
+    details         VARCHAR(500)                    NOT NULL,
+    biography       VARCHAR(2000)                   NOT NULL,
+    fulfiller       BIGINT      DEFAULT NULL                ,
+    fulfill_thread  BIGINT      DEFAULT NULL
+);
+
+CREATE TABLE IF NOT EXISTS xcom_character_submissions
+(
+    submitter   BIGINT                           NOT NULL
+        CONSTRAINT xcom_character_submissions_pk
+            PRIMARY KEY,
+    message_id  BIGINT                           NOT NULL   
+);
