@@ -31,8 +31,12 @@ def validate_pool(pool: bytes) -> Literal[False] | str:
             return False
         else:
             details = chars[0].details()
-            details = details.replace("appearance: <struct: TAppearance>\n", "")
-            return details.replace("timestamp: April 23, 2026 - 6:57 PM\n\n", "")
+            details = "".join(
+                line
+                for line in details.splitlines(keepends=True)
+                if not line.startswith(("appearance:", "timestamp:"))
+            )
+            return details.rstrip()
 
 
 class CharacterRequestModal(ui.Modal, title="Character Request"):
