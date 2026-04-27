@@ -13,7 +13,7 @@ from discord.ext.commands import Cog
 
 from . import CBot, constants
 from .xcfp import CharacterPool  # https://github.com/gnutrino/xcfp
-from .xcom_helpers import ATTITUDES, RACES, XCOM_COUNTRIES, create_base_bin_file
+from .xcom_helpers import XCOM_COUNTRIES, create_base_bin_file
 
 
 _LOGGER = logging.getLogger(__name__)
@@ -450,10 +450,6 @@ class XCOM(Cog):
         ][:25]
 
     @character.command(name="request")
-    @app_commands.choices(
-        race=[Choice(name=race, value=i) for i, race in enumerate(RACES)],
-        attitude=[Choice(name=attitude, value=i) for i, attitude in enumerate(ATTITUDES)],
-    )
     @app_commands.autocomplete(country=country_autocomplete)
     async def request_character(
         self,
@@ -463,8 +459,8 @@ class XCOM(Cog):
         nickname: Range[str, None, 25],
         gender: Literal["male", "female"],
         country: str,  # autocomplete for this.....
-        race: Choice[int],  # Choices decorator
-        attitude: Choice[int],  # Choices decorator
+        race: Literal["Caucasian", "African", "Asian", "Hispanic"],
+        attitude: Literal["By The Book", "Laid Back", "Normal", "Twitchy", "Happy-Go-Lucky", "Hard Luck", "Intense"],
     ) -> None:
         """Request a character to be added to the XCOM roster.
 
@@ -482,9 +478,9 @@ class XCOM(Cog):
             The gender of the character being requested.
         country: str
             The country of origin for the character being requested.
-        race: int
+        race: Literal["Caucasian", "African", "Asian", "Hispanic"]
             The race of the character being requested.
-        attitude: int
+        attitude: Literal["By The Book", "Laid Back", "Normal", "Twitchy", "Happy-Go-Lucky", "Hard Luck", "Intense"]
             The personality of the character being requested.
         """
 
@@ -518,8 +514,8 @@ class XCOM(Cog):
                     nickname=nickname,
                     gender=gender,
                     country=country,
-                    race=race.name,
-                    attitude=attitude.name,
+                    race=race,
+                    attitude=attitude,
                 )
                 await interaction.followup.send(view=view, ephemeral=True)
             else:
@@ -529,8 +525,8 @@ class XCOM(Cog):
                     nickname=nickname,
                     gender=gender,
                     country=country,
-                    race=race.name,
-                    attitude=attitude.name,
+                    race=race,
+                    attitude=attitude,
                 )
                 await interaction.followup.send(view=view, ephemeral=True)
 
