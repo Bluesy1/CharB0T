@@ -11,30 +11,11 @@ from discord import app_commands, ui
 from discord.app_commands import Choice, Range
 from discord.ext.commands import Cog
 
-from . import CBot, constants
-from .xcfp import CharacterPool  # https://github.com/gnutrino/xcfp
-from .xcom_helpers import XCOM_COUNTRIES, create_base_bin_file
+from . import CBot, constants, xcom_helpers
 
 
 _LOGGER = logging.getLogger(__name__)
 _SUBMISSION_CHANNEL_ID: int = 1497045860301934714
-
-
-def validate_pool(pool: bytes) -> Literal[False] | str:
-    with io.BytesIO(pool) as b:
-        p = CharacterPool(b)
-        try:
-            chars = list(p.characters())
-            if len(chars) != 1:
-                return False
-        except Exception:
-            return False
-        else:
-            details = chars[0].details()
-            details = "".join(
-                line for line in details.splitlines(keepends=True) if not line.startswith(("appearance:", "timestamp:"))
-            )
-            return details.rstrip()
 
 
 class CharacterRequestModal(ui.Modal, title="Character Request"):
@@ -62,7 +43,7 @@ class CharacterRequestModal(ui.Modal, title="Character Request"):
 You are initiating a request for a character with the following details. Please provide a description of what you want the character to look like, provide a backstory if you wish, and then hit submit below to confirm.
 **Name**: {first_name} '{nickname}' {last_name}
 **Sex**: {gender.capitalize()}
-**Country**: {XCOM_COUNTRIES.get(country, country)}
+**Country**: {xcom_helpers.XCOM_COUNTRIES.get(country, country)}
 **Race**: {race}
 **Attitude**: {attitude}
 """)
@@ -167,7 +148,7 @@ class CreateRequestLayout(ui.LayoutView):
                     + " Doing so will set the following properties automatically, and you will be prompted to fill out provide a description and optionally backstory for your character:\n"
                     + f"- **Name**: {first_name} '{nickname}' {last_name} \n"
                     + f"- **Sex**: {gender.capitalize()} \n"
-                    + f"- **Country**: {XCOM_COUNTRIES.get(country, country)} \n"
+                    + f"- **Country**: {xcom_helpers.XCOM_COUNTRIES.get(country, country)} \n"
                     + f"- **Race**: {race} \n"
                     + f"- **Attitude**: {attitude} \n"
                 ),
@@ -346,7 +327,7 @@ class EditRequestLayout(ui.LayoutView):
                 + "You already have a pending character request. Here are the details of your request:\n"
                 + f"- **Name:** {existing['first_name']} '{existing['nickname']}' {existing['last_name']}\n"
                 + f"- **Sex:** {existing['gender'].capitalize()}\n"
-                + f"- **Country:** {XCOM_COUNTRIES.get(existing['country'], existing['country'])}\n"
+                + f"- **Country:** {xcom_helpers.XCOM_COUNTRIES.get(existing['country'], existing['country'])}\n"
                 + f"- **Race:** {existing['race']}\n"
                 + f"- **Attitude:** {existing['attitude']}\n"
                 + f"- **Details:** {existing['details']}\n"
@@ -362,7 +343,7 @@ class EditRequestLayout(ui.LayoutView):
                     + " Doing so will set the following properties automatically, and you will be prompted to fill out the rest of the details of your request again:\n"
                     + f"- **Name**: {first_name} '{nickname}' {last_name} \n"
                     + f"- **Sex**: {gender.capitalize()} \n"
-                    + f"- **Country**: {XCOM_COUNTRIES.get(country, country)} \n"
+                    + f"- **Country**: {xcom_helpers.XCOM_COUNTRIES.get(country, country)} \n"
                     + f"- **Race**: {race} \n"
                     + f"- **Attitude**: {attitude} \n"
                 ),
@@ -446,7 +427,7 @@ class XCOM(Cog):
     async def country_autocomplete(self, interaction: discord.Interaction, current: str) -> list[Choice[str]]:
         """Autocomplete for the country field."""
         return [
-            Choice(name=value, value=key) for key, value in XCOM_COUNTRIES.items() if current.lower() in value.lower()
+            Choice(name=value, value=key) for key, value in xcom_helpers.XCOM_COUNTRIES.items() if current.lower() in value.lower()
         ][:25]
 
     @character.command(name="request")
@@ -484,7 +465,7 @@ class XCOM(Cog):
             The personality of the character being requested.
         """
 
-        if country not in XCOM_COUNTRIES:
+        if country not in xcom_helpers.XCOM_COUNTRIES:
             await interaction.response.send_message(
                 "Invalid country. Please choose a valid country from the autocomplete suggestions.", ephemeral=True
             )
@@ -578,7 +559,7 @@ LIMIT 1""")
             race = next_req["race"]
             attitude = next_req["attitude"]
             biography = next_req["biography"]
-            bin_bytes = create_base_bin_file(
+            bin_bytes = xcom_helpers.create_base_bin_file(
                 first_name, last_name, nickname, gender, country, race, attitude, biography
             )
             channel: discord.TextChannel = guild.get_channel(_SUBMISSION_CHANNEL_ID)  # pyright: ignore[reportAssignmentType]
@@ -591,7 +572,7 @@ LIMIT 1""")
     Hi {member.mention}, here are the details of the character {requestor.mention} has requested:
 **Name**: {first_name} '{nickname}' {last_name}
 **Sex**: {gender.capitalize()}
-**Country**: {XCOM_COUNTRIES.get(country, country)}
+**Country**: {xcom_helpers.XCOM_COUNTRIES.get(country, country)}
 **Race**: {race}
 **Attitude**: {attitude}
 
@@ -639,7 +620,7 @@ Here is the details of the requested appearance to use to modify the attached bi
             await interaction.followup.send("Could not read the submitted `.bin` file, please try again!")
             _LOGGER.exception("Failed to read submitted .bin file named %s from user with id %s.", fname, user.id)
             return
-        if not (details := validate_pool(contents)):
+        if not (details := xcom_helpers.validate_pool(contents)):
             await interaction.followup.send(
                 "Submitted `.bin` file failed validation! Make sure it only has a single character and is a named pool."
             )
@@ -680,4 +661,7 @@ Here is the details of the requested appearance to use to modify the attached bi
 
 async def setup(bot: CBot) -> None:
     """Add the XCOM cog to the bot."""
+    import sys, importlib
+    global xcom_helpers
+    sys.modules["charbot.xcom_helpers"] = xcom_helpers = importlib.reload(xcom_helpers)
     await bot.add_cog(XCOM(bot))

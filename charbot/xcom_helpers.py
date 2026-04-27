@@ -1,9 +1,14 @@
 """Helpers for xcom.py"""
 
+import io
 import pathlib
+from typing import Literal
 
 
-__all__ = ("XCOM_COUNTRIES", "COUNTRIES_BY_NAME", "RACES", "ATTITUDES", "create_base_bin_file")
+from .xcfp import CharacterPool  # https://github.com/gnutrino/xcfp
+
+
+__all__ = ("XCOM_COUNTRIES", "COUNTRIES_BY_NAME", "RACES", "ATTITUDES", "create_base_bin_file", "validate_pool")
 
 _MEDIA_BASE = pathlib.Path(__file__).parent / "media/xcom"
 _MALE_TEMPLATE = pathlib.Path(_MEDIA_BASE, "MALE.bin").read_bytes()
@@ -119,7 +124,7 @@ def create_base_bin_file(
     race: str,
     attitude: str,
     backstory: str,
-):
+) -> bytes:
     if gender == "male":
         result = _MALE_TEMPLATE
         FILENAME_BYTESTRING = _MALE_FILENAME_BYTESTRING
@@ -148,3 +153,21 @@ def create_base_bin_file(
     result = result.replace(_BIO_BYTESTRING, _write_str_prop(backstory))
 
     return result
+
+
+def validate_pool(pool: bytes) -> Literal[False] | str:
+    with io.BytesIO(pool) as b:
+        p = CharacterPool(b)
+        try:
+            chars = list(p.characters())
+            if len(chars) != 1:
+                return False
+        except Exception:
+            return False
+        else:
+            details = chars[0].details()
+            details = "".join(
+                line for line in details.splitlines(keepends=True) if not line.startswith(("appearance:", "timestamp:"))
+            )
+            return details.rstrip()
+        
