@@ -20,7 +20,9 @@ def test_validate_pool_accept_good_bins(file):
     assert isinstance(xcom_helpers.validate_pool(pathlib.Path(MEDIA_BASE, file).read_bytes()), str)
 
 
-@pytest.mark.parametrize(("gender", "expected"), [("male", "RET_MALE.bin"), ("female", "RET_FEMALE.bin")], ids=("male", "female"))
+@pytest.mark.parametrize(
+    ("gender", "expected"), [("male", "RET_MALE.bin"), ("female", "RET_FEMALE.bin")], ids=("male", "female")
+)
 def test_create_base_bins(gender, expected):
     expected_bytes = pathlib.Path(MEDIA_BASE, expected).read_bytes()
     actual = xcom_helpers.create_base_bin_file(

@@ -4,7 +4,6 @@ import io
 import pathlib
 from typing import Literal
 
-
 from .xcfp import CharacterPool  # https://github.com/gnutrino/xcfp
 
 
@@ -170,4 +169,3 @@ def validate_pool(pool: bytes) -> Literal[False] | str:
                 line for line in details.splitlines(keepends=True) if not line.startswith(("appearance:", "timestamp:"))
             )
             return details.rstrip()
-        

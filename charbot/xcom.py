@@ -427,7 +427,9 @@ class XCOM(Cog):
     async def country_autocomplete(self, interaction: discord.Interaction, current: str) -> list[Choice[str]]:
         """Autocomplete for the country field."""
         return [
-            Choice(name=value, value=key) for key, value in xcom_helpers.XCOM_COUNTRIES.items() if current.lower() in value.lower()
+            Choice(name=value, value=key)
+            for key, value in xcom_helpers.XCOM_COUNTRIES.items()
+            if current.lower() in value.lower()
         ][:25]
 
     @character.command(name="request")
@@ -661,7 +663,9 @@ Here is the details of the requested appearance to use to modify the attached bi
 
 async def setup(bot: CBot) -> None:
     """Add the XCOM cog to the bot."""
-    import sys, importlib
+    import importlib
+    import sys
+
     global xcom_helpers
     sys.modules["charbot.xcom_helpers"] = xcom_helpers = importlib.reload(xcom_helpers)
     await bot.add_cog(XCOM(bot))
