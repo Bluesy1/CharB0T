@@ -15,7 +15,6 @@ config.toml
 /charbot.service
 /coverage/reports/coverage.xml
 /.venv/
-/charbot/xcfp
 
 # C extensions
 *.so
