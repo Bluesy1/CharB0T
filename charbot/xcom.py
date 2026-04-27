@@ -1,6 +1,7 @@
 """XCOM Stuff"""
 
 import asyncio
+import io
 import logging
 from typing import Literal
 
@@ -10,10 +11,28 @@ from discord.app_commands import Choice, Range
 from discord.ext.commands import Cog
 
 from . import CBot, constants
-from .xcom_helpers import XCOM_COUNTRIES, COUNTRIES_BY_NAME, RACES, ATTITUDES, create_base_bin_file
+from .xcfp import CharacterPool  # External GH project copied into project, but not on git repo - MIT licensed
+from .xcom_helpers import ATTITUDES, COUNTRIES_BY_NAME, RACES, XCOM_COUNTRIES, create_base_bin_file
+
 
 _LOGGER = logging.getLogger(__name__)
-_REQUESTS_CHANNEL_ID: int = ...
+_SUBMISSION_CHANNEL_ID: int = 1497045860301934714
+
+
+def validate_pool(pool: bytes) -> Literal[False] | str:
+    with io.BytesIO(pool) as b:
+        p = CharacterPool(b)
+        try:
+            chars = list(p.characters())
+            if len(chars) != 1:
+                return False
+        except Exception:
+            pass
+        else:
+            details = chars[0].details()
+            details = details.replace("appearance: <struct: TAppearance>\n", "")
+            details = details.replace("timestamp: April 23, 2026 - 6:57 PM\n\n", "")
+    return False
 
 
 class CharacterRequestModal(ui.Modal, title="Character Request"):
@@ -114,6 +133,14 @@ class CreateRequestButton(ui.Button):
                 self.first_name, self.last_name, self.nickname, self.gender, self.country, self.race, self.attitude
             )
         )
+        self.disabled = True
+        view = self.view
+        assert isinstance(view, ui.LayoutView)
+        assert interaction.message
+        try:
+            await interaction.message.edit(view=view)
+        finally:
+            view.stop()
 
 
 class CreateRequestLayout(ui.LayoutView):
@@ -275,6 +302,14 @@ class EditRequestButton(ui.Button):
                 self.existing_backstory,
             )
         )
+        self.disabled = True
+        view = self.view
+        assert isinstance(view, ui.LayoutView)
+        assert interaction.message
+        try:
+            await interaction.message.edit(view=view)
+        finally:
+            view.stop()
 
 
 class EditRequestLayout(ui.LayoutView):
@@ -331,6 +366,43 @@ class EditRequestLayout(ui.LayoutView):
                 ),
             )
         )
+
+
+class ConfirmReplaceSubmissionView(ui.View):
+    def __init__(self, contents: bytes, fname: str, old_message: discord.Message, details: str):
+        super().__init__()
+        self.bin = contents
+        self.fname = fname
+        self.old_message = old_message
+        self.details = details
+
+    @ui.button(label="Replace Existing Submission", style=discord.ButtonStyle.green)
+    async def replace_button(self, interaction: discord.Interaction[CBot], _: ui.Button):
+        self.replace_button.disabled = True
+        self.cancel_button.disabled = True
+        await interaction.response.edit_message(content="Your previous submission will be replaced.", view=self)
+        self.stop()
+        await self.old_message.delete()
+        channel = interaction.channel
+        assert isinstance(channel, discord.TextChannel)
+        with io.BytesIO(self.bin) as f:
+            msg = await channel.send(f"{interaction.user.mention}:", file=discord.File(f, self.fname))
+        await interaction.client.pool.execute(
+            "UPDATE xcom_character_submissions SET message_id = $1 WHERE submitter = $2;", msg.id, interaction.user.id
+        )
+        await interaction.followup.send(
+            f"Your submission of a character with the following details has been successful:{self.details[:2000]}",
+            ephemeral=True,
+        )
+        self.bin = b""
+
+    @ui.button(label="Keep Existing Submission", style=discord.ButtonStyle.blurple)
+    async def cancel_button(self, interaction: discord.Interaction, _: ui.Button):
+        self.replace_button.disabled = True
+        self.cancel_button.disabled = True
+        await interaction.response.edit_message(content="Your previous submission has been maintained.", view=self)
+        self.stop()
+        self.bin = b""
 
 
 class XCOM(Cog):
@@ -463,10 +535,10 @@ class XCOM(Cog):
             next_req = discord.utils.MISSING
             while True:
                 next_req = await conn.fetchrow("""\
-    SELECT requestor, first_name, last_name, nickname, gender, country, race, attitude, details, biography
-    FROM xcom_character_request
-    WHERE fulfiller IS NULL
-    ORDER BY req_dt DESC""")
+SELECT requestor, first_name, last_name, nickname, gender, country, race, attitude, details, biography
+FROM xcom_character_request
+WHERE fulfiller IS NULL
+ORDER BY req_dt DESC""")
                 if next_req is None:
                     await interaction.followup.send("There are no unassigned character requests at this time!")
                     return
@@ -476,7 +548,7 @@ class XCOM(Cog):
                     break
                 try:
                     requestor = await guild.fetch_member(requestor_id)
-                except discord.NotFound, discord.Forbidden:
+                except (discord.NotFound, discord.Forbidden):
                     await conn.execute("DELETE FROM xcom_character_request WHERE requestor=$1;", requestor_id)
                     _LOGGER.debug("Deleting request from user %s: Could not find user on server.", requestor_id)
                 else:
@@ -492,23 +564,24 @@ class XCOM(Cog):
             bin_bytes = create_base_bin_file(
                 first_name, last_name, nickname, gender, country, race, attitude, biography
             )
-            channel: discord.TextChannel = guild.get_channel(_REQUESTS_CHANNEL_ID)  # pyright: ignore[reportAssignmentType]
+            channel: discord.TextChannel = guild.get_channel(_SUBMISSION_CHANNEL_ID)  # pyright: ignore[reportAssignmentType]
             thread = await channel.create_thread(name=f"Character Request for {member}")
             await thread.add_user(member)
             await thread.add_user(requestor)
-            starter_msg = await thread.send(
-                f"""\
-Hi {member.mention}, here are the details of the character {requestor.mention} has requested:
-**Name**: {first_name} '{nickname}' {last_name}
-**Sex**: {gender.capitalize()}
-**Country**: {country}
-**Race**: {race}
-**Attitude**: {attitude}
+            with io.BytesIO(bin_bytes) as file:
+                starter_msg = await thread.send(
+                    f"""\
+    Hi {member.mention}, here are the details of the character {requestor.mention} has requested:
+    **Name**: {first_name} '{nickname}' {last_name}
+    **Sex**: {gender.capitalize()}
+    **Country**: {country}
+    **Race**: {race}
+    **Attitude**: {attitude}
 
-Here is the details of the requested appearance to use to modify the attached bin:
-{next_req["details"]}""",
-                file=discord.File(bin_bytes, f"{first_name.upper()}.bin"),
-            )
+    Here is the details of the requested appearance to use to modify the attached bin:
+    {next_req["details"]}""",
+                    file=discord.File(file, f"{first_name.upper()}.bin"),
+                )
             await thread.send(f"Character Biography (Info Only):\n{biography}")
             await starter_msg.pin()
             await interaction.followup.send(
@@ -521,6 +594,71 @@ Here is the details of the requested appearance to use to modify the attached bi
                 thread.id,
                 requestor_id,
             )
+
+    @app_commands.command(name="submit")
+    async def submit_file(self, interaction: discord.Interaction, file: discord.Attachment):
+        """Reserve the next request in the character request queue for creation.
+
+        Parameters
+        ----------
+        interaction: discord.Interaction
+            The interaction instance for the command.
+        file: discord.Attachment
+            The character pool to validate
+        """
+        await interaction.response.defer(ephemeral=True)
+        if interaction.channel_id != _SUBMISSION_CHANNEL_ID:
+            await interaction.followup.send(f"You must use this command in <#{_SUBMISSION_CHANNEL_ID}>!")
+            return
+        channel = interaction.channel
+        user = interaction.user
+        assert isinstance(channel, discord.TextChannel)
+        if not (fname := file.filename).endswith(".bin"):
+            await interaction.followup.send("You must submit a `.bin` file!")
+            return
+        try:
+            contents = await file.read()
+        except discord.HTTPException:
+            await interaction.followup.send("Could not read the submitted `.bin` file, please try again!")
+            _LOGGER.exception("Failed to read submitted .bin file named %s from user with id %s.", fname, user.id)
+            return
+        if not (details := validate_pool(contents)):
+            await interaction.followup.send(
+                "Submitted `.bin` file failed validation! Make sure it only has a single character and is a named pool."
+            )
+            return
+        async with self.bot.pool.acquire() as conn:
+            message_id: int | None = await conn.fetchval(
+                "SELECT message_id FROM xcom_character_submissions WHERE submitter = $1;", user.id
+            )
+            if message_id is not None:
+                try:
+                    message = await channel.fetch_message(message_id)
+                except discord.HTTPException:
+                    await interaction.followup.send(
+                        "An unexpected error has occurred, please open a mod support ticket!"
+                    )
+                    _LOGGER.exception(
+                        "An error occurred while attempting to fetch a previous submission for user with id %s.",
+                        user.id,
+                    )
+                else:
+                    await interaction.followup.send(
+                        f"You have a previous submission here: {message.jump_url}, do you want to replace it?",
+                        view=ConfirmReplaceSubmissionView(contents, fname, message, details),
+                    )
+            else:
+                await interaction.followup.send("Processing your submission now.")
+                with io.BytesIO(contents) as contents:
+                    msg = await interaction.followup.send(
+                        f"{interaction.user.mention}:", file=discord.File(contents, fname), ephemeral=False, wait=True
+                    )
+                await conn.execute(
+                    "INSERT INTO xcom_character_submissions (submitter, message_id) VALUES ($1, $2);", user.id, msg.id
+                )
+                await interaction.followup.send(
+                    f"Your submission of a character with the following details has been successful:\n{details[:2000]}"
+                )
 
 
 async def setup(bot: CBot) -> None:

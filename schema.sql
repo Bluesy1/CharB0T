@@ -80,7 +80,13 @@ CREATE TABLE IF NOT EXISTS xcom_character_request
     details         VARCHAR(500)                    NOT NULL,
     biography       VARCHAR(2000)                   NOT NULL,
     fulfiller       BIGINT      DEFAULT NULL                ,
-    fulfilled_dt    TIMESTAMP WITH TIME ZONE DEFAULT NULL   ,
-    fulfilled       BOOLEAN     DEFAULT FALSE               ,
     fulfill_thread  BIGINT      DEFAULT NULL
+);
+
+CREATE TABLE IF NOT EXISTS xcom_character_submissions
+(
+    submitter   BIGINT                           NOT NULL
+        CONSTRAINT xcom_character_submissions_pk
+            PRIMARY KEY,
+    message_id  BIGINT                           NOT NULL   
 );

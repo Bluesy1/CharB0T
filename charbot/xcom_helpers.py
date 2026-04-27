@@ -2,6 +2,7 @@
 
 import pathlib
 
+
 __all__ = ("XCOM_COUNTRIES", "COUNTRIES_BY_NAME", "RACES", "ATTITUDES", "create_base_bin_file")
 
 _MEDIA_BASE = pathlib.Path(__file__).parent / "media/xcom"
@@ -14,7 +15,7 @@ _FEMALE_FILENAME_BYTESTRING = (
 _FIRST_NAME_BYTESTRING = b"\x0b\x00\x00\x00\x00\x00\x00\x00\x07\x00\x00\x00RFirst\x00"
 _LAST_NAME_BYTESTRING = b"\x0a\x00\x00\x00\x00\x00\x00\x00\x06\x00\x00\x00RLast\x00"
 _NICK_NAME_BYTESTRING = b"\x0c\x00\x00\x00\x00\x00\x00\x00\x08\x00\x00\x00'RNick'\x00"
-_BIO_BYTESTRING = b"\x09\x00\x00\x00\x00\x00\x00\x00\x05\x00\x00\x00RBIO\x00"
+_BIO_BYTESTRING = b"\x09\x00\x00\x00\x00\x00\x00\x00\x05\x00\x00\x00RBIO\x00"  # cspell: disable-line
 _COUNTRY_BYTESTRING = b"\x14\x00\x00\x00\x00\x00\x00\x00\x0c\x00\x00\x00Country_USA\x00\x00\x00\x00\x00"
 # Race:: 0: Caucasian, 1: African, 2: Asian, 3: Hispanic
 _RACE_HEADER = b"iRace\x00\x00\x00\x00\x00\x0c\x00\x00\x00IntProperty\x00\x00\x00\x00\x00"
@@ -86,8 +87,8 @@ def _write_str_prop(prop: str | bytes) -> bytes:
         prop += b"\x00"
 
     prop = prop.replace(b"\n", b"\r")
-    l = len(prop)
-    return (l + 4).to_bytes(4, byteorder="little") + PADDING + l.to_bytes(4, byteorder="little") + prop
+    prop_len = len(prop)
+    return (prop_len + 4).to_bytes(4, byteorder="little") + PADDING + prop_len.to_bytes(4, byteorder="little") + prop
 
 
 # Similar to str: Size + 8, Padding, Size, Value, Padding
@@ -99,8 +100,14 @@ def _write_name_prop(prop: str | bytes) -> bytes:
         prop += b"\x00"
 
     prop = prop.replace(b"\n", b"\r")
-    l = len(prop)
-    return (l + 8).to_bytes(4, byteorder="little") + PADDING + l.to_bytes(4, byteorder="little") + prop + PADDING
+    prop_len = len(prop)
+    return (
+        (prop_len + 8).to_bytes(4, byteorder="little")
+        + PADDING
+        + prop_len.to_bytes(4, byteorder="little")
+        + prop
+        + PADDING
+    )
 
 
 def create_base_bin_file(
