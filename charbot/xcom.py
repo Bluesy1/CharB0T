@@ -432,7 +432,7 @@ class XCOM(Cog):
         name="character",
         description="Commands related to character requests.",
         guild_ids=constants.GUILD_IDS,
-        default_permissions=discord.Permissions(manage_permissions=True),
+        default_permissions=discord.Permissions(manage_messages=True),
     )
 
     def __init__(self, bot: CBot) -> None:
@@ -616,7 +616,7 @@ Here is the details of the requested appearance to use to modify the attached bi
                 requestor_id,
             )
 
-    @app_commands.command(name="submit")
+    @character.command(name="submit")
     async def submit_file(self, interaction: discord.Interaction, file: discord.Attachment):
         """Reserve the next request in the character request queue for creation.
 
