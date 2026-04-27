@@ -588,7 +588,7 @@ LIMIT 1""")
                 first_name, last_name, nickname, gender, country, race, attitude, biography
             )
             channel: discord.TextChannel = guild.get_channel(_SUBMISSION_CHANNEL_ID)  # pyright: ignore[reportAssignmentType]
-            thread = await channel.create_thread(name=f"Character Request for {member}")
+            thread = await channel.create_thread(name=f"Character Request for {requestor.name}")
             await thread.add_user(member)
             await thread.add_user(requestor)
             with io.BytesIO(bin_bytes) as file:
