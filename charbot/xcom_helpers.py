@@ -137,6 +137,8 @@ def create_base_bin_file(
     # Names
     result = result.replace(_FIRST_NAME_BYTESTRING, _write_str_prop(first_name))
     result = result.replace(_LAST_NAME_BYTESTRING, _write_str_prop(last_name))
+    if not (nickname.startswith("'") and nickname.endswith("'")):
+        nickname = f"'{nickname}'"
     result = result.replace(_NICK_NAME_BYTESTRING, _write_str_prop(nickname))
 
     # Character Properties
@@ -164,6 +166,9 @@ def validate_pool(pool: bytes) -> Literal[False] | str:
         except Exception:
             return False
         else:
+            char = chars[0]
+            if char.characterTemplate != "Soldier":
+                return False
             details = chars[0].details()
             details = "".join(
                 line for line in details.splitlines(keepends=True) if not line.startswith(("appearance:", "timestamp:"))

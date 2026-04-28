@@ -15,6 +15,10 @@ def test_validate_pool_reject_bad_bins(file):
     assert xcom_helpers.validate_pool(pathlib.Path(MEDIA_BASE, file).read_bytes()) is False
 
 
+def test_validate_pool_reject_faction_soldier_bins():
+    assert xcom_helpers.validate_pool(pathlib.Path(MEDIA_BASE, "FACTION.bin").read_bytes()) is False
+
+
 @pytest.mark.parametrize("file", ["MALE.bin", "FEMALE.bin"])
 def test_validate_pool_accept_good_bins(file):
     assert isinstance(xcom_helpers.validate_pool(pathlib.Path(MEDIA_BASE, file).read_bytes()), str)

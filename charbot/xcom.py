@@ -466,7 +466,6 @@ class XCOM(Cog):
         attitude: Literal["By The Book", "Laid Back", "Normal", "Twitchy", "Happy-Go-Lucky", "Hard Luck", "Intense"]
             The personality of the character being requested.
         """
-
         if country not in xcom_helpers.XCOM_COUNTRIES:
             await interaction.response.send_message(
                 "Invalid country. Please choose a valid country from the autocomplete suggestions.", ephemeral=True
@@ -625,6 +624,8 @@ Here is the details of the requested appearance to use to modify the attached bi
         if not (details := xcom_helpers.validate_pool(contents)):
             await interaction.followup.send(
                 "Submitted `.bin` file failed validation! Make sure it only has a single character and is a named pool."
+                "\n If the character you wish to submit is not a base soldier (i.e., is a Spark or Faction Soldier),"
+                "please reach out to Charlie or the Mod Team directly to discuss your request"
             )
             return
         async with self.bot.pool.acquire() as conn:
@@ -646,6 +647,7 @@ Here is the details of the requested appearance to use to modify the attached bi
                     await interaction.followup.send(
                         f"You have a previous submission here: {message.jump_url}, do you want to replace it?",
                         view=ConfirmReplaceSubmissionView(contents, fname, message, details, user.id),
+                        ephemeral=True,
                     )
             else:
                 await interaction.followup.send("Processing your submission now.")
@@ -657,7 +659,8 @@ Here is the details of the requested appearance to use to modify the attached bi
                     "INSERT INTO xcom_character_submissions (submitter, message_id) VALUES ($1, $2);", user.id, msg.id
                 )
                 await interaction.followup.send(
-                    f"Your submission of a character with the following details has been successful:\n{details[:1900]}"
+                    f"Your submission of a character with the following details has been successful:\n{details[:1900]}",
+                    ephemeral=True,
                 )
 
 
