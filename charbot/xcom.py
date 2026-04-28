@@ -771,16 +771,11 @@ Here is the details of the requested appearance to use to modify the attached bi
             character_name = xcom_helpers.get_bin_name(bin_contents)
             if any(submitter.get_role(role_id) for role_id in SUBMISSION_TIER_1):
                 vip1_bins.append(bin_contents)
-                tier = "VIP Tier 1"
             elif any(submitter.get_role(role_id) for role_id in SUBMISSION_TIER_2):
                 vip2_bins.append(bin_contents)
-                tier = "VIP Tier 2"
             else:
                 general_bins.append(bin_contents)
-                tier = "General Submission"
-            preference_details.append(
-                f"Character Name: {character_name}, Preferred Class: {submission_details[1]}, Submitted by: {submitter.display_name} ({submitter.id}), Submission Tier Group: {tier}"
-            )
+            preference_details.append(f"{character_name}: {submission_details[1]}")
             valid_submitters.append(submitter_id)
 
         rolled_up_vip1 = rolled_up_vip2 = rolled_up_general = None
