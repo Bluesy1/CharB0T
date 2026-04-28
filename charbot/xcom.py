@@ -2,13 +2,17 @@
 # cspell: ignore LWOTC
 
 import asyncio
+import csv
 import io
 import logging
+import sys
+import zipfile
 from typing import Literal
 
 import discord
 from discord import app_commands, ui
 from discord.app_commands import Choice, Range
+from discord.ext import commands
 from discord.ext.commands import Cog
 
 from . import CBot, constants, xcom_helpers
@@ -16,6 +20,21 @@ from . import CBot, constants, xcom_helpers
 
 _LOGGER = logging.getLogger(__name__)
 _SUBMISSION_CHANNEL_ID: int = 1497045860301934714
+
+SUBMISSION_TIER_1 = {  # Supporter High Tier (Ridiculous/Gold Patreon, Youtube Ten Gallon Fedora/Hat Lair, Silver Lifetime VIP, XCOM Helpers)
+    225414953820094465,
+    225414600101724170,
+    842631203965501481,
+    842631203965501480,
+    970819808784441435,
+    1497043311859466260,
+}
+SUBMISSION_TIER_2 = {  # All other supporters (Patreon, Youtube, Twitch, Bronze Lifetime VIP)
+    338870051853697033,
+    733541021488513035,
+    926150286098194522,
+    244673486121861120,
+}
 
 
 class CharacterRequestModal(ui.Modal, title="Character Request"):
@@ -584,7 +603,7 @@ LIMIT 1""")
 
 Here is the details of the requested appearance to use to modify the attached bin:
 {next_req["details"]}""",
-                    file=discord.File(file, f"{first_name.upper()}.bin"),
+                    file=discord.File(file, "TEMPLATE.bin"),
                 )
             await thread.send(f"Character Biography (Info Only):\n{biography[:1900]}")
             await starter_msg.pin()
@@ -689,11 +708,150 @@ Here is the details of the requested appearance to use to modify the attached bi
                     ephemeral=True,
                 )
 
+    @commands.command(name="rollup", hidden=True)
+    @commands.is_owner()
+    async def rollup(self, ctx: commands.Context[CBot]):
+        """Rollup all character requests into a single message for easier viewing by the mod team and for final import.
+
+        Parameters
+        ----------
+        ctx: commands.Context
+            The context instance for the command.
+        """
+        submissions: dict[int, tuple[int, str]] = {
+            message: (submitter, preferred_class)
+            for submitter, message, preferred_class in await self.bot.pool.fetch(
+                "SELECT submitter, message_id, preferred_class FROM xcom_character_submission;"
+            )
+        }
+        vip1_bins = []
+        vip2_bins = []
+        general_bins = []
+        preference_details = []
+        valid_submitters: list[int] = []
+        channel = self.bot.get_channel(_SUBMISSION_CHANNEL_ID) or await self.bot.fetch_channel(_SUBMISSION_CHANNEL_ID)
+        assert isinstance(channel, discord.TextChannel)
+        messages = [
+            msg
+            async for msg in channel.history(limit=None)
+            if msg.attachments
+            and msg.attachments[0].filename.endswith(".bin")
+            and msg.application_id == self.bot.user.id
+        ]
+        issues = []
+        for message in messages:
+            int_meta = message.interaction_metadata
+            assert int_meta is not None
+            submitter_id = int_meta.user.id
+            mentioned_id = message.mentions[0].id if message.mentions else None
+            if mentioned_id != submitter_id:
+                _LOGGER.debug(
+                    "Message with id %s has interaction user id %s but mentions user id %s, skipping.",
+                    message.id,
+                    submitter_id,
+                    mentioned_id,
+                )
+                issues.append(
+                    f"Message {message.jump_url} has interaction user id {submitter_id} but mentions user id {mentioned_id}, skipping."
+                )
+                continue
+            submitter = message.mentions[0]
+            if not isinstance(submitter, discord.Member):
+                _LOGGER.debug(
+                    "Message with id %s mentions user id %s but could not resolve to a member, skipping.",
+                    message.id,
+                    submitter_id,
+                )
+                issues.append(
+                    f"Message {message.jump_url} mentions user id {submitter_id} but could not resolve to a member (left server), skipping."
+                )
+                continue
+            submission_details = submissions[message.id]
+            bin_contents = await message.attachments[0].read()
+            character_name = xcom_helpers.get_bin_name(bin_contents)
+            if any(submitter.get_role(role_id) for role_id in SUBMISSION_TIER_1):
+                vip1_bins.append(bin_contents)
+                tier = "VIP Tier 1"
+            elif any(submitter.get_role(role_id) for role_id in SUBMISSION_TIER_2):
+                vip2_bins.append(bin_contents)
+                tier = "VIP Tier 2"
+            else:
+                general_bins.append(bin_contents)
+                tier = "General Submission"
+            preference_details.append(
+                f"Character Name: {character_name}, Preferred Class: {submission_details[1]}, Submitted by: {submitter.display_name} ({submitter.id}), Submission Tier Group: {tier}"
+            )
+            valid_submitters.append(submitter_id)
+
+        rolled_up_vip1 = rolled_up_vip2 = rolled_up_general = None
+        if vip1_bins:
+            rolled_up_vip1 = xcom_helpers.merge_bin_files("VIP_TIER_1.bin", vip1_bins)
+        if vip2_bins:
+            rolled_up_vip2 = xcom_helpers.merge_bin_files("VIP_TIER_2.bin", vip2_bins)
+        if rolled_up_general:
+            rolled_up_general = xcom_helpers.merge_bin_files("GENERAL.bin", general_bins)
+
+        enhanced_metadata = await self.bot.pool.fetch(
+            "SELECT requestor, first_name, last_name, nickname, country, "
+            "gender, race, attitude, details, biography, fulfiller, fulfill_thread "
+            "FROM xcom_character_request WHERE requestor = ANY($1);",
+            valid_submitters,
+        )
+
+        if sys.version_info >= (3, 14):
+            try:
+                import compression.zstd
+
+                compression = zipfile.ZIP_ZSTANDARD
+            except ImportError:
+                compression = zipfile.ZIP_DEFLATED
+        else:
+            compression = zipfile.ZIP_DEFLATED
+        with io.BytesIO() as zip_buffer:
+            with zipfile.ZipFile(zip_buffer, "w", compression=compression) as zip_file:
+                if rolled_up_vip1:
+                    zip_file.writestr("VIP_TIER_1.bin", rolled_up_vip1)
+                if rolled_up_vip2:
+                    zip_file.writestr("VIP_TIER_2.bin", rolled_up_vip2)
+                if rolled_up_general:
+                    zip_file.writestr("GENERAL.bin", rolled_up_general)
+                zip_file.writestr("character_preferences.txt", "\n".join(preference_details))
+                with io.StringIO() as csv_buffer:
+                    fieldnames = [
+                        "requestor",
+                        "first_name",
+                        "last_name",
+                        "nickname",
+                        "country",
+                        "gender",
+                        "race",
+                        "attitude",
+                        "details",
+                        "biography",
+                        "fulfiller",
+                        "fulfill_thread",
+                    ]
+                    writer = csv.DictWriter(csv_buffer, fieldnames=fieldnames)
+                    writer.writeheader()
+                    for row in enhanced_metadata:
+                        writer.writerow({field: row[field] for field in fieldnames})
+                    zip_file.writestr("enhanced_metadata.csv", csv_buffer.getvalue())
+            zip_buffer.seek(0)
+            file = discord.File(zip_buffer, "submissions.zip")
+            await ctx.reply(
+                f"Total of {len(valid_submitters)} valid submissions rolled up. {len(issues)} issues encountered.",
+                file=file,
+            )
+            if issues:
+                issues_message = "\n".join(issues)
+                if len(issues_message) > 1900:
+                    issues_message = issues_message[:1900] + "\n... (truncated)"
+                await ctx.send(f"Issues encountered during rollup:\n{issues_message}")
+
 
 async def setup(bot: CBot) -> None:
     """Add the XCOM cog to the bot."""
     import importlib
-    import sys
 
     global xcom_helpers
     sys.modules["charbot.xcom_helpers"] = xcom_helpers = importlib.reload(xcom_helpers)

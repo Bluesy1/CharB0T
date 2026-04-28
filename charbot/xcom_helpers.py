@@ -7,7 +7,16 @@ from typing import Literal
 from .xcfp import CharacterPool  # https://github.com/gnutrino/xcfp
 
 
-__all__ = ("XCOM_COUNTRIES", "COUNTRIES_BY_NAME", "RACES", "ATTITUDES", "create_base_bin_file", "validate_pool")
+__all__ = (
+    "XCOM_COUNTRIES",
+    "COUNTRIES_BY_NAME",
+    "RACES",
+    "ATTITUDES",
+    "create_base_bin_file",
+    "get_bin_name",
+    "merge_bin_files",
+    "validate_pool",
+)
 
 _MEDIA_BASE = pathlib.Path(__file__).parent / "media/xcom"
 _MALE_TEMPLATE = pathlib.Path(_MEDIA_BASE, "MALE.bin").read_bytes()
@@ -27,7 +36,8 @@ _RACE_BYTESTRING = b"\x04\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00"
 # Attitude:: 0: By The Book, 1: Laid Back, 2: Normal, 3: Twitchy, 4: Happy-Go-Lucky, 5: Hard Luck, 6: Intense
 _ATTITUDE_HEADER = b"iAttitude\x00\x00\x00\x00\x00\x0c\x00\x00\x00IntProperty\x00\x00\x00\x00\x00"
 _ATTITUDE_BYTESTRING = b"\x04\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00"
-
+_PADDING = b"\x00" * 4
+_NONE_PROP = b"\x05\x00\x00\x00None\x00" + _PADDING
 
 XCOM_COUNTRIES = {
     "Country_USA": "United States",
@@ -70,35 +80,30 @@ XCOM_COUNTRIES = {
 COUNTRIES_BY_NAME = {v: k for k, v in XCOM_COUNTRIES.items()}
 RACES = ("Caucasian", "African", "Asian", "Hispanic")
 ATTITUDES = ("By The Book", "Laid Back", "Normal", "Twitchy", "Happy-Go-Lucky", "Hard Luck", "Intense")
-PADDING = b"\x00" * 4
-
-
-def _cp1521(text: str) -> bytes:
-    return text.encode("cp1251")
 
 
 # Size (4), Padding, Value
 def _write_int_prop(prop: int) -> bytes:
-    return b"\x04\x00\x00\x00" + PADDING + prop.to_bytes(4, byteorder="little")
+    return b"\x04\x00\x00\x00" + _PADDING + prop.to_bytes(4, byteorder="little")
 
 
 # Size + 4, Padding, Size, Value
 def _write_str_prop(prop: str | bytes) -> bytes:
     if isinstance(prop, str):
-        prop = _cp1521(prop)
+        prop = prop.encode("cp1251")
 
     if not prop.endswith(b"\x00"):
         prop += b"\x00"
 
     prop = prop.replace(b"\n", b"\r")
     prop_len = len(prop)
-    return (prop_len + 4).to_bytes(4, byteorder="little") + PADDING + prop_len.to_bytes(4, byteorder="little") + prop
+    return (prop_len + 4).to_bytes(4, byteorder="little") + _PADDING + prop_len.to_bytes(4, byteorder="little") + prop
 
 
 # Similar to str: Size + 8, Padding, Size, Value, Padding
 def _write_name_prop(prop: str | bytes) -> bytes:
     if isinstance(prop, str):
-        prop = _cp1521(prop)
+        prop = prop.encode("cp1251")
 
     if not prop.endswith(b"\x00"):
         prop += b"\x00"
@@ -107,10 +112,10 @@ def _write_name_prop(prop: str | bytes) -> bytes:
     prop_len = len(prop)
     return (
         (prop_len + 8).to_bytes(4, byteorder="little")
-        + PADDING
+        + _PADDING
         + prop_len.to_bytes(4, byteorder="little")
         + prop
-        + PADDING
+        + _PADDING
     )
 
 
@@ -130,9 +135,7 @@ def create_base_bin_file(
     else:
         result = _FEMALE_TEMPLATE
         FILENAME_BYTESTRING = _FEMALE_FILENAME_BYTESTRING
-    result = result.replace(
-        FILENAME_BYTESTRING, _write_str_prop(b"CharacterPool\\Importable\\" + _cp1521(first_name.upper()) + b".bin")
-    )
+    result = result.replace(FILENAME_BYTESTRING, _write_str_prop(b"CharacterPool\\Importable\\TEMPLATE.bin"))
 
     # Names
     result = result.replace(_FIRST_NAME_BYTESTRING, _write_str_prop(first_name))
@@ -174,3 +177,36 @@ def validate_pool(pool: bytes) -> Literal[False] | str:
                 line for line in details.splitlines(keepends=True) if not line.startswith(("appearance:", "timestamp:"))
             )
             return details.rstrip()
+
+
+def get_bin_name(pool: bytes) -> str:
+    with io.BytesIO(pool) as b:
+        p = CharacterPool(b)
+        chars = list(p.characters())
+        if len(chars) != 1:
+            raise ValueError("Pool must contain exactly one character.")
+        char = chars[0]
+        return f"{char.firstName} {char.nickName} {char.lastName}"
+
+
+def merge_bin_files(name: str, pools: list[bytes]) -> bytes:
+    if not pools:
+        raise ValueError("No pools provided.")
+    num_pools = len(pools)
+    file = b"\xff" * 4  # Start of file is 4 bytes of FF
+    file += b"\x0e\x00\x00\x00CharacterPool\x00" + _PADDING
+    file += b"\x0e\x00\x00\x00ArrayProperty\x00" + _PADDING
+    file += _write_int_prop(num_pools)
+    file += b"\x0d\x00\x00\x00PoolFileName\x00" + _PADDING
+    file += b"\x0c\x00\x00\x00StrProperty\x00" + _PADDING
+    file += _write_str_prop(b"CharacterPool\\Importable\\" + name.encode("cp1251"))
+    file += _NONE_PROP
+    file += num_pools.to_bytes(4, byteorder="little")
+
+    SPLIT_ON = _NONE_PROP + b"\x01\x00\x00\x00"
+
+    for pool in pools:
+        _, character = pool.split(SPLIT_ON, 1)
+        file += character
+
+    return file
