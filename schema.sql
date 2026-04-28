@@ -83,10 +83,12 @@ CREATE TABLE IF NOT EXISTS xcom_character_request
     fulfill_thread  BIGINT      DEFAULT NULL
 );
 
-CREATE TABLE IF NOT EXISTS xcom_character_submissions
+CREATE TABLE IF NOT EXISTS xcom_character_submission
 (
     submitter   BIGINT                           NOT NULL
-        CONSTRAINT xcom_character_submissions_pk
+        CONSTRAINT xcom_character_submission_pk
             PRIMARY KEY,
-    message_id  BIGINT                           NOT NULL   
+    message_id      BIGINT                       NOT NULL,
+    preferred_class VARCHAR(13)                  NOT NULL
+        CHECK(preferred_class IN ('Assault', 'Grenadier', 'Gunner', 'Ranger', 'Sharpshooter', 'Shinobi', 'Specialist', 'Technical', 'Psi Operative', 'SPARK'))
 );

@@ -363,13 +363,16 @@ class EditRequestLayout(ui.LayoutView):
 
 
 class ConfirmReplaceSubmissionView(ui.View):
-    def __init__(self, contents: bytes, fname: str, old_message: discord.Message, details: str, user: int):
+    def __init__(
+        self, contents: bytes, fname: str, old_message: discord.Message, details: str, user: int, preferred_class: str
+    ):
         super().__init__()
         self.bin = contents
         self.fname = fname
         self.old_message = old_message
         self.details = details
         self.user = user
+        self.preferred_class = preferred_class
 
     @ui.button(label="Replace Existing Submission", style=discord.ButtonStyle.green)
     async def replace_button(self, interaction: discord.Interaction[CBot], _: ui.Button):
@@ -384,10 +387,14 @@ class ConfirmReplaceSubmissionView(ui.View):
         with io.BytesIO(self.bin) as f:
             msg = await interaction.followup.send(interaction.user.mention, file=discord.File(f, self.fname), wait=True)
         await interaction.client.pool.execute(
-            "UPDATE xcom_character_submissions SET message_id = $1 WHERE submitter = $2;", msg.id, interaction.user.id
+            "UPDATE xcom_character_submission SET message_id = $1, preferred_class=$2 WHERE submitter = $3;",
+            msg.id,
+            self.preferred_class,
+            interaction.user.id,
         )
         await interaction.followup.send(
-            f"Your submission of a character with the following details has been successful:{self.details[:1900]}",
+            "Your submission of a character with the following details has been successful:"
+            f"\nPreferred Class: {self.preferred_class}\n{self.details[:1850]}",
             ephemeral=True,
         )
         self.bin = b""
@@ -593,7 +600,23 @@ Here is the details of the requested appearance to use to modify the attached bi
             )
 
     @character.command(name="submit")
-    async def submit_file(self, interaction: discord.Interaction, file: discord.Attachment):
+    async def submit_file(
+        self,
+        interaction: discord.Interaction,
+        file: discord.Attachment,
+        preferred_class: Literal[
+            "Assault",
+            "Grenadier",
+            "Gunner",
+            "Ranger",
+            "Sharpshooter",
+            "Shinobi",
+            "Specialist",
+            "Technical",
+            "Psi Operative",
+            "SPARK",
+        ],
+    ):
         """Submit your character for consideration for inclusion into Charlie's LWOTC campaign.
 
         Parameters
@@ -602,6 +625,8 @@ Here is the details of the requested appearance to use to modify the attached bi
             The interaction instance for the command.
         file: discord.Attachment
             The character pool to validate
+        preferred_class: Literal["Assault", "Grenadier", "Gunner", "Ranger", "Sharpshooter", "Shinobi", "Specialist", "Technical", "Psi Operative", "SPARK"]
+            The preferred class for the character, does not guarantee the character will be added as that class.
         """
         await interaction.response.defer(ephemeral=True)
         if interaction.channel_id != _SUBMISSION_CHANNEL_ID:
@@ -628,7 +653,7 @@ Here is the details of the requested appearance to use to modify the attached bi
             return
         async with self.bot.pool.acquire() as conn:
             message_id: int | None = await conn.fetchval(
-                "SELECT message_id FROM xcom_character_submissions WHERE submitter = $1;", user.id
+                "SELECT message_id FROM xcom_character_submission WHERE submitter = $1;", user.id
             )
             if message_id is not None:
                 try:
@@ -644,7 +669,7 @@ Here is the details of the requested appearance to use to modify the attached bi
                 else:
                     await interaction.followup.send(
                         f"You have a previous submission here: {message.jump_url}, do you want to replace it?",
-                        view=ConfirmReplaceSubmissionView(contents, fname, message, details, user.id),
+                        view=ConfirmReplaceSubmissionView(contents, fname, message, details, user.id, preferred_class),
                         ephemeral=True,
                     )
             else:
@@ -654,10 +679,13 @@ Here is the details of the requested appearance to use to modify the attached bi
                         interaction.user.mention, file=discord.File(contents, fname), wait=True
                     )
                 await conn.execute(
-                    "INSERT INTO xcom_character_submissions (submitter, message_id) VALUES ($1, $2);", user.id, msg.id
+                    "INSERT INTO xcom_character_submission (submitter, message_id, preferred_class) VALUES ($1, $2, $3);",
+                    user.id,
+                    msg.id,
+                    preferred_class,
                 )
                 await interaction.followup.send(
-                    f"Your submission of a character with the following details has been successful:\n{details[:1900]}",
+                    f"Your submission of a character with the following details has been successful:\nPreferred Class: {preferred_class}\n{details[:1850]}",
                     ephemeral=True,
                 )
 
