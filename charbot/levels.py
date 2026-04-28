@@ -67,7 +67,14 @@ class Leveling(commands.Cog):
 
         async with self.lock, self.bot.pool.acquire() as conn, conn.transaction():
             no_xp = await conn.fetchrow("SELECT * FROM no_xp WHERE guild = $1", guild.id)
-            if no_xp is None or message.channel.id in no_xp["channels"]:
+            no_xp_channels = set(no_xp["channels"]) if no_xp else set()
+            channel = message.channel
+            if (
+                no_xp is None
+                or channel.id in no_xp_channels
+                or (isinstance(channel, discord.Thread) and channel.parent_id in no_xp_channels)
+            ):
+                # Treat threads within channels with no XP the same as the parent channel
                 return
 
             await conn.execute(

@@ -106,6 +106,9 @@ def url_posting_allowed(
         # suggestions tag, then it's a game thread, and we want to allow urls in it
         # OR the message is the starter message for a thread in the channel, and we want to allow it
         return True
+    if isinstance(channel, discord.Thread) and channel.parent_id == 1497045860301934714:
+        # if the parent is this, then this thread is a character request thread, and we want to allow files/images in it
+        return True
     if channel.category_id in constants.SPECIAL_CATEGORIES:
         # if the channel is in an admin or info category, we want to allow urls
         return True
