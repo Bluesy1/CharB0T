@@ -710,13 +710,15 @@ Here is the details of the requested appearance to use to modify the attached bi
 
     @commands.command(name="rollup", hidden=True)
     @commands.is_owner()
-    async def rollup(self, ctx: commands.Context[CBot]):
+    async def rollup(self, ctx: commands.Context[CBot], after: discord.Message | None = None):
         """Rollup all character requests into a single message for easier viewing by the mod team and for final import.
 
         Parameters
         ----------
         ctx: commands.Context
             The context instance for the command.
+        after: discord.Message | None
+            If provided, only messages after this message will be included in the rollup.
         """
         submissions: dict[int, tuple[int, str]] = {
             message: (submitter, preferred_class)
@@ -733,7 +735,7 @@ Here is the details of the requested appearance to use to modify the attached bi
         assert isinstance(channel, discord.TextChannel)
         messages = [
             msg
-            async for msg in channel.history(limit=None)
+            async for msg in channel.history(limit=None, after=after)
             if msg.attachments
             and msg.attachments[0].filename.endswith(".bin")
             and msg.application_id == self.bot.user.id
@@ -762,7 +764,9 @@ Here is the details of the requested appearance to use to modify the attached bi
             character_name = xcom_helpers.get_bin_name(bin_contents)
             preference_details.append(f"{character_name}: {submission_details[1]}")
             valid_submitters.append(submitter_id)
-
+            if after:
+                general_bins.append(bin_contents)
+                continue
             if not isinstance(submitter, discord.Member):
                 general_bins.append(bin_contents)
                 continue
