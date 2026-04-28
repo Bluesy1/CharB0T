@@ -1,5 +1,5 @@
 """XCOM Stuff"""
-# pyright: reportMissingImports=false
+# cspell: ignore LWOTC
 
 import asyncio
 import io
@@ -91,7 +91,7 @@ VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10);
                 self.description.component.value,
                 self.bio.component.value,
             )
-        await interaction.followup.send("Your character request has been submitted!")
+        await interaction.followup.send("Your character request has been submitted!", ephemeral=True)
 
 
 class CreateRequestButton(ui.Button):
@@ -242,7 +242,7 @@ WHERE requestor=$10;
                 self.bio.component.value,
                 interaction.user.id,
             )
-        await interaction.followup.send("Your character request has been updated!")
+        await interaction.followup.send("Your character request has been updated!", ephemeral=True)
 
     async def on_timeout(self) -> None:
         await self.bot.pool.execute(
@@ -381,10 +381,8 @@ class ConfirmReplaceSubmissionView(ui.View):
         await interaction.response.edit_message(content="Your previous submission will be replaced.", view=self)
         self.stop()
         await self.old_message.delete()
-        channel = interaction.channel
-        assert isinstance(channel, discord.TextChannel)
         with io.BytesIO(self.bin) as f:
-            msg = await channel.send(f"{interaction.user.mention}:", file=discord.File(f, self.fname))
+            msg = await interaction.followup.send(interaction.user.mention, file=discord.File(f, self.fname), wait=True)
         await interaction.client.pool.execute(
             "UPDATE xcom_character_submissions SET message_id = $1 WHERE submitter = $2;", msg.id, interaction.user.id
         )
@@ -596,7 +594,7 @@ Here is the details of the requested appearance to use to modify the attached bi
 
     @character.command(name="submit")
     async def submit_file(self, interaction: discord.Interaction, file: discord.Attachment):
-        """Reserve the next request in the character request queue for creation.
+        """Submit your character for consideration for inclusion into Charlie's LWOTC campaign.
 
         Parameters
         ----------
@@ -653,7 +651,7 @@ Here is the details of the requested appearance to use to modify the attached bi
                 await interaction.followup.send("Processing your submission now.")
                 with io.BytesIO(contents) as contents:
                     msg = await interaction.followup.send(
-                        f"{interaction.user.mention}:", file=discord.File(contents, fname), ephemeral=False, wait=True
+                        interaction.user.mention, file=discord.File(contents, fname), wait=True
                     )
                 await conn.execute(
                     "INSERT INTO xcom_character_submissions (submitter, message_id) VALUES ($1, $2);", user.id, msg.id
