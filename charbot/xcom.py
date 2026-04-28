@@ -755,28 +755,23 @@ Here is the details of the requested appearance to use to modify the attached bi
                     f"Message {message.jump_url} has interaction user id {submitter_id} but mentions user id {mentioned_id}, skipping."
                 )
                 continue
-            submitter = message.mentions[0]
-            if not isinstance(submitter, discord.Member):
-                _LOGGER.debug(
-                    "Message with id %s mentions user id %s but could not resolve to a member, skipping.",
-                    message.id,
-                    submitter_id,
-                )
-                issues.append(
-                    f"Message {message.jump_url} mentions user id {submitter_id} but could not resolve to a member (left server), skipping."
-                )
-                continue
-            submission_details = submissions[message.id]
+
             bin_contents = await message.attachments[0].read()
+            submitter = message.mentions[0]
+            submission_details = submissions[message.id]
             character_name = xcom_helpers.get_bin_name(bin_contents)
+            preference_details.append(f"{character_name}: {submission_details[1]}")
+            valid_submitters.append(submitter_id)
+
+            if not isinstance(submitter, discord.Member):
+                general_bins.append(bin_contents)
+                continue
             if any(submitter.get_role(role_id) for role_id in SUBMISSION_TIER_1):
                 vip1_bins.append(bin_contents)
             elif any(submitter.get_role(role_id) for role_id in SUBMISSION_TIER_2):
                 vip2_bins.append(bin_contents)
             else:
                 general_bins.append(bin_contents)
-            preference_details.append(f"{character_name}: {submission_details[1]}")
-            valid_submitters.append(submitter_id)
 
         rolled_up_vip1 = rolled_up_vip2 = rolled_up_general = None
         if vip1_bins:
