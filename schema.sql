@@ -75,8 +75,6 @@ CREATE TABLE IF NOT EXISTS xcom_character_request
         CHECK(gender IN ('male', 'female'))                 ,
     race            VARCHAR(9)                      NOT NULL
         CHECK(race IN ('Caucasian', 'African', 'Asian', 'Hispanic')),
-    attitude        VARCHAR(14)                     NOT NULL
-        CHECK(attitude IN ('By The Book', 'Laid Back', 'Normal', 'Twitchy', 'Happy-Go-Lucky', 'Hard Luck', 'Intense')),
     details         VARCHAR(500)                    NOT NULL,
     biography       VARCHAR(2000)                   NOT NULL,
     fulfiller       BIGINT      DEFAULT NULL                ,

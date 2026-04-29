@@ -40,16 +40,7 @@ SUBMISSION_TIER_2 = {  # All other supporters (Patreon, Youtube, Twitch, Bronze 
 class CharacterRequestModal(ui.Modal, title="Character Request"):
     """Modal for requesting a character."""
 
-    def __init__(
-        self,
-        first_name: str,
-        last_name: str,
-        nickname: str,
-        gender: str,
-        country: str,
-        race: str,
-        attitude: str,
-    ):
+    def __init__(self, first_name: str, last_name: str, nickname: str, gender: str, country: str, race: str):
         super().__init__(timeout=1200)
         self.first_name = first_name
         self.last_name = last_name
@@ -57,14 +48,12 @@ class CharacterRequestModal(ui.Modal, title="Character Request"):
         self.gender = gender
         self.country = country
         self.race = race
-        self.attitude = attitude
         self.desc = ui.TextDisplay(f"""\
 You are initiating a request for a character with the following details. Please provide a description of what you want the character to look like, provide a backstory if you wish, and then hit submit below to confirm.
 **Name**: {first_name} '{nickname}' {last_name}
 **Sex**: {gender.capitalize()}
 **Country**: {xcom_helpers.XCOM_COUNTRIES.get(country, country)}
 **Race**: {race}
-**Attitude**: {attitude}
 """)
         self.add_item(self.desc)
         self.description = ui.Label(
@@ -96,8 +85,8 @@ You are initiating a request for a character with the following details. Please 
         async with interaction.client.pool.acquire() as conn, conn.transaction():
             await conn.execute(
                 """\
-INSERT INTO xcom_character_request (requestor, first_name, last_name, nickname, country, gender, race, attitude, details, biography)
-VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10);
+INSERT INTO xcom_character_request (requestor, first_name, last_name, nickname, country, gender, race, details, biography)
+VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9);
 """,
                 interaction.user.id,
                 self.first_name,
@@ -106,7 +95,6 @@ VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10);
                 self.country,
                 self.gender,
                 self.race,
-                self.attitude,
                 self.description.component.value,
                 self.bio.component.value,
             )
@@ -116,9 +104,7 @@ VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10);
 class CreateRequestButton(ui.Button):
     """A button to for the create request layout."""
 
-    def __init__(
-        self, first_name: str, last_name: str, nickname: str, gender: str, country: str, race: str, attitude: str
-    ):
+    def __init__(self, first_name: str, last_name: str, nickname: str, gender: str, country: str, race: str):
         super().__init__(label="Request Character", style=discord.ButtonStyle.primary)
         self.first_name = first_name
         self.last_name = last_name
@@ -126,14 +112,11 @@ class CreateRequestButton(ui.Button):
         self.gender = gender
         self.country = country
         self.race = race
-        self.attitude = attitude
 
     async def callback(self, interaction: discord.Interaction[CBot]) -> None:
         """Handle the button click."""
         await interaction.response.send_modal(
-            CharacterRequestModal(
-                self.first_name, self.last_name, self.nickname, self.gender, self.country, self.race, self.attitude
-            )
+            CharacterRequestModal(self.first_name, self.last_name, self.nickname, self.gender, self.country, self.race)
         )
         self.disabled = True
         view = self.view
@@ -148,16 +131,7 @@ class CreateRequestButton(ui.Button):
 class CreateRequestLayout(ui.LayoutView):
     """A layout view to demonstrate editing an existing character request."""
 
-    def __init__(
-        self,
-        first_name: str,
-        last_name: str,
-        nickname: str,
-        gender: str,
-        country: str,
-        race: str,
-        attitude: str,
-    ):
+    def __init__(self, first_name: str, last_name: str, nickname: str, gender: str, country: str, race: str):
         super().__init__()
         self.add_item(
             ui.Section(
@@ -169,9 +143,8 @@ class CreateRequestLayout(ui.LayoutView):
                     + f"- **Sex**: {gender.capitalize()} \n"
                     + f"- **Country**: {xcom_helpers.XCOM_COUNTRIES.get(country, country)} \n"
                     + f"- **Race**: {race} \n"
-                    + f"- **Attitude**: {attitude} \n"
                 ),
-                accessory=CreateRequestButton(first_name, last_name, nickname, gender, country, race, attitude),
+                accessory=CreateRequestButton(first_name, last_name, nickname, gender, country, race),
             )
         )
 
@@ -187,7 +160,6 @@ class CharacterEditModal(ui.Modal, title="Edit Character Request"):
         gender: str,
         country: str,
         race: str,
-        attitude: str,
         existing_details: str,
         existing_backstory: str,
         bot: CBot,
@@ -200,7 +172,6 @@ class CharacterEditModal(ui.Modal, title="Edit Character Request"):
         self.gender = gender
         self.country = country
         self.race = race
-        self.attitude = attitude
         self.existing_details = existing_details
         self.existing_backstory = existing_backstory
         self.bot = bot
@@ -209,9 +180,8 @@ class CharacterEditModal(ui.Modal, title="Edit Character Request"):
 You are currently editing a character with the following details. Hit submit below to confirm.
 **Name**: {first_name} '{nickname}' {last_name}
 **Sex**: {gender.capitalize()}
-**Country**: {country}
+**Country**: {xcom_helpers.XCOM_COUNTRIES.get(country, country)}
 **Race**: {race}
-**Attitude**: {attitude}
 """)
         self.add_item(self.desc)
         self.description = ui.Label(
@@ -247,7 +217,7 @@ You are currently editing a character with the following details. Hit submit bel
                 """\
 UPDATE xcom_character_request 
 SET req_dt=CURRENT_TIMESTAMP, fulfiller=NULL, first_name=$1, last_name=$2,
-    nickname=$3, country=$4, gender=$5, race=$6, attitude=$7, details=$8, biography=$9
+    nickname=$3, country=$4, gender=$5, race=$6, details=$7, biography=$8
 WHERE requestor=$10;
 """,
                 self.first_name,
@@ -256,7 +226,6 @@ WHERE requestor=$10;
                 self.country,
                 self.gender,
                 self.race,
-                self.attitude,
                 self.description.component.value,
                 self.bio.component.value,
                 interaction.user.id,
@@ -280,7 +249,6 @@ class EditRequestButton(ui.Button):
         gender: str,
         country: str,
         race: str,
-        attitude: str,
         existing_details: str,
         existing_backstory: str,
     ):
@@ -291,7 +259,6 @@ class EditRequestButton(ui.Button):
         self.gender = gender
         self.country = country
         self.race = race
-        self.attitude = attitude
         self.existing_details = existing_details
         self.existing_backstory = existing_backstory
 
@@ -308,7 +275,6 @@ class EditRequestButton(ui.Button):
                 self.gender,
                 self.country,
                 self.race,
-                self.attitude,
                 self.existing_details,
                 self.existing_backstory,
                 interaction.client,
@@ -329,15 +295,7 @@ class EditRequestLayout(ui.LayoutView):
     """A layout view to demonstrate editing an existing character request."""
 
     def __init__(
-        self,
-        existing: dict,
-        first_name: str,
-        last_name: str,
-        nickname: str,
-        gender: str,
-        country: str,
-        race: str,
-        attitude: str,
+        self, existing: dict, first_name: str, last_name: str, nickname: str, gender: str, country: str, race: str
     ):
         super().__init__()
         self.add_item(
@@ -348,7 +306,6 @@ class EditRequestLayout(ui.LayoutView):
                 + f"- **Sex:** {existing['gender'].capitalize()}\n"
                 + f"- **Country:** {xcom_helpers.XCOM_COUNTRIES.get(existing['country'], existing['country'])}\n"
                 + f"- **Race:** {existing['race']}\n"
-                + f"- **Attitude:** {existing['attitude']}\n"
                 + f"- **Details:** {existing['details']}\n"
                 + f"- **Biography:** {existing['biography'] if existing['biography'] else 'N/A'}\n\n"
                 + "Your request is currently awaiting review by our volunteers."
@@ -364,7 +321,6 @@ class EditRequestLayout(ui.LayoutView):
                     + f"- **Sex**: {gender.capitalize()} \n"
                     + f"- **Country**: {xcom_helpers.XCOM_COUNTRIES.get(country, country)} \n"
                     + f"- **Race**: {race} \n"
-                    + f"- **Attitude**: {attitude} \n"
                 ),
                 accessory=EditRequestButton(
                     first_name,
@@ -373,7 +329,6 @@ class EditRequestLayout(ui.LayoutView):
                     gender,
                     country,
                     race,
-                    attitude,
                     existing["details"],
                     existing["biography"],
                 ),
@@ -467,7 +422,6 @@ class XCOM(Cog):
         gender: Literal["male", "female"],
         country: str,  # autocomplete for this.....
         race: Literal["Caucasian", "African", "Asian", "Hispanic"],
-        attitude: Literal["By The Book", "Laid Back", "Normal", "Twitchy", "Happy-Go-Lucky", "Hard Luck", "Intense"],
     ) -> None:
         """Request a character to be added to the XCOM roster.
 
@@ -487,8 +441,6 @@ class XCOM(Cog):
             The country of origin for the character being requested.
         race: Literal["Caucasian", "African", "Asian", "Hispanic"]
             The race of the character being requested.
-        attitude: Literal["By The Book", "Laid Back", "Normal", "Twitchy", "Happy-Go-Lucky", "Hard Luck", "Intense"]
-            The personality of the character being requested.
         """
         if country not in xcom_helpers.XCOM_COUNTRIES:
             await interaction.response.send_message(
@@ -521,7 +473,6 @@ class XCOM(Cog):
                     gender=gender,
                     country=country,
                     race=race,
-                    attitude=attitude,
                 )
                 await interaction.followup.send(view=view, ephemeral=True)
             else:
@@ -532,7 +483,6 @@ class XCOM(Cog):
                     gender=gender,
                     country=country,
                     race=race,
-                    attitude=attitude,
                 )
                 await interaction.followup.send(view=view, ephemeral=True)
 
@@ -557,7 +507,7 @@ class XCOM(Cog):
             next_req = discord.utils.MISSING
             while True:
                 next_req = await conn.fetchrow("""\
-SELECT requestor, first_name, last_name, nickname, gender, country, race, attitude, details, biography
+SELECT requestor, first_name, last_name, nickname, gender, country, race, details, biography
 FROM xcom_character_request
 WHERE fulfiller IS NULL
 ORDER BY req_dt DESC
@@ -582,10 +532,9 @@ LIMIT 1""")
             gender = next_req["gender"]
             country = next_req["country"]
             race = next_req["race"]
-            attitude = next_req["attitude"]
             biography = next_req["biography"]
             bin_bytes = xcom_helpers.create_base_bin_file(
-                first_name, last_name, nickname, gender, country, race, attitude, biography
+                first_name, last_name, nickname, gender, country, race, biography
             )
             channel: discord.TextChannel = guild.get_channel(_SUBMISSION_CHANNEL_ID)  # pyright: ignore[reportAssignmentType]
             thread = await channel.create_thread(name=f"Character Request for {requestor.name}")
@@ -599,7 +548,6 @@ LIMIT 1""")
 **Sex**: {gender.capitalize()}
 **Country**: {xcom_helpers.XCOM_COUNTRIES.get(country, country)}
 **Race**: {race}
-**Attitude**: {attitude}
 
 Here is the details of the requested appearance to use to modify the attached bin:
 {next_req["details"]}""",
@@ -787,7 +735,7 @@ Here is the details of the requested appearance to use to modify the attached bi
 
         enhanced_metadata = await self.bot.pool.fetch(
             "SELECT requestor, first_name, last_name, nickname, country, "
-            "gender, race, attitude, details, biography, fulfiller, fulfill_thread "
+            "gender, race, details, biography, fulfiller, fulfill_thread "
             "FROM xcom_character_request WHERE requestor = ANY($1);",
             valid_submitters,
         )
@@ -819,7 +767,6 @@ Here is the details of the requested appearance to use to modify the attached bi
                         "country",
                         "gender",
                         "race",
-                        "attitude",
                         "details",
                         "biography",
                         "fulfiller",

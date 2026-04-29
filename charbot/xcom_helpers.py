@@ -11,7 +11,6 @@ __all__ = (
     "XCOM_COUNTRIES",
     "COUNTRIES_BY_NAME",
     "RACES",
-    "ATTITUDES",
     "create_base_bin_file",
     "get_bin_name",
     "merge_bin_files",
@@ -33,9 +32,6 @@ _COUNTRY_BYTESTRING = b"\x14\x00\x00\x00\x00\x00\x00\x00\x0c\x00\x00\x00Country_
 # Race:: 0: Caucasian, 1: African, 2: Asian, 3: Hispanic
 _RACE_HEADER = b"iRace\x00\x00\x00\x00\x00\x0c\x00\x00\x00IntProperty\x00\x00\x00\x00\x00"
 _RACE_BYTESTRING = b"\x04\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00"
-# Attitude:: 0: By The Book, 1: Laid Back, 2: Normal, 3: Twitchy, 4: Happy-Go-Lucky, 5: Hard Luck, 6: Intense
-_ATTITUDE_HEADER = b"iAttitude\x00\x00\x00\x00\x00\x0c\x00\x00\x00IntProperty\x00\x00\x00\x00\x00"
-_ATTITUDE_BYTESTRING = b"\x04\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00"
 _PADDING = b"\x00" * 4
 _NONE_PROP = b"\x05\x00\x00\x00None\x00" + _PADDING
 
@@ -79,7 +75,6 @@ XCOM_COUNTRIES = {
 }
 COUNTRIES_BY_NAME = {v: k for k, v in XCOM_COUNTRIES.items()}
 RACES = ("Caucasian", "African", "Asian", "Hispanic")
-ATTITUDES = ("By The Book", "Laid Back", "Normal", "Twitchy", "Happy-Go-Lucky", "Hard Luck", "Intense")
 
 
 # Size (4), Padding, Value
@@ -126,7 +121,6 @@ def create_base_bin_file(
     gender: str,
     country: str,
     race: str,
-    attitude: str,
     backstory: str,
 ) -> bytes:
     if gender == "male":
@@ -149,9 +143,6 @@ def create_base_bin_file(
         country = COUNTRIES_BY_NAME[country]
     result = result.replace(_COUNTRY_BYTESTRING, _write_name_prop(country))
     result = result.replace(_RACE_HEADER + _RACE_BYTESTRING, _RACE_HEADER + _write_int_prop(RACES.index(race)))
-    result = result.replace(
-        _ATTITUDE_HEADER + _ATTITUDE_BYTESTRING, _ATTITUDE_HEADER + _write_int_prop(ATTITUDES.index(attitude))
-    )
 
     # Bio
     result = result.replace(_BIO_BYTESTRING, _write_str_prop(backstory))
