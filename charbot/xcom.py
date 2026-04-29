@@ -449,9 +449,9 @@ class XCOM(Cog):
             )
             if existing and existing["fulfiller"] is not None:
                 await interaction.followup.send(
-                    "You already have a pending character request that is in the process of being designed or has been designed."
-                    + " If that design has not been finalized, you can request changes to it through the designated thread for your request,"
-                    + " otherwise please contact the mod team if there is a reason for further changes.",
+                    "You already have a pending character request that is in the process of being designed or has been designed. "
+                    + "If that design has not been finalized, you can request changes to it through the designated thread for your request, "
+                    + "otherwise please contact the mod team if there is a reason for further changes.",
                     ephemeral=True,
                 )
             elif existing:
@@ -613,13 +613,13 @@ Here is the details of the requested appearance to use to modify the attached bi
             contents = await file.read()
         except discord.HTTPException:
             await interaction.followup.send("Could not read the submitted `.bin` file, please try again!")
-            _LOGGER.exception("Failed to read submitted .bin file named %s from user with id %s.", fname, user.id)
+            _LOGGER.warning("Failed to read submitted .bin file named %s from user with id %s.", fname, user.id)
             return
         if not (details := xcom_helpers.validate_pool(contents)):
             await interaction.followup.send(
                 "Submitted `.bin` file failed validation! Make sure it only has a single character and is a named pool."
-                "\n If the character you wish to submit is not a base soldier (i.e., is a Spark or Faction Soldier),"
-                "please reach out to Charlie or the Mod Team directly to discuss your request"
+                "\n If the character you wish to submit is not a base soldier (i.e., is a Spark or Faction Soldier), "
+                "please reach out to Charlie or the Mod Team directly to discuss your request."
             )
             return
         async with self.bot.pool.acquire() as conn:
@@ -633,7 +633,7 @@ Here is the details of the requested appearance to use to modify the attached bi
                     await interaction.followup.send(
                         "An unexpected error has occurred, please open a mod support ticket!"
                     )
-                    _LOGGER.exception(
+                    _LOGGER.warning(
                         "An error occurred while attempting to fetch a previous submission for user with id %s.",
                         user.id,
                     )
@@ -659,6 +659,38 @@ Here is the details of the requested appearance to use to modify the attached bi
                     f"Your submission of a character with the following details has been successful:\nPreferred Class: {preferred_class}\n{details[:1850]}",
                     ephemeral=True,
                 )
+
+    @character.command(name="validate")
+    async def validate_file(self, interaction: discord.Interaction, file: discord.Attachment):
+        """Validate a character pool .bin file to ensure it meets the requirements for submission.
+
+        Parameters
+        ----------
+        interaction: discord.Interaction
+            The interaction instance for the command.
+        file: discord.Attachment
+            The character pool to validate
+        """
+        await interaction.response.defer(ephemeral=True)
+        if not file.filename.endswith(".bin"):
+            await interaction.followup.send("Only `.bin` files can be validated!")
+            return
+        try:
+            contents = await file.read()
+        except discord.HTTPException:
+            await interaction.followup.send("Could not read the submitted `.bin` file, please try again!")
+            return
+        if not (details := xcom_helpers.validate_pool(contents)):
+            await interaction.followup.send(
+                "Submitted `.bin` file failed validation! Make sure it only has a single character and is a named pool.\n"
+                "If the character you wish to submit is not a base soldier (i.e., is a Spark or Faction Soldier), "
+                "please reach out to Charlie or the Mod Team directly to discuss your request.\n"
+                "**If you believe this is an error, please open a mod support ticket via <#398949472840712192> so we can investigate further!**"
+            )
+        else:
+            await interaction.followup.send(
+                f"The provided `.bin` file is valid for submission! Here are the details of the character:\n{details}"
+            )
 
     @commands.command(name="rollup", hidden=True)
     @commands.is_owner()
