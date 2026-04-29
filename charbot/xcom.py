@@ -442,11 +442,6 @@ class XCOM(Cog):
         race: Literal["Caucasian", "African", "Asian", "Hispanic"]
             The race of the character being requested.
         """
-        if country not in xcom_helpers.XCOM_COUNTRIES:
-            await interaction.response.send_message(
-                "Invalid country. Please choose a valid country from the autocomplete suggestions.", ephemeral=True
-            )
-            return
         await interaction.response.defer(ephemeral=True)
         async with self.bot.pool.acquire() as conn:
             existing = await conn.fetchrow(

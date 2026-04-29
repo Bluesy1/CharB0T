@@ -70,7 +70,7 @@ CREATE TABLE IF NOT EXISTS xcom_character_request
     first_name      VARCHAR(25)                     NOT NULL,
     last_name       VARCHAR(25)                     NOT NULL,
     nickname        VARCHAR(25)                     NOT NULL,
-    country         VARCHAR(20)                     NOT NULL,
+    country         VARCHAR(50)                     NOT NULL,
     gender          VARCHAR(6)                      NOT NULL
         CHECK(gender IN ('male', 'female'))                 ,
     race            VARCHAR(9)                      NOT NULL
