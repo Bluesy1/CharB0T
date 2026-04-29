@@ -141,7 +141,7 @@ def create_base_bin_file(
     # Character Properties
     if country not in XCOM_COUNTRIES and country in COUNTRIES_BY_NAME:
         country = COUNTRIES_BY_NAME[country]
-    if country in XCOM_COUNTRIES: # skip for modded countries
+    if country in XCOM_COUNTRIES:  # skip for modded countries
         result = result.replace(_COUNTRY_BYTESTRING, _write_name_prop(country))
     result = result.replace(_RACE_HEADER + _RACE_BYTESTRING, _RACE_HEADER + _write_int_prop(RACES.index(race)))
 
