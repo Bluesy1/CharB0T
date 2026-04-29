@@ -782,7 +782,7 @@ Here is the details of the requested appearance to use to modify the attached bi
             rolled_up_vip1 = xcom_helpers.merge_bin_files("VIP_TIER_1.bin", vip1_bins)
         if vip2_bins:
             rolled_up_vip2 = xcom_helpers.merge_bin_files("VIP_TIER_2.bin", vip2_bins)
-        if rolled_up_general:
+        if general_bins:
             rolled_up_general = xcom_helpers.merge_bin_files("GENERAL.bin", general_bins)
 
         enhanced_metadata = await self.bot.pool.fetch(
