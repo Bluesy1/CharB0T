@@ -390,9 +390,8 @@ class XCOM(Cog):
 
     character = app_commands.Group(
         name="character",
-        description="Commands related to character requests.",
+        description="Commands related to character requests and submissions.",
         guild_ids=constants.GUILD_IDS,
-        default_permissions=discord.Permissions(manage_messages=True),
     )
 
     def __init__(self, bot: CBot) -> None:
@@ -498,29 +497,39 @@ class XCOM(Cog):
             )
             return
         guild = member.guild
+
+        def sort_key(req: dict) -> int:
+            member = guild.get_member(req["requestor"])
+            if member is None:
+                return 99999  # Not cached so likely left the server, put at the end of the queue and will be cleaned up eventually
+            elif any(member.get_role(role_id) for role_id in SUBMISSION_TIER_1):
+                return 0
+            elif any(member.get_role(role_id) for role_id in SUBMISSION_TIER_2):
+                return 1
+            else:
+                return 2
+
         async with self.reserve_lock, self.bot.pool.acquire() as conn:
-            next_req = discord.utils.MISSING
-            while True:
-                next_req = await conn.fetchrow("""\
+            unassigned = await conn.fetch("""\
 SELECT requestor, first_name, last_name, nickname, gender, country, race, details, biography
 FROM xcom_character_request
 WHERE fulfiller IS NULL
-ORDER BY req_dt DESC
-LIMIT 1""")
-                if next_req is None:
-                    await interaction.followup.send("There are no unassigned character requests at this time!")
-                    return
-                requestor_id = next_req["requestor"]
-                requestor = guild.get_member(requestor_id)
-                if requestor is not None:
-                    break
+ORDER BY req_dt DESC""")
+            next_req = sorted((dict(req) for req in unassigned), key=sort_key)[0] if unassigned else None
+            if next_req is None:
+                await interaction.followup.send("There are no unassigned character requests at this time!")
+                return
+            requestor_id = next_req["requestor"]
+            requestor = guild.get_member(requestor_id)
+            if requestor is None:
                 try:
                     requestor = await guild.fetch_member(requestor_id)
                 except (discord.NotFound, discord.Forbidden):
                     await conn.execute("DELETE FROM xcom_character_request WHERE requestor=$1;", requestor_id)
                     _LOGGER.debug("Deleting request from user %s: Could not find user on server.", requestor_id)
-                else:
-                    break
+                    await interaction.followup.send("There are no unassigned character requests at this time!")
+                    return
+
             first_name: str = next_req["first_name"]
             last_name = next_req["last_name"]
             nickname = next_req["nickname"]
