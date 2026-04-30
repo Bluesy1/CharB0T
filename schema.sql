@@ -88,5 +88,4 @@ CREATE TABLE IF NOT EXISTS xcom_character_submission
             PRIMARY KEY,
     message_id      BIGINT                       NOT NULL,
     preferred_class VARCHAR(13)                  NOT NULL
-        CHECK(preferred_class IN ('No Preference', 'Assault', 'Grenadier', 'Gunner', 'Ranger', 'Sharpshooter', 'Shinobi', 'Specialist', 'Technical', 'Psi Operative', 'SPARK'))
 );
