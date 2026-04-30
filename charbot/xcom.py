@@ -576,6 +576,7 @@ Here is the details of the requested appearance to use to modify the attached bi
         interaction: discord.Interaction,
         file: discord.Attachment,
         preferred_class: Literal[
+            "No Preference",
             "Assault",
             "Grenadier",
             "Gunner",
@@ -596,7 +597,7 @@ Here is the details of the requested appearance to use to modify the attached bi
             The interaction instance for the command.
         file: discord.Attachment
             The character pool to validate
-        preferred_class: Literal["Assault", "Grenadier", "Gunner", "Ranger", "Sharpshooter", "Shinobi", "Specialist", "Technical", "Psi Operative", "SPARK"]
+        preferred_class: Literal["No Preference", "Assault", "Grenadier", "Gunner", "Ranger", "Sharpshooter", "Shinobi", "Specialist", "Technical", "Psi Operative", "SPARK"]
             The preferred class for the character, does not guarantee the character will be added as that class.
         """
         await interaction.response.defer(ephemeral=True)
