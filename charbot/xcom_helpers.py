@@ -15,6 +15,7 @@ __all__ = (
     "get_bin_name",
     "merge_bin_files",
     "validate_pool",
+    "normalize_bin_bio",
 )
 
 _MEDIA_BASE = pathlib.Path(__file__).parent / "media/xcom"
@@ -34,6 +35,8 @@ _RACE_HEADER = b"iRace\x00\x00\x00\x00\x00\x0c\x00\x00\x00IntProperty\x00\x00\x0
 _RACE_BYTESTRING = b"\x04\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00"
 _PADDING = b"\x00" * 4
 _NONE_PROP = b"\x05\x00\x00\x00None\x00" + _PADDING
+_BIO_HEADER = b"BackgroundText\x00\x00\x00\x00\x00\x0c\x00\x00\x00StrProperty\x00\x00\x00\x00\x00"
+_TRANSLATE_TABLE = str.maketrans("‘’´“”–-", "'''\"\"--")  # noqa: RUF001 # Replace various dash and quote characters with their more basic equivalents, to prevent encoding issues in the .bin file. The game seems to be able to handle these characters just fine, but they cause issues when trying to read the bio back from the .bin file, so we normalize them on the way in and out.
 
 XCOM_COUNTRIES = {
     "Country_USA": "United States",
@@ -149,6 +152,19 @@ def create_base_bin_file(
     result = result.replace(_BIO_BYTESTRING, _write_str_prop(backstory))
 
     return result
+
+
+def normalize_bin_bio(pool: bytes) -> bytes:
+    good, _, bio = pool.partition(_BIO_HEADER)
+    bio = bio[12:]  # Remove the first byte which indicates the length of the property name, which we will recalculate
+    bio = bio.removesuffix(_NONE_PROP)  # Remove the None property at the end, which we will add back
+    decoded = bio.decode("utf16")
+    normalized = decoded.translate(_TRANSLATE_TABLE)
+    fixed = normalized.translate(_TRANSLATE_TABLE)
+
+    # Now, we need to recombine the bytes. We can reuse the original header and None property, but we need to recalculate the length of the bio.
+    fixed_bytes = good + _BIO_HEADER + _write_str_prop(fixed) + _NONE_PROP
+    return fixed_bytes
 
 
 def validate_pool(pool: bytes) -> Literal[False] | str:

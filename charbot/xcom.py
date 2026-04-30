@@ -601,12 +601,54 @@ Here is the details of the requested appearance to use to modify the attached bi
             The preferred class for the character, does not guarantee the character will be added as that class.
         """
         await interaction.response.defer(ephemeral=True)
+        member = interaction.user
+        assert isinstance(member, discord.Member)
+        channel = interaction.channel
+        submitter = member
+        if isinstance(channel, discord.Thread):
+            if channel.parent_id != _SUBMISSION_CHANNEL_ID:
+                await interaction.followup.send(
+                    f"You must use this command either in <#{_SUBMISSION_CHANNEL_ID}>, or under a thread in it!"
+                )
+                return
+
+            assert isinstance(channel.parent, discord.TextChannel)
+            if not member.get_role(constants.HELPER_ROLE_ID):
+                await interaction.followup.send(
+                    f"Only helpers can submit character pools via a thread! Please use this command in {channel.parent.mention} if you are not a helper."
+                )
+                return
+            channel = channel.parent
+
+            requestor = await self.bot.pool.fetchval(
+                "SELECT requestor FROM xcom_character_request WHERE fulfill_thread = $1;", channel.id
+            )
+            if requestor is None:
+                await interaction.followup.send(
+                    "This thread is not properly linked to a character request, please contact Bluesy for assistance."
+                )
+                return
+            if not any(requestor == member.id for member in channel.members):
+                await interaction.followup.send(
+                    "The requestor for this thread is not a member of the thread, please contact Bluesy for assistance."
+                )
+                return
+            try:
+                submitter = channel.guild.get_member(requestor) or await channel.guild.fetch_member(requestor)
+            except (discord.NotFound, discord.Forbidden):
+                await interaction.followup.send(
+                    "The requestor for this thread could not be found, please contact Bluesy for assistance."
+                )
+                return
+
+        assert isinstance(channel, discord.TextChannel)
+
         if interaction.channel_id != _SUBMISSION_CHANNEL_ID:
             await interaction.followup.send(f"You must use this command in <#{_SUBMISSION_CHANNEL_ID}>!")
             return
-        channel = interaction.channel
-        user = interaction.user
-        assert isinstance(channel, discord.TextChannel)
+
+        itx_user = interaction.user.id
+
         if not (fname := file.filename).endswith(".bin"):
             await interaction.followup.send("You must submit a `.bin` file!")
             return
@@ -614,9 +656,14 @@ Here is the details of the requested appearance to use to modify the attached bi
             contents = await file.read()
         except discord.HTTPException:
             await interaction.followup.send("Could not read the submitted `.bin` file, please try again!")
-            _LOGGER.warning("Failed to read submitted .bin file named %s from user with id %s.", fname, user.id)
+            _LOGGER.warning("Failed to read submitted .bin file named %s from user with id %s.", fname, itx_user)
             return
         if not (details := xcom_helpers.validate_pool(contents)):
+            try:
+                details = xcom_helpers.validate_pool(xcom_helpers.normalize_bin_bio(contents))
+            except Exception:
+                details = False
+        if not details:
             await interaction.followup.send(
                 "Submitted `.bin` file failed validation! Make sure it only has a single character and is a named pool."
                 "\n If the character you wish to submit is not a base soldier (i.e., is a Spark or Faction Soldier), "
@@ -625,7 +672,7 @@ Here is the details of the requested appearance to use to modify the attached bi
             return
         async with self.bot.pool.acquire() as conn:
             message_id: int | None = await conn.fetchval(
-                "SELECT message_id FROM xcom_character_submission WHERE submitter = $1;", user.id
+                "SELECT message_id FROM xcom_character_submission WHERE submitter = $1;", submitter.id
             )
             if message_id is not None:
                 try:
@@ -636,23 +683,43 @@ Here is the details of the requested appearance to use to modify the attached bi
                     )
                     _LOGGER.warning(
                         "An error occurred while attempting to fetch a previous submission for user with id %s.",
-                        user.id,
+                        submitter.id,
                     )
                 else:
-                    await interaction.followup.send(
-                        f"You have a previous submission here: {message.jump_url}, do you want to replace it?",
-                        view=ConfirmReplaceSubmissionView(contents, fname, message, details, user.id, preferred_class),
-                        ephemeral=True,
-                    )
+                    if itx_user != submitter.id:
+                        # From a helper, always replace without confirmation since they likely need to update the submission on behalf of the requestor
+                        await message.delete()
+                        with io.BytesIO(contents) as f:
+                            msg = await interaction.followup.send(
+                                submitter.mention, file=discord.File(f, fname), wait=True
+                            )
+                        await conn.execute(
+                            "UPDATE xcom_character_submission SET message_id = $1, preferred_class=$2 WHERE submitter = $3;",
+                            msg.id,
+                            preferred_class,
+                            submitter.id,
+                        )
+                        await interaction.followup.send(
+                            f"Your submission of a character with the following details has been successful:\nPreferred Class: {preferred_class}\n{details[:1850]}",
+                            ephemeral=True,
+                        )
+                    else:
+                        await interaction.followup.send(
+                            f"You have a previous submission here: {message.jump_url}, do you want to replace it?",
+                            view=ConfirmReplaceSubmissionView(
+                                contents, fname, message, details, submitter.id, preferred_class
+                            ),
+                            ephemeral=True,
+                        )
             else:
                 await interaction.followup.send("Processing your submission now.")
                 with io.BytesIO(contents) as contents:
                     msg = await interaction.followup.send(
-                        interaction.user.mention, file=discord.File(contents, fname), wait=True
+                        submitter.mention, file=discord.File(contents, fname), wait=True
                     )
                 await conn.execute(
                     "INSERT INTO xcom_character_submission (submitter, message_id, preferred_class) VALUES ($1, $2, $3);",
-                    user.id,
+                    submitter.id,
                     msg.id,
                     preferred_class,
                 )
@@ -682,6 +749,11 @@ Here is the details of the requested appearance to use to modify the attached bi
             await interaction.followup.send("Could not read the submitted `.bin` file, please try again!")
             return
         if not (details := xcom_helpers.validate_pool(contents)):
+            try:
+                details = xcom_helpers.validate_pool(xcom_helpers.normalize_bin_bio(contents))
+            except Exception:
+                details = False
+        if not details:
             await interaction.followup.send(
                 "Submitted `.bin` file failed validation! Make sure it only has a single character and is a named pool.\n"
                 "If the character you wish to submit is not a base soldier (i.e., is a Spark or Faction Soldier), "
@@ -721,25 +793,24 @@ Here is the details of the requested appearance to use to modify the attached bi
         messages = [
             msg
             async for msg in channel.history(limit=None, after=after)
-            if msg.attachments
-            and msg.attachments[0].filename.endswith(".bin")
-            and msg.application_id == self.bot.user.id
+            if msg.attachments and msg.attachments[0].filename.endswith(".bin") and msg.author.id == self.bot.user.id
         ]
         issues = []
         for message in messages:
-            int_meta = message.interaction_metadata
-            assert int_meta is not None
-            submitter_id = int_meta.user.id
             mentioned_id = message.mentions[0].id if message.mentions else None
-            if mentioned_id != submitter_id:
+            if mentioned_id is None:
+                _LOGGER.debug("Message with id %s mentions no user, skipping.", message.id)
+                issues.append(f"Message {message.jump_url} mentions no user, skipping.")
+                continue
+            if (meta := message.interaction_metadata) is not None and meta.user.id != mentioned_id:
                 _LOGGER.debug(
                     "Message with id %s has interaction user id %s but mentions user id %s, skipping.",
                     message.id,
-                    submitter_id,
+                    meta.user.id,
                     mentioned_id,
                 )
                 issues.append(
-                    f"Message {message.jump_url} has interaction user id {submitter_id} but mentions user id {mentioned_id}, skipping."
+                    f"Message {message.jump_url} has interaction user id {meta.user.id} but mentions user id {mentioned_id}, skipping."
                 )
                 continue
 
@@ -748,7 +819,7 @@ Here is the details of the requested appearance to use to modify the attached bi
             submission_details = submissions[message.id]
             character_name = xcom_helpers.get_bin_name(bin_contents)
             preference_details.append(f"{character_name}: {submission_details[1]}")
-            valid_submitters.append(submitter_id)
+            valid_submitters.append(mentioned_id)
             if after:
                 general_bins.append(bin_contents)
                 continue
@@ -763,8 +834,12 @@ Here is the details of the requested appearance to use to modify the attached bi
                 general_bins.append(bin_contents)
 
         rolled_up_vip1 = rolled_up_vip2 = rolled_up_general = None
+        if len(vip1_bins) < 25:
+            vip1_bins += vip2_bins
+            vip2_bins = []
+        vip1_name = "VIPs.bin" if not vip2_bins else "VIP_TIER_1.bin"
         if vip1_bins:
-            rolled_up_vip1 = xcom_helpers.merge_bin_files("VIP_TIER_1.bin", vip1_bins)
+            rolled_up_vip1 = xcom_helpers.merge_bin_files(vip1_name, vip1_bins)
         if vip2_bins:
             rolled_up_vip2 = xcom_helpers.merge_bin_files("VIP_TIER_2.bin", vip2_bins)
         if general_bins:
@@ -789,7 +864,7 @@ Here is the details of the requested appearance to use to modify the attached bi
         with io.BytesIO() as zip_buffer:
             with zipfile.ZipFile(zip_buffer, "w", compression=compression) as zip_file:
                 if rolled_up_vip1:
-                    zip_file.writestr("VIP_TIER_1.bin", rolled_up_vip1)
+                    zip_file.writestr(vip1_name, rolled_up_vip1)
                 if rolled_up_vip2:
                     zip_file.writestr("VIP_TIER_2.bin", rolled_up_vip2)
                 if rolled_up_general:
