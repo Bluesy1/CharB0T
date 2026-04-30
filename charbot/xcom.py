@@ -648,6 +648,7 @@ Here is the details of the requested appearance to use to modify the attached bi
             return
 
         itx_user = interaction.user.id
+        on_behalf = itx_user != submitter.id
 
         if not (fname := file.filename).endswith(".bin"):
             await interaction.followup.send("You must submit a `.bin` file!")
@@ -686,13 +687,14 @@ Here is the details of the requested appearance to use to modify the attached bi
                         submitter.id,
                     )
                 else:
-                    if itx_user != submitter.id:
+                    if on_behalf:
                         # From a helper, always replace without confirmation since they likely need to update the submission on behalf of the requestor
                         await message.delete()
                         try:
                             contents = xcom_helpers.normalize_bin_bio(contents)
                         except Exception:
                             pass
+                        await interaction.followup.send("Processing your submission now.")
                         with io.BytesIO(contents) as f:
                             msg = await interaction.followup.send(
                                 submitter.mention, file=discord.File(f, fname), wait=True
@@ -705,7 +707,6 @@ Here is the details of the requested appearance to use to modify the attached bi
                         )
                         await interaction.followup.send(
                             f"Your submission of a character with the following details has been successful:\nPreferred Class: {preferred_class}\n{details[:1850]}",
-                            ephemeral=True,
                         )
                     else:
                         await interaction.followup.send(
@@ -729,7 +730,7 @@ Here is the details of the requested appearance to use to modify the attached bi
                 )
                 await interaction.followup.send(
                     f"Your submission of a character with the following details has been successful:\nPreferred Class: {preferred_class}\n{details[:1850]}",
-                    ephemeral=True,
+                    ephemeral=not on_behalf,  # If we're submitting on behalf of the requestor, make the confirmation public so the submitter can see it in the channel
                 )
 
     @character.command(name="validate")
