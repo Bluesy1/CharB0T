@@ -689,6 +689,10 @@ Here is the details of the requested appearance to use to modify the attached bi
                     if itx_user != submitter.id:
                         # From a helper, always replace without confirmation since they likely need to update the submission on behalf of the requestor
                         await message.delete()
+                        try:
+                            contents = xcom_helpers.normalize_bin_bio(contents)
+                        except Exception:
+                            pass
                         with io.BytesIO(contents) as f:
                             msg = await interaction.followup.send(
                                 submitter.mention, file=discord.File(f, fname), wait=True
