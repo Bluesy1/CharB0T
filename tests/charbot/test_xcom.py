@@ -19,7 +19,7 @@ def test_validate_pool_reject_faction_soldier_bins():
     assert xcom_helpers.validate_pool(pathlib.Path(MEDIA_BASE, "FACTION.bin").read_bytes()) is False
 
 
-@pytest.mark.parametrize("file", ["MALE.bin", "FEMALE.bin"])
+@pytest.mark.parametrize("file", ["MALE.bin", "FEMALE.bin", "UNICODE.bin"])
 def test_validate_pool_accept_good_bins(file):
     assert isinstance(xcom_helpers.validate_pool(pathlib.Path(MEDIA_BASE, file).read_bytes()), str)
 
@@ -36,7 +36,6 @@ def test_create_base_bins(gender, expected):
         gender,
         "Country_Canada",
         "Asian",
-        "Happy-Go-Lucky",
         "Backstory\nwith\nnewlines\rand\rcarriage returns",
     )
     assert actual == expected_bytes

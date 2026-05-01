@@ -2,6 +2,7 @@
 
 import io
 import pathlib
+import struct
 from typing import Literal
 
 from .xcfp import CharacterPool  # https://github.com/gnutrino/xcfp
@@ -15,7 +16,6 @@ __all__ = (
     "get_bin_name",
     "merge_bin_files",
     "validate_pool",
-    "normalize_bin_bio",
 )
 
 _MEDIA_BASE = pathlib.Path(__file__).parent / "media/xcom"
@@ -36,7 +36,7 @@ _RACE_BYTESTRING = b"\x04\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00"
 _PADDING = b"\x00" * 4
 _NONE_PROP = b"\x05\x00\x00\x00None\x00" + _PADDING
 _BIO_HEADER = b"BackgroundText\x00\x00\x00\x00\x00\x0c\x00\x00\x00StrProperty\x00\x00\x00\x00\x00"
-_TRANSLATE_TABLE = str.maketrans("‘’´“”–-", "'''\"\"--")  # noqa: RUF001 # Replace various dash and quote characters with their more basic equivalents, to prevent encoding issues in the .bin file. The game seems to be able to handle these characters just fine, but they cause issues when trying to read the bio back from the .bin file, so we normalize them on the way in and out.
+
 
 XCOM_COUNTRIES = {
     "Country_USA": "United States",
@@ -82,20 +82,33 @@ RACES = ("Caucasian", "African", "Asian", "Hispanic")
 
 # Size (4), Padding, Value
 def _write_int_prop(prop: int) -> bytes:
-    return b"\x04\x00\x00\x00" + _PADDING + prop.to_bytes(4, byteorder="little")
+    return b"\x04\x00\x00\x00" + _PADDING + struct.pack("<i", prop)
 
 
 # Size + 4, Padding, Size, Value
 def _write_str_prop(prop: str | bytes) -> bytes:
+    encoding = "cp1251"
     if isinstance(prop, str):
-        prop = prop.encode("cp1251")
+        try:
+            encoding = "cp1251"
+            prop = prop.encode("cp1251")
+        except UnicodeEncodeError:
+            # Skip the BOM for UTF-16, since the game doesn't seem to expect it and it causes issues when reading the bio back from the .bin file.
+            prop = prop.encode("utf-16")[2:]
+            encoding = "utf-16"
 
-    if not prop.endswith(b"\x00"):
+    if not prop.endswith(b"\x00") and encoding == "cp1251":
         prop += b"\x00"
+    elif not prop.endswith(b"\x00\x00") and encoding == "utf-16":
+        prop += b"\x00\x00"
 
     prop = prop.replace(b"\n", b"\r")
     prop_len = len(prop)
-    return (prop_len + 4).to_bytes(4, byteorder="little") + _PADDING + prop_len.to_bytes(4, byteorder="little") + prop
+    ret = struct.pack("<i", prop_len + 4) + _PADDING
+    if encoding == "utf-16":
+        # UTF-16 strings are represented with a negative length in the .bin file, and the length is in characters not bytes, so we need to divide by 2 and negate it
+        prop_len = -prop_len // 2
+    return ret + struct.pack("<i", prop_len) + prop
 
 
 # Similar to str: Size + 8, Padding, Size, Value, Padding
@@ -108,13 +121,7 @@ def _write_name_prop(prop: str | bytes) -> bytes:
 
     prop = prop.replace(b"\n", b"\r")
     prop_len = len(prop)
-    return (
-        (prop_len + 8).to_bytes(4, byteorder="little")
-        + _PADDING
-        + prop_len.to_bytes(4, byteorder="little")
-        + prop
-        + _PADDING
-    )
+    return struct.pack("<i", prop_len + 8) + _PADDING + struct.pack("<i", prop_len) + prop + _PADDING
 
 
 def create_base_bin_file(
@@ -149,23 +156,9 @@ def create_base_bin_file(
     result = result.replace(_RACE_HEADER + _RACE_BYTESTRING, _RACE_HEADER + _write_int_prop(RACES.index(race)))
 
     # Bio
-    result = result.replace(_BIO_BYTESTRING, _write_str_prop(backstory.translate(_TRANSLATE_TABLE)))
+    result = result.replace(_BIO_BYTESTRING, _write_str_prop(backstory))
 
     return result
-
-
-def normalize_bin_bio(pool: bytes) -> bytes:
-    good, _, bio = pool.partition(_BIO_HEADER)
-    # Remove the start of the biography which indicates the length of the property and some padding, which we will recalculate
-    bio = bio[12:]
-    bio = bio.removesuffix(_NONE_PROP)  # Remove the None property at the end, which we will add back
-    decoded = bio.decode("utf16")
-    normalized = decoded.translate(_TRANSLATE_TABLE)
-    fixed = normalized.translate(_TRANSLATE_TABLE)
-
-    # Now, we need to recombine the bytes. We can reuse the original header and None property, but we need to recalculate the length of the bio.
-    fixed_bytes = good + _BIO_HEADER + _write_str_prop(fixed) + _NONE_PROP
-    return fixed_bytes
 
 
 def validate_pool(pool: bytes) -> Literal[False] | str:

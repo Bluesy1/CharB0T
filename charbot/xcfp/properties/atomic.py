@@ -48,8 +48,15 @@ class StrProperty(Property):
     @classmethod
     def unpack(cls, data):
         size = IntProperty.unpack(data[:4])
+        if size < 0:
+            size = -size*2
+            typ = "Unicode"
+        else:
+            typ = "Ansi"
         if len(data[4:]) != size:
             raise PropertyError("Incorrect String Size in StrProperty: {}".format(size))
+        if typ == "Unicode":
+            return data[4:-2].decode("utf-16")
         return data[4:-1].decode("latin_1")
 
 class NameProperty(Property):

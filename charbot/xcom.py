@@ -660,21 +660,12 @@ Here is the details of the requested appearance to use to modify the attached bi
             _LOGGER.warning("Failed to read submitted .bin file named %s from user with id %s.", fname, itx_user)
             return
         if not (details := xcom_helpers.validate_pool(contents)):
-            try:
-                details = xcom_helpers.validate_pool(xcom_helpers.normalize_bin_bio(contents))
-            except Exception:
-                details = False
-        if not details:
             await interaction.followup.send(
                 "Submitted `.bin` file failed validation! Make sure it only has a single character and is a named pool."
                 "\n If the character you wish to submit is not a base soldier (i.e., is a Spark or Faction Soldier), "
                 "please reach out to Charlie or the Mod Team directly to discuss your request."
             )
             return
-        try:
-            contents = xcom_helpers.normalize_bin_bio(contents)
-        except Exception:
-            pass
         async with self.bot.pool.acquire() as conn:
             message_id: int | None = await conn.fetchval(
                 "SELECT message_id FROM xcom_character_submission WHERE submitter = $1;", submitter.id
@@ -754,11 +745,6 @@ Here is the details of the requested appearance to use to modify the attached bi
             await interaction.followup.send("Could not read the submitted `.bin` file, please try again!")
             return
         if not (details := xcom_helpers.validate_pool(contents)):
-            try:
-                details = xcom_helpers.validate_pool(xcom_helpers.normalize_bin_bio(contents))
-            except Exception:
-                details = False
-        if not details:
             await interaction.followup.send(
                 "Submitted `.bin` file failed validation! Make sure it only has a single character and is a named pool.\n"
                 "If the character you wish to submit is not a base soldier (i.e., is a Spark or Faction Soldier), "

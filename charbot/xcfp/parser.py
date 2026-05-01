@@ -130,7 +130,11 @@ class Parser():
             size = proptype.data_read_hook(self, size)
 
         data = self.read(size)
-        value = proptype.unpack(data)
+        try:
+            value = proptype.unpack(data)
+        except Exception as e:
+            e.add_note("Error unpacking property {} of type {} with data: {}".format(name, typename, data))
+            raise
 
         return Property(name, proptype.typename, value)
 
