@@ -41,7 +41,7 @@ class CharacterRequestModal(ui.Modal, title="Character Request"):
     """Modal for requesting a character."""
 
     def __init__(self, first_name: str, last_name: str, nickname: str, gender: str, country: str, race: str):
-        super().__init__(timeout=1200)
+        super().__init__(timeout=3600)
         self.first_name = first_name
         self.last_name = last_name
         self.nickname = nickname
@@ -165,7 +165,7 @@ class CharacterEditModal(ui.Modal, title="Edit Character Request"):
         bot: CBot,
         user_id: int,
     ):
-        super().__init__(timeout=600)
+        super().__init__(timeout=1200)
         self.first_name = first_name
         self.last_name = last_name
         self.nickname = nickname
@@ -618,7 +618,6 @@ Here is the details of the requested appearance to use to modify the attached bi
                     f"Only helpers can submit character pools via a thread! Please use this command in {channel.parent.mention} if you are not a helper."
                 )
                 return
-            channel = channel.parent
 
             requestor = await self.bot.pool.fetchval(
                 "SELECT requestor FROM xcom_character_request WHERE fulfill_thread = $1;", channel.id
@@ -633,6 +632,7 @@ Here is the details of the requested appearance to use to modify the attached bi
                     "The requestor for this thread is not a member of the thread, please contact Bluesy for assistance."
                 )
                 return
+            channel = channel.parent
             try:
                 submitter = channel.guild.get_member(requestor) or await channel.guild.fetch_member(requestor)
             except (discord.NotFound, discord.Forbidden):
