@@ -18,6 +18,7 @@ LINK_ALLOWED_CHANNELS = frozenset(
         723653004301041745,  # Music Channel
         338894508894715904,  # gifs/memes Channel
         407185164200968203,  # Clips
+        1498002319944454235,  # XCOM Helpers Chat
     ]
 )
 CONTENT_PLANS = 922613000047824956
