@@ -643,7 +643,7 @@ Here is the details of the requested appearance to use to modify the attached bi
 
         assert isinstance(channel, discord.TextChannel)
 
-        if interaction.channel_id != _SUBMISSION_CHANNEL_ID:
+        if channel.id != _SUBMISSION_CHANNEL_ID:
             await interaction.followup.send(f"You must use this command in <#{_SUBMISSION_CHANNEL_ID}>!")
             return
 
@@ -671,6 +671,10 @@ Here is the details of the requested appearance to use to modify the attached bi
                 "please reach out to Charlie or the Mod Team directly to discuss your request."
             )
             return
+        try:
+            contents = xcom_helpers.normalize_bin_bio(contents)
+        except Exception:
+            pass
         async with self.bot.pool.acquire() as conn:
             message_id: int | None = await conn.fetchval(
                 "SELECT message_id FROM xcom_character_submission WHERE submitter = $1;", submitter.id
@@ -690,15 +694,9 @@ Here is the details of the requested appearance to use to modify the attached bi
                     if on_behalf:
                         # From a helper, always replace without confirmation since they likely need to update the submission on behalf of the requestor
                         await message.delete()
-                        try:
-                            contents = xcom_helpers.normalize_bin_bio(contents)
-                        except Exception:
-                            pass
-                        await interaction.followup.send("Processing your submission now.")
+                        await interaction.followup.send(f"Processing your submission now.: {channel}")
                         with io.BytesIO(contents) as f:
-                            msg = await interaction.followup.send(
-                                submitter.mention, file=discord.File(f, fname), wait=True
-                            )
+                            msg = await channel.send(submitter.mention, file=discord.File(f, fname))
                         await conn.execute(
                             "UPDATE xcom_character_submission SET message_id = $1, preferred_class=$2 WHERE submitter = $3;",
                             msg.id,
@@ -719,9 +717,11 @@ Here is the details of the requested appearance to use to modify the attached bi
             else:
                 await interaction.followup.send("Processing your submission now.")
                 with io.BytesIO(contents) as contents:
-                    msg = await interaction.followup.send(
-                        submitter.mention, file=discord.File(contents, fname), wait=True
-                    )
+                    to_upload = discord.File(contents, fname)
+                    if on_behalf:
+                        msg = await channel.send(submitter.mention, file=to_upload)
+                    else:
+                        msg = await interaction.followup.send(submitter.mention, file=to_upload, wait=True)
                 await conn.execute(
                     "INSERT INTO xcom_character_submission (submitter, message_id, preferred_class) VALUES ($1, $2, $3);",
                     submitter.id,
