@@ -149,14 +149,15 @@ def create_base_bin_file(
     result = result.replace(_RACE_HEADER + _RACE_BYTESTRING, _RACE_HEADER + _write_int_prop(RACES.index(race)))
 
     # Bio
-    result = result.replace(_BIO_BYTESTRING, _write_str_prop(backstory))
+    result = result.replace(_BIO_BYTESTRING, _write_str_prop(backstory.translate(_TRANSLATE_TABLE)))
 
     return result
 
 
 def normalize_bin_bio(pool: bytes) -> bytes:
     good, _, bio = pool.partition(_BIO_HEADER)
-    bio = bio[12:]  # Remove the start of the biography which indicates the length of the property and some padding, which we will recalculate
+    # Remove the start of the biography which indicates the length of the property and some padding, which we will recalculate
+    bio = bio[12:]
     bio = bio.removesuffix(_NONE_PROP)  # Remove the None property at the end, which we will add back
     decoded = bio.decode("utf16")
     normalized = decoded.translate(_TRANSLATE_TABLE)
