@@ -156,7 +156,7 @@ def create_base_bin_file(
 
 def normalize_bin_bio(pool: bytes) -> bytes:
     good, _, bio = pool.partition(_BIO_HEADER)
-    bio = bio[12:]  # Remove the first byte which indicates the length of the property name, which we will recalculate
+    bio = bio[12:]  # Remove the start of the biography which indicates the length of the property and some padding, which we will recalculate
     bio = bio.removesuffix(_NONE_PROP)  # Remove the None property at the end, which we will add back
     decoded = bio.decode("utf16")
     normalized = decoded.translate(_TRANSLATE_TABLE)
