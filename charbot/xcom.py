@@ -843,17 +843,8 @@ Here is the details of the requested appearance to use to modify the attached bi
             valid_submitters,
         )
 
-        if sys.version_info >= (3, 14):
-            try:
-                import compression.zstd
-
-                compression = zipfile.ZIP_ZSTANDARD
-            except ImportError:
-                compression = zipfile.ZIP_DEFLATED
-        else:
-            compression = zipfile.ZIP_DEFLATED
         with io.BytesIO() as zip_buffer:
-            with zipfile.ZipFile(zip_buffer, "w", compression=compression) as zip_file:
+            with zipfile.ZipFile(zip_buffer, "w", compression=zipfile.ZIP_DEFLATED) as zip_file:
                 if rolled_up_vip1:
                     zip_file.writestr(vip1_name, rolled_up_vip1)
                 if rolled_up_vip2:
