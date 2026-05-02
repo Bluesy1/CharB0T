@@ -883,6 +883,26 @@ Here is the details of the requested appearance to use to modify the attached bi
                     issues_message = issues_message[:1900] + "\n... (truncated)"
                 await ctx.send(f"Issues encountered during rollup:\n{issues_message}")
 
+    @Cog.listener()
+    async def on_message(self, message: discord.Message):
+        """Listen for people who might be asking where to submit characters."""
+        if message.author.bot:
+            return
+        if message.channel.id == _SUBMISSION_CHANNEL_ID or (
+            isinstance(message.channel, discord.Thread) and message.channel.parent_id == _SUBMISSION_CHANNEL_ID
+        ):
+            return
+        phrases = ("how", "where")
+        content = message.content.casefold()
+        if "xcom" in content and any(phrase in content for phrase in phrases):
+            await message.reply("""# Looking for where to submit or request a XCOM character?
+
+Head over to <#1499502468420079626> for instructions, and <#1497045860301934714> to either request or submit your character!
+
+If you don't see either channel, take a look in <id:browse> and make sure you have the "XCOM" category followed.
+
+-# This message was sent in response to keywords in your message. Please disregard if this is not relevant.""")
+
 
 async def setup(bot: CBot) -> None:
     """Add the XCOM cog to the bot."""
