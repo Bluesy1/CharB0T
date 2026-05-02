@@ -756,6 +756,31 @@ Here is the details of the requested appearance to use to modify the attached bi
                 f"The provided `.bin` file is valid for submission! Here are the details of the character:\n{details}"
             )
 
+    @commands.command(name="pending_fulfillment", hidden=True)
+    @commands.guild_only()
+    async def pending_fulfillment(self, ctx: commands.Context):
+        """Lists some basic stats about the pending character request queue for informational purposes."""
+        assert isinstance(ctx.author, discord.Member)
+        if not (ctx.author.get_role(constants.HELPER_ROLE_ID) or self.bot.is_owner(ctx.author)):
+            await ctx.reply("You are not allowed to use this command!")
+            return
+        async with self.bot.pool.acquire() as conn:
+            total_requests = await conn.fetchval("SELECT COUNT(*) FROM xcom_character_request;")
+            unassigned_requests = await conn.fetchval(
+                "SELECT COUNT(*) FROM xcom_character_request WHERE fulfiller IS NULL;"
+            )
+            oldest_unassigned = await conn.fetchval(
+                "SELECT MIN(req_dt) FROM xcom_character_request WHERE fulfiller IS NULL;"
+            )
+        await ctx.reply(
+            f"There are currently {total_requests} total character requests, with {unassigned_requests} unassigned requests. "
+            + (
+                f"The oldest unassigned request was made at {discord.utils.format_dt(oldest_unassigned)}."
+                if unassigned_requests
+                else ""
+            )
+        )
+
     @commands.command(name="rollup", hidden=True)
     @commands.is_owner()
     async def rollup(self, ctx: commands.Context[CBot], after: discord.Message | None = None):
