@@ -917,6 +917,8 @@ Here is the details of the requested appearance to use to modify the attached bi
             isinstance(message.channel, discord.Thread) and message.channel.parent_id == _SUBMISSION_CHANNEL_ID
         ):
             return
+        if message.content.startswith((".", "!", "/", ";")):
+            return
         phrases = ("how", "where")
         content = message.content.casefold()
         if "xcom" in content and any(phrase in content for phrase in phrases):
