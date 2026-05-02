@@ -182,7 +182,8 @@ class Events(Cog):
         This is called when the cog is loaded, and initializes the
         log_un-timeout task and the members cache
         """
-        self.webhook = await self.bot.fetch_webhook(945514428047167578)
+        self.timeout_webhook = await self.bot.fetch_webhook(945514428047167578)
+        self.ban_webhook = await self.bot.fetch_webhook(1496177828331258036)
         self.nosy_webhook = await self.bot.fetch_webhook(1464810032020324500)
         self.log_untimeout.start()
         guild = self.bot.get_guild(constants.GUILD_ID) or await self.bot.fetch_guild(constants.GUILD_ID)
@@ -249,7 +250,7 @@ class Events(Cog):
             )
         )
         bot = self.bot.user
-        await self.webhook.send(view=view, username=bot.name, avatar_url=bot.display_avatar.url)
+        await self.timeout_webhook.send(view=view, username=bot.name, avatar_url=bot.display_avatar.url)
         self.timeouts.update({after.id: until})
 
     @tasks.loop(seconds=30)
@@ -272,7 +273,7 @@ class Events(Cog):
                     continue
                 if not member.is_timed_out():
                     bot = self.bot.user
-                    await self.webhook.send(
+                    await self.timeout_webhook.send(
                         view=UnTimeoutView(member, j), username=bot.name, avatar_url=bot.display_avatar.url
                     )
                     removable.append(i)
@@ -322,6 +323,73 @@ class Events(Cog):
             )
             await channel.send(f"**{user}** has left the server. ID:{user.id}. Time on Server: {time_string}")
 
+    async def _do_check_honeypot(self, before: discord.Member, after: discord.Member) -> bool:
+        whitelisted = any(after.get_role(role_id) for role_id in constants.HONEYPOT_EXCLUDED_ROLE_IDS)
+        assert after.joined_at is not None
+        action_taken = False
+        if all(after.get_role(role_id) for role_id in constants.HONEYPOT_ROLES_IDS) and not whitelisted:
+            action_taken = True
+            view = ui.LayoutView()
+            view.add_item(
+                ui.Container(
+                    ui.TextDisplay(f"## [BAN] {after} picked up the honeypot role"),
+                    ui.TextDisplay(
+                        f"**User**:\t{after.mention} ({after.name})\nBanned: Picked up honeypot role & all self assignable roles."
+                    ),
+                    ui.TextDisplay(f"Roles [{len(after.roles)}]: {', '.join(role.name for role in after.roles)}"),
+                    ui.TextDisplay(
+                        f"**Joined**:\t{format_dt(after.joined_at)}\n **Account Created**:\t{format_dt(after.created_at)}"
+                    ),
+                    ui.Separator(),
+                    ui.TextDisplay(f"-# {after.id} • {format_dt(utcnow())}"),
+                    accent_color=Color.dark_red(),
+                )
+            )
+            bot = self.bot.user
+            banned = False
+            try:
+                await after.ban(reason="Picked up honeypot role", delete_message_days=0)
+            except discord.HTTPException:
+                _LOGGER.exception("Failed to ban user %s for picking up honeypot role.", after)
+            else:
+                banned = True
+            finally:
+                await self.ban_webhook.send(view=view, username=bot.name, avatar_url=bot.display_avatar.url)
+                if not banned:
+                    await self.ban_webhook.send("<@&1362428821789479072>: Failed to ban user.")
+        elif after.get_role(constants.HONEYPOT_ROLE_ID) and not before.get_role(constants.HONEYPOT_ROLE_ID):
+            action_taken = True
+            do_timeout = not whitelisted
+            view = ui.LayoutView()
+            view.add_item(
+                ui.Container(
+                    ui.TextDisplay(f"## [{'TIMEOUT' if do_timeout else 'ALERT'}] {after} picked up the honeypot role"),
+                    ui.TextDisplay(f"**User**:\t{after.mention} ({after.name})\nAlert: Picked up honeypot role."),
+                    ui.TextDisplay(f"Roles [{len(after.roles)}]: {', '.join(role.name for role in after.roles)}"),
+                    ui.TextDisplay(
+                        f"**Joined**:\t{format_dt(after.joined_at)}\n **Account Created**:\t{format_dt(after.created_at)}"
+                    ),
+                    ui.Separator(),
+                    ui.TextDisplay(f"-# {after.id} • {format_dt(utcnow())}"),
+                    accent_color=Color.orange(),
+                )
+            )
+            bot = self.bot.user
+            if do_timeout:
+                success = False
+                try:
+                    await after.timeout(timedelta(days=1), reason="Picked up honeypot role")
+                except discord.HTTPException:
+                    _LOGGER.exception("Failed to timeout user %s for picking up honeypot role.", after)
+                else:
+                    success = True
+                finally:
+                    await self.timeout_webhook.send(view=view, username=bot.name, avatar_url=bot.display_avatar.url)
+                    if not success:
+                        await self.timeout_webhook.send("<@&1362428821789479072>: Failed to timeout user.")
+
+        return action_taken
+
     @Cog.listener()
     async def on_member_update(self, before: discord.Member, after: discord.Member):
         """Process when a member is timed out or untimed out.
@@ -341,39 +409,21 @@ class Events(Cog):
         if after.guild.id != constants.GUILD_ID:
             return
         bot = self.bot.user
+        if before.roles != after.roles:  # noqa: SIM102
+            if await self._do_check_honeypot(before, after):  # If we took action, break out of event.
+                return
         try:  # pragma: no cover
             if after.timed_out_until != before.timed_out_until:
                 if after.is_timed_out():
                     await self.parse_timeout(after)
                 else:
-                    await self.webhook.send(
+                    await self.timeout_webhook.send(
                         view=UnTimeoutView(after), username=bot.name, avatar_url=bot.display_avatar.url
                     )
-                    self.timeouts.pop(after.id)
+                    self.timeouts.pop(after.id, None)
         except Exception:  # skipcq: PYL-W0703  # pragma: no cover
             if after.is_timed_out():
                 await self.parse_timeout(after)
-
-        if (
-            before.roles != after.roles
-            and all(after.get_role(role_id) for role_id in constants.HONEYPOT_ROLES_IDS)
-            and not any(after.get_role(role_id) for role_id in constants.HONEYPOT_EXCLUDED_ROLE_IDS)
-        ):
-            try:
-                await after.timeout(timedelta(days=1), reason="Picked up honeypot role")
-            except discord.HTTPException:
-                pass
-            view = ui.LayoutView()
-            view.add_item(
-                ui.Container(
-                    ui.TextDisplay(f"## [LOG] {after} picked up the honeypot role"),
-                    ui.TextDisplay(f"**User**:\t{after.mention}\n**Action**:\tTimed out for picking up honeypot role"),
-                    ui.Separator(),
-                    ui.TextDisplay(f"-# {after.id}"),
-                    accent_color=Color.dark_red(),
-                )
-            )
-            await self.webhook.send(view=view, username=bot.name, avatar_url=bot.display_avatar.url)
 
     @Cog.listener()
     async def on_thread_create(self, thread: discord.Thread) -> None:
@@ -458,7 +508,7 @@ class Events(Cog):
                 )
                 view = MuteView(message, "Everyone/Here Ping")
                 bot = self.bot.user
-                await self.webhook.send(view=view, username=bot.name, avatar_url=bot.display_avatar.url)
+                await self.timeout_webhook.send(view=view, username=bot.name, avatar_url=bot.display_avatar.url)
             return  # skipcq: PYL-W0150
         if self.tilde_regex.search(message.content):  # pragma: no cover
             await message.delete()
@@ -474,7 +524,7 @@ class Events(Cog):
                 )
                 view = MuteView(message, "Telegram link sent")
                 bot = self.bot.user
-                await self.webhook.send(view=view, username=bot.name, avatar_url=bot.display_avatar.url)
+                await self.timeout_webhook.send(view=view, username=bot.name, avatar_url=bot.display_avatar.url)
             return  # skipcq: PYL-W0150
         if any("discord.com/channels/225345178955808768" not in url for url in urls) and not url_posting_allowed(
             cast(discord.TextChannel | discord.VoiceChannel | discord.Thread, message.channel), author.roles
