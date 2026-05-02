@@ -628,10 +628,13 @@ Here is the details of the requested appearance to use to modify the attached bi
                 )
                 return
             if not any(requestor == member.id for member in channel.members):
-                await interaction.followup.send(
-                    "The requestor for this thread is not a member of the thread, please contact Bluesy for assistance."
-                )
-                return
+                try:
+                    await channel.fetch_member(requestor)
+                except (discord.NotFound, discord.Forbidden):
+                    await interaction.followup.send(
+                        "The requestor for this thread is not a member of the thread, please contact Bluesy for assistance."
+                    )
+                    return
             channel = channel.parent
             try:
                 submitter = channel.guild.get_member(requestor) or await channel.guild.fetch_member(requestor)
