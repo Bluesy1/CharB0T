@@ -372,7 +372,6 @@ class Events(Cog):
                 )
             )
             bot = self.bot.user
-            await self.timeout_webhook.send(view=view, username=bot.name, avatar_url=bot.display_avatar.url)
             if do_timeout:
                 success = False
                 try:
@@ -382,6 +381,7 @@ class Events(Cog):
                 else:
                     success = True
                 finally:
+                    await self.timeout_webhook.send(view=view, username=bot.name, avatar_url=bot.display_avatar.url)
                     if not success:
                         await self.timeout_webhook.send("<@&1362428821789479072>: Failed to timeout user.")
 
