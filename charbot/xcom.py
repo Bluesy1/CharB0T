@@ -541,7 +541,9 @@ ORDER BY req_dt DESC""")
                 first_name, last_name, nickname, gender, country, race, biography
             )
             channel: discord.TextChannel = guild.get_channel(_SUBMISSION_CHANNEL_ID)  # pyright: ignore[reportAssignmentType]
-            thread = await channel.create_thread(name=f"Character Request for {requestor.name}")
+            thread = await channel.create_thread(
+                name=f"Character Request for {requestor.name}", auto_archive_duration=4320
+            )
             await thread.add_user(member)
             await thread.add_user(requestor)
             with io.BytesIO(bin_bytes) as file:
