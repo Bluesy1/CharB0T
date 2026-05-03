@@ -354,7 +354,12 @@ class Events(Cog):
             else:
                 banned = True
             finally:
-                await self.ban_webhook.send(view=view, username=bot.name, avatar_url=bot.display_avatar.url)
+                await self.ban_webhook.send(
+                    view=view,
+                    username=bot.name,
+                    avatar_url=bot.display_avatar.url,
+                    allowed_mentions=discord.AllowedMentions(everyone=False, users=True, roles=False),
+                )
                 if not banned:
                     await self.ban_webhook.send("<@&1362428821789479072>: Failed to ban user.")
         elif after.get_role(constants.HONEYPOT_ROLE_ID) and not before.get_role(constants.HONEYPOT_ROLE_ID):
@@ -384,7 +389,12 @@ class Events(Cog):
                 else:
                     success = True
                 finally:
-                    await self.timeout_webhook.send(view=view, username=bot.name, avatar_url=bot.display_avatar.url)
+                    await self.timeout_webhook.send(
+                        view=view,
+                        username=bot.name,
+                        avatar_url=bot.display_avatar.url,
+                        allowed_mentions=discord.AllowedMentions(everyone=False, users=True, roles=False),
+                    )
                     if not success:
                         await self.timeout_webhook.send("<@&1362428821789479072>: Failed to timeout user.")
 
