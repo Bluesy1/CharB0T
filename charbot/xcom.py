@@ -668,7 +668,9 @@ Here is the details of the requested appearance to use to modify the attached bi
             await interaction.followup.send(
                 "Submitted `.bin` file failed validation! Make sure it only has a single character and is a named pool."
                 "\n If the character you wish to submit is not a base soldier (i.e., is a Spark or Faction Soldier), "
-                "please reach out to Charlie or the Mod Team directly to discuss your request."
+                "please reach out to Charlie or the Mod Team directly to discuss your request.\n"
+                "**If you are using Iridar's Appearance mod**: Submit your `.bin` directly into <#1497045860301934714>"
+                " with your requested class preference in your message, and charlie will manually pick them up."
             )
             return
         async with self.bot.pool.acquire() as conn:
@@ -754,6 +756,8 @@ Here is the details of the requested appearance to use to modify the attached bi
                 "Submitted `.bin` file failed validation! Make sure it only has a single character and is a named pool.\n"
                 "If the character you wish to submit is not a base soldier (i.e., is a Spark or Faction Soldier), "
                 "please reach out to Charlie or the Mod Team directly to discuss your request.\n"
+                "**If you are using Iridar's Appearance mod**: Submit your `.bin` directly into <#1497045860301934714>"
+                " with your requested class preference in your message, and charlie will manually pick them up.\n"
                 "**If you believe this is an error, please open a mod support ticket via <#398949472840712192> so we can investigate further!**"
             )
         else:
@@ -761,29 +765,78 @@ Here is the details of the requested appearance to use to modify the attached bi
                 f"The provided `.bin` file is valid for submission! Here are the details of the character:\n{details}"
             )
 
-    @commands.command(name="pending_fulfillment", hidden=True)
-    @commands.guild_only()
-    async def pending_fulfillment(self, ctx: commands.Context):
-        """Lists some basic stats about the pending character request queue for informational purposes."""
-        assert isinstance(ctx.author, discord.Member)
-        if not (ctx.author.get_role(constants.HELPER_ROLE_ID) or self.bot.is_owner(ctx.author)):
-            await ctx.reply("You are not allowed to use this command!")
+    # @commands.command(name="pending_fulfillment", hidden=True)
+    # @commands.guild_only()
+    # async def pending_fulfillment(self, ctx: commands.Context):
+    #     """Lists some basic stats about the pending character request queue for informational purposes."""
+    #     assert isinstance(ctx.author, discord.Member)
+    #     if not (ctx.author.get_role(constants.HELPER_ROLE_ID) or self.bot.is_owner(ctx.author)):
+    #         await ctx.reply("You are not allowed to use this command!")
+    #         return
+    #     async with self.bot.pool.acquire() as conn:
+    #         total_requests = await conn.fetchval("SELECT COUNT(*) FROM xcom_character_request;")
+    #         unassigned_requests = await conn.fetchval(
+    #             "SELECT COUNT(*) FROM xcom_character_request WHERE fulfiller IS NULL;"
+    #         )
+    #         oldest_unassigned = await conn.fetchval(
+    #             "SELECT MIN(req_dt) FROM xcom_character_request WHERE fulfiller IS NULL;"
+    #         )
+    #     await ctx.reply(
+    #         f"There are currently {total_requests} total character requests, with {unassigned_requests} unassigned requests. "
+    #         + (
+    #             f"The oldest unassigned request was made at {discord.utils.format_dt(oldest_unassigned)}."
+    #             if unassigned_requests
+    #             else ""
+    #         )
+    #     )
+
+    @commands.command(name="!ext_submit", hidden=True)
+    @commands.is_owner()
+    async def external_submit(
+        self, ctx: commands.Context[CBot], file: discord.Attachment, preferred_class: str = "No Preference"
+    ):
+        """Submit a character pool .bin file on behalf of a user, for use in cases where the user is having trouble submitting themselves.
+
+        Parameters
+        ----------
+        ctx: commands.Context
+            The context instance for the command.
+        file: discord.Attachment
+            The character pool to submit
+        preferred_class: str
+            The preferred class for the character, does not guarantee the character will be added as that class.
+        """
+        if not file.filename.endswith(".bin"):
+            await ctx.reply("Only `.bin` files can be submitted!")
             return
-        async with self.bot.pool.acquire() as conn:
-            total_requests = await conn.fetchval("SELECT COUNT(*) FROM xcom_character_request;")
-            unassigned_requests = await conn.fetchval(
-                "SELECT COUNT(*) FROM xcom_character_request WHERE fulfiller IS NULL;"
+        try:
+            contents = await file.read()
+        except discord.HTTPException:
+            await ctx.reply("Could not read the submitted `.bin` file, please try again!")
+            return
+        details = xcom_helpers.validate_pool(contents)
+        if not details:
+            await ctx.reply(
+                "Submitted `.bin` file failed validation! Make sure it only has a single character and is a named pool.\n"
+                "If the character you wish to submit is not a base soldier (i.e., is a Spark or Faction Soldier), "
+                "please reach out to Charlie or the Mod Team directly to discuss your request.\n"
+                "**If you are using Iridar's Appearance mod**: Submit your `.bin` directly into <#1497045860301934714>"
+                " with your requested class preference in your message, and charlie will manually pick them up.\n"
+                "**If you believe this is an error, please open a mod support ticket via <#398949472840712192> so we can investigate further!**"
             )
-            oldest_unassigned = await conn.fetchval(
-                "SELECT MIN(req_dt) FROM xcom_character_request WHERE fulfiller IS NULL;"
-            )
+            return
+        channel = self.bot.get_channel(_SUBMISSION_CHANNEL_ID) or await self.bot.fetch_channel(_SUBMISSION_CHANNEL_ID)
+        assert isinstance(channel, discord.TextChannel)
+        with io.BytesIO(contents) as contents:
+            to_upload = discord.File(contents, file.filename)
+            msg = await channel.send(self.bot.user.mention, file=to_upload)
+        await self.bot.pool.execute(
+            "INSERT INTO xcom_character_submission_extra (message_id, preferred_class) VALUES ($1, $2);",
+            msg.id,
+            preferred_class,
+        )
         await ctx.reply(
-            f"There are currently {total_requests} total character requests, with {unassigned_requests} unassigned requests. "
-            + (
-                f"The oldest unassigned request was made at {discord.utils.format_dt(oldest_unassigned)}."
-                if unassigned_requests
-                else ""
-            )
+            f"Submission of a character with the following details has been successful:\nPreferred Class: {preferred_class}\n{details[:1850]}",
         )
 
     @commands.command(name="rollup", hidden=True)
@@ -802,6 +855,12 @@ Here is the details of the requested appearance to use to modify the attached bi
             message: (submitter, preferred_class)
             for submitter, message, preferred_class in await self.bot.pool.fetch(
                 "SELECT submitter, message_id, preferred_class FROM xcom_character_submission;"
+            )
+        }
+        submissions |= {
+            message_id: (0, preferred_class)
+            for message_id, preferred_class in await self.bot.pool.fetch(
+                "SELECT message_id, preferred_class FROM xcom_character_submission_extra;"
             )
         }
         vip1_bins = []
@@ -842,6 +901,9 @@ Here is the details of the requested appearance to use to modify the attached bi
             preference_details.append(f"{character_name}: {submission_details[1]}")
             valid_submitters.append(mentioned_id)
             if after:
+                general_bins.append(bin_contents)
+                continue
+            if submitter.id == self.bot.user.id:
                 general_bins.append(bin_contents)
                 continue
             if not isinstance(submitter, discord.Member):

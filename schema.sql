@@ -89,3 +89,11 @@ CREATE TABLE IF NOT EXISTS xcom_character_submission
     message_id      BIGINT                       NOT NULL,
     preferred_class VARCHAR(13)                  NOT NULL
 );
+
+CREATE TABLE IF NOT EXISTS xcom_character_submission_extra
+(
+    message_id      BIGINT                       NOT NULL
+        CONSTRAINT xcom_character_submission_extra_pk
+            PRIMARY KEY,
+    preferred_class VARCHAR(13)                  NOT NULL
+);
