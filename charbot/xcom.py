@@ -921,12 +921,19 @@ Here is the details of the requested appearance to use to modify the attached bi
             vip1_bins += vip2_bins
             vip2_bins = []
         vip1_name = "VIPs.bin" if not vip2_bins else "VIP_TIER_1.bin"
+        names_per_tier = ""
         if vip1_bins:
             rolled_up_vip1 = xcom_helpers.merge_bin_files(vip1_name, vip1_bins)
+            names_per_tier += f"VIP Tier 1 ({len(vip1_bins)}):\n"
+            names_per_tier += "\n".join(xcom_helpers.get_names_from_pool(rolled_up_vip1)) + "\n"
         if vip2_bins:
             rolled_up_vip2 = xcom_helpers.merge_bin_files("VIP_TIER_2.bin", vip2_bins)
+            names_per_tier += f"VIP Tier 2 ({len(vip2_bins)}):\n"
+            names_per_tier += "\n".join(xcom_helpers.get_names_from_pool(rolled_up_vip2)) + "\n"
         if general_bins:
             rolled_up_general = xcom_helpers.merge_bin_files("GENERAL.bin", general_bins)
+            names_per_tier += f"General Submissions ({len(general_bins)}):\n"
+            names_per_tier += "\n".join(xcom_helpers.get_names_from_pool(rolled_up_general)) + "\n"
 
         enhanced_metadata = await self.bot.pool.fetch(
             "SELECT requestor, first_name, last_name, nickname, country, "
@@ -944,6 +951,7 @@ Here is the details of the requested appearance to use to modify the attached bi
                 if rolled_up_general:
                     zip_file.writestr("GENERAL.bin", rolled_up_general)
                 zip_file.writestr("character_preferences.txt", "\n".join(preference_details))
+                zip_file.writestr("character_names_per_tier.txt", names_per_tier)
                 with io.StringIO() as csv_buffer:
                     fieldnames = [
                         "requestor",

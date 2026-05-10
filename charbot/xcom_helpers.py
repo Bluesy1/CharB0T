@@ -14,6 +14,7 @@ __all__ = (
     "RACES",
     "create_base_bin_file",
     "get_bin_name",
+    "get_names_from_pool",
     "merge_bin_files",
     "validate_pool",
 )
@@ -189,6 +190,13 @@ def get_bin_name(pool: bytes) -> str:
             raise ValueError("Pool must contain exactly one character.")
         char = chars[0]
         return f"{char.firstName} {char.nickName} {char.lastName}"
+
+
+def get_names_from_pool(pool: bytes) -> list[str]:
+    with io.BytesIO(pool) as b:
+        p = CharacterPool(b)
+        chars = list(p.characters())
+        return [f"{char.firstName} {char.nickName} {char.lastName}" for char in chars]
 
 
 def merge_bin_files(name: str, pools: list[bytes]) -> bytes:
