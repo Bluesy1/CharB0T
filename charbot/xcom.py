@@ -925,15 +925,15 @@ Here is the details of the requested appearance to use to modify the attached bi
         if vip1_bins:
             rolled_up_vip1 = xcom_helpers.merge_bin_files(vip1_name, vip1_bins)
             names_per_tier += f"VIP Tier 1 ({len(vip1_bins)}):\n"
-            names_per_tier += "\n".join(xcom_helpers.get_names_from_pool(rolled_up_vip1)) + "\n"
+            names_per_tier += "\n".join(xcom_helpers.get_names_from_pool(rolled_up_vip1)) + "\n\n\n"
         if vip2_bins:
             rolled_up_vip2 = xcom_helpers.merge_bin_files("VIP_TIER_2.bin", vip2_bins)
             names_per_tier += f"VIP Tier 2 ({len(vip2_bins)}):\n"
-            names_per_tier += "\n".join(xcom_helpers.get_names_from_pool(rolled_up_vip2)) + "\n"
+            names_per_tier += "\n".join(xcom_helpers.get_names_from_pool(rolled_up_vip2)) + "\n\n\n"
         if general_bins:
             rolled_up_general = xcom_helpers.merge_bin_files("GENERAL.bin", general_bins)
             names_per_tier += f"General Submissions ({len(general_bins)}):\n"
-            names_per_tier += "\n".join(xcom_helpers.get_names_from_pool(rolled_up_general)) + "\n"
+            names_per_tier += "\n".join(xcom_helpers.get_names_from_pool(rolled_up_general)) + "\n\n\n"
 
         enhanced_metadata = await self.bot.pool.fetch(
             "SELECT requestor, first_name, last_name, nickname, country, "
