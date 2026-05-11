@@ -11,6 +11,7 @@ on:
     - 'Cargo.*'
     - 'pyproject.toml'
     - '.github/workflows/ci.yml'
+    - 'uv.lock'
   pull_request:
     types: [ opened, reopened, synchronize ]
     paths:
@@ -20,6 +21,7 @@ on:
     - 'Cargo.*'
     - 'pyproject.toml'
     - '.github/workflows/ci.yml'
+    - 'uv.lock'
 
 jobs:
   lint:
