@@ -765,78 +765,76 @@ Here is the details of the requested appearance to use to modify the attached bi
                 f"The provided `.bin` file is valid for submission! Here are the details of the character:\n{details}"
             )
 
-    # @commands.command(name="pending_fulfillment", hidden=True)
-    # @commands.guild_only()
-    # async def pending_fulfillment(self, ctx: commands.Context):
-    #     """Lists some basic stats about the pending character request queue for informational purposes."""
-    #     assert isinstance(ctx.author, discord.Member)
-    #     if not (ctx.author.get_role(constants.HELPER_ROLE_ID) or self.bot.is_owner(ctx.author)):
-    #         await ctx.reply("You are not allowed to use this command!")
-    #         return
-    #     async with self.bot.pool.acquire() as conn:
-    #         total_requests = await conn.fetchval("SELECT COUNT(*) FROM xcom_character_request;")
-    #         unassigned_requests = await conn.fetchval(
-    #             "SELECT COUNT(*) FROM xcom_character_request WHERE fulfiller IS NULL;"
-    #         )
-    #         oldest_unassigned = await conn.fetchval(
-    #             "SELECT MIN(req_dt) FROM xcom_character_request WHERE fulfiller IS NULL;"
-    #         )
-    #     await ctx.reply(
-    #         f"There are currently {total_requests} total character requests, with {unassigned_requests} unassigned requests. "
-    #         + (
-    #             f"The oldest unassigned request was made at {discord.utils.format_dt(oldest_unassigned)}."
-    #             if unassigned_requests
-    #             else ""
-    #         )
-    #     )
-
-    @commands.command(name="!ext_submit", hidden=True)
-    @commands.is_owner()
-    async def external_submit(
-        self, ctx: commands.Context[CBot], file: discord.Attachment, preferred_class: str = "No Preference"
+    @character.command(name="submit_extra")
+    async def submit_extra(
+        self,
+        interaction: discord.Interaction,
+        file: discord.Attachment,
+        preferred_class: Literal[
+            "No Preference",
+            "Assault",
+            "Grenadier",
+            "Gunner",
+            "Ranger",
+            "Sharpshooter",
+            "Shinobi",
+            "Specialist",
+            "Technical",
+            "Psi Operative",
+            "SPARK",
+        ],
     ):
-        """Submit a character pool .bin file on behalf of a user, for use in cases where the user is having trouble submitting themselves.
+        """Submit an extra character for consideration for inclusion into Charlie's LWOTC campaign.
 
         Parameters
         ----------
-        ctx: commands.Context
-            The context instance for the command.
+        interaction: discord.Interaction
+            The interaction instance for the command.
         file: discord.Attachment
-            The character pool to submit
-        preferred_class: str
+            The character pool to validate
+        preferred_class: Literal["No Preference", "Assault", "Grenadier", "Gunner", "Ranger", "Sharpshooter", "Shinobi", "Specialist", "Technical", "Psi Operative", "SPARK"]
             The preferred class for the character, does not guarantee the character will be added as that class.
         """
-        if not file.filename.endswith(".bin"):
-            await ctx.reply("Only `.bin` files can be submitted!")
+        await interaction.response.defer(ephemeral=True)
+        channel = interaction.channel
+
+        assert channel is not None
+
+        if channel.id != _SUBMISSION_CHANNEL_ID:
+            await interaction.followup.send(f"You must use this command in <#{_SUBMISSION_CHANNEL_ID}>!")
+            return
+
+        if not (fname := file.filename).endswith(".bin"):
+            await interaction.followup.send("You must submit a `.bin` file!")
             return
         try:
             contents = await file.read()
         except discord.HTTPException:
-            await ctx.reply("Could not read the submitted `.bin` file, please try again!")
-            return
-        details = xcom_helpers.validate_pool(contents)
-        if not details:
-            await ctx.reply(
-                "Submitted `.bin` file failed validation! Make sure it only has a single character and is a named pool.\n"
-                "If the character you wish to submit is not a base soldier (i.e., is a Spark or Faction Soldier), "
-                "please reach out to Charlie or the Mod Team directly to discuss your request.\n"
-                "**If you are using Iridar's Appearance mod**: Submit your `.bin` directly into <#1497045860301934714>"
-                " with your requested class preference in your message, and charlie will manually pick them up.\n"
-                "**If you believe this is an error, please open a mod support ticket via <#398949472840712192> so we can investigate further!**"
+            await interaction.followup.send("Could not read the submitted `.bin` file, please try again!")
+            _LOGGER.warning(
+                "Failed to read submitted .bin file named %s from user with id %s.", fname, interaction.user.id
             )
             return
-        channel = self.bot.get_channel(_SUBMISSION_CHANNEL_ID) or await self.bot.fetch_channel(_SUBMISSION_CHANNEL_ID)
-        assert isinstance(channel, discord.TextChannel)
+        if not (details := xcom_helpers.validate_pool(contents)):
+            await interaction.followup.send(
+                "Submitted `.bin` file failed validation! Make sure it only has a single character and is a named pool."
+                "\n If the character you wish to submit is not a base soldier (i.e., is a Spark or Faction Soldier), "
+                "please reach out to Charlie or the Mod Team directly to discuss your request.\n"
+                "**If you are using Iridar's Appearance mod**: Submit your `.bin` directly into <#1497045860301934714>"
+                " with your requested class preference in your message, and charlie will manually pick them up."
+            )
+            return
+        await interaction.followup.send("Processing your submission now.")
         with io.BytesIO(contents) as contents:
-            to_upload = discord.File(contents, file.filename)
-            msg = await channel.send(self.bot.user.mention, file=to_upload)
+            msg = await interaction.followup.send(self.bot.user.mention, file=discord.File(contents, fname), wait=True)
         await self.bot.pool.execute(
-            "INSERT INTO xcom_character_submission_extra (message_id, preferred_class) VALUES ($1, $2);",
-            msg.id,
-            preferred_class,
-        )
-        await ctx.reply(
+                "INSERT INTO xcom_character_submission_extra (message_id, preferred_class) VALUES ($1, $2);",
+                msg.id,
+                preferred_class,
+            )
+        await interaction.followup.send(
             f"Submission of a character with the following details has been successful:\nPreferred Class: {preferred_class}\n{details[:1850]}",
+            ephemeral=True,
         )
 
     @commands.command(name="rollup", hidden=True)
@@ -866,6 +864,7 @@ Here is the details of the requested appearance to use to modify the attached bi
         vip1_bins = []
         vip2_bins = []
         general_bins = []
+        extra_bins = []
         preference_details = []
         valid_submitters: list[int] = []
         channel = self.bot.get_channel(_SUBMISSION_CHANNEL_ID) or await self.bot.fetch_channel(_SUBMISSION_CHANNEL_ID)
@@ -901,7 +900,10 @@ Here is the details of the requested appearance to use to modify the attached bi
             preference_details.append(f"{character_name}: {submission_details[1]}")
             valid_submitters.append(mentioned_id)
             if after:
-                general_bins.append(bin_contents)
+                if submission_details[0] == 0:
+                    extra_bins.append(bin_contents)
+                else:
+                    general_bins.append(bin_contents)
                 continue
             if submitter.id == self.bot.user.id:
                 general_bins.append(bin_contents)
@@ -913,10 +915,12 @@ Here is the details of the requested appearance to use to modify the attached bi
                 vip1_bins.append(bin_contents)
             elif any(submitter.get_role(role_id) for role_id in SUBMISSION_TIER_2):
                 vip2_bins.append(bin_contents)
+            elif submission_details[0] == 0:
+                extra_bins.append(bin_contents)
             else:
                 general_bins.append(bin_contents)
 
-        rolled_up_vip1 = rolled_up_vip2 = rolled_up_general = None
+        rolled_up_vip1 = rolled_up_vip2 = rolled_up_general = rolled_up_extra = None
         if len(vip1_bins) < 25:
             vip1_bins += vip2_bins
             vip2_bins = []
@@ -934,6 +938,10 @@ Here is the details of the requested appearance to use to modify the attached bi
             rolled_up_general = xcom_helpers.merge_bin_files("GENERAL.bin", general_bins)
             names_per_tier += f"General Submissions ({len(general_bins)}):\n"
             names_per_tier += "\n".join(xcom_helpers.get_names_from_pool(rolled_up_general)) + "\n\n\n"
+        if extra_bins:
+            rolled_up_extra = xcom_helpers.merge_bin_files("EXTRA.bin", extra_bins)
+            names_per_tier += f"Extra Submissions ({len(extra_bins)}):\n"
+            names_per_tier += "\n".join(xcom_helpers.get_names_from_pool(rolled_up_extra)) + "\n\n\n"
 
         enhanced_metadata = await self.bot.pool.fetch(
             "SELECT requestor, first_name, last_name, nickname, country, "
@@ -950,6 +958,8 @@ Here is the details of the requested appearance to use to modify the attached bi
                     zip_file.writestr("VIP_TIER_2.bin", rolled_up_vip2)
                 if rolled_up_general:
                     zip_file.writestr("GENERAL.bin", rolled_up_general)
+                if rolled_up_extra:
+                    zip_file.writestr("EXTRA.bin", rolled_up_extra)
                 zip_file.writestr("character_preferences.txt", "\n".join(preference_details))
                 zip_file.writestr("character_names_per_tier.txt", names_per_tier)
                 with io.StringIO() as csv_buffer:
