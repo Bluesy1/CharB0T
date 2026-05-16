@@ -828,10 +828,10 @@ Here is the details of the requested appearance to use to modify the attached bi
         with io.BytesIO(contents) as contents:
             msg = await interaction.followup.send(self.bot.user.mention, file=discord.File(contents, fname), wait=True)
         await self.bot.pool.execute(
-                "INSERT INTO xcom_character_submission_extra (message_id, preferred_class) VALUES ($1, $2);",
-                msg.id,
-                preferred_class,
-            )
+            "INSERT INTO xcom_character_submission_extra (message_id, preferred_class) VALUES ($1, $2);",
+            msg.id,
+            preferred_class,
+        )
         await interaction.followup.send(
             f"Submission of a character with the following details has been successful:\nPreferred Class: {preferred_class}\n{details[:1850]}",
             ephemeral=True,
