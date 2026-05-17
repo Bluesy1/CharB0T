@@ -20,6 +20,7 @@ from . import CBot, constants, xcom_helpers
 
 _LOGGER = logging.getLogger(__name__)
 _SUBMISSION_CHANNEL_ID: int = 1497045860301934714
+_XCOM_SUBMITTERS_ROLE_ID: int = 1505386799655288922
 
 SUBMISSION_TIER_1 = {  # Supporter High Tier (Ridiculous/Gold Patreon, Youtube Ten Gallon Fedora/Hat Lair, Silver Lifetime VIP, XCOM Helpers)
     225414953820094465,
@@ -875,6 +876,7 @@ Here is the details of the requested appearance to use to modify the attached bi
             if msg.attachments and msg.attachments[0].filename.endswith(".bin") and msg.author.id == self.bot.user.id
         ]
         issues = []
+        users_to_add_role: list[discord.Member] = []
         for message in messages:
             mentioned_id = message.mentions[0].id if message.mentions else None
             if mentioned_id is None:
@@ -911,6 +913,7 @@ Here is the details of the requested appearance to use to modify the attached bi
             if not isinstance(submitter, discord.Member):
                 general_bins.append(bin_contents)
                 continue
+            users_to_add_role.append(submitter)
             if any(submitter.get_role(role_id) for role_id in SUBMISSION_TIER_1):
                 vip1_bins.append(bin_contents)
             elif any(submitter.get_role(role_id) for role_id in SUBMISSION_TIER_2):
@@ -992,6 +995,16 @@ Here is the details of the requested appearance to use to modify the attached bi
                 if len(issues_message) > 1900:
                     issues_message = issues_message[:1900] + "\n... (truncated)"
                 await ctx.send(f"Issues encountered during rollup:\n{issues_message}")
+            assert ctx.guild is not None
+            if users_to_add_role and (role := ctx.guild.get_role(_XCOM_SUBMITTERS_ROLE_ID)):
+                await ctx.send(
+                    f"Adding submitters role to {len(users_to_add_role)} users who submitted characters in latest rollup."
+                )
+                for user in users_to_add_role:
+                    try:
+                        await user.add_roles(role, reason="Submitted a character for Charlie's LWOTC campaign.")
+                    except discord.HTTPException:
+                        _LOGGER.warning("Failed to add role to user with id %s who submitted a character.", user.id)
 
     @Cog.listener()
     async def on_message(self, message: discord.Message):
