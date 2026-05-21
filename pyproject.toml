@@ -30,7 +30,7 @@ dependencies = [
 	"orjson==3.11.8",
 	"Pillow==12.2.0",
 	"pytesseract==0.3.13",
-	"sentry-sdk==2.28.0",
+	"sentry-sdk==2.60.0",
 	"typing-extensions==4.15.0",
 	"tzdata==2026.2",
 	"urlextract==1.9.0",
