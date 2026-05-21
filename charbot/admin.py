@@ -1,6 +1,5 @@
 """Admin commands for the reputation system."""
 
-from datetime import timedelta
 from typing import cast
 
 import discord
@@ -9,6 +8,7 @@ from discord.ext import commands
 from discord.utils import format_dt, utcnow
 
 from . import CBot, constants
+
 
 MOD_ROLE = discord.Object(338173415527677954)
 

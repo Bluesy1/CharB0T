@@ -2,6 +2,7 @@
 
 import datetime
 import logging
+import sys
 from typing import Any, ClassVar, Self, TypeVar, cast
 from zoneinfo import ZoneInfo
 
@@ -358,7 +359,7 @@ class CBot(commands.Bot):
             The keyword arguments passed to the event.
         """
         await self.error_logs.send(f"{event_method} raised an error: {args} {kwargs}")
-        logging.getLogger("charbot").exception("Ignoring exception in %s", event_method)
+        logging.getLogger("charbot").exception("Ignoring exception in %s", event_method, exc_info=sys.exc_info())
 
 
 class Tree(app_commands.CommandTree[CBot]):
