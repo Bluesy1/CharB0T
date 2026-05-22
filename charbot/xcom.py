@@ -515,7 +515,7 @@ class XCOM(Cog):
 SELECT requestor, first_name, last_name, nickname, gender, country, race, details, biography
 FROM xcom_character_request
 WHERE fulfiller IS NULL
-ORDER BY req_dt DESC""")
+ORDER BY req_dt ASC""")
             next_req = sorted((dict(req) for req in unassigned), key=sort_key)[0] if unassigned else None
             if next_req is None:
                 await interaction.followup.send("There are no unassigned character requests at this time!")
@@ -678,6 +678,9 @@ Here is the details of the requested appearance to use to modify the attached bi
             message_id: int | None = await conn.fetchval(
                 "SELECT message_id FROM xcom_character_submission WHERE submitter = $1;", submitter.id
             )
+            locked: bool = await conn.fetchval(
+                "SELECT locked FROM xcom_character_submission WHERE submitter = $1;", submitter.id
+            )
             if message_id is not None:
                 try:
                     message = await channel.fetch_message(message_id)
@@ -690,6 +693,12 @@ Here is the details of the requested appearance to use to modify the attached bi
                         submitter.id,
                     )
                 else:
+                    if locked:
+                        await interaction.followup.send(
+                            "You have an existing submission that has already been rolled up into the submitted characters pool so you can no longer edit it.",
+                            ephemeral=True,
+                        )
+                        return
                     if on_behalf:
                         # From a helper, always replace without confirmation since they likely need to update the submission on behalf of the requestor
                         await message.delete()
@@ -995,6 +1004,9 @@ Here is the details of the requested appearance to use to modify the attached bi
                 if len(issues_message) > 1900:
                     issues_message = issues_message[:1900] + "\n... (truncated)"
                 await ctx.send(f"Issues encountered during rollup:\n{issues_message}")
+            await self.bot.pool.execute(
+                "UPDATE xcom_character_submission SET locked = TRUE WHERE submitter = ANY($1);", valid_submitters
+            )
             assert ctx.guild is not None
             if users_to_add_role and (role := ctx.guild.get_role(_XCOM_SUBMITTERS_ROLE_ID)):
                 await ctx.send(
@@ -1002,7 +1014,8 @@ Here is the details of the requested appearance to use to modify the attached bi
                 )
                 for user in users_to_add_role:
                     try:
-                        await user.add_roles(role, reason="Submitted a character for Charlie's LWOTC campaign.")
+                        if not user.get_role(_XCOM_SUBMITTERS_ROLE_ID):
+                            await user.add_roles(role, reason="Submitted a character for Charlie's LWOTC campaign.")
                     except discord.HTTPException:
                         _LOGGER.warning("Failed to add role to user with id %s who submitted a character.", user.id)
 

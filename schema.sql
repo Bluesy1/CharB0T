@@ -87,7 +87,8 @@ CREATE TABLE IF NOT EXISTS xcom_character_submission
         CONSTRAINT xcom_character_submission_pk
             PRIMARY KEY,
     message_id      BIGINT                       NOT NULL,
-    preferred_class VARCHAR(13)                  NOT NULL
+    preferred_class VARCHAR(13)                  NOT NULL,
+    locked      BOOLEAN DEFAULT FALSE            NOT NULL
 );
 
 CREATE TABLE IF NOT EXISTS xcom_character_submission_extra
