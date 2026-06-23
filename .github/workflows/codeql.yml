@@ -18,6 +18,8 @@ on:
       - 'charbot/**'
       - 'tests/**'
       - '.github/workflows/**'
+      - 'pyproject.toml'
+      - 'uv.lock'
   pull_request:
     # The branches below must be a subset of the branches above
     branches: [ "main" ]
@@ -25,6 +27,8 @@ on:
       - 'charbot/**'
       - 'tests/**'
       - '.github/workflows/**'
+      - 'pyproject.toml'
+      - 'uv.lock'
   schedule:
     - cron: '40 6 * * 5'
 
