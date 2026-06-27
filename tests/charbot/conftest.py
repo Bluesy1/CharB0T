@@ -11,9 +11,10 @@ if os.name != "nt":
     import uvloop
 
     # Test under uvloop on non windows OSes
-    @pytest.fixture(scope="session")
-    def event_loop_policy():
-        return uvloop.EventLoopPolicy()
+    def pytest_asyncio_loop_factories(config, item):
+        return {
+            "uvloop": uvloop.new_event_loop,
+        }
 
 
 @pytest.fixture(scope="session")
