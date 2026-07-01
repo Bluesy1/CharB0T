@@ -40,7 +40,7 @@ dependencies = [
 
 [project.optional-dependencies]
 dev = [
-	"aioresponses==0.7.8",
+	"aioresponses==0.7.9",
 	"asyncpg-stubs==0.31.2",
 	"ruff==0.14.8",
 	"pre-commit==3.6.1",
