@@ -121,6 +121,7 @@ def url_posting_allowed(
 
 _EMOJI_RE = re.compile(r"<a?:(\w+):\d{17,19}>")
 _CHANNEL_MENTION_RE = re.compile(r"<#\d{17,20}>")
+_EXTRA_LINES_RE = re.compile(r"@@.+?@@\n")
 
 
 def clean_diff(text: str, /) -> str:
@@ -138,6 +139,7 @@ def clean_diff(text: str, /) -> str:
     text = _EMOJI_RE.sub(r":\1:", text)
     text = text.replace("<#377852839189282827>", "#schedule")
     text = _CHANNEL_MENTION_RE.sub("#unknown", text)  # Temporary replacement
+    text = _EXTRA_LINES_RE.sub("", text)
 
     return text
 
