@@ -54,6 +54,11 @@ updates:
         patterns:
           - "actions/upload-artifact"
           - "actions/download-artifact"
+      codeql:
+        patterns:
+          - "github/codeql-action/analyze"
+          - "github/codeql-action/init"
+          - "github/codeql-action/autobuild"
 ## GH Pages branch
 #  - package-ecosystem: "pip" # See documentation for possible values
 #    directory: "/" # Location of package manifests
