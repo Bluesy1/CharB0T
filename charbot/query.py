@@ -447,7 +447,7 @@ For the square ad banner and logo, use
         member: discord.Member
             The member to get information about.
         """
-        roles = " ".join(role.mention for role in member.roles if role.name != "@everyone") or "None"
+        roles = " ".join(role.mention for role in reversed(member.roles) if role.name != "@everyone") or "None"
         if len(roles) > 1024:
             roles = roles[:1021] + "..."
         key_perms = (
@@ -466,7 +466,9 @@ For the square ad banner and logo, use
         embed = (
             discord.Embed(
                 description=member.mention,
-                color=next((role.color for role in member.roles if role.color.value != 0), discord.Color.default()),
+                color=next(
+                    (role.color for role in reversed(member.roles) if role.color.value != 0), discord.Color.default()
+                ),
                 timestamp=discord.utils.utcnow(),
             )
             .set_author(name=member.name, icon_url=member.display_avatar.url)
