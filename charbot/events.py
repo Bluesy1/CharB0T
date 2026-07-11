@@ -473,15 +473,15 @@ class Events(Cog):
                 await self.parse_timeout(after)
 
     @Cog.listener()
-    async def on_member_ban(self, user: discord.User, guild: discord.Guild):
+    async def on_member_ban(self, guild: discord.Guild, user: discord.User):
         """Log when a member is banned.
 
         Parameters
         ----------
-        user : discord.User
-            The user that was banned
         guild : discord.Guild
             The guild where the ban occurred
+        user : discord.User
+            The user that was banned
         """
         if guild.id != constants.GUILD_ID:
             return
@@ -575,7 +575,7 @@ class Events(Cog):
         after : discord.VoiceState
             The voice state after the update
         """
-        if after.channel is not None and before.channel is None:  # Left a voice channel
+        if after.channel is not None and before.channel is None:  # Joined a voice channel
             embed = (
                 discord.Embed(
                     color=4437377,
@@ -586,7 +586,7 @@ class Events(Cog):
                 .set_footer(text=f"ID: {member.id}")
             )
             await self.automated_logging_webhook.send(embed=embed)
-        elif after.channel is None and before.channel is not None:  # Joined a voice channel
+        elif after.channel is None and before.channel is not None:  # Left a voice channel
             embed = (
                 discord.Embed(
                     color=16729871,
@@ -713,6 +713,8 @@ class Events(Cog):
         """
         if before.content == after.content or before.author.bot:
             return
+        if after.guild is None:
+            return
 
         member = cast(discord.Member, after.author)
         channel = cast(discord.TextChannel, after.channel)
@@ -722,8 +724,8 @@ class Events(Cog):
                 description=f"**Message edited in {channel.mention}** [Jump to message]({after.jump_url})",
                 timestamp=utcnow(),
             )
-            .add_field(name="Before", value=f"{limit_string_length(before.content, 2048)}", inline=False)
-            .add_field(name="After", value=f"{limit_string_length(after.content, 2048)}", inline=False)
+            .add_field(name="Before", value=f"{limit_string_length(before.content, 1024)}", inline=False)
+            .add_field(name="After", value=f"{limit_string_length(after.content, 1024)}", inline=False)
             .set_author(name=member.display_name, icon_url=member.display_avatar.url)
             .set_footer(text=f"User ID: {member.id}")
         )
@@ -739,7 +741,7 @@ class Events(Cog):
         message : discord.Message
             The message that was deleted
         """
-        if message.author.bot:
+        if message.author.bot or message.guild is None:
             return
         member = cast(discord.Member, message.author)
         channel = cast(discord.TextChannel, message.channel)
@@ -749,7 +751,7 @@ class Events(Cog):
                 description=f"**Message sent by {member.display_name} deleted in {channel.mention}**",
                 timestamp=utcnow(),
             )
-            .add_field(name="Content", value=f"{limit_string_length(message.content, 2048)}", inline=False)
+            .add_field(name="Content", value=f"{limit_string_length(message.content, 1024)}", inline=False)
             .set_author(name=member.display_name, icon_url=member.display_avatar.url)
             .set_footer(text=f"Author: {member.id} | Message ID: {message.id}")
         )
@@ -766,14 +768,16 @@ class Events(Cog):
         """
         if not payload.guild_id:
             return
-        channel = cast(discord.TextChannel, self.bot.get_channel(payload.channel_id))
-        guild = cast(discord.Guild, self.bot.get_guild(payload.guild_id))
-        assert guild.icon
+        guild = self.bot.get_guild(payload.guild_id) or await self.bot.fetch_guild(payload.guild_id)
+        channel = cast(
+            discord.TextChannel,
+            guild.get_channel(payload.channel_id) or await guild.fetch_channel(payload.channel_id),
+        )
         embed = discord.Embed(
             color=3375061,
             description=f"**Bulk Delete in {channel.mention}**, {len(payload.message_ids)} messages deleted.",
             timestamp=utcnow(),
-        ).set_author(name=guild.name, icon_url=guild.icon.url)
+        ).set_author(name=guild.name, icon_url=guild.icon.url if guild.icon else None)
         await self.automated_logging_webhook.send(embed=embed)
 
     @tasks.loop(

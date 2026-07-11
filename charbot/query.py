@@ -448,9 +448,13 @@ For the square ad banner and logo, use
             The member to get information about.
         """
         roles = " ".join(role.mention for role in member.roles if role.name != "@everyone") or "None"
-        key_perms = (
-            ", ".join(perm for bit, perm in _KEY_PERMISSIONS.items() if member.guild_permissions.value & bit) or "None"
-        )
+        if len(roles) > 1024:
+            roles = roles[:1021] + "..."
+        key_perms = ", ".join(
+            perm for bit, perm in _KEY_PERMISSIONS.items() if member.guild_permissions.value & bit
+        ) or "None"
+        if len(key_perms) > 1024:
+            key_perms = key_perms[:1021] + "..."
         if member.id == member.guild.owner_id:
             ack = "Server Owner"
         elif member.guild_permissions.administrator:
