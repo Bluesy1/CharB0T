@@ -715,9 +715,15 @@ class Events(Cog):
             return
         if after.guild is None:
             return
-
         member = cast(discord.Member, after.author)
         channel = cast(discord.TextChannel, after.channel)
+
+        if channel.category_id in constants.SPECIAL_CATEGORIES and channel.id not in {
+            398949472840712192,
+            244094903792041985,
+        }:  # faq-and-support & vip-lounge channels
+            return
+
         embed = (
             discord.Embed(
                 color=3375061,
@@ -745,6 +751,13 @@ class Events(Cog):
             return
         member = cast(discord.Member, message.author)
         channel = cast(discord.TextChannel, message.channel)
+
+        if channel.category_id in constants.SPECIAL_CATEGORIES and channel.id not in {
+            398949472840712192,
+            244094903792041985,
+        }:  # faq-and-support & vip-lounge channels
+            return
+
         embed = (
             discord.Embed(
                 color=16729871,
