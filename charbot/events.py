@@ -144,6 +144,26 @@ def clean_diff(text: str, /) -> str:
     return text
 
 
+def limit_string_length(string: str, max_length: int) -> str:
+    """Limit the length of a string to a maximum length.
+
+    Parameters
+    ----------
+    string : str
+        The string to limit.
+    max_length : int
+        The maximum length of the string.
+
+    Returns
+    -------
+    str
+        The limited string.
+    """
+    if len(string) > max_length:
+        return string[: max_length - 3] + "..."
+    return string
+
+
 class Events(Cog):
     """Event Cog.
 
@@ -187,6 +207,7 @@ class Events(Cog):
         self.timeout_webhook = await self.bot.fetch_webhook(945514428047167578)
         self.ban_webhook = await self.bot.fetch_webhook(1496177828331258036)
         self.nosy_webhook = await self.bot.fetch_webhook(1464810032020324500)
+        self.automated_logging_webhook = await self.bot.fetch_webhook(1525548902273515680)
         self.log_untimeout.start()
         guild = self.bot.get_guild(constants.GUILD_ID) or await self.bot.fetch_guild(constants.GUILD_ID)
         self.update_channel = cast(
@@ -324,6 +345,7 @@ class Events(Cog):
                 self.bot.get_channel(430197357100138497) or await self.bot.fetch_channel(430197357100138497),
             )
             await channel.send(f"**{user}** has left the server. ID:{user.id}. Time on Server: {time_string}")
+            await self.bot.pool.execute("UPDATE levels SET xp=LEAST(20, xp) WHERE id=$1", user.id)
 
     async def _do_check_honeypot(self, before: discord.Member, after: discord.Member) -> bool:
         whitelisted = any(after.get_role(role_id) for role_id in constants.HONEYPOT_EXCLUDED_ROLE_IDS)
@@ -420,6 +442,19 @@ class Events(Cog):
         """
         if after.guild.id != constants.GUILD_ID:
             return
+        if before.nick != after.nick:
+            embed = (
+                discord.Embed(
+                    color=3375061,
+                    description=f"**{after.mention} nickname changed**",
+                    timestamp=utcnow(),
+                )
+                .add_field(name="Before", value=f"{before.nick or before.name}", inline=False)
+                .add_field(name="After", value=f"{after.nick or after.name}", inline=False)
+                .set_author(name=after.display_name, icon_url=after.display_avatar.url)
+                .set_footer(text=f"ID: {after.id}")
+            )
+            await self.automated_logging_webhook.send(embed=embed)
         bot = self.bot.user
         if before.roles != after.roles:  # noqa: SIM102
             if await self._do_check_honeypot(before, after):  # If we took action, break out of event.
@@ -436,6 +471,58 @@ class Events(Cog):
         except Exception:  # skipcq: PYL-W0703  # pragma: no cover
             if after.is_timed_out():
                 await self.parse_timeout(after)
+
+    @Cog.listener()
+    async def on_member_ban(self, guild: discord.Guild, user: discord.User):
+        """Log when a member is banned.
+
+        Parameters
+        ----------
+        guild : discord.Guild
+            The guild where the ban occurred
+        user : discord.User
+            The user that was banned
+        """
+        if guild.id != constants.GUILD_ID:
+            return
+
+        embed = (
+            discord.Embed(
+                color=16729871,
+                description=f"{user.mention} {user.name}",
+                timestamp=utcnow(),
+            )
+            .set_author(name="Member Banned", icon_url=user.display_avatar.url)
+            .set_footer(text=f"ID: {user.id}")
+            .set_thumbnail(url=user.display_avatar.url)
+        )
+        await self.automated_logging_webhook.send(embed=embed)
+
+    @Cog.listener()
+    async def on_member_unban(self, guild: discord.Guild, user: discord.User):
+        """Log when a member is unbanned.
+
+        Parameters
+        ----------
+        guild : discord.Guild
+            The guild where the unban occurred
+        user : discord.User
+            The user that was unbanned
+        """
+        if guild.id != constants.GUILD_ID:
+            return
+
+        embed = (
+            discord.Embed(
+                color=3375061,
+                description=f"{user.mention} {user.name}",
+                timestamp=utcnow(),
+            )
+            .set_author(name="Member Unbanned", icon_url=user.display_avatar.url)
+            .set_footer(text=f"ID: {user.id}")
+            .set_thumbnail(url=user.display_avatar.url)
+        )
+        await self.automated_logging_webhook.send(embed=embed)
 
     @Cog.listener()
     async def on_thread_create(self, thread: discord.Thread) -> None:
@@ -474,40 +561,58 @@ class Events(Cog):
             pass
 
     @Cog.listener()
-    async def on_message(self, message: discord.Message) -> None:
-        """Listen for messages sent that the bot can see.
-
-        If the message is sent by a non-mod user, it will check for a disallowed ping
-        and will delete the message if it is found, and log it.
-        Scans guild messages for prohibited content
-        If the message is a dm, it logs it in the dm_logs channel and redirects them to the new mod support method.
+    async def on_voice_state_update(
+        self, member: discord.Member, before: discord.VoiceState, after: discord.VoiceState
+    ):
+        """Log when a member joins or leaves a voice channel.
 
         Parameters
         ----------
-        message : discord.Message
-            The message sent to the websocket from discord.
+        member : discord.Member
+            The member that joined or left the voice channel
+        before : discord.VoiceState
+            The voice state before the update
+        after : discord.VoiceState
+            The voice state after the update
         """
-        if message.content is None or message.author.bot:
-            return
-        if message.guild is None:
-            channel = cast(
-                discord.TextChannel,
-                self.bot.get_channel(906578081496584242) or await self.bot.fetch_channel(906578081496584242),
+        if after.channel is not None and before.channel is None:  # Joined a voice channel
+            embed = (
+                discord.Embed(
+                    color=4437377,
+                    description=f"**{member.mention} joined voice channel {after.channel.mention}**",
+                    timestamp=utcnow(),
+                )
+                .set_author(name=member.display_name, icon_url=member.display_avatar.url)
+                .set_footer(text=f"ID: {member.id}")
             )
-            mentions = discord.AllowedMentions.none()
-            await channel.send(message.author.mention, allowed_mentions=mentions)
-            view = ui.LayoutView()
-            if message.content:
-                view.add_item(ui.Container(ui.TextDisplay(f"```md\n{message.content[:3900]}\n```")))
-            else:  # pragma: no cover
-                view.add_item(ui.Container(ui.TextDisplay(f"Message Contained no text Content:```\n{message!r}\n```")))
-            await channel.send(view=view, allowed_mentions=mentions)
-            # await message.channel.send(
-            #     "Hi! If this was an attempt to reach the mod team through modmail,"
-            #     " that has been removed, in favor of "
-            #     "mod support, which you can find in <#398949472840712192>"
-            # )
-            return
+            await self.automated_logging_webhook.send(embed=embed)
+        elif after.channel is None and before.channel is not None:  # Left a voice channel
+            embed = (
+                discord.Embed(
+                    color=16729871,
+                    description=f"**{member.mention} left voice channel {before.channel.mention}**",
+                    timestamp=utcnow(),
+                )
+                .set_author(name=member.display_name, icon_url=member.display_avatar.url)
+                .set_footer(text=f"ID: {member.id}")
+            )
+            await self.automated_logging_webhook.send(embed=embed)
+        elif before.channel is not None and after.channel is not None:  # Switched voice channels
+            if before.channel.id == after.channel.id:
+                return  # No change in channel, ignore
+            embed = (
+                discord.Embed(
+                    color=4437377,
+                    description=f"**{member.mention} switched voice channels {before.channel.mention} -> {after.channel.mention}**",
+                    timestamp=utcnow(),
+                )
+                .set_author(name=member.display_name, icon_url=member.display_avatar.url)
+                .set_footer(text=f"ID: {member.id}")
+            )
+            await self.automated_logging_webhook.send(embed=embed)
+
+    async def _scan_message(self, message: discord.Message, is_edit: bool = False) -> None:
+        assert message.guild is not None
         author = cast(discord.Member, message.author)
         IS_NOT_MOD = all(role.id not in constants.EVERYONE_PING_ALLOWED_ROLES for role in author.roles)
         if any(item in message.content for item in [f"<@&{message.guild.id}>", "@everyone", "@here"]) and IS_NOT_MOD:
@@ -551,10 +656,129 @@ class Events(Cog):
             except discord.HTTPException:
                 pass
             return
+        if is_edit:
+            return
         # at this point, all checks for bad messages have passed, and we can let the levels cog assess XP gain
         levels_cog = cast("Leveling | None", self.bot.get_cog("Leveling"))  # pragma: no cover
         if levels_cog is not None:  # pragma: no cover
             await levels_cog.proc_xp(message)
+
+    @Cog.listener()
+    async def on_message(self, message: discord.Message) -> None:
+        """Listen for messages sent that the bot can see.
+
+        If the message is sent by a non-mod user, it will check for a disallowed ping
+        and will delete the message if it is found, and log it.
+        Scans guild messages for prohibited content
+        If the message is a dm, it logs it in the dm_logs channel and redirects them to the new mod support method.
+
+        Parameters
+        ----------
+        message : discord.Message
+            The message sent to the websocket from discord.
+        """
+        if message.content is None or message.author.bot:
+            return
+        if message.guild is None:
+            channel = cast(
+                discord.TextChannel,
+                self.bot.get_channel(906578081496584242) or await self.bot.fetch_channel(906578081496584242),
+            )
+            mentions = discord.AllowedMentions.none()
+            await channel.send(message.author.mention, allowed_mentions=mentions)
+            view = ui.LayoutView()
+            if message.content:
+                view.add_item(ui.Container(ui.TextDisplay(f"```md\n{message.content[:3900]}\n```")))
+            else:  # pragma: no cover
+                view.add_item(ui.Container(ui.TextDisplay(f"Message Contained no text Content:```\n{message!r}\n```")))
+            await channel.send(view=view, allowed_mentions=mentions)
+            # await message.channel.send(
+            #     "Hi! If this was an attempt to reach the mod team through modmail,"
+            #     " that has been removed, in favor of "
+            #     "mod support, which you can find in <#398949472840712192>"
+            # )
+            return
+        await self._scan_message(message)
+
+    @Cog.listener()
+    async def on_message_edit(self, before: discord.Message, after: discord.Message) -> None:
+        """Log when a message is edited.
+
+        Parameters
+        ----------
+        before : discord.Message
+            The message before the edit
+        after : discord.Message
+            The message after the edit
+        """
+        if before.content == after.content or before.author.bot:
+            return
+        if after.guild is None:
+            return
+
+        member = cast(discord.Member, after.author)
+        channel = cast(discord.TextChannel, after.channel)
+        embed = (
+            discord.Embed(
+                color=3375061,
+                description=f"**Message edited in {channel.mention}** [Jump to message]({after.jump_url})",
+                timestamp=utcnow(),
+            )
+            .add_field(name="Before", value=f"{limit_string_length(before.content, 1024)}", inline=False)
+            .add_field(name="After", value=f"{limit_string_length(after.content, 1024)}", inline=False)
+            .set_author(name=member.display_name, icon_url=member.display_avatar.url)
+            .set_footer(text=f"User ID: {member.id}")
+        )
+        await self.automated_logging_webhook.send(embed=embed)
+        await self._scan_message(after, is_edit=True)  # Process the edited message for disallowed content
+
+    @Cog.listener()
+    async def on_message_delete(self, message: discord.Message) -> None:
+        """Log when a message is deleted.
+
+        Parameters
+        ----------
+        message : discord.Message
+            The message that was deleted
+        """
+        if message.author.bot or message.guild is None:
+            return
+        member = cast(discord.Member, message.author)
+        channel = cast(discord.TextChannel, message.channel)
+        embed = (
+            discord.Embed(
+                color=16729871,
+                description=f"**Message sent by {member.display_name} deleted in {channel.mention}**",
+                timestamp=utcnow(),
+            )
+            .add_field(name="Content", value=f"{limit_string_length(message.content, 1024)}", inline=False)
+            .set_author(name=member.display_name, icon_url=member.display_avatar.url)
+            .set_footer(text=f"Author: {member.id} | Message ID: {message.id}")
+        )
+        await self.automated_logging_webhook.send(embed=embed)
+
+    @Cog.listener()
+    async def on_raw_bulk_message_delete(self, payload: discord.RawBulkMessageDeleteEvent) -> None:
+        """Log when multiple messages are deleted at once.
+
+        Parameters
+        ----------
+        payload : discord.RawBulkMessageDeleteEvent
+            The payload of the bulk message delete event
+        """
+        if not payload.guild_id:
+            return
+        guild = self.bot.get_guild(payload.guild_id) or await self.bot.fetch_guild(payload.guild_id)
+        channel = cast(
+            discord.TextChannel,
+            guild.get_channel(payload.channel_id) or await guild.fetch_channel(payload.channel_id),
+        )
+        embed = discord.Embed(
+            color=3375061,
+            description=f"**Bulk Delete in {channel.mention}**, {len(payload.message_ids)} messages deleted.",
+            timestamp=utcnow(),
+        ).set_author(name=guild.name, icon_url=guild.icon.url if guild.icon else None)
+        await self.automated_logging_webhook.send(embed=embed)
 
     @tasks.loop(
         time=[time(14), time(17), time(20), time(1), time(4)],  # UTC times for 9am, 12pm, 3pm, 8pm, and 11pm Eastern

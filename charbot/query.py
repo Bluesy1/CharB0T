@@ -45,6 +45,33 @@ __rules__: Final[dict[int, str]] = {
     "Find a way to say it another way, if the bot kills your message.",
 }
 __source__ = "<https://github.com/Bluesy1/CharB0T/tree/main/charbot>"
+_KEY_PERMISSIONS: Final[dict[int, str]] = {
+    (1 << 1): "Kick Members",
+    (1 << 2): "Ban Members",
+    (1 << 3): "Administrator",
+    (1 << 4): "Manage Channels",
+    (1 << 5): "Manage Server",
+    (1 << 7): "View Audit Log",
+    (1 << 8): "Priority Speaker",
+    (1 << 12): "Send TTS Messages",
+    (1 << 13): "Manage Messages",
+    (1 << 17): "Mention Everyone",
+    (1 << 19): "View Guild Insights",
+    (1 << 22): "Mute Members",
+    (1 << 23): "Deafen Members",
+    (1 << 24): "Move Members",
+    (1 << 27): "Manage Nicknames",
+    (1 << 28): "Manage Roles",
+    (1 << 29): "Manage Webhooks",
+    (1 << 30): "Manage Expressions",
+    (1 << 33): "Manage Events",
+    (1 << 34): "Manage Threads",
+    (1 << 40): "Moderate (Timeout) Members",
+    (1 << 43): "Create Expressions",
+    (1 << 44): "Create Events",
+    (1 << 51): "Pin Messages",
+    (1 << 52): "Bypass Slowmode",
+}
 
 
 class Query(Cog):
@@ -406,6 +433,61 @@ For the square ad banner and logo, use
                 await ctx.author.send(msg)
             except discord.Forbidden:
                 await ctx.reply(msg)
+
+    @commands.hybrid_command(name="whois", hidden=True)
+    @app_commands.guilds(constants.GUILD_ID)
+    @app_commands.default_permissions(moderate_members=True)
+    async def whois(self, ctx: Context, member: discord.Member):
+        """Send a message about a member's information.
+
+        Parameters
+        ----------
+        ctx: Context
+            The context of the command.
+        member: discord.Member
+            The member to get information about.
+        """
+        roles = " ".join(role.mention for role in member.roles if role.name != "@everyone") or "None"
+        if len(roles) > 1024:
+            roles = roles[:1021] + "..."
+        key_perms = (
+            ", ".join(perm for bit, perm in _KEY_PERMISSIONS.items() if member.guild_permissions.value & bit) or "None"
+        )
+        if len(key_perms) > 1024:
+            key_perms = key_perms[:1021] + "..."
+        if member.id == member.guild.owner_id:
+            ack = "Server Owner"
+        elif member.guild_permissions.administrator:
+            ack = "Server Admin"
+        elif member.guild_permissions & discord.Permissions.elevated():
+            ack = "Server Moderator"
+        else:
+            ack = None
+        embed = (
+            discord.Embed(
+                description=member.mention,
+                color=next((role.color for role in member.roles if role.color.value != 0), discord.Color.default()),
+                timestamp=discord.utils.utcnow(),
+            )
+            .set_author(name=member.name, icon_url=member.display_avatar.url)
+            .set_thumbnail(url=member.display_avatar.url)
+            .set_footer(text=f"ID: {member.id}")
+            .add_field(
+                name="Joined",
+                value=discord.utils.format_dt(member.joined_at, "F") if member.joined_at else "Unknown",
+                inline=True,
+            )
+            .add_field(
+                name="Created",
+                value=discord.utils.format_dt(member.created_at, "F") if member.created_at else "Unknown",
+                inline=True,
+            )
+            .add_field(name=f"Roles[{len(member.roles) - 1}]", value=roles, inline=False)
+            .add_field(name="Key Permissions", value=key_perms, inline=False)
+        )
+        if ack:
+            embed.add_field(name="Acknowledgements", value=ack, inline=True)
+        await ctx.reply(embed=embed)
 
 
 async def setup(bot: "CBot"):  # pragma: no cover
