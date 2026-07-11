@@ -476,7 +476,9 @@ class Events(Cog):
             pass
 
     @Cog.listener()
-    async def on_voice_state_update(self, member: discord.Member, before: discord.VoiceState, after: discord.VoiceState):
+    async def on_voice_state_update(
+        self, member: discord.Member, before: discord.VoiceState, after: discord.VoiceState
+    ):
         """Log when a member joins or leaves a voice channel.
 
         Parameters
@@ -488,34 +490,40 @@ class Events(Cog):
         after : discord.VoiceState
             The voice state after the update
         """
-        if after.channel is not None and before.channel is None: # Left a voice channel
-            embed = discord.Embed(
-                color=4437377,
-                description=f"**{member.mention} joined voice channel {after.channel.mention}**",
-                timestamp=utcnow(),
-            ).set_author(
-                name=member.display_name, icon_url=member.display_avatar.url
-            ).set_footer(text=f"ID: {member.id}")
-            await self.automated_logging_webhook.send(embed=embed)                
-        elif after.channel is None and before.channel is not None: # Joined a voice channel
-            embed = discord.Embed(
-                color=16729871,
-                description=f"**{member.mention} left voice channel {before.channel.mention}**",
-                timestamp=utcnow(),
-            ).set_author(
-                name=member.display_name, icon_url=member.display_avatar.url
-            ).set_footer(text=f"ID: {member.id}")
+        if after.channel is not None and before.channel is None:  # Left a voice channel
+            embed = (
+                discord.Embed(
+                    color=4437377,
+                    description=f"**{member.mention} joined voice channel {after.channel.mention}**",
+                    timestamp=utcnow(),
+                )
+                .set_author(name=member.display_name, icon_url=member.display_avatar.url)
+                .set_footer(text=f"ID: {member.id}")
+            )
             await self.automated_logging_webhook.send(embed=embed)
-        elif before.channel is not None and after.channel is not None: # Switched voice channels
+        elif after.channel is None and before.channel is not None:  # Joined a voice channel
+            embed = (
+                discord.Embed(
+                    color=16729871,
+                    description=f"**{member.mention} left voice channel {before.channel.mention}**",
+                    timestamp=utcnow(),
+                )
+                .set_author(name=member.display_name, icon_url=member.display_avatar.url)
+                .set_footer(text=f"ID: {member.id}")
+            )
+            await self.automated_logging_webhook.send(embed=embed)
+        elif before.channel is not None and after.channel is not None:  # Switched voice channels
             if before.channel.id == after.channel.id:
                 return  # No change in channel, ignore
-            embed = discord.Embed(
-                color=4437377,
-                description=f"**{member.mention} switched voice channels {before.channel.mention} -> {after.channel.mention}**",
-                timestamp=utcnow(),
-            ).set_author(
-                name=member.display_name, icon_url=member.display_avatar.url
-            ).set_footer(text=f"ID: {member.id}")
+            embed = (
+                discord.Embed(
+                    color=4437377,
+                    description=f"**{member.mention} switched voice channels {before.channel.mention} -> {after.channel.mention}**",
+                    timestamp=utcnow(),
+                )
+                .set_author(name=member.display_name, icon_url=member.display_avatar.url)
+                .set_footer(text=f"ID: {member.id}")
+            )
             await self.automated_logging_webhook.send(embed=embed)
 
     @Cog.listener()
