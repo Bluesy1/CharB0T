@@ -143,6 +143,7 @@ def clean_diff(text: str, /) -> str:
 
     return text
 
+
 def limit_string_length(string: str, max_length: int) -> str:
     """Limit the length of a string to a maximum length.
 
@@ -159,8 +160,9 @@ def limit_string_length(string: str, max_length: int) -> str:
         The limited string.
     """
     if len(string) > max_length:
-        return string[:max_length - 3] + "..."
+        return string[: max_length - 3] + "..."
     return string
+
 
 class Events(Cog):
     """Event Cog.
@@ -495,7 +497,7 @@ class Events(Cog):
             .set_thumbnail(url=user.display_avatar.url)
         )
         await self.automated_logging_webhook.send(embed=embed)
-    
+
     @Cog.listener()
     async def on_member_unban(self, guild: discord.Guild, user: discord.User):
         """Log when a member is unbanned.
@@ -697,11 +699,11 @@ class Events(Cog):
             # )
             return
         await self._scan_message(message)
-        
+
     @Cog.listener()
     async def on_message_edit(self, before: discord.Message, after: discord.Message) -> None:
         """Log when a message is edited.
-        
+
         Parameters
         ----------
         before : discord.Message
@@ -711,7 +713,7 @@ class Events(Cog):
         """
         if before.content == after.content or before.author.bot:
             return
-        
+
         member = cast(discord.Member, after.author)
         channel = cast(discord.TextChannel, after.channel)
         embed = (
@@ -727,7 +729,7 @@ class Events(Cog):
         )
         await self.automated_logging_webhook.send(embed=embed)
         await self._scan_message(after, is_edit=True)  # Process the edited message for disallowed content
-    
+
     @Cog.listener()
     async def on_message_delete(self, message: discord.Message) -> None:
         """Log when a message is deleted.
@@ -752,7 +754,7 @@ class Events(Cog):
             .set_footer(text=f"Author: {member.id} | Message ID: {message.id}")
         )
         await self.automated_logging_webhook.send(embed=embed)
-    
+
     @Cog.listener()
     async def on_raw_bulk_message_delete(self, payload: discord.RawBulkMessageDeleteEvent) -> None:
         """Log when multiple messages are deleted at once.
@@ -767,16 +769,12 @@ class Events(Cog):
         channel = cast(discord.TextChannel, self.bot.get_channel(payload.channel_id))
         guild = cast(discord.Guild, self.bot.get_guild(payload.guild_id))
         assert guild.icon
-        embed = (
-            discord.Embed(
-                color=3375061,
-                description=f"**Bulk Delete in {channel.mention}**, {len(payload.message_ids)} messages deleted.",
-                timestamp=utcnow(),
-            )
-            .set_author(name=guild.name, icon_url=guild.icon.url)
-        )
+        embed = discord.Embed(
+            color=3375061,
+            description=f"**Bulk Delete in {channel.mention}**, {len(payload.message_ids)} messages deleted.",
+            timestamp=utcnow(),
+        ).set_author(name=guild.name, icon_url=guild.icon.url)
         await self.automated_logging_webhook.send(embed=embed)
-
 
     @tasks.loop(
         time=[time(14), time(17), time(20), time(1), time(4)],  # UTC times for 9am, 12pm, 3pm, 8pm, and 11pm Eastern
