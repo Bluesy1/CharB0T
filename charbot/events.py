@@ -187,6 +187,7 @@ class Events(Cog):
         self.timeout_webhook = await self.bot.fetch_webhook(945514428047167578)
         self.ban_webhook = await self.bot.fetch_webhook(1496177828331258036)
         self.nosy_webhook = await self.bot.fetch_webhook(1464810032020324500)
+        self.automated_logging_webhook = await self.bot.fetch_webhook(1525548902273515680)
         self.log_untimeout.start()
         guild = self.bot.get_guild(constants.GUILD_ID) or await self.bot.fetch_guild(constants.GUILD_ID)
         self.update_channel = cast(
@@ -324,6 +325,7 @@ class Events(Cog):
                 self.bot.get_channel(430197357100138497) or await self.bot.fetch_channel(430197357100138497),
             )
             await channel.send(f"**{user}** has left the server. ID:{user.id}. Time on Server: {time_string}")
+            await self.bot.pool.execute("UPDATE levels SET xp=LEAST(20, xp) WHERE id=$1", user.id)
 
     async def _do_check_honeypot(self, before: discord.Member, after: discord.Member) -> bool:
         whitelisted = any(after.get_role(role_id) for role_id in constants.HONEYPOT_EXCLUDED_ROLE_IDS)
@@ -472,6 +474,49 @@ class Events(Cog):
             # by a known race condition between on_thread_create and message_create, depending on which gets sent first
             # by the gateway.
             pass
+
+    @Cog.listener()
+    async def on_voice_state_update(self, member: discord.Member, before: discord.VoiceState, after: discord.VoiceState):
+        """Log when a member joins or leaves a voice channel.
+
+        Parameters
+        ----------
+        member : discord.Member
+            The member that joined or left the voice channel
+        before : discord.VoiceState
+            The voice state before the update
+        after : discord.VoiceState
+            The voice state after the update
+        """
+        if after.channel is not None and before.channel is None: # Left a voice channel
+            embed = discord.Embed(
+                color=4437377,
+                description=f"**{member.mention} joined voice channel {after.channel.mention}**",
+                timestamp=utcnow(),
+            ).set_author(
+                name=member.display_name, icon_url=member.display_avatar.url
+            ).set_footer(text=f"ID: {member.id}")
+            await self.automated_logging_webhook.send(embed=embed)                
+        elif after.channel is None and before.channel is not None: # Joined a voice channel
+            embed = discord.Embed(
+                color=16729871,
+                description=f"**{member.mention} left voice channel {before.channel.mention}**",
+                timestamp=utcnow(),
+            ).set_author(
+                name=member.display_name, icon_url=member.display_avatar.url
+            ).set_footer(text=f"ID: {member.id}")
+            await self.automated_logging_webhook.send(embed=embed)
+        elif before.channel is not None and after.channel is not None: # Switched voice channels
+            if before.channel.id == after.channel.id:
+                return  # No change in channel, ignore
+            embed = discord.Embed(
+                color=4437377,
+                description=f"**{member.mention} switched voice channels {before.channel.mention} -> {after.channel.mention}**",
+                timestamp=utcnow(),
+            ).set_author(
+                name=member.display_name, icon_url=member.display_avatar.url
+            ).set_footer(text=f"ID: {member.id}")
+            await self.automated_logging_webhook.send(embed=embed)
 
     @Cog.listener()
     async def on_message(self, message: discord.Message) -> None:
