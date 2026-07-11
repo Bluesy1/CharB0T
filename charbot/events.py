@@ -440,6 +440,19 @@ class Events(Cog):
         """
         if after.guild.id != constants.GUILD_ID:
             return
+        if before.nick != after.nick:
+            embed = (
+                discord.Embed(
+                    color=3375061,
+                    description=f"**{after.mention} nickname changed**",
+                    timestamp=utcnow(),
+                )
+                .add_field(name="Before", value=f"{before.nick or before.name}", inline=False)
+                .add_field(name="After", value=f"{after.nick or after.name}", inline=False)
+                .set_author(name=after.display_name, icon_url=after.display_avatar.url)
+                .set_footer(text=f"ID: {after.id}")
+            )
+            await self.automated_logging_webhook.send(embed=embed)
         bot = self.bot.user
         if before.roles != after.roles:  # noqa: SIM102
             if await self._do_check_honeypot(before, after):  # If we took action, break out of event.
@@ -456,6 +469,58 @@ class Events(Cog):
         except Exception:  # skipcq: PYL-W0703  # pragma: no cover
             if after.is_timed_out():
                 await self.parse_timeout(after)
+
+    @Cog.listener()
+    async def on_member_ban(self, user: discord.User, guild: discord.Guild):
+        """Log when a member is banned.
+
+        Parameters
+        ----------
+        user : discord.User
+            The user that was banned
+        guild : discord.Guild
+            The guild where the ban occurred
+        """
+        if guild.id != constants.GUILD_ID:
+            return
+
+        embed = (
+            discord.Embed(
+                color=16729871,
+                description=f"{user.mention} {user.name}",
+                timestamp=utcnow(),
+            )
+            .set_author(name="Member Banned", icon_url=user.display_avatar.url)
+            .set_footer(text=f"ID: {user.id}")
+            .set_thumbnail(url=user.display_avatar.url)
+        )
+        await self.automated_logging_webhook.send(embed=embed)
+    
+    @Cog.listener()
+    async def on_member_unban(self, guild: discord.Guild, user: discord.User):
+        """Log when a member is unbanned.
+
+        Parameters
+        ----------
+        guild : discord.Guild
+            The guild where the unban occurred
+        user : discord.User
+            The user that was unbanned
+        """
+        if guild.id != constants.GUILD_ID:
+            return
+
+        embed = (
+            discord.Embed(
+                color=3375061,
+                description=f"{user.mention} {user.name}",
+                timestamp=utcnow(),
+            )
+            .set_author(name="Member Unbanned", icon_url=user.display_avatar.url)
+            .set_footer(text=f"ID: {user.id}")
+            .set_thumbnail(url=user.display_avatar.url)
+        )
+        await self.automated_logging_webhook.send(embed=embed)
 
     @Cog.listener()
     async def on_thread_create(self, thread: discord.Thread) -> None:
@@ -711,6 +776,7 @@ class Events(Cog):
             .set_author(name=guild.name, icon_url=guild.icon.url)
         )
         await self.automated_logging_webhook.send(embed=embed)
+
 
     @tasks.loop(
         time=[time(14), time(17), time(20), time(1), time(4)],  # UTC times for 9am, 12pm, 3pm, 8pm, and 11pm Eastern
