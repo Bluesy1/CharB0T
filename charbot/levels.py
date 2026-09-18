@@ -13,8 +13,8 @@ from . import CBot, constants
 
 
 XP_PER_LEVEL = 10
-XP_CAP = (XP_PER_LEVEL * 5) + 1
-INTERVAL_LENGTH = 600
+XP_CAP = (XP_PER_LEVEL * 5) + (XP_PER_LEVEL // 2) + 1
+INTERVAL_LENGTH = 60 * 10
 LEVEL_1_ROLE = discord.Object(constants.LEVEL_1_ID, type=discord.Role)
 LEVEL_2_ROLE = discord.Object(constants.LEVEL_2_ID, type=discord.Role)
 LEVEL_3_ROLE = discord.Object(constants.LEVEL_3_ID, type=discord.Role)
