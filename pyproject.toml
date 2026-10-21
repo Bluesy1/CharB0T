@@ -27,14 +27,14 @@ dependencies = [
 	"discord.py[speed]==2.7.1",
 	"jishaku[procinfo]==2.7.5",
 	"niquests[speedups]==3.21.2",
-	"orjson==3.12.0",
+	"orjson==3.13.0",
 	"Pillow==12.3.0",
 	"pytesseract==0.3.13",
 	"sentry-sdk==2.60.0",
 	"typing-extensions==4.16.0",
 	"tzdata==2026.5",
 	"urlextract==1.9.0",
-	"uvloop==0.22.1 ; sys_platform != 'win32'",
+	"uvloop==0.23.0 ; sys_platform != 'win32'",
 	"validators==0.29.0",
 ]
 
