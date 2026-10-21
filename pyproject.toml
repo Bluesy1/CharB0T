@@ -26,13 +26,13 @@ dependencies = [
 	"asyncpg==0.31.0",
 	"discord.py[speed]==2.7.1",
 	"jishaku[procinfo]==2.7.5",
-	"niquests[speedups]==3.20.0",
-	"orjson==3.11.9",
+	"niquests[speedups]==3.21.2",
+	"orjson==3.12.0",
 	"Pillow==12.3.0",
 	"pytesseract==0.3.13",
 	"sentry-sdk==2.60.0",
 	"typing-extensions==4.16.0",
-	"tzdata==2026.2",
+	"tzdata==2026.5",
 	"urlextract==1.9.0",
 	"uvloop==0.22.1 ; sys_platform != 'win32'",
 	"validators==0.29.0",
@@ -41,13 +41,13 @@ dependencies = [
 [project.optional-dependencies]
 dev = [
 	"aioresponses==0.7.9",
-	"asyncpg-stubs==0.31.2",
+	"asyncpg-stubs==0.31.3",
 	"ruff==0.14.8",
 	"pre-commit==3.6.1",
 	"pyright==1.1.400",
 	"pytest==9.1.1",
 	"pytest-asyncio==1.4.0",
-	"pytest-mock==3.15.1",
+	"pytest-mock==3.16.0",
 	"toml==0.10.2",
 ]
 
