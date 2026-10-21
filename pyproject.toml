@@ -23,7 +23,7 @@ classifiers = [
 	"Typing :: Typed",
 ]
 dependencies = [
-	"asyncpg==0.31.0",
+	"asyncpg==0.32.0",
 	"discord.py[speed]==2.7.1",
 	"jishaku[procinfo]==2.7.5",
 	"niquests[speedups]==3.21.2",
@@ -41,7 +41,7 @@ dependencies = [
 [project.optional-dependencies]
 dev = [
 	"aioresponses==0.7.9",
-	"asyncpg-stubs==0.31.3",
+	"asyncpg-stubs==0.32.0",
 	"ruff==0.14.8",
 	"pre-commit==3.6.1",
 	"pyright==1.1.400",
