@@ -448,7 +448,9 @@ For the square ad banner and logo, use
             The member to get information about.
         """
         if not isinstance(member, discord.Member):
-            await ctx.reply(f"{member.name} (`{member.id}`) is not a member of this server. (Account created: {discord.utils.format_dt(member.created_at, 'F')})")
+            await ctx.reply(
+                f"{member.name} (`{member.id}`) is not a member of this server. (Account created: {discord.utils.format_dt(member.created_at, 'F')})"
+            )
             return
         roles = " ".join(role.mention for role in reversed(member.roles) if role.name != "@everyone") or "None"
         if len(roles) > 1024:

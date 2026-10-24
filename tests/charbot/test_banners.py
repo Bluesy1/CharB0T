@@ -2,7 +2,6 @@ import io
 import pathlib
 import sys
 from datetime import timedelta
-from os import environ
 
 import discord
 import pytest
@@ -101,10 +100,9 @@ def test_gradient_color_banner():
         assert got == expected, "Got unexpected banner"
 
 
-@pytest.mark.xfail(
-    # sys.platform == "win32" or environ.get("PYTHONLOCATION", "").startswith("/opt/hostedtoolcache"),
-    # reason="PIL not consistent between platforms due to various reasons",
-)
+# sys.platform == "win32" or environ.get("PYTHONLOCATION", "").startswith("/opt/hostedtoolcache"),
+# reason="PIL not consistent between platforms due to various reasons",
+@pytest.mark.xfail
 def test_image_background_banner():
     """Check the banner gets created properly with a gradient color background"""
     with (
