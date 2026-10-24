@@ -437,7 +437,7 @@ For the square ad banner and logo, use
     @commands.hybrid_command(name="whois", hidden=True)
     @app_commands.guilds(constants.GUILD_ID)
     @app_commands.default_permissions(moderate_members=True)
-    async def whois(self, ctx: Context, member: discord.Member):
+    async def whois(self, ctx: Context, member: discord.Member | discord.User):
         """Send a message about a member's information.
 
         Parameters
@@ -447,6 +447,9 @@ For the square ad banner and logo, use
         member: discord.Member
             The member to get information about.
         """
+        if not isinstance(member, discord.Member):
+            await ctx.reply(f"{member.name} (`{member.id}`) is not a member of this server. (Account created: {discord.utils.format_dt(member.created_at, 'F')})")
+            return
         roles = " ".join(role.mention for role in reversed(member.roles) if role.name != "@everyone") or "None"
         if len(roles) > 1024:
             roles = roles[:1021] + "..."
