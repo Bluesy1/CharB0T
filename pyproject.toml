@@ -45,8 +45,8 @@ dev = [
 	"ruff==0.14.8",
 	"pre-commit==3.6.1",
 	"pyright==1.1.400",
-	"pytest==9.1.1",
-	"pytest-asyncio==1.4.0",
+	"pytest==9.2.0",
+	"pytest-asyncio==1.4.1",
 	"pytest-mock==3.17.0",
 	"toml==0.10.2",
 ]
