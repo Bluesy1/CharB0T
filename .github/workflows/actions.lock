@@ -10,7 +10,7 @@ workflows:
         - 'jakebailey/pyright-action@v3.0.2'
     '.github/workflows/codeql.yml':
         - 'actions/checkout@v7.0.1'
-        - 'github/codeql-action@v4.36.3'
+        - 'github/codeql-action@v4.39.1'
     '.github/workflows/dependency-review.yml':
         - 'actions/checkout@v7.0.1'
         - 'actions/dependency-review-action@v5.0.0'
@@ -30,9 +30,9 @@ dependencies:
         commit: 'sha1-6d4fd22b20465ccc0f7354476588e8df7c9ca0e0'
         owner_id: 44036562
         repo_id: 192625525
-    'github/codeql-action@v4.36.3':
-        ref: 'v4.36.3'
-        commit: 'sha1-54f647b7e1bb85c95cddabcd46b0c578ec92bc1a'
+    'github/codeql-action@v4.39.1':
+        ref: 'v4.39.1'
+        commit: 'sha1-9b3254085494b55a0f7c4c2b3d2d52cc712ce370'
         owner_id: 9919
         repo_id: 259445878
     'ikalnytskyi/action-setup-postgres@v9':
