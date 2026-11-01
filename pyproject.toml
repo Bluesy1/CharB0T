@@ -32,7 +32,7 @@ dependencies = [
 	"pytesseract==0.3.13",
 	"sentry-sdk==2.60.0",
 	"typing-extensions==4.16.0",
-	"tzdata==2026.5",
+	"tzdata==2026.6",
 	"urlextract==1.10.0",
 	"uvloop==0.23.0 ; sys_platform != 'win32'",
 	"validators==0.29.0",
