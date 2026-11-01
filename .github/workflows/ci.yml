@@ -28,7 +28,7 @@ jobs:
     runs-on: ubuntu-26.04
     steps:
       - uses: actions/checkout@v7.0.1
-      - uses: actions/setup-python@v7.0.0
+      - uses: actions/setup-python@v7.1.0
         with:
           python-version: "3.13"
       - name: Dependencies
@@ -53,7 +53,7 @@ jobs:
       - uses: ikalnytskyi/action-setup-postgres@v9
         with:
           postgres-version: '18'
-      - uses: actions/setup-python@v7.0.0
+      - uses: actions/setup-python@v7.1.0
         with:
           python-version: ${{ matrix.python-version }}
           cache: "pip"
