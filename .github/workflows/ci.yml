@@ -10,7 +10,7 @@ on:
     - 'src/**'
     - 'Cargo.*'
     - 'pyproject.toml'
-    - '.github/workflows/ci.yml'
+    - '.github/workflows/**'
     - 'uv.lock'
   pull_request:
     types: [ opened, reopened, synchronize ]
@@ -20,7 +20,7 @@ on:
     - 'src/**'
     - 'Cargo.*'
     - 'pyproject.toml'
-    - '.github/workflows/ci.yml'
+    - '.github/workflows/**'
     - 'uv.lock'
 
 jobs:
@@ -70,3 +70,13 @@ jobs:
           warnings: false
           annotate: ${{ matrix.python-version != '3.13' && 'none' || 'all' }}
           version: 1.1.400 # Optional
+  verify-lockfile:
+    runs-on: ubuntu-latest
+    env:
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      - uses: actions/checkout@v7.0.1
+        with:
+          persist-credentials: false
+      - run: gh extension install github/gh-actions-lock --pin v0.4.1
+      - run: gh actions-lock --verify

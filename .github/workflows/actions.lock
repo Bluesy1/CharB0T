@@ -11,20 +11,12 @@ workflows:
     '.github/workflows/codeql.yml':
         - 'actions/checkout@v7.0.1'
         - 'github/codeql-action@v4.39.1'
-    '.github/workflows/dependency-review.yml':
-        - 'actions/checkout@v7.0.1'
-        - 'actions/dependency-review-action@v5.0.0'
 dependencies:
     'actions/checkout@v7.0.1':
         ref: 'v7.0.1'
         commit: 'sha1-3d3c42e5aac5ba805825da76410c181273ba90b1'
         owner_id: 44036562
         repo_id: 197814629
-    'actions/dependency-review-action@v5.0.0':
-        ref: 'v5.0.0'
-        commit: 'sha1-a1d282b36b6f3519aa1f3fc636f609c47dddb294'
-        owner_id: 44036562
-        repo_id: 476372928
     'actions/setup-python@v7.1.0':
         ref: 'v7.1.0'
         commit: 'sha1-6d4fd22b20465ccc0f7354476588e8df7c9ca0e0'
